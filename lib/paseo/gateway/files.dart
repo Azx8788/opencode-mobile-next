@@ -8,9 +8,10 @@ const _paseoMaxFileBytes = 2 * 1024 * 1024;
 /// (`file_explorer_request`, `directory_suggestions_request`).
 mixin _PaseoFilesApi on _PaseoWorkspaceBase {
   Future<List<FileNode>> listFiles(String path) async {
+    final target = _readTarget(path);
     final payload = await _workspaceRequest('file_explorer_request', {
-      'cwd': _scope,
-      'path': _relativeToScope(path),
+      'cwd': target.cwd,
+      'path': target.path,
       'mode': 'list',
     });
     final directory = payload['directory'];
@@ -28,6 +29,21 @@ mixin _PaseoFilesApi on _PaseoWorkspaceBase {
     return nodes;
   }
 
+  /// Where the daemon reads [path] from. A path inside the open folder is
+  /// read relative to it; an absolute path outside it (a picture the agent
+  /// saved to the daemon's temp folder, `/tmp/paseo-attachments-*/<hash>.png`)
+  /// is read from the filesystem root, as Paseo's own app does, because the
+  /// daemon refuses anything outside the `cwd` it is given.
+  ({String cwd, String path}) _readTarget(String path) {
+    final value = path.trim();
+    final root = _scope;
+    final outside =
+        value.startsWith('/') && value != root && !value.startsWith('$root/');
+    return outside
+        ? (cwd: '/', path: value)
+        : (cwd: root, path: _relativeToScope(value));
+  }
+
   FileNode _fileNode(Map<String, dynamic> entry) => FileNode(
     name: paseoString(entry['name'], max: 1024),
     path: paseoString(entry['path']),
@@ -35,9 +51,10 @@ mixin _PaseoFilesApi on _PaseoWorkspaceBase {
   );
 
   Future<FileContent> fileContent(String path) async {
+    final target = _readTarget(path);
     final payload = await _workspaceRequest('file_explorer_request', {
-      'cwd': _scope,
-      'path': _relativeToScope(path),
+      'cwd': target.cwd,
+      'path': target.path,
       'mode': 'file',
       'maxBytes': _paseoMaxFileBytes,
     });

@@ -166,6 +166,53 @@ void main() {
     expect(binary.content, isEmpty);
   });
 
+  test(
+    'a picture the agent saved outside the project is read from the root',
+    () async {
+      // Claude Code's screenshots land in the daemon's temp folder and the
+      // reply names them as `![Image](file:///tmp/paseo-attachments-*/…)`;
+      // with the project as `cwd` the daemon refuses them.
+      final shot = '/tmp/paseo-attachments-x1/${'ab12' * 16}.png';
+      daemon.handlers['file_explorer_request'] = (m) => (
+        'file_explorer_response',
+        {
+          'cwd': m['cwd'],
+          'path': m['path'],
+          'mode': m['mode'],
+          'directory': m['mode'] == 'list'
+              ? {
+                  'path': '/tmp/paseo-attachments-x1',
+                  'entries': [_entry('${'ab12' * 16}.png', 'file', path: shot)],
+                }
+              : null,
+          'file': m['mode'] == 'file'
+              ? {
+                  'path': shot,
+                  'kind': 'image',
+                  'encoding': 'base64',
+                  'content': 'AAEC',
+                  'mimeType': 'image/png',
+                  'size': 3,
+                  'modifiedAt': '2026-10-09T10:00:00.000Z',
+                }
+              : null,
+          'error': null,
+        },
+      );
+      final listed = await gateway.listFiles('/tmp/paseo-attachments-x1');
+      expect(listed.single.name, '${'ab12' * 16}.png');
+      final image = await gateway.fileContent(shot);
+      expect(image.bytes(), [0, 1, 2]);
+      await gateway.fileContent('$_dir/lib/a.png');
+      final sent = daemon.of('file_explorer_request');
+      expect(sent.map((m) => (m['cwd'], m['path'])), [
+        ('/', '/tmp/paseo-attachments-x1'),
+        ('/', shot),
+        (_dir, 'lib/a.png'),
+      ]);
+    },
+  );
+
   test('a refused read says it plainly, never the daemon text', () async {
     daemon.handlers['file_explorer_request'] = (_) => (
       'file_explorer_response',
