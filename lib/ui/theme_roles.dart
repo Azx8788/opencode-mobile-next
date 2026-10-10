@@ -660,3 +660,13 @@ ColorScheme schemeFromRoles(ThemeRoles roles, {ColorScheme? base}) {
     surfaceTint: Colors.transparent,
   );
 }
+
+/// The four inks of the picture markup pen (KitImageMarkup). They belong to
+/// the picture, not the theme: a red mark stays red, and white and black
+/// stay legible on a photo, in every pack.
+abstract final class MarkupInk {
+  static const red = Color(0xFFE5322D);
+  static const yellow = Color(0xFFFFD60A);
+  static const white = Color(0xFFFFFFFF);
+  static const black = Color(0xFF000000);
+}

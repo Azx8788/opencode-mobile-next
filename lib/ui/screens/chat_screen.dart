@@ -227,6 +227,7 @@ part 'chat/team_conversation_actions.dart';
 part 'chat/composer_tools.dart';
 part 'chat/agent_cards.dart';
 part 'chat/sent_photos.dart';
+part 'chat/chat_gallery.dart';
 
 AppLocalizations _chatL10n(BuildContext context) =>
     lookupAppLocalizations(Localizations.localeOf(context));
@@ -652,6 +653,10 @@ class _ChatScreenState extends State<ChatScreen>
     if (_conn.isIsolated || !_conn.capabilities.fileBrowsing) return;
     final path = stripPathLineSuffix(raw);
     final name = path.substring(path.lastIndexOf('/') + 1);
+    if (_drawablePictureName.hasMatch(name)) {
+      await _openPictureGallery('path:$path', fallbackPath: path);
+      return;
+    }
     try {
       final api = await _conn.prepareActionTransport();
       if (api == null) {

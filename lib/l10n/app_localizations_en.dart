@@ -29190,4 +29190,86 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get productErrorComputer =>
       'Couldn\'t reach your computer. Check it\'s on and connected, then try again.';
+
+  @override
+  String kitGalleryPosition(int current, int total) {
+    return '$current of $total';
+  }
+
+  @override
+  String kitGalleryPictureLabel(int current, int total, String name) {
+    return 'Picture $current of $total: $name';
+  }
+
+  @override
+  String get kitGalleryEdit => 'Edit';
+
+  @override
+  String get kitGallerySend => 'Send';
+
+  @override
+  String get kitGalleryLoading => 'Loading picture';
+
+  @override
+  String get kitGalleryLoadFailed => 'This picture could not be loaded';
+
+  @override
+  String get kitGalleryLoadFailedBody =>
+      'Check the connection, then try again.';
+
+  @override
+  String get kitGalleryTryAgain => 'Try again';
+
+  @override
+  String get kitMarkupTitle => 'Edit picture';
+
+  @override
+  String get kitMarkupColours => 'Pen colour';
+
+  @override
+  String get kitMarkupRed => 'Red';
+
+  @override
+  String get kitMarkupYellow => 'Yellow';
+
+  @override
+  String get kitMarkupWhite => 'White';
+
+  @override
+  String get kitMarkupBlack => 'Black';
+
+  @override
+  String get kitMarkupUndo => 'Undo';
+
+  @override
+  String get kitMarkupClear => 'Clear';
+
+  @override
+  String get kitMarkupCrop => 'Crop';
+
+  @override
+  String get kitMarkupApply => 'Apply';
+
+  @override
+  String get kitMarkupCancel => 'Cancel';
+
+  @override
+  String get kitMarkupDone => 'Done';
+
+  @override
+  String get kitMarkupCanvas =>
+      'Picture being edited. Draw on it with your finger.';
+
+  @override
+  String get kitMarkupCropHandle => 'Crop corner. Drag to resize.';
+
+  @override
+  String get kitMarkupCropArea => 'Crop area. Drag to move it.';
+
+  @override
+  String get kitMarkupFailed => 'The edited picture could not be made';
+
+  @override
+  String get kitMarkupFailedBody =>
+      'Try again, or go back and send the original.';
 }

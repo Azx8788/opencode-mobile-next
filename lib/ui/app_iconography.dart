@@ -279,6 +279,11 @@ abstract final class AppIconography {
     fontFamily: 'AppPhosphorRegular',
     matchTextDirection: false,
   );
+  static const crop = IconData(
+    0xe1d4,
+    fontFamily: 'AppPhosphorRegular',
+    matchTextDirection: false,
+  );
   static const pin = IconData(
     0xe3e2,
     fontFamily: 'AppPhosphorRegular',

@@ -363,6 +363,12 @@ class _MessageView extends StatelessWidget {
       thumbnailKey: thumbnail == null ? null : ValueKey('sent-photo-$id'),
       onOpen: reference
           ? null
+          : _chat(context) != null && thumbnail != null
+          ? () => unawaited(
+              _chat(context)!._openPictureGallery(
+                _pictureKeyOfPart(m.info.id, m.parts.indexOf(part)),
+              ),
+            )
           : serverPath != null
           ? () => unawaited(
               showFilePreviewSheetLoading(

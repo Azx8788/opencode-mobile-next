@@ -108,7 +108,7 @@ void main() {
 
     await tester.tap(find.byKey(const ValueKey('sent-photo-open-photo')));
     await _settle(tester);
-    expect(find.byKey(const ValueKey('file-preview-sheet')), findsOneWidget);
+    expect(find.byKey(const ValueKey('kit-gallery-pager')), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
   });
@@ -141,7 +141,7 @@ void main() {
 
     await tester.tap(find.byKey(const ValueKey('sent-photo-open-kept')));
     await _settle(tester);
-    expect(find.byKey(const ValueKey('file-preview-sheet')), findsOneWidget);
+    expect(find.byKey(const ValueKey('kit-gallery-pager')), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
   });

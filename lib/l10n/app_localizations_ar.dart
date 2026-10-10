@@ -29234,4 +29234,84 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get productErrorComputer =>
       'تعذّر الوصول إلى حاسوبك. تأكد من أنه يعمل ومتصل، ثم حاول مرة أخرى.';
+
+  @override
+  String kitGalleryPosition(int current, int total) {
+    return '$current من $total';
+  }
+
+  @override
+  String kitGalleryPictureLabel(int current, int total, String name) {
+    return 'الصورة $current من $total: $name';
+  }
+
+  @override
+  String get kitGalleryEdit => 'تعديل';
+
+  @override
+  String get kitGallerySend => 'إرسال';
+
+  @override
+  String get kitGalleryLoading => 'جارٍ تحميل الصورة';
+
+  @override
+  String get kitGalleryLoadFailed => 'تعذّر تحميل هذه الصورة';
+
+  @override
+  String get kitGalleryLoadFailedBody => 'تحقق من الاتصال ثم حاول مرة أخرى.';
+
+  @override
+  String get kitGalleryTryAgain => 'حاول مرة أخرى';
+
+  @override
+  String get kitMarkupTitle => 'تعديل الصورة';
+
+  @override
+  String get kitMarkupColours => 'لون القلم';
+
+  @override
+  String get kitMarkupRed => 'أحمر';
+
+  @override
+  String get kitMarkupYellow => 'أصفر';
+
+  @override
+  String get kitMarkupWhite => 'أبيض';
+
+  @override
+  String get kitMarkupBlack => 'أسود';
+
+  @override
+  String get kitMarkupUndo => 'تراجع';
+
+  @override
+  String get kitMarkupClear => 'مسح';
+
+  @override
+  String get kitMarkupCrop => 'اقتصاص';
+
+  @override
+  String get kitMarkupApply => 'تطبيق';
+
+  @override
+  String get kitMarkupCancel => 'إلغاء';
+
+  @override
+  String get kitMarkupDone => 'تم';
+
+  @override
+  String get kitMarkupCanvas => 'الصورة قيد التعديل. ارسم عليها بإصبعك.';
+
+  @override
+  String get kitMarkupCropHandle => 'زاوية الاقتصاص. اسحبها لتغيير الحجم.';
+
+  @override
+  String get kitMarkupCropArea => 'منطقة الاقتصاص. اسحبها لتحريكها.';
+
+  @override
+  String get kitMarkupFailed => 'تعذّر إنشاء الصورة المعدلة';
+
+  @override
+  String get kitMarkupFailedBody =>
+      'حاول مرة أخرى، أو ارجع وأرسل الصورة الأصلية.';
 }

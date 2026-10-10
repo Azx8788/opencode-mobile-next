@@ -35037,5 +35037,124 @@
   "productErrorComputer": "Couldn't reach your computer. Check it's on and connected, then try again.",
   "@productErrorComputer": {
     "description": "Failure words when the computer running Claude Code (Paseo) did not answer or could not do what was asked; the daemon's reason goes under Details"
+  },
+  "kitGalleryPosition": "{current} of {total}",
+  "@kitGalleryPosition": {
+    "description": "KitImageGallery: the position of the shown picture in the conversation, under its name",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "kitGalleryPictureLabel": "Picture {current} of {total}: {name}",
+  "@kitGalleryPictureLabel": {
+    "description": "KitImageGallery: what a screen reader says for the shown picture",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "kitGalleryEdit": "Edit",
+  "@kitGalleryEdit": {
+    "description": "KitImageGallery: opens the picture in the markup editor"
+  },
+  "kitGallerySend": "Send",
+  "@kitGallerySend": {
+    "description": "KitImageGallery and KitImageMarkup: puts the picture in the message field as a photo"
+  },
+  "kitGalleryLoading": "Loading picture",
+  "@kitGalleryLoading": {
+    "description": "KitImageGallery: a picture being read"
+  },
+  "kitGalleryLoadFailed": "This picture could not be loaded",
+  "@kitGalleryLoadFailed": {
+    "description": "KitImageGallery: a picture that could not be read"
+  },
+  "kitGalleryLoadFailedBody": "Check the connection, then try again.",
+  "@kitGalleryLoadFailedBody": {
+    "description": "KitImageGallery: the way forward under a picture that could not be read"
+  },
+  "kitGalleryTryAgain": "Try again",
+  "@kitGalleryTryAgain": {
+    "description": "KitImageGallery: reads the picture again"
+  },
+  "kitMarkupTitle": "Edit picture",
+  "@kitMarkupTitle": {
+    "description": "KitImageMarkup: the editor's title"
+  },
+  "kitMarkupColours": "Pen colour",
+  "@kitMarkupColours": {
+    "description": "KitImageMarkup: the name of the group of four pen colours"
+  },
+  "kitMarkupRed": "Red",
+  "@kitMarkupRed": {
+    "description": "KitImageMarkup: a pen colour"
+  },
+  "kitMarkupYellow": "Yellow",
+  "@kitMarkupYellow": {
+    "description": "KitImageMarkup: a pen colour"
+  },
+  "kitMarkupWhite": "White",
+  "@kitMarkupWhite": {
+    "description": "KitImageMarkup: a pen colour"
+  },
+  "kitMarkupBlack": "Black",
+  "@kitMarkupBlack": {
+    "description": "KitImageMarkup: a pen colour"
+  },
+  "kitMarkupUndo": "Undo",
+  "@kitMarkupUndo": {
+    "description": "KitImageMarkup: removes the last stroke"
+  },
+  "kitMarkupClear": "Clear",
+  "@kitMarkupClear": {
+    "description": "KitImageMarkup: removes every stroke and the crop"
+  },
+  "kitMarkupCrop": "Crop",
+  "@kitMarkupCrop": {
+    "description": "KitImageMarkup: starts choosing a rectangle to keep"
+  },
+  "kitMarkupApply": "Apply",
+  "@kitMarkupApply": {
+    "description": "KitImageMarkup: keeps the chosen crop rectangle"
+  },
+  "kitMarkupCancel": "Cancel",
+  "@kitMarkupCancel": {
+    "description": "KitImageMarkup: leaves the crop without applying it"
+  },
+  "kitMarkupDone": "Done",
+  "@kitMarkupDone": {
+    "description": "KitImageMarkup: returns the edited picture to the viewer"
+  },
+  "kitMarkupCanvas": "Picture being edited. Draw on it with your finger.",
+  "@kitMarkupCanvas": {
+    "description": "KitImageMarkup: the drawing surface's semantic label"
+  },
+  "kitMarkupCropHandle": "Crop corner. Drag to resize.",
+  "@kitMarkupCropHandle": {
+    "description": "KitImageMarkup: a crop corner handle's semantic label"
+  },
+  "kitMarkupCropArea": "Crop area. Drag to move it.",
+  "@kitMarkupCropArea": {
+    "description": "KitImageMarkup: the crop rectangle's semantic label"
+  },
+  "kitMarkupFailed": "The edited picture could not be made",
+  "@kitMarkupFailed": {
+    "description": "KitImageMarkup: the picture could not be rendered"
+  },
+  "kitMarkupFailedBody": "Try again, or go back and send the original.",
+  "@kitMarkupFailedBody": {
+    "description": "KitImageMarkup: the way forward after a failed render"
   }
 }

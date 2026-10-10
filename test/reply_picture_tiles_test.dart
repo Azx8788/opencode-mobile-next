@@ -152,7 +152,7 @@ void main() {
     // A tap on the thumbnail opens the file viewer.
     await tester.tap(home);
     await _settle(tester);
-    expect(find.byKey(const ValueKey('file-preview-sheet')), findsOneWidget);
+    expect(find.byKey(const ValueKey('kit-gallery-pager')), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
   });

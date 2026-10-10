@@ -62,6 +62,7 @@
 /// | [KitSince], [KitSincePhase], [KitSinceStatus], [KitSinceTicks] | the one wait timer: slow after a while, then minute ticks |
 /// | [KitTime] | F15 the one way a time is written: the clock in the person's 12/24-hour setting, a moment as clock, day or date |
 /// | [KitImage], [KitAvatar], [KitZoom], [KitZoomController] | kit v2 sharp raster images, the one identity mark, and the one pinch/pan/zoom viewer |
+/// | [KitImageGallery], [showKitImageGallery], [KitImageMarkup], [showKitImageMarkup] | the pictures of a conversation one swipe apart, and the pen and crop editor that sends a picture to the message field |
 /// | [KitQr] | kit v2 §5 a QR code another device can scan |
 /// | [KitSwatch], [KitSwatchGrid], [KitThemePreview] | kit v2 §5 choosing a theme or accent by looking, and a theme's live preview |
 /// | [KitLevelMeter] | the microphone's input level as bars (decorative) |
@@ -128,6 +129,8 @@ export 'kit_ask_line.dart';
 export 'kit_buttons.dart';
 export 'kit_effects.dart';
 export 'kit_icon_button.dart';
+export 'kit_image_gallery.dart';
+export 'kit_image_markup.dart';
 export 'kit_illustration.dart';
 export 'kit_layout.dart';
 export 'kit_motion.dart';

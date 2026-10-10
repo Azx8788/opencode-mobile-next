@@ -45934,6 +45934,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t reach your computer. Check it\'s on and connected, then try again.'**
   String get productErrorComputer;
+
+  /// KitImageGallery: the position of the shown picture in the conversation, under its name
+  ///
+  /// In en, this message translates to:
+  /// **'{current} of {total}'**
+  String kitGalleryPosition(int current, int total);
+
+  /// KitImageGallery: what a screen reader says for the shown picture
+  ///
+  /// In en, this message translates to:
+  /// **'Picture {current} of {total}: {name}'**
+  String kitGalleryPictureLabel(int current, int total, String name);
+
+  /// KitImageGallery: opens the picture in the markup editor
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get kitGalleryEdit;
+
+  /// KitImageGallery and KitImageMarkup: puts the picture in the message field as a photo
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get kitGallerySend;
+
+  /// KitImageGallery: a picture being read
+  ///
+  /// In en, this message translates to:
+  /// **'Loading picture'**
+  String get kitGalleryLoading;
+
+  /// KitImageGallery: a picture that could not be read
+  ///
+  /// In en, this message translates to:
+  /// **'This picture could not be loaded'**
+  String get kitGalleryLoadFailed;
+
+  /// KitImageGallery: the way forward under a picture that could not be read
+  ///
+  /// In en, this message translates to:
+  /// **'Check the connection, then try again.'**
+  String get kitGalleryLoadFailedBody;
+
+  /// KitImageGallery: reads the picture again
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get kitGalleryTryAgain;
+
+  /// KitImageMarkup: the editor's title
+  ///
+  /// In en, this message translates to:
+  /// **'Edit picture'**
+  String get kitMarkupTitle;
+
+  /// KitImageMarkup: the name of the group of four pen colours
+  ///
+  /// In en, this message translates to:
+  /// **'Pen colour'**
+  String get kitMarkupColours;
+
+  /// KitImageMarkup: a pen colour
+  ///
+  /// In en, this message translates to:
+  /// **'Red'**
+  String get kitMarkupRed;
+
+  /// KitImageMarkup: a pen colour
+  ///
+  /// In en, this message translates to:
+  /// **'Yellow'**
+  String get kitMarkupYellow;
+
+  /// KitImageMarkup: a pen colour
+  ///
+  /// In en, this message translates to:
+  /// **'White'**
+  String get kitMarkupWhite;
+
+  /// KitImageMarkup: a pen colour
+  ///
+  /// In en, this message translates to:
+  /// **'Black'**
+  String get kitMarkupBlack;
+
+  /// KitImageMarkup: removes the last stroke
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get kitMarkupUndo;
+
+  /// KitImageMarkup: removes every stroke and the crop
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get kitMarkupClear;
+
+  /// KitImageMarkup: starts choosing a rectangle to keep
+  ///
+  /// In en, this message translates to:
+  /// **'Crop'**
+  String get kitMarkupCrop;
+
+  /// KitImageMarkup: keeps the chosen crop rectangle
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get kitMarkupApply;
+
+  /// KitImageMarkup: leaves the crop without applying it
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get kitMarkupCancel;
+
+  /// KitImageMarkup: returns the edited picture to the viewer
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get kitMarkupDone;
+
+  /// KitImageMarkup: the drawing surface's semantic label
+  ///
+  /// In en, this message translates to:
+  /// **'Picture being edited. Draw on it with your finger.'**
+  String get kitMarkupCanvas;
+
+  /// KitImageMarkup: a crop corner handle's semantic label
+  ///
+  /// In en, this message translates to:
+  /// **'Crop corner. Drag to resize.'**
+  String get kitMarkupCropHandle;
+
+  /// KitImageMarkup: the crop rectangle's semantic label
+  ///
+  /// In en, this message translates to:
+  /// **'Crop area. Drag to move it.'**
+  String get kitMarkupCropArea;
+
+  /// KitImageMarkup: the picture could not be rendered
+  ///
+  /// In en, this message translates to:
+  /// **'The edited picture could not be made'**
+  String get kitMarkupFailed;
+
+  /// KitImageMarkup: the way forward after a failed render
+  ///
+  /// In en, this message translates to:
+  /// **'Try again, or go back and send the original.'**
+  String get kitMarkupFailedBody;
 }
 
 class _AppLocalizationsDelegate
