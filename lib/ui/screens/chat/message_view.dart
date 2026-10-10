@@ -646,6 +646,11 @@ class _MessageView extends StatelessWidget {
           filePreviewLoader: filePreviewLoader,
           onAttachFile: onAttachFile,
           onDownloadFile: onDownloadFile,
+          onOpenImage: chat == null
+              ? null
+              : (file) => unawaited(
+                  chat._openPictureGallery('tool:${file.identity}'),
+                ),
           onOpenSession: onOpenSession,
           waitingForYou: chat?._toolWaitsForYou(part) ?? false,
           onRerunCommand: chat?._rerunShellCommand,

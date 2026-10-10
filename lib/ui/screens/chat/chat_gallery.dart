@@ -49,13 +49,13 @@ extension _ChatGallery on _ChatScreenState {
     );
   }
 
-  /// Every picture in the transcript, in order. A picture a reply names in
-  /// Markdown is included only when the host can read it.
-  Future<List<_ChatPicture>> _conversationPictures({String? keep}) async {
+  /// Every picture in the transcript, in order, without waiting on the host.
+  /// A Markdown picture the host already said it cannot find is left out;
+  /// any other that proves unreadable shows the gallery's own error page.
+  List<_ChatPicture> _conversationPictures() {
     final strings = _chatL10n(context);
     final found = <_ChatPicture>[];
     final seen = <String>{};
-    final unchecked = <String>[];
     void add(_ChatPicture picture) {
       if (seen.add(picture.key)) found.add(picture);
     }
@@ -109,8 +109,7 @@ extension _ChatGallery on _ChatScreenState {
                   !image.drawable) {
                 continue;
               }
-              if (seen.contains('path:$path')) continue;
-              unchecked.add(path);
+              if (_pathLinkMissAt.containsKey(path)) continue;
               add(_pathPicture(path));
             }
           }
@@ -138,34 +137,21 @@ extension _ChatGallery on _ChatScreenState {
         }
       }
     }
-    // Markdown pictures the host cannot read would be broken pages.
-    final unreadable = <String>{};
-    await Future.wait([
-      for (final path in unchecked.toSet())
-        if ('path:$path' != keep)
-          _validatePathLink(path).then((ok) {
-            if (!ok) unreadable.add('path:$path');
-          }),
-    ]);
-    return [
-      for (final picture in found)
-        if (!unreadable.contains(picture.key)) picture,
-    ];
+    return found;
   }
 
   /// Opens the gallery on the picture with [key]. [fallbackPath] is shown
   /// (after the others) when the transcript does not hold it.
   Future<void> _openPictureGallery(String key, {String? fallbackPath}) async {
     if (_conn.isIsolated) return;
-    var pictures = await _conversationPictures(keep: key);
-    if (!mounted) return;
+    var pictures = _conversationPictures();
     var index = pictures.indexWhere((picture) => picture.key == key);
     if (index < 0 && fallbackPath != null) {
       pictures = [...pictures, _pathPicture(fallbackPath)];
       index = pictures.length - 1;
     }
     if (index < 0 || pictures.isEmpty) return;
-    var added = false;
+    String? sentName;
     await showKitImageGallery(
       context,
       pictures: [
@@ -190,7 +176,7 @@ extension _ChatGallery on _ChatScreenState {
                     bytes: bytes,
                   ),
                 );
-                added = true;
+                sentName = name;
                 return true;
               } catch (error) {
                 if (mounted) showProductError(context, error);
@@ -199,10 +185,9 @@ extension _ChatGallery on _ChatScreenState {
             }
           : null,
     );
-    if (!mounted || !added) return;
+    final attached = sentName;
+    if (!mounted || attached == null) return;
     _focus.requestFocus();
-    _showComposerNote(
-      _chatL10n(context).chatUiFileAttached(pictures[index].name),
-    );
+    _showComposerNote(_chatL10n(context).chatUiFileAttached(attached));
   }
 }

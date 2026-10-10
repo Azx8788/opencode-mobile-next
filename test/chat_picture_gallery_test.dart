@@ -89,6 +89,23 @@ List<MessageWithParts> _conversation() {
       ),
       parts: [
         Part(
+          id: 'part_tool',
+          messageID: 'msg_assistant',
+          type: 'tool',
+          callID: 'call_1',
+          toolName: 'screenshot',
+          toolState: ToolState(
+            status: 'completed',
+            outputFiles: const [
+              ToolOutputFile(
+                url: 'data:image/png;base64,$_png',
+                filename: 'tool.png',
+                mimeType: 'image/png',
+              ),
+            ],
+          ),
+        ),
+        Part(
           id: 'part_reply',
           messageID: 'msg_assistant',
           type: 'text',
@@ -143,9 +160,9 @@ void main() {
     await _pump(tester);
     await tester.tap(find.byKey(const ValueKey('sent-photo-open-two')));
     await _settle(tester);
-    // two sent photos, then the one picture the server can read: three. The
+    // two sent photos, the tool's picture and the one the server can read. The
     // reply's missing.png is not a page.
-    expect(find.text('2 of 3'), findsOneWidget);
+    expect(find.text('2 of 4'), findsOneWidget);
 
     await tester.fling(
       find.byKey(const ValueKey('kit-gallery-pager')),
@@ -153,7 +170,7 @@ void main() {
       1500,
     );
     await _settle(tester);
-    expect(find.text('3 of 3'), findsOneWidget);
+    expect(find.text('3 of 4'), findsOneWidget);
     await tester.fling(
       find.byKey(const ValueKey('kit-gallery-pager')),
       const Offset(400, 0),
@@ -165,8 +182,18 @@ void main() {
       1500,
     );
     await _settle(tester);
-    expect(find.text('1 of 3'), findsOneWidget);
+    expect(find.text('1 of 4'), findsOneWidget);
     expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('a tool picture opens the same gallery', (tester) async {
+    await _pump(tester);
+    final image = find.byKey(const Key('tool-output-image'));
+    expect(image, findsOneWidget);
+    await tester.tap(image);
+    await _settle(tester);
+    expect(find.text('3 of 4'), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
@@ -177,10 +204,18 @@ void main() {
     expect(find.byKey(const Key('attachment-thumbnail')), findsNothing);
     await tester.tap(find.byKey(const ValueKey('sent-photo-open-one')));
     await _settle(tester);
+    await tester.fling(
+      find.byKey(const ValueKey('kit-gallery-pager')),
+      const Offset(-400, 0),
+      1500,
+    );
+    await _settle(tester);
     await tester.tap(find.byKey(const ValueKey('kit-gallery-send')));
     await _settle(tester);
 
     expect(find.byKey(const ValueKey('kit-gallery-pager')), findsNothing);
+    // The note names the picture that was sent, not the one tapped.
+    expect(find.text('two.png attached. Add your comment.'), findsOneWidget);
     expect(find.byKey(const Key('attachment-thumbnail')), findsOneWidget);
     expect(_fieldFocused(tester), isTrue);
     // Nothing was sent: the conversation holds the same two messages.

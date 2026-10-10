@@ -70,6 +70,7 @@ class _ImagePreview extends StatelessWidget {
     required this.onRetry,
     this.onAttach,
     this.onDownload,
+    this.onOpen,
   });
 
   final ToolOutputFile file;
@@ -77,6 +78,7 @@ class _ImagePreview extends StatelessWidget {
   final VoidCallback onRetry;
   final ToolOutputFileAction? onAttach;
   final ToolOutputFileAction? onDownload;
+  final ValueChanged<ToolOutputFile>? onOpen;
 
   @override
   Widget build(BuildContext context) {
@@ -117,16 +119,18 @@ class _ImagePreview extends StatelessWidget {
         return KitTappable(
           label: l10n.chatUiPreviewGeneratedImage(file.displayName),
           shape: KitShape.code,
-          onTap: () => showFilePreviewSheet(
-            context,
-            previewData,
-            onAttach: onAttach == null
-                ? null
-                : () => onAttach!(file, previewData),
-            onDownload: onDownload == null
-                ? null
-                : () => onDownload!(file, previewData),
-          ),
+          onTap: () => onOpen != null
+              ? onOpen!(file)
+              : showFilePreviewSheet(
+                  context,
+                  previewData,
+                  onAttach: onAttach == null
+                      ? null
+                      : () => onAttach!(file, previewData),
+                  onDownload: onDownload == null
+                      ? null
+                      : () => onDownload!(file, previewData),
+                ),
           child: AspectRatio(
             aspectRatio: 16 / 9,
             child: KitImage(

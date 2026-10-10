@@ -79,6 +79,10 @@ class ToolCard extends StatefulWidget {
   final ToolOutputFileAction? onAttachFile;
   final ToolOutputFileAction? onDownloadFile;
 
+  /// Opens a produced picture in the host's gallery; null keeps the
+  /// single-file viewer.
+  final ValueChanged<ToolOutputFile>? onOpenImage;
+
   /// Opens the child session a `task` tool call delegated to, given its id.
   /// Null keeps the delegation a foldable step (prompt and result inline)
   /// instead of the agent line that opens its conversation.
@@ -115,6 +119,7 @@ class ToolCard extends StatefulWidget {
     this.expansionKey,
     this.filePreviewLoader,
     this.onAttachFile,
+    this.onOpenImage,
     this.onDownloadFile,
     this.onOpenSession,
     this.waitingForYou = false,
@@ -347,6 +352,7 @@ class _ToolCardState extends State<ToolCard> {
           onRetry: () => _retryPreview(file),
           onAttach: widget.onAttachFile,
           onDownload: widget.onDownloadFile,
+          onOpen: widget.onOpenImage,
         )
       : _FileRow(
           file: file,
