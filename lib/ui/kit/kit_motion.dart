@@ -122,6 +122,13 @@ abstract final class KitMotion {
   /// The glowing border's strength easing in and out.
   static const Duration edgeLightHueFade = Duration(milliseconds: 450);
 
+  /// A running step's light: one lap, the tick's stay, the glyph's spring back
+  /// and the name's sweep (KitStepTimeline.md).
+  static const Duration stepLap = Duration(milliseconds: 1600);
+  static const Duration stepTick = Duration(milliseconds: 600);
+  static const Duration stepSpring = Duration(milliseconds: 260);
+  static const Duration stepSweep = Duration(milliseconds: 2200);
+
   static const Curve enter = Curves.easeOutCubic;
   static const Curve exit = Curves.easeInCubic;
   static const Curve emphasized = Curves.easeInOutCubicEmphasized;

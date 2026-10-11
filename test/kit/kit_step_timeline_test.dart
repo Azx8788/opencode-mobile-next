@@ -118,6 +118,29 @@ void main() {
       ),
     },
     changes: {
+      'a running step finishes': KitMotionChange(
+        build: () => _timeline(
+          steps: const [
+            KitToolRow(
+              kind: KitToolKind.edit,
+              title: 'Edit',
+              status: KitToolStatus.running,
+            ),
+          ],
+        ),
+        act: (tester, stage) => stage.rebuild(
+          _timeline(
+            steps: const [
+              KitToolRow(
+                kind: KitToolKind.edit,
+                title: 'Edit',
+                status: KitToolStatus.done,
+              ),
+            ],
+          ),
+        ),
+        shows: 'Edit',
+      ),
       'steps open': KitMotionChange(
         build: () => _timeline(expanded: false),
         act: (tester, stage) => stage.rebuild(_timeline(expanded: true)),
@@ -351,7 +374,7 @@ void main() {
       // no tile.
     });
 
-    testWidgets('the step in progress carries the one live mark', (
+    testWidgets('the step in progress carries the one live light', (
       tester,
     ) async {
       await _pump(
@@ -375,8 +398,10 @@ void main() {
         reduceMotion: false,
       );
       await tester.pump(const Duration(milliseconds: 100));
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-      expect(find.byType(KitStatusMark), findsOneWidget);
+      // The step keeps its glyph; no spinner, no status mark (KitStepLight).
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+      expect(find.byType(KitStatusMark), findsNothing);
+      expect(find.byKey(const ValueKey('kit-step-light')), findsOneWidget);
     });
 
     testWidgets('failed and waiting steps show their state on the rail', (
