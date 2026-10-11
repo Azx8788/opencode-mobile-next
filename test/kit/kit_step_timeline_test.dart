@@ -426,7 +426,9 @@ void main() {
       );
       expect(find.text('Failed'), findsOneWidget);
       expect(find.text('Waiting for you'), findsOneWidget);
-      expect(find.byType(KitStatusMark), findsNWidgets(2));
+      // Failed settles on its mark; waiting holds a filled attention outline.
+      expect(find.byType(KitStatusMark), findsOneWidget);
+      expect(find.byKey(const ValueKey('kit-step-light')), findsOneWidget);
     });
 
     testWidgets('the same row outside a timeline is unchanged', (tester) async {

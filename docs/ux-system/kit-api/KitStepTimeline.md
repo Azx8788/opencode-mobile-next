@@ -97,12 +97,25 @@ The glyph column, the rail and the nodes sit at the start edge (the right under 
 
 The timeline builds the steps it is given, in a column. The host keeps long work cheap: `KitWorkLine` builds at most `stepCap` steps at a time and reveals earlier ones in chunks (PERF-2).
 
-## The running step's light (2026-10-11, owner pick "A + B · One light")
+## Node states and the running light (2026-10-11, owner picks "From above, both sides" and a look per state)
 
-`KitStepTimeline.node(live: true)` (what `KitToolRow` passes for a running step) keeps the step's glyph, tinted `accent`, and draws one light over the node and the rail. `KitStepTimeline.sweep(active:, child:)` puts a soft light sweep over the step's name. `KitToolRow(startedAt:)` adds a seconds counter at the end of a running step (`KitTurnLive.elapsedText`: "12 s", "1 min 5 s"; tabular figures; ticks through `KitSince`). Private parts `_StepLight`, `_StepSweep`; names in `KitMotion.step*`.
+`KitStepTimeline.node(state: KitStepNodeState)` (what `KitToolRow` passes) draws the step's glyph in its tile and, per state, an outline or the light over it (`lib/ui/kit/chat/kit_step_light.dart`, a part of the timeline library). `KitStepTimeline.sweep(context, active:, child:)` sweeps a soft light over a running step's name. `KitToolRow(startedAt:)` adds a seconds counter (`KitTurnLive.elapsedText`, tabular figures). `KitStepTimeline(stalled: true)` holds every light where it is, dimmed, while the connection is down (not yet passed by the chat screen; the kit side is done).
 
-- The light orbits the node's rounded edge from its bottom centre (68% of a 1.6 s lap; Calm 3.2 s), leaves down the rail and fades (vertical gradient, opaque at the node), then the next lap. Head 12 dp, stroke 2.2 dp, `accent`, round caps; tail 30 dp at 35%.
-- The last step has no rail under it: the light draws a 14 dp fading one.
-- Finish: light stops, a `success` tick shows 600 ms, the glyph grows back (size .4 to 1, `KitMotion.land`, 260 ms; by icon size, not a transform, since G21/MOT-2 forbids scale). A failed step keeps its failed mark.
-- Reduced motion, Animations: Off, `KitMotion.loops` false: a still `accent` outline round the node, a still name; only the counter ticks.
-- One `AnimationController` per running node, disposed with it; `TickerMode` pauses it off-screen. The collapsed group header keeps its working mark (not changed).
+| State (`KitToolStatus`) | Look |
+| --- | --- |
+| queued (`pending`, `notRun`) | dim neutral outline, no light |
+| running | the light, below |
+| waiting (`waitingForYou`) | outline filled in `attention`, breathing 0.5 to 1 over 1.6 s; nothing travels |
+| background | the light, 4 s lap, 60% intensity |
+| done | tick flash 600 ms, glyph grows back (size .4 to 1, 260 ms); only after running or background |
+| failed | outline flashes `danger` 300 ms, then the failed mark |
+| stopped | the light fades out over 200 ms, glyph stays, no tick |
+| stalled (host flag) | light and name sweep freeze, 50% intensity |
+
+The lap (2 s; Calm doubles it): 0 to 28% one 14 dp light down the rail above the node, fading in, `easeInOutQuad`; 26 to 66% it splits at the node's top centre and both halves fill the outline down each side at once (fill 1.8 dp, 8 dp head 2.6 dp), meeting at the bottom centre; 64 to 95% one 14 dp light on down the rail below the node, `easeOutQuad`, fading out; 70 to 100% the filled outline dims from .75 to 0.
+
+Geometry is real, read at paint time: the outline is the tile's own rounded rectangle (`size * .3` radius) with the stroke inside the edge, split at the top and bottom centre; the rail light is on the rail's own x and width (device-pixel aligned); the distance above and below is measured to the real previous (or the group header's rail stub) and next node through the timeline's registry of slot boxes, so rows that open or resize mid-lap never leave it on stale numbers. The last step has no next node: it draws its own 14 dp fading rail. Round caps only on the moving heads; the fill has butt ends.
+
+Reduced motion, Animations: Off, `KitMotion.loops` false: running is a still filled `accent` outline, waiting a still filled `attention` outline, the name is still; only the counter ticks. One lazily made `AnimationController` per moving node, disposed with it; `TickerMode` pauses it off-screen. Names in `KitMotion.step*`.
+
+Not in the model, so not built: a "settled by the transcript safety net" state (the host maps it to stopped or notRun, which show no tick), per-step connection state (only the turn knows; `stalled` is the hook), and a header outline (the collapsed group line keeps its working mark).

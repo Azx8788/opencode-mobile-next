@@ -124,10 +124,17 @@ abstract final class KitMotion {
 
   /// A running step's light: one lap, the tick's stay, the glyph's spring back
   /// and the name's sweep (KitStepTimeline.md).
-  static const Duration stepLap = Duration(milliseconds: 1600);
+  static const Duration stepLap = Duration(milliseconds: 2000);
+  static const Duration stepLapCalm = Duration(milliseconds: 4000);
+  static const Duration stepBreathe = Duration(milliseconds: 1600);
+  static const Duration stepFlash = Duration(milliseconds: 300);
+  static const Duration stepFade = Duration(milliseconds: 200);
   static const Duration stepTick = Duration(milliseconds: 600);
   static const Duration stepSpring = Duration(milliseconds: 260);
   static const Duration stepSweep = Duration(milliseconds: 2200);
+
+  static const Curve stepEase = Curves.easeInOutQuad;
+  static const Curve stepOut = Curves.easeOutQuad;
 
   static const Curve enter = Curves.easeOutCubic;
   static const Curve exit = Curves.easeInCubic;

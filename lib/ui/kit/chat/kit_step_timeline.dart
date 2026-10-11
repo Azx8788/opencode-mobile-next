@@ -16,7 +16,6 @@
 // No glass, no shadow, no size animation (MOT-5): the opened steps appear at
 // once and the host may fade them in. The rail mirrors under Arabic.
 import 'dart:math' as math;
-import 'dart:ui' show PathMetric;
 
 import 'package:flutter/material.dart';
 
@@ -30,6 +29,8 @@ import '../kit_tappable.dart';
 import '../kit_text.dart';
 import '../kit_tokens.dart';
 import '../motion/kit_motion_parts.dart';
+
+part 'kit_step_light.dart';
 
 /// A few lines of what a file write or edit changed, for the timeline's
 /// preview card: at most [maxLines] lines with their numbers, and whether
@@ -166,6 +167,35 @@ class KitStepPreview {
   static final _hunkHeader = RegExp(r'^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@');
 }
 
+/// How a step's node looks (KitStepTimeline.md "Node states").
+enum KitStepNodeState {
+  /// A plain node: the glyph in its tile.
+  none,
+
+  /// Not started: a dim neutral outline, no light.
+  queued,
+
+  /// In progress: the glyph in accent and one light round the node and down
+  /// the rail.
+  running,
+
+  /// A long-running background process: the same light, calmer.
+  background,
+
+  /// Waiting on the person: the outline holds filled in the attention role
+  /// and breathes; nothing travels.
+  waiting,
+
+  /// Finished: a tick flash when it was in progress, then the glyph.
+  done,
+
+  /// Failed: the outline flashes the danger role once, then [mark].
+  failed,
+
+  /// Stopped by the person: the light fades out, the glyph stays, no tick.
+  stopped,
+}
+
 /// A turn's work as one quiet line that opens in place to a timeline.
 ///
 /// The line is [icon], [label] and a chevron (or the live [mark] in the
@@ -175,7 +205,7 @@ class KitStepPreview {
 /// the glyph, the state, which steps to build, the fade ([fade]).
 ///
 /// States: none — it lays out the line and the steps it is given.
-class KitStepTimeline extends StatelessWidget {
+class KitStepTimeline extends StatefulWidget {
   const KitStepTimeline({
     super.key,
     required this.label,
@@ -189,6 +219,7 @@ class KitStepTimeline extends StatelessWidget {
     this.fade,
     this.lineKey,
     this.stepsKey,
+    this.stalled = false,
   });
 
   /// The line's words ("Read 3 files · ran 8 commands").
@@ -226,6 +257,10 @@ class KitStepTimeline extends StatelessWidget {
   /// On the opened steps (today's `Key('work-group-steps')`).
   final Key? stepsKey;
 
+  /// The connection is down while steps run: their lights hold where they
+  /// are, dimmed, and go on when it is back.
+  final bool stalled;
+
   /// Whether [context] sits inside a timeline's rail.
   static bool inside(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<_RailScope>() != null;
@@ -236,10 +271,9 @@ class KitStepTimeline extends StatelessWidget {
   ///
   /// [lineHeight] is the height of the first line of [child] at 1.0 text
   /// scale (22 for a row title, 20 for a sentence) and [top] is where that
-  /// line starts inside [child]; the node centres on it. [live] (with an
-  /// [icon]) is a step in progress: it keeps its glyph and the one light
-  /// travels its edge and the rail ([KitStepLight]); when [live] turns off the
-  /// node flashes a tick and springs back to the glyph.
+  /// line starts inside [child]; the node centres on it. [state] (with an
+  /// [icon]) says how the step stands: see [KitStepNodeState]. [mark] is
+  /// what a failed step settles on.
   static Widget node(
     BuildContext context, {
     required Widget child,
@@ -247,7 +281,7 @@ class KitStepTimeline extends StatelessWidget {
     double top = 0,
     IconData? icon,
     Widget? mark,
-    bool live = false,
+    KitStepNodeState state = KitStepNodeState.none,
   }) {
     if (!inside(context)) return child;
     return _StepNode(
@@ -255,16 +289,25 @@ class KitStepTimeline extends StatelessWidget {
       top: top,
       icon: icon,
       mark: mark,
-      live: live,
-      last: context.dependOnInheritedWidgetOfExactType<_RailScope>()!.last,
+      state: state,
+      scope: context.dependOnInheritedWidgetOfExactType<_RailScope>()!,
       child: child,
     );
   }
 
   /// [child] (a running step's name) with a soft light sweeping over it while
   /// [active]; still when the light does not move.
-  static Widget sweep({required bool active, required Widget child}) =>
-      _StepSweep(active: active, child: child);
+  static Widget sweep(
+    BuildContext context, {
+    required bool active,
+    required Widget child,
+  }) {
+    final scope = context.dependOnInheritedWidgetOfExactType<_RailScope>();
+    return _StepSweep(
+      active: active && !(scope?.stalled ?? false),
+      child: child,
+    );
+  }
 
   /// A sentence between steps (prose the agent said while it worked) with a
   /// dot on the rail. Outside a timeline it is [child] unchanged.
@@ -272,6 +315,7 @@ class KitStepTimeline extends StatelessWidget {
     if (!inside(context)) return child;
     final tokens = KitTokens.of(context);
     return _StepNode(
+      scope: context.dependOnInheritedWidgetOfExactType<_RailScope>()!,
       lineHeight: 24,
       top: tokens.space1,
       child: Padding(
@@ -322,20 +366,30 @@ class KitStepTimeline extends StatelessWidget {
   }
 
   @override
+  State<KitStepTimeline> createState() => _KitStepTimelineState();
+}
+
+class _KitStepTimelineState extends State<KitStepTimeline> {
+  final _RailRegistry _registry = _RailRegistry();
+
+  @override
   Widget build(BuildContext context) {
-    final hasSteps = steps.isNotEmpty || head != null;
+    final hasSteps = widget.steps.isNotEmpty || widget.head != null;
+    final registry = _registry..nodes.clear();
     final line = _StepLine(
-      label: label,
-      icon: icon,
-      mark: mark,
-      expanded: expanded,
-      railBelow: expanded && hasSteps,
-      onPressed: onPressed,
-      spoken: spoken ?? label,
-      lineKey: lineKey,
+      registry: registry,
+      label: widget.label,
+      icon: widget.icon,
+      mark: widget.mark,
+      expanded: widget.expanded,
+      railBelow: widget.expanded && hasSteps,
+      onPressed: widget.onPressed,
+      spoken: widget.spoken ?? widget.label,
+      lineKey: widget.lineKey,
     );
-    final open = expanded && hasSteps;
-    final count = steps.length + (head == null ? 0 : 1);
+    final open = widget.expanded && hasSteps;
+    final count = widget.steps.length + (widget.head == null ? 0 : 1);
+    registry.count = open ? count : 0;
     // One shape open or shut: the line never remounts, so keyboard focus
     // stays on it when it toggles.
     Widget? rail = open
@@ -343,21 +397,36 @@ class KitStepTimeline extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (head != null) _RailSlot(last: count == 1, child: head!),
-              for (var i = 0; i < steps.length; i++)
-                _RailSlot(last: i == steps.length - 1, child: steps[i]),
+              if (widget.head != null)
+                _RailSlot(
+                  key: registry.keyFor(0),
+                  index: 0,
+                  registry: registry,
+                  stalled: widget.stalled,
+                  last: count == 1,
+                  child: widget.head!,
+                ),
+              for (var i = 0; i < widget.steps.length; i++)
+                _RailSlot(
+                  key: registry.keyFor(i + (widget.head == null ? 0 : 1)),
+                  index: i + (widget.head == null ? 0 : 1),
+                  registry: registry,
+                  stalled: widget.stalled,
+                  last: i == widget.steps.length - 1,
+                  child: widget.steps[i],
+                ),
             ],
           )
         : null;
-    if (rail != null && fade != null) {
-      rail = FadeTransition(opacity: fade!, child: rail);
+    if (rail != null && widget.fade != null) {
+      rail = FadeTransition(opacity: widget.fade!, child: rail);
     }
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         line,
-        if (rail != null) KeyedSubtree(key: stepsKey, child: rail),
+        if (rail != null) KeyedSubtree(key: widget.stepsKey, child: rail),
       ],
     );
   }
@@ -455,21 +524,73 @@ class _RailPainter extends CustomPainter {
 /// Marks the subtree as sitting on a rail (what [KitStepTimeline.inside]
 /// reads). It carries nothing: the measures come from the tokens.
 class _RailScope extends InheritedWidget {
-  const _RailScope({required this.last, required super.child});
+  const _RailScope({
+    required this.last,
+    required this.index,
+    required this.registry,
+    required this.stalled,
+    required super.child,
+  });
 
   /// The step is the last of its timeline (its rail ends at its node).
   final bool last;
 
+  /// The step's place in the timeline, and the timeline's geometry book.
+  final int index;
+  final _RailRegistry registry;
+  final bool stalled;
+
   @override
-  bool updateShouldNotify(_RailScope old) => old.last != last;
+  bool updateShouldNotify(_RailScope old) =>
+      old.last != last ||
+      old.index != index ||
+      old.registry != registry ||
+      old.stalled != stalled;
+}
+
+/// What the lights need to know about the rows around them, read at paint
+/// time from the real render boxes, so a row that opens or resizes mid-lap
+/// never leaves the light on stale numbers.
+class _RailRegistry {
+  final List<GlobalKey> _slotKeys = [];
+  final Map<int, ({double top, double bottom})> nodes = {};
+  final GlobalKey headerKey = GlobalKey();
+
+  /// Where the header's rail stub starts, in the header's own box.
+  double headerStart = 0;
+  int count = 0;
+
+  GlobalKey keyFor(int index) {
+    while (_slotKeys.length <= index) {
+      _slotKeys.add(GlobalKey());
+    }
+    return _slotKeys[index];
+  }
+
+  RenderBox? box(GlobalKey key) {
+    final object = key.currentContext?.findRenderObject();
+    return object is RenderBox && object.attached && object.hasSize
+        ? object
+        : null;
+  }
 }
 
 /// One step's place on the rail: the rail's stroke behind it and the node
 /// column kept free at the start. Every slot but the last runs to its bottom
 /// so the strokes join; the last ends at its node.
 class _RailSlot extends StatelessWidget {
-  const _RailSlot({required this.last, required this.child});
+  const _RailSlot({
+    super.key,
+    required this.index,
+    required this.registry,
+    required this.stalled,
+    required this.last,
+    required this.child,
+  });
 
+  final int index;
+  final _RailRegistry registry;
+  final bool stalled;
   final bool last;
   final Widget child;
 
@@ -479,6 +600,9 @@ class _RailSlot extends StatelessWidget {
     final rtl = Directionality.of(context) == TextDirection.rtl;
     return _RailScope(
       last: last,
+      index: index,
+      registry: registry,
+      stalled: stalled,
       child: CustomPaint(
         painter: _RailPainter(
           color: rail.color,
@@ -501,6 +625,7 @@ class _RailSlot extends StatelessWidget {
 
 class _StepLine extends StatelessWidget {
   const _StepLine({
+    required this.registry,
     required this.label,
     required this.icon,
     required this.mark,
@@ -511,6 +636,7 @@ class _StepLine extends StatelessWidget {
     required this.lineKey,
   });
 
+  final _RailRegistry registry;
   final String label;
   final IconData icon;
   final Widget? mark;
@@ -600,7 +726,9 @@ class _StepLine extends StatelessWidget {
     // Always wrapped, so opening never remounts the line (keyboard focus
     // stays on it); the rail's stub is drawn only while the steps show.
     final startY = pad + first / 2 + rail.glyph / 2 + tokens.space1;
+    registry.headerStart = startY;
     return CustomPaint(
+      key: registry.headerKey,
       painter: railBelow
           ? _RailPainter(
               color: rail.color,
@@ -617,78 +745,6 @@ class _StepLine extends StatelessWidget {
 }
 
 // ── Nodes ─────────────────────────────────────────────────────────────────
-
-/// Draws a node in the free column at the start of its slot, beside the
-/// first line of [child]. The node sits outside [child]'s own box (it is
-/// decoration: no semantics, no taps), so [child] keeps its full width.
-class _StepNode extends StatelessWidget {
-  const _StepNode({
-    required this.child,
-    required this.lineHeight,
-    required this.top,
-    this.icon,
-    this.mark,
-    this.live = false,
-    this.last = false,
-  });
-
-  final Widget child;
-  final double lineHeight;
-  final double top;
-  final IconData? icon;
-  final Widget? mark;
-  final bool live;
-  final bool last;
-
-  /// The rail under the last running step, so the light has somewhere to go.
-  static const double _tailRail = 14;
-
-  /// How far the light follows a rail that goes on (a row is 48 dp at least,
-  /// so the next step is never nearer).
-  static const double _runRail = 22;
-
-  @override
-  Widget build(BuildContext context) {
-    final rail = _Rail(context);
-    final roles = rail.tokens.roles;
-    final Widget node;
-    if (mark != null) {
-      node = mark!;
-    } else if (icon != null) {
-      final size = rail.glyph;
-      node = _StepLight(
-        icon: icon!,
-        size: size,
-        live: live,
-        railBelow: last ? _tailRail : _runRail,
-        fadeOut: last,
-      );
-    } else {
-      node = SizedBox.square(
-        dimension: _dot,
-        child: DecoratedBox(
-          decoration: BoxDecoration(color: roles.text3, shape: BoxShape.circle),
-        ),
-      );
-    }
-    return Stack(
-      clipBehavior: Clip.none,
-      fit: StackFit.passthrough,
-      children: [
-        child,
-        PositionedDirectional(
-          start: -rail.column,
-          top: top,
-          width: rail.glyph,
-          height: rail.line(lineHeight),
-          child: ExcludeSemantics(child: Center(child: node)),
-        ),
-      ],
-    );
-  }
-
-  static const double _dot = 6;
-}
 
 // ── The preview card ──────────────────────────────────────────────────────
 
@@ -835,388 +891,5 @@ class _PreviewRow extends StatelessWidget {
       ),
     );
     return tint == null ? row : ColoredBox(color: tint, child: row);
-  }
-}
-
-// ── The light ─────────────────────────────────────────────────────────────
-
-/// Whether the light may travel here; false draws the still outline.
-bool _lightMoves(BuildContext context) =>
-    KitMotion.loops &&
-    !KitMotion.reduced(context) &&
-    KitEffects.of(context).motion != KitMotionLevel.off;
-
-/// The node of a step in progress or just finished: [icon] in a tile of
-/// [size], and over it the travelling light while [live]. [railBelow] is how
-/// far the rail runs under the node (the light follows it); [fadeOut] draws
-/// that rail itself, fading (the last step has none of its own).
-class _StepLight extends StatefulWidget {
-  const _StepLight({
-    required this.icon,
-    required this.size,
-    required this.live,
-    required this.railBelow,
-    required this.fadeOut,
-  });
-
-  final IconData icon;
-  final double size;
-  final bool live;
-  final double railBelow;
-  final bool fadeOut;
-
-  /// One lap, in the light's own measures.
-  static const Duration lap = KitMotion.stepLap;
-  static const double head = 12;
-  static const double tail = 30;
-  static const double stroke = 2.2;
-
-  /// How long the tick shows, then the glyph springs back over [spring].
-  static const Duration tickFor = KitMotion.stepTick;
-  static const Duration spring = KitMotion.stepSpring;
-
-  @override
-  State<_StepLight> createState() => _StepLightState();
-}
-
-class _StepLightState extends State<_StepLight> with TickerProviderStateMixin {
-  late final AnimationController _lap = AnimationController(
-    vsync: this,
-    duration: _StepLight.lap,
-  );
-  late final AnimationController _finish = AnimationController(
-    vsync: this,
-    duration: _StepLight.tickFor + _StepLight.spring,
-  );
-  bool _moving = false;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _syncLap();
-  }
-
-  @override
-  void didUpdateWidget(covariant _StepLight old) {
-    super.didUpdateWidget(old);
-    if (old.live && !widget.live) {
-      if (KitMotion.reduced(context)) {
-        _finish.value = 1;
-      } else {
-        _finish.forward(from: 0);
-      }
-    } else if (!old.live && widget.live) {
-      _finish.value = 1;
-    }
-    _syncLap();
-  }
-
-  void _syncLap() {
-    _moving = widget.live && _lightMoves(context);
-    if (!_moving) {
-      _lap.stop();
-      return;
-    }
-    _lap.duration = KitEffects.of(context).motion == KitMotionLevel.calm
-        ? _StepLight.lap * 2
-        : _StepLight.lap;
-    if (!_lap.isAnimating) _lap.repeat();
-  }
-
-  @override
-  void dispose() {
-    _lap.dispose();
-    _finish.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final roles = KitTokens.of(context).roles;
-    final size = widget.size;
-    final radius = size * .3;
-    final live = widget.live;
-
-    Widget glyph = AnimatedBuilder(
-      animation: _finish,
-      builder: (context, _) {
-        final spent = _finish.value * _finish.duration!.inMilliseconds;
-        final tickMs = _StepLight.tickFor.inMilliseconds;
-        final ticking = !live && _finish.isAnimating && spent < tickMs;
-        if (ticking) {
-          return Icon(
-            AppIconography.check,
-            key: const ValueKey('kit-step-tick'),
-            size: size * .7,
-            color: roles.success,
-          );
-        }
-        var scale = 1.0;
-        if (!live && _finish.isAnimating) {
-          final t = (spent - tickMs) / _StepLight.spring.inMilliseconds;
-          scale = .4 + .6 * KitMotion.land.transform(t.clamp(0.0, 1.0));
-        }
-        // The glyph grows back by its own size, not by a transform.
-        return Icon(
-          widget.icon,
-          size: size * .7 * scale,
-          color: live ? roles.accent : roles.text2,
-        );
-      },
-    );
-
-    final tile = SizedBox.square(
-      dimension: size,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: roles.surface3,
-          borderRadius: BorderRadius.circular(radius),
-        ),
-        child: Center(child: glyph),
-      ),
-    );
-    if (!live) return tile;
-
-    final reducedLook = !_moving;
-    return SizedBox.square(
-      dimension: size,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Positioned.fill(child: tile),
-          PositionedDirectional(
-            start: 0,
-            top: 0,
-            width: size,
-            height: size + widget.railBelow,
-            child: IgnorePointer(
-              child: RepaintBoundary(
-                child: CustomPaint(
-                  key: const ValueKey('kit-step-light'),
-                  painter: _LightPainter(
-                    progress: reducedLook ? null : _lap,
-                    size: size,
-                    radius: radius,
-                    run: widget.railBelow,
-                    color: roles.accent,
-                    rail: widget.fadeOut ? roles.text3 : null,
-                    stroke: _StepLight.stroke,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Draws the still outline (no [progress]) or the light at the lap's phase.
-class _LightPainter extends CustomPainter {
-  _LightPainter({
-    required this.progress,
-    required this.size,
-    required this.radius,
-    required this.run,
-    required this.color,
-    required this.rail,
-    required this.stroke,
-  }) : super(repaint: progress);
-
-  final Animation<double>? progress;
-  final double size;
-  final double radius;
-  final double run;
-  final Color color;
-
-  /// The fading rail to draw under the node (the last step), or null.
-  final Color? rail;
-  final double stroke;
-
-  /// The node's edge from its bottom centre, round once, then down the rail.
-  Path _path({required bool withRail}) {
-    final r = radius;
-    final c = size / 2;
-    final path = Path()
-      ..moveTo(c, size)
-      ..lineTo(r, size)
-      ..arcTo(
-        Rect.fromLTWH(0, size - 2 * r, 2 * r, 2 * r),
-        math.pi / 2,
-        math.pi / 2,
-        false,
-      )
-      ..lineTo(0, r)
-      ..arcTo(Rect.fromLTWH(0, 0, 2 * r, 2 * r), math.pi, math.pi / 2, false)
-      ..lineTo(size - r, 0)
-      ..arcTo(
-        Rect.fromLTWH(size - 2 * r, 0, 2 * r, 2 * r),
-        -math.pi / 2,
-        math.pi / 2,
-        false,
-      )
-      ..lineTo(size, size - r)
-      ..arcTo(
-        Rect.fromLTWH(size - 2 * r, size - 2 * r, 2 * r, 2 * r),
-        0,
-        math.pi / 2,
-        false,
-      )
-      ..lineTo(c, size);
-    if (withRail && run > 0) path.lineTo(c, size + run);
-    return path;
-  }
-
-  @override
-  void paint(Canvas canvas, Size canvasSize) {
-    final line = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..strokeWidth = stroke;
-    final progress = this.progress;
-    if (progress == null) {
-      canvas.drawPath(_path(withRail: false), line..color = color);
-      return;
-    }
-    final rect = Rect.fromLTWH(-4, -4, size + 8, size + run + 8);
-    final fade = Rect.fromLTWH(-4, size, size + 8, run + 4);
-    canvas.saveLayer(rect, Paint());
-    if (rail != null && run > 0) {
-      canvas.drawLine(
-        Offset(size / 2, size),
-        Offset(size / 2, size + run),
-        Paint()
-          ..color = rail!.withValues(alpha: .5)
-          ..strokeWidth = 1.2,
-      );
-    }
-    final metric = _path(withRail: true).computeMetrics().first;
-    final around = _path(withRail: false).computeMetrics().first.length;
-    final total = metric.length;
-    const share = .68;
-    final p = progress.value;
-    final f = p < share
-        ? p / share * around
-        : around + (p - share) / (1 - share) * (total - around);
-    _stroke(
-      canvas,
-      metric,
-      f - _StepLight.tail,
-      f,
-      line..color = color.withValues(alpha: .35),
-    );
-    _stroke(canvas, metric, f - _StepLight.head, f, line..color = color);
-    if (run > 0) {
-      canvas.drawRect(
-        fade,
-        Paint()
-          ..blendMode = BlendMode.dstIn
-          ..shader = LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [color, color.withValues(alpha: 0)],
-          ).createShader(Rect.fromLTWH(0, size, size, run)),
-      );
-    }
-    canvas.restore();
-  }
-
-  void _stroke(
-    Canvas canvas,
-    PathMetric metric,
-    double from,
-    double to,
-    Paint paint,
-  ) {
-    final a = from.clamp(0.0, metric.length);
-    final b = to.clamp(0.0, metric.length);
-    if (b - a <= 0) return;
-    canvas.drawPath(metric.extractPath(a, b), paint);
-  }
-
-  @override
-  bool shouldRepaint(_LightPainter old) =>
-      old.progress != progress ||
-      old.size != size ||
-      old.radius != radius ||
-      old.run != run ||
-      old.color != color ||
-      old.rail != rail;
-}
-
-/// The running step's name with a soft light sweep over it (2.2 s a pass);
-/// still when the light does not move.
-class _StepSweep extends StatefulWidget {
-  const _StepSweep({required this.active, required this.child});
-
-  final bool active;
-  final Widget child;
-
-  @override
-  State<_StepSweep> createState() => _StepSweepState();
-}
-
-class _StepSweepState extends State<_StepSweep>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _sweep = AnimationController(
-    vsync: this,
-    duration: KitMotion.stepSweep,
-  );
-  bool _moving = false;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _sync();
-  }
-
-  @override
-  void didUpdateWidget(covariant _StepSweep old) {
-    super.didUpdateWidget(old);
-    _sync();
-  }
-
-  void _sync() {
-    _moving = widget.active && _lightMoves(context);
-    if (!_moving) {
-      _sweep.stop();
-    } else if (!_sweep.isAnimating) {
-      _sweep.repeat();
-    }
-  }
-
-  @override
-  void dispose() {
-    _sweep.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (!_moving) return widget.child;
-    final roles = KitTokens.of(context).roles;
-    final rtl = Directionality.of(context) == TextDirection.rtl;
-    return AnimatedBuilder(
-      animation: _sweep,
-      child: widget.child,
-      builder: (context, child) {
-        final t = _sweep.value;
-        final centre = -0.3 + 1.6 * (rtl ? 1 - t : t);
-        return ShaderMask(
-          key: const ValueKey('kit-step-sweep'),
-          blendMode: BlendMode.srcIn,
-          shaderCallback: (bounds) => LinearGradient(
-            colors: [roles.text1, roles.accent, roles.text1],
-            stops: [
-              (centre - 0.18).clamp(0.0, 1.0),
-              centre.clamp(0.0, 1.0),
-              (centre + 0.18).clamp(0.0, 1.0),
-            ],
-          ).createShader(bounds),
-          child: child,
-        );
-      },
-    );
   }
 }

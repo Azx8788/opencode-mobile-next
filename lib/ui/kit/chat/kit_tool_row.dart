@@ -345,7 +345,8 @@ class _KitToolRowState extends State<KitToolRow>
     final row = widget;
     final status = row.status;
     // A running step keeps its glyph; the one light on its node is its mark.
-    final live = status == KitToolStatus.running;
+    final live =
+        status == KitToolStatus.running || status == KitToolStatus.background;
     final word = KitToolRow.wordFor(context, status);
     final durationWords = _finished(status)
         ? _durationWords(l10n, row.duration)
@@ -358,6 +359,7 @@ class _KitToolRowState extends State<KitToolRow>
     final label = _labelOf(l10n, row, word, durationWords);
 
     final Widget titleText = KitStepTimeline.sweep(
+      context,
       active: live,
       child: KitText(
         row.title,
@@ -561,14 +563,23 @@ class _KitToolRowState extends State<KitToolRow>
       ],
     );
 
-    final mark = live ? null : _stepMark(status);
+    // Every state keeps the glyph; only a failure settles on its mark.
+    final nodeState = switch (status) {
+      KitToolStatus.running => KitStepNodeState.running,
+      KitToolStatus.background => KitStepNodeState.background,
+      KitToolStatus.waitingForYou => KitStepNodeState.waiting,
+      KitToolStatus.pending || KitToolStatus.notRun => KitStepNodeState.queued,
+      KitToolStatus.done => KitStepNodeState.done,
+      KitToolStatus.failed => KitStepNodeState.failed,
+      KitToolStatus.stopped => KitStepNodeState.stopped,
+    };
     return KitStepTimeline.node(
       context,
       lineHeight: 22,
       top: tokens.space1,
-      icon: mark == null ? _glyphFor(row.kind) : null,
-      mark: mark,
-      live: live,
+      icon: _glyphFor(row.kind),
+      mark: status == KitToolStatus.failed ? _stepMark(status) : null,
+      state: nodeState,
       child: column,
     );
   }
