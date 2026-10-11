@@ -57,7 +57,7 @@ class TermuxBridge {
   ///
   /// Keep this in step with the shell fallback in [_managerScript]
   /// (`requested_version="${2:-…}"`); a test asserts the two agree.
-  static const defaultOpenCodeVersion = '1.18.32';
+  static const defaultOpenCodeVersion = '1.19.0';
 
   /// The npm dist-tag, available only when a caller passes it to
   /// [installAndServeScript] on purpose. Nothing in the app does today: it

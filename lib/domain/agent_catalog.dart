@@ -255,19 +255,19 @@ AgentCatalog _builtInCatalog() {
 
   const github = 'https://github.com';
   final gemini = archive(
-    'https://registry.npmjs.org/@google/gemini-cli/-/gemini-cli-0.62.0.tgz',
-    '2276032b1c33d2b828b1cf197e52f48e74b0a395326763ff01a80d97d0fbc0c3',
+    'https://registry.npmjs.org/@google/gemini-cli/-/gemini-cli-0.63.0.tgz',
+    '97a6edfc10645463b517f0518d46a8c72efbdc12558a9a948607f726284a0420',
     'package/bundle/gemini.js',
-    bytes: 20787241,
-    installedBytes: 98359283,
+    bytes: 20810043,
+    installedBytes: 98439442,
     format: AgentArtifactFormat.npmTarGz,
   );
   final qwen = archive(
-    'https://registry.npmjs.org/@qwen-code/qwen-code/-/qwen-code-0.24.7.tgz',
-    '64430248ab6e996fc0c6b9a0789361f868c3b97f83d16210e0424e51dffc5fa9',
+    'https://registry.npmjs.org/@qwen-code/qwen-code/-/qwen-code-0.25.0.tgz',
+    'afeab0c85d682f201101319ce05decf3302d7ed7fb6319baa6a592051ea1a1ba',
     'package/cli-entry.js',
-    bytes: 31240308,
-    installedBytes: 109140236,
+    bytes: 33195960,
+    installedBytes: 116286799,
     format: AgentArtifactFormat.npmTarGz,
   );
   return AgentCatalog(
@@ -279,17 +279,17 @@ AgentCatalog _builtInCatalog() {
         'opencode',
         AgentSignInMethod.apiKeyHost,
         AgentInstallRecipe(
-          version: '1.18.32',
+          version: '1.19.0',
           executable: 'opencode',
           artifacts: {
             AgentArchitecture.arm64: archive(
-              '$github/anomalyco/opencode/releases/download/v1.18.32/opencode-linux-arm64.tar.gz',
-              '568461b7d4d8c19865c97e9a1102e613049c6039d01fe772154de873c1865840',
+              '$github/anomalyco/opencode/releases/download/v1.19.0/opencode-linux-arm64.tar.gz',
+              'e9841d43d3e1a8f36ed2691592d3b8b4fb097e606c8b559a277a1b845840e26b',
               'opencode',
             ),
             AgentArchitecture.x64: archive(
-              '$github/anomalyco/opencode/releases/download/v1.18.32/opencode-linux-x64-baseline.tar.gz',
-              '763af386ef88a8cab18df00fcf055690e5a55e31a7088beabe02307142a6adce',
+              '$github/anomalyco/opencode/releases/download/v1.19.0/opencode-linux-x64-baseline.tar.gz',
+              '6334d70db3990721ea454357e9cf2573c8685524ad7769af9d52cbffb7008438',
               'opencode',
             ),
           },
@@ -352,22 +352,22 @@ AgentCatalog _builtInCatalog() {
         'codex',
         AgentSignInMethod.browserOAuthHost,
         AgentInstallRecipe(
-          version: '0.160.0',
+          version: '0.162.1',
           executable: 'codex',
           artifacts: {
             AgentArchitecture.arm64: archive(
-              '$github/openai/codex/releases/download/rust-v0.160.0/codex-aarch64-unknown-linux-musl.tar.gz',
-              '883620139925f677e5a12c95ba87a1d7f421388ebb797b1c10aba42a04ede9d7',
+              '$github/openai/codex/releases/download/rust-v0.162.1/codex-aarch64-unknown-linux-musl.tar.gz',
+              'bf3ca2719f1143b1440fbd85c149379e696c782c50ad7991f8bfcec60b2600c1',
               'codex-aarch64-unknown-linux-musl',
-              bytes: 101627917,
-              installedBytes: 248966648,
+              bytes: 103595962,
+              installedBytes: 254866040,
             ),
             AgentArchitecture.x64: archive(
-              '$github/openai/codex/releases/download/rust-v0.160.0/codex-x86_64-unknown-linux-musl.tar.gz',
-              '306865417d4ee7a927785852910a527f41e1e159add390ac5ae3accb67d44a13',
+              '$github/openai/codex/releases/download/rust-v0.162.1/codex-x86_64-unknown-linux-musl.tar.gz',
+              '86f268d81b898f3e144c5ecff2ad2fda2c5802e042d6195b72538fe0fa125057',
               'codex-x86_64-unknown-linux-musl',
-              bytes: 109304578,
-              installedBytes: 289101384,
+              bytes: 111350218,
+              installedBytes: 294415048,
             ),
           },
           launchArgs: ['app-server'],
@@ -381,7 +381,7 @@ AgentCatalog _builtInCatalog() {
         'gemini',
         AgentSignInMethod.browserOAuthHost,
         AgentInstallRecipe(
-          version: '0.62.0',
+          version: '0.63.0',
           executable: 'gemini',
           artifacts: {
             AgentArchitecture.arm64: gemini,
@@ -399,7 +399,7 @@ AgentCatalog _builtInCatalog() {
         'qwen',
         AgentSignInMethod.apiKeyHost,
         AgentInstallRecipe(
-          version: '0.24.7',
+          version: '0.25.0',
           executable: 'qwen',
           artifacts: {
             AgentArchitecture.arm64: qwen,
@@ -417,22 +417,22 @@ AgentCatalog _builtInCatalog() {
         'goose',
         AgentSignInMethod.apiKeyHost,
         AgentInstallRecipe(
-          version: '1.53.0',
+          version: '1.54.0',
           executable: 'goose',
           artifacts: {
             AgentArchitecture.arm64: archive(
-              '$github/aaif-goose/goose/releases/download/v1.53.0/goose-aarch64-unknown-linux-gnu.tar.gz',
-              '01a0ea109e1984e7a511ff3f99d1a29d32e6f90f0852b5a3b416499c8eaae567',
+              '$github/aaif-goose/goose/releases/download/v1.54.0/goose-aarch64-unknown-linux-gnu.tar.gz',
+              '0f174b5118a53888cd4e65b7ca9a4b72dd0b887e89142c8ce41e2409205e40d5',
               './goose',
-              bytes: 94681336,
-              installedBytes: 285182872,
+              bytes: 93850226,
+              installedBytes: 294298272,
             ),
             AgentArchitecture.x64: archive(
-              '$github/aaif-goose/goose/releases/download/v1.53.0/goose-x86_64-unknown-linux-gnu.tar.gz',
-              'deb2191a6b75acc0a20232fc5c52655ea2f9cc8fa2f5dffc8622e8d378a915dc',
+              '$github/aaif-goose/goose/releases/download/v1.54.0/goose-x86_64-unknown-linux-gnu.tar.gz',
+              'ab396c95aebbd28b4d38c175234be8d4a3ea0c96e7ccb24c307e4618c9be57e1',
               './goose',
-              bytes: 94629008,
-              installedBytes: 298665904,
+              bytes: 90912367,
+              installedBytes: 307756800,
             ),
           },
           launchArgs: ['acp'],
@@ -474,22 +474,22 @@ AgentCatalog _builtInCatalog() {
         'fx',
         AgentSignInMethod.browserOAuthHost,
         AgentInstallRecipe(
-          version: '0.0.12',
+          version: '0.0.13',
           executable: 'fx',
           artifacts: {
             AgentArchitecture.arm64: archive(
-              '$github/vercel-labs/fx/releases/download/v0.0.12/fx-linux-aarch64.tar.gz',
-              '7265ecebf881ec4050d24fa4fac660ed86dfd11395fcde47b491dc084be1e61e',
+              '$github/vercel-labs/fx/releases/download/v0.0.13/fx-linux-aarch64.tar.gz',
+              '78f6a8171193a1d2033f93d1b5a2940ea4a62147daf60a37ae670a9bf85f12e9',
               'fx',
-              bytes: 5406247,
-              installedBytes: 10652080,
+              bytes: 5692736,
+              installedBytes: 11167446,
             ),
             AgentArchitecture.x64: archive(
-              '$github/vercel-labs/fx/releases/download/v0.0.12/fx-linux-x86_64.tar.gz',
-              'c510956b92404a00f3054b4be0d378188f9f5217497555048de353b8f0e52d80',
+              '$github/vercel-labs/fx/releases/download/v0.0.13/fx-linux-x86_64.tar.gz',
+              '53a3b30ce1541048f8fa4b42b7bc68161466bb2e3708db104449a58af3807430',
               'fx',
-              bytes: 5482652,
-              installedBytes: 12520232,
+              bytes: 5787883,
+              installedBytes: 13194918,
             ),
           },
           launchArgs: ['acp'],

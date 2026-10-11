@@ -3,7 +3,7 @@ import 'scripts/script_support.dart' show termuxManagedServerPort;
 /// The runtime selected for the one app-managed Ubuntu server. It is separate
 /// from a server's reported version and survives restarts in the manager state.
 enum TermuxRuntime {
-  openCode1('opencode1', '1.18.32'),
+  openCode1('opencode1', '1.19.0'),
   openCode2('opencode2', '2.0.10');
 
   const TermuxRuntime(this.wireName, this.pinnedVersion);

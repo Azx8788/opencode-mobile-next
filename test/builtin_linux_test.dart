@@ -449,10 +449,10 @@ void main() {
     // slice-builtin-opencode-pin, 2026-09-28).
     test('the Termux manager script changes only on purpose', () {
       final script = TermuxBridge.managerScriptForTesting();
-      expect(script.length, 51956);
+      expect(script.length, 51954);
       expect(
         sha256.convert(utf8.encode(script)).toString(),
-        '8239c9f461a74e49a531393090dcee0a23dfe51194bfb2009a4a72d2a1f869b3',
+        'e86c0fa05d2fcadec609c189231e33af3398a17e7d41e407f5820cfa52ea6d06',
       );
     });
 

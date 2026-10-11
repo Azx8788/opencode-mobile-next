@@ -531,8 +531,8 @@ void main() {
     expect(prefs.getString('${phoneAgentInstallPrefix}phone'), isNull);
   });
   for (final sample in [
-    (id: 'codex', expectedBytes: 465514826),
-    (id: 'goose', expectedBytes: 460456104),
+    (id: 'codex', expectedBytes: 472874130),
+    (id: 'goose', expectedBytes: 468715890),
     (id: 'omp-acp', expectedBytes: 628181952),
     (id: 'fx', expectedBytes: 300000000),
   ]) {
