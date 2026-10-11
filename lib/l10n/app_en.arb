@@ -33394,6 +33394,10 @@
   "@chatUiToolBackgroundTaskFailed": {
     "description": "Chat journey: step title for the agent's notice that a background task it started failed"
   },
+  "chatUiToolBackgroundTaskEnded": "Background task ended",
+  "@chatUiToolBackgroundTaskEnded": {
+    "description": "Chat journey: step title for the agent's notice that a background task ended without saying whether it finished, failed or was stopped (for example it was cut off when the previous session ended)"
+  },
   "chatUiToolBackgroundTaskStopped": "Background task stopped",
   "@chatUiToolBackgroundTaskStopped": {
     "description": "Chat journey: step title for the agent's notice that a background task it started was stopped"

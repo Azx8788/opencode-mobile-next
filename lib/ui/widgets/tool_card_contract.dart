@@ -19,6 +19,7 @@ enum _ToolKind {
   plan,
   worktreeSetup,
   connectorSearch,
+  backgroundNotice,
   generic,
 }
 
@@ -371,16 +372,18 @@ class _ToolContract {
         break;
       case _ when isBackgroundTaskNotice(name):
         // Claude Code's notice that a background task it started ended.
-        kind = _ToolKind.generic;
+        kind = _ToolKind.backgroundNotice;
         title = switch (backgroundTaskEnd(input)) {
           BackgroundTaskEnd.failed => strings.chatUiToolBackgroundTaskFailed,
           BackgroundTaskEnd.stopped => strings.chatUiToolBackgroundTaskStopped,
           BackgroundTaskEnd.finished =>
             strings.chatUiToolBackgroundTaskFinished,
+          BackgroundTaskEnd.ended => strings.chatUiToolBackgroundTaskEnded,
         };
         subtitle =
             _valueString(input['summary']) ??
-            _valueString(input['description']);
+            _valueString(input['description']) ??
+            _valueString(input['name']);
       case 'toolsearch':
         // Claude Code looking up which of its tools to load.
         kind = _ToolKind.generic;
@@ -497,7 +500,9 @@ class _ToolContract {
     _ToolKind.question => KitToolKind.question,
     _ToolKind.skill => KitToolKind.skill,
     _ToolKind.connectorSearch => KitToolKind.search,
-    _ToolKind.generic || _ToolKind.worktreeSetup => KitToolKind.other,
+    _ToolKind.generic ||
+    _ToolKind.worktreeSetup ||
+    _ToolKind.backgroundNotice => KitToolKind.other,
   };
 }
 

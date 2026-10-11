@@ -172,6 +172,7 @@ class _ToolBody extends StatelessWidget {
       _ToolKind.lsp => [_lspBody()],
       _ToolKind.skill => [_skillBody()],
       _ToolKind.connectorSearch => _connectorSearchBody(context),
+      _ToolKind.backgroundNotice => _backgroundNoticeBody(),
       _ToolKind.generic => _genericBody(context),
     };
   }
@@ -698,6 +699,25 @@ class _ToolBody extends StatelessWidget {
     return output?.trim().isNotEmpty == true
         ? _Prose(text: output!, name: 'skill.md')
         : _genericInput();
+  }
+
+  /// A background task's notice as plain sentences, each said once: the
+  /// host often repeats the same sentence as the task's name and its output.
+  List<Widget> _backgroundNoticeBody() {
+    final seen = <String>{};
+    final texts = [
+      for (final value in [
+        state.input['summary'],
+        state.input['description'],
+        state.input['name'],
+        state.output,
+      ])
+        if (_valueString(value) case final text? when seen.add(text)) text,
+    ];
+    return [
+      for (final text in texts)
+        KitText(text, role: KitTextRole.body, tone: KitTextTone.secondary),
+    ];
   }
 
   /// What a connector search found, in words: one row per connector with

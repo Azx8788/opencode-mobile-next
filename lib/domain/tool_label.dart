@@ -25,16 +25,28 @@ bool isBackgroundTaskNotice(String id) =>
     id.trim().toLowerCase() == 'task_notification';
 
 /// How a background task ended, by its notice's `status`.
-enum BackgroundTaskEnd { finished, failed, stopped }
+/// How a background task ended. [ended] is the honest default when the
+/// notice does not say: a task cut off with its session must never read as
+/// finished.
+enum BackgroundTaskEnd { finished, failed, stopped, ended }
 
 BackgroundTaskEnd backgroundTaskEnd(Map<String, dynamic> input) =>
     switch (input['status']?.toString().trim().toLowerCase()) {
+      'completed' ||
+      'complete' ||
+      'finished' ||
+      'success' ||
+      'succeeded' ||
+      'done' => BackgroundTaskEnd.finished,
       'failed' || 'error' => BackgroundTaskEnd.failed,
       'killed' ||
       'stopped' ||
       'cancelled' ||
-      'canceled' => BackgroundTaskEnd.stopped,
-      _ => BackgroundTaskEnd.finished,
+      'canceled' ||
+      'interrupted' ||
+      'lost' ||
+      'orphaned' => BackgroundTaskEnd.stopped,
+      _ => BackgroundTaskEnd.ended,
     };
 
 /// A tool id as lower-case words: "render_mermaid_diagram" → "render mermaid

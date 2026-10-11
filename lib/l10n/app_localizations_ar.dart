@@ -27999,10 +27999,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get recentErrorGeneric => 'حدث خطأ ما';
 
   @override
-  String get chatUiToolBackgroundTaskFinished => 'انتهت مهمة في الخلفية';
+  String get chatUiToolBackgroundTaskFinished => 'اكتملت مهمة في الخلفية';
 
   @override
   String get chatUiToolBackgroundTaskFailed => 'فشلت مهمة في الخلفية';
+
+  @override
+  String get chatUiToolBackgroundTaskEnded => 'انتهت مهمة في الخلفية';
 
   @override
   String get chatUiToolBackgroundTaskStopped => 'أُوقفت مهمة في الخلفية';

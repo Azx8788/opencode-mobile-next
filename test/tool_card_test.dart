@@ -135,6 +135,32 @@ void _shellTests() {
     });
   }
 
+  // Owner phone, 2026-10-11: a task cut off with its session read
+  // "Background task finished" and said its one sentence three times.
+  testWidgets('a notice without a status says ended, and its sentence once', (
+    tester,
+  ) async {
+    const sentence =
+        "Background shell command didn't finish before the previous session "
+        'ended';
+    await _pumpTool(
+      tester,
+      name: 'task_notification',
+      state: ToolState.fromJson(const {
+        'status': 'completed',
+        'input': {'name': sentence},
+        'output': sentence,
+        'metadata': <String, Object?>{},
+      }, toolName: 'task_notification'),
+    );
+    expect(_text('Background task ended'), findsOneWidget);
+    expect(_text('Background task finished'), findsNothing);
+    await tester.tap(find.text('Background task ended'));
+    await tester.pump();
+    expect(_text(sentence), findsNWidgets(2)); // the line and the body, once
+    expect(find.text('Name'), findsNothing);
+  });
+
   testWidgets('an unknown tool id reads as words, not snake_case', (
     tester,
   ) async {

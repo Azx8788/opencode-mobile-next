@@ -44021,6 +44021,12 @@ abstract class AppLocalizations {
   /// **'Background task failed'**
   String get chatUiToolBackgroundTaskFailed;
 
+  /// Chat journey: step title for the agent's notice that a background task ended without saying whether it finished, failed or was stopped (for example it was cut off when the previous session ended)
+  ///
+  /// In en, this message translates to:
+  /// **'Background task ended'**
+  String get chatUiToolBackgroundTaskEnded;
+
   /// Chat journey: step title for the agent's notice that a background task it started was stopped
   ///
   /// In en, this message translates to:

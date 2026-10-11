@@ -27855,6 +27855,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatUiToolBackgroundTaskFailed => 'Background task failed';
 
   @override
+  String get chatUiToolBackgroundTaskEnded => 'Background task ended';
+
+  @override
   String get chatUiToolBackgroundTaskStopped => 'Background task stopped';
 
   @override
