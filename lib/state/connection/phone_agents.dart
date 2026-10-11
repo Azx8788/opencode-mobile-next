@@ -1095,8 +1095,7 @@ mixin _ConnectionControllerPhoneAgents on ChangeNotifier
     unawaited(_paCache.write(id, rows));
   }
 
-  /// The saved list outlives the feed gateway and its private draft aliases.
-  /// Keep live row identities intact, but persist only the daemon's identity.
+  /// Saved rows outlive the gateway's draft aliases: persist the daemon's ids.
   ChatFeedItem _paPersistableRow(ChatFeedItem item) {
     final gateway = _paSources[item.directory]?.gateway;
     if (gateway == null || item.sourceId != _paseoSourceId(item.directory)) {

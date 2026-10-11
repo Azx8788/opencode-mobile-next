@@ -1171,19 +1171,15 @@ void _composerAndErrorTests() {
         );
         await _pumpChat(tester, api, controller: controller);
         await tester.pumpAndSettle();
-        // The kit composer discloses high usage on the model chip; the
-        // separate meter was retired in chat-3.
-        final contextPercent = find.byKey(
-          const Key('composer-context-percent'),
+        // The context ring in the top bar shows known usage at every level;
+        // the model chip no longer carries a percentage.
+        expect(find.byKey(const Key('chat-context-ring')), findsOneWidget);
+        expect(find.text('$percent %'), findsOneWidget);
+        expect(find.text('· $percent %'), findsNothing);
+        expect(
+          find.bySemanticsLabel(RegExp('Context.*$percent')),
+          findsOneWidget,
         );
-        expect(contextPercent, percent >= 70 ? findsOneWidget : findsNothing);
-        if (percent >= 70) {
-          expect(find.text('· $percent %'), findsOneWidget);
-          expect(
-            find.bySemanticsLabel(RegExp('Context.*$percent')),
-            findsOneWidget,
-          );
-        }
         // Routine usage is still reachable, with the exact value, through
         // the same Context usage destination used for warnings.
         // The conversation menu's Details (slice-P10.2).

@@ -115,6 +115,10 @@
     "scope": "profile",
     "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
   },
+  "oc.contextUsage.": {
+    "scope": "profile",
+    "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
+  },
   "oc.defaultNotices.": {
     "scope": "profile",
     "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
