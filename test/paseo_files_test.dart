@@ -782,5 +782,33 @@ void main() {
       expect(productErrorText(failure), isNot(contains('daemon')));
       expect(productErrorDetails(failure), contains('Paseo daemon'));
     });
+
+    test(
+      'the daemon\'s reason for a refusal is kept under Details only',
+      () async {
+        final transport = PaseoTransport(
+          endpoint: 'ws://127.0.0.1:6767',
+          password: 'hunter2-secret',
+          socketFactory: (_, _) async => daemon,
+        );
+        addTearDown(transport.close);
+        daemon.handlers['file_explorer_request'] = (_) => (
+          'file_explorer_response',
+          {'error': '  no such file\n  (token hunter2-secret) ${'x' * 400}'},
+        );
+        Object? caught;
+        try {
+          await transport.request('file_explorer_request', {});
+        } catch (e) {
+          caught = e;
+        }
+        expect(caught, isA<PaseoFailure>());
+        expect(productErrorText(caught!), isNot(contains('no such file')));
+        final details = productErrorDetails(caught)!;
+        expect(details, contains('no such file (token'));
+        expect(details, isNot(contains('hunter2-secret')));
+        expect(details.length, lessThan(600));
+      },
+    );
   });
 }

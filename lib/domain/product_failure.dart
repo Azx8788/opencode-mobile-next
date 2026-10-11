@@ -9,6 +9,7 @@ import '../api2/transport.dart' show Api2Error, Api2NetworkError;
 import '../builtin/builtin_folders.dart'
     show FolderListException, FolderListProblem;
 import '../builtin/builtin_linux.dart' show BuiltinLinuxException;
+import '../paseo/transport.dart' show PaseoFailure;
 import '../state/local_server_controls.dart' show LocalServerControlFailure;
 import '../state/profiles.dart' show SecureStorageUnavailable;
 import '../termux/bridge.dart' show TermuxBridgeException;
@@ -344,6 +345,7 @@ String? _technicalDetails(Object? error) {
     case ApiException(:final message, :final statusCode, :final errorTag):
       raw = [
         message,
+        if (error is PaseoFailure) ?error.reason,
         if (statusCode != null && !message.contains('$statusCode'))
           'HTTP $statusCode',
         ?errorTag,

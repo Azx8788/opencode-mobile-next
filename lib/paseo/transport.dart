@@ -40,8 +40,13 @@ enum PaseoFailureKind {
 class PaseoFailure extends ApiException {
   final PaseoFailureKind kind;
 
-  PaseoFailure(this.kind)
-    : super(
+  /// The daemon's own sentence for why it refused, trimmed and capped. It is
+  /// never shown as copy: only the Details fold reads it (product_failure).
+  final String? reason;
+
+  PaseoFailure(this.kind, {String? reason})
+    : reason = tidyPaseoReason(reason),
+      super(
         switch (kind) {
           PaseoFailureKind.invalidEndpoint =>
             'Use this device, a Tailscale address, or your SSH tunnel.',
@@ -80,6 +85,15 @@ class PaseoFailure extends ApiException {
         },
         errorTag: 'Paseo${kind.name}',
       );
+}
+
+/// A daemon's error sentence made safe for a Details fold: whitespace
+/// collapsed, trimmed and capped; null when nothing is left.
+String? tidyPaseoReason(String? raw) {
+  if (raw == null) return null;
+  final text = raw.replaceAll(RegExp(r'\s+'), ' ').trim();
+  if (text.isEmpty) return null;
+  return text.length <= 240 ? text : '${text.substring(0, 239)}…';
 }
 
 /// Connections are accepted only where the network itself is private: this
@@ -571,7 +585,10 @@ class PaseoTransport {
           lastDaemonError = 'The agent request could not be completed.';
         }
         pending?.result.completeError(
-          PaseoFailure(PaseoFailureKind.unavailable),
+          PaseoFailure(
+            PaseoFailureKind.unavailable,
+            reason: error is String ? _withoutPassword(error) : null,
+          ),
         );
         return;
       }
@@ -594,7 +611,10 @@ class PaseoTransport {
         if (!pending.answerErrors && error is String && error.isNotEmpty) {
           lastDaemonError = 'The agent request could not be completed.';
           pending.result.completeError(
-            PaseoFailure(PaseoFailureKind.unavailable),
+            PaseoFailure(
+              PaseoFailureKind.unavailable,
+              reason: _withoutPassword(error),
+            ),
           );
         } else {
           pending.result.complete(payload);
@@ -606,6 +626,9 @@ class PaseoTransport {
       _lost(epoch);
     }
   }
+
+  String _withoutPassword(String text) =>
+      _password.length < 3 ? text : text.replaceAll(_password, '•••');
 
   void _lost(int epoch) {
     if (epoch != _epoch) return;
