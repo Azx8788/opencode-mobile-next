@@ -80,7 +80,6 @@ final kitChatOverflowScenes = <KitOverflowScene>[
     'model',
     build: (_, c) => KitComposerChips.model(
       label: c.t('Review model · High effort', 'نموذج المراجعة · جهد عالٍ'),
-      contextUsed: 0.82,
       onPressed: _noop,
     ),
   ),

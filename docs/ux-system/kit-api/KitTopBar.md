@@ -40,6 +40,7 @@ class KitTopBar extends StatelessWidget {
     this.onTitleTap,                 // the title is a switcher (project, conversation): chevron + button semantics
     this.titleTapLabel,              // what the switcher does: "Switch project" (required when onTitleTap != null)
     this.actions = const [],         // List<KitAction>, most important first; each has an icon
+    this.accessory,                  // Widget?, one status part kept before the overflow at every width (the chat's KitContextRing)
     this.menu = const [],            // List<KitMenuItem>, the overflow's own entries
     this.brand = false,              // the product mark in place of the title (root pages only)
     this.exit = KitTopBarExit.auto,
@@ -238,3 +239,7 @@ kit-KitIcon, kit-KitIconButton-v2 (`tooltip`, `shortcut`), kit-KitNeedsYou (`spa
 ## Open questions
 
 None. The canvas shows the connected server pill as dot + name with no word; STATE-9 (owner-approved: no state by colour alone) requires a visible word, so the word always shows ("Laptop · Connected"). A dot alone when connected would carry the state by colour, which STATE-9 forbids, so this is not left open.
+
+## Accessory (2026-10-11)
+
+`KitTopBar(accessory: Widget?)` keeps one small status part (the chat's `KitContextRing`) in the bar before the ⋯ at every width; it is never moved into the overflow.

@@ -26,6 +26,7 @@ import 'effects.dart'
     show KitEffects, KitGlowColours, KitGlowSpeed, KitGlowStyle, KitMotionLevel;
 import 'model_library.dart';
 import 'interaction_defaults.dart';
+import 'context_usage_memory.dart';
 import 'setup_audit_store.dart';
 import 'session_link_bindings.dart';
 import 'pending_command_journal.dart';
@@ -498,6 +499,7 @@ class ProfileStore {
       defaultsDrain,
       auditDrain,
       SessionLinkBindings.closeProfile(prefs, profileId),
+      ContextUsageMemory.closeProfile(prefs, profileId),
     ]);
     final failed = <String>{};
     for (final key in profileScopedPreferenceKeys(profileId)) {

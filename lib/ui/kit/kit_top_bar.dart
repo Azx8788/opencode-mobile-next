@@ -100,6 +100,7 @@ class KitTopBar extends StatelessWidget {
     this.onTitleTap,
     this.titleTapLabel,
     this.actions = const [],
+    this.accessory,
     this.menu = const [],
     this.brand = false,
     this.exit = KitTopBarExit.auto,
@@ -141,6 +142,7 @@ class KitTopBar extends StatelessWidget {
        onExit = null,
        titleKey = null,
        exitKey = null,
+       accessory = null,
        scope = null;
 
   /// Non-null only for [KitTopBar.shell].
@@ -167,6 +169,11 @@ class KitTopBar extends StatelessWidget {
 
   /// Most important first; each has an icon, none is destructive.
   final List<KitAction> actions;
+
+  /// A small status part kept in the bar next to the overflow whatever the
+  /// width (the chat's context ring): shown before the ⋯ button, never
+  /// moved into it. Its own tap target is its own business.
+  final Widget? accessory;
 
   /// The overflow's own entries, after the actions that did not fit.
   final List<KitMenuItem> menu;
@@ -304,10 +311,11 @@ class KitTopBar extends StatelessWidget {
                 scope: scope,
               ),
             ),
-            if (actions.isNotEmpty || menu.isNotEmpty) ...[
+            if (actions.isNotEmpty || menu.isNotEmpty || accessory != null) ...[
               SizedBox(width: tokens.space2),
               _KitTopBarActions(
                 actions: actions,
+                accessory: accessory,
                 menu: menu,
                 window: window,
                 menuKey: menuKey,
@@ -575,11 +583,13 @@ class _KitTopBarActions extends StatelessWidget {
     required this.window,
     required this.menuKey,
     required this.reserved,
+    this.accessory,
     this.menuLabel,
     this.maxWidth = 0,
   });
 
   final List<KitAction> actions;
+  final Widget? accessory;
   final List<KitMenuItem> menu;
   final KitWindow window;
   final Key? menuKey;
@@ -712,6 +722,7 @@ class _KitTopBarActions extends StatelessWidget {
       for (final action in labelled)
         KitButton.fromAction(action, role: KitButtonRole.tertiary),
       for (final action in icons) _icon(action),
+      ?accessory,
       if (overflow.isNotEmpty)
         Builder(
           builder: (anchor) => KitIconButton(

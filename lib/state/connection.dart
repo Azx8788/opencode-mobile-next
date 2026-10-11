@@ -96,6 +96,7 @@ import 'saved_prompts_controller.dart';
 import 'session_pins.dart';
 import 'session_inventory_cache.dart';
 import 'session_tail_cache.dart';
+import 'context_usage_memory.dart';
 import 'session_auto_approval.dart';
 import 'prompt_shelf.dart';
 import 'queued_prompt_move.dart';
@@ -342,6 +343,13 @@ class ConnectionController extends ChangeNotifier
   /// Per-session approval choices for the selected profile (device-only).
   late final SessionAutoApprovalStore sessionAutoApproval =
       SessionAutoApprovalStore(store.prefs);
+
+  /// The last context share seen per conversation of the selected server
+  /// (device-only; feeds the chats list's small rings).
+  ContextUsageMemory? get contextUsageMemory {
+    final id = profile?.id ?? '';
+    return id.isEmpty ? null : ContextUsageMemory.forProfile(store.prefs, id);
+  }
 
   /// Native phone team lifecycle; callable without an active server profile.
   late final PhoneProjectEngineController phoneProjectEngine =

@@ -49,12 +49,19 @@ class ChatFeedItem {
     this.sourceId,
     this.sourceLabel,
     this.finishedUnseen = false,
+    this.contextUsage,
   });
 
   /// Its last run finished after the person last opened it (the list's
   /// "Done" tag). Contract of 2026-10-07: computed by each feed from the
   /// device's read watermarks; false for a saved row and while running.
   final bool finishedUnseen;
+
+  /// Share of the model's context window the conversation last used
+  /// (0..1 and over), when known: the list draws a small ring from it, and
+  /// nothing when null. Never fetched for the list; it is what an open chat
+  /// or the agent's own usage report already left behind.
+  final double? contextUsage;
 
   /// The server's session id; pass it to `selectLocationForExistingSession`
   /// (with [directory]) and then open the chat.

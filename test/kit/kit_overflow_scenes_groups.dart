@@ -246,6 +246,33 @@ final _groupOverflowScenes = <KitOverflowScene>[
     build: (_, _) => const KitLevelMeter(level: 0.6),
   ),
   KitOverflowScene(
+    const ['KitContextRing'],
+    'default',
+    build: (_, _) => Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        KitContextRing(used: 0.82, openDetails: _noop),
+        const KitContextRing(used: 0.4, compacting: true),
+      ],
+    ),
+  ),
+  KitOverflowScene(
+    const ['KitContextChart', 'KitContextSheet'],
+    'default',
+    build: (_, c) => KitContextSheet(
+      tokens: 168000,
+      limit: 200000,
+      modelName: c.t('Claude Sonnet 4.5 · High reasoning', 'Claude Sonnet'),
+      bars: const [
+        KitContextBar(fraction: 0.2),
+        KitContextBar(fraction: 0.55),
+        KitContextBar(fraction: 0.97),
+        KitContextBar(fraction: 0.3, compactedBefore: true),
+        KitContextBar(fraction: 0.84),
+      ],
+    ),
+  ),
+  KitOverflowScene(
     const ['KitSwatch', 'KitSwatchGrid', 'KitThemePreview'],
     'default',
     build: (context, _) {

@@ -8681,5 +8681,20 @@
   "kitMarkupCropHandle": "زاوية الاقتصاص. اسحبها لتغيير الحجم.",
   "kitMarkupCropArea": "منطقة الاقتصاص. اسحبها لتحريكها.",
   "kitMarkupFailed": "تعذّر إنشاء الصورة المعدلة",
-  "kitMarkupFailedBody": "حاول مرة أخرى، أو ارجع وأرسل الصورة الأصلية."
+  "kitMarkupFailedBody": "حاول مرة أخرى، أو ارجع وأرسل الصورة الأصلية.",
+  "kitContextRingSemantics": "السياق مستخدم بنسبة {percent} %",
+  "kitContextRingTapHint": "عرض تفاصيل السياق",
+  "kitContextRingCompacting": "جارٍ الضغط",
+  "kitContextRingCompactingSemantics": "السياق، جارٍ الضغط",
+  "kitContextSheetTitle": "نافذة السياق",
+  "kitContextSheetTokens": "{used} من {limit} رمز",
+  "kitContextSheetModel": "النموذج",
+  "kitContextSheetWindow": "نافذة السياق",
+  "kitContextSheetMeasured": "وقت القياس",
+  "kitContextSheetMeasuredValue": "بعد آخر رد",
+  "kitContextSheetExplain": "نافذة السياق هي مقدار المحادثة الذي يستطيع النموذج قراءته دفعة واحدة: رسائلك وردوده والملفات ونتائج الأدوات. عندما تمتلئ يجب تلخيص الأجزاء الأقدم أو تركها، لذا فضغط المحادثة قبل ذلك يُبقي الإجابات دقيقة.",
+  "kitContextSheetChartTitle": "كل رد",
+  "kitContextChartSemantics": "السياق بعد كل رد من {count} ردًا، وآخرها {percent} %",
+  "kitContextChartCompacted": "ضُغطت المحادثة هنا",
+  "kitContextSheetCompactNow": "اضغط الآن"
 }

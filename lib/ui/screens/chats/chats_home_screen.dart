@@ -593,6 +593,7 @@ class _ChatsHomeScreenState extends ConsumerState<ChatsHomeScreen> {
               l10n: l10n,
             )
           : null,
+      contextUsage: item.contextUsage,
       onTap: () => unawaited(_open(host, item)),
     );
   }

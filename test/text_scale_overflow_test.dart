@@ -189,6 +189,11 @@ const _nonWidgetClasses = {
   'KitNumberFormatter': 'TextInputFormatter',
   'KitScrollBehavior': 'MaterialScrollBehavior',
   'KitLogBuffer': 'ValueNotifier',
+  // The context ring's and chart's drawing code; the widgets around them are
+  // the parts.
+  'KitContextArcPainter': 'CustomPainter',
+  'KitContextHaloPainter': 'CustomPainter',
+  'KitContextChartPainter': 'CustomPainter',
 };
 
 /// Every `export` and `part` directive in a scanned file; each one must match

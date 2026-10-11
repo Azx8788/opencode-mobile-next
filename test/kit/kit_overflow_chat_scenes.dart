@@ -219,16 +219,6 @@ final kitOverflowChatScenes = <KitOverflowScene>[
         onPressed: _noop,
       ),
     ),
-  for (final used in [0.75, 0.97])
-    KitOverflowScene(
-      const ['KitComposerChips'],
-      used == 0.75 ? 'context warning' : 'context almost full',
-      build: (_, _) => KitComposerChips.model(
-        label: 'Sonnet 4.5',
-        contextUsed: used,
-        onPressed: _noop,
-      ),
-    ),
   KitOverflowScene(
     const ['KitComposerChips'],
     'narrow',

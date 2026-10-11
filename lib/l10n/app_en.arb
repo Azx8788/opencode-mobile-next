@@ -35156,5 +35156,91 @@
   "kitMarkupFailedBody": "Try again, or go back and send the original.",
   "@kitMarkupFailedBody": {
     "description": "KitImageMarkup: the way forward after a failed render"
+  },
+  "kitContextRingSemantics": "Context {percent} % used",
+  "@kitContextRingSemantics": {
+    "description": "Context ring: screen-reader words for how much of the model's context window the conversation uses; {percent} is a locale-formatted whole number",
+    "placeholders": {
+      "percent": {
+        "type": "String",
+        "example": "72"
+      }
+    }
+  },
+  "kitContextRingTapHint": "Show context details",
+  "@kitContextRingTapHint": {
+    "description": "Context ring: what a tap does, said by the screen reader after its label"
+  },
+  "kitContextRingCompacting": "Compacting",
+  "@kitContextRingCompacting": {
+    "description": "Context ring: the word beside the ring while the conversation is being compacted"
+  },
+  "kitContextRingCompactingSemantics": "Context, compacting",
+  "@kitContextRingCompactingSemantics": {
+    "description": "Context ring: screen-reader words while the conversation is being compacted"
+  },
+  "kitContextSheetTitle": "Context window",
+  "@kitContextSheetTitle": {
+    "description": "Context details sheet: its title"
+  },
+  "kitContextSheetTokens": "{used} of {limit} tokens",
+  "@kitContextSheetTokens": {
+    "description": "Context details sheet: tokens used of the window's size; both are locale-formatted whole numbers",
+    "placeholders": {
+      "used": {
+        "type": "String",
+        "example": "84,000"
+      },
+      "limit": {
+        "type": "String",
+        "example": "200,000"
+      }
+    }
+  },
+  "kitContextSheetModel": "Model",
+  "@kitContextSheetModel": {
+    "description": "Context details sheet: the row naming the model"
+  },
+  "kitContextSheetWindow": "Context window",
+  "@kitContextSheetWindow": {
+    "description": "Context details sheet: the row giving the window's size in tokens"
+  },
+  "kitContextSheetMeasured": "Measured",
+  "@kitContextSheetMeasured": {
+    "description": "Context details sheet: the row saying when the number was measured"
+  },
+  "kitContextSheetMeasuredValue": "After the last reply",
+  "@kitContextSheetMeasuredValue": {
+    "description": "Context details sheet: the value of the Measured row"
+  },
+  "kitContextSheetExplain": "The context window is how much of the conversation the model can read at once: your messages, its replies, files and tool results. When it fills up, older parts have to be summarised or left out, so compacting before then keeps the answers sharp.",
+  "@kitContextSheetExplain": {
+    "description": "Context details sheet: one paragraph saying what the context window is"
+  },
+  "kitContextSheetChartTitle": "Each reply",
+  "@kitContextSheetChartTitle": {
+    "description": "Context details sheet: the heading above the per-reply chart"
+  },
+  "kitContextChartSemantics": "Context after each of {count} replies, the newest at {percent} %",
+  "@kitContextChartSemantics": {
+    "description": "Context chart: screen-reader summary; {count} and {percent} are locale-formatted whole numbers",
+    "placeholders": {
+      "count": {
+        "type": "String",
+        "example": "12"
+      },
+      "percent": {
+        "type": "String",
+        "example": "72"
+      }
+    }
+  },
+  "kitContextChartCompacted": "Compacted here",
+  "@kitContextChartCompacted": {
+    "description": "Context chart: the note under a drop where the conversation was compacted"
+  },
+  "kitContextSheetCompactNow": "Compact now",
+  "@kitContextSheetCompactNow": {
+    "description": "Context details sheet: the button that compacts the conversation"
   }
 }
