@@ -74,9 +74,9 @@ and label it `good first issue`) so two people do not do the same work.
   new ignores.
 - **Size:** one comment, one test file.
 
-## 5. Refresh the HANDOVER.md "Latest" section
+## 5. Refresh the docs/internal/handover.md "Latest" section
 
-- **Where:** `HANDOVER.md` starts with "Latest (2026-09-11, later)" and
+- **Where:** `docs/internal/handover.md` starts with "Latest (2026-09-11, later)" and
   describes checkpoint 1.0.42+43 and "Sprint C next". The branch history
   since then (releases, built-in Linux, AI Team phone engine) is not
   reflected.

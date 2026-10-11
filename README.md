@@ -19,8 +19,8 @@ review the result. The app installs its own Ubuntu and runs
 OpenCode on your computer. Codex, Gemini CLI, Qwen Code, Goose and Pi use the
 same on-phone path; they are newer and not yet checked on a physical phone.
 
-**[Download 1.2.0 for Android](https://github.com/Eslamasabry/opencode-mobile-next/releases/download/v1.2.0%2B52/opencode-mobile-1.2.0%2B52.apk)**
-· [What's new](docs/releases/v1.2.0+52.md)
+**[Download 1.3.0 for Android](https://github.com/Eslamasabry/opencode-mobile-next/releases/download/v1.3.0%2B53/opencode-mobile-1.3.0%2B53.apk)**
+· [What's new](docs/releases/v1.3.0+53.md)
 · [Get started](#get-started)
 · [Get help](SUPPORT.md)
 
@@ -72,7 +72,7 @@ You need an Android phone running **Android 8 or newer** and a model provider
 (an API key, or OpenCode's free model to try it out). Running OpenCode on the
 phone itself needs a 64-bit phone.
 
-1. **[Download the APK](https://github.com/Eslamasabry/opencode-mobile-next/releases/download/v1.2.0%2B52/opencode-mobile-1.2.0%2B52.apk)**
+1. **[Download the APK](https://github.com/Eslamasabry/opencode-mobile-next/releases/download/v1.3.0%2B53/opencode-mobile-1.3.0%2B53.apk)**
    and install it. Android warns about installs from outside the Play Store.
 2. **Choose where your agent runs** on the welcome screen:
    - **On this phone** — tap it and follow the setup. The first setup downloads
@@ -102,7 +102,7 @@ this phone**, and pick a model for each role.
 
 | | Status |
 |---|---|
-| Android 8+ | Supported — 1.2.0 |
+| Android 8+ | Supported — 1.3.0 |
 | OpenCode 1 (1.18.x) | Supported |
 | OpenCode 2 (beta and stable 2.0) | Supported |
 | Claude Code (via Paseo) | Supported |
@@ -119,8 +119,8 @@ does not include a model subscription.
 
 Android only updates an app in place when the new APK has the same signature.
 Public releases from this page are signed with
-`842284B27AA297FB74CF831779FD16498517E1BC2104451459FEC2EA7AC11D1C`, so 1.2.0
-installs over 1.1.0 and earlier releases and keeps your saved servers, sign-ins and settings. You
+`842284B27AA297FB74CF831779FD16498517E1BC2104451459FEC2EA7AC11D1C`, so 1.3.0
+installs over 1.2.0 and earlier releases and keeps your saved servers, sign-ins and settings. You
 can check the installed signer in **Settings → About**.
 
 Projects on the phone's built-in server live inside the app: **Clear storage**

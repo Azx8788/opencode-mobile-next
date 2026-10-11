@@ -295,7 +295,7 @@ lib/
                    #  terminal, more hub, settings…) and widgets
 packages/opencode_sdk/   # generated Dart SDK from the checked-in OpenAPI contract
 contracts/               # OpenAPI dumps (v1 + v2 beta) + SDK coverage matrix
-video/                   # Remotion showcase project
+tool/demo-video/         # Remotion showcase project
 ```
 
 ### Projects in shared storage
