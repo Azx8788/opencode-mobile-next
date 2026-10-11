@@ -34,19 +34,38 @@ void main() {
           )!,
       ]);
       final boundary = GlobalKey();
+      // A tool still running is only running while the session is busy: an
+      // idle session settles it as finished (transcript_settle.dart), and the
+      // model line is the footer of a turn that is no longer live. A live-tool
+      // case is therefore read twice, busy and then idle, and judged on both.
+      var screen = '';
+      if (_runningIds.contains(id)) {
+        await pumpCoverageChat(
+          tester,
+          boundary,
+          messages: messages,
+          busy: true,
+          capabilities: api2ServerCapabilities,
+        );
+        screen = await openEverything(tester, rows: true);
+        await tester.pumpWidget(const SizedBox());
+      }
       await pumpCoverageChat(
         tester,
         boundary,
         messages: messages,
         capabilities: api2ServerCapabilities,
       );
-      final screen = await openEverything(tester, rows: id != 'tool_task');
+      screen += '\n${await openEverything(tester, rows: id != 'tool_task')}';
       final problems = checkCase(family, variant, screen);
       await writeCasePng(tester, boundary, 'oc2msg_$id');
       expect(problems, isEmpty, reason: 'screen text:\n${flat(screen)}');
     });
   }
 }
+
+/// Cases whose last message is a live tool: the session is busy for them.
+const _runningIds = {'tool_running_streaming'};
 
 /// The message with its creation time moved to [at], so a live line does not
 /// read "43327 min"; every other time in it keeps its distance.

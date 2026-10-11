@@ -25,6 +25,10 @@ void main() {
   for (final variant in family.cases) {
     final id = variant['id'] as String;
     testWidgets('paseo item · $id', (tester) async {
+      // A compaction in progress is the last thing the agent reported while
+      // the session is busy; anything after it, or an idle session, settles
+      // the line away (transcript_settle.dart).
+      final running = id == 'compaction_running';
       final item = (variant['payload'] as Map).cast<String, dynamic>();
       final now = DateTime.now().toUtc();
       String stamp(int secondsAgo) =>
@@ -50,10 +54,11 @@ void main() {
         // A turn ends with an answer, unless the item is the answer or the
         // failure that ended it.
         if (!const {
-          'user_message',
-          'assistant_message',
-          'error',
-        }.contains(item['type']))
+              'user_message',
+              'assistant_message',
+              'error',
+            }.contains(item['type']) &&
+            !running)
           {
             'seqStart': 3,
             'provider': 'claude',
@@ -67,9 +72,14 @@ void main() {
       ];
       final messages = paseoTimelineMessages(checkoutSessionID, {
         'entries': entries,
-      }, busy: false);
+      }, busy: running);
       final boundary = GlobalKey();
-      await pumpCoverageChat(tester, boundary, messages: messages);
+      await pumpCoverageChat(
+        tester,
+        boundary,
+        messages: messages,
+        busy: running,
+      );
       await openFolds(tester);
       final screen = screenText(tester).join('\n');
       final problems = checkCase(family, variant, screen);
