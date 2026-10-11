@@ -28118,6 +28118,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String backgroundPauseAppUpdated(String at) {
+    return 'Background connection stopped when the app was updated $at.';
+  }
+
+  @override
   String get backgroundPauseInterrupted =>
       'Background connection stopped for an unknown reason.';
 

@@ -58,7 +58,7 @@ class BackgroundPauseStore(context: Context) {
         val reason = preferences.getString(KEY_REASON, "none") ?: "none"
         val at = preferences.getLong(KEY_AT, 0L)
         check(phase in setOf("none", "running", "paused")) { STORAGE_ERROR }
-        val reasons = setOf("none", "timeLimit", "batteryRestricted", "userStopped", "interrupted")
+        val reasons = setOf("none", "timeLimit", "batteryRestricted", "userStopped", "interrupted", "appUpdated")
         check(reason in reasons) { STORAGE_ERROR }
         check(phase == "none" || at > 0L) { STORAGE_ERROR }
         check(phase != "paused" || reason != "none") { STORAGE_ERROR }

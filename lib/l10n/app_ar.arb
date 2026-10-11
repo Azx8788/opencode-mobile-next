@@ -8381,6 +8381,7 @@
   "backgroundPauseTimeLimit": "أُوقف الاتصال في الخلفية مؤقتًا {at} لتوفير البطارية.",
   "backgroundPauseRestricted": "أُوقف الاتصال في الخلفية مؤقتًا: استخدام البطارية مقيَّد.",
   "backgroundPauseUserStopped": "توقف الاتصال في الخلفية لأن التطبيق أُغلق {at}.",
+  "backgroundPauseAppUpdated": "توقف الاتصال في الخلفية لأن التطبيق حُدِّث {at}.",
   "backgroundPauseInterrupted": "توقف الاتصال في الخلفية لسبب غير معروف.",
   "backgroundPauseResume": "استئناف الاتصال في الخلفية",
   "backgroundPauseResumeShort": "استئناف",

@@ -28166,6 +28166,11 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String backgroundPauseAppUpdated(String at) {
+    return 'توقف الاتصال في الخلفية لأن التطبيق حُدِّث $at.';
+  }
+
+  @override
   String get backgroundPauseInterrupted =>
       'توقف الاتصال في الخلفية لسبب غير معروف.';
 

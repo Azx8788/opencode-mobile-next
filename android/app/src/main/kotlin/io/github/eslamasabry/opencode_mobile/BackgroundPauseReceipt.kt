@@ -14,8 +14,10 @@ object BackgroundPausePolicy {
     const val BATTERY_RESTRICTED = "batteryRestricted"
     const val USER_STOPPED = "userStopped"
     const val INTERRUPTED = "interrupted"
+    const val APP_UPDATED = "appUpdated"
     private const val USER_REQUESTED_EXIT = 10
     private const val USER_STOPPED_EXIT = 11
+    private const val PACKAGE_UPDATED_EXIT = 16
 
     fun reconcile(
         receipt: BackgroundPauseReceipt,
@@ -35,18 +37,19 @@ object BackgroundPausePolicy {
             else -> {
                 val reason = when {
                     restricted -> BATTERY_RESTRICTED
-                    isUserStopAfter(exit, receipt.at) -> USER_STOPPED
+                    isExitAfter(exit, receipt.at, USER_REQUESTED_EXIT, USER_STOPPED_EXIT) -> USER_STOPPED
+                    // An app update ends the process: a known cause, not "unknown".
+                    isExitAfter(exit, receipt.at, PACKAGE_UPDATED_EXIT) -> APP_UPDATED
                     else -> INTERRUPTED
                 }
                 // Battery policy is observed now. The exit timestamp is evidence
                 // only when it actually followed this receipt's running period.
-                val at = if (reason == USER_STOPPED) checkNotNull(exit).at else now
+                val at = if (reason == USER_STOPPED || reason == APP_UPDATED) checkNotNull(exit).at else now
                 BackgroundPauseReceipt("paused", reason, at)
             }
         }
     }
 
-    private fun isUserStopAfter(exit: BackgroundPauseExit?, startedAt: Long): Boolean =
-        exit != null && exit.at > startedAt &&
-            exit.reason in setOf(USER_REQUESTED_EXIT, USER_STOPPED_EXIT)
+    private fun isExitAfter(exit: BackgroundPauseExit?, startedAt: Long, vararg reasons: Int): Boolean =
+        exit != null && exit.at > startedAt && exit.reason in reasons
 }

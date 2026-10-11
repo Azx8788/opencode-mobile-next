@@ -44279,6 +44279,12 @@ abstract class AppLocalizations {
   /// **'Background connection stopped when the app closed {at}.'**
   String backgroundPauseUserStopped(String at);
 
+  /// battery-pause (FD3): App-wide notice when an app update ended the app while the background connection ran. {at} is 'at 3:10 PM' or 'on Sep 25 at 8:19 PM'.
+  ///
+  /// In en, this message translates to:
+  /// **'Background connection stopped when the app was updated {at}.'**
+  String backgroundPauseAppUpdated(String at);
+
   /// battery-pause (FD3): App-wide notice when the background connection stopped for an unknown reason.
   ///
   /// In en, this message translates to:
