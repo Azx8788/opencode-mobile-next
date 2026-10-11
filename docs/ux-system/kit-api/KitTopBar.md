@@ -40,6 +40,7 @@ class KitTopBar extends StatelessWidget {
     this.onTitleTap,                 // the title is a switcher (project, conversation): chevron + button semantics
     this.titleTapLabel,              // what the switcher does: "Switch project" (required when onTitleTap != null)
     this.actions = const [],         // List<KitAction>, most important first; each has an icon
+    this.accessory,                  // Widget?, one status part kept before the overflow at every width (the chat's KitContextRing)
     this.menu = const [],            // List<KitMenuItem>, the overflow's own entries
     this.brand = false,              // the product mark in place of the title (root pages only)
     this.exit = KitTopBarExit.auto,
