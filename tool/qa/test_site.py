@@ -13,7 +13,7 @@ from urllib.parse import unquote, urlsplit
 
 
 ROOT = Path(__file__).resolve().parents[2]
-SITE = ROOT / 'pages'
+SITE = ROOT / 'docs' / 'site'
 SCREENSHOTS = (
     '1_welcome.jpg',
     '2_setup_on_phone.jpg',
