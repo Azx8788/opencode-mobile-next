@@ -13996,6 +13996,9 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get appExitSwitchToPhone => 'التبديل إلى هذا الهاتف';
+
+  @override
   String get appExitKeepRunning => 'أبقِه يعمل';
 
   @override

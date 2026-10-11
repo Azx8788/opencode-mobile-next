@@ -37,6 +37,7 @@ class AppExitNotice {
     required this.at,
     required this.teamStopped,
     this.recoveryAllowed = true,
+    this.phoneProfileId,
   });
 
   final AppExitKind kind;
@@ -46,6 +47,10 @@ class AppExitNotice {
   /// Policy permission for this launch's recovery, not proof of success.
   /// False must never be worded as "starting again" by a notice consumer.
   final bool recoveryAllowed;
+
+  /// The saved profile of the phone's own OpenCode this notice is about, so
+  /// a page showing another server can offer to switch to it.
+  final String? phoneProfileId;
 
   /// A crash is ours to fix, not a phone setting to change.
   bool get offersKeepAlive => kind != AppExitKind.crash;
@@ -77,6 +82,12 @@ class AppExitRecovery extends ChangeNotifier {
 
   /// The last start's report, for diagnostics and tests.
   AppLaunchReport? get report => _report;
+
+  /// The phone's OpenCode answered a status read after the restart while
+  /// another server was selected. The notice then says it is running again
+  /// instead of "starting again" above that other server's page.
+  bool get phoneServerRunning => _phoneServerRunning;
+  bool _phoneServerRunning = false;
 
   void dismiss() {
     if (_notice == null) return;
@@ -191,6 +202,7 @@ class AppExitRecovery extends ChangeNotifier {
               store.prefs,
               recoveryProfile.id,
             ).value.allows(AutomationBehavior.restartPhoneServer),
+        phoneProfileId: recoveryProfile?.id,
       );
       _notify();
     }
@@ -204,6 +216,9 @@ class AppExitRecovery extends ChangeNotifier {
       onRestart: onRestart,
       recover: recover,
     );
+    if (_notice != null && !looksLikeInAppServer(active)) {
+      await _readPhoneServer(starter);
+    }
     if (teamWas && reviveTeam != null) {
       await _reviveTeam(store: store, reviveTeam: reviveTeam);
     }
@@ -296,6 +311,16 @@ class AppExitRecovery extends ChangeNotifier {
         'team': team && BuiltinTeam.isBuiltinConfig(profile.orchestration),
       },
     );
+  }
+
+  Future<void> _readPhoneServer(BuiltinServerStarter starter) async {
+    try {
+      if (!(await starter.linux.status()).serverRunning) return;
+    } on BuiltinLinuxException {
+      return;
+    }
+    _phoneServerRunning = true;
+    _notify();
   }
 
   /// The saved in-app server; with the team, the one it belongs to.

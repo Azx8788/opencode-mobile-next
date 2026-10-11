@@ -13911,6 +13911,9 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
+  String get appExitSwitchToPhone => 'Switch to this phone';
+
+  @override
   String get appExitKeepRunning => 'Keep it running';
 
   @override

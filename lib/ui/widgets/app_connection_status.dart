@@ -9,6 +9,7 @@ import '../../builtin/thermal_guard_teams.dart';
 import '../../state/background_pause_notice.dart';
 import '../../state/connection.dart';
 import '../kit/kit.dart';
+import '../screens/servers_screen.dart' show ServersRouteRequest;
 import 'app_exit_notice.dart';
 import 'background_pause_notice.dart';
 import 'connection_status_banner.dart';
@@ -85,6 +86,12 @@ class AppConnectionStatusScope extends ConsumerWidget {
                   recovery,
                   actionContext: actionContext,
                   serverBack: serverBack,
+                  viewing: controller.profile,
+                  onSwitchToPhone: (current, profileId) =>
+                      Navigator.of(current).pushNamed(
+                        '/servers',
+                        arguments: ServersRouteRequest.connect(profileId),
+                      ),
                 ),
                 paused: backgroundPauseKitStatus(
                   context,

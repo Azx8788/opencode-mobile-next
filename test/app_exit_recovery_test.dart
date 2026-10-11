@@ -280,6 +280,51 @@ void main() {
       return recovery;
     }
 
+    testWidgets('above another server, the notice says whether the '
+        "phone's OpenCode is back and offers to switch to it, never "
+        '"starting again" over that server\'s stopped page', (tester) async {
+      final recovery = (await tester.runAsync(
+        () => run(_report(_ownerRecord, ['server'])),
+      ))!;
+      expect(linux.serverRunning, isTrue);
+      String? switched;
+      Future<KitStatus> shown(ServerProfile viewing) async {
+        KitStatus? result;
+        await tester.pumpWidget(
+          MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Builder(
+              builder: (context) {
+                result = appExitKitStatus(
+                  context,
+                  recovery,
+                  viewing: viewing,
+                  onSwitchToPhone: (_, id) => switched = id,
+                );
+                return const SizedBox.shrink();
+              },
+            ),
+          ),
+        );
+        return result!;
+      }
+
+      final elsewhere = await shown(laptop);
+      expect(elsewhere.message, contains('is running again'));
+      expect(elsewhere.message, isNot(contains('starting again')));
+      expect(elsewhere.action?.label, 'Switch to this phone');
+      expect(elsewhere.more.map((action) => action.label), ['Keep it running']);
+      elsewhere.action!.onPressed!();
+      expect(switched, 'phone');
+
+      // On the phone's own page nothing changes: no switch, Keep it running.
+      final own = await shown(phone);
+      expect(own.message, contains('starting again'));
+      expect(own.action?.label, 'Keep it running');
+      expect(own.more, isEmpty);
+    });
+
     test(
       'delegates to the shared healing owner without duplicate starts or acts',
       () async {

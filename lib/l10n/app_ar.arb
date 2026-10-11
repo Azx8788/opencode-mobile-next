@@ -4748,6 +4748,7 @@
   "appExitServerAndTeamStopped": "{what}. توقّف OpenCode على هاتفك وفريق الذكاء الاصطناعي معه، وهما يبدآن من جديد.",
   "appExitAtTime": "عند {time}",
   "appExitOnDay": "يوم {day} عند {time}",
+  "appExitSwitchToPhone": "التبديل إلى هذا الهاتف",
   "appExitKeepRunning": "أبقِه يعمل",
   "keepRunningTitle": "الاستمرار في العمل في الخلفية",
   "keepRunningRowSubtitle": "ما يجب السماح به كي لا يغلق هاتفك التطبيق",

@@ -22756,6 +22756,12 @@ abstract class AppLocalizations {
   /// **'on {day} at {time}'**
   String appExitOnDay(String day, String time);
 
+  /// App-exit notice action shown above another server's page: opens this phone's own OpenCode
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to this phone'**
+  String get appExitSwitchToPhone;
+
   /// Notice action: opens the keep-running guidance
   ///
   /// In en, this message translates to:

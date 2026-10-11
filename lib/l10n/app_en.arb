@@ -15536,6 +15536,10 @@
       }
     }
   },
+  "appExitSwitchToPhone": "Switch to this phone",
+  "@appExitSwitchToPhone": {
+    "description": "App-exit notice action shown above another server's page: opens this phone's own OpenCode"
+  },
   "appExitKeepRunning": "Keep it running",
   "@appExitKeepRunning": {
     "description": "Notice action: opens the keep-running guidance"
