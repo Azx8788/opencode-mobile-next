@@ -348,7 +348,7 @@ Done.''';
       expect(tile(1), findsOneWidget);
       expect(tile(2), findsOneWidget);
       expect(tile(3), findsNothing);
-      final group = find.ancestor(of: tile(0), matching: find.byType(Wrap));
+      final group = find.ancestor(of: tile(0), matching: find.byType(Row));
       expect(group, findsOneWidget);
       expect(
         find.descendant(of: group, matching: find.byType(KitChip)),
