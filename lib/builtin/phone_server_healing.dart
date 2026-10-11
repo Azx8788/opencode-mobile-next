@@ -351,8 +351,8 @@ class PhoneServerHealing {
   /// Opening the app is the person's own act, like Start, so it goes through
   /// the starter's explicit path (which also resets that budget once the
   /// server answers). Explicit Stop still wins: a stopped intent, the
-  /// restart policy being off, a running server or another start in flight
-  /// all leave it alone. Foreground only; it never outlives the screen.
+  /// restart policy being off, a running server, a scheduled native retry
+  /// or another start in flight all leave it alone. Foreground only; it never outlives the screen.
   ///
   /// [retry] is the person's own Try again: it connects now instead of
   /// waiting out the automatic reconnect back-off.
@@ -444,10 +444,17 @@ class PhoneServerHealing {
     if (!mayAct() || !status.installed || !status.serverRestartWanted) {
       return false;
     }
-    // The native authority owns every unattended dispatch and its budget.
-    // Opening the app cannot turn exhaustion or a pending retry into a manual
-    // start. A live server that stays unhealthy needs the person's Start.
-    if (status.serverRecoveryAuthority || _idleBlocksLaunch(status)) {
+    if (_idleBlocksLaunch(status)) return false;
+    // The native authority owns every unattended dispatch and its budget:
+    // opening never supersedes a scheduled native retry, and a live
+    // native-owned server that stays unhealthy needs the person's Start.
+    // A stopped server is started, even past an exhausted crash budget.
+    // Update and boot restores spend that budget too, so after a few app
+    // updates it was exhausted and the app opened on "stopped" for good
+    // (owner report 2026-10-12). Opening the app is the person's own act,
+    // like Start: the explicit start gives the budget back once it answers.
+    if (status.serverRecoveryAuthority &&
+        (status.serverRecoveryScheduled || status.serverRunning)) {
       return false;
     }
     if (!status.serverRunning) return true;

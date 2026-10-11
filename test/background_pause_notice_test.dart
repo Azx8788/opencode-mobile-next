@@ -128,6 +128,9 @@ void main() {
         BackgroundPauseReason.userStopped: _en.backgroundPauseUserStopped(
           'at 3:10 PM',
         ),
+        BackgroundPauseReason.appUpdated: _en.backgroundPauseAppUpdated(
+          'at 3:10 PM',
+        ),
         BackgroundPauseReason.interrupted: _en.backgroundPauseInterrupted,
       };
       for (final MapEntry(key: reason, value: words) in cases.entries) {

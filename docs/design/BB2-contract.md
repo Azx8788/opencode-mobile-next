@@ -73,10 +73,15 @@ Raw exception details do not reach frontend copy or notifications.
 ## Frontend states and way forward
 
 The existing `BuiltinRecoveryState` exposes phase, profileId, attempts and
-nextAttemptAt. Native-authority launch recovery never dispatches an unattended
-manual Start: opening/recreating the app cannot replenish an exhausted count or
-supersede a scheduled native retry. A live stale/unhealthy native-owned process
-remains unconfirmed; the person must choose Start for replacement.
+nextAttemptAt. Native-authority launch recovery never supersedes a scheduled
+native retry, and a live stale/unhealthy native-owned process remains
+unconfirmed; the person must choose Start for replacement. Amended 2026-10-12
+(owner report: after app updates the app opened on "stopped" and stayed there):
+opening the app is the person's own act, so once per process a stopped server
+whose Stop intent is not set is started through the explicit Start path, even
+past an exhausted count; its health proof resets the count like Start. Update
+and boot restores spend the same count, so without this a few updates left the
+app unable to start its own server.
 
 | Phase | Plain copy / way forward |
 | --- | --- |

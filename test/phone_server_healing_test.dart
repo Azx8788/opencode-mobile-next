@@ -882,34 +882,39 @@ void main() {
     },
   );
 
-  test(
-    'native exhausted budget survives opening and owner recreation',
-    () async {
-      starter.dispose();
-      final native = _NativeHealingLinux();
-      linux = native;
-      starter = BuiltinServerStarter(
-        linux: linux,
-        readyTimeout: Duration.zero,
-        pollInterval: Duration.zero,
-      );
-      var owner = bind()..setForeground(true);
-      await owner.startForLaunch(phone);
-      expect(native.starts, 0);
-      expect(native.restarts, 0);
-      expect(native.attempts, 3);
-      expect(native.resets, 0);
-      expect(owner.recovery.value.phase, BuiltinRecoveryPhase.exhausted);
-      owner.dispose();
-      healing = null;
-      owner = bind()..setForeground(true);
-      await owner.startForLaunch(phone);
-      expect(native.starts, 0);
-      expect(native.restarts, 0);
-      expect(native.attempts, 3);
-      expect(native.resets, 0);
-    },
-  );
+  test('opening the app after updates exhausted the native budget starts '
+      'the stopped server and gives the budget back once it answers '
+      '(owner report 2026-10-12)', () async {
+    starter.dispose();
+    // Three update restores spent the budget; the update killed the server.
+    final native = _NativeHealingLinux();
+    linux = native;
+    starter = BuiltinServerStarter(
+      linux: linux,
+      readyTimeout: Duration.zero,
+      pollInterval: Duration.zero,
+    );
+    PhoneServerHealing.launchRetryDelay = Duration.zero;
+    addTearDown(
+      () => PhoneServerHealing.launchRetryDelay = const Duration(seconds: 2),
+    );
+    var owner = bind()..setForeground(true);
+    await owner.startForLaunch(phone);
+    expect(native.restarts, 0, reason: 'no unattended restart past the budget');
+    expect(native.starts, 1, reason: 'opening the app starts it');
+    expect(native.running, isTrue);
+    expect(connection.connections, [phone.id]);
+    await owner.check(phone);
+    expect(native.resets, 1);
+    expect(native.attempts, 0);
+    // A recreated owner finds it running: nothing starts again.
+    owner.dispose();
+    healing = null;
+    owner = bind()..setForeground(true);
+    await owner.startForLaunch(phone);
+    expect(native.starts, 1);
+    expect(native.restarts, 0);
+  });
 
   test('opening cannot supersede a scheduled native retry', () async {
     starter.dispose();

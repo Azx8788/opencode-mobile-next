@@ -13,7 +13,7 @@ import 'app_exit_notice.dart' show appExitTimeText;
 
 /// The notice's one sentence: why the background connection is off. The
 /// time is said only where it is the moment it stopped (a time limit, a
-/// closed app); for a restriction or an unknown stop it is only when the app
+/// closed or updated app); for a restriction or an unknown stop it is only when the app
 /// noticed, so no time is claimed (contract FD3).
 String backgroundPauseMessage(
   BuildContext context,
@@ -26,6 +26,7 @@ String backgroundPauseMessage(
     BackgroundPauseReason.timeLimit => l10n.backgroundPauseTimeLimit(at()),
     BackgroundPauseReason.batteryRestricted => l10n.backgroundPauseRestricted,
     BackgroundPauseReason.userStopped => l10n.backgroundPauseUserStopped(at()),
+    BackgroundPauseReason.appUpdated => l10n.backgroundPauseAppUpdated(at()),
     BackgroundPauseReason.interrupted ||
     BackgroundPauseReason.none => l10n.backgroundPauseInterrupted,
   };

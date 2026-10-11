@@ -8,6 +8,9 @@ enum BackgroundPauseReason {
   batteryRestricted,
   userStopped,
   interrupted,
+
+  /// Android ended the app to update it (exit reason PACKAGE_UPDATED).
+  appUpdated,
 }
 
 /// A native service receipt, independent of any selected remote server.

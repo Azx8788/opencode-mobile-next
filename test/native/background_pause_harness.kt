@@ -91,6 +91,13 @@ fun main(args: Array<String>) {
             context.manager.exits = listOf(ExitRecord(context.packageName, 11, 2000L))
             check(store.status(false)["reason"] == "userStopped")
         }
+        "app-update" -> {
+            running(context)
+            context.manager.exits = listOf(ExitRecord(context.packageName, 16, 2000L))
+            val state = store.status(false)
+            check(state["reason"] == "appUpdated" && state["at"] == 2000L)
+            check(BackgroundPauseStore(context.reopen()).status(false)["reason"] == "appUpdated")
+        }
         else -> error("Unknown harness scenario")
     }
     println("PASS ${args.single()}")

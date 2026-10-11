@@ -35,6 +35,7 @@ void main() {
     'failed-commit',
     'confirmed-start',
     'reason-eleven',
+    'app-update',
   ]) {
     test('native background receipt: $scenario', skip: skip, () async {
       final result = await Process.run('java', [

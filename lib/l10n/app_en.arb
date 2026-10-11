@@ -33602,6 +33602,15 @@
       }
     }
   },
+  "backgroundPauseAppUpdated": "Background connection stopped when the app was updated {at}.",
+  "@backgroundPauseAppUpdated": {
+    "description": "battery-pause (FD3): App-wide notice when an app update ended the app while the background connection ran. {at} is 'at 3:10 PM' or 'on Sep 25 at 8:19 PM'.",
+    "placeholders": {
+      "at": {
+        "type": "String"
+      }
+    }
+  },
   "backgroundPauseInterrupted": "Background connection stopped for an unknown reason.",
   "@backgroundPauseInterrupted": {
     "description": "battery-pause (FD3): App-wide notice when the background connection stopped for an unknown reason."
