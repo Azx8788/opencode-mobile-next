@@ -371,6 +371,22 @@ void _stateTests() {
     expect(find.text('Output pruned'), findsOneWidget);
   });
 
+  testWidgets('a read with no content shows its line count, no empty box', (
+    tester,
+  ) async {
+    await _pumpTool(
+      tester,
+      name: 'read',
+      state: ToolState(
+        status: 'completed',
+        input: const {'filePath': '/a/b.txt', 'limit': 70},
+      ),
+    );
+    await tester.tap(find.text('Read'));
+    await tester.pump();
+    expect(find.text('(no output)'), findsNothing);
+  });
+
   testWidgets('a call the server never ran says Not run, never failed', (
     tester,
   ) async {

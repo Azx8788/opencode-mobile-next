@@ -259,6 +259,15 @@ Map<String, dynamic> paseoMergeToolCall(
         if (laterMeta is Map) ...laterMeta,
       },
     if (interrupted) ...{'status': 'canceled', 'error': null},
+    // A step that has finished does not start again: a late report that
+    // still says it runs (a replay after compaction, a reconnect) is the
+    // older news, so the spinner it would bring back stays off.
+    if (!interrupted &&
+        paseoToolStatus(earlier['status']) != 'running' &&
+        paseoToolStatus(later['status']) == 'running') ...{
+      'status': earlier['status'],
+      'error': earlier['error'],
+    },
   };
 }
 

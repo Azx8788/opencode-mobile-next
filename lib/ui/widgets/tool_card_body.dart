@@ -268,6 +268,10 @@ class _ToolBody extends StatelessWidget {
         fileName: name,
       );
     }
+    // A read whose content never arrived says nothing: the line count in
+    // its heading is the honest part, an empty "(no output)" box beside it
+    // is a contradiction.
+    if (state.output?.trim().isEmpty ?? true) return const SizedBox.shrink();
     return _plainOutput(context, 'read-output.txt');
   }
 
