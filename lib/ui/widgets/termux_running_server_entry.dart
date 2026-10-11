@@ -636,9 +636,23 @@ ServerProfile? savedManagedPhoneProfile(Iterable<ServerProfile> profiles) {
 /// phone", or Claude Code on this phone) rather than as a saved server of
 /// its own: the Servers list and the server switcher never list it twice.
 /// Those rows always draw themselves when a saved sign-in exists.
-bool shownAsPhoneRow(ServerProfile profile) =>
-    platformCapabilities.supportsTermux &&
-    (isManagedPhoneProfile(profile) || isLocalAgentProfile(profile));
+///
+/// Only one saved server per Claude Code endpoint is folded in: given
+/// [among] (all saved servers) and [preferID] (the connected one), any other
+/// profile at the same endpoint stays a normal row, so it can be opened or
+/// forgotten.
+bool shownAsPhoneRow(
+  ServerProfile profile, {
+  Iterable<ServerProfile>? among,
+  String? preferID,
+}) {
+  if (!platformCapabilities.supportsTermux) return false;
+  if (isManagedPhoneProfile(profile)) return true;
+  if (!isLocalAgentProfile(profile)) return false;
+  if (among == null) return true;
+  return savedLocalAgentProfile(among.toList(), preferID: preferID)?.id ==
+      profile.id;
+}
 
 /// Whether [profile] is a server this phone runs itself: the in-app
 /// server, the Termux server this app manages, or Claude Code on this

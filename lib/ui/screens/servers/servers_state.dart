@@ -134,7 +134,15 @@ class _ServersScreenState extends ConsumerState<ServersScreen> {
     final phoneServer = phoneServerProfile(store.profiles, activeId);
     final saved = [
       for (final p in store.profiles)
-        if (!looksLikeInAppServer(p) && !shownAsPhoneRow(p)) p,
+        if (!looksLikeInAppServer(p) &&
+            !shownAsPhoneRow(
+              p,
+              among: store.profiles,
+              preferID: accountConnection.api == null
+                  ? null
+                  : accountConnection.profile?.id,
+            ))
+          p,
     ];
     final tokens = KitTokens.of(context);
     // The other servers' words come from the one attention source, which an
