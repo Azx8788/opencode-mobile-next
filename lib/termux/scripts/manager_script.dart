@@ -728,7 +728,7 @@ setup() {
   managed_runtime >/dev/null || return 64
   if [ -z "$requested_version" ]; then
     case "$CURRENT_RUNTIME" in
-      opencode1) requested_version=1.18.32 ;;
+      opencode1) requested_version=1.19.0 ;;
       opencode2) requested_version=2.0.10 ;;
     esac
   fi
@@ -1007,7 +1007,7 @@ switch_runtime() {
     require_setup_space
     local requested_version
     case "$target" in
-      opencode1) requested_version=1.18.32 ;;
+      opencode1) requested_version=1.19.0 ;;
       opencode2) requested_version=2.0.10 ;;
     esac
     install_runtime "$requested_version"

@@ -236,7 +236,7 @@ typedef OpenCodeAsset = ({String url, String sha256, String member});
 /// failed on the owner's ARM64 phone (build 2062, npm 11.19 `allowScripts`).
 ///
 /// - OpenCode 1: the release archives of
-///   https://github.com/anomalyco/opencode/releases/tag/v1.18.32, the same
+///   https://github.com/anomalyco/opencode/releases/tag/v1.19.0, the same
 ///   pins as scripts/host/ubuntu-opencode.sh (GitHub's asset digests, read
 ///   and matched against the files 2026-09-28). x64 is the baseline build,
 ///   which also runs on CPUs without AVX2.
@@ -251,16 +251,16 @@ typedef OpenCodeAsset = ({String url, String sha256, String member});
 abstract final class OpenCodePins {
   static const v1Arm64 = (
     url:
-        'https://github.com/anomalyco/opencode/releases/download/v1.18.32/'
+        'https://github.com/anomalyco/opencode/releases/download/v1.19.0/'
         'opencode-linux-arm64.tar.gz',
-    sha256: '568461b7d4d8c19865c97e9a1102e613049c6039d01fe772154de873c1865840',
+    sha256: 'e9841d43d3e1a8f36ed2691592d3b8b4fb097e606c8b559a277a1b845840e26b',
     member: 'opencode',
   );
   static const v1X64 = (
     url:
-        'https://github.com/anomalyco/opencode/releases/download/v1.18.32/'
+        'https://github.com/anomalyco/opencode/releases/download/v1.19.0/'
         'opencode-linux-x64-baseline.tar.gz',
-    sha256: '763af386ef88a8cab18df00fcf055690e5a55e31a7088beabe02307142a6adce',
+    sha256: '6334d70db3990721ea454357e9cf2573c8685524ad7769af9d52cbffb7008438',
     member: 'opencode',
   );
   static const v2Arm64 = (

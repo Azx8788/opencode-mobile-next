@@ -36,7 +36,7 @@ const _scripts = {'ubuntu': HostScripts.ubuntu, 'front': HostScripts.front};
 /// Details: docs/qa/slice-script-pins-2026-09-28/README.md.
 const _pendingPinUpdate = <String, String>{
   'scripts/host/ubuntu-opencode.sh':
-      '7c0f335cf7667e5b00d48ffb71bed1d2593c842d47823e76721ba5e7976b3c45',
+      '768e27428c29dffa68b43e1d3253b358a3a0505f1b6dd874448e66efed034e04',
 };
 
 /// Files that show or run shell commands: the app's own copy, the guides at

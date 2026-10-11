@@ -214,17 +214,14 @@ void main() {
       // The pins scripts/host/ubuntu-opencode.sh carries, and baseline x64.
       expect(
         OpenCodePins.v1Arm64.sha256,
-        '568461b7d4d8c19865c97e9a1102e613049c6039d01fe772154de873c1865840',
+        'e9841d43d3e1a8f36ed2691592d3b8b4fb097e606c8b559a277a1b845840e26b',
       );
       expect(
         OpenCodePins.v1X64.sha256,
-        '763af386ef88a8cab18df00fcf055690e5a55e31a7088beabe02307142a6adce',
+        '6334d70db3990721ea454357e9cf2573c8685524ad7769af9d52cbffb7008438',
       );
       expect(OpenCodePins.v1X64.url, endsWith('linux-x64-baseline.tar.gz'));
-      expect(
-        OpenCodePins.v1Arm64.url,
-        contains('/releases/download/v1.18.32/'),
-      );
+      expect(OpenCodePins.v1Arm64.url, contains('/releases/download/v1.19.0/'));
       expect(OpenCodePins.v2X64.url, contains('cli-linux-x64-baseline-2.0.10'));
       expect(OpenCodePins.v2Arm64.url, contains('cli-linux-arm64-2.0.10'));
       // Another version is not installed from an unpinned file.
@@ -268,13 +265,13 @@ void main() {
 
     test('ARM64 gets the arm64 archive: installed, proven, linked; the old '
         'npm wrapper is replaced and the check passes afterwards', () async {
-      final sha = archive('arm.tgz', 'opencode', _fakeProgram('1.18.32'));
+      final sha = archive('arm.tgz', 'opencode', _fakeProgram('1.19.0'));
       // What an older build left: npm's wrapper, reporting the right version.
       final npm = Directory('${root.path}/usr/local/lib/node_modules')
         ..createSync(recursive: true);
       final wrapper = File('${npm.path}/opencode-ai/bin/opencode')
         ..createSync(recursive: true)
-        ..writeAsStringSync('#!/bin/sh\necho 1.18.32\n');
+        ..writeAsStringSync('#!/bin/sh\necho 1.19.0\n');
       Process.runSync('chmod', ['+x', wrapper.path]);
       Directory('${npm.path}/opencode-linux-arm64').createSync();
       Directory('${root.path}/usr/local/bin').createSync(recursive: true);
@@ -293,7 +290,7 @@ void main() {
       expect(result.exitCode, 0, reason: '${result.stdout}${result.stderr}');
       final out = result.stdout as String;
       expect(out, contains('::oc stage Checking that OpenCode starts'));
-      expect(out, contains('::oc version 1.18.32'));
+      expect(out, contains('::oc version 1.19.0'));
       expect(
         Link('${root.path}/usr/local/bin/opencode').targetSync(),
         '${root.path}/opt/opencode/bin/opencode',
@@ -312,7 +309,7 @@ void main() {
 
       final after = await check(TermuxRuntime.openCode1);
       expect(after.exitCode, 0, reason: '${after.stderr}');
-      expect((after.stdout as String).trim(), '1.18.32');
+      expect((after.stdout as String).trim(), '1.19.0');
     }, skip: skip);
 
     test('x86_64 gets the x64 archive; OpenCode 2 unpacks the npm '
@@ -342,7 +339,7 @@ void main() {
     }, skip: skip);
 
     test('a checksum mismatch stops before anything is unpacked', () async {
-      archive('arm.tgz', 'opencode', _fakeProgram('1.18.32'));
+      archive('arm.tgz', 'opencode', _fakeProgram('1.19.0'));
       final result = await install(TermuxRuntime.openCode1, (
         arm64: asset('arm.tgz', 'f' * 64, 'opencode'),
         x64: asset('arm.tgz', 'f' * 64, 'opencode'),
@@ -370,7 +367,7 @@ void main() {
       () async {
         final previous = File('${root.path}/opt/opencode/bin/opencode')
           ..createSync(recursive: true)
-          ..writeAsStringSync(_fakeProgram('1.18.32'));
+          ..writeAsStringSync(_fakeProgram('1.19.0'));
         await Process.run('chmod', ['755', previous.path]);
         Directory('${root.path}/usr/local/bin').createSync(recursive: true);
         final link = Link('${root.path}/usr/local/bin/opencode')
@@ -378,7 +375,7 @@ void main() {
         final sha = archive(
           'activation.tgz',
           'opencode',
-          _fakeProgram('1.18.32', activeFails: true),
+          _fakeProgram('1.19.0', activeFails: true),
         );
         final pin = asset('activation.tgz', sha, 'opencode');
         final result = await install(TermuxRuntime.openCode1, (
@@ -390,7 +387,7 @@ void main() {
           lastLine(result),
           '[oc] OpenCode could not finish updating. Run setup again.',
         );
-        expect(previous.readAsStringSync(), _fakeProgram('1.18.32'));
+        expect(previous.readAsStringSync(), _fakeProgram('1.19.0'));
         expect(link.targetSync(), previous.path);
         expect((await check(TermuxRuntime.openCode1)).exitCode, 0);
         expect(
@@ -418,11 +415,11 @@ void main() {
       final empty = await run(null);
       expect(lastLine(empty), OpenCodeInstallFailure.noProgram);
 
-      final broken = await run(_fakeProgram('1.18.32', runs: false));
+      final broken = await run(_fakeProgram('1.19.0', runs: false));
       expect(lastLine(broken), OpenCodeInstallFailure.wontRun);
       expect(broken.stdout, contains('Exec format error'));
 
-      final silent = await run(_fakeProgram('1.18.32', starts: false));
+      final silent = await run(_fakeProgram('1.19.0', starts: false));
       expect(silent.exitCode, isNot(0));
       final said = '${silent.stdout}${silent.stderr}';
       expect(said, contains('database is locked'));

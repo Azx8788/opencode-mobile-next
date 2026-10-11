@@ -44,15 +44,15 @@ readonly UNIT_FILE="$UNIT_DIR/$SERVICE_NAME.service"
 
 # The OpenCode 1 release the app pins (lib/termux/bridge.dart), and the
 # SHA-256 of each Linux archive as GitHub publishes it for that release
-# (asset digests of https://github.com/anomalyco/opencode/releases/tag/v1.18.32,
-# read 2026-09-28 and matched against the downloaded files). x64 uses the
+# (asset digests of https://github.com/anomalyco/opencode/releases/tag/v1.19.0,
+# read 2026-10-11, verified against the downloaded files). x64 uses the
 # baseline build, which also runs on CPUs without AVX2, as the app does.
-readonly OPENCODE_VERSION="1.18.32"
+readonly OPENCODE_VERSION="1.19.0"
 readonly OPENCODE_RELEASES="https://github.com/anomalyco/opencode/releases/download"
 readonly OPENCODE_X64_ASSET="opencode-linux-x64-baseline.tar.gz"
-readonly OPENCODE_X64_SHA256="763af386ef88a8cab18df00fcf055690e5a55e31a7088beabe02307142a6adce"
+readonly OPENCODE_X64_SHA256="6334d70db3990721ea454357e9cf2573c8685524ad7769af9d52cbffb7008438"
 readonly OPENCODE_ARM64_ASSET="opencode-linux-arm64.tar.gz"
-readonly OPENCODE_ARM64_SHA256="568461b7d4d8c19865c97e9a1102e613049c6039d01fe772154de873c1865840"
+readonly OPENCODE_ARM64_SHA256="e9841d43d3e1a8f36ed2691592d3b8b4fb097e606c8b559a277a1b845840e26b"
 readonly OPENCODE_BIN_DIR="$HOME/.opencode/bin"
 
 WORK_DIR=""

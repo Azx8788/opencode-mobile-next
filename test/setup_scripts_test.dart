@@ -364,7 +364,7 @@ esac
       final bin = Directory('${dir.path}/bin')..createSync();
       File(
         '${bin.path}/opencode',
-      ).writeAsStringSync('#!/bin/sh\necho 1.18.32\n');
+      ).writeAsStringSync('#!/bin/sh\necho 1.19.0\n');
       File(
         '${bin.path}/opencode2',
       ).writeAsStringSync('#!/bin/sh\necho "opencode2 v2.0.9"\n');
@@ -390,7 +390,7 @@ esac
 
       final pinned = await check({});
       expect(pinned.exitCode, 0);
-      expect((pinned.stdout as String).trim(), '1.18.32');
+      expect((pinned.stdout as String).trim(), '1.19.0');
       expect((await check({'version': '1.18.30'})).exitCode, isNot(0));
       // OpenCode 2 is there but not at the pinned 2.0.10: an update is due.
       expect((await check({'runtime': 'opencode2'})).exitCode, isNot(0));
