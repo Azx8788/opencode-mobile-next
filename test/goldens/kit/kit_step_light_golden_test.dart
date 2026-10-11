@@ -5,6 +5,7 @@
 //
 // Regenerate deliberately:
 //   flutter test --update-goldens test/goldens/kit/kit_step_light_golden_test.dart
+// and look at every changed image before committing it.
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -63,7 +64,10 @@ Widget _app(
   key: _shot,
   child: MaterialApp(
     debugShowCheckedModeBanner: false,
-    theme: light ? AppTheme.light() : AppTheme.dark(),
+    theme: AppTheme.forLocale(
+      light ? AppTheme.light() : AppTheme.dark(),
+      rtl ? const Locale('ar') : const Locale('en'),
+    ),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     locale: rtl ? const Locale('ar') : const Locale('en'),
@@ -99,6 +103,14 @@ Future<void> _shotOf(WidgetTester tester, String name, bool light) async {
   );
 }
 
+/// ARCH-11: every shot is rendered as Android.
+void _test(String name, Future<void> Function(WidgetTester tester) body) =>
+    testWidgets(
+      name,
+      body,
+      variant: TargetPlatformVariant.only(TargetPlatform.android),
+    );
+
 void main() {
   setUpAll(loadKitGalleryFonts);
   tearDown(() => KitMotion.loops = false);
@@ -109,7 +121,7 @@ void main() {
     // The running light at exact times of a lap (2 s).
     for (final t in [0.10, 0.40, 0.55, 0.80]) {
       final pct = (t * 100).round();
-      testWidgets('running at $pct% · $mode', (tester) async {
+      _test('running at $pct% · $mode', (tester) async {
         KitMotion.loops = true;
         _size(tester);
         await tester.pumpWidget(
@@ -117,7 +129,7 @@ void main() {
         );
         await tester.pump();
         await tester.pump(Duration(milliseconds: (t * 2000).round()));
-        await _shotOf(tester, 'kit_step_light_running_t$pct', light);
+        await _shotOf(tester, 'kit_step_glow_running_t$pct', light);
         await tester.pumpWidget(const SizedBox());
       });
     }
@@ -132,20 +144,20 @@ void main() {
       'stopped': () => _timeline(KitToolStatus.stopped),
     };
     for (final entry in still.entries) {
-      testWidgets('${entry.key} still · $mode', (tester) async {
+      _test('${entry.key} still · $mode', (tester) async {
         KitMotion.loops = false;
         _size(tester);
         await tester.pumpWidget(
           _app(entry.value(), light: light, reduce: entry.key == 'reduced'),
         );
         await tester.pump();
-        await _shotOf(tester, 'kit_step_light_${entry.key}', light);
+        await _shotOf(tester, 'kit_step_glow_${entry.key}', light);
       });
     }
 
     // The first and the last step of a group, at 40% of a lap.
     for (final entry in {'first': true, 'last': false}.entries) {
-      testWidgets('${entry.key} step at 40% · $mode', (tester) async {
+      _test('${entry.key} step at 40% · $mode', (tester) async {
         KitMotion.loops = true;
         _size(tester, h: 214);
         await tester.pumpWidget(
@@ -160,12 +172,12 @@ void main() {
         );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 800));
-        await _shotOf(tester, 'kit_step_light_${entry.key}_t40', light);
+        await _shotOf(tester, 'kit_step_glow_${entry.key}_t40', light);
         await tester.pumpWidget(const SizedBox());
       });
     }
 
-    testWidgets('waiting breathes · $mode', (tester) async {
+    _test('waiting breathes · $mode', (tester) async {
       KitMotion.loops = true;
       _size(tester);
       await tester.pumpWidget(
@@ -173,11 +185,11 @@ void main() {
       );
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 800));
-      await _shotOf(tester, 'kit_step_light_waiting_breathe', light);
+      await _shotOf(tester, 'kit_step_glow_waiting_breathe', light);
       await tester.pumpWidget(const SizedBox());
     });
 
-    testWidgets('background is calmer · $mode', (tester) async {
+    _test('background is calmer · $mode', (tester) async {
       KitMotion.loops = true;
       _size(tester);
       await tester.pumpWidget(
@@ -185,11 +197,11 @@ void main() {
       );
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 1600)); // 40% of 4 s
-      await _shotOf(tester, 'kit_step_light_background_t40', light);
+      await _shotOf(tester, 'kit_step_glow_background_t40', light);
       await tester.pumpWidget(const SizedBox());
     });
 
-    testWidgets('stalled holds the light dimmed · $mode', (tester) async {
+    _test('stalled holds the light dimmed · $mode', (tester) async {
       KitMotion.loops = true;
       _size(tester);
       await tester.pumpWidget(
@@ -201,7 +213,7 @@ void main() {
         _app(_timeline(KitToolStatus.running, stalled: true), light: light),
       );
       await tester.pump(const Duration(milliseconds: 500));
-      await _shotOf(tester, 'kit_step_light_stalled', light);
+      await _shotOf(tester, 'kit_step_glow_stalled', light);
       await tester.pumpWidget(const SizedBox());
     });
 
@@ -213,7 +225,7 @@ void main() {
       'stop_fade': (KitToolStatus.stopped, 100),
     };
     for (final entry in changes.entries) {
-      testWidgets('${entry.key} · $mode', (tester) async {
+      _test('${entry.key} · $mode', (tester) async {
         KitMotion.loops = true;
         _size(tester);
         await tester.pumpWidget(
@@ -224,12 +236,12 @@ void main() {
         await tester.pumpWidget(_app(_timeline(entry.value.$1), light: light));
         await tester.pump();
         await tester.pump(Duration(milliseconds: entry.value.$2));
-        await _shotOf(tester, 'kit_step_light_${entry.key}', light);
+        await _shotOf(tester, 'kit_step_glow_${entry.key}', light);
         await tester.pumpWidget(const SizedBox());
       });
     }
 
-    testWidgets('2.0 text · Arabic · $mode', (tester) async {
+    _test('2.0 text · Arabic · $mode', (tester) async {
       KitMotion.loops = true;
       _size(tester, width: 380, h: 480);
       await tester.pumpWidget(
@@ -242,7 +254,7 @@ void main() {
       );
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 800));
-      await _shotOf(tester, 'kit_step_light_text2_rtl_t40', light);
+      await _shotOf(tester, 'kit_step_glow_running_t40_ar_text2', light);
       await tester.pumpWidget(const SizedBox());
     });
   }
