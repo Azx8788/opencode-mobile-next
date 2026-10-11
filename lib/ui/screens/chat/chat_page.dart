@@ -40,13 +40,13 @@ extension _ChatPage on _ChatScreenState {
         : -1;
     // A closing event that never came (a compaction line, a tool call still
     // spinning under later words) is settled before anything draws it.
-    _messages = settleStaleLive(_messages, busy: busy);
-    final displayParts = _timelineDisplayParts(_messages, liveTail: busy);
+    final messages = settleStaleLive(_messages, busy: busy);
+    final displayParts = _timelineDisplayParts(messages, liveTail: busy);
     _live = _liveTurn(busy: busy, queuedAfterIndex: queuedAfterIndex);
     _unanswered = _conn.isIsolated || _watching
         ? null
         : _unansweredTurn(
-            _messages,
+            messages,
             refused: _promptError != null,
             running: busy || _sending || _live != null,
             stoppedPromptID: _stoppedPromptID,
@@ -68,26 +68,26 @@ extension _ChatPage on _ChatScreenState {
     };
     // Where the agent's latest words end. A waiting prompt is always after
     // them; an older prompt with the same words is history and stays.
-    final lastAssistant = _messages.lastIndexWhere(
+    final lastAssistant = messages.lastIndexWhere(
       (message) => message.info.role == 'assistant',
     );
     final waitingLocalIDs = <String>{
       if (waiting.isNotEmpty)
-        for (var i = 0; i < _messages.length; i++)
-          if (_messages[i].info.role == 'user' &&
-              v2VariantPart(_messages[i]) == null &&
+        for (var i = 0; i < messages.length; i++)
+          if (messages[i].info.role == 'user' &&
+              v2VariantPart(messages[i]) == null &&
               // The server admits a prompt under the id it will keep, and
               // the optimistic copy is swapped for that message at once, so
               // the copy in the transcript usually carries the item's id.
-              (waitingIDs.contains(_messages[i].info.id) ||
+              (waitingIDs.contains(messages[i].info.id) ||
                   (i > lastAssistant &&
                       waitingTexts.contains(
-                        _ChatScreenState._messageText(_messages[i]).trim(),
+                        _ChatScreenState._messageText(messages[i]).trim(),
                       ))))
-            _messages[i].info.id,
+            messages[i].info.id,
     };
     final turnActionOwners = _turnActionOwners(
-      _messages,
+      messages,
       displayParts,
       ignore: waitingLocalIDs,
       metaAlways: _conn.transcriptTimestampsVisible,
@@ -96,7 +96,7 @@ extension _ChatPage on _ChatScreenState {
     _stoppedRow = _conn.isIsolated || _watching
         ? null
         : _stoppedTurnRow(
-            _messages,
+            messages,
             turnActionOwners,
             stoppedPromptID: _stoppedPromptID,
             running: busy || _sending || _live != null,
