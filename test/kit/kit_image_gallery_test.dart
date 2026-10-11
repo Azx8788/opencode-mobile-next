@@ -1,6 +1,8 @@
+import 'dart:async';
 // KitImageGallery (docs/ux-system/kit-api/KitImageGallery.md): swipe through
 // the pictures with a position label, zoomed pictures do not page, pictures
 // load lazily, and Send hands the picture to the host.
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -9,15 +11,12 @@ import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/ui/app_theme.dart';
 import 'package:opencode_mobile/ui/kit/kit.dart';
 
+import 'kit_motion_still.dart';
+
 /// A 1×1 PNG.
-final Uint8List _png = Uint8List.fromList(const [
-  0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, //
-  0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
-  0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4, 0x89, 0x00, 0x00, 0x00,
-  0x0D, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9C, 0x63, 0x64, 0x60, 0x60, 0xF8,
-  0x0F, 0x00, 0x01, 0x05, 0x01, 0x01, 0x27, 0x18, 0xE3, 0x66, 0x00, 0x00,
-  0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82,
-]);
+final Uint8List _png = base64Decode(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+);
 
 Future<void> _pump(
   WidgetTester tester,
@@ -61,7 +60,38 @@ Future<void> _swipe(WidgetTester tester, double dx) async {
   await tester.pumpAndSettle();
 }
 
+/// kitModalDismiss for a full-screen page: the home is hidden under the page,
+/// so the context is taken before it opens.
+KitMotionChange _pageDismiss(
+  Future<void> Function(BuildContext context) open,
+  String shows,
+) => KitMotionChange(
+  build: () => const SizedBox.expand(),
+  act: (tester, stage) async {
+    final context = stage.context;
+    unawaited(open(context));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text(shows), findsWidgets, reason: 'the page never opened');
+    Navigator.of(context).pop();
+  },
+  hides: shows,
+);
+
 void main() {
+  List<KitGalleryPicture> still() => _pictures(2, []);
+  kitMotionStillTests(
+    'KitImageGallery',
+    builds: {'loaded': () => KitImageGallery(pictures: still())},
+  );
+  Future<void> openStill(BuildContext context) =>
+      showKitImageGallery(context, pictures: still());
+  kitMotionStillTests(
+    'showKitImageGallery',
+    opens: {'two pictures': KitMotionOpen(openStill, shows: '1 of 2')},
+    changes: {'dismissed': _pageDismiss(openStill, '1 of 2')},
+  );
+
   testWidgets('swiping moves to the next picture and the label follows', (
     tester,
   ) async {

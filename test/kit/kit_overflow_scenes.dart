@@ -21,6 +21,7 @@ import 'kit_overflow_chat_scenes.dart';
 import 'kit_overflow_data_scenes.dart';
 import 'kit_overflow_form_scenes.dart';
 import 'kit_overflow_layout_scenes.dart';
+import 'kit_overflow_image_scenes.dart';
 import 'kit_overflow_team_scenes.dart';
 import 'kit_chat_overflow_scenes.dart';
 import 'kit_core_overflow_scenes.dart';
@@ -181,6 +182,7 @@ final kitOverflowScenes = <KitOverflowScene>[
   ...kitOverflowLayoutScenes,
   ...kitOverflowTeamScenes,
   ...kitOverflowTeamSpecScenes,
+  ...kitOverflowImageScenes,
   KitOverflowScene(
     const ['KitSegmented'],
     'labels-overflow',

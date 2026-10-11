@@ -1,3 +1,4 @@
+import 'dart:async';
 // KitImageMarkup (docs/ux-system/kit-api/KitImageMarkup.md): pen strokes in
 // four colours, Undo, Clear, Crop with corner handles, and a result drawn at
 // the picture's own resolution.
@@ -9,6 +10,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/ui/app_theme.dart';
 import 'package:opencode_mobile/ui/kit/kit.dart';
+
+import 'kit_motion_still.dart';
 
 const _w = 400;
 const _h = 200;
@@ -115,7 +118,38 @@ Future<void> _press(WidgetTester tester, String key) async {
 Offset _canvasCentre(WidgetTester tester) =>
     tester.getCenter(find.byKey(const ValueKey('kit-markup-canvas')));
 
+/// kitModalDismiss for a full-screen page: the home is hidden under the page,
+/// so the context is taken before it opens.
+KitMotionChange _pageDismiss(
+  Future<void> Function(BuildContext context) open,
+  String shows,
+) => KitMotionChange(
+  build: () => const SizedBox.expand(),
+  act: (tester, stage) async {
+    final context = stage.context;
+    unawaited(open(context));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text(shows), findsWidgets, reason: 'the page never opened');
+    Navigator.of(context).pop();
+  },
+  hides: shows,
+);
+
 void main() {
+  final bytes = Uint8List.fromList(const [1, 2, 3]);
+  kitMotionStillTests(
+    'KitImageMarkup',
+    builds: {'unreadable': () => KitImageMarkup(bytes: bytes, name: 'a.png')},
+  );
+  Future<void> openStill(BuildContext context) =>
+      showKitImageMarkup(context, bytes: bytes, name: 'a.png');
+  kitMotionStillTests(
+    'showKitImageMarkup',
+    opens: {'unreadable': KitMotionOpen(openStill, shows: 'Edit picture')},
+    changes: {'dismissed': _pageDismiss(openStill, 'Edit picture')},
+  );
+
   testWidgets('drawing marks the picture in red at its own resolution', (
     tester,
   ) async {

@@ -3,6 +3,7 @@
 // rules; Enter confirms only a neutral question; Tab reaches every action.
 // Runs with debugPlatformCapabilities set to desktop.
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -301,6 +302,115 @@ void main() {
       await tester.pumpAndSettle();
       expect(closed, isTrue);
       expect(find.byKey(const ValueKey('term-bubble')), findsNothing);
+    });
+  });
+
+  // A 1×1 PNG.
+  final png = base64Decode(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+  );
+
+  group('showKitImageGallery', () {
+    testWidgets('arrows change picture and Esc closes', (tester) async {
+      final context = await pumpKitHost(tester, size: _pc);
+      var closed = false;
+      unawaited(
+        showKitImageGallery(
+          context,
+          galleryKey: const ValueKey('gallery'),
+          pictures: [
+            for (var i = 0; i < 3; i++)
+              KitGalleryPicture(
+                id: 'p$i',
+                name: 'p$i.png',
+                load: () async => png,
+              ),
+          ],
+        ).then((_) => closed = true),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('1 of 3'), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pumpAndSettle();
+      expect(find.text('2 of 3'), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+      await tester.pumpAndSettle();
+      expect(find.text('1 of 3'), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(closed, isTrue);
+      expect(find.byKey(const ValueKey('gallery')), findsNothing);
+    });
+
+    testWidgets('in right-to-left the left arrow is the next picture', (
+      tester,
+    ) async {
+      final context = await pumpKitHost(
+        tester,
+        size: _pc,
+        locale: const Locale('ar'),
+      );
+      unawaited(
+        showKitImageGallery(
+          context,
+          pictures: [
+            for (var i = 0; i < 3; i++)
+              KitGalleryPicture(
+                id: 'p$i',
+                name: 'p$i.png',
+                load: () async => png,
+              ),
+          ],
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+      await tester.pumpAndSettle();
+      expect(find.text('2 من 3'), findsOneWidget);
+    });
+  });
+
+  group('showKitImageMarkup', () {
+    testWidgets('Tab reaches Done and Esc closes without a result', (
+      tester,
+    ) async {
+      final context = await pumpKitHost(tester, size: _pc);
+      var closed = false;
+      KitMarkupResult? result;
+      unawaited(
+        showKitImageMarkup(
+          context,
+          bytes: png,
+          name: 'p.png',
+          markupKey: const ValueKey('markup'),
+        ).then((r) {
+          result = r;
+          closed = true;
+        }),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 600));
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 200)),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(find.byKey(const ValueKey('kit-markup-done')), findsOneWidget);
+      var reached = false;
+      for (var i = 0; i < 20 && !reached; i++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        reached = _focusIn(
+          tester,
+          find.byKey(const ValueKey('kit-markup-done')),
+        );
+      }
+      expect(reached, isTrue);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 600));
+      expect(closed, isTrue);
+      expect(result, isNull);
     });
   });
 }

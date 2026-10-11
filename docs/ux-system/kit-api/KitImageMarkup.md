@@ -34,7 +34,7 @@ class KitMarkupResult {
 
 ## States
 
-Decoding, error (cannot read the picture; failed render says what happened and to go back and send the original), drawing, cropping, working.
+loading (the picture is being read), error (cannot read the picture; a failed render says what happened and to go back and send the original), working (the result being drawn). Drawing and cropping are modes, not states.
 
 ## Accessibility
 

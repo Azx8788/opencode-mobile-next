@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../app_iconography.dart';
@@ -9,6 +9,7 @@ import 'kit_bidi.dart';
 import 'kit_buttons.dart';
 import 'kit_image.dart';
 import 'kit_image_markup.dart';
+import 'kit_motion.dart';
 import 'kit_page_route.dart';
 import 'kit_screen.dart';
 import 'kit_state_view.dart';
@@ -49,10 +50,12 @@ Future<void> showKitImageGallery(
   required List<KitGalleryPicture> pictures,
   int initialIndex = 0,
   KitGallerySend? onSend,
+  Key? galleryKey,
 }) => Navigator.of(context).push<void>(
   KitPageRoute<void>(
     fullscreenDialog: true,
     builder: (_) => KitImageGallery(
+      key: galleryKey,
       pictures: pictures,
       initialIndex: initialIndex,
       onSend: onSend,
@@ -66,7 +69,10 @@ Future<void> showKitImageGallery(
 /// is not zoomed in. Edit opens [showKitImageMarkup]; Send hands the
 /// (edited) picture to [onSend] and closes.
 ///
-/// States: loading, error (per picture), loaded, working (sending).
+/// States: loading, error, disabled, working.
+///
+/// Loading and error are per picture; disabled is Edit and Send before the
+/// picture has loaded; working is Send in flight.
 class KitImageGallery extends StatefulWidget {
   const KitImageGallery({
     super.key,
@@ -190,8 +196,38 @@ class _KitImageGalleryState extends State<KitImageGallery> {
     if (added && mounted) Navigator.of(context).pop();
   }
 
+  /// Arrow keys on a PC: the picture on that side of the screen. A zoomed
+  /// picture keeps the arrows for panning (KitZoom takes them first).
+  void _step(bool towardsEnd) {
+    if (_zoomed.contains(_index) || !_pages.hasClients) return;
+    final to = _index + (towardsEnd ? 1 : -1);
+    if (to < 0 || to >= widget.pictures.length) return;
+    unawaited(
+      _pages.animateToPage(
+        to,
+        duration: KitMotion.reduced(context)
+            ? Duration.zero
+            : KitMotion.standard,
+        curve: KitMotion.enter,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    return CallbackShortcuts(
+      bindings: {
+        const SingleActivator(LogicalKeyboardKey.escape): () =>
+            Navigator.of(context).maybePop(),
+        const SingleActivator(LogicalKeyboardKey.arrowLeft): () => _step(rtl),
+        const SingleActivator(LogicalKeyboardKey.arrowRight): () => _step(!rtl),
+      },
+      child: Focus(autofocus: true, child: _screen(context)),
+    );
+  }
+
+  Widget _screen(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final tokens = KitTokens.of(context);
     final total = widget.pictures.length;

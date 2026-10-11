@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:math' as math;
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../app_iconography.dart';
@@ -43,10 +43,16 @@ Future<KitMarkupResult?> showKitImageMarkup(
   required Uint8List bytes,
   required String name,
   bool canSend = true,
+  Key? markupKey,
 }) => Navigator.of(context).push<KitMarkupResult>(
   KitPageRoute<KitMarkupResult>(
     fullscreenDialog: true,
-    builder: (_) => KitImageMarkup(bytes: bytes, name: name, canSend: canSend),
+    builder: (_) => KitImageMarkup(
+      key: markupKey,
+      bytes: bytes,
+      name: name,
+      canSend: canSend,
+    ),
   ),
 );
 
@@ -82,7 +88,10 @@ class _Stroke {
 /// corner handles. The result is drawn at the picture's own resolution, not
 /// the screen's.
 ///
-/// States: decoding, error, drawing, cropping, working.
+/// States: loading, error, working.
+///
+/// Loading is the picture being read; drawing and cropping are modes of the
+/// editor, not states.
 class KitImageMarkup extends StatefulWidget {
   const KitImageMarkup({
     super.key,
@@ -320,6 +329,17 @@ class _KitImageMarkupState extends State<KitImageMarkup> {
 
   @override
   Widget build(BuildContext context) {
+    return CallbackShortcuts(
+      bindings: {
+        // Esc leaves a crop first, then the editor.
+        const SingleActivator(LogicalKeyboardKey.escape): () =>
+            _cropping ? _cancelCrop() : Navigator.of(context).maybePop(),
+      },
+      child: Focus(autofocus: true, child: _screen(context)),
+    );
+  }
+
+  Widget _screen(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final tokens = KitTokens.of(context);
     final cropping = _cropping;

@@ -35,7 +35,7 @@ Future<void> showKitImageGallery(BuildContext context,
 
 ## States
 
-Loading (a working mark), error per picture (title, the way forward, Try again), loaded, working (Send in flight).
+loading (a working mark), error per picture (title, the way forward, Try again), disabled (Edit and Send until the picture has loaded), working (Send in flight).
 
 ## Accessibility
 
