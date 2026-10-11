@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:opencode_mobile/platform/platform_capabilities.dart';
 import 'package:opencode_mobile/state/local_agent_server.dart';
 import 'package:opencode_mobile/state/profiles.dart';
+import 'package:opencode_mobile/ui/widgets/termux_running_server_entry.dart';
 
 ServerProfile _paseo(String id, String url, {String name = 'This phone'}) =>
     ServerProfile(
@@ -50,5 +52,21 @@ void main() {
     expect(savedLocalAgentProfile(profiles)?.id, 'stale');
     expect(savedLocalAgentProfile(profiles, preferID: 'live')?.id, 'live');
     expect(savedLocalAgentProfile(profiles, preferID: 'other')?.id, 'stale');
+  });
+
+  test('only one profile per endpoint folds into the phone row', () {
+    debugPlatformCapabilities = const PlatformCapabilities.android();
+    addTearDown(() => debugPlatformCapabilities = null);
+    final first = _paseo('first', 'ws://127.0.0.1:6767');
+    final second = _paseo('second', 'ws://localhost:6767');
+    final all = [first, second];
+    bool folded(ServerProfile p, {String? live}) =>
+        shownAsPhoneRow(p, among: all, preferID: live);
+    // Not connected: the first folds, the other stays a normal row.
+    expect(folded(first), isTrue);
+    expect(folded(second), isFalse);
+    // Connected: the connected one folds, the first becomes a normal row.
+    expect(folded(second, live: 'second'), isTrue);
+    expect(folded(first, live: 'second'), isFalse);
   });
 }
