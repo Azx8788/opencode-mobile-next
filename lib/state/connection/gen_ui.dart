@@ -444,7 +444,7 @@ extension _ConnectionGenUiImpl on ConnectionController {
           status == StreamStatus.connected &&
           (gateway is! PaseoGateway ||
               (gateway.transport.connected &&
-                  gateway.transport.serverVersion == '0.9.2')) &&
+                  paseoSupports(gateway.transport.serverVersion))) &&
           (_connectedProfile ?? profile)?.baseUrl == endpoint &&
           genUiEnabled &&
           !_deletingReadProfiles.contains(scope.profileID),
@@ -520,7 +520,7 @@ extension _ConnectionGenUiImpl on ConnectionController {
         source != null &&
         !source.isClosed &&
         source.transport.connected &&
-        source.transport.serverVersion == '0.9.2' &&
+        paseoSupports(source.transport.serverVersion) &&
         (liveSource == null ||
             identical(owner._genUiPhoneSources[currentScope]?.gateway, source));
     if (event.type == 'message.updated' &&
@@ -733,7 +733,7 @@ extension _ConnectionGenUiImpl on ConnectionController {
           !_disposed &&
           !gateway.isClosed &&
           gateway.transport.connected &&
-          gateway.transport.serverVersion == '0.9.2' &&
+          paseoSupports(gateway.transport.serverVersion) &&
           _genUiPaseoAgentReady &&
           _paProfile?.id == scope.profileID &&
           _paProfile?.baseUrl == endpoint &&

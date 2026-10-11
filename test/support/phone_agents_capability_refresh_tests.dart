@@ -18,7 +18,7 @@ class _VersionSocket extends FakePaseoSocket {
 }
 
 void _phoneCapabilityRefreshTests() {
-  for (final version in ['0.9.2', null, '0.9.3']) {
+  for (final version in ['0.9.2', '0.11.2', null, '0.9.3']) {
     test(
       'first helper $version refreshes arm64 Claude capability rows',
       () async {
@@ -42,12 +42,23 @@ void _phoneCapabilityRefreshTests() {
           (row) => row.id == 'claude',
         );
         expect(row.status, PhoneAgentStatus.ready);
-        expect(row.capabilities.resumeVerified, version == '0.9.2');
-        expect(row.capabilities.modelList, version == '0.9.2');
-        expect(row.capabilities.cancel, version == '0.9.2');
+        expect(
+          row.capabilities.resumeVerified,
+          (version == '0.9.2' || version == '0.11.2'),
+        );
+        expect(
+          row.capabilities.modelList,
+          (version == '0.9.2' || version == '0.11.2'),
+        );
+        expect(
+          row.capabilities.cancel,
+          (version == '0.9.2' || version == '0.11.2'),
+        );
         expect(
           row.resumeLabel,
-          version == '0.9.2' ? null : "Can't reopen old chats",
+          (version == '0.9.2' || version == '0.11.2')
+              ? null
+              : "Can't reopen old chats",
         );
         // One extra inspection only when the handshake adds version evidence.
         expect(w.state.capabilityReads.length, version == null ? 1 : 2);
@@ -103,7 +114,7 @@ void _phoneCapabilityRefreshTests() {
         for (var i = 0; i < 20; i++) {
           await tester.pump();
         }
-        expect(w.host.gateways.single.transport.serverVersion, '0.9.2');
+        expect(w.host.gateways.single.transport.serverVersion, '0.11.2');
         final row = w.controller.agentRows.singleWhere(
           (row) => row.id == 'claude',
         );

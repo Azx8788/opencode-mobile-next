@@ -37,6 +37,7 @@ import '../domain/session_stop.dart';
 import '../codex/gateway.dart';
 import '../codex/transport.dart' show CodexFailure, CodexFailureKind;
 import '../paseo/gateway.dart';
+import '../paseo/tested_versions.dart';
 import '../paseo/transport.dart' show PaseoFailure, PaseoFailureKind;
 import '../api/opencode_api.dart';
 import '../domain/form_request.dart';

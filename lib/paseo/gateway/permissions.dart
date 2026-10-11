@@ -187,7 +187,7 @@ extension _PaseoPermissions on PaseoGateway {
         pending.hostRequest != null ||
         _closed ||
         !transport.connected ||
-        transport.serverVersion != '0.9.2' ||
+        !paseoSupports(transport.serverVersion) ||
         pending.epoch != transport.epoch ||
         !(AgentToolAdapters.forPaseoProvider(
               agent?['provider'],

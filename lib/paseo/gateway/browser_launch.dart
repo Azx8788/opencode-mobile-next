@@ -83,7 +83,7 @@ extension _PaseoBrowserLaunch on PaseoGateway {
     final realID = _real(id), revision = _browserRevision(id);
     if (_agents[_app(id)]?['provider'] != 'claude' ||
         !transport.connected ||
-        transport.serverVersion != '0.9.2') {
+        !paseoSupports(transport.serverVersion)) {
       throw _browserUnavailable;
     }
     final reservation = await _browserLaunches!.reserve(

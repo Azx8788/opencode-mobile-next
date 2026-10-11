@@ -34,7 +34,7 @@ class FakePaseoSocket implements PaseoSocket {
   void send(String message) {
     final envelope = jsonDecode(message) as Map<String, dynamic>;
     if (envelope['type'] == 'hello') {
-      push('status', {'status': 'server_info', 'version': '0.9.2'});
+      push('status', {'status': 'server_info', 'version': '0.11.2'});
       return;
     }
     if (envelope['type'] == 'ping') return;

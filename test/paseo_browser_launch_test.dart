@@ -18,7 +18,7 @@ class _Daemon extends FakeDaemon {
     final frame = jsonDecode(message) as Map<String, dynamic>;
     if (frame['type'] == 'hello') {
       hello = frame;
-      push('status', {'status': 'server_info', 'version': '0.9.2'});
+      push('status', {'status': 'server_info', 'version': '0.11.2'});
       return;
     }
     if (frame['type'] != 'ping') {

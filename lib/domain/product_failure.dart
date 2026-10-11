@@ -267,6 +267,7 @@ ProductFailureCategory _classify(Object error) {
       'PaseoinvalidResponse',
       'PaseohostRefused',
       'PaseoinvalidEndpoint',
+      'PaseoincompatibleProtocol',
     }.contains(error.errorTag)) {
       return ProductFailureCategory.computer;
     }
