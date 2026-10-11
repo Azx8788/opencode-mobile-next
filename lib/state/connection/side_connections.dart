@@ -212,6 +212,7 @@ mixin _ConnectionControllerSideConnections on ChangeNotifier
     agentLabel: item.agentLabel,
     sourceId: _sideSourceId(profileId),
     sourceLabel: _sides[profileId]?.profile?.name,
+    contextUsage: item.contextUsage,
   );
 
   /// Saved rows read this run, by profile id, until the server answers.

@@ -54,25 +54,92 @@ extension _ChatTopBar on _ChatScreenState {
     );
   }
 
-  /// Fraction of the model's context window consumed, from the newest
+  /// The newest assistant reply's tokens against its model's window, with
+  /// the per-reply history (null when either side is unknown).
+  ContextReading? _contextReading() =>
+      contextReadingFor(_visibleHistory.toList(), _conn.catalog);
+
+  /// Fraction of the model's context window consumed: from the newest
   /// assistant message that reported token usage and the catalog's limit for
-  /// its exact model. Null when either side is unknown.
-  double? _contextWindowUsage() {
-    final catalog = _conn.catalog;
-    if (catalog == null) return null;
-    for (var index = _visibleHistory.length - 1; index >= 0; index -= 1) {
-      final info = _messages[index].info;
-      if (info.role != 'assistant' || info.tokens.total <= 0) continue;
-      for (final model in catalog.models) {
-        if (model.providerID == info.providerID && model.id == info.modelID) {
-          return model.contextLimit > 0
-              ? info.tokens.total / model.contextLimit
-              : null;
-        }
-      }
-      return null;
+  /// its exact model; else, for an agent that reports its own usage (Paseo),
+  /// the session record's. Null when unknown.
+  double? _contextWindowUsage() =>
+      _contextReading()?.fraction ??
+      _conn.sessionsById[widget.sessionID]?.contextUse?.fraction;
+
+  /// Whether this conversation is being compacted right now: OpenCode 1
+  /// stamps the session while it compacts; OpenCode 2 and Paseo put a
+  /// running compaction notice in the transcript.
+  bool _contextCompacting() {
+    if (_conn.sessionsById[widget.sessionID]?.compactingSince != null) {
+      return true;
     }
-    return null;
+    for (var i = _messages.length - 1; i >= 0; i -= 1) {
+      final part = v2VariantPart(_messages[i]);
+      if (part?.type == 'v2:compaction') return part?.toolName == 'running';
+    }
+    return false;
+  }
+
+  /// The ring in the bar, absent while the use is unknown. It also leaves
+  /// the value behind for the chats list.
+  Widget? _contextRing() {
+    final used = _contextWindowUsage();
+    if (_conn.isIsolated || _watching || used == null) return null;
+    _conn.contextUsageMemory?.remember(widget.sessionID, used);
+    return KitContextRing(
+      key: const Key('chat-context-ring'),
+      used: used,
+      compacting: _contextCompacting(),
+      openDetails: _showContextDetails,
+    );
+  }
+
+  /// The details sheet: the numbers, the per-reply chart, and Compact now
+  /// when this server can compact on request.
+  Future<void> _showContextDetails() async {
+    final reading = _contextReading();
+    final own = _conn.sessionsById[widget.sessionID]?.contextUse;
+    final tokens = reading?.tokens ?? own?.tokens;
+    final limit = reading?.limit ?? own?.limit;
+    if (tokens == null || limit == null || limit <= 0) return;
+    final l10n = _chatL10n(context);
+    final compact = _supportsSessionCompact && !_contextCompacting();
+    final modelName =
+        reading?.modelName ??
+        _conn.sessionsById[widget.sessionID]?.model?.split('/').last ??
+        '';
+    await showKitSheet<void>(
+      context,
+      sheetKey: const Key('context-details-sheet'),
+      title: l10n.kitContextSheetTitle,
+      primary: compact
+          ? KitAction(
+              key: const Key('context-compact-now'),
+              label: l10n.kitContextSheetCompactNow,
+              icon: AppIconography.collapse,
+              // The sheet closes first; compacting asks its own question.
+              onPressed: () => unawaited(
+                Navigator.of(context).maybePop().then((_) {
+                  if (mounted) return _compact();
+                }),
+              ),
+            )
+          : null,
+      body: (_) => KitContextSheet(
+        tokens: tokens,
+        limit: limit,
+        modelName: modelName,
+        compacting: _contextCompacting(),
+        bars: [
+          for (final reply in reading?.replies ?? const <ContextReply>[])
+            KitContextBar(
+              fraction: reply.fraction,
+              compactedBefore: reply.afterCompaction,
+            ),
+        ],
+      ),
+    );
   }
 
   Widget _transcriptSelectionArea({required Widget child}) => _conn.isIsolated
@@ -197,6 +264,8 @@ extension _ChatTopBar on _ChatScreenState {
       ],
       // Watching: the conversation is the worker's; nothing in the menu
       // (share, fork, rename) is ours. The demo has none either.
+      // The context ring stays in the bar at every width, left of the ⋯.
+      accessory: _contextRing(),
       menu: _sessionMenu(shared: shared),
       menuKey: const ValueKey('session-actions-button'),
       menuLabel: l10n.chatUiSessionMenu,

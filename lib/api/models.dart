@@ -201,6 +201,17 @@ class SessionRevert {
   ]);
 }
 
+/// Tokens in a model's context window and the window's size, as an agent
+/// reported them.
+class SessionContextUse {
+  const SessionContextUse({required this.tokens, required this.limit});
+
+  final int tokens;
+  final int limit;
+
+  double get fraction => tokens / limit;
+}
+
 class Session {
   final String id;
   final String? title;
@@ -238,6 +249,11 @@ class Session {
   /// OpenCode 2 only: the server says the last run ended in failure.
   final bool lastRunFailed;
 
+  /// The model's context window and what is in it, when the server's
+  /// session record carries it (Paseo's agent usage does). OpenCode sessions
+  /// leave it null; their share comes from the replies' tokens.
+  final SessionContextUse? contextUse;
+
   Session({
     required this.id,
     this.title,
@@ -258,6 +274,7 @@ class Session {
     this.selection,
     this.compactingSince,
     this.lastRunFailed = false,
+    this.contextUse,
   });
 
   factory Session.fromJson(Map<String, dynamic> j) {
@@ -342,6 +359,7 @@ class Session {
     selection: selection ?? this.selection,
     compactingSince: compactingSince,
     lastRunFailed: lastRunFailed,
+    contextUse: contextUse,
   );
 }
 

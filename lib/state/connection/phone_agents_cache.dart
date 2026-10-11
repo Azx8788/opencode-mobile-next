@@ -179,6 +179,7 @@ ChatFeedItem _withFinishedUnseen(ChatFeedItem item) => ChatFeedItem(
   sourceId: item.sourceId,
   sourceLabel: item.sourceLabel,
   finishedUnseen: true,
+  contextUsage: item.contextUsage,
 );
 
 /// A row of an agent on this phone (not OpenCode's).

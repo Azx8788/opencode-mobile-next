@@ -140,6 +140,7 @@ class MergedChatFeed implements ChatFeedSource, ChatFeedChangeSource {
           sourceId: named.id,
           sourceLabel: named.label,
           finishedUnseen: item.finishedUnseen,
+          contextUsage: item.contextUsage,
         );
         if (chatFeedMatches(row, filter)) rows.add(row);
       }

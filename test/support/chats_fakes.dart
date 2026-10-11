@@ -288,6 +288,7 @@ ChatFeedItem chat(
   String? sourceId,
   String? sourceLabel,
   bool finishedUnseen = false,
+  double? contextUsage,
 }) => ChatFeedItem(
   sessionID: id,
   title: title,
@@ -303,6 +304,7 @@ ChatFeedItem chat(
   sourceId: sourceId,
   sourceLabel: sourceLabel,
   finishedUnseen: finishedUnseen,
+  contextUsage: contextUsage,
 );
 
 ProjectSummary project(

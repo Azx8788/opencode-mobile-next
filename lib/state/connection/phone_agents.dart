@@ -1122,6 +1122,7 @@ mixin _ConnectionControllerPhoneAgents on ChangeNotifier
       sourceId: item.sourceId,
       sourceLabel: item.sourceLabel,
       finishedUnseen: item.finishedUnseen,
+      contextUsage: item.contextUsage,
     );
   }
 

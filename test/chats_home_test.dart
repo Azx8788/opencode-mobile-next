@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:opencode_mobile/domain/chat_feed.dart';
 import 'package:opencode_mobile/ui/kit/kit_bidi.dart';
+import 'package:opencode_mobile/ui/kit/kit_context_ring.dart';
 import 'package:opencode_mobile/ui/kit/motion/kit_reveal.dart' show KitEntrance;
 import 'package:opencode_mobile/ui/screens/chats/chats_host.dart'
     show leftoverNoticeLine;
@@ -120,6 +121,44 @@ void main() {
     expect(find.text(KitBidi.auto('Allow running the tests?')), findsOneWidget);
     // The project label with a Git badge only where the project is Git.
     expect(find.text('Git'), findsNWidgets(2));
+  });
+
+  clocked('a small context ring per chat when its use is known', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      FakeChatsHost(
+        FakeChatFeedSource(
+          items: [
+            chat(
+              'full',
+              'Nearly full',
+              at: _now.subtract(const Duration(minutes: 1)),
+              contextUsage: 0.82,
+            ),
+            chat(
+              'roomy',
+              'Plenty of room',
+              at: _now.subtract(const Duration(minutes: 2)),
+              contextUsage: 0.31,
+            ),
+            chat(
+              'unknown',
+              'Never opened',
+              at: _now.subtract(const Duration(minutes: 3)),
+            ),
+          ],
+          projects: [project('alpha', chats: 3)],
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    // Two rings: the unknown one draws none.
+    expect(find.byType(KitContextRing), findsNWidgets(2));
+    // The number only from 70 %.
+    expect(find.text('82 %'), findsOneWidget);
+    expect(find.text('31 %'), findsNothing);
   });
 
   clocked('a row with the server\'s dated placeholder title reads New '

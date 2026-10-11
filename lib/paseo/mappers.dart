@@ -86,6 +86,19 @@ String paseoProviderName(String provider) => switch (provider) {
   _ => provider,
 };
 
+/// Tokens in the runtime's context window and its size, from an agent's
+/// `lastUsage` (`contextWindowUsedTokens` over `contextWindowMaxTokens`,
+/// Paseo protocol 0.11.2). Null when either number is missing or unusable,
+/// which is also what a runtime that reports none looks like.
+SessionContextUse? paseoContextUse(Object? usage) {
+  if (usage is! Map) return null;
+  final used = usage['contextWindowUsedTokens'];
+  final max = usage['contextWindowMaxTokens'];
+  if (used is! num || max is! num) return null;
+  if (!used.isFinite || !max.isFinite || used <= 0 || max <= 0) return null;
+  return SessionContextUse(tokens: used.round(), limit: max.round());
+}
+
 Session paseoSession(Map<String, dynamic> agent) {
   final id = paseoString(agent['id'], max: 256);
   final cwd = paseoString(agent['cwd']);
@@ -109,6 +122,7 @@ Session paseoSession(Map<String, dynamic> agent) {
         : null,
     model: model is String && model.isNotEmpty ? '$provider/$model' : null,
     cost: cost is num ? cost.toDouble() : null,
+    contextUse: paseoContextUse(usage),
     // The agent's model and mode are its own state (the daemon applies a
     // change to the running agent): the conversation shows and keeps them.
     selection: SessionSelection(

@@ -309,6 +309,9 @@ mixin _ConnectionControllerChatFeed on ChangeNotifier {
         lastActivity: DateTime.fromMillisecondsSinceEpoch(stamp),
         preview: _feedPreview(id),
         parentID: session.parentID,
+        contextUsage:
+            session.contextUse?.fraction ??
+            _self.contextUsageMemory?.usageOf(id),
         // Idle, and its last run finished after it was last opened: the
         // server's watermark (OpenCode 2), or a run this connection watched
         // end (every server).

@@ -568,7 +568,6 @@ class _ChatModelChip extends StatelessWidget {
     this.selectionFallback,
     required this.selectedVariant,
     required this.onChooseModel,
-    this.contextUsage,
     this.modelSwitch,
   });
 
@@ -592,9 +591,6 @@ class _ChatModelChip extends StatelessWidget {
   final String? selectionFallback;
   final String selectedVariant;
   final VoidCallback onChooseModel;
-
-  /// Share of the model's context window in use, or null when unknown.
-  final double? contextUsage;
 
   /// The host's model cycle button; its three shortcuts become the model
   /// chip's menu (long-press, right-click, custom actions).
@@ -624,7 +620,6 @@ class _ChatModelChip extends StatelessWidget {
       label: picked ? _contextLabel(context) : (selectionFallback ?? ''),
       onPressed: onChooseModel,
       state: state,
-      contextUsed: contextUsage?.clamp(0.0, 1.0),
       menu: cycle is ModelCycleButton
           ? modelCycleMenuItems(
               _chatL10n(context),
@@ -634,7 +629,6 @@ class _ChatModelChip extends StatelessWidget {
             )
           : const [],
       chipKey: const Key('composer-model-context'),
-      contextKey: const Key('composer-context-percent'),
     );
   }
 

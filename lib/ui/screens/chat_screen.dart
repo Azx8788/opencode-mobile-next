@@ -48,6 +48,7 @@ import '../../state/free_model_notice.dart'
     show FreeModelNoteDismissals, freeModelNoteDue;
 import '../../state/session_tail_cache.dart' show SessionTailPreview;
 import '../../state/profiles.dart' show ServerBackend, ServerProfile;
+import '../../state/context_usage.dart';
 import '../../state/conversation_nudges.dart';
 import '../../state/nudges.dart';
 import '../../state/review_handoff.dart';

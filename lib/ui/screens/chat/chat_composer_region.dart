@@ -39,7 +39,6 @@ extension _ChatComposerRegion on _ChatScreenState {
       applyScope: _modelApplyScope,
       sessionID: widget.sessionID,
     ),
-    contextUsage: _contextWindowUsage(),
     modelSwitch: _modelCycleButton(),
   );
 
