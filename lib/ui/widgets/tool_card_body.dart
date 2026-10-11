@@ -362,15 +362,20 @@ class _ToolBody extends StatelessWidget {
     if (content?.trim().isNotEmpty != true) {
       return [_plainOutput(context, 'write-output.txt')];
     }
-    final name = _fileName(
-      _valueString(state.input['filePath']) ?? 'written-file.txt',
-    );
+    // The same numbered, wrapped diff the folded preview shows: every line
+    // added, since a write call carries only the new text.
+    final path = _valueString(state.input['filePath']) ?? 'written-file.txt';
     return [
-      _Output(
-        text: content!,
-        name: name,
-        kind: KitCodeKind.code,
-        fileName: name,
+      _Diff(
+        files: [
+          KitDiffFile.fromTexts(
+            path,
+            after: content!,
+            status: _metadata['exists'] == true
+                ? KitDiffFileStatus.modified
+                : KitDiffFileStatus.added,
+          ),
+        ],
       ),
       if (_hasDiagnostics) _diagnostics(),
     ];

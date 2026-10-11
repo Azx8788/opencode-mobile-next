@@ -260,11 +260,9 @@ class _ToolContract {
         final path = _valueString(input['filePath']);
         subtitle = path == null ? state.title : _fileName(path);
         technical = path != null;
-        details.add(
-          metadata['exists'] == false
-              ? strings.chatUiNewFile
-              : strings.chatUiUpdated,
-        );
+        // Only what the host said: no "Updated" guess when it is silent.
+        if (metadata['exists'] == false) details.add(strings.chatUiNewFile);
+        if (metadata['exists'] == true) details.add(strings.chatUiUpdated);
         break;
       case 'patch':
       case 'apply_patch':

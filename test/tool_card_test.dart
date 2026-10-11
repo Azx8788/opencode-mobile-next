@@ -10,6 +10,7 @@ import 'package:opencode_mobile/api/models.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/ui/app_theme.dart';
 import 'package:opencode_mobile/ui/kit/chat/kit_tool_row.dart';
+import 'package:opencode_mobile/ui/kit/kit_diff_view.dart';
 import 'package:opencode_mobile/ui/kit/kit_status_mark.dart';
 import 'package:opencode_mobile/ui/widgets/tool_card.dart';
 
@@ -491,6 +492,32 @@ void _editAndTodoTests() {
     await tester.pump();
     expect(_text('new line'), findsWidgets);
     expect(_text('old line'), findsWidgets);
+  });
+
+  testWidgets('an opened write shows its text as the numbered added diff', (
+    tester,
+  ) async {
+    await _pumpTool(
+      tester,
+      name: 'write',
+      state: ToolState.fromJson(const {
+        'status': 'completed',
+        'input': {
+          'filePath': '/workspace/test/tour_test.dart',
+          'content': 'library;\n\nimport \'dart:io\';',
+        },
+        'output': 'File written.',
+        'metadata': <String, Object?>{},
+      }, toolName: 'write'),
+    );
+    expect(find.text('Write'), findsOneWidget);
+    // The host did not say whether the file existed: no guessed "Updated".
+    expect(find.text('Updated'), findsNothing);
+    await tester.tap(find.text('Write'));
+    await tester.pump();
+    expect(find.byType(KitDiffView), findsOneWidget);
+    expect(_text("import 'dart:io';"), findsWidgets);
+    expect(find.textContaining('Open full output'), findsNothing);
   });
 
   testWidgets('the plan step reads one count, the same as its list', (
