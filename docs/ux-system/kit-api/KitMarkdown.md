@@ -127,10 +127,12 @@ class KitMarkdown extends StatefulWidget {
 
 | Target | Look | Tap |
 | --- | --- | --- |
-| A path or `file:` URI on the server or phone, confirmed by `fileLinks.validate` | A 96 dp thumbnail (`KitImage`, cover, tile corners) with its name under it, when `fileLinks.readImage` returns the bytes and Flutter can draw the type. Otherwise a `KitChip` (picture glyph, "Image · name") | `fileLinks.open(path)`: the file viewer the path links use |
+| A path or `file:` URI on the server or phone, confirmed by `fileLinks.validate` | The whole picture at its own proportions (`KitImage`, contain, tile corners), with its name under it only when the name means something, when `fileLinks.readImage` returns the bytes and Flutter can draw the type. Otherwise a `KitChip` (picture glyph, "Image · name") | `fileLinks.open(path)`: the file viewer the path links use |
 | An http(s) address | `KitChip`: "Image · host". Never loaded: no `Image.network`, no fetch | `openExternalLink` (SEC-1): it names the host and asks first |
 | `data:`, another scheme, or a path the host cannot confirm | `KitChip`, plain, with the description | none (no dead affordance) |
 
+- Size: one picture fills the reply width up to 320 dp and 360 dp tall (never cropped); several pictures are one row of equal height (148 dp) with natural widths, scrolling sideways. A placeholder of 160 x 120 dp holds the place until the decoded size is known.
+- No caption when the name carries nothing: a content-hash file name (hex of 32 or more characters, how Paseo stores screenshots) or an empty/"Image"/"img" description. The semantics label then reads "Image" (with "n/total" in a row). The same picture twice in a group is shown once.
 - The description is the alt text; empty or the bare word "Image" gets the app's own word (`kitMarkdownImage`). A file's name or a host follows it, isolated left to right (COPY-30).
 - A line of only pictures, with the picture-only lines after it (blank lines between them too), is one wrapping group, not one per line. A picture inside a sentence is a link-like run (glyph, words, accent and underlined when it opens) that wraps with the words; it has no thumbnail.
 - The last line of a streaming reply holds back a picture that is still being written, so syntax never flashes.

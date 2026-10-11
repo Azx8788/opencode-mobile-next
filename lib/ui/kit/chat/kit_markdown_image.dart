@@ -68,6 +68,19 @@ class KitMarkdownImage {
       alt.toLowerCase() != 'image' &&
       alt.toLowerCase() != 'img';
 
+  /// Whether the file's name says anything. A content hash ("079f63375d36...
+  /// .png", how Paseo stores the screenshots an agent read) names nothing.
+  bool get hasMeaningfulName {
+    final name = fileName;
+    if (name == null) return false;
+    final dot = name.lastIndexOf('.');
+    final stem = dot > 0 ? name.substring(0, dot) : name;
+    return !_attachmentId.hasMatch(stem);
+  }
+
+  /// What identifies the picture for dedupe: where it lives.
+  String get identity => path ?? url ?? target;
+
   /// The file's name, for a [KitMarkdownImageKind.file] picture.
   String? get fileName {
     final value = path;
@@ -397,6 +410,10 @@ String _lineOf(List<String> lines, int index) => index == lines.length - 1
     source.add(_lineOf(lines, next).trim());
     end = next + 1;
   }
+  // The same picture twice in a row (an agent that read one file twice)
+  // is shown once.
+  final seen = <String>{};
+  images.retainWhere((image) => seen.add(image.identity));
   return (
     images: List.unmodifiable(images),
     source: source.join('\n'),
@@ -430,7 +447,8 @@ List<InlineSpan>? _pictureSpans(
 // ---------------------------------------------------------------------------
 // The pictures of a reply, drawn.
 
-/// Consecutive pictures of a reply as one wrapping group.
+/// Consecutive pictures of a reply: one picture at its own proportions, or
+/// several as a row of equal-height tiles that scrolls sideways.
 class _KitMdImages extends StatelessWidget {
   const _KitMdImages({required this.images});
 
@@ -439,13 +457,34 @@ class _KitMdImages extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tokens = KitTokens.of(context);
-    return Wrap(
-      spacing: tokens.space2,
-      runSpacing: tokens.space1,
-      children: [
-        for (var i = 0; i < images.length; i++)
-          _KitMdImageTile(key: ValueKey('kit-md-image-$i'), image: images[i]),
-      ],
+    if (images.length == 1) {
+      return Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: _KitMdImageTile(
+          key: const ValueKey('kit-md-image-0'),
+          image: images.single,
+          position: 0,
+          count: 1,
+        ),
+      );
+    }
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (var i = 0; i < images.length; i++) ...[
+            if (i > 0) SizedBox(width: tokens.space2),
+            _KitMdImageTile(
+              key: ValueKey('kit-md-image-$i'),
+              image: images[i],
+              position: i,
+              count: images.length,
+              rowHeight: _KitMdThumbnail.tileHeight,
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
@@ -459,10 +498,21 @@ class _KitMdImageTile extends StatefulWidget {
     required this.image,
     this.inline = false,
     this.role = KitTextRole.body,
+    this.position = 0,
+    this.count = 1,
+    this.rowHeight,
   });
 
   final KitMarkdownImage image;
   final bool inline;
+
+  /// Which of [count] pictures this is, for the screen reader.
+  final int position;
+  final int count;
+
+  /// Set when the tile is one of several in a row: every tile has this
+  /// height and its natural width.
+  final double? rowHeight;
   final KitTextRole role;
 
   @override
@@ -579,12 +629,25 @@ class _KitMdImageTileState extends State<_KitMdImageTile> {
     final links = scope.fileLinks;
     final read = links?.readImage;
     if (_readable && image.drawable && read != null && open != null) {
-      final caption = image.hasDescription ? label : KitBidi.ltr(detail ?? '');
+      // A caption only when it says something: a real description, or a
+      // file name a person gave. Never a content hash or the bare "Image".
+      final caption = image.hasDescription
+          ? label
+          : image.hasMeaningfulName
+          ? KitBidi.ltr(detail ?? '')
+          : null;
       return _KitMdThumbnail(
         provider: _KitMdFileImage(read: read, path: image.path!),
         caption: caption,
+        rowHeight: widget.rowHeight,
         semanticsLabel: l10n.kitAttachmentOpen(
-          image.hasDescription ? image.alt : detail ?? l10n.kitMarkdownImage,
+          image.hasDescription
+              ? image.alt
+              : image.hasMeaningfulName
+              ? detail ?? l10n.kitMarkdownImage
+              : widget.count > 1
+              ? '${l10n.kitMarkdownImage} ${widget.position + 1}/${widget.count}'
+              : l10n.kitMarkdownImage,
         ),
         onOpen: open,
       );
@@ -599,57 +662,151 @@ class _KitMdImageTileState extends State<_KitMdImageTile> {
   }
 }
 
-/// A picture the host read: a square thumbnail that opens the viewer, with
-/// its name under it.
-class _KitMdThumbnail extends StatelessWidget {
+/// A picture the host read, drawn whole at its own proportions: a single
+/// one fills the reply up to [maxWidth] x [maxHeight]; one of several has
+/// [rowHeight] and its natural width. It opens the viewer, with its caption
+/// under it when it has one.
+class _KitMdThumbnail extends StatefulWidget {
   const _KitMdThumbnail({
     required this.provider,
     required this.caption,
     required this.semanticsLabel,
     required this.onOpen,
+    this.rowHeight,
   });
 
+  static const maxWidth = 320.0;
+  static const maxHeight = 360.0;
+  static const tileHeight = 148.0;
+
+  /// Before the size is known, and when it cannot be.
+  static const placeholder = Size(160, 120);
+
   final ImageProvider provider;
-  final String caption;
+  final String? caption;
   final String semanticsLabel;
   final VoidCallback onOpen;
+  final double? rowHeight;
+
+  @override
+  State<_KitMdThumbnail> createState() => _KitMdThumbnailState();
+}
+
+class _KitMdThumbnailState extends State<_KitMdThumbnail> {
+  ImageStream? _stream;
+  ImageStreamListener? _listener;
+  Size? _natural;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _listen();
+  }
+
+  @override
+  void didUpdateWidget(_KitMdThumbnail oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.provider != widget.provider) {
+      _natural = null;
+      _listen();
+    }
+  }
+
+  void _listen() {
+    final stream = widget.provider.resolve(
+      createLocalImageConfiguration(context),
+    );
+    if (stream.key == _stream?.key) return;
+    _unlisten();
+    _stream = stream;
+    _listener = ImageStreamListener((info, _) {
+      final size = Size(
+        info.image.width.toDouble() / info.scale,
+        info.image.height.toDouble() / info.scale,
+      );
+      if (mounted && size != _natural && !size.isEmpty) {
+        setState(() => _natural = size);
+      }
+    }, onError: (_, _) {});
+    stream.addListener(_listener!);
+  }
+
+  void _unlisten() {
+    if (_listener != null) _stream?.removeListener(_listener!);
+    _stream = null;
+    _listener = null;
+  }
+
+  @override
+  void dispose() {
+    _unlisten();
+    super.dispose();
+  }
+
+  Size _boxFor(double availableWidth) {
+    final natural = _natural;
+    final rowHeight = widget.rowHeight;
+    if (rowHeight != null) {
+      final aspect = natural == null
+          ? _KitMdThumbnail.placeholder.aspectRatio
+          : natural.aspectRatio;
+      return Size((rowHeight * aspect).clamp(48.0, 360.0), rowHeight);
+    }
+    if (natural == null) return _KitMdThumbnail.placeholder;
+    final maxWidth = availableWidth.isFinite
+        ? availableWidth.clamp(0.0, _KitMdThumbnail.maxWidth)
+        : _KitMdThumbnail.maxWidth;
+    final scale = [
+      maxWidth / natural.width,
+      _KitMdThumbnail.maxHeight / natural.height,
+    ].reduce((a, b) => a < b ? a : b);
+    return Size(natural.width * scale, natural.height * scale);
+  }
 
   @override
   Widget build(BuildContext context) {
     final tokens = KitTokens.of(context);
-    return SizedBox(
-      width: KitLayout.promptPhotoSize,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          KitTappable(
-            onTap: onOpen,
-            label: semanticsLabel,
-            shape: KitShape.tile,
-            child: ExcludeSemantics(
-              child: KitImage(
-                source: KitImageSource.provider(provider),
-                semanticsLabel: null,
-                fit: KitImageFit.cover,
+    final caption = widget.caption;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final box = _boxFor(constraints.maxWidth);
+        return SizedBox(
+          width: box.width,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              KitTappable(
+                onTap: widget.onOpen,
+                label: widget.semanticsLabel,
                 shape: KitShape.tile,
-                width: KitLayout.promptPhotoSize,
-                height: KitLayout.promptPhotoSize,
+                child: ExcludeSemantics(
+                  child: KitImage(
+                    source: KitImageSource.provider(widget.provider),
+                    semanticsLabel: null,
+                    fit: KitImageFit.contain,
+                    shape: KitShape.tile,
+                    width: box.width,
+                    height: box.height,
+                  ),
+                ),
               ),
-            ),
+              if (caption != null) ...[
+                SizedBox(height: tokens.space1),
+                ExcludeSemantics(
+                  child: KitText(
+                    caption,
+                    role: KitTextRole.caption,
+                    tone: KitTextTone.secondary,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ],
           ),
-          SizedBox(height: tokens.space1),
-          ExcludeSemantics(
-            child: KitText(
-              caption,
-              role: KitTextRole.caption,
-              tone: KitTextTone.secondary,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -740,8 +897,29 @@ class _KitMdFileImage extends ImageProvider<_KitMdFileImage> {
     ImageDecoderCallback decode,
   ) => MultiFrameImageStreamCompleter(codec: _codec(decode), scale: 1);
 
+  /// The last few pictures' bytes, so the size probe and the drawn image
+  /// (two decodes of one file) cost one read between them.
+  static final _recent = <(Object, String), Future<Uint8List?>>{};
+
+  Future<Uint8List?> _bytes() {
+    final key = (read, path);
+    final known = _recent.remove(key);
+    final future = known ?? read(path);
+    _recent[key] = future;
+    while (_recent.length > 4) {
+      _recent.remove(_recent.keys.first);
+    }
+    // A read that failed is not remembered: the next draw asks again.
+    unawaited(
+      future.then<void>((bytes) {
+        if (bytes == null || bytes.isEmpty) _recent.remove(key);
+      }, onError: (_) => _recent.remove(key)),
+    );
+    return future;
+  }
+
   Future<ui.Codec> _codec(ImageDecoderCallback decode) async {
-    final bytes = await read(path);
+    final bytes = await _bytes();
     if (bytes == null || bytes.isEmpty) {
       throw StateError('The picture could not be read.');
     }

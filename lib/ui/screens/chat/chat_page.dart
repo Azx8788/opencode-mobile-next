@@ -38,6 +38,9 @@ extension _ChatPage on _ChatScreenState {
         busy && !_conn.supportsInbox && _midTurnPrompt == null
         ? _queuedAfterIndex(_messages)
         : -1;
+    // A closing event that never came (a compaction line, a tool call still
+    // spinning under later words) is settled before anything draws it.
+    _messages = settleStaleLive(_messages, busy: busy);
     final displayParts = _timelineDisplayParts(_messages, liveTail: busy);
     _live = _liveTurn(busy: busy, queuedAfterIndex: queuedAfterIndex);
     _unanswered = _conn.isIsolated || _watching
