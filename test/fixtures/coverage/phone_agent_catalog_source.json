@@ -105,7 +105,7 @@
         "cancel": false
       },
       "recipe": {
-        "version": "2.1.283",
+        "version": "2.1.294",
         "executable": "claude",
         "launchArgs": [],
         "signInArgs": [
@@ -115,18 +115,18 @@
         ],
         "artifacts": {
           "arm64": {
-            "url": "https://downloads.claude.ai/claude-code-releases/2.1.283/linux-arm64/claude",
-            "sha256": "346d294f0103d6fc0de11ac953579b5c62dfa90698a4cfc486b6f927c615e697",
+            "url": "https://downloads.claude.ai/claude-code-releases/2.1.294/linux-arm64/claude",
+            "sha256": "e5d2df19f30a6d63bf11188121f7edb2775249b57352a69269509a4b1496e763",
             "format": "executable",
-            "downloadBytes": 240902136,
-            "installedBytes": 240902136
+            "downloadBytes": 252108792,
+            "installedBytes": 252108792
           },
           "x64": {
-            "url": "https://downloads.claude.ai/claude-code-releases/2.1.283/linux-x64/claude",
-            "sha256": "1859583ce32920595c61ef868bee52e1b1594f7486db209935e01f1e5e804ae2",
+            "url": "https://downloads.claude.ai/claude-code-releases/2.1.294/linux-x64/claude",
+            "sha256": "27122ca7b624f537546fbef35b80c66370d974ff258f3d9b10ac50bb8771f262",
             "format": "executable",
-            "downloadBytes": 241556664,
-            "installedBytes": 241556664
+            "downloadBytes": 252755128,
+            "installedBytes": 252755128
           }
         }
       }
