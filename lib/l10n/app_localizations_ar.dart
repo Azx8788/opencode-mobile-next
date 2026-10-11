@@ -29314,4 +29314,56 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get kitMarkupFailedBody =>
       'حاول مرة أخرى، أو ارجع وأرسل الصورة الأصلية.';
+
+  @override
+  String kitContextRingSemantics(String percent) {
+    return 'السياق مستخدم بنسبة $percent %';
+  }
+
+  @override
+  String get kitContextRingTapHint => 'عرض تفاصيل السياق';
+
+  @override
+  String get kitContextRingCompacting => 'جارٍ الضغط';
+
+  @override
+  String get kitContextRingCompactingSemantics => 'السياق، جارٍ الضغط';
+
+  @override
+  String get kitContextSheetTitle => 'نافذة السياق';
+
+  @override
+  String kitContextSheetTokens(String used, String limit) {
+    return '$used من $limit رمز';
+  }
+
+  @override
+  String get kitContextSheetModel => 'النموذج';
+
+  @override
+  String get kitContextSheetWindow => 'نافذة السياق';
+
+  @override
+  String get kitContextSheetMeasured => 'وقت القياس';
+
+  @override
+  String get kitContextSheetMeasuredValue => 'بعد آخر رد';
+
+  @override
+  String get kitContextSheetExplain =>
+      'نافذة السياق هي مقدار المحادثة الذي يستطيع النموذج قراءته دفعة واحدة: رسائلك وردوده والملفات ونتائج الأدوات. عندما تمتلئ يجب تلخيص الأجزاء الأقدم أو تركها، لذا فضغط المحادثة قبل ذلك يُبقي الإجابات دقيقة.';
+
+  @override
+  String get kitContextSheetChartTitle => 'كل رد';
+
+  @override
+  String kitContextChartSemantics(String count, String percent) {
+    return 'السياق بعد كل رد من $count ردًا، وآخرها $percent %';
+  }
+
+  @override
+  String get kitContextChartCompacted => 'ضُغطت المحادثة هنا';
+
+  @override
+  String get kitContextSheetCompactNow => 'اضغط الآن';
 }

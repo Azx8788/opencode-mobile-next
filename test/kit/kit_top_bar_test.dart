@@ -506,4 +506,67 @@ void main() {
     expect(find.text('Working', findRichText: true), findsNothing);
     expect(find.text('Not answering', findRichText: true), findsOneWidget);
   });
+
+  group('accessory', () {
+    const key = Key('top-bar-accessory');
+    final menuKey = const Key('top-bar-menu');
+
+    for (final (name, size) in [
+      ('phone', const Size(412, 915)),
+      ('pc', const Size(1280, 800)),
+    ]) {
+      testWidgets('stays in the bar before the overflow on a $name', (
+        tester,
+      ) async {
+        await _pump(
+          tester,
+          KitTopBar(
+            title: 'Fix login',
+            exit: KitTopBarExit.none,
+            actions: _threeActions([]),
+            accessory: const SizedBox(key: key, width: 40, height: 40),
+            menu: [KitMenuItem(label: 'Rename', onSelected: () {})],
+            menuKey: menuKey,
+          ),
+          size: size,
+        );
+        final accessory = tester.getCenter(find.byKey(key));
+        final menu = tester.getCenter(find.byKey(menuKey));
+        expect(accessory.dx, lessThan(menu.dx));
+        expect(accessory.dy, closeTo(menu.dy, 6));
+      });
+    }
+
+    testWidgets('mirrors under right-to-left', (tester) async {
+      await _pump(
+        tester,
+        KitTopBar(
+          title: 'Fix login',
+          exit: KitTopBarExit.none,
+          accessory: const SizedBox(key: key, width: 40, height: 40),
+          menu: [KitMenuItem(label: 'Rename', onSelected: () {})],
+          menuKey: menuKey,
+        ),
+        direction: TextDirection.rtl,
+      );
+      expect(
+        tester.getCenter(find.byKey(key)).dx,
+        greaterThan(tester.getCenter(find.byKey(menuKey)).dx),
+      );
+    });
+
+    testWidgets('alone it still shows, with no actions or menu', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        const KitTopBar(
+          title: 'Fix login',
+          exit: KitTopBarExit.none,
+          accessory: SizedBox(key: key, width: 40, height: 40),
+        ),
+      );
+      expect(find.byKey(key), findsOneWidget);
+    });
+  });
 }

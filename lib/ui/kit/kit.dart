@@ -66,6 +66,9 @@
 /// | [KitQr] | kit v2 §5 a QR code another device can scan |
 /// | [KitSwatch], [KitSwatchGrid], [KitThemePreview] | kit v2 §5 choosing a theme or accent by looking, and a theme's live preview |
 /// | [KitLevelMeter] | the microphone's input level as bars (decorative) |
+/// | [KitContextRing], [KitContextLevel], [KitContextRingSize] | how full the model's context window is, as a ring with its percent; unknown draws nothing |
+/// | [KitContextChart], [KitContextBar] | the context after each reply, as bars with the compaction line |
+/// | [KitContextSheet] | the context details: big ring, tokens, model, window, one paragraph and the chart |
 /// | [KitTerminalView] | kit v2 §9.2 the terminal: a live xterm session or a transcript, in the theme's colours |
 /// | [KitPageRoute] | §10 a pushed page with the kit's one transition |
 /// | [KitSwap], [KitSpin], [KitAnimatedBox], [KitDim], [KitAnimatedValue], [KitPace] | §10 the small motion parts: cross-fade, spin, surface change, dim, eased number |
@@ -170,6 +173,9 @@ export 'kit_divider.dart';
 export 'kit_icon.dart' hide AppBrandMark, AppGlyph;
 export 'kit_image.dart';
 export 'kit_level_meter.dart';
+export 'kit_context_chart.dart';
+export 'kit_context_ring.dart';
+export 'kit_context_sheet.dart';
 export 'kit_menu.dart';
 export 'kit_page_route.dart';
 export 'kit_qr.dart';

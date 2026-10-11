@@ -140,4 +140,52 @@ void main() {
     );
     handle.dispose();
   });
+
+  group('the context ring', () {
+    Widget item(double? used, {double textScale = 1}) => _host(
+      KitFeedItem(
+        project: 'alpha',
+        title: 'Fix',
+        time: '5 min ago',
+        contextUsage: used,
+        onTap: () {},
+      ),
+      textScale: textScale,
+    );
+
+    testWidgets('unknown use draws no ring', (tester) async {
+      await tester.pumpWidget(item(null));
+      expect(find.byType(KitContextRing), findsNothing);
+    });
+
+    testWidgets('under 70 % a bare ring, no number', (tester) async {
+      await tester.pumpWidget(item(0.4));
+      await tester.pumpAndSettle();
+      expect(find.byType(KitContextRing), findsOneWidget);
+      expect(find.textContaining('%'), findsNothing);
+    });
+
+    testWidgets('from 70 % the number shows beside the ring', (tester) async {
+      await tester.pumpWidget(item(0.83));
+      await tester.pumpAndSettle();
+      expect(find.text('83 %'), findsOneWidget);
+    });
+
+    testWidgets('the row says it once, in its one sentence', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(item(0.83));
+      expect(
+        find.bySemanticsLabel('alpha, Fix, 5 min ago, Context 83 % used'),
+        findsOneWidget,
+      );
+      handle.dispose();
+    });
+
+    testWidgets('large text keeps the ring beside the state', (tester) async {
+      await tester.pumpWidget(item(0.83, textScale: 2));
+      await tester.pumpAndSettle();
+      expect(find.byType(KitContextRing), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  });
 }

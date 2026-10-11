@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../app_iconography.dart';
+import '../../l10n/app_localizations.dart';
 import 'kit_bidi.dart';
+import 'kit_context_ring.dart';
 import 'kit_motion.dart';
 import 'kit_status_tag.dart';
 import 'kit_tappable.dart';
@@ -32,6 +34,7 @@ class KitFeedItem extends StatelessWidget {
     this.preview = '',
     this.tag,
     this.time,
+    this.contextUsage,
     this.semanticsLabel,
     this.tappableKey,
   });
@@ -65,6 +68,11 @@ class KitFeedItem extends StatelessWidget {
 
   /// The relative time ("5 min ago"), shown when there is no [tag].
   final String? time;
+
+  /// Share of the model's context window the conversation last used, 0..1;
+  /// a small ring before the state, the number only from 70 %. Null draws
+  /// nothing (never guessed).
+  final double? contextUsage;
 
   final VoidCallback onTap;
 
@@ -112,6 +120,10 @@ class KitFeedItem extends StatelessWidget {
               ),
             ),
           );
+    final usage = contextUsage;
+    final Widget? ring = usage == null
+        ? null
+        : KitContextRing(used: usage, size: KitContextRingSize.row);
     final words =
         semanticsLabel ??
         [
@@ -120,6 +132,10 @@ class KitFeedItem extends StatelessWidget {
           ?git,
           title,
           ?(tag?.label ?? time),
+          if (usage != null)
+            lookupAppLocalizations(
+              Localizations.localeOf(context),
+            ).kitContextRingSemantics('${KitContextLevel.percentOf(usage)}'),
           if (preview.isNotEmpty) preview,
           ?notice,
         ].join(', ');
@@ -190,7 +206,12 @@ class KitFeedItem extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                ?end,
+                if (ring != null || end != null)
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: tokens.space2,
+                    children: [?ring, ?end],
+                  ),
               ] else
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -204,6 +225,7 @@ class KitFeedItem extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                    ?ring,
                     ?end,
                   ],
                 ),

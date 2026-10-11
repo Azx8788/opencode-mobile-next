@@ -133,6 +133,16 @@ abstract final class KitMotion {
   static const Duration stepSpring = Duration(milliseconds: 260);
   static const Duration stepSweep = Duration(milliseconds: 2200);
 
+  /// The context ring (KitContextRing.md): the arc and its number moving to
+  /// a new value, the colour crossing to the next level, the one halo when
+  /// 70 % or 95 % is crossed upward, the arc draining after a compaction,
+  /// and one lap of the short arc while compacting.
+  static const Duration contextValue = Duration(milliseconds: 600);
+  static const Duration contextColor = Duration(milliseconds: 320);
+  static const Duration contextHalo = Duration(milliseconds: 700);
+  static const Duration contextDrain = Duration(milliseconds: 900);
+  static const Duration contextSpin = Duration(milliseconds: 1200);
+
   static const Curve stepEase = Curves.easeInOutQuad;
   static const Curve stepOut = Curves.easeOutQuad;
 

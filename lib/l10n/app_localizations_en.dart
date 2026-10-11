@@ -29272,4 +29272,56 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get kitMarkupFailedBody =>
       'Try again, or go back and send the original.';
+
+  @override
+  String kitContextRingSemantics(String percent) {
+    return 'Context $percent % used';
+  }
+
+  @override
+  String get kitContextRingTapHint => 'Show context details';
+
+  @override
+  String get kitContextRingCompacting => 'Compacting';
+
+  @override
+  String get kitContextRingCompactingSemantics => 'Context, compacting';
+
+  @override
+  String get kitContextSheetTitle => 'Context window';
+
+  @override
+  String kitContextSheetTokens(String used, String limit) {
+    return '$used of $limit tokens';
+  }
+
+  @override
+  String get kitContextSheetModel => 'Model';
+
+  @override
+  String get kitContextSheetWindow => 'Context window';
+
+  @override
+  String get kitContextSheetMeasured => 'Measured';
+
+  @override
+  String get kitContextSheetMeasuredValue => 'After the last reply';
+
+  @override
+  String get kitContextSheetExplain =>
+      'The context window is how much of the conversation the model can read at once: your messages, its replies, files and tool results. When it fills up, older parts have to be summarised or left out, so compacting before then keeps the answers sharp.';
+
+  @override
+  String get kitContextSheetChartTitle => 'Each reply';
+
+  @override
+  String kitContextChartSemantics(String count, String percent) {
+    return 'Context after each of $count replies, the newest at $percent %';
+  }
+
+  @override
+  String get kitContextChartCompacted => 'Compacted here';
+
+  @override
+  String get kitContextSheetCompactNow => 'Compact now';
 }

@@ -46084,6 +46084,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Try again, or go back and send the original.'**
   String get kitMarkupFailedBody;
+
+  /// Context ring: screen-reader words for how much of the model's context window the conversation uses; {percent} is a locale-formatted whole number
+  ///
+  /// In en, this message translates to:
+  /// **'Context {percent} % used'**
+  String kitContextRingSemantics(String percent);
+
+  /// Context ring: what a tap does, said by the screen reader after its label
+  ///
+  /// In en, this message translates to:
+  /// **'Show context details'**
+  String get kitContextRingTapHint;
+
+  /// Context ring: the word beside the ring while the conversation is being compacted
+  ///
+  /// In en, this message translates to:
+  /// **'Compacting'**
+  String get kitContextRingCompacting;
+
+  /// Context ring: screen-reader words while the conversation is being compacted
+  ///
+  /// In en, this message translates to:
+  /// **'Context, compacting'**
+  String get kitContextRingCompactingSemantics;
+
+  /// Context details sheet: its title
+  ///
+  /// In en, this message translates to:
+  /// **'Context window'**
+  String get kitContextSheetTitle;
+
+  /// Context details sheet: tokens used of the window's size; both are locale-formatted whole numbers
+  ///
+  /// In en, this message translates to:
+  /// **'{used} of {limit} tokens'**
+  String kitContextSheetTokens(String used, String limit);
+
+  /// Context details sheet: the row naming the model
+  ///
+  /// In en, this message translates to:
+  /// **'Model'**
+  String get kitContextSheetModel;
+
+  /// Context details sheet: the row giving the window's size in tokens
+  ///
+  /// In en, this message translates to:
+  /// **'Context window'**
+  String get kitContextSheetWindow;
+
+  /// Context details sheet: the row saying when the number was measured
+  ///
+  /// In en, this message translates to:
+  /// **'Measured'**
+  String get kitContextSheetMeasured;
+
+  /// Context details sheet: the value of the Measured row
+  ///
+  /// In en, this message translates to:
+  /// **'After the last reply'**
+  String get kitContextSheetMeasuredValue;
+
+  /// Context details sheet: one paragraph saying what the context window is
+  ///
+  /// In en, this message translates to:
+  /// **'The context window is how much of the conversation the model can read at once: your messages, its replies, files and tool results. When it fills up, older parts have to be summarised or left out, so compacting before then keeps the answers sharp.'**
+  String get kitContextSheetExplain;
+
+  /// Context details sheet: the heading above the per-reply chart
+  ///
+  /// In en, this message translates to:
+  /// **'Each reply'**
+  String get kitContextSheetChartTitle;
+
+  /// Context chart: screen-reader summary; {count} and {percent} are locale-formatted whole numbers
+  ///
+  /// In en, this message translates to:
+  /// **'Context after each of {count} replies, the newest at {percent} %'**
+  String kitContextChartSemantics(String count, String percent);
+
+  /// Context chart: the note under a drop where the conversation was compacted
+  ///
+  /// In en, this message translates to:
+  /// **'Compacted here'**
+  String get kitContextChartCompacted;
+
+  /// Context details sheet: the button that compacts the conversation
+  ///
+  /// In en, this message translates to:
+  /// **'Compact now'**
+  String get kitContextSheetCompactNow;
 }
 
 class _AppLocalizationsDelegate
