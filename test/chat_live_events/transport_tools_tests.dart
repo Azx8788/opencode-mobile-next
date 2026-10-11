@@ -356,18 +356,21 @@ void _transportAndToolTests() {
 
     await tester.tap(find.byKey(const Key('tool-output-image')));
     await tester.pumpAndSettle();
-    expect(find.byKey(const Key('file-preview-sheet')), findsOneWidget);
-    expect(find.byKey(const ValueKey('kit-viewer-image')), findsOneWidget);
-    expect(find.byKey(const Key('file-preview-attach')), findsOneWidget);
-    await tester.tap(find.byKey(const ValueKey('kit-viewer-more')));
-    await tester.pumpAndSettle();
-    expect(find.byKey(const Key('file-preview-download')), findsOneWidget);
+    // A tool picture opens the conversation's gallery (swipe, Edit, Send),
+    // not the single-file sheet.
+    expect(find.byKey(const Key('file-preview-sheet')), findsNothing);
+    expect(find.byKey(const ValueKey('kit-gallery-pager')), findsOneWidget);
+    expect(find.byKey(const ValueKey('kit-gallery-image')), findsOneWidget);
+    expect(find.byKey(const ValueKey('kit-gallery-edit')), findsOneWidget);
     await tester.sendKeyEvent(LogicalKeyboardKey.escape);
     await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('kit-gallery-pager')), findsNothing);
 
-    await tester.tap(find.byKey(const Key('file-preview-attach')));
+    await tester.tap(find.byKey(const Key('tool-output-image')));
     await tester.pumpAndSettle();
-    expect(find.byKey(const Key('file-preview-sheet')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('kit-gallery-send')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('kit-gallery-pager')), findsNothing);
     expect(find.bySemanticsLabel('Remove captcha-r1.png'), findsOneWidget);
 
     await tester.enterText(

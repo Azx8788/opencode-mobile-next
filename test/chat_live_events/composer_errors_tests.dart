@@ -789,10 +789,12 @@ void _composerAndErrorTests() {
     await tester.pumpAndSettle();
     await tester.tap(diagram);
     await tester.pumpAndSettle();
-    expect(find.byKey(const Key('file-preview-sheet')), findsOneWidget);
-    expect(find.byKey(const ValueKey('kit-viewer-image')), findsOneWidget);
+    // A sent photo opens the conversation's gallery (zoom, swipe, Edit, Send),
+    // not the single-file sheet.
+    expect(find.byKey(const Key('file-preview-sheet')), findsNothing);
+    expect(find.byKey(const ValueKey('kit-gallery-pager')), findsOneWidget);
+    expect(find.byKey(const ValueKey('kit-gallery-image')), findsOneWidget);
     expect(find.byType(KitZoom), findsOneWidget);
-    expect(find.byTooltip('Zoom in'), findsOneWidget);
   });
 
   testWidgets('retry preserves mixed and attachment-only file parts', (
