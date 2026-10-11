@@ -1,5 +1,5 @@
 {
- "generatedFrom": "b48f59842ea069ec7fd41a84fdc04529ea00250d",
+ "generatedFrom": "8c988879cad49272f273decd8511de8b37445dc9",
  "pages": [
   {
    "id": "system",
@@ -38831,6 +38831,11 @@
   {
    "file": "lib/ui/screens/chat/chat_files.dart",
    "reason": "Part file of lib/ui/screens/chat_screen.dart (same screen, same library): its elements are listed under that screen's ledger entries; no separate surface.",
+   "part": "b1-chat-screen"
+  },
+  {
+   "file": "lib/ui/screens/chat/chat_gallery.dart",
+   "reason": "Part file of lib/ui/screens/chat_screen.dart (same screen, same library): opens a tapped transcript picture as the swipeable KitImageGallery with Edit and Send; its elements are listed under that screen's ledger entries; no separate surface.",
    "part": "b1-chat-screen"
   },
   {
