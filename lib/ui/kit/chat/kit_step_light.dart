@@ -438,6 +438,9 @@ class _LightPainter extends CustomPainter {
   static const double _lightLen = 14;
   static const double _tail = 14;
 
+  /// The light on the rail is 2 dp wide, centred on the 1 dp rail.
+  static const double _lightW = 2;
+
   Paint _paint(Color color, double width, {bool round = false}) => Paint()
     ..style = PaintingStyle.stroke
     ..strokeWidth = width
@@ -535,7 +538,7 @@ class _LightPainter extends CustomPainter {
         canvas.drawLine(
           Offset(x, -above + a),
           Offset(x, -above + b),
-          _paint(color.withValues(alpha: k), railW, round: true),
+          _paint(color.withValues(alpha: k), _lightW, round: true),
         );
       }
     }
@@ -575,7 +578,7 @@ class _LightPainter extends CustomPainter {
         canvas.drawLine(
           Offset(x, size + a),
           Offset(x, size + b),
-          _paint(color.withValues(alpha: k), railW, round: true),
+          _paint(color.withValues(alpha: k), _lightW, round: true),
         );
       }
     }
@@ -589,7 +592,8 @@ class _LightPainter extends CustomPainter {
           ..shader = LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [color.withValues(alpha: 0), color],
+            colors: [color.withValues(alpha: 0), color, color],
+            stops: const [0, .4, 1],
           ).createShader(Rect.fromLTRB(0, -above, size, 0)),
       );
     }
@@ -601,7 +605,8 @@ class _LightPainter extends CustomPainter {
           ..shader = LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [color, color.withValues(alpha: 0)],
+            colors: [color, color, color.withValues(alpha: 0)],
+            stops: const [0, .5, 1],
           ).createShader(Rect.fromLTRB(0, size, size, size + below)),
       );
     }
