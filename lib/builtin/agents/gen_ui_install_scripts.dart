@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import '../../domain/agent_catalog.dart';
 import '../../domain/genui/gen_ui_status.dart';
+import '../../paseo/tested_versions.dart';
 import '../builtin_linux.dart';
 import 'gen_ui_server.dart';
 import 'paseo_scripts.dart';
@@ -74,8 +75,8 @@ String _genUiManagedScript({
         // Transport qualification is version-specific, not inherited by a
         // future catalog update. Refresh these only with new runtime evidence.
         'qualifiedPins':
-            claudeVersion == '2.1.283' &&
-            PaseoPhoneScripts.version == '0.9.2' &&
+            claudeCodeSupports(claudeVersion) &&
+            paseoSupports(PaseoPhoneScripts.version) &&
             PaseoPhoneScripts.nodeVersion == 'v24.21.0',
         'home': home,
         'directory': directory,

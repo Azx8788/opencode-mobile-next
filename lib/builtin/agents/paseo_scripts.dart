@@ -11,7 +11,7 @@ import '../setup/component_updates.dart';
 /// execution mode. These scripts fail before writing when executed as root.
 /// They never configure provider accounts or launch a daemon.
 abstract final class PaseoPhoneScripts {
-  static const version = '0.9.2';
+  static const version = '0.11.2';
   static const nodeVersion = 'v24.21.0';
   static const nodeArm64Sha256 =
       '724282c3b43aec998aa9527380465b45d229e021b58035f5f4f63095eabfe5d5';
@@ -19,11 +19,11 @@ abstract final class PaseoPhoneScripts {
       '6e1db87ef58b8819e5d5402eff1536491b18edd8eb7bee5ef7897876e88dc5ff';
   static const packageLockAsset = 'assets/agents/paseo-package-lock.json';
   static const packageLockSha256 =
-      '82d16f9c432dcaacaf881045a7f4da83806775bdfdfe409efd4cf21377fe1fea';
+      'b0bcc4f6191bd5c2daeda8ae398d636f3575173e699fa3868ab9e24f2e1fcdaa';
   static const installDirectory =
-      '/home/oc/.local/share/oc-paseo/$version-82d16f9c432d';
-  // Registry artifact https://registry.npmjs.org/@getpaseo/cli/-/cli-0.9.2.tgz,
-  // fetched 2026-10-07 and checked against the shipped lock's SHA512 SRI.
+      '/home/oc/.local/share/oc-paseo/$version-b0bcc4f6191b';
+  // Registry artifact https://registry.npmjs.org/@getpaseo/cli/-/cli-0.11.2.tgz,
+  // fetched 2026-10-11 and checked against the shipped lock's SHA512 SRI.
   // package.json declares bin.paseo = bin/paseo; it imports dist/index.js.
   static const cliRelativePath = 'node_modules/@getpaseo/cli/bin/paseo';
   static const cliSha256 =
@@ -32,9 +32,9 @@ abstract final class PaseoPhoneScripts {
   static const payloadSha256 =
       '8620d03c3e7e6776c3bfc4d22a8875f92209a563612fe7cda63dea7512f83c09';
   // SHA256 of the sorted sha256sum manifest for every regular bin/dist file,
-  // with paths relative to the npm prefix. Covers all 287 implementation files.
+  // with paths relative to the npm prefix. Covers all 289 implementation files.
   static const codeTreeSha256 =
-      '06d52bf05750cbd269668993f13ed0bbed2087feacbef37844007a44a1bb8ae5';
+      'aa0467db317397425785bafc5999e9b5287b0ef4e8d799718cf509cce82a7f04';
 
   static const _packageJson =
       '''{

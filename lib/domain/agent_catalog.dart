@@ -328,18 +328,18 @@ AgentCatalog _builtInCatalog() {
         'claude',
         AgentSignInMethod.browserOAuthHost,
         AgentInstallRecipe(
-          version: '2.1.283',
+          version: '2.1.294',
           executable: 'claude',
           artifacts: {
             AgentArchitecture.arm64: binary(
-              'https://downloads.claude.ai/claude-code-releases/2.1.283/linux-arm64/claude',
-              '346d294f0103d6fc0de11ac953579b5c62dfa90698a4cfc486b6f927c615e697',
-              240902136,
+              'https://downloads.claude.ai/claude-code-releases/2.1.294/linux-arm64/claude',
+              'e5d2df19f30a6d63bf11188121f7edb2775249b57352a69269509a4b1496e763',
+              252108792,
             ),
             AgentArchitecture.x64: binary(
-              'https://downloads.claude.ai/claude-code-releases/2.1.283/linux-x64/claude',
-              '1859583ce32920595c61ef868bee52e1b1594f7486db209935e01f1e5e804ae2',
-              241556664,
+              'https://downloads.claude.ai/claude-code-releases/2.1.294/linux-x64/claude',
+              '27122ca7b624f537546fbef35b80c66370d974ff258f3d9b10ac50bb8771f262',
+              252755128,
             ),
           },
           signInArgs: ['auth', 'login', '--claudeai'],

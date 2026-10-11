@@ -177,7 +177,7 @@ ${fixtureScript(PaseoPhoneScripts.install(packageLock: lock))}
     final packages =
         (jsonDecode(lock) as Map<String, dynamic>)['packages']
             as Map<String, dynamic>;
-    expect(packages['node_modules/@getpaseo/cli']['version'], '0.9.2');
+    expect(packages['node_modules/@getpaseo/cli']['version'], '0.11.2');
     for (final entry in packages.entries.where(
       (entry) => entry.key.isNotEmpty,
     )) {
@@ -198,8 +198,8 @@ ${fixtureScript(PaseoPhoneScripts.install(packageLock: lock))}
   });
 
   test('CLI pins match the independently verified registry artifact', () {
-    // @getpaseo/cli 0.9.2 tarball checked against the shipped lock's SRI on
-    // 2026-10-07. These values come from artifact inspection, not fixtures.
+    // @getpaseo/cli 0.11.2 tarball checked against the shipped lock's SRI on
+    // 2026-10-11. These values come from artifact inspection, not fixtures.
     final package =
         (jsonDecode(lock)
             as Map<String, dynamic>)['packages']['node_modules/@getpaseo/cli'];
@@ -218,7 +218,7 @@ ${fixtureScript(PaseoPhoneScripts.install(packageLock: lock))}
     );
     expect(
       PaseoPhoneScripts.codeTreeSha256,
-      '06d52bf05750cbd269668993f13ed0bbed2087feacbef37844007a44a1bb8ae5',
+      'aa0467db317397425785bafc5999e9b5287b0ef4e8d799718cf509cce82a7f04',
     );
   });
 

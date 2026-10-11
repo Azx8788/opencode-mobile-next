@@ -13,6 +13,7 @@ import '../../domain/phone_agents.dart';
 import '../../domain/server_gateway.dart';
 import '../../domain/agent_sign_in.dart';
 import '../../domain/agent_auth_probe.dart';
+import '../../paseo/tested_versions.dart';
 import 'agent_scripts.dart';
 import '../../paseo/gateway.dart';
 import '../../paseo/transport.dart';
@@ -290,7 +291,8 @@ final class BuiltinPhoneAgents implements PhoneAgentHost {
           try {
             await _idleAwait(probe.connect(), cancelled, timeout: remaining);
             _idleFence(generation, stillCurrent);
-            if (probe.serverVersion != PaseoPhoneScripts.version) {
+            // A phone that has not updated yet still runs a tested older daemon.
+            if (!paseoSupports(probe.serverVersion)) {
               throw const AgentHostException(AgentHostFailure.hello);
             }
             final currentReceipt = await _idleAwait(

@@ -19,6 +19,7 @@ import 'package:crypto/crypto.dart';
 
 import '../api/models.dart';
 import '../domain/loopback_host.dart';
+import 'tested_versions.dart';
 import '../orchestration/adapters/gascity/gascity_probe.dart'
     show isTailnetHost;
 
@@ -34,6 +35,10 @@ enum PaseoFailureKind {
   deliveryUnknown,
   staleRequest,
   scopeMismatch,
+
+  /// The daemon refused the handshake because its protocol is not one this
+  /// app speaks (`hello.rejected` / close code 4003).
+  incompatibleProtocol,
 }
 
 /// Safe fixed copy: daemon error bodies and the password never escape.
@@ -70,6 +75,9 @@ class PaseoFailure extends ApiException {
             'This request has changed. Refresh before replying.',
           PaseoFailureKind.scopeMismatch =>
             'This conversation belongs to another project.',
+          PaseoFailureKind.incompatibleProtocol =>
+            'The Paseo daemon and this app cannot talk to each other. Update '
+                'the app or the daemon.',
         },
         // Only a real clash reads as a conflict ("changed meanwhile"); a
         // daemon that cannot be reached or did not do it has no status, and
@@ -268,6 +276,9 @@ class PaseoTransport {
   /// The daemon accepts the upgrade, then closes with this code when the
   /// password is missing or wrong.
   static const closeAuthFailed = 4401;
+
+  /// The daemon closes with this code when it does not speak our protocol.
+  static const closeIncompatibleProtocol = 4003;
   static const maxFrameBytes = 8 * 1024 * 1024;
   static const maxPending = 64;
 
@@ -294,6 +305,10 @@ class PaseoTransport {
   bool _closed = false;
   bool _initialized = false;
   int? _boundedFrameBytes;
+
+  /// Set by a `hello.rejected` frame so the close that follows reports the
+  /// daemon's reason, not just a dropped connection.
+  PaseoFailure? _helloRejection;
 
   /// Daemon version from `server_info`, null before the first handshake.
   String? serverVersion;
@@ -343,6 +358,7 @@ class PaseoTransport {
 
   Future<int> _connect() async {
     serverVersion = null;
+    _helloRejection = null;
     final epoch = ++_epoch;
     final socket = await socketFactory(endpoint, _password);
     if (_closed || epoch != _epoch) {
@@ -364,6 +380,11 @@ class PaseoTransport {
         'clientType': 'mobile',
         'protocolVersion': 1,
         'appVersion': clientAppVersion,
+        // The header credential below still works (the daemon accepts it
+        // until 2027-03-24); this is the in-protocol form that replaces it.
+        // Daemons before 0.10 ignore the field.
+        if (_password.isNotEmpty)
+          'auth': {'kind': 'password', 'password': _password},
         // Only what this client implements. Unclaimed capabilities keep the
         // daemon on its plain message shapes and on implicit delivery of
         // permission and timeline events, so no subscription bookkeeping is
@@ -372,6 +393,9 @@ class PaseoTransport {
         // timelines.
         'capabilities': {
           'all_providers': true,
+          // Without this a daemon answers a refused hello with only a close
+          // code; with it, `hello.rejected` names the reason.
+          'hello_rejection': true,
           'provider_subagents': true,
           'projected_subagent_timeline': true,
         },
@@ -411,7 +435,7 @@ class PaseoTransport {
     try {
       return await (() async {
         await isolated.connect();
-        if (!isolated.connected || isolated.serverVersion != '0.9.2') {
+        if (!isolated.connected || !paseoSupports(isolated.serverVersion)) {
           throw PaseoFailure(PaseoFailureKind.unavailable);
         }
         return isolated.request(
@@ -453,7 +477,7 @@ class PaseoTransport {
             : PaseoFailureKind.disconnected,
       );
     }
-    if (_boundedFrameBytes != null && serverVersion != '0.9.2') {
+    if (_boundedFrameBytes != null && !paseoSupports(serverVersion)) {
       throw PaseoFailure(PaseoFailureKind.unavailable);
     }
     if (_pending.length >= maxPending) {
@@ -551,6 +575,11 @@ class PaseoTransport {
       if (json is! Map<String, dynamic>) throw const FormatException();
       final outer = json['type'];
       if (outer == 'pong' || outer == 'ping') return;
+      if (outer == 'hello.rejected') {
+        _helloRejection = _rejectionFailure(json['reason']);
+        _lost(epoch);
+        return;
+      }
       if (outer != 'session') return;
       final message = json['message'];
       if (message is! Map<String, dynamic>) throw const FormatException();
@@ -627,6 +656,23 @@ class PaseoTransport {
     }
   }
 
+  /// The plain failure for a `hello.rejected` reason. The daemon's technical
+  /// reason travels only in [PaseoFailure.reason], which Details reads.
+  static PaseoFailure _rejectionFailure(Object? reason) {
+    final name = reason is String && reason.length <= 40 ? reason : null;
+    return switch (name) {
+      'password_required' || 'incorrect_password' => PaseoFailure(
+        PaseoFailureKind.authentication,
+        reason: name,
+      ),
+      'incompatible_protocol' => PaseoFailure(
+        PaseoFailureKind.incompatibleProtocol,
+        reason: name,
+      ),
+      _ => PaseoFailure(PaseoFailureKind.disconnected, reason: name),
+    };
+  }
+
   String _withoutPassword(String text) =>
       _password.length < 3 ? text : text.replaceAll(_password, '•••');
 
@@ -647,11 +693,13 @@ class PaseoTransport {
     _ready = null;
     if (ready != null && !ready.isCompleted) {
       ready.completeError(
-        PaseoFailure(
-          socket.closeCode == closeAuthFailed
-              ? PaseoFailureKind.authentication
-              : PaseoFailureKind.disconnected,
-        ),
+        _helloRejection ??
+            PaseoFailure(switch (socket.closeCode) {
+              closeAuthFailed => PaseoFailureKind.authentication,
+              closeIncompatibleProtocol =>
+                PaseoFailureKind.incompatibleProtocol,
+              _ => PaseoFailureKind.disconnected,
+            }),
       );
     }
     unawaited(_subscription?.cancel());

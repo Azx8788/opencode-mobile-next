@@ -56,7 +56,7 @@ void main() {
   });
 
   test('bundled Claude evidence qualifies arm64 and x64 with exact helper', () {
-    expect(claude.recipe!.version, '2.1.283');
+    expect(claude.recipe!.version, '2.1.294');
     for (final architecture in AgentArchitecture.values) {
       final proof = AgentCertificationMatrix.bundled.capabilitiesFor(
         descriptor: claude,
@@ -75,6 +75,26 @@ void main() {
         ),
       );
     }
+  });
+
+  test('evidence carries across the tested Paseo and Claude Code versions', () {
+    // The row was recorded on 0.9.2 / 2.1.283; the shared tested sets
+    // (lib/paseo/tested_versions.dart) extend it to the current pins until
+    // the matrix is re-run on them. Anything outside the sets stays closed.
+    final proof = AgentCertificationMatrix.bundled.capabilitiesFor(
+      descriptor: claude,
+      architecture: AgentArchitecture.arm64,
+      helperVersion: '0.11.2',
+    );
+    expect(flags(proof), everyElement(isTrue));
+    expect(AgentCertificationMatrix.bundled.certifiedForChat('claude'), isTrue);
+    expectClosed(
+      AgentCertificationMatrix.bundled.capabilitiesFor(
+        descriptor: claude,
+        architecture: AgentArchitecture.arm64,
+        helperVersion: '0.11.3',
+      ),
+    );
   });
 
   test('bundled other agents remain unverified on arm64 and x64', () {

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import '../../paseo/tested_versions.dart';
 import '../agent_catalog.dart';
 import 'agent_certification_snapshot.dart';
 
@@ -42,8 +43,12 @@ final class AgentCertificationMatrix {
     final record = _records[_canonicalId(descriptor.id)];
     if (record == null ||
         helperVersion == null ||
-        record.agentVersion != descriptor.recipe?.version ||
-        record.helperVersion != helperVersion ||
+        !_sameAgentVersion(
+          descriptor.id,
+          record.agentVersion,
+          descriptor.recipe?.version,
+        ) ||
+        !_sameHelperVersion(record.helperVersion, helperVersion) ||
         (record.architecture != null &&
             record.architecture != architecture?.name)) {
       return const AgentCapabilities();
@@ -70,11 +75,24 @@ final class AgentCertificationMatrix {
     final pinned = AgentCatalog.builtIn.byId(id)?.recipe?.version;
     return record != null &&
         pinned != null &&
-        record.agentVersion == pinned &&
+        _sameAgentVersion(id, record.agentVersion, pinned) &&
         record.passed.containsAll(_chatCells);
   }
 
   static const _chatCells = {'install', 'smoke'};
+
+  /// A record is exact for every agent except through the shared tested-version
+  /// sets: evidence recorded on one tested Paseo or Claude Code release carries
+  /// to the others until the matrix is re-run on the new pair.
+  static bool _sameHelperVersion(String recorded, String current) =>
+      recorded == current ||
+      (paseoSupports(recorded) && paseoSupports(current));
+
+  static bool _sameAgentVersion(String id, String recorded, String? current) =>
+      recorded == current ||
+      (_canonicalId(id) == 'claude' &&
+          claudeCodeSupports(recorded) &&
+          claudeCodeSupports(current));
 
   // FQ1 names the OpenCode 1 catalog entry `opencode`; allow only this alias.
   static String _canonicalId(String id) => id == 'opencode1' ? 'opencode' : id;

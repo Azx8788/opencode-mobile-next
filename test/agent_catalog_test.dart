@@ -189,7 +189,7 @@ void main() {
         catalog.byId('gemini')!.artifactFor(AgentArchitecture.arm64)!.format,
         AgentArtifactFormat.npmTarGz,
       );
-      expect(catalog.byId('claude')!.recipe!.version, '2.1.283');
+      expect(catalog.byId('claude')!.recipe!.version, '2.1.294');
     },
   );
 

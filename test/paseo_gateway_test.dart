@@ -25,6 +25,10 @@ class FakeDaemon implements PaseoSocket {
 
   /// When set, `hello` is answered by closing with this code instead.
   int? rejectWith;
+
+  /// When set, `hello` is answered by a `hello.rejected` frame (the outer,
+  /// non-session envelope) with this reason, then the matching close.
+  String? rejectReason;
   @override
   int? closeCode;
 
@@ -44,6 +48,14 @@ class FakeDaemon implements PaseoSocket {
     final json = jsonDecode(message) as Map<String, dynamic>;
     if (json['type'] == 'hello') {
       hello = json;
+      if (rejectReason != null) {
+        pushRaw({
+          'type': 'hello.rejected',
+          'reason': rejectReason,
+          'accepts': ['password'],
+        });
+        return;
+      }
       if (rejectWith != null) {
         closeCode = rejectWith;
         scheduleMicrotask(close);
@@ -60,6 +72,14 @@ class FakeDaemon implements PaseoSocket {
     if (reply != null) {
       push(reply.$1, {...reply.$2, 'requestId': inner['requestId']});
     }
+  }
+
+  /// A top-level frame that is not a session message.
+  void pushRaw(Map<String, dynamic> frame) {
+    scheduleMicrotask(() {
+      if (closed) return;
+      _incoming.add(jsonEncode(frame));
+    });
   }
 
   void push(String type, Map<String, dynamic> payload) {
@@ -299,6 +319,7 @@ void main() {
     expect(daemon.hello!['protocolVersion'], 1);
     expect(daemon.hello!['capabilities'], {
       'all_providers': true,
+      'hello_rejection': true,
       'provider_subagents': true,
       'projected_subagent_timeline': true,
     });

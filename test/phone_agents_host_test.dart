@@ -301,7 +301,7 @@ void main() {
       );
     },
   );
-  test('the native host launches Paseo 0.9.2 without removed launch flags', () {
+  test('the native host launches Paseo 0.11.2 without removed launch flags', () {
     // Emulator 2026-10-04: `paseo start --foreground --listen ...` exits at
     // once with "--listen was removed", so the check's hello never connected.
     final source = File(
@@ -326,7 +326,7 @@ void main() {
       expect(launch.split(' '), isNot(contains(removed)), reason: removed);
     }
     expect(source, contains(r'export PASEO_LISTEN=127.0.0.1:$port'));
-    expect(PaseoPhoneScripts.version, '0.9.2');
+    expect(PaseoPhoneScripts.version, '0.11.2');
   });
 
   test(
