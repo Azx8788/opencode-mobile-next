@@ -28,6 +28,7 @@ import '../kit_tokens.dart';
 import '../motion/kit_motion_parts.dart';
 import 'kit_markdown.dart';
 import 'kit_step_timeline.dart';
+import 'kit_turn.dart';
 
 /// What kind of step it was. It picks the glyph only (one glyph per verb,
 /// COPY-18); the words are the host's [KitToolRow.title].
@@ -92,6 +93,7 @@ class KitToolRow extends StatefulWidget {
     this.added,
     this.removed,
     this.duration,
+    this.startedAt,
     this.note,
     this.body = const <Widget>[],
     this.preview,
@@ -107,7 +109,6 @@ class KitToolRow extends StatefulWidget {
          'note, not both',
        ),
        task = null,
-       startedAt = null,
        liveMark = true,
        _agent = false;
 
@@ -192,7 +193,8 @@ class KitToolRow extends StatefulWidget {
   /// `.agent`: what it works on, one or two lines.
   final String? task;
 
-  /// `.agent` while running: "for 3 min", ticking by the minute (KitSince).
+  /// While running: `.agent` says "for 3 min", ticking by the minute; a step
+  /// on a timeline shows a seconds counter at its end ("12 s"). Null shows none.
   final DateTime? startedAt;
 
   /// `.agent`: false when the page already shows one live status elsewhere
@@ -342,6 +344,8 @@ class _KitToolRowState extends State<KitToolRow>
     final l10n = lookupAppLocalizations(Localizations.localeOf(context));
     final row = widget;
     final status = row.status;
+    // A running step keeps its glyph; the one light on its node is its mark.
+    final live = status == KitToolStatus.running;
     final word = KitToolRow.wordFor(context, status);
     final durationWords = _finished(status)
         ? _durationWords(l10n, row.duration)
@@ -353,14 +357,17 @@ class _KitToolRowState extends State<KitToolRow>
     final detail = row.detail;
     final label = _labelOf(l10n, row, word, durationWords);
 
-    final titleText = KitText(
-      row.title,
-      role: KitTextRole.rowTitle,
-      tone: status == KitToolStatus.notRun
-          ? KitTextTone.tertiary
-          : KitTextTone.primary,
-      maxLines: wide ? 3 : 1,
-      overflow: TextOverflow.ellipsis,
+    final Widget titleText = KitStepTimeline.sweep(
+      active: live,
+      child: KitText(
+        row.title,
+        role: KitTextRole.rowTitle,
+        tone: status == KitToolStatus.notRun
+            ? KitTextTone.tertiary
+            : KitTextTone.primary,
+        maxLines: wide ? 3 : 1,
+        overflow: TextOverflow.ellipsis,
+      ),
     );
 
     Widget? second;
@@ -389,12 +396,21 @@ class _KitToolRowState extends State<KitToolRow>
     }
 
     final counts = hasCounts ? _Counts(row.added, row.removed) : null;
-    final words = _stepWords(
-      status,
-      word,
-      durationWords,
-      maxLines: wide ? 2 : 1,
-    );
+    final started = row.startedAt;
+    final Widget? words = live && started != null
+        ? KitSince(
+            since: started,
+            ticks: KitSinceTicks.seconds,
+            builder: (context, since) => KitText(
+              KitTurnLive.elapsedText(l10n, since.elapsed),
+              key: const ValueKey('kit-step-counter'),
+              role: KitTextRole.caption,
+              tone: KitTextTone.secondary,
+              tabular: true,
+              maxLines: 1,
+            ),
+          )
+        : _stepWords(status, word, durationWords, maxLines: wide ? 2 : 1);
     final Widget? chevron = _opens
         ? SizedBox.square(
             dimension: tokens.smallIconSize,
@@ -545,13 +561,14 @@ class _KitToolRowState extends State<KitToolRow>
       ],
     );
 
-    final mark = _stepMark(status);
+    final mark = live ? null : _stepMark(status);
     return KitStepTimeline.node(
       context,
       lineHeight: 22,
       top: tokens.space1,
       icon: mark == null ? _glyphFor(row.kind) : null,
       mark: mark,
+      live: live,
       child: column,
     );
   }

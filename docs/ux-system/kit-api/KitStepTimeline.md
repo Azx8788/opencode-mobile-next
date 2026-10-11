@@ -96,3 +96,13 @@ The glyph column, the rail and the nodes sit at the start edge (the right under 
 ## Long work
 
 The timeline builds the steps it is given, in a column. The host keeps long work cheap: `KitWorkLine` builds at most `stepCap` steps at a time and reveals earlier ones in chunks (PERF-2).
+
+## The running step's light (2026-10-11, owner pick "A + B · One light")
+
+`KitStepTimeline.node(live: true)` (what `KitToolRow` passes for a running step) keeps the step's glyph, tinted `accent`, and draws one light over the node and the rail. `KitStepTimeline.sweep(active:, child:)` puts a soft light sweep over the step's name. `KitToolRow(startedAt:)` adds a seconds counter at the end of a running step (`KitTurnLive.elapsedText`: "12 s", "1 min 5 s"; tabular figures; ticks through `KitSince`). Private parts `_StepLight`, `_StepSweep`; names in `KitMotion.step*`.
+
+- The light orbits the node's rounded edge from its bottom centre (68% of a 1.6 s lap; Calm 3.2 s), leaves down the rail and fades (vertical gradient, opaque at the node), then the next lap. Head 12 dp, stroke 2.2 dp, `accent`, round caps; tail 30 dp at 35%.
+- The last step has no rail under it: the light draws a 14 dp fading one.
+- Finish: light stops, a `success` tick shows 600 ms, the glyph grows back (size .4 to 1, `KitMotion.land`, 260 ms; by icon size, not a transform, since G21/MOT-2 forbids scale). A failed step keeps its failed mark.
+- Reduced motion, Animations: Off, `KitMotion.loops` false: a still `accent` outline round the node, a still name; only the counter ticks.
+- One `AnimationController` per running node, disposed with it; `TickerMode` pauses it off-screen. The collapsed group header keeps its working mark (not changed).

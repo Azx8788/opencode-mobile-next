@@ -440,6 +440,9 @@ class _ToolCardState extends State<ToolCard> {
       removed: contract.removed,
       // The row shows it only once finished (and reads it for a failure).
       duration: widget.state.duration,
+      startedAt: status == KitToolStatus.running
+          ? widget.state.startedAt
+          : null,
       note: (widget.note?.isNotEmpty ?? false)
           ? KitMarkdown(
               widget.note!,
