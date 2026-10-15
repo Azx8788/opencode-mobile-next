@@ -15,6 +15,9 @@ analyzer:
     # copies it into packages/opencode_sdk, then tests and analyzes it there
     # after generating its package-specific dependencies and sources.
     - tool/sdk/runtime/**
+    # The Widgetbook catalog is its own package with its own dependencies and
+    # analysis; CI does not resolve it, so the app's analysis leaves it out.
+    - widgetbook/**
     - build/**
     - android/**
     - ios/**
