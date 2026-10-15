@@ -19,14 +19,15 @@ ProductRepository _createRepository(OpenCodeApi api) =>
     SdkProductRepository(api.sdkClient);
 
 /// Production wiring for an OpenCode 2 profile: one Basic-auth transport
-/// and client shared by both gateway halves. Username stays `opencode` on
-/// the wire (protocol notes §1); the profile's stored password rides every
-/// request.
+/// and client shared by both gateway halves. Direct OC2 uses `opencode`;
+/// an authenticated BYO tunnel uses its per-phone identity at the proxy.
+/// The profile's password rides every request in either case.
 ({ServerGateway gateway, ServerOperationsGateway operations})
 _createV2GatewayPair(ServerProfile profile) {
   final client = Api2Client.connect(
     baseUrl: profile.baseUrl,
     password: profile.password,
+    username: profile.transientTransport ? profile.username : 'opencode',
   );
   return (
     gateway: Api2Gateway(client: client),
@@ -121,6 +122,22 @@ mixin _ConnectionControllerConnect on ChangeNotifier {
   Future<void> disconnect({bool keepActive = false, bool silent = false}) =>
       _self._disconnect(keepActive: keepActive, silent: silent);
 
+  /// Capabilities for setup, including profiles that are not connected yet.
+  /// A live gateway is authoritative only for the exact selected profile.
+  ServerCapabilities serverCapabilitiesFor(ServerProfile candidate) {
+    if (_connectedProfile?.id == candidate.id && _self.api != null) {
+      return _self.api!.capabilities;
+    }
+    if (candidate.backend != ServerBackend.openCode) {
+      return const ServerCapabilities();
+    }
+    return switch (candidate.flavor) {
+      ServerFlavor.v1 => ServerCapabilities.allV1,
+      ServerFlavor.v2 => api2ServerCapabilities,
+      _ => const ServerCapabilities(),
+    };
+  }
+
   /// Marks [profile] as the connected one without a transport, so tests can
   /// exercise profile-bound guards such as [openSessionInWorktree].
   @visibleForTesting
@@ -193,7 +210,19 @@ extension _ConnectionControllerConnectImpl on ConnectionController {
     if (profile.backend == ServerBackend.paseo) {
       return _paseoGatewayFactory(profile);
     }
-    if (profile.flavor == ServerFlavor.v2) return _v2GatewayFactory(profile);
+    if (profile.flavor == ServerFlavor.v2) {
+      final pair = _v2GatewayFactory(profile);
+      final v2Api = pair.gateway;
+      if (v2Api is Api2Gateway &&
+          BuiltinLinux.managesServerUrl(profile.baseUrl)) {
+        v2Api.beforeSessionDispatch = (id) =>
+            _beforePhoneChatDispatch(profile, v2Api, id);
+        v2Api.sessionDispatchSettled = (id) {
+          if (identical(api, v2Api)) _phoneChatDispatchSettled(id);
+        };
+      }
+      return pair;
+    }
     final v1Api = _apiFactory(profile);
     if (BuiltinLinux.managesServerUrl(profile.baseUrl)) {
       v1Api.beforeSessionDispatch = (id) =>
@@ -638,7 +667,7 @@ extension _ConnectionControllerConnectImpl on ConnectionController {
     if (owner != null && BuiltinLinux.managesServerUrl(owner.baseUrl)) {
       try {
         await phoneProjectEngine.preparePhoneAliasDispatch(owner.id);
-        if (owner.flavor != ServerFlavor.v1 &&
+        if (!_phoneChatEligible(owner.id) &&
             owner.orchestration?.provider ==
                 OrchestrationProvider.phoneEngine) {
           await phoneProjectEngine.suspendChatAdmission(owner.id);

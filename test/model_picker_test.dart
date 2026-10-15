@@ -272,7 +272,7 @@ Future<void> _tap(WidgetTester tester, Finder target) async {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   // Provider logos are fetched favicons; tests render the monogram instead.
-  setUpAll(() => ProviderLogo.imageProviderOverride = (_) => null);
+  setUpAll(() => ProviderLogo.logoLoaderOverride = (_) => null);
   setUp(() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
@@ -280,7 +280,7 @@ void main() {
           (_) async => null,
         );
   });
-  tearDownAll(() => ProviderLogo.imageProviderOverride = null);
+  tearDownAll(() => ProviderLogo.logoLoaderOverride = null);
 
   test('model presentation leads with current model and provider family', () {
     const models = [

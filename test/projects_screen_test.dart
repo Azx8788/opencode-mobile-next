@@ -474,6 +474,8 @@ void main() {
       await tester.tap(find.text('restored'));
       await tester.pumpAndSettle();
       expect(controller.folderEvents, ['open:/root/projects/restored']);
+      await tester.pumpWidget(const SizedBox());
+      controller.dispose();
     });
 
     testWidgets('folders already opened are not listed twice, and an empty '

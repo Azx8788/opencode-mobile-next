@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import '../../voice/device.dart';
+import '../int64_max_shim.dart';
 
 /// Pre-flight checks before phone setup downloads anything (P0.8): the CPU
 /// ABI the Ubuntu rootfs ships for, free space against what the chosen
@@ -38,7 +39,7 @@ const comfortableSetupMemoryMb = 3072;
 /// scratch space. Unknown payload sizes retain the existing 300 MB/2x policy;
 /// estimates here never become download-consent evidence.
 int requiredSetupFreeBytes(int downloadBytes, {int? installedBytes}) {
-  const maximumBytes = 0x7fffffffffffffff;
+  const maximumBytes = int64Max;
   const scratchBytes = 64 * 1024 * 1024;
   final nonnegative = math.max(downloadBytes, 0);
   final doubled = nonnegative > maximumBytes ~/ 2
@@ -55,7 +56,7 @@ int requiredSetupFreeBytes(int downloadBytes, {int? installedBytes}) {
 }
 
 int _saturatedSetupBytes(int first, int second) {
-  const maximumBytes = 0x7fffffffffffffff;
+  const maximumBytes = int64Max;
   return first >= maximumBytes - second ? maximumBytes : first + second;
 }
 

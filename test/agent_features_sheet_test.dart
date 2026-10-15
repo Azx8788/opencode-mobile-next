@@ -204,9 +204,9 @@ void main() {
   setUpAll(() async {
     await loadKitGalleryFonts();
     await loadCaptureFonts();
-    ProviderLogo.imageProviderOverride = (_) => null;
+    ProviderLogo.logoLoaderOverride = (_) => null;
   });
-  tearDownAll(() => ProviderLogo.imageProviderOverride = null);
+  tearDownAll(() => ProviderLogo.logoLoaderOverride = null);
   setUp(() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(

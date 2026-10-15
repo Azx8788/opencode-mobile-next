@@ -313,6 +313,9 @@ class PaseoTransport {
   /// Daemon version from `server_info`, null before the first handshake.
   String? serverVersion;
 
+  /// Explicit negotiated writer support, reset when the socket is lost.
+  bool workspaceFileEditing = false;
+
   /// The daemon's own wording for the last refused request, clipped. Kept for
   /// diagnostics and tests only; user-facing copy stays the fixed
   /// [PaseoFailure] text.
@@ -358,6 +361,7 @@ class PaseoTransport {
 
   Future<int> _connect() async {
     serverVersion = null;
+    workspaceFileEditing = false;
     _helloRejection = null;
     final epoch = ++_epoch;
     final socket = await socketFactory(endpoint, _password);
@@ -592,6 +596,9 @@ class PaseoTransport {
           ? rawPayload
           : const <String, dynamic>{};
       if (type == 'status' && payload['status'] == 'server_info') {
+        final features = payload['features'];
+        workspaceFileEditing =
+            features is Map && features['workspaceFileEditing'] == true;
         final version = payload['version'];
         serverVersion =
             version is String &&
@@ -679,6 +686,7 @@ class PaseoTransport {
   void _lost(int epoch) {
     if (epoch != _epoch) return;
     serverVersion = null;
+    workspaceFileEditing = false;
     if (_socket == null) return;
     final disconnectedEpoch = _epoch;
     // Invalidate callbacks and frames from the old socket before allowing a

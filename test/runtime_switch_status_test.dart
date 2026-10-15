@@ -53,7 +53,7 @@ void main() {
     tester,
   ) async {
     await pumpShell(tester);
-    // The confirmed switch starts OpenCode 1 on this phone.
+    // The confirmed switch starts the older OpenCode on this phone.
     unawaited(shell.starter.start(phoneOne));
     // The old server reconnects, refuses its old password, stops answering:
     // all of it is the switch itself. One indicator, never two spinners.
@@ -65,7 +65,7 @@ void main() {
     ]) {
       shell.controller.show(phase);
       await settle(tester);
-      expect(pill('OpenCode 1'), findsOneWidget, reason: '$phase');
+      expect(pill('Older OpenCode'), findsOneWidget, reason: '$phase');
       expect(pill('Switching…'), findsOneWidget, reason: '$phase');
       expect(pill('OpenCode 2'), findsNothing, reason: '$phase');
       expect(line(), findsNothing, reason: '$phase');
@@ -98,7 +98,7 @@ void main() {
     expect(
       find.descendant(
         of: line(),
-        matching: find.text('Switching to OpenCode 1…'),
+        matching: find.text('Switching to Older OpenCode…'),
       ),
       findsOneWidget,
     );

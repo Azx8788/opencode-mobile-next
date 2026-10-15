@@ -22,6 +22,11 @@ class BuiltinLinux private constructor(context: Context) {
     internal fun startInstaller(script: String, targets: Set<InstallerTarget>, operation: InstallerOperation, agentUser: Boolean = false): Process {
         check(operation == InstallerOperation.INSTALL && targets.isNotEmpty())
         installerStarts++
+        if (interruptNextInstallerWithZeroExit) {
+            interruptNextInstallerWithZeroExit = false
+            // PRoot can exit successfully after its guest shell was signalled.
+            return ProcessBuilder("sh", "-c", "printf 'proot info: vpid 1: terminated with signal 15\\n'; exit 0").start()
+        }
         return ProcessBuilder("sh", "-c", script).start()
     }
     fun finishInstaller(process: Process) {
@@ -37,6 +42,7 @@ class BuiltinLinux private constructor(context: Context) {
         @Volatile var setupWorkFinishes = 0
         var installerStarts = 0
         var installerFinishes = 0
+        var interruptNextInstallerWithZeroExit = false
         fun get(context: Context) = BuiltinLinux(context)
         fun stopTree(process: Process, graceMs: Long = 0) { process.destroyForcibly() }
     }

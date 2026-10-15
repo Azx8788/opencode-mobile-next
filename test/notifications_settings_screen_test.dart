@@ -197,6 +197,54 @@ void main() {
     await _finish(tester, controller);
   });
 
+  testWidgets('quota alerts are not switched here: the row leads to Usage', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(400, 3000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final controller = await _controller(servers: 1);
+    await tester.pumpWidget(
+      _app(NotificationsSettingsScreen(controller: controller)),
+    );
+    await tester.pump();
+
+    final row = _key('notify-quota-alerts');
+    expect(row, findsOneWidget);
+    expect(
+      find.descendant(of: row, matching: find.byType(Switch)),
+      findsNothing,
+    );
+    expect(find.text(_en.notifyQuotaAlerts), findsOneWidget);
+    expect(find.text(_en.notifyQuotaAlertsDetail), findsOneWidget);
+    await _finish(tester, controller);
+  });
+
+  testWidgets('the one usage alerts row opens the Alerts page, which does not '
+      'lead back here', (tester) async {
+    tester.view.physicalSize = const Size(400, 3000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final controller = await _controller(servers: 1);
+    await tester.pumpWidget(
+      _app(NotificationsSettingsScreen(controller: controller)),
+    );
+    await tester.pump();
+    // Exactly one such row, and it is the way to the Alerts page.
+    expect(_key('notify-quota-alerts'), findsOneWidget);
+    await tester.ensureVisible(_key('notify-quota-alerts'));
+    await tester.pump();
+    await tester.tap(_key('notify-quota-alerts'));
+    await tester.pumpAndSettle();
+
+    expect(_key('usage-alerts'), findsOneWidget);
+    expect(find.text(_en.usageAlertsTitle), findsWidgets);
+    // No loop: the Alerts page has no row back to Notifications.
+    expect(_key('notify-quota-alerts'), findsNothing);
+    expect(find.text(_en.settingsV3Notifications), findsNothing);
+    await _finish(tester, controller);
+  });
+
   testWidgets('rows this device cannot do are absent, and so are empty '
       'sections', (tester) async {
     debugPlatformCapabilities = const PlatformCapabilities(
@@ -385,7 +433,6 @@ void main() {
     );
     expect(toggle('notify-quiet-hours').value, isTrue);
     expect(toggle('notify-wifi-only').value, isTrue);
-    expect(toggle('notify-quota-alerts').value, isTrue);
     expect(toggle('notify-check-ins').value, isTrue);
     expect(_key('notify-check-in-after'), findsOneWidget);
     // KitPickerRow isolates the value's direction (477e2075).
@@ -419,8 +466,6 @@ void main() {
     expect(controller.notificationPreferences.finishedRuns, isFalse);
     await _tapSwitch(tester, 'notify-requests');
     expect(controller.notificationPreferences.requests, isFalse);
-    await _tapSwitch(tester, 'notify-quota-alerts');
-    expect(controller.sharedNotifyRules.quotaAlerts, isTrue);
 
     await _tapSwitch(tester, 'notify-check-ins');
     expect(
@@ -455,13 +500,13 @@ void main() {
     final controller = await _controller();
     await tester.pumpWidget(_app(SettingsScreen(controller: controller)));
     await tester.pumpAndSettle();
-    final row = _key('settings-category-background');
+    final row = _key('settings-category-notifications');
     await tester.ensureVisible(row);
     await tester.pumpAndSettle();
     expect(
       find.descendant(
         of: row,
-        matching: find.text(_en.settingsHubGroupNotifications),
+        matching: find.text(_en.settingsV3Notifications),
       ),
       findsOneWidget,
     );

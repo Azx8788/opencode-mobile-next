@@ -1,6 +1,6 @@
 part of '../gateway_operations.dart';
 
-mixin _Api2DevOps on _Api2Core {
+mixin _Api2DevOps on _Api2Core implements OneShotCommandGateway {
   // Implemented by _Api2ProjectOps.
   Future<Map<String, dynamic>> _currentProjectJson();
 
@@ -57,6 +57,20 @@ mixin _Api2DevOps on _Api2Core {
       });
 
   @override
+  Future<void> initializeGitRepository() =>
+      _guard('Could not initialize this Git repository', () async {
+        try {
+          await _transport.postJson(
+            '/vcs/init',
+            query: _loc({'provider': 'git'}),
+          );
+        } on Api2Error catch (error) {
+          // 409: the folder is already a repository, which is the goal.
+          if (error.statusCode != 409) rethrow;
+        }
+      });
+
+  @override
   Future<List<VersionControlFile>> listFileStatuses() =>
       _guard('Could not load file statuses', () async {
         final json = await _transport.getJson('/vcs/status', query: _loc());
@@ -101,7 +115,10 @@ mixin _Api2DevOps on _Api2Core {
   Future<List<TerminalProcess>> listTerminals() =>
       _guard('Could not load terminals', () async {
         final json = await _transport.getJson('/pty', query: _loc());
-        return [for (final item in _dataMaps(json)) _terminal(item)];
+        return [
+          for (final item in _dataMaps(json))
+            if (item['title'] != computerUsageTitle) _terminal(item),
+        ];
       });
 
   TerminalProcess _terminal(Map<String, dynamic> json) => TerminalProcess(
@@ -117,6 +134,62 @@ mixin _Api2DevOps on _Api2Core {
     exitCode: (json['exitCode'] as num?)?.toInt(),
   );
 
+  Future<List<TerminalShellOption>> _shellOptions() async {
+    final json = await _transport.getJson('/config/shell', query: _loc());
+    return [
+      for (final item in _dataMaps(json))
+        if ((item['path'] ?? '').toString().trim().isNotEmpty &&
+            (item['name'] ?? '').toString().trim().isNotEmpty)
+          TerminalShellOption(
+            path: item['path'].toString().trim(),
+            name: item['name'].toString().trim(),
+            acceptable: item['acceptable'] == true,
+          ),
+    ];
+  }
+
+  @override
+  Future<TerminalShellSettings> loadTerminalShellSettings() =>
+      _guard('Could not load shell settings', () async {
+        final options = await _shellOptions();
+        // Config documents run lowest to highest priority; the last one that
+        // sets a shell wins.
+        final config = await _transport.getJson('/config', query: _loc());
+        var selected = '';
+        for (final entry in _dataMaps(config)) {
+          final info = entry['info'];
+          final shell = info is Map ? info['shell'] : null;
+          if (shell is String && shell.trim().isNotEmpty) {
+            selected = shell.trim();
+          }
+        }
+        return TerminalShellSettings(selected: selected, options: options);
+      });
+
+  @override
+  Future<void> selectTerminalShell(String value) =>
+      _guard('Could not update the default shell', () async {
+        final normalized = value.trim();
+        if (normalized.isNotEmpty) {
+          // The server accepts any string, so only a listed, usable shell is
+          // ever sent.
+          final options = await _shellOptions();
+          final listed = options.any(
+            (option) => option.path == normalized && option.acceptable,
+          );
+          if (!listed) {
+            throw const ProductException(
+              'That shell is not available on this server',
+            );
+          }
+        }
+        await _transport.patchJson(
+          '/experimental/config',
+          query: _loc(),
+          body: {'shell': normalized.isEmpty ? null : normalized},
+        );
+      });
+
   @override
   Future<TerminalProcess> createTerminal({String? title}) =>
       _guard('Could not create the terminal', () async {
@@ -131,6 +204,24 @@ mixin _Api2DevOps on _Api2Core {
         }
         return _terminal(data);
       });
+
+  @override
+  Future<TerminalProcess> createCommandTerminal({
+    required String command,
+    required List<String> arguments,
+    String? title,
+  }) => _guard('Could not start the command', () async {
+    final json = await _transport.postJson(
+      '/pty',
+      query: _loc(),
+      body: {'command': command, 'args': arguments, 'title': ?title},
+    );
+    final data = _dataMap(json);
+    if (data.isEmpty) {
+      throw const ProductException('OpenCode returned no terminal');
+    }
+    return _terminal(data);
+  });
 
   @override
   Future<void> renameTerminal(String id, String title) => _guard(
@@ -189,7 +280,15 @@ mixin _Api2DevOps on _Api2Core {
             'location[directory]': ?_directory,
           },
         );
-        final socket = await WebSocket.connect(uri.toString());
+        // The ticket authenticates OC2. A BYO proxy also needs the phone's
+        // Basic header so revocation still applies before websocket forwarding.
+        // Keep both credentials out of the URL except the single-use ticket.
+        final socket = await WebSocket.connect(
+          uri.toString(),
+          headers: {
+            HttpHeaders.authorizationHeader: _transport.authorizationHeader,
+          },
+        );
         return _Api2TerminalChannel(socket, initialCursor: cursor ?? 0);
       });
 }

@@ -439,6 +439,31 @@ mixin _SdkIntegrationOps on _SdkCore {
     _providerOAuthAttempts.remove(attemptID);
   }
 
+  /// Routing only, no network: a sign-in this phone saved is picked up
+  /// again after the app restarts. The attempt id carries the provider,
+  /// method and server, so the attempt is rebuilt from it (and refused when
+  /// it names another server). Whether the server still holds the attempt
+  /// is learned when the callback check runs.
+  void restoreIntegrationAuthAttempt({
+    required String integrationID,
+    required String attemptID,
+    required bool command,
+    String? directory,
+    String? workspace,
+  }) {
+    if (command) {
+      throw const ProductException(
+        'This server does not run command sign-ins.',
+      );
+    }
+    final attempt = _providerOAuthAttempt(attemptID);
+    if (attempt == null || attempt.providerID != integrationID) {
+      throw const ProductException(
+        'This sign-in attempt belongs to another server.',
+      );
+    }
+  }
+
   String _providerOAuthAttemptID(_LegacyProviderOAuthAttempt attempt) {
     final payload = base64Url
         .encode(

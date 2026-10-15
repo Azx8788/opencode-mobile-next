@@ -59,7 +59,12 @@ class KitRequestAlwaysAllowStep {
     required this.onConfirmed,
     this.buttonKey,
     this.confirmKey,
+    this.label,
   });
+
+  /// The quiet line's words ("Always allow commands like this"); null says
+  /// "Always allow requests like this".
+  final String? label;
 
   /// The exact command, file or tool the confirm names ("Always allow
   /// `git status` in this project?").

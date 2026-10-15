@@ -46,6 +46,10 @@ class _MessageView extends StatelessWidget {
   /// answered".
   final VoidCallback? onResendPrompt;
 
+  /// After a provider failure on the newest reply: a quiet way to carry the
+  /// work to another agent. Never opened by itself.
+  final VoidCallback? onContinueWithAnother;
+
   /// The newest reply was cut off by a lost connection: sends the prompt
   /// again. Null hides the action.
   final VoidCallback? onSendInterruptedAgain;
@@ -95,6 +99,7 @@ class _MessageView extends StatelessWidget {
     this.onContinue,
     this.onChooseModel,
     this.onResendPrompt,
+    this.onContinueWithAnother,
     this.onSendInterruptedAgain,
     this.live,
     this.stall,
@@ -465,6 +470,7 @@ class _MessageView extends StatelessWidget {
         chat != null &&
         !chat._conn.isIsolated &&
         !chat._conn.isConnected &&
+        !chat._conn.localServerBusy &&
         !deferInterruption;
     // Still trying to get back: the reply may yet finish, so no resend.
     final reconnecting = connectionLost && chat._conn.connectionLoading;
@@ -481,7 +487,15 @@ class _MessageView extends StatelessWidget {
                 KitMotion.escalateAfter.inMilliseconds);
     final working = streaming && !interrupted;
 
-    final runs = _withCards(_groupAssistantParts(visibleParts), chat);
+    // The request card below says what is asked: while it shows, the step
+    // that asks (the spinner on the same command) is not repeated above it.
+    final shown = waiting
+        ? [
+            for (final part in visibleParts)
+              if (!(chat?._toolWaitsForYou(part) ?? false)) part,
+          ]
+        : visibleParts;
+    final runs = _withCards(_groupAssistantParts(shown), chat);
     final blocks = <Widget>[
       for (final stretch in _stretches(runs))
         if (stretch.length > 1 || stretch.single.grouped)
@@ -507,6 +521,7 @@ class _MessageView extends StatelessWidget {
           onContinue: onContinue,
           onChooseModel: onChooseModel,
           onResend: onResendPrompt,
+          onContinueWithAnother: onContinueWithAnother,
           suggestion: suggestedModel,
           onUseSuggestion: onUseSuggestedModel,
         ),
@@ -551,7 +566,9 @@ class _MessageView extends StatelessWidget {
       footer: footer,
       // The live line stands for the running turn's end; an interrupted or
       // ended turn says so in its own line instead.
-      live: interrupted || stopped || raw != null ? null : live,
+      // Waiting for the person: the request card says it, so the turn adds
+      // no "Waiting for you…" line of its own.
+      live: interrupted || stopped || raw != null || waiting ? null : live,
       stall: stall,
       reconnecting: reconnecting,
       interruptedAction:

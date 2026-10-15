@@ -337,12 +337,23 @@ final class GenUiStateController extends ChangeNotifier {
     String messageID,
     Part part,
   ) {
-    if (!available(scope)) return null;
-    // Only cached parts observed under an authoritative assistant message are admitted.
-    return _views[_sessionKey(scope, sessionID)]?.parsed[_partKey(
-      messageID,
+    // Cached parts observed under an authoritative assistant message win.
+    final cached = available(scope)
+        ? _views[_sessionKey(scope, sessionID)]?.parsed[_partKey(
+            messageID,
+            part,
+          )]
+        : null;
+    if (cached != null) return cached;
+    // Not (yet) confirmed: the call still finished and the server accepted
+    // it, so it reads as a card, never as a raw tool row. Its state stays
+    // unknown (no answer is accepted from it) until the view confirms it.
+    return genUiFromPart(
       part,
-    )];
+      scope: scope,
+      sessionID: sessionID,
+      messageID: messageID,
+    );
   }
 
   /// Registration qualification without transport liveness. Retained OAuth

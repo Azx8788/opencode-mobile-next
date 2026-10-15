@@ -1,5 +1,21 @@
 part of '../setup_engine.dart';
 
+const _runtimeOwnershipUnknown = 'runtime_ownership_unknown';
+final _legacyOwnershipUnknown = RegExp(r'\bownershipUnknown\b');
+
+/// Preserve the native recovery category through the persisted setup job.
+/// It is rendered as plain words plus recovery by the progress view.
+bool _isRuntimeOwnershipFailure(Object? error) {
+  if (error is BuiltinLinuxException) {
+    return error.code == _runtimeOwnershipUnknown ||
+        _legacyOwnershipUnknown.hasMatch(error.details ?? '') ||
+        _legacyOwnershipUnknown.hasMatch(error.message);
+  }
+  return error is String &&
+      (error == _runtimeOwnershipUnknown ||
+          _legacyOwnershipUnknown.hasMatch(error));
+}
+
 /// A [ValueNotifier] that tells its engine when the first listener comes and
 /// the last goes, so polling runs only while someone watches (or a job
 /// runs).
@@ -59,6 +75,8 @@ String appFailureReason(SetupAppFailureKind kind) => switch (kind) {
 /// facts ([SetupJobParams], such as "first setup") are not a request for
 /// something else, so they are laid over the stopped job's params rather
 /// than replacing them. A stopped job's own facts carry over the same way.
+/// A completed job also preserves its runtime unless explicitly overridden;
+/// changing the fresh-install default must not upgrade an installed server.
 Map<String, Map<String, String>> effectiveJobParams(
   Map<String, Map<String, String>> requested,
   SetupJobRecord? last,
@@ -71,10 +89,21 @@ Map<String, Map<String, String>> effectiveJobParams(
   final base = components.isEmpty && last != null && last.canContinue
       ? last.params
       : components;
-  if (facts == null) return base;
+  // Missing runtime in an existing job means the historical OC1 default.
+  // Persist every new selection explicitly so future defaults cannot migrate it.
+  final openCode = base[SetupComponentIds.openCode] ?? const {};
+  final runtime =
+      openCode['runtime'] ??
+      (last == null
+          ? TermuxRuntime.defaultForNewInstall.wireName
+          : TermuxRuntime.parse(
+              last.params[SetupComponentIds.openCode]?['runtime'],
+            ).wireName);
   return {
     ...base,
-    SetupJobParams.key: {...?base[SetupJobParams.key], ...facts},
+    SetupComponentIds.openCode: {...openCode, 'runtime': runtime},
+    if (facts != null)
+      SetupJobParams.key: {...?base[SetupJobParams.key], ...facts},
   };
 }
 
@@ -268,14 +297,35 @@ SetupProgress progressFromRecord(
           )
         : null,
     error: state == SetupState.failed
-        ? (record.failureKind == SetupFailureKind.persistence
+        ? (_isRuntimeOwnershipFailure(record.error)
+                  ? _runtimeOwnershipUnknown
+                  : record.failureKind == SetupFailureKind.persistence
                   ? l10n.phoneSetupErrorInstall('OpenCode')
                   : jobError) ??
               l10n.phoneSetupErrorInstall(
                 titles[record.current] ?? record.current ?? 'OpenCode',
               )
         : null,
-    logTail: setupLogForPeople(record.logTail),
+    // A failure can arrive before the script emits output. Keep its original
+    // reason in Details even after the row is translated into plain words.
+    logTail: KitRedact.text(
+      setupLogForPeople(
+        [
+          record.logTail.trimRight(),
+          if (state == SetupState.failed) ...{
+            for (final raw in [
+              for (final row in record.components)
+                if (row.componentState == ComponentState.failed) row.error,
+              record.error,
+            ])
+              if (raw != null &&
+                  raw.trim().isNotEmpty &&
+                  !record.logTail.contains(raw.trim()))
+                raw.trim(),
+          },
+        ].where((line) => line.isNotEmpty).join('\n'),
+      ),
+    ),
     firstSetup: SetupJobParams.isFirstSetup(record.params),
     adding: SetupJobParams.addingIds(record.params),
   );
@@ -336,6 +386,15 @@ final _checksum = RegExp(
   bool step = false,
 }) {
   final reason = failed.error ?? '';
+  if (_isRuntimeOwnershipFailure(reason)) {
+    return (component: _runtimeOwnershipUnknown, job: _runtimeOwnershipUnknown);
+  }
+  if (reason.startsWith('[oc] Some packages are still unfinished.') ||
+      reason.startsWith('[oc] Package repair could not finish.') ||
+      reason.startsWith('[oc] A required package is not fully installed.')) {
+    final text = l10n.phoneSetupErrorPackageRepair;
+    return (component: text, job: text);
+  }
   if (step) {
     final text = l10n.phoneSetupErrorStart(
       reason.isEmpty ? l10n.phoneSetupErrorCannotStart : reason,

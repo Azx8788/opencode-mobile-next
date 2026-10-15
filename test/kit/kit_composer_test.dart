@@ -14,6 +14,7 @@ import 'package:opencode_mobile/ui/kit/glass/kit_glass.dart';
 import 'package:opencode_mobile/ui/kit/kit_bottom_inset.dart';
 import 'package:opencode_mobile/ui/kit/kit_buttons.dart';
 import 'package:opencode_mobile/ui/kit/kit_segmented.dart';
+import 'package:opencode_mobile/ui/kit/kit_tappable.dart';
 import 'package:opencode_mobile/ui/kit/kit_tokens.dart';
 
 import 'kit_harness.dart';
@@ -26,14 +27,12 @@ const _field = Key('chat-composer-field');
 const _tools = Key('composer-tools-button');
 const _editor = Key('prompt-editor-button');
 const _voice = Key('voice-button');
-const _delivery = Key('composer-delivery-control');
 
 class _Host {
   _Host(String text) : controller = TextEditingController(text: text);
   final TextEditingController controller;
   final FocusNode focus = FocusNode();
   int sends = 0, stops = 0, voices = 0, tools = 0, editors = 0;
-  final deliveries = <KitComposerDelivery>[];
 
   void dispose() {
     controller.dispose();
@@ -54,7 +53,6 @@ KitComposer _composer(
   bool sending = false,
   bool canSendWhileBusy = false,
   KitComposerDelivery delivery = KitComposerDelivery.afterThisReply,
-  bool deliveryChoice = false,
   bool offline = false,
   String? readOnlyReason,
   bool voiceButton = true,
@@ -71,7 +69,6 @@ KitComposer _composer(
   sending: sending,
   canSendWhileBusy: canSendWhileBusy,
   delivery: delivery,
-  onDeliveryChanged: deliveryChoice ? h.deliveries.add : null,
   offline: offline,
   readOnlyReason: readOnlyReason,
   onVoice: voiceButton ? () => h.voices++ : null,
@@ -85,7 +82,6 @@ KitComposer _composer(
   toolsKey: _tools,
   voiceButtonKey: _voice,
   editorKey: _editor,
-  deliveryKey: _delivery,
   failure: failure,
 );
 
@@ -298,37 +294,14 @@ void main() {
   });
 
   group('delivery', () {
-    testWidgets('segments only when busy, text, can send and a choice', (
-      tester,
-    ) async {
+    testWidgets('there is never a delivery choice; the fixed delivery is said '
+        'on Send and in the note', (tester) async {
+      final semantics = tester.ensureSemantics();
       final h = _host('more');
       await _pump(tester, _composer(h, busy: true, canSendWhileBusy: true));
       expect(find.byType(KitSegmented<KitComposerDelivery>), findsNothing);
       expect(find.text('Sends after this reply'), findsOneWidget);
-
-      await _pump(
-        tester,
-        _composer(h, busy: false, canSendWhileBusy: true, deliveryChoice: true),
-      );
-      expect(find.byKey(_delivery), findsNothing);
-    });
-
-    testWidgets('default Send after; a change is reported once and Send '
-        'follows', (tester) async {
-      final semantics = tester.ensureSemantics();
-      final h = _host('more');
-      await _pump(
-        tester,
-        _composer(h, busy: true, canSendWhileBusy: true, deliveryChoice: true),
-      );
-      final segmented = tester.widget<KitSegmented<KitComposerDelivery>>(
-        find.byKey(_delivery),
-      );
-      expect(segmented.selected, KitComposerDelivery.afterThisReply);
-      expect(find.text('Send after'), findsOneWidget);
-      await tester.tap(find.text('Add to this turn'));
-      await tester.pumpAndSettle();
-      expect(h.deliveries, [KitComposerDelivery.addToThisTurn]);
+      expect(_label(tester, _send), 'Send after this reply');
 
       await _pump(
         tester,
@@ -336,11 +309,16 @@ void main() {
           h,
           busy: true,
           canSendWhileBusy: true,
-          deliveryChoice: true,
           delivery: KitComposerDelivery.addToThisTurn,
         ),
       );
+      expect(find.byType(KitSegmented<KitComposerDelivery>), findsNothing);
       expect(_label(tester, _send), 'Add to this turn');
+      expect(
+        find.text('The agent will read this while it works.'),
+        findsOneWidget,
+      );
+      expect(find.text('Sends after this reply'), findsNothing);
       semantics.dispose();
     });
 
@@ -361,8 +339,7 @@ void main() {
       expect(_label(tester, _send), 'Stop and send');
       expect(
         find.text(
-          'Agents like Claude Code add a message to the turn. This one '
-          'stops its reply and starts again with yours.',
+          'Stops the current reply and starts again with your message.',
         ),
         findsOneWidget,
       );
@@ -407,12 +384,39 @@ void main() {
     expect(retries, 1);
   });
 
+  testWidgets('a failed send keeps Retry and Details at 48 dp', (tester) async {
+    final h = _host('');
+    const retryKey = ValueKey('failure-retry');
+    await _pump(
+      tester,
+      _composer(
+        h,
+        failure: KitComposerFailure(
+          words: "Didn't send",
+          retryKey: retryKey,
+          onRetry: () {},
+          onDetails: () {},
+        ),
+      ),
+    );
+    final retry = tester.getSize(find.byKey(retryKey));
+    expect(retry.height, greaterThanOrEqualTo(48));
+    final details = tester.getSize(
+      find.ancestor(
+        of: find.byIcon(AppIconography.info),
+        matching: find.byType(KitTappable),
+      ),
+    );
+    expect(details.width, greaterThanOrEqualTo(48));
+    expect(details.height, greaterThanOrEqualTo(48));
+  });
+
   testWidgets('offline: Send says it queues and still sends', (tester) async {
     final semantics = tester.ensureSemantics();
     final h = _host('later');
     await _pump(tester, _composer(h, offline: true));
     expect(_label(tester, _send), 'Send when back online');
-    expect(find.text("Offline · sends when you're back online"), findsOne);
+    expect(find.text("Sends when OpenCode answers"), findsOne);
     await tester.tap(find.byKey(_send));
     expect(h.sends, 1);
     semantics.dispose();
@@ -777,6 +781,35 @@ void main() {
       expect(rect.bottom, 915 - 8);
     });
 
+    testWidgets('the band paints no ground: the live background shows', (
+      tester,
+    ) async {
+      await pumpLayer(tester);
+      final band = tester.widget<ColoredBox>(
+        find.byKey(const ValueKey('kit-composer-band')),
+      );
+      expect(band.color.a, 0);
+    });
+
+    testWidgets('the transcript is clipped at the band, not painted under it', (
+      tester,
+    ) async {
+      await pumpLayer(tester);
+      final band = tester.getRect(
+        find.byKey(const ValueKey('kit-composer-band')),
+      );
+      final clip = tester.widget<ClipRect>(
+        find
+            .ancestor(
+              of: find.byType(SizedBox),
+              matching: find.byType(ClipRect),
+            )
+            .first,
+      );
+      final rect = clip.clipper!.getClip(const Size(412, 915));
+      expect(rect.bottom, lessThanOrEqualTo(band.top + 0.5));
+    });
+
     testWidgets('the keyboard lifts the composer', (tester) async {
       final bottom = await pumpLayer(tester, keyboard: 300);
       final rect = tester.getRect(find.byType(KitComposer));
@@ -901,13 +934,7 @@ void main() {
     final h = _host('a long message to the agent');
     await _pump(
       tester,
-      _composer(
-        h,
-        busy: true,
-        canSendWhileBusy: true,
-        deliveryChoice: true,
-        offline: true,
-      ),
+      _composer(h, busy: true, canSendWhileBusy: true, offline: true),
       size: const Size(320, 800),
       textScale: 2,
     );

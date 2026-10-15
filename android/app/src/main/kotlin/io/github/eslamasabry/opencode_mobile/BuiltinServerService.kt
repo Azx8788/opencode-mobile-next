@@ -53,22 +53,27 @@ class BuiltinServerService : Service() {
             stopRuntime(startId)
             return START_NOT_STICKY
         }
-        createChannel()
-        val notification = buildNotification(intent?.getStringExtra(EXTRA_TITLE))
+        // One shared status row: the live connection service uses the same ID,
+        // so there is never a second "always on" notification.
+        val notification = StatusNotification.begin(
+            this,
+            StatusNotification.OWNER_SERVER,
+            intent?.getStringExtra(EXTRA_TITLE),
+        )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             startForeground(
-                NOTIFICATION_ID,
+                StatusNotification.ID,
                 notification,
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE,
             )
         } else {
-            startForeground(NOTIFICATION_ID, notification)
+            startForeground(StatusNotification.ID, notification)
         }
         foregroundShown = true
         // A promised foreground service must show its notification before stopping.
         return if (stopPending) {
             stopPending = false
-            try { stopForeground(STOP_FOREGROUND_REMOVE) } catch (_: Throwable) { }
+            releaseStatus()
             try { stopSelf(startId) } catch (_: Throwable) { }
             START_NOT_STICKY
         } else restoreRuntimeForStart(intent, startId)
@@ -89,7 +94,7 @@ class BuiltinServerService : Service() {
         }
         return if (intent == null && !linux.serverRestorationArmed) {
             linux.rejectServerRestoration()
-            try { stopForeground(STOP_FOREGROUND_REMOVE) } catch (_: Throwable) { }
+            releaseStatus()
             stopSelf(startId)
             START_NOT_STICKY
         } else {
@@ -101,7 +106,7 @@ class BuiltinServerService : Service() {
     // No foreground service has an unbounded lifetime, including specialUse.
     override fun onTimeout(startId: Int, fgsType: Int) {
         stopRuntime(startId, "systemTimeout")
-        try { stopForeground(STOP_FOREGROUND_REMOVE) } catch (_: Throwable) { }
+        releaseStatus()
         // Android gives only a few seconds: tree shutdown must not delay revocation.
         try { stopSelf(startId) } catch (_: Throwable) { }
     }
@@ -127,7 +132,19 @@ class BuiltinServerService : Service() {
         }
     }
 
+    /**
+     * Gives up this service's share of the one status row: only the last
+     * owner removes it, otherwise it stays for the live connection.
+     */
+    private fun releaseStatus() {
+        try {
+            val last = StatusNotification.end(this, StatusNotification.OWNER_SERVER)
+            stopForeground(if (last) STOP_FOREGROUND_REMOVE else STOP_FOREGROUND_DETACH)
+        } catch (_: Throwable) { }
+    }
+
     override fun onDestroy() {
+        StatusNotification.end(this, StatusNotification.OWNER_SERVER)
         cancelPendingRestore(applicationContext)
         try { BuiltinLinux.get(applicationContext).revokeForegroundWork() } catch (_: Throwable) { }
         // A destroyed service owes Android nothing; the next start decides.
@@ -139,54 +156,7 @@ class BuiltinServerService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-    private fun createChannel() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
-        val manager = getSystemService(NotificationManager::class.java)
-        manager?.createNotificationChannel(
-            NotificationChannel(
-                CHANNEL_ID,
-                NativeStrings.get(this, R.string.native_phone_server_channel),
-                NotificationManager.IMPORTANCE_LOW,
-            ).apply {
-                description = NativeStrings.get(this@BuiltinServerService, R.string.native_phone_server_description)
-                setShowBadge(false)
-            },
-        )
-    }
-
-    private fun buildNotification(title: String?): Notification {
-        val open = PendingIntent.getActivity(
-            this,
-            0,
-            Intent(this, MainActivity::class.java)
-                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP),
-            PendingIntent.FLAG_IMMUTABLE,
-        )
-        val stop = PendingIntent.getService(
-            this,
-            1,
-            Intent(this, BuiltinServerService::class.java).setAction(ACTION_STOP),
-            PendingIntent.FLAG_IMMUTABLE,
-        )
-        val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Notification.Builder(this, CHANNEL_ID)
-        } else {
-            @Suppress("DEPRECATION")
-            Notification.Builder(this)
-        }
-        return builder
-            .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle(title ?: NativeStrings.get(this, R.string.native_phone_server_title))
-            .setContentText(NativeStrings.get(this, R.string.native_phone_server_body))
-            .setOngoing(true)
-            .setContentIntent(open)
-            .addAction(Notification.Action.Builder(null, NativeStrings.get(this, R.string.native_stop), stop).build())
-            .build()
-    }
-
     companion object {
-        private const val CHANNEL_ID = "opencode_builtin_server"
-        private const val NOTIFICATION_ID = 4097
         private const val ACTION_STOP = "stop"
         private const val ACTION_RESTORE = "io.github.eslamasabry.opencode_mobile.RESTORE_SERVER_EVENT"
         private val pendingRestore = AtomicReference<NativeServerRestoreTicket?>()
@@ -213,6 +183,14 @@ class BuiltinServerService : Service() {
                 false
             }
         }
+
+        /** The status row's "Stop OpenCode" button. */
+        internal fun stopIntent(context: Context): PendingIntent = PendingIntent.getService(
+            context,
+            1,
+            Intent(context, BuiltinServerService::class.java).setAction(ACTION_STOP),
+            PendingIntent.FLAG_IMMUTABLE,
+        )
 
         /** Starts the service, or updates its notification to [title]. */
         fun start(context: Context, title: String? = null) {

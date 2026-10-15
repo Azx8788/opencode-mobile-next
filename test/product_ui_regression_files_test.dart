@@ -50,12 +50,19 @@ Future<void> _openInReview(WidgetTester tester, String path) async {
 }
 
 Future<void> _openReviewComment(WidgetTester tester, String path) async {
-  await tester.tap(
-    find.descendant(
-      of: find.byKey(ValueKey('review-file-header-$path')),
-      matching: find.byTooltip('More'),
-    ),
-  );
+  final header = find.byKey(ValueKey('review-file-header-$path'));
+  final more = find.descendant(of: header, matching: find.byTooltip('More'));
+  // With one change the header has no More button: its menu is a long press.
+  if (more.evaluate().isNotEmpty) {
+    await tester.tap(more);
+  } else {
+    await tester.longPress(
+      find.descendant(
+        of: header,
+        matching: find.byKey(const ValueKey('review-file-header-menu')),
+      ),
+    );
+  }
   await tester.pumpAndSettle();
   await tester.tap(find.byKey(const Key('review-file-comment')));
   await tester.pumpAndSettle();
@@ -508,10 +515,14 @@ void main() {
     expect(find.byKey(const ValueKey('files-changes-sheet')), findsNothing);
     expect(find.byKey(const Key('review-workspace')), findsOneWidget);
     expect(find.text('library change'), findsOneWidget);
-    expect(find.text('Change 1 of 1'), findsOneWidget);
+    // One change: nothing to step through, so no navigator.
+    expect(find.text('Change 1 of 1'), findsNothing);
 
-    // A changed file stages as a reference from the diff's own menu.
-    await tester.tap(find.byTooltip('More').last);
+    // A changed file stages as a reference from the diff's own menu (a long
+    // press on its header: one change has no More button).
+    await tester.longPress(
+      find.byKey(const ValueKey('review-file-header-menu')).last,
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('review-add-file')));
     await tester.pumpAndSettle();

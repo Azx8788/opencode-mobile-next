@@ -1,7 +1,7 @@
 # Private BYO host bundle
 
-Original stdlib Python supervisor and deterministic packaging for bundle **1.1.0**,
-OpenCode **1.18.32**. This is the host half of the Ubuntu SSH adoption backend.
+Original stdlib Python supervisor and deterministic packaging for bundle **2.0.0**,
+OpenCode **2.0.29**. This is the host half of the Ubuntu SSH adoption backend.
 No infrastructure API credential is stored here. No service is published, no
 upstream artifact is executed by these files, and no real host has been
 provisioned by the offline tests. The release builder downloads pinned public
@@ -68,7 +68,7 @@ returns `unsupportedHost`.
 
 ## Packaging and SSH install contract
 
-The maintainer supplies the **already verified** extracted Linux OpenCode 1.18.32
+The maintainer supplies the **already verified** extracted Linux OpenCode 2.0.29
 ELF binary and its reviewed SHA-256. The script verifies that digest and ELF
 architecture; release provenance/version must already have been verified by the
 maintainer (it does not run a potentially foreign-architecture binary).
@@ -78,7 +78,7 @@ python3 scripts/byo-host/package.py \
   --opencode /absolute/path/to/verified/opencode \
   --opencode-sha256 REVIEWED_BINARY_SHA256 \
   --architecture amd64 \
-  --output /absolute/path/to/oc-byo-host-1.1.0-amd64.tar.gz
+  --output /absolute/path/to/oc-byo-host-2.0.0-amd64.tar.gz
 ```
 
 Use `arm64` for that verified architecture. Output is JSON with the manifest,
@@ -116,7 +116,7 @@ bundle. Upgrade/replacement is intentionally unavailable in this slice.
 Success stdout (and CLI `pair`) is one JSON object:
 
 ```json
-{"hostId":"STABLE_UUID","bundleVersion":"1.1.0","openCodeVersion":"1.18.32","port":4096,"deviceId":"PROFILE_ID"}
+{"hostId":"STABLE_UUID","bundleVersion":"2.0.0","openCodeVersion":"2.0.29","port":4096,"deviceId":"PROFILE_ID"}
 ```
 
 Failures return a fixed JSON `error` code and nonzero exit. Never display arbitrary
@@ -192,18 +192,18 @@ both workflows arrange the same draft sequentially. It never publishes a release
 or replaces an existing release asset. Its only write permission is repository
 contents in the tag job; checkout does not retain the token in Git config.
 
-The committed `release-pins.json` freezes the upstream OpenCode **1.18.32** Linux
-amd64 baseline and arm64 archive digests. These came from the official
-[release asset API](https://api.github.com/repos/anomalyco/opencode/releases/tags/v1.18.32)
-on **2026-10-02**, release published **2026-09-21**. GitHub documents the asset
-[`digest` field](https://docs.github.com/en/rest/releases/assets#get-a-release-asset).
-They are reviewed source inputs, never discovered at workflow runtime from a
-checksum sidecar. Changing a pin or host source requires a fresh bundle review.
-The builder verifies archive SHA-256 before reading its one regular `opencode`
-member, rejects other files/links and verifies ELF architecture before packaging.
-It never executes the binary, including the foreign-architecture one.
+The committed `release-pins.json` freezes official OpenCode **2.0.29** Linux
+npm tarball hashes, copied from the reviewed `OpenCodePins.v2*` used by in-app
+setup. Those tarballs were checked against npm SHA-512 integrity on 2026-10-14.
+The builder verifies SHA-256 before reading only `package/bin/opencode` and
+`package/package.json`, checks the package version/name and ELF architecture,
+and emits bundle **2.0.0**. No upstream executable is run during packaging.
 
-Before any tag, the maintainer builds locally from reviewed source:
+Historical published bundle **1.1.0 / OC1 1.18.32** remains in `legacyBundles`
+and the compiled app-version manifest. New OC2 builds have no reviewed app-version
+publication pins yet. They must not masquerade as those historical bytes. The app
+continues to return no bundle for unreviewed app versions; publishing/repointing
+is an owner release action, separate from this source/default change.
 
 ```sh
 python3 scripts/byo-host/build_release.py build \
@@ -239,3 +239,14 @@ Repository administrators must not publish the draft while this workflow is
 running: GitHub has no atomic “upload only if still draft” API condition. Android
 release notes/APK setup remain owned by `android-release.yml`. Publication and
 any release/tag/CI action still require the owner's separate authorization.
+
+### Phase 2 runtime boundary
+
+New bundles launch OC2 with both `OPENCODE_PASSWORD` and its compatibility
+`OPENCODE_SERVER_PASSWORD` set to the fresh private upstream secret, overriding
+inherited values. Readiness uses authenticated `/api/info`. The proxy preserves
+`/api` paths and location queries; PTY WebSocket admission includes `/api/pty/...`.
+Phone credentials remain per-device and are replaced with the upstream Basic
+credential before forwarding. Existing deployed OC1 bundles keep their installed
+supervisor and state; the OC2 installer refuses that state with `hostConflict`
+before changing service files, keys or pairing records. It does not migrate them.

@@ -235,7 +235,7 @@ void main() {
         // A running call keeps its progress moving: no pumpAndSettle.
         await tester.pump(const Duration(milliseconds: 300));
         expect(
-          find.textContaining('Show card', findRichText: true),
+          find.textContaining('Showed a card', findRichText: true),
           findsWidgets,
         );
         expect(find.textContaining('oc-ui', findRichText: true), findsNothing);

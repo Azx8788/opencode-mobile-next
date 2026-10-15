@@ -129,7 +129,13 @@ mixin _Api2ProjectOps on _Api2Core {
       '/worktree/$id',
       body: {'name': ?name},
     );
-    final data = _dataMap(json);
+    // Stable answers {directory}; the beta wrapped it in {data}.
+    final enveloped = _dataMap(json);
+    final data = enveloped.isNotEmpty
+        ? enveloped
+        : json is Map<String, dynamic>
+        ? json
+        : const <String, dynamic>{};
     final directory = (data['directory'] ?? '').toString();
     if (directory.isEmpty) {
       throw const ProductException('OpenCode returned no worktree directory');

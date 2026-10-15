@@ -4,9 +4,19 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:xml/xml.dart';
 
 const _resources = 'android/app/src/main/res';
-const _background =
-    'android/app/src/main/kotlin/io/github/eslamasabry/opencode_mobile/'
-    'BackgroundConnectionService.kt';
+const _kotlin =
+    'android/app/src/main/kotlin/io/github/eslamasabry/opencode_mobile/';
+const _background = '${_kotlin}BackgroundConnectionService.kt';
+
+/// The files that draw notifications from native copy: the alert service, the
+/// one shared status row, and the idle return notification.
+const _notificationSources = [
+  _background,
+  '${_kotlin}StatusNotification.kt',
+  '${_kotlin}StatusNotificationRenderer.kt',
+  '${_kotlin}BackgroundWidgetActionController.kt',
+  '${_kotlin}NativeIdleReturnNotificationHost.kt',
+];
 
 Map<String, XmlElement> _copy(String locale) => {
   for (final element in XmlDocument.parse(
@@ -72,20 +82,27 @@ void main() {
   });
 
   test('widget authored fallback and time labels use localized resources', () {
-    final widget = File(
-      'android/app/src/main/kotlin/io/github/eslamasabry/opencode_mobile/'
-      'SessionsWidgetProvider.kt',
-    ).readAsStringSync();
+    final widget = [
+      for (final name in [
+        'SessionsWidgetProvider.kt',
+        'SessionWidgetRenderer.kt',
+        'SessionWidgetRow.kt',
+      ])
+        File('$_kotlin$name').readAsStringSync(),
+    ].join('\n');
     expect(widget, isNot(contains('"Untitled conversation"')));
     expect(widget, isNot(contains('-> "now"')));
     for (final resource in [
-      'shortcut_session_untitled',
-      'native_widget_now',
-      'native_widget_minutes',
-      'native_widget_hours',
-      'native_widget_days',
-      'widget_new_session',
+      // The v2 widget shows a status line and actions, not per-session rows,
+      // so the untitled/time-ago labels moved with the rows to the usage
+      // widget; what this one says must still be a resource.
       'widget_empty',
+      'widget_v2_summary',
+      'widget_v2_offline',
+      'widget_v2_working',
+      'widget_v2_tasks',
+      'widget_v2_voice',
+      'widget_v2_configure',
     ]) {
       expect(
         widget,
@@ -113,7 +130,9 @@ void main() {
         expect(_slots(english[id]!.innerText), [r'%1$s']);
         expect(_slots(arabic[id]!.innerText), [r'%1$s']);
       }
-      final source = File(_background).readAsStringSync();
+      final source = [
+        for (final path in _notificationSources) File(path).readAsStringSync(),
+      ].join('\n');
       expect(source, isNot(contains('content.title.startsWith("OpenCode")')));
       expect(source, isNot(contains('content.title.removePrefix("OpenCode")')));
       expect(source, contains('NativeStrings.quantity('));

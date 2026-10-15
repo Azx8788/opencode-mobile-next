@@ -16,6 +16,7 @@ import 'package:opencode_mobile/state/first_run.dart';
 import 'package:opencode_mobile/state/nudges.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:opencode_mobile/ui/app_theme.dart';
+import 'package:opencode_mobile/ui/desktop/shortcuts.dart';
 import 'package:opencode_mobile/ui/kit/kit.dart'
     show KitAction, KitButton, KitNotice;
 import 'package:opencode_mobile/ui/screens/chat_screen.dart';
@@ -538,6 +539,28 @@ void main() {
       await tester.pumpAndSettle();
       await _pumpChat(tester, controller);
       await tester.pumpAndSettle();
+      expect(_nudge(NudgeId.compact), findsNothing);
+    });
+
+    testWidgets('an open find keeps the height: the tip waits', (tester) async {
+      final controller = await _controller(_Api(transcript: transcript(85)));
+      addTearDown(controller.dispose);
+      controller
+        ..catalog = catalog
+        ..selectedModel = ModelRef(providerID: 'p', modelID: 'm');
+      await _pumpChat(tester, controller);
+      await tester.pumpAndSettle();
+      expect(_nudge(NudgeId.compact), findsOneWidget);
+
+      Actions.invoke(
+        tester.element(find.byKey(const Key('chat-composer-field'))),
+        const FindInSurfaceIntent(),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const ValueKey('transcript-find-input')),
+        findsOneWidget,
+      );
       expect(_nudge(NudgeId.compact), findsNothing);
     });
 

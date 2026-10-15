@@ -99,6 +99,7 @@ class KitDiffView extends StatefulWidget {
     this.onRetry,
     this.wrap,
     this.onWrapChanged,
+    this.inline = false,
     this.keyPrefix = 'kit-diff',
   }) : assert(readOnly || onComment != null || onAddToPrompt != null),
        assert(error == null || onRetry != null);
@@ -132,6 +133,13 @@ class KitDiffView extends StatefulWidget {
   /// Null: wrap on compact, scroll sideways from medium.
   final bool? wrap;
   final ValueChanged<bool>? onWrapChanged;
+
+  /// Drawn in the conversation, under a step line that already names the
+  /// file and its counts: one file shows no header, and the lines and the
+  /// fold rows sit straight on the page (no fill of their own). Several
+  /// files keep their header so each is named. The wrap toggle moves to the
+  /// host (it passes [wrap]).
+  final bool inline;
 
   /// Internal keys are `<prefix>-…` (the DiffView wrapper passes 'diff').
   final String keyPrefix;
@@ -185,20 +193,13 @@ class _KitDiffPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final roles = KitTokens.of(context).roles;
-    return Scaffold(
-      backgroundColor: roles.ground,
-      body: SafeArea(
-        bottom: false,
-        child: KitScreen(
-          header: [KitTopBar(title: title, exit: KitTopBarExit.close)],
-          body: KitDiffView(
-            files: files,
-            initialFile: initialFile,
-            wrap: wrap,
-            onWrapChanged: onWrapChanged,
-          ),
-        ),
+    return KitScreen(
+      topBar: KitTopBar(title: title, exit: KitTopBarExit.close),
+      body: KitDiffView(
+        files: files,
+        initialFile: initialFile,
+        wrap: wrap,
+        onWrapChanged: onWrapChanged,
       ),
     );
   }

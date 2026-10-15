@@ -424,6 +424,96 @@ void _composerAndErrorTests() {
     },
   );
 
+  testWidgets(
+    'a prompt with a file is not shown twice when the server adds its own text',
+    (tester) async {
+      final prompt = Completer<void>();
+      final api = _FakeOpenCodeApi()..promptCompleter = prompt;
+      final controller = await _controller(api);
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [connProvider.overrideWithValue(controller)],
+          child: const MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: ChatScreen(
+              sessionID: 'session-1',
+              initialAttachments: [
+                PromptAttachment(
+                  mime: 'text/plain',
+                  filename: 'server.dart',
+                  url: 'file:///proj/lib/server.dart',
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('chat-composer-field')),
+        'explain this file',
+      );
+      await tester.pump();
+      await tester.tap(find.byTooltip('Send'));
+      await tester.pump();
+
+      // The server reads the file for the model and stores that as synthetic
+      // text, ahead of the person's own text and the file part.
+      for (final part in [
+        {
+          ..._partJson(
+            id: 'part-0',
+            messageID: 'user-1',
+            type: 'text',
+            text: 'Called the Read tool with the following input: {}',
+          ),
+          'synthetic': true,
+        },
+        _partJson(
+          id: 'part-1',
+          messageID: 'user-1',
+          type: 'text',
+          text: 'explain this file',
+        ),
+        {
+          ..._partJson(
+            id: 'file-0',
+            messageID: 'user-1',
+            type: 'file',
+            text: '',
+          ),
+          'filename': 'server.dart',
+          'mime': 'text/plain',
+          'url': 'file:///proj/lib/server.dart',
+        },
+      ]) {
+        controller.handleEventForTesting(
+          _event('message.part.updated', {
+            'sessionID': 'session-1',
+            'part': part,
+          }),
+        );
+      }
+      controller.handleEventForTesting(
+        _event('message.updated', {
+          'info': {
+            'id': 'user-1',
+            'sessionID': 'session-1',
+            'role': 'user',
+            'time': {'created': DateTime.now().millisecondsSinceEpoch},
+          },
+        }),
+      );
+      await tester.pump();
+      prompt.complete();
+      await tester.pumpAndSettle();
+
+      expect(find.text('explain this file'), findsOneWidget);
+    },
+  );
+
   testWidgets('canonical user event replaces the optimistic bubble', (
     tester,
   ) async {
@@ -1171,15 +1261,13 @@ void _composerAndErrorTests() {
         );
         await _pumpChat(tester, api, controller: controller);
         await tester.pumpAndSettle();
-        // The context ring in the top bar shows known usage at every level;
-        // the model chip no longer carries a percentage.
-        expect(find.byKey(const Key('chat-context-ring')), findsOneWidget);
-        expect(find.text('$percent %'), findsOneWidget);
+        // The context ring in the top bar waits until half the window is
+        // used; the model chip never carries a percentage.
+        final ring = percent < 50 ? findsNothing : findsOneWidget;
+        expect(find.byKey(const Key('chat-context-ring')), ring);
+        expect(find.text('$percent %'), ring);
         expect(find.text('· $percent %'), findsNothing);
-        expect(
-          find.bySemanticsLabel(RegExp('Context.*$percent')),
-          findsOneWidget,
-        );
+        expect(find.bySemanticsLabel(RegExp('Context.*$percent')), ring);
         // Routine usage is still reachable, with the exact value, through
         // the same Context usage destination used for warnings.
         // The conversation menu's Details (slice-P10.2).

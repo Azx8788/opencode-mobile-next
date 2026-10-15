@@ -2,12 +2,19 @@
 /// protocol generation. The v1 server exposes every listed feature, so its
 /// gateway reports [allV1]; a v2 gateway narrows these per endpoint support.
 class ServerCapabilities {
+  /// The phone engine implements this protocol's team permission contract.
+  /// Setup may start its probe; actual execution still requires native proof.
+  final bool phoneTeamExecution;
+
   /// Qualified Agent cards on the managed host; never implied by a dialect.
   final bool genUi;
 
   /// Portable session links remain off until private host, UI consent and
   /// authorized scoped lookup are verified together. No adapter enables this.
   final bool sessionAddressHandoff;
+
+  /// Explicit scoped file creation and verified handoff record writes.
+  final bool agentHandoffFiles;
 
   // AI setup assistant: additive capability section (2026-09-27).
   final bool setupConfigRead;
@@ -51,6 +58,11 @@ class ServerCapabilities {
   /// [projectManagement], as before.
   final bool subagentSessions;
   final bool promptAgentMentions;
+
+  /// Explicit [PromptDelivery.steer] can add input to the active turn without
+  /// interrupting it. This does not imply an inbox or queue support. Mixed
+  /// agent gateways describe their per-session behavior via MidTurnPromptGateway.
+  final bool promptSteering;
   final bool offlinePromptQueue;
   final bool fileBrowsing;
   final bool terminal;
@@ -162,10 +174,10 @@ class ServerCapabilities {
   /// Creating a fresh git worktree through a contract-proven call. True on v1,
   /// whose generated `worktreeCreate` (`POST /experimental/worktree`,
   /// `WorktreeCreateInput{name?}` → `Worktree{name, directory, branch?}`) is
-  /// pinned to upstream commit `f12e14cf`. False on v2: its
-  /// `POST /api/worktree/{projectID}` requires `{strategy, directory}` that
-  /// the adapter does not send and the snapshot does not enumerate, so the
-  /// create action is not presented as usable there. Listing, opening and
+  /// pinned to upstream commit `f12e14cf`. True on OpenCode 2 stable
+  /// (2.0.29, probed live): `POST /api/worktree {projectID, name}` answers
+  /// `{directory}`; the project needs a commit. The beta's
+  /// `{strategy, directory}` body no longer applies. Listing, opening and
   /// inspecting worktrees do not depend on this switch.
   final bool worktreeCreate;
 
@@ -190,12 +202,15 @@ class ServerCapabilities {
 
   /// The server keeps projects only for git repositories, so "this folder
   /// has a project" means "this folder is git" (OpenCode 1). False on
-  /// OpenCode 2, which gives every folder a project and reports no VCS.
+  /// OpenCode 2, which gives every folder a project (git or not) and reports
+  /// the real VCS through `GET /vcs`.
   final bool projectsAreGitRepositories;
 
   const ServerCapabilities({
+    this.phoneTeamExecution = false,
     this.genUi = false,
     this.sessionAddressHandoff = false,
+    this.agentHandoffFiles = false,
     this.setupConfigRead = false,
     this.setupConfigWrite = false,
     this.setupMcpInventory = false,
@@ -211,6 +226,7 @@ class ServerCapabilities {
     this.subagentReplies = true,
     this.subagentSessions = false,
     this.promptAgentMentions = true,
+    this.promptSteering = false,
     this.offlinePromptQueue = true,
     this.fileBrowsing = true,
     this.terminal = true,
@@ -278,90 +294,95 @@ class ServerCapabilities {
   });
 
   /// Preserve every protocol capability while applying managed-host readiness.
-  ServerCapabilities withGenUi(bool value) => ServerCapabilities(
-    genUi: value,
-    sessionAddressHandoff: sessionAddressHandoff,
-    setupConfigRead: setupConfigRead,
-    setupConfigWrite: setupConfigWrite,
-    setupMcpInventory: setupMcpInventory,
-    setupAssistantSession: setupAssistantSession,
-    clientPromptMessageID: clientPromptMessageID,
-    commandReceipts: commandReceipts,
-    agentAccount: agentAccount,
-    hostAgentProviders: hostAgentProviders,
-    hostAgentPermissionActions: hostAgentPermissionActions,
-    promptAttachments: promptAttachments,
-    promptImagesOnly: promptImagesOnly,
-    promptEchoTextOnly: promptEchoTextOnly,
-    subagentReplies: subagentReplies,
-    subagentSessions: subagentSessions,
-    promptAgentMentions: promptAgentMentions,
-    offlinePromptQueue: offlinePromptQueue,
-    fileBrowsing: fileBrowsing,
-    terminal: terminal,
-    conversationShell: conversationShell,
-    projectManagement: projectManagement,
-    globalSessionSearch: globalSessionSearch,
-    sessionDiff: sessionDiff,
-    sessionFork: sessionFork,
-    sessionCompact: sessionCompact,
-    persistentPermissionGrants: persistentPermissionGrants,
-    permissionRequests: permissionRequests,
-    savedPermissionList: savedPermissionList,
-    messageCompletionEndsRun: messageCompletionEndsRun,
-    sessionRevert: sessionRevert,
-    sessionImportExport: sessionImportExport,
-    sessionNotes: sessionNotes,
-    serverCatalog: serverCatalog,
-    sessionModelProviderSwitching: sessionModelProviderSwitching,
-    agentSelection: agentSelection,
-    slashCommands: slashCommands,
-    profileAttentionPolling: profileAttentionPolling,
-    managedWorkspaces: managedWorkspaces,
-    workspaceWarp: workspaceWarp,
-    sessionSteal: sessionSteal,
-    consoleOrganizations: consoleOrganizations,
-    mcpOAuth: mcpOAuth,
-    mcpChatConnect: mcpChatConnect,
-    mcpChatOAuth: mcpChatOAuth,
-    mcpChatToolRefresh: mcpChatToolRefresh,
-    mcpConfigWrites: mcpConfigWrites,
-    mcpRuntimeAdds: mcpRuntimeAdds,
-    mcpRuntimeRemovals: mcpRuntimeRemovals,
-    integrationCredentials: integrationCredentials,
-    integrationCommandAuth: integrationCommandAuth,
-    pluginInventory: pluginInventory,
-    webSearch: webSearch,
-    sessionShare: sessionShare,
-    sessionArchive: sessionArchive,
-    sessionDelete: sessionDelete,
-    sessionTodos: sessionTodos,
-    messageDelete: messageDelete,
-    workspaceSymbols: workspaceSymbols,
-    textSearch: textSearch,
-    languageServiceStatus: languageServiceStatus,
-    formatterStatus: formatterStatus,
-    toolInventory: toolInventory,
-    experimentalCapabilities: experimentalCapabilities,
-    shellSettings: shellSettings,
-    developmentServices: developmentServices,
-    remoteUpgrade: remoteUpgrade,
-    clientDiagnostics: clientDiagnostics,
-    gitInit: gitInit,
-    providerRuntimeRefresh: providerRuntimeRefresh,
-    configuredProviderFallback: configuredProviderFallback,
-    globalEventStream: globalEventStream,
-    worktreeReset: worktreeReset,
-    worktreeCreate: worktreeCreate,
-    worktreeBrowsing: worktreeBrowsing,
-    legacyQuestionRequests: legacyQuestionRequests,
-    forms: forms,
-    inbox: inbox,
-    cliSessionResume: cliSessionResume,
-    projectsAreGitRepositories: projectsAreGitRepositories,
-  );
+  ServerCapabilities withGenUi(bool value, {bool? agentHandoffFiles}) =>
+      ServerCapabilities(
+        phoneTeamExecution: phoneTeamExecution,
+        genUi: value,
+        sessionAddressHandoff: sessionAddressHandoff,
+        agentHandoffFiles: agentHandoffFiles ?? this.agentHandoffFiles,
+        setupConfigRead: setupConfigRead,
+        setupConfigWrite: setupConfigWrite,
+        setupMcpInventory: setupMcpInventory,
+        setupAssistantSession: setupAssistantSession,
+        clientPromptMessageID: clientPromptMessageID,
+        commandReceipts: commandReceipts,
+        agentAccount: agentAccount,
+        hostAgentProviders: hostAgentProviders,
+        hostAgentPermissionActions: hostAgentPermissionActions,
+        promptAttachments: promptAttachments,
+        promptImagesOnly: promptImagesOnly,
+        promptEchoTextOnly: promptEchoTextOnly,
+        subagentReplies: subagentReplies,
+        subagentSessions: subagentSessions,
+        promptAgentMentions: promptAgentMentions,
+        promptSteering: promptSteering,
+        offlinePromptQueue: offlinePromptQueue,
+        fileBrowsing: fileBrowsing,
+        terminal: terminal,
+        conversationShell: conversationShell,
+        projectManagement: projectManagement,
+        globalSessionSearch: globalSessionSearch,
+        sessionDiff: sessionDiff,
+        sessionFork: sessionFork,
+        sessionCompact: sessionCompact,
+        persistentPermissionGrants: persistentPermissionGrants,
+        permissionRequests: permissionRequests,
+        savedPermissionList: savedPermissionList,
+        messageCompletionEndsRun: messageCompletionEndsRun,
+        sessionRevert: sessionRevert,
+        sessionImportExport: sessionImportExport,
+        sessionNotes: sessionNotes,
+        serverCatalog: serverCatalog,
+        sessionModelProviderSwitching: sessionModelProviderSwitching,
+        agentSelection: agentSelection,
+        slashCommands: slashCommands,
+        profileAttentionPolling: profileAttentionPolling,
+        managedWorkspaces: managedWorkspaces,
+        workspaceWarp: workspaceWarp,
+        sessionSteal: sessionSteal,
+        consoleOrganizations: consoleOrganizations,
+        mcpOAuth: mcpOAuth,
+        mcpChatConnect: mcpChatConnect,
+        mcpChatOAuth: mcpChatOAuth,
+        mcpChatToolRefresh: mcpChatToolRefresh,
+        mcpConfigWrites: mcpConfigWrites,
+        mcpRuntimeAdds: mcpRuntimeAdds,
+        mcpRuntimeRemovals: mcpRuntimeRemovals,
+        integrationCredentials: integrationCredentials,
+        integrationCommandAuth: integrationCommandAuth,
+        pluginInventory: pluginInventory,
+        webSearch: webSearch,
+        sessionShare: sessionShare,
+        sessionArchive: sessionArchive,
+        sessionDelete: sessionDelete,
+        sessionTodos: sessionTodos,
+        messageDelete: messageDelete,
+        workspaceSymbols: workspaceSymbols,
+        textSearch: textSearch,
+        languageServiceStatus: languageServiceStatus,
+        formatterStatus: formatterStatus,
+        toolInventory: toolInventory,
+        experimentalCapabilities: experimentalCapabilities,
+        shellSettings: shellSettings,
+        developmentServices: developmentServices,
+        remoteUpgrade: remoteUpgrade,
+        clientDiagnostics: clientDiagnostics,
+        gitInit: gitInit,
+        providerRuntimeRefresh: providerRuntimeRefresh,
+        configuredProviderFallback: configuredProviderFallback,
+        globalEventStream: globalEventStream,
+        worktreeReset: worktreeReset,
+        worktreeCreate: worktreeCreate,
+        worktreeBrowsing: worktreeBrowsing,
+        legacyQuestionRequests: legacyQuestionRequests,
+        forms: forms,
+        inbox: inbox,
+        cliSessionResume: cliSessionResume,
+        projectsAreGitRepositories: projectsAreGitRepositories,
+      );
 
   static const allV1 = ServerCapabilities(
+    phoneTeamExecution: true,
     clientPromptMessageID: true,
     commandReceipts: true,
     setupConfigRead: true,

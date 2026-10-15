@@ -1,4 +1,5 @@
 import '../../domain/agent_catalog.dart';
+import '../int64_max_shim.dart';
 
 /// Explicit QA build admission floor. Normal builds keep the pinned estimate.
 /// Raising the existing native requirement exercises its real storage guard;
@@ -23,7 +24,7 @@ final class AgentInstallGuard {
     if (!agentIds.contains(agent.id) || minimumFreeBytes <= 0) return bytes;
     // Native admission doubles this metadata. Saturate at its signed-long
     // ceiling so a mistyped QA flag cannot overflow into a lower requirement.
-    const maximum = 0x7fffffffffffffff;
+    const maximum = int64Max;
     final requested = minimumFreeBytes > maximum ? maximum : minimumFreeBytes;
     final estimate = requested ~/ 2 + requested % 2;
     return bytes == null || estimate > bytes ? estimate : bytes;

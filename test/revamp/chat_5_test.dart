@@ -207,7 +207,7 @@ void main() {
     final card = _card(tester);
     expect(card.kind, KitRequestKind.permission);
     expect(card.who, isNotNull, reason: 'the v2 card, never the legacy one');
-    expect(find.text('Run a shell command'), findsOneWidget);
+    expect(find.text('Run this command?'), findsOneWidget);
     expect(find.byKey(const Key('permission-sheet')), findsNothing);
 
     await tester.tap(find.byKey(const Key('permission-card-allow')));
@@ -281,7 +281,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(_card(tester).kind, KitRequestKind.question);
-    expect(find.text('Pick a target'), findsOneWidget);
+    expect(find.text('Pick a target'), findsNothing);
+    expect(find.text('Where should this deploy?'), findsOneWidget);
     await tester.tap(find.text('Staging'));
     await tester.pump(const Duration(seconds: 3));
     await tester.pumpAndSettle();

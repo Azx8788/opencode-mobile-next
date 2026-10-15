@@ -474,10 +474,24 @@ class _KitCodeBlockState extends State<KitCodeBlock> {
           crossAxisAlignment: WrapCrossAlignment.center,
           spacing: tokens.space2,
           children: [
-            KitText(
-              _copyFailedText(l10n),
-              role: KitTextRole.secondary,
-              tone: KitTextTone.danger,
+            // A failure is neutral text beside the error glyph, never red.
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  AppIconography.error,
+                  size: tokens.iconSize(context, tokens.smallIconSize),
+                  color: tokens.roles.text2,
+                ),
+                SizedBox(width: tokens.space1),
+                Flexible(
+                  child: KitText(
+                    _copyFailedText(l10n),
+                    role: KitTextRole.secondary,
+                    tone: KitTextTone.primary,
+                  ),
+                ),
+              ],
             ),
             KitButton.tertiary(
               key: const ValueKey('kit-code-copy-retry'),

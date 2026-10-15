@@ -173,6 +173,50 @@ oc_apt_failure() {
   echo "[oc] $oc_failure_message"
   return "$oc_failure_rc"
 }
+oc_apt_reinstall_required() {
+  # A killed unpack can leave a package marked reinstreq even though
+  # configure -a succeeds. Dependency repair alone does not unpack it again.
+  # Select exact installed package versions from dpkg's machine-readable
+  # status, never package names parsed out of its human-readable audit.
+  oc_reinstall_status=$(dpkg-query -W -f='${binary:Package}\t${Status}\t${Version}\n' 2>&1) || {
+    oc_apt_failure 1 'Package repair could not finish. The damaged packages could not be checked. Retry setup.'
+    return 1
+  }
+  oc_reinstall_packages=$(printf '%s\n' "$oc_reinstall_status" | awk -F '\t' '
+    $2 ~ /^[^ ]+ reinstreq / {
+      if ($1 !~ /^[a-z0-9][a-z0-9+.-]*(:[a-z0-9][a-z0-9-]*)?$/ ||
+          $3 !~ /^[0-9][0-9A-Za-z.+:~_-]*$/) exit 1
+      print $1 "=" $3
+    }') || {
+    oc_apt_failure 1 'Package repair could not finish. The damaged packages could not be checked. Retry setup.'
+    return 1
+  }
+  [ -n "$oc_reinstall_packages" ] || return 0
+  oc_stage 'Repairing interrupted package installation'
+  if oc_apt_lists_fresh || oc_apt_update; then
+    :
+  else
+    oc_apt_reinstall_rc=$?
+    oc_apt_failure "$oc_apt_reinstall_rc" \
+      'Package lists could not be updated. Check your connection and retry setup.' || return
+  fi
+  # Tokens were validated above. Keep the version already recorded by dpkg;
+  # never remove packages to make a repair succeed.
+  set -- $oc_reinstall_packages
+  if oc_apt_run 'Repairing interrupted package installation' \
+    --reinstall --no-remove install -y --no-install-recommends \
+    -o Acquire::Retries=5 "$@"; then
+    :
+  else
+    oc_apt_reinstall_rc=$?
+    oc_apt_failure "$oc_apt_reinstall_rc" \
+      'Package repair could not finish. The damaged packages could not be reinstalled. Check your connection and retry setup.' || return
+  fi
+  dpkg --configure -a || {
+    oc_apt_failure 1 'Package repair could not finish. Retry setup to repair the interrupted installation.'
+    return 1
+  }
+}
 oc_apt_repair() {
   # Keep healthy runs quiet. A failed configure needs apt's dependency repair,
   # not an ignored error that poisons every later component install.
@@ -204,6 +248,13 @@ oc_apt_repair() {
   # dpkg --audit can report unfinished packages while returning success.
   oc_apt_audit_rc=0
   oc_apt_audit=$(dpkg --audit 2>&1) || oc_apt_audit_rc=$?
+  if [ "$oc_apt_audit_rc" = 0 ] && [ -n "$oc_apt_audit" ]; then
+    # Keep the original finding in Details even when reinstallation fails.
+    echo '[oc] Details: dpkg --audit'
+    printf '%s\n' "$oc_apt_audit"
+    oc_apt_reinstall_required || return
+    oc_apt_audit=$(dpkg --audit 2>&1) || oc_apt_audit_rc=$?
+  fi
   if [ "$oc_apt_audit_rc" != 0 ] || [ -n "$oc_apt_audit" ]; then
     echo '[oc] Details: dpkg --audit'
     [ -z "$oc_apt_audit" ] || printf '%s\n' "$oc_apt_audit"

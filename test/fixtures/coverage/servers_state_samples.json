@@ -157,9 +157,7 @@
           "key": "connection.serverName",
           "path": "serverName",
           "kind": "string",
-          "probes": [
-            "Studio OpenCode"
-          ],
+          "probes": [],
           "primary": false
         },
         {
@@ -202,7 +200,7 @@
           "path": "phase",
           "kind": "enum",
           "probes": [
-            "Reconnecting to Studio OpenCode"
+            "Reconnecting…"
           ],
           "primary": false
         }
@@ -233,9 +231,7 @@
           "key": "connection.serverName",
           "path": "serverName",
           "kind": "string",
-          "probes": [
-            "Studio OpenCode"
-          ],
+          "probes": [],
           "primary": false
         },
         {
@@ -278,7 +274,7 @@
           "path": "phase",
           "kind": "enum",
           "probes": [
-            "Connecting to Studio OpenCode"
+            "Reconnecting…"
           ],
           "primary": false
         }

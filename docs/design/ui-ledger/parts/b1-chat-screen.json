@@ -975,6 +975,10 @@
   {
    "file": "lib/ui/screens/chat/watching.dart",
    "reason": "part of chat_screen.dart (design standard §9 step 5): how the chat page shows a conversation someone else drives (an AI Team worker's own OpenCode session) — the same 'chat' page and route, not a surface of its own. Its status banner and empty state are read-only; its composer (chat-watching-composer), send, receipt and the About <name> action are recorded on the chat page. _openWatchedChild (a child session delegated to, watched the same way) is wired from chat_screen.dart."
+  },
+  {
+   "file": "lib/ui/screens/chat/chat_handoff_link.dart",
+   "reason": "Part file of lib/ui/screens/chat_screen.dart (same screen, same library): the quiet \"Continue with…\" link line in the conversation and its open and forget actions; a row of the chat page, and the sheet it comes from is a separate surface."
   }
  ],
  "notes": [

@@ -43,8 +43,12 @@ Map<String, String> _scripts() => {
       verb,
       argument: verb == 'storage-clean' ? 'cache' : '',
     ),
+  'installAndServeScript:default': TermuxBridge.installAndServeScript(
+    password: "p'w\$d",
+  ),
   'installAndServeScript:1': TermuxBridge.installAndServeScript(
     password: "p'w\$d",
+    runtime: TermuxRuntime.openCode1,
   ),
   'installAndServeScript:2': TermuxBridge.installAndServeScript(
     port: 4100,

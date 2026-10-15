@@ -22,3 +22,22 @@ String permissionRequestTitle(String permission, {AppLocalizations? l10n}) {
     _ => strings.e7PermissionAction7(toolLabel(permission, l10n: strings)),
   };
 }
+
+/// The ask on a request card, as one question ("Run this command?"). Kinds
+/// without their own words keep [fallback], the statement
+/// ([permissionRequestTitle]).
+String permissionRequestQuestion(
+  String permission, {
+  required String fallback,
+  AppLocalizations? l10n,
+}) {
+  final strings = l10n ?? AppLocalizationsEn();
+  return switch (permission) {
+    'bash' => strings.chatRequestAskCommand,
+    'edit' => strings.chatRequestAskEdit,
+    'read' => strings.chatRequestAskRead,
+    'external_directory' => strings.chatRequestAskDirectory,
+    'webfetch' => strings.chatRequestAskFetch,
+    _ => fallback,
+  };
+}

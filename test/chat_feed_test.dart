@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:opencode_mobile/api2/gateway_mappers.dart';
+import 'package:opencode_mobile/api2/models.dart';
 import 'package:opencode_mobile/api/models.dart';
 import 'package:opencode_mobile/api/opencode_api.dart';
 import 'package:opencode_mobile/api/product_repository.dart';
@@ -281,6 +283,54 @@ void main() {
     final feed = chatFeedSourceOf(controller).chatFeed();
     expect(feed.items.single.projectName, 'API');
     expect(feed.items.single.isGit, isFalse);
+    await tester.pump(const Duration(seconds: 1));
+    controller.dispose();
+  });
+
+  testWidgets('a migrated OpenCode 2 chat is labelled by its own folder, not '
+      'the folder the server started in', (tester) async {
+    // Shape read from OpenCode 2.0.28 after it migrated an OpenCode 1.19.0
+    // database: the chat sits in /root/projects/my-app, the catch-all
+    // project is "global" (canonical "/"), and the server made a project of
+    // the folder it was started in.
+    final migrated = mapApi2Session(
+      Api2Session.fromJson({
+        'id': 'ses_ec5ed36bdffe3i3PNALNJe1u2c',
+        'projectID': 'global',
+        'cost': 0,
+        'tokens': {
+          'input': 0,
+          'output': 0,
+          'reasoning': 0,
+          'cache': {'read': 0, 'write': 0},
+        },
+        'time': {'created': 1791975672131, 'updated': 1791975672131},
+        'title': 'migrated chat',
+        'subpath': 'root/projects/my-app',
+        'location': {'directory': '/root/projects/my-app'},
+      })!,
+    );
+    final script = _Script()
+      ..global = [
+        GlobalSessionResult(
+          session: migrated,
+          projectDirectory: '/root/projects/my-app',
+        ),
+        _global('root', '/root/projects', updated: 1),
+      ]
+      ..projects = [
+        _project('global', '/', name: ''),
+        _project('6555dba7', '/root/projects', name: 'projects'),
+      ];
+    final controller = await _connect(tester, await _store(), script);
+    await controller.refreshChatFeed();
+
+    final items = {
+      for (final item in chatFeedSourceOf(controller).chatFeed().items)
+        item.sessionID: item.projectName,
+    };
+    expect(items['ses_ec5ed36bdffe3i3PNALNJe1u2c'], 'my-app');
+    expect(items['root'], 'projects');
     await tester.pump(const Duration(seconds: 1));
     controller.dispose();
   });

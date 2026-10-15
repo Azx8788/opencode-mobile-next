@@ -74,6 +74,7 @@ const _nullNotDisabled = <String, String>{
   // not shown (STATE-8), so there is no disabled chip.
   'KitChip.onPressed': 'a plain chip has no action',
   'KitChip.onRemove': 'only the removable kind has a remove target',
+  'KitChip.onLongPress': 'only a chip with its own menu has a long-press',
 };
 
 /// Parts whose text-2.0 golden waits on another unit, per their frozen

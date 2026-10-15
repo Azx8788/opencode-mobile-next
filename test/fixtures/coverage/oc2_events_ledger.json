@@ -154,7 +154,7 @@
   "event:session.tool.input.ended.data.text": "ignored: half-typed arguments of a call that has not started; the row says it is waiting until the full input arrives",
   "event:session.tool.input.started.data.assistantMessageID": "ignored: an internal id the server uses to link events to records; nothing a person reads",
   "event:session.tool.input.started.data.id": "ignored: an internal id the server uses to link events to records; nothing a person reads",
-  "event:session.tool.input.started.data.name": "shown",
+  "event:session.tool.input.started.data.name": "ignored: a clean step is one line of what it did (the command itself, the file); the tool's name is only the line's spoken label, not drawn",
   "event:session.tool.input.started.data.sessionID": "ignored: an internal id the server uses to link events to records; nothing a person reads",
   "event:session.tool.progress.data.assistantMessageID": "ignored: an internal id the server uses to link events to records; nothing a person reads",
   "event:session.tool.progress.data.id": "ignored: an internal id the server uses to link events to records; nothing a person reads",

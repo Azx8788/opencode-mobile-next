@@ -36,6 +36,7 @@ class KitAction {
     this.calm = false,
     this.neutral = false,
     this.semanticsLabel,
+    this.visible = true,
   }) : copyText = null,
        redact = true;
 
@@ -58,7 +59,8 @@ class KitAction {
        disabledReason = null,
        calm = false,
        neutral = false,
-       semanticsLabel = null;
+       semanticsLabel = null,
+       visible = true;
 
   /// A verb naming what happens (COPY-8): "Delete conversation".
   final String label;
@@ -103,6 +105,11 @@ class KitAction {
   /// connection is read as "Resume background connection" (COPY-8: the
   /// action still names its target).
   final String? semanticsLabel;
+
+  /// False while the act has nothing to do right now (Collapse all steps
+  /// with no step open). In a [KitTopBar] it leaves its slot with a short
+  /// fade instead of vanishing, and never shows in the overflow.
+  final bool visible;
 
   /// Set only by [KitAction.copy].
   final String Function()? copyText;
@@ -343,7 +350,7 @@ class KitButton extends StatelessWidget {
     if (role != KitButtonRole.tertiary && icon != null) {
       // The icon and the spinner share one slot and crossfade.
       leading = SizedBox.square(
-        dimension: tokens.smallIconSize,
+        dimension: tokens.iconSize(context, tokens.smallIconSize),
         child: AnimatedSwitcher(
           duration: still ? Duration.zero : KitMotion.quick,
           switchInCurve: KitMotion.enter,
@@ -353,7 +360,7 @@ class KitButton extends StatelessWidget {
               : Icon(
                   icon,
                   key: copied ? _copiedKey : const ValueKey('kit-button-icon'),
-                  size: tokens.smallIconSize,
+                  size: tokens.iconSize(context, tokens.smallIconSize),
                 ),
         ),
       );
@@ -391,7 +398,7 @@ class KitButton extends StatelessWidget {
       leading = Icon(
         icon,
         key: copied ? _copiedKey : null,
-        size: tokens.smallIconSize,
+        size: tokens.iconSize(context, tokens.smallIconSize),
       );
     }
     final minimum = expand
@@ -621,7 +628,9 @@ class _Spinner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox.square(
-    dimension: KitTokens.of(context).smallIconSize,
+    dimension: KitTokens.of(
+      context,
+    ).iconSize(context, KitTokens.of(context).smallIconSize),
     child: CircularProgressIndicator(
       // The kit's one small-spinner stroke, shared with KitStatusMark and
       // KitIconButton.

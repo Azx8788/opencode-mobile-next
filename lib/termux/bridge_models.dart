@@ -4,11 +4,14 @@ import 'scripts/script_support.dart' show termuxManagedServerPort;
 /// from a server's reported version and survives restarts in the manager state.
 enum TermuxRuntime {
   openCode1('opencode1', '1.19.0'),
-  openCode2('opencode2', '2.0.10');
+  openCode2('opencode2', '2.0.29');
 
   const TermuxRuntime(this.wireName, this.pinnedVersion);
   final String wireName;
   final String pinnedVersion;
+
+  /// Fresh setup only. Missing runtime records still describe older installs.
+  static const defaultForNewInstall = openCode2;
 
   static TermuxRuntime parse(String? value) => switch (value?.trim()) {
     null || '' || 'opencode1' => openCode1,

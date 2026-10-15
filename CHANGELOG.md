@@ -2,6 +2,14 @@
 
 This project is in public alpha. Only the newest preview is supported.
 
+## 1.4.0+54 — 2026-10-15
+
+Home-screen widgets that act on your agents (Allow, Stop, Steer, voice),
+Continue with… to hand a conversation to another agent, a live background in
+20 looks, app-only text size, a one-line chat header, steering instead of a
+queue, and AI Team on OpenCode 2 with new phones starting on OpenCode 2, as
+we prepare to end support for OpenCode 1. Full notes: [docs/releases/v1.4.0+54.md](docs/releases/v1.4.0+54.md).
+
 ## 1.3.0+53 — 2026-10-10
 
 Claude Code chats get Files, Changes, Terminal, Worktrees, Fast mode and

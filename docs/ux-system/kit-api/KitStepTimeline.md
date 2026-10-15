@@ -97,25 +97,15 @@ The glyph column, the rail and the nodes sit at the start edge (the right under 
 
 The timeline builds the steps it is given, in a column. The host keeps long work cheap: `KitWorkLine` builds at most `stepCap` steps at a time and reveals earlier ones in chunks (PERF-2).
 
-## Node states and the running light (2026-10-11, owner picks "From above, both sides" and a look per state)
+## Clean steps (2026-10-14, owner approved the mock)
 
-`KitStepTimeline.node(state: KitStepNodeState)` (what `KitToolRow` passes) draws the step's glyph in its tile and, per state, an outline or the light over it (`lib/ui/kit/chat/kit_step_light.dart`, a part of the timeline library). `KitStepTimeline.sweep(context, active:, child:)` sweeps a soft light over a running step's name. `KitToolRow(startedAt:)` adds a seconds counter (`KitTurnLive.elapsedText`, tabular figures). `KitStepTimeline(stalled: true)` holds every light where it is, dimmed, while the connection is down (not yet passed by the chat screen; the kit side is done).
+Supersedes the node states and the running light that were here (2026-10-11); the light, the name's sweep and the tick/flash/fade are gone.
 
-| State (`KitToolStatus`) | Look |
-| --- | --- |
-| queued (`pending`, `notRun`) | dim neutral outline, no light |
-| running | the light, below |
-| waiting (`waitingForYou`) | outline filled in `attention`, breathing 0.5 to 1 over 1.6 s; nothing travels |
-| background | the light, 4 s lap, 60% intensity |
-| done | tick flash 600 ms, glyph grows back (size .4 to 1, 260 ms); only after running or background |
-| failed | outline flashes `danger` 300 ms, then the failed mark |
-| stopped | the light fades out over 200 ms, glyph stays, no tick |
-| stalled (host flag) | light and name sweep freeze, 50% intensity |
+- **One line per step, 32 dp** (`KitStepTimeline.stepLineHeight`: more only when larger text needs it). A shell step's line is the command itself in mono, cut at the end; no tool-name title, because the group's line already names the kind. Any other step reads as one sentence: `Read lib/x.dart`, `Edit checkout_test.dart +3 −1` (verb, mono path, counts). The seconds counter or the duration sits at the end. From 1.3x text the words wrap in full and the row is taller.
+- **One rail x.** The group's glyph, every node and the rail share one centre (the glyph's width over two); the group's words and every step's words start at the same x (glyph plus `space2`).
+- **Nodes** are one size (the 20 dp glyph, grown with text): a tile with the step's glyph at 60 %; the dim glyph for a step not started; the kit's small spinner (`KitStatusMark` working: a still dot under reduced motion) while it runs; the waiting ring; the failed mark. Nothing moves around a tile and the name never shimmers.
+- **The rail** starts under the group's glyph and ends at the **last step's node centre** (each node writes its centre; the last slot reads it). It runs beside an opened step's box only when another step follows, and never under the reply text.
+- **Chevrons:** only the group's line has one. Tapping a step opens it (a thought too). A step that opens another page keeps its forward arrow.
+- **Targets:** the line is 32 dp but a tap target keeps the kit's 48 dp: it is centred on the line and reaches 8 dp over each neighbour (`OverflowBox`), so G5 (the semantics rect is 48 dp) holds. A touch in the 8 dp overlap belongs to the neighbour's own line.
+- **Opened command:** see `KitToolRow.command` (one box, indented to the text x).
 
-The lap (2 s; Calm doubles it): 0 to 28% one 14 dp light down the rail above the node, fading in, `easeInOutQuad`; 26 to 66% it splits at the node's top centre and both halves fill the outline down each side at once (fill 1.8 dp, 8 dp head 2.6 dp), meeting at the bottom centre; 64 to 95% one 14 dp light on down the rail below the node, `easeOutQuad`, fading out; 70 to 100% the filled outline dims from .75 to 0.
-
-Geometry is real, read at paint time: the outline is the tile's own rounded rectangle (`size * .3` radius) with the stroke inside the edge, split at the top and bottom centre; the rail light is on the rail's own x and width (device-pixel aligned); the distance above and below is measured to the real previous (or the group header's rail stub) and next node through the timeline's registry of slot boxes, so rows that open or resize mid-lap never leave it on stale numbers. The last step has no next node: it draws its own 14 dp fading rail. Round caps only on the moving heads; the fill has butt ends.
-
-Reduced motion, Animations: Off, `KitMotion.loops` false: running is a still filled `accent` outline, waiting a still filled `attention` outline, the name is still; only the counter ticks. One lazily made `AnimationController` per moving node, disposed with it; `TickerMode` pauses it off-screen. Names in `KitMotion.step*`.
-
-Not in the model, so not built: a "settled by the transcript safety net" state (the host maps it to stopped or notRun, which show no tick), per-step connection state (only the turn knows; `stalled` is the hook), and a header outline (the collapsed group line keeps its working mark).

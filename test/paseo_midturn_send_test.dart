@@ -289,7 +289,10 @@ void main() {
       'the running step keeps going', (tester) async {
     final (daemon, c) = await _open(tester, daemonSteers: true);
     // Never "Send after this reply": Claude reads it in this turn.
-    await _sendMidTurn(tester, says: 'Add to this turn');
+    await _sendMidTurn(
+      tester,
+      says: 'The agent will read this while it works.',
+    );
 
     final sent = daemon.of('send_agent_message_request').single;
     expect(sent['activeTurnBehavior'], 'steer');
@@ -338,10 +341,7 @@ void main() {
     await tester.pump();
     expect(find.byTooltip('Stop and send'), findsOneWidget);
     expect(
-      find.text(
-        'Agents like Claude Code add a message to the turn. This one stops '
-        'its reply and starts again with yours.',
-      ),
+      find.text('Stops the current reply and starts again with your message.'),
       findsOneWidget,
     );
     expect(find.text('Sends after this reply'), findsNothing);

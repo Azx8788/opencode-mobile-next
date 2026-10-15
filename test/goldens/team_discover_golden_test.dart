@@ -110,10 +110,8 @@ void main() {
         'team_discover_settings',
         light: light,
         controller: controller,
-        home: SettingsScreen(
-          controller: controller,
-          initialGroup: SettingsGroup.server,
-        ),
+        // The AI Team row lives on the Agents page now.
+        home: AgentsHubScreen(controller: controller),
       );
     });
 

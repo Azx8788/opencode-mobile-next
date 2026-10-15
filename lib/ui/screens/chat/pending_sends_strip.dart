@@ -23,7 +23,6 @@ class _PendingSendsStrip extends StatelessWidget {
     required this.onRetry,
     required this.onDiscard,
     required this.onCancelInbox,
-    required this.onFlipDelivery,
   });
 
   final List<QueuedPrompt> drafts;
@@ -58,7 +57,6 @@ class _PendingSendsStrip extends StatelessWidget {
   final ValueChanged<QueuedPrompt>? onRetry;
   final ValueChanged<QueuedPrompt> onDiscard;
   final ValueChanged<Api2InboxItem> onCancelInbox;
-  final ValueChanged<Api2InboxItem> onFlipDelivery;
 
   /// A draft whose send left and never came back confirmed: it can be sent
   /// again (the person decides; it never resends on its own).
@@ -208,22 +206,6 @@ class _PendingSendsStrip extends StatelessWidget {
           ? KitQueuedState.addToThisTurn
           : KitQueuedState.afterThisReply,
       menu: [
-        // Only the flip that changes the current mode is offered; the server
-        // has no reorder, so none is faked.
-        if (isUser)
-          steering
-              ? KitMenuItem(
-                  key: const ValueKey('inbox-action-queue'),
-                  icon: AppIcons.queue,
-                  label: strings.chatUiWaitForThisRunInstead,
-                  onSelected: () => onFlipDelivery(item),
-                )
-              : KitMenuItem(
-                  key: const ValueKey('inbox-action-steer'),
-                  icon: AppIcons.run,
-                  label: strings.chatUiSendNowAndSteerInstead,
-                  onSelected: () => onFlipDelivery(item),
-                ),
         if (isUser)
           KitMenuItem(
             key: const ValueKey('inbox-action-cancel'),

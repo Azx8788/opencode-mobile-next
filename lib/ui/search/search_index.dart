@@ -19,7 +19,6 @@ import '../app_iconography.dart';
 import '../desktop/desktop_interaction.dart';
 import '../desktop/shortcuts.dart';
 import '../screens/about_screen.dart';
-import '../screens/agents/agents_screen.dart';
 import '../screens/agent_account_screen.dart';
 import '../screens/app_diagnostics_screen.dart';
 import '../screens/automation_settings_screen.dart';
@@ -46,7 +45,9 @@ import '../screens/termux_processes_screen.dart';
 import '../screens/phone_setup/phone_setup_routes.dart';
 import '../screens/termux_storage_screen.dart';
 import '../screens/this_phone_screen.dart' show ThisPhoneScreen, openThisPhone;
+import '../screens/usage/usage_alerts_screen.dart';
 import '../screens/usage_hub_screen.dart';
+import '../screens/usage_widget_screen.dart';
 import '../widgets/phone_server_card.dart' show serverDisplayName;
 import '../widgets/pickers.dart';
 import '../widgets/product_states.dart';
@@ -308,6 +309,7 @@ SearchOpen _arrive(SettingsSearchTarget target) => (context, scope) {
     'keep-running' => NotificationsSettingsScreen(
       controller: scope.controller,
       initialSection: 'keep-running',
+      page: NotificationsPage.background,
     ),
     // Termux's server is the one with a crash restart; the row is there
     // only while a saved server is managed by it, rechecked by the page.
@@ -376,11 +378,19 @@ Future<void> _explainClaudeCodeGate(BuildContext context, SearchScope scope) {
   );
 }
 
+/// Where Settings › Voice typing gets its model manager; a test swaps it.
+@visibleForTesting
+Future<VoiceModelManager> Function() voiceManagerLoader =
+    VoiceModelManager.shared;
+
 Future<void> _openVoice(BuildContext context, SearchScope scope) async {
   try {
-    final models = await VoiceModelManager.shared();
+    final models = await voiceManagerLoader();
     if (!context.mounted) return;
-    await showVoiceModelSetupSheet(context, models);
+    await pushKitPage<void>(
+      context,
+      (_) => VoiceSettingsScreen(manager: models),
+    );
   } catch (error) {
     if (context.mounted) showProductError(context, error);
   }

@@ -190,8 +190,15 @@ void main() {
       expect(controller.appearance.value, AppAppearance.light);
       controller.dispose();
 
-      await prefs.setString('oc.appearance', 'unknown-old-value');
-      expect(ProfileStore(prefs: prefs).appearance, AppAppearance.dark);
+      // A fresh application owner reads malformed durable data with fallback.
+      SharedPreferences.setMockInitialValues({
+        'oc.appearance': 'unknown-old-value',
+      });
+      final restartedPrefs = await SharedPreferences.getInstance();
+      expect(
+        ProfileStore(prefs: restartedPrefs).appearance,
+        AppAppearance.dark,
+      );
     },
   );
 

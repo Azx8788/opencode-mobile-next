@@ -1,4 +1,4 @@
-// KitFeedItem (one conversation in a feed: project, title, state or time, last line): its behaviour, and the still-motion registration G8
+// KitFeedItem (one conversation in a feed: title, then one meta line: state, project, time): its behaviour, and the still-motion registration G8
 // requires of every kit part.
 import 'kit_motion_still.dart';
 
@@ -26,6 +26,11 @@ Widget _host(Widget child, {double textScale = 1, bool scroll = true}) =>
       home: Scaffold(body: scroll ? ListView(children: [child]) : child),
     );
 
+/// The meta line's text, whole (it is one rich paragraph).
+Finder _meta(String part) => find.byWidgetPredicate(
+  (w) => w is RichText && w.text.toPlainText().contains(part),
+);
+
 void main() {
   kitMotionStillTests(
     'KitFeedItem',
@@ -35,36 +40,31 @@ void main() {
         children: [
           KitFeedItem(
             project: 'alpha',
-            gitLabel: 'Git',
             title: 'Fix the login bug',
-            preview: 'Allow running the tests?',
-            tag: const KitStatusTag(
-              label: 'Needs you',
-              tone: KitStatusTagTone.needsYou,
-            ),
+            state: 'Needs you',
+            stateTone: KitFeedStateTone.needsYou,
+            time: '2 h ago',
             onTap: () {},
           ),
           KitFeedItem(
             project: 'beta',
             title: 'Add dark mode',
-            preview: 'Editing lib/ui/theme.dart',
-            tag: const KitStatusTag(
-              label: 'Running',
-              tone: KitStatusTagTone.running,
-            ),
+            state: 'Working',
+            stateTone: KitFeedStateTone.running,
+            time: 'now',
             onTap: () {},
           ),
           KitFeedItem(
             project: 'alpha',
-            gitLabel: 'Git',
+            agent: 'Claude Code',
             title: 'Rename the settings page and move its tests next to it',
-            preview: 'Done. Four files changed.',
-            time: '3d ago',
+            time: '3 d ago',
             onTap: () {},
           ),
           KitFeedItem(
             project: 'gamma',
             title: 'Plan the release notes',
+            state: 'Failed',
             time: 'Sep 24',
             onTap: () {},
           ),
@@ -73,7 +73,7 @@ void main() {
     },
   );
 
-  testWidgets('says project, title, tag and last line, and taps once', (
+  testWidgets('says title, state, project and time, and taps once', (
     tester,
   ) async {
     var taps = 0;
@@ -81,29 +81,23 @@ void main() {
       _host(
         KitFeedItem(
           project: 'alpha',
-          gitLabel: 'Git',
           title: 'Fix the login bug',
-          preview: 'Allow running the tests?',
-          tag: const KitStatusTag(
-            label: 'Needs you',
-            tone: KitStatusTagTone.needsYou,
-          ),
-          time: 'ignored',
+          state: 'Needs you',
+          stateTone: KitFeedStateTone.needsYou,
+          time: '2 h ago',
           onTap: () => taps++,
         ),
       ),
     );
-    expect(find.text('alpha'.isolated), findsOneWidget);
-    expect(find.text('Git'), findsOneWidget);
     expect(find.text('Fix the login bug'.isolated), findsOneWidget);
-    expect(find.text('Needs you'), findsOneWidget);
-    expect(find.text('ignored'), findsNothing);
-    expect(find.text('Allow running the tests?'.isolated), findsOneWidget);
+    expect(_meta('Needs you'), findsOneWidget);
+    expect(_meta('alpha'), findsOneWidget);
+    expect(_meta('2 h ago'), findsOneWidget);
     await tester.tap(find.text('Fix the login bug'.isolated));
     expect(taps, 1);
   });
 
-  testWidgets('without a tag it shows the time; empty preview shows none', (
+  testWidgets('a row is two lines: no preview, no Git mark, no ring', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -111,13 +105,35 @@ void main() {
         KitFeedItem(
           project: 'beta',
           title: 'Plan',
-          time: '3d ago',
+          time: '3 d ago',
           onTap: () {},
         ),
       ),
     );
-    expect(find.text('3d ago'), findsOneWidget);
-    expect(find.text('Git'), findsNothing);
+    expect(find.byType(Text), findsNWidgets(2)); // the title and the meta line
+    expect(find.byType(KitContextRing), findsNothing);
+    expect(find.byType(KitStatusTag), findsNothing);
+    expect(_meta('beta'), findsOneWidget);
+    expect(_meta('Needs you'), findsNothing);
+  });
+
+  testWidgets('the agent leads the meta line, never a chip', (tester) async {
+    await tester.pumpWidget(
+      _host(
+        KitFeedItem(
+          project: 'shopfront',
+          agent: 'Claude Code',
+          title: 'Plan',
+          time: '2 h ago',
+          onTap: () {},
+        ),
+      ),
+    );
+    final meta = tester
+        .widget<RichText>(_meta('Claude Code'))
+        .text
+        .toPlainText();
+    expect(meta.indexOf('Claude Code'), lessThan(meta.indexOf('shopfront')));
   });
 
   testWidgets('reads as one sentence to a screen reader', (tester) async {
@@ -126,66 +142,37 @@ void main() {
       _host(
         KitFeedItem(
           project: 'alpha',
-          gitLabel: 'Git',
           title: 'Fix',
-          preview: 'Done',
+          state: 'Needs you',
           time: '5 min ago',
           onTap: () {},
         ),
       ),
     );
     expect(
-      find.bySemanticsLabel('alpha, Git, Fix, 5 min ago, Done'),
+      find.bySemanticsLabel('Fix, Needs you, alpha, 5 min ago'),
       findsOneWidget,
     );
     handle.dispose();
   });
 
-  group('the context ring', () {
-    Widget item(double? used, {double textScale = 1}) => _host(
-      KitFeedItem(
-        project: 'alpha',
-        title: 'Fix',
-        time: '5 min ago',
-        contextUsage: used,
-        onTap: () {},
+  testWidgets('large text takes second lines instead of cutting', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _host(
+        KitFeedItem(
+          project: 'opencode-mobile',
+          title: 'Rename the settings page and move its tests next to it',
+          state: 'Needs you',
+          stateTone: KitFeedStateTone.needsYou,
+          time: '2 h ago',
+          onTap: () {},
+        ),
+        textScale: 2,
       ),
-      textScale: textScale,
     );
-
-    testWidgets('unknown use draws no ring', (tester) async {
-      await tester.pumpWidget(item(null));
-      expect(find.byType(KitContextRing), findsNothing);
-    });
-
-    testWidgets('under 70 % a bare ring, no number', (tester) async {
-      await tester.pumpWidget(item(0.4));
-      await tester.pumpAndSettle();
-      expect(find.byType(KitContextRing), findsOneWidget);
-      expect(find.textContaining('%'), findsNothing);
-    });
-
-    testWidgets('from 70 % the number shows beside the ring', (tester) async {
-      await tester.pumpWidget(item(0.83));
-      await tester.pumpAndSettle();
-      expect(find.text('83 %'), findsOneWidget);
-    });
-
-    testWidgets('the row says it once, in its one sentence', (tester) async {
-      final handle = tester.ensureSemantics();
-      await tester.pumpWidget(item(0.83));
-      expect(
-        find.bySemanticsLabel('alpha, Fix, 5 min ago, Context 83 % used'),
-        findsOneWidget,
-      );
-      handle.dispose();
-    });
-
-    testWidgets('large text keeps the ring beside the state', (tester) async {
-      await tester.pumpWidget(item(0.83, textScale: 2));
-      await tester.pumpAndSettle();
-      expect(find.byType(KitContextRing), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    });
+    expect(tester.takeException(), isNull);
+    expect(_meta('2 h ago'), findsOneWidget);
   });
 }

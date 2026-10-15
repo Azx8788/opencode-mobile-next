@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 
 import 'kit_tokens.dart';
 
-/// One line of filter chips under a screen's title (Chats home: "All
-/// projects", "Needs you", "Running"). The chips are [KitChip]s the caller
-/// builds; this part only lays them on a single line that scrolls sideways
-/// when they do not fit, on the screen gutter, so nothing wraps into a
-/// second line and shifts the list below.
+/// The filter chips under a screen's title (Chats home: "All projects",
+/// "Needs you", "Running"). The chips are [KitChip]s the caller builds; this
+/// part only lays them on one line, on the screen gutter. The line scrolls
+/// sideways when the chips do not fit (large text, a long name, Arabic): it
+/// never wraps onto a second line, and no chip is cut or hidden.
 ///
-/// States: none — a layout line; each chip carries its own selected look.
+/// States: none - a layout line; each chip carries its own selected look.
 class KitFilterChips extends StatelessWidget {
   const KitFilterChips({super.key, required this.chips});
 
@@ -20,7 +20,14 @@ class KitFilterChips extends StatelessWidget {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: EdgeInsets.symmetric(horizontal: tokens.gutter),
-      child: Row(spacing: tokens.space2, children: chips),
+      child: Row(
+        children: [
+          for (var i = 0; i < chips.length; i++) ...[
+            if (i > 0) SizedBox(width: tokens.space2),
+            chips[i],
+          ],
+        ],
+      ),
     );
   }
 }

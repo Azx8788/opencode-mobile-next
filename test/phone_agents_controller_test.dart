@@ -10,17 +10,22 @@ import 'package:flutter/material.dart'
         SingleChildScrollView,
         Key,
         ValueKey,
+        Size,
         SizedBox;
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' show ProviderScope;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:opencode_mobile/api/models.dart';
 import 'package:opencode_mobile/api/opencode_api.dart';
 import 'package:opencode_mobile/api/product_repository.dart';
 import 'package:opencode_mobile/api/sse.dart';
 import 'package:opencode_mobile/domain/agent_catalog.dart';
+import 'package:opencode_mobile/domain/agent_handoff.dart' show HandoffOrigin;
+import 'package:opencode_mobile/state/agent_handoff_links.dart';
 import 'package:opencode_mobile/domain/agent_tools/browser_claude_launch.dart';
 import 'package:opencode_mobile/domain/agent_auth_probe.dart';
+import 'package:opencode_mobile/domain/connection_status.dart';
 import 'package:opencode_mobile/domain/turn_stall.dart';
 import 'package:opencode_mobile/domain/genui/gen_ui.dart';
 import 'package:opencode_mobile/domain/genui/gen_ui_history.dart';
@@ -34,6 +39,7 @@ import 'package:opencode_mobile/domain/phone_agents_source.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/paseo/gateway.dart';
+import 'package:opencode_mobile/ui/navigation/attention_landing.dart';
 import 'package:opencode_mobile/ui/screens/chats/chats_host.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
 import 'package:opencode_mobile/paseo/transport.dart';
@@ -57,6 +63,7 @@ part 'support/phone_agents_check_publication_tests.dart';
 part 'support/phone_agents_capability_refresh_tests.dart';
 part 'support/phone_agents_removal_tests.dart';
 part 'support/phone_agents_idle_tests.dart';
+part 'support/phone_agents_identity_tests.dart';
 part 'support/phone_agents_cold_start_tests.dart';
 
 const _project = '/root/projects/app';
@@ -829,6 +836,7 @@ void main() {
   _phoneRemovalTests();
   _phoneIdleTests();
   _phoneColdStartTests();
+  _phoneIdentityTests();
 
   const dir = _project;
 

@@ -18,19 +18,14 @@ final kitChatsOverflowScenes = <KitOverflowScene>[
       children: [
         KitFeedItem(
           project: c.t('opencode-mobile', 'تطبيق-المحمول'),
-          gitLabel: 'Git',
+          agent: 'Claude Code',
           title: c.t(
             'Rename the settings page and move its tests next to it',
             'إعادة تسمية صفحة الإعدادات ونقل اختباراتها بجانبها',
           ),
-          preview: c.t(
-            'Done. Four files changed and the tests pass.',
-            'تم. تغيّرت أربعة ملفات والاختبارات تنجح.',
-          ),
-          tag: KitStatusTag(
-            label: c.t('Needs you', 'بانتظارك'),
-            tone: KitStatusTagTone.needsYou,
-          ),
+          state: c.t('Needs you', 'بانتظارك'),
+          stateTone: KitFeedStateTone.needsYou,
+          time: c.t('2 h ago', 'قبل ساعتين'),
           onTap: _noop,
         ),
         KitFeedItem(

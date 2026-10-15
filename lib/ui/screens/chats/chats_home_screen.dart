@@ -7,11 +7,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../domain/chat_feed.dart';
 import '../../../domain/relative_age.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../state/factsbook/factsbook_flag.dart';
 import '../../app_iconography.dart';
 import '../../kit/kit.dart';
 import '../../widgets/session_title.dart';
 import '../agents/agent_notices.dart';
-import '../agents/agents_text.dart' show agentIcon;
+import '../factsbook/memory_section.dart';
 import 'chats_host.dart';
 import 'chats_project_sheet.dart';
 import 'chats_sources_sheet.dart' show showChatsSourcesSheet;
@@ -222,11 +223,15 @@ class _ChatsHomeScreenState extends ConsumerState<ChatsHomeScreen> {
           tokens.gutter,
           tokens.space2,
         ),
-        child: KitText(
-          l10n.chatsHomeTitle,
-          role: KitTextRole.largeTitle,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
+        // A page title never breaks mid-word: past 1.5x it stops growing.
+        child: KitText.capScale(
+          max: 1.5,
+          child: KitText(
+            l10n.chatsHomeTitle,
+            role: KitTextRole.largeTitle,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
       ),
       KitFilterChips(
@@ -282,6 +287,11 @@ class _ChatsHomeScreenState extends ConsumerState<ChatsHomeScreen> {
           ),
         ],
       ),
+    ];
+
+    // The quiet lines and notices scroll with the feed: they never take the
+    // fixed header, so a small or landscape screen keeps its rows.
+    final notices = <Widget>[
       if (!snapshot.acrossProjects && onlyName != null)
         _QuietLine(
           key: const ValueKey('chats-only-project'),
@@ -330,8 +340,7 @@ class _ChatsHomeScreenState extends ConsumerState<ChatsHomeScreen> {
       // Quiet lines about the agents on this phone, each with its action.
       AgentStatusNotices(host: host),
     ];
-
-    final list = _list(context, host, snapshot, projectName);
+    final list = _list(context, host, snapshot, projectName, notices);
     final screen = KitScreen(
       header: header,
       // The bar keeps moving while more conversations are on the way.
@@ -366,17 +375,20 @@ class _ChatsHomeScreenState extends ConsumerState<ChatsHomeScreen> {
     ChatsHost host,
     ChatFeedSnapshot snapshot,
     String? projectName,
+    List<Widget> notices,
   ) {
     final l10n = AppLocalizations.of(context);
     final tokens = KitTokens.of(context);
     final items = snapshot.items;
     final end = KitScreen.endPadding(context) + KitFloatingAction.clearance;
+    // The developer flag shows FactsBook's Memory section under Needs you.
+    final memory = ref.watch(factsBookEnabledProvider);
     if (items.isEmpty) {
       if (snapshot.loading) {
         return ListView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: EdgeInsets.only(top: tokens.space3),
-          children: const [KitSkeletonRows()],
+          children: [...notices, const KitSkeletonRows()],
         );
       }
       final KitStateView state;
@@ -425,7 +437,11 @@ class _ChatsHomeScreenState extends ConsumerState<ChatsHomeScreen> {
       }
       return ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        children: [state],
+        children: [
+          ...notices,
+          if (memory) const FactsBookMemorySection(),
+          state,
+        ],
       );
     }
 
@@ -453,25 +469,32 @@ class _ChatsHomeScreenState extends ConsumerState<ChatsHomeScreen> {
     final showAgent =
         servers || items.map((item) => item.agentId).toSet().length > 1;
 
-    final needs = [
-      for (final item in items)
+    // A chat that needs you sorts first inside its time group; its amber
+    // word and the chip already say it, so it has no group of its own.
+    List<ChatFeedItem> needsFirst(Iterable<ChatFeedItem> group) => [
+      for (final item in group)
         if (item.status == ChatStatus.needsYou) item,
-    ];
-    final rest = [
-      for (final item in items)
+      for (final item in group)
         if (item.status != ChatStatus.needsYou) item,
     ];
-    final todays = [
-      for (final item in rest)
+    final todays = needsFirst([
+      for (final item in items)
         if (today(item) || item.lastActivity.isAfter(now)) item,
-    ];
-    final earlier = [
-      for (final item in rest)
+    ]);
+    final earlier = needsFirst([
+      for (final item in items)
         if (!(today(item) || item.lastActivity.isAfter(now))) item,
-    ];
+    ]);
 
-    Widget section(String label, List<ChatFeedItem> group) => KitSliverRowGroup(
+    // The notices above it are not a section to separate from: the first
+    // label keeps the zero gap it had when they sat in the fixed header.
+    Widget section(
+      String label,
+      List<ChatFeedItem> group, {
+      bool first = false,
+    }) => KitSliverRowGroup(
       label: label,
+      gapBefore: first ? 0 : null,
       leadingIcons: false,
       itemCount: group.length,
       itemBuilder: (context, index) {
@@ -519,9 +542,12 @@ class _ChatsHomeScreenState extends ConsumerState<ChatsHomeScreen> {
     return CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
-        if (needs.isNotEmpty) section(l10n.chatsHomeNeedsYou, needs),
-        if (todays.isNotEmpty) section(l10n.chatsHomeToday, todays),
-        if (earlier.isNotEmpty) section(l10n.chatsHomeEarlier, earlier),
+        SliverList.list(children: notices),
+        if (memory) const SliverToBoxAdapter(child: FactsBookMemorySection()),
+        if (todays.isNotEmpty)
+          section(l10n.chatsHomeToday, todays, first: true),
+        if (earlier.isNotEmpty)
+          section(l10n.chatsHomeEarlier, earlier, first: todays.isEmpty),
         SliverToBoxAdapter(child: SizedBox(height: end)),
       ],
     );
@@ -539,61 +565,47 @@ class _ChatsHomeScreenState extends ConsumerState<ChatsHomeScreen> {
     // The row being opened says so (an old Claude conversation takes a
     // few seconds to reopen on its helper).
     final opening = _openingShown == item.sessionID;
-    final tag = opening
-        ? KitStatusTag(
-            key: const ValueKey('chats-row-opening'),
-            label: l10n.chatsHomeOpening,
-            tone: KitStatusTagTone.running,
-          )
+    final cantReopen =
+        host.agents?.agentResumeNotice(item).requiresAcknowledgement ?? false;
+    // A state shows only when it matters; an ordinary conversation is just
+    // its project and time.
+    final (String? state, KitFeedStateTone tone) = opening
+        ? (l10n.chatsHomeOpening, KitFeedStateTone.running)
         : switch (item.status) {
-            ChatStatus.needsYou => KitStatusTag(
-              label: l10n.chatsHomeNeedsYou,
-              tone: KitStatusTagTone.needsYou,
+            ChatStatus.needsYou => (
+              l10n.chatsHomeNeedsYou,
+              KitFeedStateTone.needsYou,
             ),
-            ChatStatus.running => KitStatusTag(
-              label: l10n.chatsHomeRunning,
-              tone: KitStatusTagTone.running,
+            ChatStatus.running => (
+              l10n.chatsHomeRowWorking,
+              KitFeedStateTone.running,
             ),
-            ChatStatus.failed => KitStatusTag(
-              label: l10n.chatsHomeFailed,
-              tone: KitStatusTagTone.failed,
+            ChatStatus.failed => (l10n.chatsHomeFailed, KitFeedStateTone.quiet),
+            _ when cantReopen => (
+              l10n.agentsStateCantReopen,
+              KitFeedStateTone.quiet,
             ),
-            ChatStatus.idle when item.finishedUnseen => KitStatusTag(
-              label: l10n.chatsHomeDone,
-              tone: KitStatusTagTone.done,
-            ),
-            _ => null,
+            _ => (null, KitFeedStateTone.quiet),
           };
     return KitFeedItem(
       project: item.projectName,
-      gitLabel: item.isGit ? l10n.phoneScanGit : null,
-      // Every row names its agent when the list holds more than one, the
-      // OpenCode ones too, so the two kinds read apart at a glance.
-      agent: !showAgent
-          ? null
-          : item.agentLabel ??
-                (servers && item.sourceLabel != null
-                    ? 'OpenCode · ${_serverOf(context, host, item)}'
-                    : 'OpenCode'),
-      agentIcon: showAgent
-          ? agentIcon(item.agentLabel == null ? 'opencode' : item.agentId)
-          : null,
-      notice:
-          host.agents?.agentResumeNotice(item).requiresAcknowledgement ?? false
-          ? l10n.agentsStateCantReopen
-          : null,
+      // The agent's name leads the meta line when it is not the default
+      // OpenCode; beside another server, OpenCode's rows name theirs.
+      agent:
+          item.agentLabel ??
+          (showAgent && servers && item.sourceLabel != null
+              ? _serverOf(context, host, item)
+              : null),
       // The server's dated placeholder reads "New conversation" (F3).
       title: presentedSessionTitleText(item.title, l10n: l10n),
-      preview: item.preview,
-      tag: tag,
-      time: tag == null
-          ? relativeAgeLabel(
-              now.difference(item.lastActivity),
-              at: item.lastActivity,
-              l10n: l10n,
-            )
-          : null,
-      contextUsage: item.contextUsage,
+      state: state,
+      stateTone: tone,
+      time: relativeAgeLabel(
+        now.difference(item.lastActivity),
+        at: item.lastActivity,
+        l10n: l10n,
+      ),
+      tappableKey: opening ? const ValueKey('chats-row-opening') : null,
       onTap: () => unawaited(_open(host, item)),
     );
   }

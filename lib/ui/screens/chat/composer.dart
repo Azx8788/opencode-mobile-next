@@ -20,6 +20,7 @@ enum _PromptTool {
   clearText,
   stash,
   saved,
+  projectFile,
 }
 
 class _ChatComposer extends StatelessWidget {
@@ -39,6 +40,9 @@ class _ChatComposer extends StatelessWidget {
     required this.onSelectAgent,
     required this.onOpenCommands,
     required this.onOpenAgents,
+    this.fileHits = const [],
+    this.onSelectFile,
+    this.onOpenProjectFiles,
     required this.onOpenEditor,
     this.onReusePrompt,
     this.onClearText,
@@ -57,11 +61,8 @@ class _ChatComposer extends StatelessWidget {
     this.stopping = false,
     required this.sending,
     this.canSendWhileBusy = false,
-    this.canChooseDelivery = false,
+    this.promptSteering = false,
     this.midTurnPrompt,
-    // P6.6: "Send after this reply" is the default; steering is the choice.
-    this.delivery = PromptDelivery.queue,
-    this.onDeliveryChanged,
     required this.voiceOpening,
     this.showAttachmentNote = true,
     required this.onAttach,
@@ -106,6 +107,12 @@ class _ChatComposer extends StatelessWidget {
   final ValueChanged<CatalogAgent> onSelectAgent;
   final VoidCallback onOpenCommands;
   final VoidCallback onOpenAgents;
+
+  /// Project files matching the `@word` at the caret, relative to the
+  /// project; null callbacks mean this server has no files to point at.
+  final List<String> fileHits;
+  final ValueChanged<String>? onSelectFile;
+  final VoidCallback? onOpenProjectFiles;
   final VoidCallback onOpenEditor;
   final VoidCallback? onReusePrompt;
   final VoidCallback? onClearText;
@@ -133,21 +140,17 @@ class _ChatComposer extends StatelessWidget {
   final bool sending;
 
   /// Send stays live while a reply is written (OpenCode 1 runs it after the
-  /// reply; OpenCode 2 queues or steers it).
+  /// reply; elsewhere it steers the running turn).
   final bool canSendWhileBusy;
 
-  /// OpenCode 2's inbox: a send made during a reply can wait for it or add
-  /// to this turn. Without it the pill says "Sends after this reply".
-  final bool canChooseDelivery;
+  /// The server steers a send made during a reply (OpenCode 2, Codex): it
+  /// adds to this turn. Without it the pill says "Sends after this reply".
+  final bool promptSteering;
 
   /// What the agent does with a send made during a reply when it never
   /// holds it for after the reply (Paseo): "Add to this turn" or "Stop and
   /// send", with no choice.
   final MidTurnPrompt? midTurnPrompt;
-
-  /// What Send does while a reply is being written.
-  final PromptDelivery delivery;
-  final ValueChanged<PromptDelivery>? onDeliveryChanged;
 
   /// Kept for the host (KIT-43): the voice sheet shows its own progress.
   final bool voiceOpening;
@@ -248,24 +251,21 @@ class _ChatComposer extends StatelessWidget {
             stopping: stopping,
             sending: sending || (shelfBusy && shelfLoading),
             canSendWhileBusy: canSendWhileBusy,
-            // Without an inbox (OpenCode 1) a send made during a reply
-            // always runs after it, whatever the host remembers.
+            // One send, no choice: where steering is possible it adds to
+            // the running turn; an agent that restarts says so; only
+            // OpenCode 1 runs it after the reply.
             delivery: switch (midTurnPrompt) {
               MidTurnPrompt.joinsTurn => KitComposerDelivery.addToThisTurn,
               MidTurnPrompt.restartsTurn => KitComposerDelivery.stopAndSend,
               null =>
-                canChooseDelivery && delivery == PromptDelivery.steer
+                promptSteering
                     ? KitComposerDelivery.addToThisTurn
                     : KitComposerDelivery.afterThisReply,
             },
-            onDeliveryChanged: canChooseDelivery && onDeliveryChanged != null
-                ? (value) => onDeliveryChanged!(
-                    value == KitComposerDelivery.addToThisTurn
-                        ? PromptDelivery.steer
-                        : PromptDelivery.queue,
-                  )
-                : null,
             offline: offline,
+            offlineAgentName: agentName == null
+                ? 'OpenCode'
+                : KitBidi.auto(agentName!),
             readOnlyReason:
                 blockedReason ??
                 (!shelfBusy
@@ -299,7 +299,6 @@ class _ChatComposer extends StatelessWidget {
             toolsKey: const Key('composer-tools-button'),
             voiceButtonKey: const Key('composer-voice-button'),
             editorKey: const Key('prompt-editor-button'),
-            deliveryKey: const Key('composer-delivery-control'),
           ),
         ],
       ),
@@ -453,11 +452,24 @@ class _ChatComposer extends StatelessWidget {
           final prefix = aPrefix.compareTo(bPrefix);
           return prefix != 0 ? prefix : a.id.compareTo(b.id);
         });
-    if (matches.isEmpty) return null;
+    final agentRows = matches.take(shown).toList();
+    // Agents first, then the files that fit in the rest of the strip.
+    final fileRows = normalized.isEmpty || onSelectFile == null
+        ? const <String>[]
+        : fileHits
+              .take(
+                math.max(
+                  0,
+                  (compact ? 4 : KitComposerChips.visibleCount) -
+                      agentRows.length,
+                ),
+              )
+              .toList();
+    if (agentRows.isEmpty && fileRows.isEmpty) return null;
     return KitComposerChips.suggestions(
       listKey: const Key('inline-agent-suggestions'),
       suggestions: [
-        for (final agent in matches.take(shown))
+        for (final agent in agentRows)
           KitSuggestion(
             id: agent,
             label: '@${agent.id}',
@@ -465,8 +477,20 @@ class _ChatComposer extends StatelessWidget {
             description: agent.description ?? l10n.chatUiDelegateThisPrompt,
             key: Key('inline-agent-${agent.id}'),
           ),
+        for (final path in fileRows)
+          KitSuggestion(
+            id: path,
+            label: path.split('/').last,
+            kind: KitSuggestionKind.file,
+            description: path.contains('/')
+                ? path.substring(0, path.lastIndexOf('/'))
+                : null,
+            key: Key('inline-file-$path'),
+          ),
       ],
-      onSelected: (s) => onSelectAgent(s.id as CatalogAgent),
+      onSelected: (s) => s.id is CatalogAgent
+          ? onSelectAgent(s.id as CatalogAgent)
+          : onSelectFile?.call(s.id as String),
       onShowAll: matches.length > shown ? onOpenAgents : null,
     );
   }
@@ -509,6 +533,7 @@ class _ChatComposer extends StatelessWidget {
       title: l10n.chatUiPromptTools,
       sheetKey: const Key('composer-tools-sheet'),
       body: (sheetContext) => _PromptToolsList(
+        projectFilesSupported: onOpenProjectFiles != null,
         attachBlocked: attachBlocked,
         attachmentsSupported: promptAttachmentsSupported,
         imagesOnly: promptImagesOnly,
@@ -549,6 +574,8 @@ class _ChatComposer extends StatelessWidget {
         onStashPrompt?.call();
       case _PromptTool.saved:
         onOpenStash?.call();
+      case _PromptTool.projectFile:
+        onOpenProjectFiles?.call();
     }
   }
 }

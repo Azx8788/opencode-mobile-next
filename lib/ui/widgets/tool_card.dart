@@ -18,6 +18,7 @@ import '../kit/kit_details_fold.dart';
 import '../kit/kit_diff_view.dart';
 import '../kit/kit_image.dart';
 import '../kit/kit_key_value.dart';
+import '../kit/kit_layout.dart';
 import '../kit/kit_notice.dart';
 import '../kit/kit_row.dart';
 import '../kit/kit_row_parts.dart';
@@ -134,6 +135,10 @@ class ToolCard extends StatefulWidget {
 
 class _ToolCardState extends State<ToolCard> {
   bool _expanded = false;
+
+  /// The inline diff's "Wrap lines" choice (on the step's long-press menu);
+  /// null leaves the diff's own default (wrapped on a phone).
+  bool? _wrap;
   final Map<String, Future<FilePreviewData>> _previewLoads = {};
 
   List<ToolOutputFile> get _files => widget.state.outputFiles.take(8).toList();
@@ -160,6 +165,24 @@ class _ToolCardState extends State<ToolCard> {
   bool? get _storedExpansion => widget.expansionKey == null
       ? null
       : widget.expansionStore?[widget.expansionKey!];
+
+  bool _showsDiff(_ToolContract contract) =>
+      widget.state.status != 'error' &&
+      (contract.kind == _ToolKind.edit ||
+          contract.kind == _ToolKind.write ||
+          contract.kind == _ToolKind.patch);
+
+  /// "Wrap lines" for the inline diff, on the step's long-press menu: the
+  /// step's line holds no controls of its own.
+  KitMenuItem _wrapItem(BuildContext context, AppLocalizations l10n) {
+    final on = _wrap ?? KitLayout.windowOf(context) == KitWindow.compact;
+    return KitMenuItem(
+      label: l10n.kitWrapLines,
+      icon: AppIconography.wrapText,
+      checked: on,
+      onSelected: () => setState(() => _wrap = !on),
+    );
+  }
 
   void _setExpanded(bool value) {
     setState(() {
@@ -395,17 +418,27 @@ class _ToolCardState extends State<ToolCard> {
     }
 
     final hasBody =
-        (widget.state.output?.isNotEmpty ?? false) ||
-        (widget.state.inputJson?.isNotEmpty ?? false) ||
-        widget.state.input.isNotEmpty ||
-        widget.state.metadata?.isNotEmpty == true ||
-        widget.state.pruned ||
-        _files.isNotEmpty;
+        // A task-list update is one line; the list lives in the tasks chip.
+        (contract.kind != _ToolKind.todo || widget.state.status == 'error') &&
+        // A card call is one line; its input and its reply are not copy.
+        contract.kind != _ToolKind.card &&
+        ((widget.state.output?.isNotEmpty ?? false) ||
+            (widget.state.inputJson?.isNotEmpty ?? false) ||
+            widget.state.input.isNotEmpty ||
+            widget.state.metadata?.isNotEmpty == true ||
+            widget.state.pruned ||
+            _files.isNotEmpty);
 
     final heading = widget.heading;
-    final title = contract.kind == _ToolKind.task
-        ? l10n.toolCardDelegatedTo(contract.title)
-        : contract.title;
+    final title = switch (contract.kind) {
+      _ToolKind.task => l10n.toolCardDelegatedTo(contract.title),
+      // A card call that finished with no card drawn says what happened.
+      _ToolKind.card when widget.state.status == 'completed' =>
+        l10n.chatUiToolShowedCard,
+      _ToolKind.card when widget.state.status == 'error' =>
+        l10n.chatUiToolCardFailed,
+      _ => contract.title,
+    };
     final isShell = contract.kind == _ToolKind.shell;
     final rawPath = contract.technical ? contract.subtitle : null;
     // A command reads from its first word, on one line, cut once at the end
@@ -427,8 +460,24 @@ class _ToolCardState extends State<ToolCard> {
     // A shell step already ends with "Run this command again"; a second
     // "Try again" under the title would be the same action twice.
     final VoidCallback? retry = isShell ? null : widget.onRetry;
+    final command = _stepCommandOf(
+      context,
+      contract,
+      widget.state,
+      withOutput: interleaved == null,
+    );
+    // What the box does not hold: the purpose line and "Run this command
+    // again". Without either, the step opens to the box alone.
+    final bodyIsEmpty =
+        command != null &&
+        !widget.state.pruned &&
+        (path == null || contract.details.isEmpty) &&
+        !(widget.onRerunCommand != null &&
+            widget.state.executed &&
+            !widget.state.inFlight);
     final Widget row = KitToolRow(
       onRetry: retry,
+      command: command,
       rowKey: rowKey,
       kind: contract.rowKind,
       title: heading ?? title,
@@ -453,7 +502,7 @@ class _ToolCardState extends State<ToolCard> {
             )
           : null,
       preview: _previewOf(contract),
-      body: hasBody
+      body: hasBody && !bodyIsEmpty
           ? [
               _ToolBody(
                 contract: contract,
@@ -464,6 +513,7 @@ class _ToolCardState extends State<ToolCard> {
                 // Output already shown in order under the line; the body
                 // keeps the input only.
                 suppressOutput: interleaved != null,
+                wrap: _wrap,
                 onRerunCommand: widget.onRerunCommand,
                 onEnableConnectorCatalogue: widget.onEnableConnectorCatalogue,
               ),
@@ -471,6 +521,7 @@ class _ToolCardState extends State<ToolCard> {
           : const [],
       expanded: _expanded,
       onExpansionChanged: _setExpanded,
+      menu: _showsDiff(contract) ? [_wrapItem(context, l10n)] : const [],
     );
 
     // What the call produced (images, files, or text and files in order)

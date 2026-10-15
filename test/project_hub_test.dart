@@ -290,6 +290,12 @@ void main() {
         expect(tops, [...tops]..sort());
         expect(find.bySemanticsLabel(RegExp('app')), findsWidgets);
         expect(find.text('/srv/app'), findsNothing);
+        // The menu ends where the rows' chevrons end, not mid-row.
+        final menuRight = tester
+            .getTopRight(find.byKey(const ValueKey('project-hub-menu')))
+            .dx;
+        final rowRight = tester.getTopRight(_tool(displayed.first)).dx;
+        expect((rowRight - menuRight).abs(), lessThan(24));
         await tester.tap(find.byKey(const ValueKey('project-hub-menu')));
         await tester.pumpAndSettle();
         expect(
@@ -327,6 +333,23 @@ void main() {
         );
       },
     );
+
+    testWidgets('the Project tab tapped again leaves Files for the hub', (
+      tester,
+    ) async {
+      _phone(tester);
+      final controller = await _controller(ServerCapabilities.allV1);
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(_shell(controller));
+      await tester.pumpAndSettle();
+      await _openProjectTab(tester);
+      await tester.tap(_tool(ProjectTool.files));
+      await tester.pumpAndSettle();
+      expect(_tool(ProjectTool.files).hitTestable(), findsNothing);
+
+      await _openProjectTab(tester);
+      expect(_tool(ProjectTool.files).hitTestable(), findsOneWidget);
+    });
 
     testWidgets('Files exposes its own search field without a second hub row', (
       tester,

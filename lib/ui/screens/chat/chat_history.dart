@@ -428,14 +428,19 @@ extension _ChatHistory on _ChatScreenState {
   }
 
   bool _matchesPendingPrompt(List<Part> parts, _PendingSend pending) {
+    // The server adds its own synthetic text ("Called the Read tool...") and
+    // file parts when it reads an attached or @mentioned file; they are not
+    // what the person sent and must not decide whether the bubble matches.
     final text = parts
-        .where((part) => part.type == 'text')
+        .where((part) => part.type == 'text' && !part.synthetic)
         .map((part) => part.text)
         .join('\n')
         .trim();
     if (text != pending.text.trim()) return false;
 
-    final files = parts.where((part) => part.type == 'file').toList();
+    final files = parts
+        .where((part) => part.type == 'file' && !part.synthetic)
+        .toList();
     // A server whose copy keeps the text only can't show the pictures sent.
     if (files.isEmpty && _conn.capabilities.promptEchoTextOnly) return true;
     if (files.length != pending.attachments.length) return false;

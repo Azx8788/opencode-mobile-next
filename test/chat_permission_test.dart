@@ -117,15 +117,15 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Run a shell command'), findsOneWidget);
-    expect(find.text('Edit a file'), findsNothing);
+    expect(find.text('Run this command?'), findsOneWidget);
+    expect(find.text('Edit this file?'), findsNothing);
     expect(find.textContaining('1 more request is waiting'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('permission-card-allow')));
     await _afterHold(tester);
 
     expect(api.replies, [(requestID: 'request-1', reply: 'once')]);
-    expect(find.text('Edit a file'), findsOneWidget);
+    expect(find.text('Edit this file?'), findsOneWidget);
   });
 
   group('undo window', () {
@@ -302,7 +302,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text('Run a shell command'), findsOneWidget);
+      expect(find.text('Run this command?'), findsOneWidget);
 
       controller.handleEventForTesting(
         EventEnvelope(
@@ -312,8 +312,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Run a shell command'), findsNothing);
-      expect(find.text('Edit a file'), findsOneWidget);
+      expect(find.text('Run this command?'), findsNothing);
+      expect(find.text('Edit this file?'), findsOneWidget);
       expect(find.text('lib/main.dart'), findsOneWidget);
       expect(find.textContaining('no longer pending'), findsNothing);
     },
@@ -336,8 +336,8 @@ void main() {
       await _afterHold(tester);
 
       expect(controller.permissions.keys, ['request-2']);
-      expect(find.text('Run a shell command'), findsNothing);
-      expect(find.text('Edit a file'), findsOneWidget);
+      expect(find.text('Run this command?'), findsNothing);
+      expect(find.text('Edit this file?'), findsOneWidget);
       expect(find.textContaining('Not accepted'), findsNothing);
 
       controller.handleEventForTesting(
@@ -404,13 +404,13 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text('Run a shell command'), findsOneWidget);
+    expect(find.text('Run this command?'), findsOneWidget);
 
     await controller.refreshPendingPermissions();
     await tester.pumpAndSettle();
 
     expect(controller.permissions, isEmpty);
-    expect(find.text('Run a shell command'), findsNothing);
+    expect(find.text('Run this command?'), findsNothing);
     expect(find.byType(AlertDialog), findsNothing);
   });
 

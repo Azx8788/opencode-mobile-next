@@ -99,7 +99,9 @@ void main() {
 
     final light = AppTheme.light().extension<ThemeRoles>()!;
     expect(light.ground, const Color(0xFFF3F3F1));
-    expect(light.surface1, Colors.white);
+    expect(light.surface1, const Color(0xFFFAFAF8));
+    expect(light.surface2, Colors.white);
+    expect(light.surface1, isNot(light.surface2));
     expect(light.text1, const Color(0xFF111214));
   });
 
@@ -439,7 +441,7 @@ void main() {
   });
 
   test('every Material type slot is one role, with no other size', () {
-    // LOOK-12, LOOK-17: no 57/45/36/28/20/15 anywhere in the type scale.
+    // Three-size scale (feat/type-scale): 28/22/16 headings, 16 body, 13 meta.
     bool same(TextStyle a, TextStyle b) =>
         a.fontSize == b.fontSize &&
         a.height == b.height &&
@@ -448,7 +450,7 @@ void main() {
     final roleSizes = {
       for (final role in KitTextRole.values) KitText.styleFor(role).fontSize,
     };
-    expect(roleSizes, {32, 24, 17, 16, 14, 13, 12});
+    expect(roleSizes, {28, 22, 16, 13});
     for (final theme in [AppTheme.dark(), AppTheme.light()]) {
       final text = theme.textTheme;
       final slots = {

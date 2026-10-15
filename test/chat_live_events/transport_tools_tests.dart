@@ -623,15 +623,19 @@ void _transportAndToolTests() {
     expect(find.text('Read'), findsNothing);
     expect(find.text('Search text'), findsNothing);
     expect(find.text('Edit'), findsNothing);
+    expect(find.byKey(const Key('embedded-tool-row')), findsNothing);
 
     final headers = find.byKey(const Key('work-group-header'));
     expect(tester.getSize(headers.first).height, greaterThanOrEqualTo(48));
     await tester.tap(headers.first);
     await tester.pumpAndSettle();
 
+    // Clean steps: one line per step, no tool-name title; a command is the
+    // command itself, in mono.
+    expect(find.text('flutter test'), findsOneWidget);
     expect(find.text('Read'), findsOneWidget);
-    expect(find.text('Search text'), findsOneWidget);
-    expect(find.text('Shell'), findsOneWidget);
+    expect(find.text('Shell'), findsNothing);
+    expect(find.byKey(const Key('embedded-tool-row')), findsWidgets);
 
     // KitToolRow: a grouped row is a line on the ground surface, never a
     // nested card; at rest it paints no fill of its own.
@@ -690,10 +694,10 @@ void _transportAndToolTests() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('work-group')), findsOneWidget);
-    expect(
-      find.byKey(const Key('embedded-tool-error-output')),
-      findsNWidgets(2),
-    );
+    // The edit's failure is its capped output block; the command's is the
+    // caption of its own command box.
+    expect(find.byKey(const Key('embedded-tool-error-output')), findsOneWidget);
+    expect(find.byKey(const ValueKey('kit-step-command')), findsOneWidget);
     expect(find.text('Tool execution aborted'), findsOneWidget);
     expect(find.text('Process exited before completion'), findsOneWidget);
     expect(find.byKey(const Key('standalone-tool-error-output')), findsNothing);
@@ -703,11 +707,11 @@ void _transportAndToolTests() {
     final outputs = find.byKey(const Key('embedded-tool-error-output'));
     expect(
       find.descendant(of: outputs, matching: find.byType(KitCodeBlock)),
-      findsNWidgets(2),
+      findsOneWidget,
     );
     expect(
       find.descendant(
-        of: outputs,
+        of: find.byKey(const ValueKey('kit-step-command')),
         matching: find.text('Process exited before completion'),
       ),
       findsOneWidget,
@@ -763,8 +767,10 @@ void _transportAndToolTests() {
     await tester.tap(find.byKey(const Key('work-group-header')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Edit'), findsOneWidget);
-    expect(find.text('Shell'), findsOneWidget);
+    // Two clean step lines now: the edit, and the command itself.
+    expect(find.byKey(const Key('embedded-tool-row')), findsNWidgets(2));
+    expect(find.text('flutter test'), findsOneWidget);
+    expect(find.text('Shell'), findsNothing);
   });
 
   testWidgets('shows model changes and aggregates usage once per turn', (

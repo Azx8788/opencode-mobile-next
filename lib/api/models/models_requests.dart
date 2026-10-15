@@ -45,10 +45,23 @@ class PromptAttachment {
   final String filename;
   final String url;
 
+  /// Set when the person pointed at a project file with `@path`: the path as
+  /// typed after the `@`, relative to the project. The file part then names
+  /// the `@path` text it came from, the way OpenCode's own TUI does.
+  final String? mentionPath;
+
+  /// Where `@path` sits in the prompt text (UTF-16 offsets, as the wire wants
+  /// them). Known only once the text is final; see [resolveFileMentions].
+  final int? mentionStart;
+  final int? mentionEnd;
+
   const PromptAttachment({
     required this.mime,
     required this.filename,
     required this.url,
+    this.mentionPath,
+    this.mentionStart,
+    this.mentionEnd,
   });
 
   factory PromptAttachment.reference({
@@ -60,8 +73,39 @@ class PromptAttachment {
     url: _referenceUrl(path),
   );
 
+  /// A project file mentioned as `@[relativePath]`. [directory] is the
+  /// project folder the path is relative to.
+  factory PromptAttachment.projectFile({
+    required String directory,
+    required String relativePath,
+  }) {
+    final base = directory.endsWith('/')
+        ? directory.substring(0, directory.length - 1)
+        : directory;
+    return PromptAttachment(
+      mime: 'text/plain',
+      filename: relativePath.split('/').last,
+      url: _referenceUrl('$base/$relativePath'),
+      mentionPath: relativePath,
+    );
+  }
+
   bool get isDirectoryReference =>
       mime == directoryReferenceMime && Uri.tryParse(url)?.scheme == 'file';
+
+  bool get isFileMention => mentionPath != null;
+
+  /// The text this attachment answers to in the prompt.
+  String get mentionText => '@$mentionPath';
+
+  PromptAttachment withMentionRange(int start, int end) => PromptAttachment(
+    mime: mime,
+    filename: filename,
+    url: url,
+    mentionPath: mentionPath,
+    mentionStart: start,
+    mentionEnd: end,
+  );
 
   static String _referenceUrl(String path) {
     final windows =
@@ -74,7 +118,57 @@ class PromptAttachment {
     'mime': mime,
     'filename': filename,
     'url': url,
+    if (mentionPath != null && mentionStart != null && mentionEnd != null)
+      'source': {
+        'type': 'file',
+        'path': mentionPath,
+        'text': {
+          'value': mentionText,
+          'start': mentionStart,
+          'end': mentionEnd,
+        },
+      },
   };
+}
+
+bool _fileMentionBefore(String text, int start) =>
+    start == 0 || RegExp(r'''[\s\(\[\{"']''').hasMatch(text[start - 1]);
+
+bool _fileMentionAfter(String text, int end) =>
+    end == text.length ||
+    RegExp(r'''[\s\.,!\?;:\)\}\]"']''').hasMatch(text[end]);
+
+/// Keeps each project-file mention whose `@path` is still in [text], with its
+/// position, and drops the ones whose text the person deleted. Attachments
+/// that are not mentions pass through untouched.
+List<PromptAttachment> resolveFileMentions(
+  String text,
+  List<PromptAttachment> attachments,
+) {
+  final out = <PromptAttachment>[];
+  final claimed = <int>{};
+  for (final attachment in attachments) {
+    if (!attachment.isFileMention) {
+      out.add(attachment);
+      continue;
+    }
+    final value = attachment.mentionText;
+    var from = 0;
+    while (from <= text.length - value.length) {
+      final start = text.indexOf(value, from);
+      if (start < 0) break;
+      final end = start + value.length;
+      if (!claimed.contains(start) &&
+          _fileMentionBefore(text, start) &&
+          _fileMentionAfter(text, end)) {
+        claimed.add(start);
+        out.add(attachment.withMentionRange(start, end));
+        break;
+      }
+      from = start + 1;
+    }
+  }
+  return out;
 }
 
 /// A server-authored subagent mention embedded in the prompt text.

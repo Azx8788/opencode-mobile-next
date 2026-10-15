@@ -8,6 +8,7 @@ import '../domain/server_gateway.dart';
 import '../ui/kit/kit_redact.dart';
 import '../domain/session_command_handoff.dart';
 import '../domain/session_title_text.dart';
+import '../domain/terminal_lifecycle.dart';
 import '../domain/parallel_requests.dart';
 import 'mcp_oauth.dart';
 import 'models.dart';
@@ -427,7 +428,10 @@ class SdkProductRepository extends _SdkCore
         _SdkCatalogOps,
         _SdkIntegrationOps,
         _SdkSessionOps
-    implements LocationAwareProductRepository, SessionCommandHandoffGateway {
+    implements
+        LocationAwareProductRepository,
+        SessionCommandHandoffGateway,
+        IntegrationAuthRecoveryGateway {
   SdkProductRepository(super.client);
 }
 

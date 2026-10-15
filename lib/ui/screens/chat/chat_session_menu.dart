@@ -180,6 +180,8 @@ extension _ChatSessionMenu on _ChatScreenState {
         await _fork();
       case SessionMenuAction.rename:
         await _renameCurrentSession();
+      case SessionMenuAction.continueWith:
+        await _continueWithAnotherAgent();
       case SessionMenuAction.continueOnComputer:
         if (_conn.capabilities.cliSessionResume) await _continueOnComputer();
       case SessionMenuAction.continueOnPhone:

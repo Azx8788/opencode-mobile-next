@@ -273,8 +273,32 @@ AgentCatalog _builtInCatalog() {
   return AgentCatalog(
     agents: [
       entry(
+        'opencode2',
+        'OpenCode 2',
+        AgentRoute.opencode2,
         'opencode',
-        'OpenCode',
+        AgentSignInMethod.apiKeyHost,
+        AgentInstallRecipe(
+          version: '2.0.29',
+          executable: 'opencode',
+          artifacts: {
+            AgentArchitecture.arm64: archive(
+              'https://registry.npmjs.org/@opencode/cli-linux-arm64/-/cli-linux-arm64-2.0.29.tgz',
+              '0af39e75dbdfacc20f8f531ef35fb4dcc0b44c08084203518614272f232283ae',
+              'package/bin/opencode',
+            ),
+            AgentArchitecture.x64: archive(
+              'https://registry.npmjs.org/@opencode/cli-linux-x64-baseline/-/cli-linux-x64-baseline-2.0.29.tgz',
+              '152c42ff57b15728f39e1d7b68a9c13b0635fe1c5e6dcccdc8b710955e4cef0b',
+              'package/bin/opencode',
+            ),
+          },
+          launchArgs: ['serve', '--hostname', '127.0.0.1'],
+        ),
+      ),
+      entry(
+        'opencode',
+        'Older OpenCode',
         AgentRoute.opencode1,
         'opencode',
         AgentSignInMethod.apiKeyHost,
@@ -295,30 +319,6 @@ AgentCatalog _builtInCatalog() {
           },
           launchArgs: ['serve', '--hostname', '127.0.0.1'],
           signInArgs: ['auth', 'login'],
-        ),
-      ),
-      entry(
-        'opencode2',
-        'OpenCode 2',
-        AgentRoute.opencode2,
-        'opencode',
-        AgentSignInMethod.apiKeyHost,
-        AgentInstallRecipe(
-          version: '2.0.10',
-          executable: 'opencode',
-          artifacts: {
-            AgentArchitecture.arm64: archive(
-              'https://registry.npmjs.org/@opencode/cli-linux-arm64/-/cli-linux-arm64-2.0.10.tgz',
-              'cf5416676240455dc5a98500237af296cb1a00efbd2cca302ad22c92ea080ebc',
-              'package/bin/opencode',
-            ),
-            AgentArchitecture.x64: archive(
-              'https://registry.npmjs.org/@opencode/cli-linux-x64-baseline/-/cli-linux-x64-baseline-2.0.10.tgz',
-              '700c4d0fcc209e42f61c10f9773331d1d1f7eff35670971ee316b38641a1a76c',
-              'package/bin/opencode',
-            ),
-          },
-          launchArgs: ['serve', '--hostname', '127.0.0.1'],
         ),
       ),
       entry(

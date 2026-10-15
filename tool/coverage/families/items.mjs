@@ -39,16 +39,13 @@ export const itemCases = [
       { id: 'todo-2', text: 'Add the retry button', completed: false, status: 'in_progress', activeForm: 'Adding the retry button' },
       { id: 'todo-3', text: 'Write the widget test', completed: false, status: 'pending', activeForm: 'Writing the widget test' },
     ],
-  }, {
-    'items[].completed': ['1 of 3 done'],
-    'items[].status': ['In progress'],
   }),
   item('todo_plain', 'todo', {
     items: [
       { text: 'Update the changelog', completed: true },
       { text: 'Tag the release', completed: false },
     ],
-  }, { 'items[].completed': ['1 of 2 done'] }),
+  }),
   item('error', 'error', { message: 'Rate limit reached for claude-opus-5. Try again in 4 minutes.' }),
   item('notification_info', 'notification', { level: 'info', message: 'Switched to the faster model for this step.' }, { level: ['Note'] }),
   item('notification_warning', 'notification', { level: 'warning', message: 'This conversation is close to its context limit.' }, { level: ['Warning'] }),

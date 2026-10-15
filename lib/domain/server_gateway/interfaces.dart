@@ -46,9 +46,12 @@ abstract class SessionGateway {
   Future<List<FileDiff>> diff(String id);
 }
 
-/// How a prompt sent while a turn runs reaches the agent (OpenCode 2 only):
-/// [steer] interjects at the next step boundary (the v2 default), [queue]
-/// waits for the current run to finish. v1 gateways ignore the choice.
+/// How a prompt reaches a running turn. On gateways advertising promptSteering,
+/// [steer] adds input at the runtime's next supported boundary without cancelling
+/// the turn. Direct Codex requires an active turn and rejects a stale target.
+/// [queue] is the legacy OpenCode 2 wire option; new composers must not offer it
+/// where steering is supported. OC1 ignores delivery. Mixed-agent gateways use
+/// [MidTurnPromptGateway] with their normal null-delivery send path.
 enum PromptDelivery { steer, queue }
 
 /// Prompt execution against one session.

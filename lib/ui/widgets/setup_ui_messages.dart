@@ -51,6 +51,8 @@ String? _wholeMessage(AppLocalizations l10n, String message) {
 }
 
 Map<String, String> _messages(AppLocalizations l10n) => <String, String>{
+  'Some Linux packages need repair. Continue setup to try again. Details show what stopped it.':
+      l10n.phoneSetupErrorPackageRepair,
   'Termux command failed.': l10n.e7SetupCommandFailed,
   'Termux returned an unexpected bridge response.':
       l10n.e7SetupUnexpectedBridge,

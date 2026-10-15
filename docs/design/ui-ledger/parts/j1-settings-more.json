@@ -405,10 +405,6 @@
         {
           "page": "settings",
           "element": "settings-category-background"
-        },
-        {
-          "page": "provider-quota",
-          "element": "provider-quota-monitor-notification-settings"
         }
       ],
       "gates": [],
@@ -754,7 +750,7 @@
           "key": "usage-tab-remaining",
           "line": 88,
           "action": "other",
-          "target": "provider-quota",
+          "target": "usage-plans",
           "targetWidget": "ProviderQuotaScreen",
           "effect": "Shows the embedded ProviderQuotaScreen body.",
           "gates": [
@@ -857,6 +853,22 @@
           "effect": "_ThemePackTile (one per ThemePackId.values): onSelect -> showThemePackPreview(context, controller:, pack: id); the sheet writes controller.setThemePack(pack). Selected pack shows a check.",
           "gates": [
             "dynamic pack disabled unless harvestedDynamicPack.value != null (subtitle \"Material You colors are not available on this device.\")"
+          ],
+          "destructive": false
+        },
+        {
+          "id": "appearance-settings-live-style",
+          "type": "list-tile",
+          "label": "Look (Live background)",
+          "key": "effects-live-style",
+          "file": "lib/ui/screens/settings/personal_settings_screens.dart",
+          "line": 468,
+          "action": "navigate",
+          "target": "live-style-picker",
+          "targetWidget": "LiveStylePickerScreen",
+          "effect": "Pushes LiveStylePickerScreen(controller); the supporting line names the chosen look.",
+          "gates": [
+            "row shown only while the Live background switch (effects-live-background) is on"
           ],
           "destructive": false
         }
@@ -2230,6 +2242,88 @@
         "controller.isConnected (hub row and search entry gate)"
       ],
       "elements": []
+    },
+    {
+      "id": "live-style-picker",
+      "title": "Look",
+      "kind": "screen",
+      "file": "lib/ui/screens/settings/live_background_screens.dart",
+      "widget": "LiveStylePickerScreen",
+      "presentedBy": [],
+      "line": 9,
+      "purpose": "Settings > Appearance > Live background > Look: a grid of the live looks, the chosen one marked; a tap opens that look in a full-screen preview.",
+      "reachedFrom": [
+        {
+          "page": "appearance-settings",
+          "element": "appearance-settings-live-style"
+        }
+      ],
+      "gates": [],
+      "elements": [
+        {
+          "id": "live-style-picker-tile",
+          "type": "card",
+          "label": "<look name>",
+          "key": "live-style-<id>",
+          "file": "lib/ui/screens/settings/live_background_screens.dart",
+          "line": 23,
+          "action": "navigate",
+          "target": "live-style-preview",
+          "targetWidget": "LiveStylePreviewScreen",
+          "effect": "Pushes LiveStylePreviewScreen(controller, style). Nothing is changed until Use this.",
+          "gates": [],
+          "destructive": false
+        }
+      ]
+    },
+    {
+      "id": "live-style-preview",
+      "title": "<look name>",
+      "kind": "screen",
+      "file": "lib/ui/screens/settings/live_background_screens.dart",
+      "widget": "LiveStylePreviewScreen",
+      "presentedBy": [],
+      "line": 34,
+      "purpose": "One live look full screen behind a mock chat, with a Reply running switch to see it brighten and a Use this button.",
+      "reachedFrom": [
+        {
+          "page": "live-style-picker",
+          "element": "live-style-picker-tile"
+        }
+      ],
+      "gates": [],
+      "elements": [
+        {
+          "id": "live-style-preview-running",
+          "type": "toggle",
+          "label": "Reply running",
+          "key": "live-style-running",
+          "file": "lib/ui/kit/kit_live_style_preview.dart",
+          "line": 58,
+          "action": "other",
+          "target": null,
+          "targetWidget": "KitSwitchRow",
+          "effect": "Local view state: makes the preview behave as if a reply were running. Not stored.",
+          "gates": [],
+          "destructive": false
+        },
+        {
+          "id": "live-style-preview-use",
+          "type": "button",
+          "label": "Use this",
+          "key": "live-style-use",
+          "file": "lib/ui/kit/kit_live_style_preview.dart",
+          "line": 70,
+          "action": "toggle-setting",
+          "target": "appearance-settings",
+          "targetWidget": "KitButton",
+          "effect": "controller.setEffects(effects.copyWith(liveStyle: style.id)) (oc.effectsLiveStyle), then pops back to the picker. Disabled for the look already in use.",
+          "gates": [
+            "disabled while the look is the one in use"
+          ],
+          "destructive": false
+        }
+      ]
     }
   ],
   "notPages": [

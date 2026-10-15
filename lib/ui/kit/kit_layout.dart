@@ -47,6 +47,10 @@ abstract final class KitLayout {
   /// (KitScreen.md, KitMarkdown.md, KitAskLine.md; LAY-5).
   static const double paneDetailMaxWidth = 700;
 
+  /// The least the detail pane may be squeezed to before the panes fold into
+  /// one column.
+  static const double paneDetailMinWidth = 360;
+
   /// The side pane of a three-pane PC window (KitScreen.md).
   static const double paneSideWidth = 340;
 

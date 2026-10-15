@@ -70,16 +70,23 @@ extension _ConnectionControllerDeletionImpl on ConnectionController {
     // Close admission synchronously, before any drain can yield. An epoch also
     // rejects old callbacks after a failed deletion makes the profile usable.
     _deletingReadProfiles.add(profileId);
+    final consentDrain = store.appPreferences.readStateConsent.closeProfile(
+      profileId,
+    );
     final genUiDrain = _genUiCloseProfile(profileId);
     final sessionLinkDrain = SessionLinkBindings.closeProfile(
       store.prefs,
       profileId,
     );
+    final handoffDrain = AgentHandoffLinks.closeProfile(store.prefs, profileId);
     _profileDeletionRevisions[profileId] =
         (_profileDeletionRevisions[profileId] ?? 0) + 1;
     _monitorAttentionReader.forget(profileId);
     _profileMonitor?.removeProfile(profileId, retainIdentity: true);
     _quotaMonitor?.removeProfile(profileId, retainIdentity: true);
+    _paseoUsageMonitor?.removeProfile(profileId, retainIdentity: true);
+    _usageSubscriptions?.removeProfile(profileId);
+    _computerUsage?.forget(profileId);
     _pendingAuth.block(profileId);
     _integrationCommandAttempts.removeWhere(
       (key, _) => _authKeyProfile(key) == profileId,
@@ -101,6 +108,8 @@ extension _ConnectionControllerDeletionImpl on ConnectionController {
             if (activity != null) activity.prepareForDeletion(),
             policy.pauseForDeletion(),
             sessionLinkDrain,
+            handoffDrain,
+            consentDrain,
             genUiDrain,
           ]);
           // Admitted activity inverses have finished; from here no new prompt
@@ -108,6 +117,7 @@ extension _ConnectionControllerDeletionImpl on ConnectionController {
           _closedQueueProfiles.add(profileId);
           await _profileMonitor?.drain(profileId);
           await _quotaMonitor?.drain(profileId);
+          await _paseoUsageMonitor?.drain(profileId);
           // Phone agents first: auth, owned setup, host, feeds; ProfileStore
           // removal (native drain, secrets) follows inside the transaction.
           await _genUiDeleteProfile(profileId);
@@ -123,15 +133,18 @@ extension _ConnectionControllerDeletionImpl on ConnectionController {
           if (store.profiles.any((p) => p.id == profileId)) {
             _closedQueueProfiles.remove(profileId);
             _genUiReopenProfile(profileId);
+            store.appPreferences.readStateConsent.reopenProfile(profileId);
             activity?.cancelDeletion();
             policy.cancelDeletion();
             ConsentOwners.cancelDeletion(store.prefs, profileId);
             await SessionLinkBindings.cancelDeletion(store.prefs, profileId);
+            await AgentHandoffLinks.cancelDeletion(store.prefs, profileId);
             BuiltinServerOwner.forPreferences(
               store.prefs,
             ).cancelDeletion(profileId);
             _profileMonitor?.cancelDeletion(profileId);
             _quotaMonitor?.cancelDeletion(profileId);
+            _paseoUsageMonitor?.cancelDeletion(profileId);
             _pendingAuth.cancelDeletion(profileId);
             if (_orchestration?.profileId == profileId &&
                 _orchestration?.phase == OrchestrationPhase.stopped) {
@@ -295,6 +308,17 @@ extension _ConnectionControllerDeletionImpl on ConnectionController {
             failures.add('phone team engine data');
           }
         }
+        // The usage collector the app runs in In-app Ubuntu goes with the
+        // server: service, files, token and the switch that restarts it.
+        if (BuiltinLinux.managesServerUrl(engineProfile?.baseUrl) ||
+            store.prefs.getBool(InAppQuotaCollector.enabledKey(profileId)) ==
+                true) {
+          try {
+            await InAppQuotaCollector.forget(profileId, prefs: store.prefs);
+          } catch (_) {
+            failures.add('usage collector');
+          }
+        }
         try {
           // The plugin's sibling stops first so no refetch can rewrite the
           // `oc.orchestration.<id>.` keys the scoped sweep below discovers.
@@ -417,6 +441,9 @@ extension _ConnectionControllerDeletionImpl on ConnectionController {
       await store.remove(profileId);
       _profileMonitor?.removeProfile(profileId);
       _quotaMonitor?.removeProfile(profileId);
+      _paseoUsageMonitor?.removeProfile(profileId);
+      _usageSubscriptions?.removeProfile(profileId);
+      _computerUsage?.forget(profileId);
       final unclearedCommittedKeys = <String>{};
       await AutomationPolicyController.closeProfile(store.prefs, profileId);
       final policyKey = AutomationPolicyController.keyFor(profileId);

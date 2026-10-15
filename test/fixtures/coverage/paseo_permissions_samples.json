@@ -412,7 +412,7 @@
           "path": "name",
           "kind": "string",
           "probes": [
-            "Run a shell command"
+            "Run this command?"
           ],
           "primary": false
         },
@@ -543,7 +543,7 @@
           "path": "name",
           "kind": "string",
           "probes": [
-            "Edit a file"
+            "Edit this file?"
           ],
           "primary": false
         },
@@ -651,7 +651,7 @@
           "path": "name",
           "kind": "string",
           "probes": [
-            "Edit a file"
+            "Edit this file?"
           ],
           "primary": false
         },
@@ -740,7 +740,7 @@
           "path": "name",
           "kind": "string",
           "probes": [
-            "Edit a file"
+            "Edit this file?"
           ],
           "primary": false
         },
@@ -832,7 +832,7 @@
           "path": "name",
           "kind": "string",
           "probes": [
-            "Read a file"
+            "Read this file?"
           ],
           "primary": false
         },
@@ -936,7 +936,7 @@
           "path": "name",
           "kind": "string",
           "probes": [
-            "Open a web page"
+            "Open this web page?"
           ],
           "primary": false
         },

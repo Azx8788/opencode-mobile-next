@@ -11,6 +11,7 @@ import 'team_project_conversation.dart';
 import 'team_digest.dart';
 import 'team_project_editors.dart';
 import 'team_refusal.dart';
+import 'team_status_words.dart';
 
 part 'screen/overview.dart';
 part 'screen/overview_helpers.dart';
@@ -101,7 +102,8 @@ class _TeamProjectsScreenState extends State<TeamProjectsScreen> {
               icon: Icons.settings_outlined,
               onPressed: () => openTeamDefaults(context, c),
             ),
-            if (widget.onLeaveDemo != null)
+            // Only the simulated team has a demo to leave.
+            if (widget.onLeaveDemo != null && c.snapshot?.simulated == true)
               KitAction(
                 label: l.teamProjectOff,
                 icon: Icons.logout,

@@ -358,6 +358,11 @@ class _RootState extends ConsumerState<_Root> {
       // Why it did not start, in plain words (QA B1); the technical line
       // stays under Details.
       inAppStartFailedBody: pending ? null : startFailure?.explanation(l10n),
+      onRecoverInAppOwnership:
+          !pending &&
+              startFailure?.problem == BuiltinStartProblem.componentRecovery
+          ? () => unawaited(TermuxBridge.openAppSettings())
+          : null,
       onOpenInAppSetup: !pending && startFailure != null
           ? () => openPhoneSetupStart(context)
           : null,

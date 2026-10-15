@@ -6,6 +6,7 @@
 // Regenerate deliberately:
 //   flutter test --update-goldens test/goldens/agent_card_golden_test.dart
 // and look at every changed image before committing it.
+import 'package:clock/clock.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -33,6 +34,9 @@ enum _Scene {
   const _Scene(this.name);
   final String name;
 }
+
+/// When the golden was drawn: the rows' Oct 7 activity reads "6d ago".
+final _now = DateTime(2026, 10, 13, 12);
 
 GenUiCard _card(_Scene scene) => switch (scene) {
   _Scene.chatChoice || _Scene.listChoice || _Scene.listMixed => agentCard(
@@ -185,8 +189,11 @@ Future<void> _mount(
       ),
     );
   }
-  await tester.pumpWidget(RepaintBoundary(key: boundary, child: app));
-  await tester.pumpAndSettle();
+  // The list's ages read the clock: pin it so "6d ago" never drifts.
+  await withClock(Clock.fixed(_now), () async {
+    await tester.pumpWidget(RepaintBoundary(key: boundary, child: app));
+    await tester.pumpAndSettle();
+  });
 }
 
 void main() {

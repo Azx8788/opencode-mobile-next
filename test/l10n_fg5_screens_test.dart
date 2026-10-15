@@ -105,10 +105,19 @@ void main() {
       expect(find.text(l10n.chatsNewPrompt), findsOneWidget);
       expect(find.text(l10n.chatStartExplainProject), findsOneWidget);
       // The offline note sits under the draft in the composer.
-      expect(find.text(l10n.kitComposerOffline), findsOneWidget);
+      expect(
+        find.text(l10n.kitComposerWaitsForAgent('OpenCode')),
+        findsOneWidget,
+      );
       expect(find.text(l10n.kitModelChoose), findsOneWidget);
       expect(find.text(english.chatsNewPrompt), findsNothing);
-      expect(find.text(english.kitComposerOffline), findsNothing);
+      if (l10n.kitComposerWaitsForAgent('OpenCode') !=
+          english.kitComposerWaitsForAgent('OpenCode')) {
+        expect(
+          find.text(english.kitComposerWaitsForAgent('OpenCode')),
+          findsNothing,
+        );
+      }
       expect(find.text(english.kitModelChoose), findsNothing);
     });
 
@@ -121,7 +130,10 @@ void main() {
       );
       addTearDown(done);
       expect(tester.takeException(), isNull);
-      expect(find.text(l10n.kitComposerOffline), findsOneWidget);
+      expect(
+        find.text(l10n.kitComposerWaitsForAgent('OpenCode')),
+        findsOneWidget,
+      );
     });
   }
 }

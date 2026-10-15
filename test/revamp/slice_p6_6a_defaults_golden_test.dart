@@ -209,7 +209,7 @@ Future<void> _settingsShot(
       captureApp(
         home: SettingsScreen(
           controller: controller,
-          initialGroup: SettingsGroup.agent,
+          initialGroup: SettingsGroup.ai,
         ),
         boundaryKey: boundary,
         controller: controller,

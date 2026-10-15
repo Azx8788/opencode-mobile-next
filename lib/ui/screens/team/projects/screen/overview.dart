@@ -71,6 +71,15 @@ class TeamProjectOverview extends StatelessWidget {
           p.status == 'interrupted' &&
           TeamExecutionGate.allows(c, TeamExecutionNeed.resume);
       final menu = <KitMenuItem>[
+        // A spec that takes minutes: the header counts them, and this asks
+        // the planner again (Stop project, below, gives up).
+        if (p.status == 'spec' &&
+            teamPlanningMinutes(p, DateTime.now()) >= teamPlanningSlowMinutes)
+          KitMenuItem(
+            key: const ValueKey('team-planning-ask-again'),
+            label: l.teamProjectEditorAskAgain,
+            onSelected: () => _command(c, p, TeamProjectAction.retryPlan),
+          ),
         if (interrupted)
           KitMenuItem(
             label: l.teamProjectResume,
@@ -161,7 +170,12 @@ class TeamProjectOverview extends StatelessWidget {
                     KitAction(
                       key: const ValueKey('team-digest-model'),
                       label: l.teamRefusalModelNotConfiguredAction,
-                      onPressed: () => openTeamDefaults(context, c),
+                      onPressed: () => openTeamDefaults(
+                        context,
+                        c,
+                        focusPlannerModel: true,
+                        retryProjectId: p.id,
+                      ),
                     ),
                   if (interrupted)
                     KitAction(

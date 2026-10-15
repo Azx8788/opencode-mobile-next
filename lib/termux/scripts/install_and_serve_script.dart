@@ -6,7 +6,7 @@ String termuxInstallAndServeScript({
   int port = 4096,
   required String password,
   String? version,
-  TermuxRuntime runtime = TermuxRuntime.openCode1,
+  TermuxRuntime runtime = TermuxRuntime.defaultForNewInstall,
 }) {
   final selectedVersion = version ?? runtime.pinnedVersion;
   if (port < 1024 || port > 65535) {

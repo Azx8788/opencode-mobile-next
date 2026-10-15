@@ -1,6 +1,6 @@
 part of '../product_repository.dart';
 
-mixin _SdkDevOps on _SdkCore {
+mixin _SdkDevOps on _SdkCore implements OneShotCommandGateway {
   @override
   Future<List<FileDiff>> listVcsDiffs(VcsDiffMode mode) => _guard(
     mode == VcsDiffMode.workingTree
@@ -175,7 +175,10 @@ mixin _SdkDevOps on _SdkCore {
           directory: _directory,
           workspace: _workspace,
         );
-        return (response.data ?? const []).map(_terminal).toList();
+        return (response.data ?? const [])
+            .where((item) => item.title != computerUsageTitle)
+            .map(_terminal)
+            .toList();
       });
 
   @override
@@ -240,6 +243,28 @@ mixin _SdkDevOps on _SdkCore {
         }
         return _terminal(process);
       });
+
+  @override
+  Future<TerminalProcess> createCommandTerminal({
+    required String command,
+    required List<String> arguments,
+    String? title,
+  }) => _guard('Could not start the command', () async {
+    final response = await _client.getPtyApi().ptyCreate(
+      directory: _directory,
+      workspace: _workspace,
+      ptyCreateRequest: sdk.PtyCreateRequest(
+        command: command,
+        args: arguments,
+        title: title,
+      ),
+    );
+    final process = response.data;
+    if (process == null) {
+      throw const ProductException('Server returned no terminal');
+    }
+    return _terminal(process);
+  });
 
   @override
   Future<void> renameTerminal(String id, String title) =>

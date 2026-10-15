@@ -313,12 +313,16 @@ void _listQuestionTests() {
     );
     await tester.pump();
     expect(find.byKey(const Key('question-card-answer')), findsOneWidget);
-    // The card names the agent that asks, not "The agent".
+    // The quiet card shows one label and the question; the agent that asks
+    // (not "The agent") stays in what a screen reader hears, and the row
+    // above the card names it on screen.
     final agent = x.row.agentLabel!;
+    final semantics = tester.ensureSemantics();
     expect(
-      find.textContaining(RegExp('Needs your decision.*$agent')),
+      find.bySemanticsLabel(RegExp('Needs your decision.*$agent')),
       findsOneWidget,
     );
+    semantics.dispose();
     await tester.tap(find.byKey(const Key('question-card-answer')));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('question-sheet')), findsOneWidget);

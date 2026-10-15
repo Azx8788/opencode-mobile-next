@@ -807,7 +807,11 @@ void main() {
           requiresAcknowledgement: true,
         ),
       );
-      expect(find.text("Can't reopen old conversations"), findsOneWidget);
+      // The state rides the row's meta line (project, time) now.
+      expect(
+        find.textContaining("Can't reopen old conversations"),
+        findsOneWidget,
+      );
       await tester.tap(_name('Review the diff'));
       await tester.pumpAndSettle();
       expect(find.text('Start a new conversation?'), findsOneWidget);

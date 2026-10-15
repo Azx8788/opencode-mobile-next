@@ -82,7 +82,13 @@ bool _isDefault(Object? v) =>
 List<String> _defaultProbes(Object? value) => switch (value) {
   String s => [s],
   int n => ['$n'],
-  double d => [d.toString(), d.toStringAsFixed(2), d.toStringAsFixed(1)],
+  double d => [
+    d.toString(),
+    d.toStringAsFixed(2),
+    d.toStringAsFixed(1),
+    // Whole amounts read plainly ("61", not "61.0") in the budget fields.
+    if (d == d.roundToDouble()) d.toInt().toString(),
+  ],
   _ => const [],
 };
 

@@ -51,9 +51,9 @@ void main() {
   });
 
   // Provider logos are fetched favicons; tests render the monogram instead.
-  setUpAll(() => ProviderLogo.imageProviderOverride = (_) => null);
+  setUpAll(() => ProviderLogo.logoLoaderOverride = (_) => null);
 
-  tearDownAll(() => ProviderLogo.imageProviderOverride = null);
+  tearDownAll(() => ProviderLogo.logoLoaderOverride = null);
 
   for (final (id, name, host) in const [
     ('anthropic', 'Anthropic', 'console.anthropic.com'),

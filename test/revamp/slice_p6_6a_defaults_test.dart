@@ -274,9 +274,11 @@ void main() {
         find.descendant(of: row, matching: find.text('Claude Sonnet 4')),
         findsOneWidget,
       );
+      // One line: the name. The why lives where the model is changed (the
+      // chat's own default notice), not as a second line on the hub.
       expect(
         find.descendant(of: row, matching: find.text(_en.modelServerDefault)),
-        findsOneWidget,
+        findsNothing,
       );
     });
 

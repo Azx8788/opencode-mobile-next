@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'support/complete_message_history.dart';
 
 import 'dart:convert';
@@ -337,16 +338,29 @@ void main() {
     final activity = File(
       'android/app/src/main/kotlin/io/github/eslamasabry/opencode_mobile/MainActivity.kt',
     ).readAsStringSync();
+    final channel = File(
+      'android/app/src/main/kotlin/io/github/eslamasabry/opencode_mobile/MainActivityBackgroundChannel.kt',
+    ).readAsStringSync();
+    final launches = File(
+      'android/app/src/main/kotlin/io/github/eslamasabry/opencode_mobile/LaunchActivityBridge.kt',
+    ).readAsStringSync();
     final service = File(
       'android/app/src/main/kotlin/io/github/eslamasabry/opencode_mobile/'
       'BackgroundConnectionService.kt',
     ).readAsStringSync();
 
-    expect(activity, contains('"showCodingAlert"'));
-    expect(activity, contains('"dismissCodingAlert"'));
-    expect(activity, contains('"consumeCodingAlertOpen"'));
+    expect(channel, contains('"showCodingAlert"'));
+    expect(channel, contains('"dismissCodingAlert"'));
+    expect(channel, contains('"consumeCodingAlertOpen"'));
     expect(activity, contains('override fun onNewIntent(intent: Intent)'));
-    expect(activity, contains('captureCodingAlertOpen(intent)'));
+    expect(
+      activity,
+      contains(
+        'MainActivityBackgroundChannel(this, background, launches).register(messenger)',
+      ),
+    );
+    expect(activity, contains('launches.onNewIntent(intent)'));
+    expect(launches, contains('captureCodingAlertOpen(intent)'));
     expect(service, contains('NotificationManager.IMPORTANCE_HIGH'));
     expect(service, contains('NotificationManager.IMPORTANCE_DEFAULT'));
     expect(service, contains('setVisibility(Notification.VISIBILITY_PRIVATE)'));
@@ -439,14 +453,26 @@ void main() {
       'android/app/src/main/kotlin/io/github/eslamasabry/'
       'opencode_mobile/MainActivity.kt',
     ).readAsStringSync();
+    final termux = File(
+      'android/app/src/main/kotlin/io/github/eslamasabry/opencode_mobile/TermuxActivityBridge.kt',
+    ).readAsStringSync();
+    final environment = File(
+      'android/app/src/main/kotlin/io/github/eslamasabry/opencode_mobile/TermuxActivityEnvironment.kt',
+    ).readAsStringSync();
     final background = File(
       'android/app/src/main/kotlin/io/github/eslamasabry/'
       'opencode_mobile/BackgroundConnectionService.kt',
     ).readAsStringSync();
     final about = File('lib/ui/screens/about_screen.dart').readAsStringSync();
 
-    expect(activity, contains('getSigningCertificateSha256'));
-    expect(activity, contains('MessageDigest.getInstance("SHA-256")'));
+    expect(activity, contains('termux.handle(call, result)'));
+    expect(
+      termux,
+      contains(
+        '"getSigningCertificateSha256" -> result.success(environment.signingCertificateSha256())',
+      ),
+    );
+    expect(environment, contains('MessageDigest.getInstance("SHA-256")'));
     expect(about, contains('l10n.aboutSigningCertificate'));
     expect(background, contains('setAuthenticationRequired(true)'));
   });
@@ -913,7 +939,7 @@ void main() {
     await tester.tap(target);
     await tester.pump();
     // KitCodeBlock(command) draws the $ prompt outside the command text.
-    final command = find.byKey(const Key('tool-shell-command'));
+    final command = find.byKey(const ValueKey('kit-step-command'));
     expect(command, findsOneWidget);
     expect(
       find.descendant(
@@ -961,6 +987,10 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Bundled components'), findsWidgets);
     expect(find.textContaining('sherpa-onnx'), findsWidgets);
+    // The notices sheet stays on this navigator across the pumpWidget below;
+    // close it so the Privacy screen's rows are the ones under the finger.
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
 
     final controller = await _controller();
     addTearDown(controller.dispose);

@@ -410,9 +410,13 @@ class _TermuxRunningServerEntryState extends State<TermuxRunningServerEntry>
       stopLabel: l10n.phoneServerStop,
       onStart: actions == null ? null : () => unawaited(_start(l10n)),
       onConnect: () => unawaited(_connect()),
+      tapOpensPage: widget.onOpenSaved != null,
+      connectLabel: l10n.settingsV3ConnectTo(l10n.phoneServerTermuxTitle),
       onRestart: actions == null ? null : () => unawaited(_restart(l10n)),
       onStop: actions == null ? null : () => unawaited(_stop(l10n)),
-      onOpen: widget.onManage,
+      onOpen: profile != null && widget.onOpenSaved != null
+          ? () => widget.onOpenSaved!(profile)
+          : widget.onManage,
     );
   }
 
@@ -440,6 +444,7 @@ class _TermuxRunningServerEntryState extends State<TermuxRunningServerEntry>
     final words = _words(l10n, server, problem);
     return LocalServerRow(
       dividerAbove: widget.dividerAbove,
+      tapOpensPage: widget.onOpenSaved != null,
       keyPrefix: 'termux-running-server',
       title: l10n.phoneServerTermuxTitle,
       status: words.line,
@@ -584,6 +589,7 @@ class _TermuxRunningServerEntryState extends State<TermuxRunningServerEntry>
     String state,
   ) => LocalServerRow(
     dividerAbove: widget.dividerAbove,
+    tapOpensPage: widget.onOpenSaved != null,
     keyPrefix: 'termux-running-server',
     title: l10n.phoneServerTermuxTitle,
     status: state,

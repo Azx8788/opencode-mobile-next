@@ -83,11 +83,11 @@ void main() {
 
   setUpAll(() async {
     await loadCaptureFonts();
-    ProviderLogo.imageProviderOverride = (_) => null;
+    ProviderLogo.logoLoaderOverride = (_) => null;
     chatScreenFor = _chatWithReview;
     Directory(shotsDir).createSync(recursive: true);
   });
-  tearDownAll(() => ProviderLogo.imageProviderOverride = null);
+  tearDownAll(() => ProviderLogo.logoLoaderOverride = null);
 
   testWidgets(
     '01 welcome',

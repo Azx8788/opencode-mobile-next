@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 
 import '../api/server_probe.dart' show ServerFlavor;
 import '../diagnostics/perf_trace.dart';
+import '../domain/opencode_history_copy.dart';
 import '../domain/phone_agent_context.dart';
 import '../platform/platform_capabilities.dart';
 import '../termux/bridge.dart' show TermuxBridge, TermuxRuntime;
@@ -406,10 +407,14 @@ class BuiltinLinuxRunResult {
 }
 
 class BuiltinLinuxException implements Exception {
-  const BuiltinLinuxException(this.message, {this.code});
+  const BuiltinLinuxException(this.message, {this.code, this.details});
 
   final String message;
   final String? code;
+
+  /// The phone's own description of the failure, when it sent one: kept for
+  /// Details, never shown as the message.
+  final String? details;
 
   @override
   String toString() => message;
@@ -721,11 +726,12 @@ class BuiltinLinux {
     };
     try {
       await _invoke<void>('startServer', arguments);
-    } on BuiltinLinuxException {
+    } on BuiltinLinuxException catch (error) {
       if (restoreRecipe == null) rethrow;
-      throw const BuiltinLinuxException(
+      throw BuiltinLinuxException(
         'The phone server could not start. Open setup and try again.',
         code: 'server_start_unavailable',
+        details: error.details,
       );
     }
   }
@@ -1216,11 +1222,13 @@ class BuiltinLinux {
     try {
       return await _channel.invokeMethod<T>(method, arguments);
     } on PlatformException catch (error) {
+      final details = error.details;
       throw BuiltinLinuxException(
         error.message?.trim().isNotEmpty == true
             ? error.message!
             : 'The built-in Linux failed (${error.code}).',
         code: error.code,
+        details: details is String ? details : null,
       );
     } on MissingPluginException {
       throw const BuiltinLinuxException(
@@ -1238,6 +1246,15 @@ class BuiltinLinux {
       ? TermuxRuntime.openCode2
       : TermuxRuntime.openCode1;
 
+  /// The runtime for a profile whose generation is known, or null when it is
+  /// not (so callers can refuse instead of guessing one).
+  static TermuxRuntime? knownRuntimeFor(ServerFlavor flavor) =>
+      switch (flavor) {
+        ServerFlavor.v1 => TermuxRuntime.openCode1,
+        ServerFlavor.v2 => TermuxRuntime.openCode2,
+        ServerFlavor.unknown => null,
+      };
+
   static final _versionPattern = RegExp(r'^[A-Za-z0-9._+-]+$');
 
   /// Installs OpenCode inside Ubuntu with the very script the Termux manager
@@ -1249,7 +1266,7 @@ class BuiltinLinux {
   /// fetches the catalog itself later, and a flaky network at this moment
   /// should not throw away a finished install.
   static String installOpenCodeScript({
-    TermuxRuntime runtime = TermuxRuntime.openCode1,
+    TermuxRuntime runtime = TermuxRuntime.defaultForNewInstall,
     String? version,
   }) {
     final selected = version ?? runtime.pinnedVersion;
@@ -1359,7 +1376,46 @@ fi
         'if [ -d "\$dir" ]; then printf \'exists %s\\n\' "\$dir"; exit 0; fi\n'
         'mkdir -p "\$dir"\n'
         'git init -q "\$dir"\n'
+        // A new project starts with one empty commit, so a team (which needs
+        // a commit to branch from) works at once. Best effort: the folder
+        // exists either way and "Make the first commit" still covers it.
+        'name=\$(git config user.name || echo "AI Team")\n'
+        'email=\$(git config user.email || echo "aiteam@localhost")\n'
+        '(cd "\$dir" && git -c user.name="\$name" -c user.email="\$email" '
+        'commit -q --allow-empty -m "First commit") || true\n'
         'printf \'created %s\\n\' "\$dir"\n';
+  }
+
+  /// Says whether [path] is a git folder without a commit: prints `empty`,
+  /// `ready` (it has one) or `notgit`.
+  static String repoStateScript(String path) {
+    if (!path.startsWith('/') || path.contains('\n') || path.contains('\x00')) {
+      throw ArgumentError.value(path, 'path', 'Must be an absolute path.');
+    }
+    return 'dir=${_quote(path)}\n'
+        'cd "\$dir" 2>/dev/null || { echo notgit; exit 0; }\n'
+        'git rev-parse --git-dir >/dev/null 2>&1 || { echo notgit; exit 0; }\n'
+        'if git rev-parse --verify -q HEAD >/dev/null 2>&1; then '
+        'echo ready; else echo empty; fi\n';
+  }
+
+  /// Gives a git folder with no commits its first one: an empty commit, so
+  /// no file is touched or staged. Prints `exists` when it already has a
+  /// commit (nothing is made) and `committed` when it made one.
+  static String firstCommitScript(String path) {
+    if (!path.startsWith('/') || path.contains('\n') || path.contains('\x00')) {
+      throw ArgumentError.value(path, 'path', 'Must be an absolute path.');
+    }
+    return 'set -eu\n'
+        'dir=${_quote(path)}\n'
+        'cd "\$dir"\n'
+        'if git rev-parse --verify -q HEAD >/dev/null 2>&1; then '
+        'echo exists; exit 0; fi\n'
+        'name=\$(git config user.name || echo "AI Team")\n'
+        'email=\$(git config user.email || echo "aiteam@localhost")\n'
+        'git -c user.name="\$name" -c user.email="\$email" '
+        'commit -q --allow-empty -m "First commit"\n'
+        'echo committed\n';
   }
 
   /// Saves the server password inside Ubuntu, readable by its root only.
@@ -1382,7 +1438,7 @@ fi
   /// OpenCode 2 gets the Termux runner's isolated XDG folders, so its data and
   /// config never mix with OpenCode 1 installed in the same Ubuntu.
   static String serverScript({
-    TermuxRuntime runtime = TermuxRuntime.openCode1,
+    TermuxRuntime runtime = TermuxRuntime.defaultForNewInstall,
     int port = serverPort,
   }) {
     if (port < 1024 || port > 65535) {
@@ -1404,6 +1460,8 @@ fi
               'export XDG_CONFIG_HOME=/root/.oc-opencode2/config\n'
               'export OPENCODE_CONFIG_DIR=/root/.oc-opencode2/config/opencode\n'
               'export OPENCODE_DB=/root/.oc-opencode2/data/opencode/opencode.db\n'
+              // OpenCode 1 chats come along before the first start.
+              '(\n$openCode1HistoryCopyScript) || exit 74\n'
         : '';
     return 'set -eu\n'
         'mkdir -p $projectsDir\n'

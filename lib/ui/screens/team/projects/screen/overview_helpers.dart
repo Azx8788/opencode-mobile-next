@@ -23,14 +23,21 @@ Widget _needsYou(
         l.teamProjectRequestWhere(role, server.name),
     ].join(' · '),
     state: KitTeamState.needsYou,
-    summary: t != null && after > 0
+    summary: r.kind == 'interrupted'
+        ? l.teamProjectInterruptedResumeNote
+        : t != null && after > 0
         ? l.teamProjectRequestBlocks(role, after)
         : null,
     actions: [
-      KitAction(
-        label: _requestLabel(l, r),
-        onPressed: () => _answer(context, c, p, r),
-      ),
+      if (r.kind != 'interrupted' ||
+          TeamExecutionGate.allows(c, TeamExecutionNeed.resume))
+        KitAction(
+          key: r.kind == 'interrupted'
+              ? const ValueKey('team-interrupted-resume')
+              : null,
+          label: _requestLabel(l, r),
+          onPressed: () => _answer(context, c, p, r),
+        ),
     ],
   );
 }
@@ -66,6 +73,7 @@ String _todayCost(AppLocalizations l, TeamProject p) {
 }
 
 String _headline(AppLocalizations l, TeamProject p) {
+  if (p.status == 'spec') return teamPlanningWords(l, p, DateTime.now());
   if (p.status != 'running') return _word(l, p.status);
   final ms = p.specDraft.milestones;
   if (ms.isEmpty) return _progress(l, p);
@@ -83,8 +91,13 @@ String _goalStatus(BuildContext context, AppLocalizations l, TeamProject p) {
   final spec = p.specDraft;
   final approved = p.specVersions.lastOrNull;
   final at = DateTime.tryParse(approved?.approvedAt ?? '');
+  // The spec editor drafts one milestone from the goal the first time it
+  // opens, so the header counts that draft too.
+  final drafted = spec.milestones.isEmpty && spec.goal.trim().isNotEmpty
+      ? 1
+      : spec.milestones.length;
   return at == null
-      ? l.teamProjectGoalStatusDraft(spec.milestones.length, p.repos.length)
+      ? l.teamProjectGoalStatusDraft(drafted, p.repos.length)
       : l.teamProjectGoalStatus(
           _age(context, approved!.approvedAt),
           spec.milestones.length,
@@ -297,6 +310,9 @@ Future<void> _answer(
       final task = p.tasks.where((t) => t.phaseId == r.phaseId).firstOrNull;
       if (task != null) _openTask(context, c, p.id, task.id);
       return;
+    case 'interrupted':
+      await _command(c, p, TeamProjectAction.resumeTask, targetId: r.taskId);
+      return;
     case 'question':
     case 'permission':
       break;
@@ -330,6 +346,7 @@ String _requestLabel(AppLocalizations l, TeamRequest r) => switch (r.kind) {
   'plan' || 'planFormat' => l.teamProjectPlan,
   'budget' => l.teamProjectSettings,
   'milestone' => l.teamProjectAccept,
+  'interrupted' => l.teamProjectInterruptedResume,
   'question' || 'permission' => l.teamProjectAnswer,
   _ => l.teamProjectReview,
 };
@@ -372,7 +389,12 @@ List<Widget> _planFailed(
           KitAction(
             key: const ValueKey('team-plan-failed-model'),
             label: l.teamRefusalModelNotConfiguredAction,
-            onPressed: () => openTeamDefaults(context, c),
+            onPressed: () => openTeamDefaults(
+              context,
+              c,
+              focusPlannerModel: true,
+              retryProjectId: p.id,
+            ),
           ),
         if (canRetry && !resumable)
           KitAction(
@@ -421,11 +443,7 @@ int _urgency(TeamProject p) => p.requests.any((r) => !r.answered)
     : p.status == 'done'
     ? 3
     : 2;
-String _progress(AppLocalizations l, TeamProject p) => l.teamProjectProgress(
-  p.tasks.where((t) => t.status == 'merged' || t.status == 'done').length,
-  p.tasks.length,
-  p.tasks.where((t) => t.status == 'running').length,
-);
+String _progress(AppLocalizations l, TeamProject p) => teamProgressWords(l, p);
 KitTeamState _state(String value) => switch (value) {
   'running' => KitTeamState.running,
   'failed' || 'planFailed' || 'conflict' => KitTeamState.failed,

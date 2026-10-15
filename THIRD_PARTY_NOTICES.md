@@ -257,6 +257,7 @@ lives in `packages/opencode_sdk/`, and is covered by this project's
 | `convert` | 3.1.2 | BSD-3-Clause | Copyright 2015, the Dart project authors | runtime |
 | `cross_file` | 0.3.5+5 | BSD-3-Clause | Copyright 2013 The Flutter Authors | runtime |
 | `crypto` | 3.0.7 | BSD-3-Clause | Copyright 2015, the Dart project authors | runtime |
+| `cryptography` | 2.9.0 | Apache-2.0 | — | runtime |
 | `cupertino_icons` | 1.0.9 | MIT | Copyright (c) 2016 Vladimir Kharlampidi | runtime |
 | `dbus` | 0.7.15 | MPL-2.0 | — | runtime |
 | `desktop_drop` | 0.8.4 | Apache-2.0 | — | runtime |
@@ -311,6 +312,11 @@ lives in `packages/opencode_sdk/`, and is covered by this project's
 | `leak_tracker_testing` | 3.0.2 | BSD-3-Clause | Copyright 2022, the Dart project authors | test-only |
 | `lints` | 6.1.0 | BSD-3-Clause | Copyright 2021, the Dart project authors | test-only |
 | `listen` | 1.0.1 | BSD-3-Clause | Copyright 2013 The Flutter Authors | runtime |
+| `local_auth` | 3.0.2 | BSD-3-Clause | Copyright 2013 The Flutter Authors | runtime |
+| `local_auth_android` | 2.2.0 | BSD-3-Clause | Copyright 2013 The Flutter Authors | runtime |
+| `local_auth_darwin` | 2.0.4 | BSD-3-Clause | Copyright 2013 The Flutter Authors | runtime |
+| `local_auth_platform_interface` | 1.1.0 | BSD-3-Clause | Copyright 2013 The Flutter Authors | runtime |
+| `local_auth_windows` | 2.0.2 | BSD-3-Clause | Copyright 2013 The Flutter Authors | runtime |
 | `logging` | 1.3.0 | BSD-3-Clause | Copyright 2013, the Dart project authors | runtime |
 | `matcher` | 0.12.20 | BSD-3-Clause | Copyright 2014, the Dart project authors | runtime |
 | `material_color_utilities` | 0.13.0 | Apache-2.0 | — | runtime |

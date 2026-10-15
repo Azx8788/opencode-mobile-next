@@ -203,6 +203,13 @@ mixin _ConnectionControllerChatFeed on ChangeNotifier {
     return null;
   }
 
+  static bool _feedIsProjectRoot(WorkspaceProject project, String directory) {
+    final target = ConnectionController.normalizeDirectoryPath(directory);
+    return [project.directory, ...project.worktrees].any(
+      (root) => ConnectionController.normalizeDirectoryPath(root) == target,
+    );
+  }
+
   static String _feedFolderName(String directory) {
     final parts = directory.split(RegExp(r'[\\/]')).where((p) => p.isNotEmpty);
     return parts.isEmpty ? directory : parts.last;
@@ -211,8 +218,18 @@ mixin _ConnectionControllerChatFeed on ChangeNotifier {
   String _feedProjectName(String directory, String? serverName) {
     final named = serverName?.trim();
     if (named != null && named.isNotEmpty) return named;
-    final project = _feedProjectFor(directory)?.name.trim();
-    if (project != null && project.isNotEmpty) return project;
+    // A project's name labels a chat only when the chat sits at that
+    // project's root or one of its worktrees. OpenCode 2 makes a project of
+    // the folder its server was started in (`/root/projects`), and every
+    // migrated chat below it would otherwise read "projects".
+    final project = _feedProjectFor(directory);
+    final name = project?.name.trim();
+    if (project != null &&
+        name != null &&
+        name.isNotEmpty &&
+        _feedIsProjectRoot(project, directory)) {
+      return name;
+    }
     return _feedFolderName(directory);
   }
 

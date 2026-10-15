@@ -25,6 +25,16 @@ extension _IntegrationsPage on _IntegrationsScreenState {
                 IntegrationsMode.mcp => l10n.integrationsMcpTitle,
                 IntegrationsMode.all => l10n.e7LibraryMCPAndIntegrations,
               },
+              // Providers belong to one server: with several saved, say which.
+              subtitle:
+                  widget.mode == IntegrationsMode.providers &&
+                      widget.controller.store.profiles.length > 1
+                  ? serverDisplayName(
+                      widget.controller.profile,
+                      l10n,
+                      among: widget.controller.store.profiles,
+                    )
+                  : null,
               actions: [
                 if (_showMcp && _catalogAvailable)
                   KitAction(

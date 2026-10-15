@@ -1,5 +1,12 @@
 import 'dart:async';
+import 'dart:math' show Random;
+import '../background/widget_v2_contract.dart';
+import '../background/widget_action_runner.dart'
+    show widgetProfileFingerprint, widgetRunMarker;
+import '../domain/team_project_gateway.dart';
+import '../ui/theme_packs.dart' show effectiveThemePack;
 import '../builtin/agents/gen_ui_search_publish.dart';
+import '../api/server_answer.dart';
 import '../domain/product_failure.dart';
 import '../domain/mcp_connector_search.dart';
 import 'mcp_connector_search_bridge.dart';
@@ -11,7 +18,7 @@ import 'mcp_chat_controller.dart';
 import '../builtin/agents/gen_ui_install.dart';
 import 'gen_ui_state.dart';
 import 'dart:convert';
-import 'dart:ui' show Locale, PlatformDispatcher;
+import 'dart:ui' show Brightness, Locale, PlatformDispatcher;
 import 'package:clock/clock.dart';
 import 'package:crypto/crypto.dart' as receipt_crypto;
 import '../domain/command_receipts.dart';
@@ -19,13 +26,17 @@ import '../api/command_receipt_transport.dart';
 import 'pending_command_journal.dart';
 
 import 'app_locale.dart';
+import '../domain/settings_scope.dart';
 import 'automation_policy.dart';
 import 'builtin_server_owner.dart';
 import 'session_link_bindings.dart';
+import 'agent_handoff_links.dart';
 import 'shared_project_roots.dart';
 import 'consent_owners.dart';
 
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart' show DateFormat;
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:opencode_sdk/opencode_sdk.dart' as sdk;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -56,12 +67,29 @@ import '../quota/provider_quota_client.dart';
 import '../api/sse.dart';
 import '../api2/client.dart';
 import '../api2/gateway.dart';
+import '../api2/gateway_mappers.dart' show api2ServerCapabilities;
 import '../api2/gateway_operations.dart';
 import '../api2/transport.dart' show Api2AuthRequired;
 import '../background/attention_tile_snapshot.dart';
 import '../background/live_background.dart';
+import '../background/notification_status.dart';
+import '../background/notification_text.dart';
+import '../background/thermal_pause_signal.dart';
+import '../api/provider_presentation.dart';
+import '../domain/mobile_tool_view.dart';
 import '../background/team_alerts.dart';
 import '../background/pinned_session_shortcuts.dart';
+import '../background/usage_widget_snapshot.dart';
+import '../domain/provider_usage.dart';
+import '../paseo/provider_usage_gateway.dart';
+import 'paseo_usage_monitor.dart';
+import 'usage_subscriptions_controller.dart';
+import 'usage_subscription_sources.dart';
+import 'computer_usage_source.dart';
+import 'usage_subscription_alerts.dart';
+import '../domain/usage_subscriptions.dart';
+import '../domain/agent_account.dart' show AgentAccountGateway;
+import '../builtin/builtin_server.dart' show looksLikeInAppServer;
 import '../background/widget_snapshot.dart';
 import '../l10n/app_localizations.dart';
 import '../platform/platform_capabilities.dart';
@@ -69,8 +97,9 @@ import '../diagnostics/app_diagnostics.dart';
 import '../diagnostics/perf_trace.dart';
 import '../termux/bridge.dart';
 // A plain value type (no widgets): the person's effect choices.
-import 'effects.dart' show KitEffects;
+import 'effects.dart' show KitEffects, KitTextSize;
 import '../builtin/builtin_linux.dart';
+import '../builtin/quota_collector_host.dart';
 import '../builtin/builtin_server.dart' show startBuiltinServer;
 import 'delayed_answers.dart';
 import '../builtin/builtin_server_recovery.dart';
@@ -136,6 +165,7 @@ part 'connection/feed_forms.dart';
 part 'connection/monitors.dart';
 part 'connection/attention.dart';
 part 'connection/surfaces.dart';
+part 'connection/widgets.dart';
 part 'connection/settings.dart';
 part 'connection/connect.dart';
 part 'connection/lifecycle.dart';
@@ -174,6 +204,8 @@ part 'connection/phone_agents_check.dart';
 part 'connection/phone_agents_cache.dart';
 part 'connection/phone_agents_backend.dart';
 part 'connection/phone_agents_idle.dart';
+part 'connection/phone_agents_saved.dart';
+part 'connection/agent_handoff.dart';
 part 'connection/phone_agents_startup.dart';
 part 'connection/phone_agents_routes.dart';
 part 'connection/side_connections.dart';
@@ -431,9 +463,6 @@ class ConnectionController extends ChangeNotifier
   late final _sessionReadStore = SessionReadStore(store.prefs);
   late final _returnBriefStore = ReturnBriefStore(store.prefs);
 
-  late bool _shareSessionViews =
-      store.prefs.getBool('oc.shareSessionViews') ?? true;
-
   late final PendingAuthStore _pendingAuth = PendingAuthStore(store.prefs);
 
   late final _sessionPins = SessionPinStore(store.prefs);
@@ -593,23 +622,29 @@ class ConnectionController extends ChangeNotifier
        _ownsDiagnostics = diagnostics == null {
     _genUiInstaller = genUiInstaller;
     _genUiSearchPublisher = genUiSearchPublisher;
-    _localeStore = AppLocaleStore(store.prefs);
-    appLocale = ValueNotifier(_localeStore.value);
+    appLocale = ValueNotifier(store.appPreferences.value.locale);
     appearance = ValueNotifier(store.appearance);
     themePack = ValueNotifier(store.themePack);
     effects = ValueNotifier(store.effects);
+    textSize = ValueNotifier(store.textSize);
     transcriptReasoningExpanded = store.transcriptReasoningExpanded;
     transcriptTimestampsVisible = store.transcriptTimestampsVisible;
+    store.appPreferences.addListener(_appPreferencesChanged);
     this.backgroundLive.addListener(_backgroundLiveChanged);
+    thermalPauseActive.addListener(_publishLiveStatus);
     _profilesShown = _profilesSignature();
     store.changes.addListener(_profilesSaved);
     addListener(_mcpChatChanged);
     addListener(_connectorSearchSync);
     if (_ownsProfileServices) {
       this.backgroundLive.bindActionHandler(_handleCodingAlertAction);
+      this.backgroundLive.bindStatusActionHandler(_handleStatusAction);
+      this.backgroundLive.bindWidgetActionHandler(_handleWidgetAction);
       _syncProfileServices();
       profileMonitor.start();
       quotaMonitor.start();
+      paseoUsageMonitor.start();
+      if (_hasUsageReaders) usageSubscriptions.start();
       _paWarmUp();
     }
   }
@@ -632,10 +667,13 @@ class ConnectionController extends ChangeNotifier
     if (_status != value && value != StreamStatus.connected) {
       _attentionTransportRevision++;
     }
+    final changed = _status != value;
     _status = value;
     if (value != StreamStatus.connected) {
       _invalidatePhoneChatStatus();
     }
+    // Reconnecting changes what the status notification says.
+    if (changed) _publishLiveStatus();
     _syncConnectionStatusClock();
     _syncPhoneChatHeartbeat();
   }
@@ -662,7 +700,16 @@ class ConnectionController extends ChangeNotifier
   }
 
   void _backgroundLiveChanged() {
+    _widgetSnapshot.invalidateNativeCopy();
+    _usageSubscriptions?.setRuntime(
+      foreground: !_lifecycleWasBackgrounded,
+      backgroundAllowed: keepLiveInBackground && backgroundLive.active,
+    );
     _quotaMonitor?.setRuntime(
+      foreground: !_lifecycleWasBackgrounded,
+      backgroundAllowed: keepLiveInBackground && backgroundLive.active,
+    );
+    _paseoUsageMonitor?.setRuntime(
       foreground: !_lifecycleWasBackgrounded,
       backgroundAllowed: keepLiveInBackground && backgroundLive.active,
     );
@@ -764,9 +811,21 @@ class ConnectionController extends ChangeNotifier
       final write = _widgetSnapshot.update(
         sessions: sessions,
         busySessions: busySessions,
-        connected: status == StreamStatus.connected,
+        connected:
+            status == StreamStatus.connected &&
+            (!_lifecycleWasBackgrounded ||
+                keepLiveInBackground && backgroundLive.active),
         profileID: _connectedProfile?.id ?? store.activeId ?? '',
-        untitledLabel: _shellStrings().launchUiPinnedUntitled,
+        l10n: _shellStrings(),
+        scopeToken: _currentWidgetScope,
+        lastProjectID: _widgetProjectID,
+        pendingCount: awaitingPermissionCount + questions.length + forms.length,
+        details: _widgetSessionDetails(),
+        teamRows: _widgetTeamRows(),
+        actionResult: _widgetActionResult,
+        appTheme: _widgetAppTheme,
+        onDemand: _widgetOnDemand,
+        preserveForOnDemand: _lifecycleSuspended,
       );
       _pendingWidgetSnapshotWrite = write;
       unawaited(write);
@@ -854,6 +913,7 @@ class ConnectionController extends ChangeNotifier
     _connectorSearchDispose();
     _genUiDispose();
     _resetConnectionStatusClock();
+    _syncLocalLiveness(null);
     _resetQuietReconnect();
     _feedDispose();
     _paShutdown();
@@ -863,6 +923,7 @@ class ConnectionController extends ChangeNotifier
     _savedPrompts?.dispose();
     _savedPrompts = null;
     store.changes.removeListener(_profilesSaved);
+    store.appPreferences.removeListener(_appPreferencesChanged);
     _profileDataChanges.notifyListeners();
     _profileDataChanges.dispose();
     _dismissAllCodingAlerts(clearActive: true);
@@ -883,10 +944,14 @@ class ConnectionController extends ChangeNotifier
     _profileMonitor?.dispose();
     _quotaMonitor?.removeListener(_quotaMonitorChanged);
     _quotaMonitor?.dispose();
+    _paseoUsageMonitor?.removeListener(_quotaMonitorChanged);
+    _paseoUsageMonitor?.dispose();
+    _usageSubscriptions?.dispose();
     if (_ownsProfileServices) {
       ManagedServerRecovery.disposeForPreferences(store.prefs);
     }
     backgroundLive.removeListener(_backgroundLiveChanged);
+    thermalPauseActive.removeListener(_publishLiveStatus);
     // A secondary backend borrows the main connection's.
     if (!_isSecondary) backgroundLive.dispose();
     if (_ownsDiagnostics) diagnostics.dispose();
@@ -894,6 +959,7 @@ class ConnectionController extends ChangeNotifier
     appearance.dispose();
     themePack.dispose();
     effects.dispose();
+    textSize.dispose();
     unawaited(_eventBus.close());
     super.dispose();
   }

@@ -195,4 +195,94 @@ void _turnStallControllerTests() {
       c.dispose();
     },
   );
+
+  testWidgets(
+    'a running command is activity: no stall until it ends, then 45 s again',
+    (tester) async {
+      final w = await _world(tester);
+      final c = w.controller;
+      var elapsed = Duration.zero;
+      var probes = 0;
+      c.configureTurnStallForTesting(
+        elapsed: () => elapsed,
+        probe: () async {
+          probes++;
+          return const TurnStallEvidence(
+            transportConnected: true,
+            endpointReachable: true,
+          );
+        },
+      );
+      void tool(String status) => c.handleEventForTesting(
+        EventEnvelope(
+          type: 'message.part.updated',
+          properties: {
+            'sessionID': 'long',
+            'part': {
+              'id': 'prt_1',
+              'type': 'tool',
+              'sessionID': 'long',
+              'tool': 'bash',
+              'state': {'status': status},
+            },
+          },
+        ),
+      );
+      c.noteLocalTurn('long');
+      tool('running');
+      elapsed = const Duration(minutes: 3);
+      await tester.pump(const Duration(minutes: 3));
+      await tester.pump();
+      expect(probes, 0);
+      expect(c.turnStallFor('long'), isNull);
+      tool('completed');
+      elapsed = const Duration(minutes: 3, seconds: 44);
+      await tester.pump(const Duration(seconds: 44));
+      expect(probes, 0);
+      elapsed = const Duration(minutes: 3, seconds: 50);
+      await tester.pump(const Duration(seconds: 6));
+      await tester.pump();
+      expect(c.turnStallFor('long')?.kind, TurnStallKind.modelSlow);
+      c.dispose();
+    },
+  );
+
+  testWidgets(
+    'an alive but silent phone server is busy: quiet at first, one neutral line after a long command',
+    (tester) async {
+      final w = await _world(tester);
+      final c = w.controller;
+      c
+        ..localServerAliveProbe = (() async => true)
+        ..localBusyLongAfter = Duration.zero;
+      c.status = StreamStatus.disconnected;
+      await tester.pump();
+      await tester.pump();
+      expect(c.localServerBusy, isTrue);
+      expect(c.defersTurnInterruption, isTrue);
+      expect(c.connectionStatus.visible, isFalse);
+      c.handleEventForTesting(
+        EventEnvelope(
+          type: 'message.part.updated',
+          properties: {
+            'sessionID': 's',
+            'part': {
+              'id': 'p',
+              'type': 'tool',
+              'sessionID': 's',
+              'state': {'status': 'running'},
+            },
+          },
+        ),
+      );
+      await tester.pump(const Duration(seconds: 10));
+      expect(c.connectionStatus.phase, ConnectionStatusPhase.serverBusy);
+      expect(c.connectionStatus.visible, isTrue);
+      c.localServerAliveProbe = () async => false;
+      await tester.pump(const Duration(seconds: 10));
+      expect(c.localServerBusy, isFalse);
+      expect(c.connectionStatus.phase, isNot(ConnectionStatusPhase.serverBusy));
+      c.dispose();
+    },
+  );
 }

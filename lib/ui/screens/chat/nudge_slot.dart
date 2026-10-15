@@ -143,6 +143,9 @@ extension _ChatNudges on _ChatScreenState {
   }
 
   Widget _nudgeSlot(BuildContext context) {
+    // One card at a time: while the notification question is on screen the
+    // model notice waits (it stays claimed and shows once that is answered).
+    if (_notifyOfferStatus(context) != null) return const SizedBox.shrink();
     // The model the app picked is said first, once; a tip waits for it.
     if (_modelDefaultNotice(context) case final notice?) return notice;
     final active = _nudgeWatcher == null

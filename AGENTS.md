@@ -34,6 +34,9 @@ flutter test --concurrency=1    # serial in the phone-hosted container; a workst
   `opencode serve --port 4123 &` then
   `dart run tool/smoke_test.dart http://127.0.0.1:4123 /server/project`;
   `tool/prompt_test.dart` additionally needs model auth.
+- Release APK off this PC: `tool/qa/vps_build_apk.sh <build-number>` builds on the
+  build server with a throwaway key, then re-signs here with the real key and fails
+  unless the signer is the local release key (output in `build/vps-apk/`).
 - Android compile check: `flutter build apk --release`. Debug APKs **do not
   work** against the Shorebird-pinned engine (release engine jars only).
   Without `android/key.properties` the build fails at `validateSigningRelease` —
@@ -115,6 +118,12 @@ flutter test --concurrency=1    # serial in the phone-hosted container; a workst
   checkout; shared-library single ownership applies within each worktree. The
   coordinator reviews the whole branch, resolves conflicts and merges after
   validation.
+- A new or changed screen in `lib/ui/` needs its catalog use-case in
+  `widgetbook/` (the real screen with fake data, in its main states): see
+  `widgetbook/README.md`. `dart run tool/coverage_check.dart` inside
+  `widgetbook/` fails on a new uncatalogued screen; its baseline only shrinks.
+  Every use-case is also checked against the screen standard
+  (`docs/ux-system/screen-standard.md`) by `widgetbook/test/standard_check_test.dart`.
 - CI budget is limited: every commit carries `[skip ci]`, checks run locally,
   and pushes, PRs, CI runs, signing and releases each need a fresh explicit
   request. Serialize machine-heavy Flutter/native checks across worktrees.

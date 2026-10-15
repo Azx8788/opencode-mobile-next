@@ -8,8 +8,7 @@ private const val PHONE_ID = 4097
 
 fun main(args: Array<String>) {
     when (args.single()) {
-        "phone-fallback" -> phoneFallback()
-        "supplied-title" -> suppliedTitle()
+        "status-row-owns-phone" -> statusRowOwnsPhone()
         "channel-policy" -> channelPolicy()
         "empty-surfaces" -> emptySurfaces()
         else -> error("unknown scenario")
@@ -28,45 +27,24 @@ private fun phone(context: Context, title: String = "OpenCode is running on this
     return notification
 }
 
-private fun phoneFallback() {
+/**
+ * The phone's row is the one shared status notification now: the background
+ * service rebuilds it in the new language (BackgroundConnectionService
+ * .refreshLocale). The locale refresh only asks for that and no longer
+ * rewrites or re-posts the row itself.
+ */
+private fun statusRowOwnsPhone() {
     val context = Context()
     val original = phone(context)
-    val stopToken = original.actions!!.single().intentToken
     context.preferences.choice = "ar"
     NativeNotificationLocale.refresh(context)
-    val arabic = context.notifications.posted.getValue(PHONE_ID)
-    check(arabic.extras.getCharSequence(Notification.EXTRA_TITLE) == "OpenCode يعمل على هذا الهاتف")
-    check(arabic.extras.getCharSequence(Notification.EXTRA_TEXT) == "يواصل وكيلك العمل بينما تستخدم تطبيقات أخرى.")
-    check(arabic.actions!!.single().title == "إيقاف")
-    check(arabic.actions!!.single().intentToken === stopToken)
-    check(arabic.extras.getCharSequence("route") == "unchanged route")
-    check(arabic.ongoing && arabic.channelId == original.channelId && arabic.visibility == original.visibility)
-
-    context.preferences.choice = "en"
-    NativeNotificationLocale.refresh(context)
-    val english = context.notifications.posted.getValue(PHONE_ID)
-    check(english.extras.getCharSequence(Notification.EXTRA_TITLE) == "OpenCode is running on this phone")
-    check(english.extras.getCharSequence(Notification.EXTRA_TEXT) == "Your agent keeps working while you use other apps.")
-    check(english.actions!!.single().title == "Stop")
-    check(english.actions!!.single().intentToken === stopToken)
-    check(BackgroundConnectionService.refreshPayloads == listOf("unchanged session counts", "unchanged session counts"))
-    check(SessionsWidgetProvider.refreshes == 2)
+    check(context.notifications.posted.getValue(PHONE_ID) === original)
+    check(original.extras.getCharSequence(Notification.EXTRA_TITLE) == "OpenCode is running on this phone")
+    check(original.actions!!.single().title == "Stop")
+    check(context.notifications.updates.isEmpty())
+    check(BackgroundConnectionService.refreshPayloads == listOf("unchanged session counts"))
+    check(SessionsWidgetProvider.refreshes == 1)
     check(context.serviceStarts == 0)
-}
-
-private fun suppliedTitle() {
-    val context = Context()
-    val original = phone(context, "Authored server task")
-    val unrelated = Notification.Action("Authored task action", Any())
-    original.actions = original.actions!! + unrelated
-    context.preferences.choice = "ar"
-    NativeNotificationLocale.refresh(context)
-    val refreshed = context.notifications.posted.getValue(PHONE_ID)
-    check(refreshed.extras.getCharSequence(Notification.EXTRA_TITLE) == "Authored server task")
-    check(refreshed.extras.getCharSequence(Notification.EXTRA_TEXT) == "يواصل وكيلك العمل بينما تستخدم تطبيقات أخرى.")
-    check(refreshed.actions!![0].title == "إيقاف")
-    check(refreshed.actions!![1].title == unrelated.title)
-    check(refreshed.actions!![1].intentToken === unrelated.intentToken)
 }
 
 private fun channelPolicy() {

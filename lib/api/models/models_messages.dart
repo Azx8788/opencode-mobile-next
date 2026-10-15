@@ -451,6 +451,10 @@ class ToolState {
     this.executed = true,
   });
 
+  /// Still being prepared or run by the server; a command in this state can
+  /// not be run again yet.
+  bool get inFlight => status == 'pending' || status == 'running';
+
   /// Wall-clock run time; null until both timestamps are known.
   Duration? get duration {
     final start = startedAt;

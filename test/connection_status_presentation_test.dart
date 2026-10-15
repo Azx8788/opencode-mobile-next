@@ -60,6 +60,40 @@ void main() {
     return value;
   }
 
+  testWidgets(
+    'unknown ownership banner offers settings without retry or restart',
+    (tester) async {
+      final c = await controller();
+      c.show(ConnectionStatusPhase.notAnswering);
+      var recovered = 0;
+      var restarted = 0;
+      KitStatus? status;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) {
+              status = connectionKitStatus(
+                context,
+                c,
+                serverOnThisPhone: true,
+                onRestartServer: () async => restarted++,
+                onRecoverOwnership: () => recovered++,
+              );
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+      expect(status?.message, contains('Force stop'));
+      expect(status?.action?.label, 'Open app settings');
+      expect(status?.more, isEmpty);
+      status?.action?.onPressed?.call();
+      expect(recovered, 1);
+      expect(restarted, 0);
+      expect(c.retries, 0);
+    },
+  );
+
   testWidgets('Details retains BD13 unexpected helper exit after recovery', (
     tester,
   ) async {
@@ -157,11 +191,11 @@ void main() {
         ),
       );
       await _settle(tester);
-      expect(find.text('Reconnecting to Laptop…'), findsOneWidget);
+      expect(find.text('Reconnecting…'), findsOneWidget);
       expect(find.byType(KitStatusLine), findsOneWidget);
       // The view owns no clock: elapsed time alone cannot change the snapshot.
       await tester.pump(const Duration(seconds: 9));
-      expect(find.text('Reconnecting to Laptop…'), findsOneWidget);
+      expect(find.text('Reconnecting…'), findsOneWidget);
       c.show(ConnectionStatusPhase.notAnswering);
       await _settle(tester);
       expect(find.text("Laptop isn't answering"), findsOneWidget);
@@ -188,6 +222,44 @@ void main() {
       expect(find.text('Update ready'), findsNothing);
       await tester.tap(find.text('Stop node'));
       expect(localAction, 1);
+      await tester.pumpWidget(const SizedBox());
+    },
+  );
+
+  testWidgets(
+    'connecting says it once, with no Reconnect action; busy is a quiet line',
+    (tester) async {
+      final c = await controller();
+      Future<void> pump() async {
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: AppTheme.dark(),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: ListenableBuilder(
+              listenable: c,
+              builder: (context, _) => AppConditionsScope(
+                conditions: [connectionKitStatus(context, c)],
+                child: const KitScreen(body: SizedBox()),
+              ),
+            ),
+          ),
+        );
+        await _settle(tester);
+      }
+
+      c.show(ConnectionStatusPhase.connecting);
+      await pump();
+      expect(find.text('Reconnecting…'), findsOneWidget);
+      expect(find.textContaining('Reconnect to'), findsNothing);
+      expect(
+        find.byKey(const ValueKey('connection-banner-retry')),
+        findsNothing,
+      );
+      c.show(ConnectionStatusPhase.serverBusy);
+      await _settle(tester);
+      expect(find.text('OpenCode on this phone is busy'), findsOneWidget);
+      expect(find.text('Restart'), findsNothing);
       await tester.pumpWidget(const SizedBox());
     },
   );

@@ -217,6 +217,21 @@ void main() {
     expect(find.text('96 %'), findsOneWidget);
   });
 
+  testWidgets('under half used the bar stays quiet: no ring at 4 %', (
+    tester,
+  ) async {
+    await _open(tester, [4]);
+    expect(find.byKey(_ring), findsNothing);
+    expect(find.text('4 %'), findsNothing);
+  });
+
+  testWidgets('from half used the ring and its percent show: 60 %', (
+    tester,
+  ) async {
+    await _open(tester, [60]);
+    expect(find.byKey(_ring), findsOneWidget);
+  });
+
   testWidgets('unknown use: no ring', (tester) async {
     await _open(tester, [20, 85], catalog: false);
     expect(find.byKey(_ring), findsNothing);

@@ -150,7 +150,7 @@ void main() {
       // The tab is the hub itself; what is about the app survives a Codex
       // connection, what needs the server catalog is absent.
       expect(
-        find.byKey(const ValueKey('settings-group-server')),
+        find.byKey(const ValueKey('settings-group-connections')),
         findsOneWidget,
       );
       expect(
@@ -158,7 +158,7 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('Models & agents'), findsNothing);
-      expect(find.text('Providers'), findsNothing);
+      // Codex keeps the one Providers row: it is the account's door.
       expect(find.text('MCP'), findsNothing);
       expect(find.text('Commands & tools'), findsNothing);
       expect(find.byKey(const ValueKey('library-terminal')), findsNothing);
@@ -199,7 +199,7 @@ void main() {
     );
     // The catalog stays: Providers and accounts, and Tools, which holds
     // MCP and Commands & tools (slice-P3.10).
-    expect(find.text('Providers and accounts'), findsOneWidget);
+    expect(find.text('Providers'), findsOneWidget);
     expect(find.byKey(const ValueKey('settings-tools')), findsOneWidget);
   });
 }

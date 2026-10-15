@@ -311,6 +311,13 @@ class TeamChatApi extends OpenCodeApi with CompleteMessageHistory {
   final prompts = <String>[];
   var reads = 0;
 
+  /// Stands for a connected server that can run the phone AI Team.
+  var phoneTeamExecution = false;
+
+  @override
+  ServerCapabilities get capabilities =>
+      phoneTeamExecution ? ServerCapabilities.allV1 : super.capabilities;
+
   @override
   Future<List<MessageWithParts>> messages(String id) async {
     reads += 1;

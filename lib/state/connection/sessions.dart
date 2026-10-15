@@ -56,6 +56,8 @@ mixin _ConnectionControllerSessions on ChangeNotifier {
   Future<void> ensureSession(String id) {
     // An opened conversation is seen: its Done tag goes.
     if (_self._finishedUnseen.remove(id)) _self._notifyListeners();
+    // Its "finished" notification has done its job.
+    _self._dismissFinishedAlert(id);
     return _self._refreshOneSession(id);
   }
 
@@ -708,7 +710,13 @@ extension _ConnectionControllerSessionsImpl on ConnectionController {
   Future<void> _deleteSession(String sessionID) async {
     final currentApi = await _requireActionTransport();
     final generation = _generation;
+    final agentOwner = serverOwnsSessionSelection
+        ? null
+        : (_connectedProfile ?? profile)?.id;
     await currentApi.deleteSession(sessionID);
+    if (agentOwner != null) {
+      await store.setSessionAgent(agentOwner, sessionID, null);
+    }
     if (_isCurrent(generation, currentApi)) _removeSession(sessionID);
   }
 

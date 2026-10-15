@@ -26,6 +26,7 @@ import '../../domain/agent_catalog.dart' show AgentCatalog;
 import '../../domain/chat_feed.dart'
     show ChatFeedItem, isTemporaryProjectDirectory;
 import '../../domain/command_receipts.dart';
+import '../../domain/mobile_tool_view.dart';
 import '../../domain/model_display_name.dart';
 import '../../domain/prompt_attachment.dart';
 import 'agents/agent_sheet.dart' show AgentSheetStep, showAgentSheet;
@@ -41,6 +42,11 @@ import '../../domain/transcript_settle.dart';
 import 'running_work_sheet.dart';
 import '../../l10n/app_localizations.dart';
 import '../../platform/platform_capabilities.dart';
+import '../../domain/agent_handoff.dart'
+    show AgentHandoffTargetGateway, HandoffOrigin;
+import '../../state/agent_handoff_links.dart' show AgentHandoffLinks;
+import '../../state/continue_with.dart'
+    show ContinueWithLinkLine, continueWithLinkLines;
 import '../../state/offline_queue.dart';
 import '../../state/connection.dart';
 import '../../state/first_reply_notify_offer.dart';
@@ -54,6 +60,8 @@ import '../../state/nudges.dart';
 import '../../state/review_handoff.dart';
 import '../../state/interaction_defaults.dart' show DefaultKind, DefaultReason;
 import '../../state/migration_runner.dart' show DraftMigrationBlocker;
+import '../../state/phrase_chips.dart';
+import '../../state/phrase_moment.dart';
 import '../../state/prompt_shelf.dart';
 import '../../state/session_drafts.dart';
 import '../../state/session_auto_approval.dart';
@@ -180,6 +188,7 @@ part 'chat/prompt_editor.dart';
 part 'chat/prompt_history.dart';
 part 'chat/prompt_stash.dart';
 part 'chat/composer.dart';
+part 'chat/phrase_chips.dart';
 part 'chat/message_view.dart';
 part 'chat/assistant_error_row.dart';
 part 'chat/session_sheets.dart';
@@ -198,9 +207,11 @@ part 'chat/chat_drafts.dart';
 part 'chat/chat_running_work.dart';
 part 'chat/chat_stream.dart';
 part 'chat/chat_history.dart';
+part 'chat/chat_handoff_link.dart';
 part 'chat/chat_queue.dart';
 part 'chat/receipt_check.dart';
 part 'chat/chat_send.dart';
+part 'chat/chat_mentions.dart';
 part 'chat/chat_voice.dart';
 part 'chat/chat_attachments.dart';
 part 'chat/chat_files.dart';
@@ -316,6 +327,8 @@ class _ChatScreenState extends State<ChatScreen>
         _ChatStreamFields,
         _ChatHistoryFields,
         _ChatSendFields,
+        _ChatHandoffLinkFields,
+        _ChatMentionFields,
         _ChatReceiptFields,
         _ChatVoiceFields,
         _ChatReadAloudFields,
@@ -400,6 +413,7 @@ class _ChatScreenState extends State<ChatScreen>
     _openedMicros = PerfTrace.nowMicros;
     _composer.text = widget.initialText;
     _conn = _readConn();
+    _loadHandoffLinks();
     if (!_conn.isIsolated) {
       _attachments.addAll(widget.initialAttachments);
       _conn.promptPhotos.addListener(_onPhotosChanged);
@@ -434,6 +448,7 @@ class _ChatScreenState extends State<ChatScreen>
       _draftRecoveryFuture = _recoverDraftAttachments();
     }
     _composer.addListener(_scheduleDraftSave);
+    _composer.addListener(_onMentionText);
     _focus.onKeyEvent = (_, event) => _navigatePromptHistory(event);
     _dataRefreshRevision = _conn.dataRefreshRevision;
     _conn.addListener(_onConnectionChanged);
@@ -736,6 +751,8 @@ class _ChatScreenState extends State<ChatScreen>
     _draftTrackingEnabled = false;
     _persistDraft();
     _composer.removeListener(_scheduleDraftSave);
+    _composer.removeListener(_onMentionText);
+    _stopMentionSearch();
     WidgetsBinding.instance.removeObserver(this);
     _conn.removeListener(_onConnectionChanged);
     _stopNudges();

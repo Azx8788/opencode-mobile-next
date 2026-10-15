@@ -2041,7 +2041,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get quotaClaudeUnavailable =>
-      'استخدام اشتراك Claude غير متاح هنا إلى حين توفر تكامل مدعوم ومسموح به. لا يتضمن OpenCode الحالي تسجيل دخول Claude Pro/Max. لن يقرأ التطبيق بيانات دخول هذا الاشتراك أو يعيد استخدامها.';
+      'يأتي استخدام خطة Claude من Claude Code وليس من OpenCode. لعرضه، افتح إعدادات أداة الاستخدام أدناه وشغّل الخادم أو الهاتف الذي يشغّل Claude Code.';
 
   @override
   String get iosRemoteSummary =>
@@ -2431,6 +2431,44 @@ class AppLocalizationsAr extends AppLocalizations {
       'تُفحص المصادر بالتناوب، ثلاثة مصادر كحد أقصى في الدورة؛ وتحتاج القوائم الأطول إلى عدة دورات. تتطلب القراءات في الخلفية أن تكون خدمة الاتصال الحالية نشطة؛ وقد يوقفها Android. تنتهي صلاحية القراءات المعروضة وفقًا لجامع البيانات. تسجل تنبيهات الجهاز قراءات سابقة بلغت الحد، ولا تعرض الرصيد المتبقي الحالي. لا تبدّل هذه الصفحة خادمك النشط مطلقًا.';
 
   @override
+  String get usageWidgetTitle => 'أداة الاستخدام';
+
+  @override
+  String get usageWidgetIntro =>
+      'تعرض ما تبقّى في خططك على أداة الاستخدام في الشاشة الرئيسية. تتحدّث أثناء عمل التطبيق.';
+
+  @override
+  String get usageWidgetPhoneTitle => 'هذا الهاتف';
+
+  @override
+  String get usageWidgetPhoneSupporting =>
+      'Claude ووكلاء آخرون على هذا الهاتف عبر Paseo. تُقرأ فقط أثناء عملهم.';
+
+  @override
+  String get usageWidgetOpenRemaining => 'افتح المتبقي من الاستخدام';
+
+  @override
+  String get usageWidgetCollectorNote =>
+      'تأتي أرقام Codex وMiniMax وGLM من صفحة الاستخدام المتبقي. اضبطها هناك ثم شغّل تنبيهاتها.';
+
+  @override
+  String get usageWidgetSettingsRow => 'إعدادات أداة الاستخدام';
+
+  @override
+  String get usageWidgetSearchAliases =>
+      'أداة الاستخدام الشاشة الرئيسية claude codex خطة حد المتبقي paseo';
+
+  @override
+  String get paseoUsageTitle => 'عرضه على الأداة';
+
+  @override
+  String get paseoUsageSupporting =>
+      'اعرض ما تبقّى في خطط هذا الخادم، مثل Claude، على أداة الاستخدام. يُفحص أثناء عمل التطبيق.';
+
+  @override
+  String get paseoUsageSaveFailed => 'تعذّر حفظ هذا التغيير. حاول مرة أخرى.';
+
+  @override
   String get quotaMonitorDisabled => 'المراقبة متوقفة.';
 
   @override
@@ -2673,6 +2711,9 @@ class AppLocalizationsAr extends AppLocalizations {
       'اختر خادمًا لترى ما يحتاج إلى انتباهك.';
 
   @override
+  String get launchUiUsageNoServer => 'احفظ خادمًا لترى ما تبقّى في خططك.';
+
+  @override
   String get queuedResendTitle => 'إرسال هذه المسودة مجددًا؟';
 
   @override
@@ -2690,7 +2731,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'لم يُؤكَّد إرسالها السابق؛ ربما توجد في المحادثة بالفعل.';
 
   @override
-  String get setupRuntimeOne => 'OpenCode 1';
+  String get setupRuntimeOne => 'الإصدار الأقدم من OpenCode';
 
   @override
   String get setupRuntimeTwo => 'OpenCode 2';
@@ -3437,6 +3478,24 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get setupSwitchConfirmDetail =>
       'يوقف خادم هذا الهاتف والمهام الجارية. تبقى المحادثات وإعدادات مزوّدي الخدمة وبيانات الاعتماد منفصلة؛ بينما تُشارك ملفات المشروع وإعداداته. يمكنك العودة إلى الإصدار السابق.';
+
+  @override
+  String get setupSwitchToTwoDetail =>
+      'يوقف خادم هذا الهاتف والمهام الجارية، ثم يشغّل OpenCode 2. تنتقل محادثاتك معك ويواصل فريق الذكاء الاصطناعي عمله. يمكنك العودة إلى الإصدار السابق.';
+
+  @override
+  String get moveToOpenCode2Title => 'الانتقال إلى OpenCode 2';
+
+  @override
+  String get moveToOpenCode2Detail =>
+      'تنتقل محادثاتك معك. ويواصل فريق الذكاء الاصطناعي عمله.';
+
+  @override
+  String get moveToOpenCode2NotNow => 'ليس الآن';
+
+  @override
+  String get moveToOpenCode2NotNowSemantics =>
+      'ليس الآن: البقاء على الإصدار الأقدم من OpenCode';
 
   @override
   String setupSwitchConfirm(String runtime) {
@@ -5893,10 +5952,6 @@ class AppLocalizationsAr extends AppLocalizations {
       'اختر نموذجًا قبل اختصار هذه المحادثة.';
 
   @override
-  String get chatUiSendNowAndSteerInstead =>
-      'الإرسال الآن والتوجيه بدلًا من ذلك';
-
-  @override
   String get chatUiServerCommands => 'أوامر الخادم';
 
   @override
@@ -6070,9 +6125,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get chatUiVoiceInputIsUnavailable => 'الإدخال الصوتي غير متاح.';
-
-  @override
-  String get chatUiWaitForThisRunInstead => 'انتظار هذا التشغيل بدلًا من ذلك';
 
   @override
   String get chatUiLoadTools => 'تحميل الأدوات';
@@ -6715,7 +6767,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get e7LibraryNoProjectFolderIsOpenChooseOne =>
-      'لا يوجد مجلد مشروع مفتوح. اختر مجلدًا من «العمل».';
+      'لا يوجد مشروع مفتوح. اختر مشروعًا من أعلى «الملفات».';
 
   @override
   String get e7LibrarySwitchProject => 'تبديل المشروع';
@@ -10837,7 +10889,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get settingsHubSearchUsageAliases =>
-      'usage cost tokens budget quota limit spent remaining threshold quota monitoring provider استخدام تكلفة رموز ميزانية حصة حد منفق متبقي مراقبة الحصص مزوّد';
+      'usage cost tokens budget quota limit spent remaining threshold quota monitoring provider استخدام تكلفة رموز ميزانية حصة حد منفق متبقي مراقبة الحصص مزوّد plans subscriptions spending alerts خطط اشتراكات إنفاق تنبيهات';
 
   @override
   String get settingsHubSearchPrivacyAliases =>
@@ -10883,11 +10935,11 @@ class AppLocalizationsAr extends AppLocalizations {
       'عندما ينتظر الوكيل إجابتك، على أي خادم مُراقَب.';
 
   @override
-  String get notifyQuotaAlerts => 'حدود الحصص';
+  String get notifyQuotaAlerts => 'تنبيهات الاستخدام';
 
   @override
   String get notifyQuotaAlertsDetail =>
-      'عندما يتجاوز مزوّد مُراقَب الحد الذي ضبطته في الاستخدام. يسجّل التنبيه قراءة سابقة، لا المتبقي الآن.';
+      'اختر الخطط التي تُراقب وعند أي مستوى. تُضبط في الاستخدام › التنبيهات.';
 
   @override
   String get notifyBlockedTitle => 'الإشعارات مُعطَّلة لهذا التطبيق';
@@ -11016,7 +11068,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get discoverRemainingAliases =>
-      'remaining quota limit provider المتبقي الحصة الحد المزود الخطة';
+      'plans subscriptions remaining quota limit provider plan left reset الخطط الاشتراكات المتبقي الحصة الحد المزود الخطة التجدد';
 
   @override
   String get discoverBudgetAliases =>
@@ -11024,7 +11076,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get discoverQuotaMonitorAliases =>
-      'quota monitoring threshold alert مراقبة الحصص حد تنبيه منخفض';
+      'usage alerts quota monitoring threshold alert تنبيهات الاستخدام مراقبة الحصص حد تنبيه منخفض ساعات الهدوء';
 
   @override
   String get discoverCommandsAliases =>
@@ -14942,15 +14994,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get kitComposerStop => 'إيقاف الرد';
 
   @override
-  String get kitComposerSendAfterShort => 'الإرسال بعده';
-
-  @override
-  String get kitComposerAddToTurnShort => 'إضافة إلى هذه الجولة';
-
-  @override
-  String get kitComposerDeliveryLabel => 'موعد الإرسال';
-
-  @override
   String get kitComposerSendsAfter => 'يُرسل بعد هذا الرد';
 
   @override
@@ -14958,7 +15001,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get kitComposerStopAndSendNote =>
-      'وكلاء مثل Claude Code يضيفون الرسالة إلى الجولة. أما هذا الوكيل فيوقف رده ويبدأ من جديد برسالتك.';
+      'يوقف الرد الحالي ويبدأ من جديد برسالتك.';
 
   @override
   String get kitComposerCannotSendYet => 'يمكنك الإرسال عند انتهاء هذا الرد';
@@ -19875,7 +19918,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get thisPhoneStart => 'تشغيل الخادم';
 
   @override
-  String get thisPhoneStop => 'إيقاف الخادم';
+  String get thisPhoneStop => 'إيقاف OpenCode على هذا الهاتف';
 
   @override
   String get thisPhoneUpdate => 'تحديث OpenCode';
@@ -20971,7 +21014,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsHubShowReasoning => 'إظهار الاستدلال';
 
   @override
-  String get settingsHubShowTimestamps => 'إظهار أوقات الرسائل والاستخدام';
+  String get settingsHubShowTimestamps => 'إظهار الوقت والرموز والتكلفة';
 
   @override
   String settingsHubUnavailableCount(int count) {
@@ -21475,10 +21518,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get consentWhyNeedsYou => 'لن يصلك إشعار عندما ينتظر الوكيل إجابتك.';
-
-  @override
-  String get consentWhyUnfinished =>
-      'أُغلق السؤال قبل أن تجيب. اضغط للإجابة الآن.';
 
   @override
   String get consentAllowedSystem =>
@@ -23361,6 +23400,18 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get thisPhoneHistoryMoving => 'جارٍ نقل محادثاتك السابقة…';
+
+  @override
+  String thisPhoneHistoryMovingCount(int done, int total) {
+    return 'جارٍ نقل محادثاتك السابقة ($done من $total)…';
+  }
+
+  @override
+  String get thisPhoneHistoryFailed =>
+      'تعذّر نقل محادثاتك السابقة. ما زالت محفوظة في OpenCode 1.';
+
+  @override
   String get addServerCheckFailedPlain =>
       'تعذّر التحقّق من الخادم. تحقّق من العنوان واتصال هذا الهاتف، ثم حاول مجددًا.';
 
@@ -24341,7 +24392,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get pickerFreeOnlyNote =>
-      'يتوفر نموذج OpenCode المجاني فقط، وهو أبطأ.';
+      'تتوفر نماذج OpenCode المجانية فقط، وهي أبطأ.';
 
   @override
   String pickerProviderReady(String name) {
@@ -25013,8 +25064,29 @@ class AppLocalizationsAr extends AppLocalizations {
       'أرقام العرض التجريبي محاكاة؛ لم تُقَس ذاكرة الجهاز أو البطارية أو الحرارة أو سرعة المحادثة.';
 
   @override
+  String teamProjectPlanningElapsed(int minutes) {
+    return 'نصوغ المواصفات · $minutes د';
+  }
+
+  @override
+  String teamProjectPlanningSlow(int minutes) {
+    return 'ما زلنا نصوغ المواصفات · $minutes د';
+  }
+
+  @override
+  String teamProjectAllTasksDone(int total) {
+    return 'اكتملت كل المهام ($total)';
+  }
+
+  @override
   String teamProjectProgress(int done, int total, int working) {
-    return 'اكتملت $done من أصل $total من المهام · $working قيد العمل';
+    String _temp0 = intl.Intl.pluralLogic(
+      working,
+      locale: localeName,
+      other: ' · $working قيد العمل',
+      zero: '',
+    );
+    return 'اكتملت $done من أصل $total من المهام$_temp0';
   }
 
   @override
@@ -25617,7 +25689,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String teamProjectHeadlineMilestone(int current, int total, int working) {
-    return 'المرحلة الرئيسية $current من $total · $working قيد العمل';
+    String _temp0 = intl.Intl.pluralLogic(
+      working,
+      locale: localeName,
+      other: ' · $working قيد العمل',
+      zero: '',
+    );
+    return 'المرحلة الرئيسية $current من $total$_temp0';
   }
 
   @override
@@ -26339,14 +26417,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get teamRefusalSessionFailedNext =>
-      'تحقّق من النموذج في إعدادات الفريق › النموذج، ثم وافق على المواصفات مجددًا.';
+      'افتح اختيار نموذج المخطِّط وتحقق منه ثم اطلب مرة أخرى.';
 
   @override
-  String get teamRefusalModelNotConfigured => 'يحتاج الفريق إلى نموذج.';
+  String get teamRefusalModelNotConfigured => 'لم يقبل نموذج هذه المهمة الطلب.';
 
   @override
   String get teamRefusalModelNotConfiguredNext =>
-      'اختر نموذجًا في إعدادات الفريق › النموذج.';
+      'قد يحتاج إلى تسجيل دخول أو قد لا يكون مجانياً هنا. افتح اختيار نموذج المخطِّط وجرّب نموذجاً آخر ثم اطلب مرة أخرى.';
 
   @override
   String get teamRefusalModelUnavailable => 'النموذج المختار غير متاح.';
@@ -26419,7 +26497,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'ارفع الحد في إعدادات المشروع للمتابعة.';
 
   @override
-  String get teamRefusalModelNotConfiguredAction => 'اختيار نموذج';
+  String get teamRefusalModelNotConfiguredAction => 'اختيار نموذج المخطِّط';
 
   @override
   String get teamProjectPlanFailedTitle => 'لم تُنشأ الخطة';
@@ -26948,6 +27026,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get chatsHomeRunning => 'قيد العمل';
 
   @override
+  String get chatsHomeRowWorking => 'قيد العمل';
+
+  @override
   String get chatsHomeDone => 'تم';
 
   @override
@@ -27106,6 +27187,11 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String chatProjectChipSemantics(String name) {
     return 'المشروع $name. يفتح قائمة بملفاته وطرفيته وتغييراته.';
+  }
+
+  @override
+  String chatProjectServerChipSemantics(String name, String server) {
+    return 'المشروع $name على $server. يفتح قائمة بملفاته وطرفيته وتغييراته.';
   }
 
   @override
@@ -28017,6 +28103,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get chatUiToolShowCard => 'عرض بطاقة';
 
   @override
+  String get chatUiToolShowedCard => 'تم عرض بطاقة';
+
+  @override
+  String get chatUiToolCardFailed => 'تعذّر عرض هذه البطاقة';
+
+  @override
   String get chatStallModelSlow =>
       'يستغرق النموذج وقتًا أطول من المعتاد. انتظر، أو أوقف الرد وحاول مرة أخرى.';
 
@@ -28629,7 +28721,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get capabilitySteerDetail =>
-      'أضف رسالة أثناء انشغال الوكيل: وجّهه بها أو ضعها في الطابور';
+      'أضف رسالة أثناء انشغال الوكيل؛ يقرؤها خلال الجولة الحالية';
 
   @override
   String get serverSettingsAuthPasswordSaved =>
@@ -29377,4 +29469,4151 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get kitContextSheetCompactNow => 'اضغط الآن';
+
+  @override
+  String get phraseChipsRowLabel => 'عبارات سريعة';
+
+  @override
+  String phraseChipsSend(String phrase) {
+    return 'إرسال: $phrase';
+  }
+
+  @override
+  String get phraseChipsMenuLabel => 'خيارات العبارة';
+
+  @override
+  String get phraseChipsEdit => 'تعديل';
+
+  @override
+  String get phraseChipsHide => 'إخفاء';
+
+  @override
+  String get phraseChipsWorkingStarter => 'ما المستجدات؟';
+
+  @override
+  String get settingsPhraseChipsTitle => 'اقتراح العبارات';
+
+  @override
+  String get settingsPhraseChipsSupporting =>
+      'عباراتك القصيرة المعتادة فوق مربع الرسالة، تُتعلَّم على هذا الهاتف مما ترسله.';
+
+  @override
+  String get settingsPhraseChipsShowHidden => 'إظهار العبارات المخفية';
+
+  @override
+  String settingsPhraseChipsHiddenCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count عبارة مخفية',
+      many: '$count عبارة مخفية',
+      few: '$count عبارات مخفية',
+      two: 'عبارتان مخفيتان',
+      one: 'عبارة مخفية واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get kitFactToldWord => 'قلت ذلك';
+
+  @override
+  String get kitFactSeenWord => 'من مصدر';
+
+  @override
+  String get kitFactGuessedWord => 'خمّنه النظام';
+
+  @override
+  String get kitFactCalculatedWord => 'حُسب';
+
+  @override
+  String kitFactToldLine(String date) {
+    return 'قلت ذلك · $date';
+  }
+
+  @override
+  String kitFactSeenLine(String source, String date) {
+    return 'من $source · $date';
+  }
+
+  @override
+  String kitFactSeenNoSourceLine(String date) {
+    return 'من مصدر · $date';
+  }
+
+  @override
+  String kitFactGuessedLine(String date) {
+    return 'خمّنه النظام · $date';
+  }
+
+  @override
+  String kitFactGuessedFromLine(String date, String source) {
+    return 'خمّنه النظام · $date · من $source';
+  }
+
+  @override
+  String kitFactCalculatedLine(String date) {
+    return 'حُسب · $date';
+  }
+
+  @override
+  String kitFactWaitingLine(String line) {
+    return '$line · بانتظار موافقتك';
+  }
+
+  @override
+  String get fbSourceChat => 'محادثة حفظتها';
+
+  @override
+  String get fbSourceShare => 'نص شاركته';
+
+  @override
+  String get fbSourceNote => 'ملاحظة';
+
+  @override
+  String get fbSourceImport => 'نص ألصقته';
+
+  @override
+  String get fbSourceStatement => 'كشف حساب';
+
+  @override
+  String get fbSourceOther => 'مصدر آخر';
+
+  @override
+  String get fbKindPerson => 'شخص';
+
+  @override
+  String get fbKindDocument => 'مستند';
+
+  @override
+  String get fbKindSubscription => 'اشتراك';
+
+  @override
+  String get fbKindWarranty => 'ضمان';
+
+  @override
+  String get fbKindBill => 'فاتورة';
+
+  @override
+  String get fbKindCard => 'بطاقة';
+
+  @override
+  String get fbKindAccount => 'حساب';
+
+  @override
+  String get fbKindOrganization => 'جهة';
+
+  @override
+  String get fbKindPlace => 'مكان';
+
+  @override
+  String get fbKindProject => 'مشروع';
+
+  @override
+  String get fbKindTopic => 'موضوع';
+
+  @override
+  String get fbKindEvent => 'حدث';
+
+  @override
+  String get fbKindOther => 'عنصر';
+
+  @override
+  String get fbMemoryTitle => 'الذاكرة';
+
+  @override
+  String fbMemoryFromFactsBook(int count) {
+    return '$count بانتظارك';
+  }
+
+  @override
+  String get fbMemoryFromFactsBookNone => 'من FactsBook';
+
+  @override
+  String get fbMemoryQuiet => 'لا شيء في الذاكرة يحتاج إليك.';
+
+  @override
+  String fbMemoryReview(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count تغيير للمراجعة',
+      many: '$count تغييرًا للمراجعة',
+      few: '$count تغييرات للمراجعة',
+      two: 'تغييران للمراجعة',
+      one: 'تغيير واحد للمراجعة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String fbMemoryNotSaved(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ملاحظة لم تُحفظ بعد',
+      many: '$count ملاحظةً لم تُحفظ بعد',
+      few: '$count ملاحظات لم تُحفظ بعد',
+      two: 'ملاحظتان لم تُحفظا بعد',
+      one: 'ملاحظة واحدة لم تُحفظ بعد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get fbMemoryNotSavedDetail => 'محفوظة على هذا الهاتف';
+
+  @override
+  String get fbMemoryReviewDetail => 'بانتظار موافقتك';
+
+  @override
+  String get fbMemoryRecoveryKit => 'احفظ مجموعة الاسترداد';
+
+  @override
+  String get fbMemoryRecent => 'أُضيف مؤخرًا إلى الذاكرة';
+
+  @override
+  String get fbMemoryOpenAboutYou => 'افتح «عنّي»';
+
+  @override
+  String get fbMemoryOpenAboutYouDetail => 'ابحث وتصفّح وشاهد ما ينتظر';
+
+  @override
+  String get fbMemoryAddSomething => 'أضف شيئًا';
+
+  @override
+  String get fbMemoryAddSomethingDetail => 'ملاحظة أو نص ملصوق';
+
+  @override
+  String get fbMemoryUnreachable => 'تعذّر الوصول إلى الذاكرة الآن.';
+
+  @override
+  String fbAddedLine(String when) {
+    return 'أُضيف $when';
+  }
+
+  @override
+  String get fbAboutYouTitle => 'عنّي';
+
+  @override
+  String fbStatusLastSaved(String when) {
+    return 'آخر حفظ $when';
+  }
+
+  @override
+  String get fbStatusStale => 'يُعرض آخر ما حُفظ';
+
+  @override
+  String get fbSearchLabel => 'ابحث في ما يعرفه FactsBook';
+
+  @override
+  String get fbEmptyTitle => 'لا شيء هنا بعد';
+
+  @override
+  String get fbEmptyBody =>
+      'أضف ملاحظة، أو شارك نصًا من تطبيق آخر، أو ألصق نصًا من مساعد آخر. ما تضيفه يظهر هنا مع مصدره.';
+
+  @override
+  String get fbListAll => 'الكل';
+
+  @override
+  String get fbListCards => 'البطاقات';
+
+  @override
+  String get fbListPeople => 'الأشخاص';
+
+  @override
+  String get fbListDocuments => 'المستندات';
+
+  @override
+  String get fbListLockedNote =>
+      'الملاحظات المقفلة غير معروضة. افتحها ببصمتك أو رمزك لتضمينها.';
+
+  @override
+  String fbKindLine(String kind, String detail) {
+    return '$kind · $detail';
+  }
+
+  @override
+  String get fbAreaMoney => 'منطقة المال';
+
+  @override
+  String get fbAreaHealth => 'منطقة الصحة';
+
+  @override
+  String fbAreaOther(String area) {
+    return 'منطقة $area';
+  }
+
+  @override
+  String get fbErrorTitle => 'لم يستجب FactsBook';
+
+  @override
+  String get fbErrorUnreachable =>
+      'تعذّر الوصول إلى FactsBook. ما تضيفه يبقى على هذا الهاتف إلى أن يُحفظ.';
+
+  @override
+  String get fbErrorLocked => 'هذا في المجلد المقفل. افتحه أولًا.';
+
+  @override
+  String get fbErrorNotFound => 'لم يعد هذا في الذاكرة.';
+
+  @override
+  String get fbErrorGeneric => 'حدث خطأ ما. حاول مرة أخرى.';
+
+  @override
+  String fbErrorRequest(String id) {
+    return 'الطلب $id';
+  }
+
+  @override
+  String get fbSearchTitle => 'بحث';
+
+  @override
+  String fbSearchMatches(int count, String query) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count نتيجة لـ «$query»',
+      many: '$count نتيجةً لـ «$query»',
+      few: '$count نتائج لـ «$query»',
+      two: 'نتيجتان لـ «$query»',
+      one: 'نتيجة واحدة لـ «$query»',
+      zero: 'لا نتائج لـ «$query»',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get fbSearchWordsOnly => 'يطابق الكلمات في ملاحظاتك. لا يبحث بالمعنى.';
+
+  @override
+  String get fbSearchEachHit =>
+      'تُظهر كل نتيجة مصدرها ووقتها. وقد يكون المصدر مخطئًا.';
+
+  @override
+  String get fbSearchLocked => 'لا يُبحث في الملاحظات المقفلة حتى تفتحها.';
+
+  @override
+  String get fbSearchNoneTitle => 'لا شيء يطابق';
+
+  @override
+  String get fbSearchNoneBody => 'جرّب كلمات أخرى.';
+
+  @override
+  String get fbThingFacts => 'الحقائق';
+
+  @override
+  String get fbThingNoFacts => 'لا حقائق بعد.';
+
+  @override
+  String get fbThingLinks => 'مرتبط بـ';
+
+  @override
+  String get fbThingLocked => 'المجلد المقفل';
+
+  @override
+  String get fbKeepIt => 'نعم، احتفظ به';
+
+  @override
+  String get fbNotRight => 'غير صحيح';
+
+  @override
+  String get fbDecisionKept => 'تم الاحتفاظ.';
+
+  @override
+  String get fbDecisionRemoved => 'أُزيل من الذاكرة.';
+
+  @override
+  String get fbCaptureTitle => 'أضف شيئًا';
+
+  @override
+  String get fbCaptureKindLabel => 'ما تضيفه';
+
+  @override
+  String get fbCaptureNote => 'ملاحظة';
+
+  @override
+  String get fbCapturePaste => 'لصق';
+
+  @override
+  String get fbCaptureNoteLabel => 'ماذا يجب أن يتذكر؟';
+
+  @override
+  String get fbCaptureNoteHint =>
+      'موعد طبيب الأسنان الأربعاء القادم الساعة 10. أحضر بطاقة التأمين.';
+
+  @override
+  String get fbCapturePasteLabel => 'ألصق نصًا من تطبيق أو مساعد آخر';
+
+  @override
+  String get fbCaptureSave => 'حفظ';
+
+  @override
+  String get fbCaptureFootnote =>
+      'أي شيء يُشارك من تطبيق آخر يصل إلى هنا أيضًا. الملاحظة التي لا يمكن حفظها الآن تنتظر في «لم يُحفظ بعد» ولا تختفي.';
+
+  @override
+  String get fbCaptureSaved =>
+      'حُفظت. ستفحصها الذاكرة وتعرض عليك التغييرات لتراجعها.';
+
+  @override
+  String fbCaptureSavedReminder(String when) {
+    return 'تم الحفظ مع تذكير في $when.';
+  }
+
+  @override
+  String get fbCaptureKept => 'تعذّر حفظه الآن. هو محفوظ على هذا الهاتف.';
+
+  @override
+  String get fbCaptureSeeNotSaved => 'عرض «لم يُحفظ بعد»';
+
+  @override
+  String get fbReminderTitle => 'تحقق من هذا التذكير';
+
+  @override
+  String fbReminderWrote(String text) {
+    return 'كتبتَ: «$text»';
+  }
+
+  @override
+  String get fbReminderDate => 'التاريخ';
+
+  @override
+  String get fbReminderTime => 'الوقت';
+
+  @override
+  String get fbReminderZone => 'المنطقة الزمنية';
+
+  @override
+  String get fbReminderZoneHome => 'المنطقة الزمنية للمنزل';
+
+  @override
+  String get fbReminderZoneHomeDetail =>
+      'يرنّ في هذا الوقت حسب منطقتك الزمنية الأم، أينما كنت.';
+
+  @override
+  String get fbReminderZoneFloating => 'توقيت هذا الهاتف';
+
+  @override
+  String get fbReminderZoneFloatingDetail => 'يبقى على نفس الساعة أينما كنت.';
+
+  @override
+  String get fbReminderLocale => 'لغة التواريخ';
+
+  @override
+  String get fbReminderRepeat => 'التكرار';
+
+  @override
+  String get fbRepeatNever => 'أبدًا';
+
+  @override
+  String get fbRepeatDaily => 'كل يوم';
+
+  @override
+  String get fbRepeatWeekly => 'كل أسبوع';
+
+  @override
+  String get fbRepeatMonthly => 'كل شهر';
+
+  @override
+  String get fbRepeatYearly => 'كل سنة';
+
+  @override
+  String get fbReminderAmbiguousDate => 'لم أتمكن من تحديد التاريخ. تحقق منه.';
+
+  @override
+  String get fbReminderAmbiguousTime => 'لم أتمكن من تحديد الوقت. تحقق منه.';
+
+  @override
+  String get fbReminderHelp => 'غيّر أي شيء خاطئ قبل الحفظ.';
+
+  @override
+  String get fbReminderSave => 'حفظ التذكير';
+
+  @override
+  String get fbReminderChange => 'تعديل ما كتبته';
+
+  @override
+  String get fbReminderWhat => 'ذكّرني بـ';
+
+  @override
+  String get fbNeedsYouTitle => 'يحتاجك';
+
+  @override
+  String fbNeedsYouWaiting(int count) {
+    return '$count بانتظارك';
+  }
+
+  @override
+  String get fbNeedsYouNone => 'لا شيء من FactsBook يحتاج إليك.';
+
+  @override
+  String get fbNeedsYouNoneBody =>
+      'تظهر هنا الأسئلة والتغييرات التي تنتظر المراجعة والملاحظات التي لم تُحفظ بعد.';
+
+  @override
+  String get fbNeedsYouSeeWhy => 'اعرف السبب';
+
+  @override
+  String get fbNeedsYouAnswered => 'شكرًا. تمت الإجابة.';
+
+  @override
+  String get fbNotSavedTitle => 'لم يُحفظ بعد';
+
+  @override
+  String fbNotSavedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count عنصر محفوظ على هذا الهاتف',
+      many: '$count عنصرًا محفوظًا على هذا الهاتف',
+      few: '$count عناصر محفوظة على هذا الهاتف',
+      two: 'عنصران محفوظان على هذا الهاتف',
+      one: 'عنصر واحد محفوظ على هذا الهاتف',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get fbNotSavedIntro =>
+      'محفوظة حتى تتجاهلها: على هذا الهاتف أو لدى FactsBook. لا شيء منها في سحابتك بعد.';
+
+  @override
+  String get fbNotSavedFooter =>
+      'تبقى هنا حتى تتجاهلها. بعد 30 يومًا يسألك FactsBook: إعادة المحاولة أو التصدير أو التجاهل.';
+
+  @override
+  String get fbNotSavedEmptyTitle => 'كل شيء محفوظ';
+
+  @override
+  String get fbNotSavedEmptyBody =>
+      'الملاحظات التي لا يمكن حفظها الآن ستنتظر هنا.';
+
+  @override
+  String get fbNotSavedTryNow => 'حاول الآن';
+
+  @override
+  String get fbNotSavedCopy => 'نسخ النص';
+
+  @override
+  String get fbNotSavedDiscard => 'تجاهل';
+
+  @override
+  String get fbNotSavedRetry => 'إعادة المحاولة';
+
+  @override
+  String get fbNotSavedExport => 'تصدير';
+
+  @override
+  String get fbNotSavedThirtyDays =>
+      'بقي هذا 30 يومًا. أعد المحاولة أو صدّر النص أو تجاهله.';
+
+  @override
+  String get fbNotSavedDiscardTitle => 'تجاهل هذه الملاحظة؟';
+
+  @override
+  String get fbNotSavedDiscardBody =>
+      'لم تُحفظ أبدًا. تجاهلها يزيلها من هذا الهاتف.';
+
+  @override
+  String get fbNotSavedSaved => 'تم الحفظ.';
+
+  @override
+  String get fbNotSavedStill => 'لم تُحفظ بعد. تبقى هنا.';
+
+  @override
+  String fbNotSavedSince(String when) {
+    return 'منذ $when';
+  }
+
+  @override
+  String get fbReasonUnreachable => 'تعذّر الوصول إلى FactsBook.';
+
+  @override
+  String fbReasonWaitingFor(String device) {
+    return 'بانتظار $device.';
+  }
+
+  @override
+  String get fbReasonStorageFull =>
+      'هذا الهاتف ممتلئ. أفرغ بعض المساحة ثم حاول مرة أخرى.';
+
+  @override
+  String get fbReasonCloudQuota =>
+      'سحابتك ممتلئة. أفرغ بعض المساحة ثم حاول مرة أخرى.';
+
+  @override
+  String get fbReasonKeyLocked => 'المجلد المقفل مقفل. افتحه ثم حاول مرة أخرى.';
+
+  @override
+  String get fbReasonTooLarge => 'حجمه أكبر من أن يُحفظ.';
+
+  @override
+  String get fbReasonRejected => 'تعذّر على FactsBook قبوله.';
+
+  @override
+  String get fbReasonClassification =>
+      'تعذّر على FactsBook تصنيفه الآن. حاول مرة أخرى.';
+
+  @override
+  String get fbDismiss => 'إغلاق';
+
+  @override
+  String get fbCaptureNeedsText => 'اكتب شيئًا أولًا.';
+
+  @override
+  String get fbAreaFamily => 'منطقة العائلة';
+
+  @override
+  String get fbAreaWork => 'منطقة العمل';
+
+  @override
+  String get fbAreaNameMoney => 'المال';
+
+  @override
+  String get fbAreaNameHealth => 'الصحة';
+
+  @override
+  String get fbAreaNameFamily => 'العائلة';
+
+  @override
+  String get fbAreaNameWork => 'العمل';
+
+  @override
+  String get fbAreasTitle => 'المناطق والمشاركة';
+
+  @override
+  String get fbAreasIntro =>
+      'لكل منطقة قواعدها. لا تقرأ التطبيقات والوكلاء الآخرون منطقة إلا إذا سمحت لهم.';
+
+  @override
+  String get fbAreasOthersRead => 'يمكن للتطبيقات والوكلاء الآخرين قراءتها';
+
+  @override
+  String get fbAreasOthersReadDetail => 'أطفئه لتبقى هذه المنطقة لك وحدك.';
+
+  @override
+  String get fbAreasLockedFolder => 'المجلد المقفل';
+
+  @override
+  String get fbAreasNormalStorage => 'تخزين عادي';
+
+  @override
+  String get fbAreasReviewFirst => 'تنتظر الحقائق الجديدة موافقتك أولًا.';
+
+  @override
+  String get fbAreasReviewAuto => 'لا يحدث من تلقاء نفسه إلا التنظيف الآمن.';
+
+  @override
+  String get fbAreasFixed => 'هذه المجالات مدمجة.';
+
+  @override
+  String fbAreasShareConfirmTitle(String area) {
+    return 'السماح للآخرين بقراءة $area؟';
+  }
+
+  @override
+  String get fbAreasShareConfirmBody =>
+      'ستتمكن التطبيقات والوكلاء الذين ربطتهم من قراءة ما في هذه المنطقة. يمكنك إيقافه لاحقًا.';
+
+  @override
+  String get fbAreasShareConfirm => 'السماح بالقراءة';
+
+  @override
+  String get fbCaptureFull =>
+      'قائمة الانتظار على هذا الهاتف ممتلئة، لذلك لم تُحفظ الملاحظة. نصّك ما زال هنا. أرسل ملاحظة منتظرة أو تجاهلها أولًا.';
+
+  @override
+  String get fbCaptureQueuedNode =>
+      'يحتفظ بها FactsBook إلى أن يتمكن من حفظها.';
+
+  @override
+  String get fbCaptureReminderFailed => 'لم يُنشأ التذكير. حاول مرة أخرى.';
+
+  @override
+  String fbCareWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count بانتظار موافقتك',
+      many: '$count بانتظار موافقتك',
+      few: '$count بانتظار موافقتك',
+      two: 'اثنان بانتظار موافقتك',
+      one: 'واحد بانتظار موافقتك',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get fbCareApprove => 'موافقة';
+
+  @override
+  String get fbCareEdit => 'تعديل';
+
+  @override
+  String get fbCareReject => 'رفض';
+
+  @override
+  String get fbCareSkip => 'تخطٍّ';
+
+  @override
+  String get fbCareApproved => 'تمت الموافقة.';
+
+  @override
+  String get fbCareRejected => 'رُفض. لن يُقترح مرة أخرى.';
+
+  @override
+  String get fbCareSkipped => 'تم التخطي. يبقى هنا.';
+
+  @override
+  String get fbCareStale =>
+      'تغيّر ذلك بعد اقتراحه، لذلك لم يُطبَّق شيء. أُزيل من هذه القائمة.';
+
+  @override
+  String get fbCareNeedsOwner =>
+      'لا يستطيع هذا الهاتف الموافقة على التغييرات بعد. أعدّ الموافقة للمتابعة.';
+
+  @override
+  String get fbCareNeedsOwnerShort => 'أعدّ الموافقة أولًا';
+
+  @override
+  String get fbCareSetupApproval => 'إعداد الموافقة';
+
+  @override
+  String get fbCareEditTitle => 'عدّل قبل الموافقة';
+
+  @override
+  String get fbCareEditLabel => 'الحقيقة';
+
+  @override
+  String get fbCareEditSave => 'موافقة مع تعديلي';
+
+  @override
+  String get fbCareClassFactAdd => 'إضافة حقيقة';
+
+  @override
+  String get fbCareClassFactUpdate => 'تغيير حقيقة';
+
+  @override
+  String get fbCareClassFactSupersede => 'استبدال حقيقة';
+
+  @override
+  String get fbCareClassMerge => 'دمج عنصرين';
+
+  @override
+  String get fbCareClassLink => 'ربط عنصرين';
+
+  @override
+  String get fbCareClassArchive => 'أرشفة';
+
+  @override
+  String get fbCareClassForget => 'نسيان';
+
+  @override
+  String get fbCareClassWatch => 'مراقبة شيء ما';
+
+  @override
+  String get fbCareClassReminder => 'تذكير';
+
+  @override
+  String get fbCareClassImport => 'من نص ملصوق';
+
+  @override
+  String get fbCareClassPromotion => 'حقيقة لمنطقة أكثر صرامة';
+
+  @override
+  String get fbCareRiskMoney => 'مال';
+
+  @override
+  String get fbCareRiskHealth => 'صحة';
+
+  @override
+  String get fbCareRiskId => 'هوية';
+
+  @override
+  String get fbCareRiskContradiction => 'يتعارض مع شيء قلته';
+
+  @override
+  String get fbCareRiskLowConfidence => 'غير متأكد';
+
+  @override
+  String get fbConnectTitle => 'الاتصال بخادمي الخاص';
+
+  @override
+  String get fbConnectRow => 'إعداد الذاكرة';
+
+  @override
+  String get fbConnectRowDetail => 'ملاحظاتك على هذا الهاتف';
+
+  @override
+  String get fbConnectIntro =>
+      'صل هذا التطبيق بخادم ذاكرة على شبكتك المنزلية أو شبكة tailnet أو على هذا الهاتف.';
+
+  @override
+  String get fbConnectAddress => 'عنوان العقدة';
+
+  @override
+  String get fbConnectAddressHint => '127.0.0.1:8787';
+
+  @override
+  String get fbConnectCode => 'رمز الاقتران لمرة واحدة';
+
+  @override
+  String get fbConnectCodeHelp =>
+      'تطبعه العقدة عند تشغيل أمر الاقتران. يعمل مرة واحدة ولمدة خمس دقائق.';
+
+  @override
+  String get fbConnectOwnerTitle =>
+      'الموافقة على التغييرات من هذا الهاتف (اختياري)';
+
+  @override
+  String get fbConnectOwnerBody =>
+      'تُوقَّع مراجعة الاقتراحات وتغيير المشاركة بمفتاح هذا الهاتف نفسه. أعطِ العقدة المفتاح العام أدناه، ثم أدخل معرّف جهاز المالك الذي تعيده.';
+
+  @override
+  String get fbConnectOwnerKey => 'المفتاح العام لهذا الهاتف';
+
+  @override
+  String get fbConnectOwnerId => 'معرّف جهاز المالك';
+
+  @override
+  String get fbConnectButton => 'اتصال';
+
+  @override
+  String get fbConnectNeeds => 'أدخل العنوان والرمز أولًا.';
+
+  @override
+  String get fbConnectFailedTitle => 'تعذّر الاتصال';
+
+  @override
+  String fbDisconnect(String name) {
+    return 'فصل $name';
+  }
+
+  @override
+  String get fbDisconnectDetail =>
+      'انسَ الاقتران والرمز ومفتاح الموافقة على هذا الهاتف';
+
+  @override
+  String fbDisconnectTitle(String name) {
+    return 'فصل $name؟';
+  }
+
+  @override
+  String get fbDisconnectBody =>
+      'ينسى هذا الهاتف اقتران العقدة ورمزها ومفتاح الموافقة. تبقى ملاحظات العقدة في مكانها، وتبقى الملاحظات المنتظرة على هذا الهاتف حتى تتجاهلها.';
+
+  @override
+  String get fbErrorAddress =>
+      'هذا العنوان ليس على شبكة خاصة. استخدم هذا الهاتف أو شبكتك المنزلية أو شبكتك الخاصة.';
+
+  @override
+  String get fbErrorBadResponse =>
+      'أجاب FactsBook بطريقة لا يفهمها هذا التطبيق. حدّث التطبيق أو العقدة.';
+
+  @override
+  String get fbErrorForbidden => 'لا يُسمح لهذا الهاتف بفعل ذلك.';
+
+  @override
+  String get fbErrorNotEnabled => 'هذا الخيار متوقف في هذه الذاكرة.';
+
+  @override
+  String get fbErrorOwner =>
+      'لا يستطيع هذا الهاتف الموافقة على التغييرات بعد. أعدّ الموافقة أولًا.';
+
+  @override
+  String get fbErrorPairCode =>
+      'لم ينجح هذا الرمز. اطلب رمزًا جديدًا من العقدة.';
+
+  @override
+  String get fbErrorSlow => 'FactsBook مشغول. حاول بعد قليل.';
+
+  @override
+  String get fbErrorStale =>
+      'تغيّر ذلك منذ نظرت إليه. انظر مرة أخرى ثم حاول مجددًا.';
+
+  @override
+  String get fbErrorStarting => 'FactsBook قيد البدء. حاول بعد قليل.';
+
+  @override
+  String get fbErrorUnauthorized =>
+      'هذا الهاتف غير مسجّل دخوله في FactsBook. أعدّ الإعداد.';
+
+  @override
+  String fbErrorCode(String code) {
+    return 'الرمز $code';
+  }
+
+  @override
+  String get fbKeyLocked => 'مقفل';
+
+  @override
+  String get fbKeyUnlocked => 'مفتوح';
+
+  @override
+  String get fbKindInvoice => 'مطالبة';
+
+  @override
+  String get fbKindHealth => 'صحة';
+
+  @override
+  String get fbModuleStorage => 'التخزين';
+
+  @override
+  String get fbModuleCloud => 'النسخ الاحتياطي السحابي';
+
+  @override
+  String get fbModuleCare => 'يحتاجك';
+
+  @override
+  String get fbNotSavedAtNode => 'يحتفظ بها FactsBook';
+
+  @override
+  String get fbNotSavedOnPhone => 'على هذا الهاتف';
+
+  @override
+  String get fbNotSavedNodeItem => 'ملاحظة يحتفظ بها FactsBook';
+
+  @override
+  String get fbReasonModuleNotConfigured => 'لا شيء متصل بعد';
+
+  @override
+  String get fbReasonModuleNotEnabled => 'لم يُفعَّل بعد';
+
+  @override
+  String get fbReasonOutboxFull =>
+      'قائمة الانتظار على هذا الهاتف ممتلئة. أرسل ملاحظة منتظرة أو تجاهلها.';
+
+  @override
+  String get fbReasonParserError =>
+      'تعذّر على FactsBook قراءتها. حاول مرة أخرى.';
+
+  @override
+  String get fbReminderAdjusted => 'عدّلت العقدة الوقت';
+
+  @override
+  String get fbReminderMismatch =>
+      'قرأ FactsBook هذا بشكل مختلف. تحقق من التاريخ والوقت والمنطقة ثم حاول مرة أخرى.';
+
+  @override
+  String fbReminderPause(String what) {
+    return 'إيقاف «$what» مؤقتًا';
+  }
+
+  @override
+  String fbReminderResume(String what) {
+    return 'استئناف «$what»';
+  }
+
+  @override
+  String get fbRemindersTitle => 'التذكيرات';
+
+  @override
+  String get fbRemindersActive => 'نشطة';
+
+  @override
+  String get fbRemindersPaused => 'متوقفة مؤقتًا';
+
+  @override
+  String get fbRemindersDone => 'منتهية';
+
+  @override
+  String get fbRemindersEmptyTitle => 'لا تذكيرات بعد';
+
+  @override
+  String get fbRemindersEmptyBody =>
+      'أضف تذكيرًا، أو فعّل «ذكّرني بها أيضًا» عند إضافة ملاحظة، فيظهر هنا.';
+
+  @override
+  String get fbSourceSaved => 'شيء حفظته';
+
+  @override
+  String get fbStateReady => 'جاهز';
+
+  @override
+  String get fbStateWaiting => 'بانتظار';
+
+  @override
+  String get fbStateStale => 'قديم';
+
+  @override
+  String get fbStateFailed => 'فشل';
+
+  @override
+  String get fbStateOff => 'متوقف';
+
+  @override
+  String get fbStateNotSetUp => 'غير مُعدّ';
+
+  @override
+  String get fbStatusTitle => 'الحالة';
+
+  @override
+  String get fbStatusSearch => 'البحث';
+
+  @override
+  String get fbStatusBackup => 'النسخ الاحتياطي';
+
+  @override
+  String get fbStatusBackedUp => 'تم النسخ الاحتياطي';
+
+  @override
+  String get fbStatusNoBackup => 'لا نسخ احتياطي بعد';
+
+  @override
+  String get fbStatusThisPhone => 'هذا الهاتف';
+
+  @override
+  String get fbStatusApprove => 'الموافقة على التغييرات من هذا الهاتف';
+
+  @override
+  String fbStatusSince(String when) {
+    return 'تم التحديث $when';
+  }
+
+  @override
+  String get fbThingWaitingNote =>
+      'المعلومات المعلّمة «بانتظار موافقتك» موجودة في «يحتاجك».';
+
+  @override
+  String fbWhenDaily(String time) {
+    return 'كل يوم في $time';
+  }
+
+  @override
+  String fbWhenWeekly(String time) {
+    return 'كل أسبوع في $time';
+  }
+
+  @override
+  String fbWhenMonthly(String time) {
+    return 'كل شهر في $time';
+  }
+
+  @override
+  String fbWhenYearly(String time) {
+    return 'كل سنة في $time';
+  }
+
+  @override
+  String get fbWhenCustom => 'جدول مخصّص';
+
+  @override
+  String get fbDeveloperFactsBook => 'FactsBook (معاينة)';
+
+  @override
+  String get fbDeveloperFactsBookDetail =>
+      'يعرض قسم الذاكرة في محادثاتك. متوقف افتراضيًا.';
+
+  @override
+  String get fbDeveloperTitle => 'المطوّر';
+
+  @override
+  String get fbErrorBadRequest =>
+      'لم يقبل FactsBook ذلك. تحقق مما أدخلته وحاول مرة أخرى.';
+
+  @override
+  String get fbErrorNodeFull =>
+      'قائمة الانتظار في FactsBook ممتلئة. احتفظ بنصّك وحاول لاحقًا.';
+
+  @override
+  String get fbErrorIndexRebuilding => 'البحث قيد التجهيز. حاول بعد قليل.';
+
+  @override
+  String get fbErrorAuthUnavailable =>
+      'لا توجد بصمة أو وجه أو قفل شاشة على هذا الهاتف، لذلك لا يمكنه الموافقة على التغييرات. أعدّ واحدًا في إعدادات الهاتف ثم حاول مرة أخرى.';
+
+  @override
+  String get fbErrorAuthCancelled => 'أُلغيت الموافقة. لم يتغيّر شيء.';
+
+  @override
+  String get fbErrorAuthLocked =>
+      'محاولات خاطئة كثيرة. انتظر قليلًا ثم حاول مرة أخرى.';
+
+  @override
+  String get fbErrorAuthFailed =>
+      'تعذّر على الهاتف التأكد من أنك أنت. لم يتغيّر شيء.';
+
+  @override
+  String fbErrorSlowAfter(int seconds) {
+    return 'FactsBook مشغول. حاول بعد $seconds ثانية.';
+  }
+
+  @override
+  String get fbAuthReason => 'وافق على هذا التغيير في FactsBook';
+
+  @override
+  String fbWhenWeeklyOn(String days, String time) {
+    return 'كل أسبوع يوم $days في $time';
+  }
+
+  @override
+  String fbWhenMonthLast(String time) {
+    return 'كل شهر في اليوم الأخير في $time';
+  }
+
+  @override
+  String fbWhenMonthlyOn(int day, String time) {
+    return 'كل شهر في اليوم $day في $time';
+  }
+
+  @override
+  String fbWhenYearlyOn(String date, String time) {
+    return 'كل سنة في $date في $time';
+  }
+
+  @override
+  String get fbReminderNeedsTitle => 'اكتب ما تريد أن يُذكَّرك به أولًا.';
+
+  @override
+  String get fbReminderWhatHint => 'اتصل بطبيب الأسنان';
+
+  @override
+  String get fbReminderDayOfMonth => 'يوم الشهر';
+
+  @override
+  String get fbReminderLastDay => 'اليوم الأخير';
+
+  @override
+  String get fbRemindersAdd => 'أضف تذكيرًا';
+
+  @override
+  String fbThingOriginally(String source, String date) {
+    return 'قُرئ أصلًا من $source · $date';
+  }
+
+  @override
+  String get fbExportTitle => 'تصدير هذه الملاحظة';
+
+  @override
+  String get fbExportBody =>
+      'هذه هي الملاحظة ككائن مشفّر. لا تفتح المجلد المقفل، وفتحها يحتاج تفاصيل الاسترداد من وقت إعداد FactsBook على جهازه.';
+
+  @override
+  String get fbExportObject => 'كائن مشفّر';
+
+  @override
+  String get fbExportCopy => 'نسخ التصدير';
+
+  @override
+  String get fbSettingsTitle => 'إعدادات FactsBook';
+
+  @override
+  String get fbSettingsBrief => 'الموجز الصباحي';
+
+  @override
+  String get fbSettingsBriefCap => 'عدد العناصر في اليوم';
+
+  @override
+  String get fbSettingsBriefCapDetail => 'أقصى ما يعرضه الموجز في يوم واحد.';
+
+  @override
+  String get fbSettingsBriefOff => 'لا شيء';
+
+  @override
+  String fbSettingsBriefItems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count عنصر',
+      many: '$count عنصرًا',
+      few: '$count عناصر',
+      two: 'عنصران',
+      one: 'عنصر واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get fbSettingsBriefTime => 'وقت الموجز';
+
+  @override
+  String get fbSettingsQuietHours => 'ساعات الهدوء';
+
+  @override
+  String get fbSettingsPrivacy => 'الخصوصية';
+
+  @override
+  String get fbSettingsLockTimeout => 'يبقى المجلد المقفل مفتوحًا لمدة';
+
+  @override
+  String fbSettingsMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count دقيقة',
+      many: '$count دقيقة',
+      few: '$count دقائق',
+      two: 'دقيقتان',
+      one: 'دقيقة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get fbSettingsAreasDetail => 'من يمكنه قراءة كل منطقة غيرك';
+
+  @override
+  String get fbSettingsThisNode => 'هذه العقدة';
+
+  @override
+  String get fbSettingsHomeZone => 'المنطقة الزمنية للمنزل';
+
+  @override
+  String get fbSettingsSpending => 'حد الإنفاق';
+
+  @override
+  String get fbSettingsSpendingNone => 'لا يُسمح بإنفاق أي شيء';
+
+  @override
+  String get fbSettingsFootnote =>
+      'يُضبط وقت القفل والمنطقة الزمنية على العقدة. التغييرات هنا تحتاج موافقة هذا الهاتف.';
+
+  @override
+  String get fbSettingsNeedsOwner =>
+      'لا يستطيع هذا الهاتف الموافقة على التغييرات بعد، لذلك تُعرض الإعدادات ولا تتغيّر. أعدّ الموافقة لتغييرها.';
+
+  @override
+  String get fbModuleReplication => 'النسخ المتماثل';
+
+  @override
+  String get fbStatusChecked => 'آخر فحص';
+
+  @override
+  String get fbStatusUnknown => 'غير معروف';
+
+  @override
+  String get fbStatusCloudCopy => 'النسخة السحابية';
+
+  @override
+  String get fbStatusCloudUnknown => 'غير معروفة بعد. لم تُفحص أي نسخة سحابية.';
+
+  @override
+  String fbStatusCloudAge(String age) {
+    return 'عمرها $age';
+  }
+
+  @override
+  String get fbStatusHistory => 'السجل الموقّع';
+
+  @override
+  String get fbStatusHistoryNotChecked => 'لم يُفحص';
+
+  @override
+  String get fbStatusHistoryVerified =>
+      'تم التحقق منه بالمفتاح المثبّت عند الاقتران';
+
+  @override
+  String get fbStatusHistoryFailed =>
+      'تعذّر التحقق منه. لا توافق على شيء حتى يتحقق.';
+
+  @override
+  String get fbStatusHistoryForked => 'وُجد سجلّان متنافسان. الموافقات متوقفة.';
+
+  @override
+  String get fbStatusNoReplication =>
+      'النسخ المتماثل متوقف، لذلك توجد ملاحظاتك على هذه العقدة فقط، ولا يمكن معرفة مدى حداثة أي نسخة سحابية.';
+
+  @override
+  String get fbStatusNotYet => 'غير مفعّل';
+
+  @override
+  String get fbNotYetCloud => 'المزامنة والنسخ الاحتياطي السحابيان';
+
+  @override
+  String get fbNotYetUnlock => 'فتح المجلد المقفل';
+
+  @override
+  String get fbNotYetAlarms => 'تنبيهات التذكير على هذا الهاتف';
+
+  @override
+  String get fbNotAvailableYet => 'متوقف';
+
+  @override
+  String get fbReminderClockNote =>
+      'إذا لم يوجد الوقت في ذلك اليوم بسبب تغيير الساعة، يُنفَّذ في أول وقت متاح.';
+
+  @override
+  String get fbCaptureReminderNotMade =>
+      'لم يُنشأ التذكير بعد. أضفه مرة أخرى بعد حفظ الملاحظة.';
+
+  @override
+  String get fbNotSavedDiscardBodyNode =>
+      'سيحذف FactsBook النسخة التي يحتفظ بها. لم تُحفظ أبدًا.';
+
+  @override
+  String get fbAreaNameGeneral => 'عام';
+
+  @override
+  String get fbAreaNameHome => 'المنزل';
+
+  @override
+  String get fbAreaNameTravel => 'السفر';
+
+  @override
+  String get fbAreaNameUnsorted => 'غير مصنّف';
+
+  @override
+  String get fbAreaNameId => 'الهوية';
+
+  @override
+  String get fbModuleIndex => 'فهرس البحث';
+
+  @override
+  String get fbModuleMembership => 'الأجهزة';
+
+  @override
+  String get fbTriggersTitle => 'عند وصول شيء جديد';
+
+  @override
+  String get fbTriggersSettingsDetail =>
+      'قواعد تقترح تذكيرات ومحادثات من الرسائل التي تشاركها';
+
+  @override
+  String get fbTriggersUnavailableTitle => 'القواعد غير مفعّلة في هذه الذاكرة';
+
+  @override
+  String get fbTriggersUnavailableBody =>
+      'هذه الذاكرة لا تعرض قواعد. حدّثها لتستخدمها.';
+
+  @override
+  String get fbTriggersEmptyTitle => 'لا توجد قواعد بعد';
+
+  @override
+  String get fbTriggersEmptyBody =>
+      'القاعدة تراقب نوعًا واحدًا من الرسائل وتقترح فقط. لا يُحفظ شيء ولا يُرسل قبل موافقتك.';
+
+  @override
+  String get fbTriggersNew => 'قاعدة جديدة';
+
+  @override
+  String fbTriggersGroupShare(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count قاعدة',
+      many: '$count قاعدةً',
+      few: '$count قواعد',
+      two: 'قاعدتان',
+      one: 'قاعدة واحدة',
+    );
+    return 'نص تشاركه · $_temp0';
+  }
+
+  @override
+  String fbTriggersGroupChat(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count قاعدة',
+      many: '$count قاعدةً',
+      few: '$count قواعد',
+      two: 'قاعدتان',
+      one: 'قاعدة واحدة',
+    );
+    return 'محادثات تحفظها · $_temp0';
+  }
+
+  @override
+  String fbTriggersGroupNote(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count قاعدة',
+      many: '$count قاعدةً',
+      few: '$count قواعد',
+      two: 'قاعدتان',
+      one: 'قاعدة واحدة',
+    );
+    return 'ملاحظات تكتبها · $_temp0';
+  }
+
+  @override
+  String get fbTriggersRecent => 'رسائل حديثة';
+
+  @override
+  String get fbTriggersFootnote =>
+      'القاعدة تقترح فقط. لا يُحفظ شيء ولا يُرسل قبل موافقتك. العناصر المتجاهلة تُعدّ ولا تُحفظ.';
+
+  @override
+  String fbRuleFinds(String template, String outcomes) {
+    return 'يبحث عن $template ← $outcomes';
+  }
+
+  @override
+  String get fbTemplateAppointment => 'موعد';
+
+  @override
+  String get fbTemplateDelivery => 'توصيل';
+
+  @override
+  String get fbTemplateBooking => 'حجز';
+
+  @override
+  String get fbTemplateSubscription => 'تجديد اشتراك';
+
+  @override
+  String get fbTemplateBill => 'استحقاق فاتورة';
+
+  @override
+  String get fbOutcomeReminder => 'اقتراح تذكير';
+
+  @override
+  String get fbOutcomeFact => 'اقتراح معلومة';
+
+  @override
+  String get fbOutcomeConversation => 'عرض الحديث عنها';
+
+  @override
+  String fbRuleWeek(int proposed, int ignored) {
+    return 'هذا الأسبوع: $proposed مقترح، $ignored متجاهل';
+  }
+
+  @override
+  String fbRuleWeekOffers(int proposed, int ignored, int offers) {
+    String _temp0 = intl.Intl.pluralLogic(
+      offers,
+      locale: localeName,
+      other: '$offers عرض',
+      many: '$offers عرضًا',
+      few: '$offers عروض',
+      two: 'عرضان',
+      one: 'عرض واحد',
+    );
+    return 'هذا الأسبوع: $proposed مقترح، $ignored متجاهل، $_temp0';
+  }
+
+  @override
+  String get fbRulePaused => 'متوقفة مؤقتًا';
+
+  @override
+  String fbRulePause(String name) {
+    return 'إيقاف «$name» مؤقتًا';
+  }
+
+  @override
+  String fbRuleResume(String name) {
+    return 'استئناف «$name»';
+  }
+
+  @override
+  String get fbRulePausedDone => 'أُوقفت القاعدة مؤقتًا.';
+
+  @override
+  String get fbRuleResumedDone => 'عادت القاعدة تعمل.';
+
+  @override
+  String get fbSourceGroupShare => 'نص تشاركه';
+
+  @override
+  String get fbSourceGroupChat => 'محادثة حفظتها';
+
+  @override
+  String get fbSourceGroupNote => 'ملاحظة كتبتها';
+
+  @override
+  String fbEventWhen(String source, String when) {
+    return '$source · $when';
+  }
+
+  @override
+  String get fbReasonMatched => 'طابقت قاعدة هذه الرسالة.';
+
+  @override
+  String get fbReasonNoMatch => 'لم تطابق أي قاعدة هذه الرسالة.';
+
+  @override
+  String get fbReasonUncertain =>
+      'لم يستطع FactsBook قراءتها بأمان، فلم يحتفظ بشيء ولم يقترح شيئًا.';
+
+  @override
+  String get fbReasonSensitive =>
+      'بدت خاصة والملاحظات المقفلة مغلقة، فجرى تنحيتها جانبًا.';
+
+  @override
+  String get fbReasonSourceCap =>
+      'وصلت رسائل كثيرة من هذا المصدر اليوم، فجرى عدّ هذه فقط.';
+
+  @override
+  String get fbReasonVaultCap => 'وصلت رسائل كثيرة اليوم، فجرى عدّ هذه فقط.';
+
+  @override
+  String get fbReasonRuleCap =>
+      'بلغت هذه القاعدة حدّها اليومي، فجرى عدّ هذه فقط.';
+
+  @override
+  String get fbReasonStorm =>
+      'وصلت رسائل متشابهة كثيرة معًا، فجرى دمجها في واحدة.';
+
+  @override
+  String get fbReasonNoRule => 'لا توجد قاعدة مفعّلة لهذا المصدر.';
+
+  @override
+  String get fbRuleNewTitle => 'قاعدة جديدة';
+
+  @override
+  String get fbRuleEditTitle => 'تعديل القاعدة';
+
+  @override
+  String get fbRuleNameLabel => 'اسم القاعدة';
+
+  @override
+  String get fbRuleNameHint => 'مثال: مواعيد المكتبة';
+
+  @override
+  String get fbRuleWhen => 'عندما';
+
+  @override
+  String get fbRuleWhenLabel => 'مصدر الرسالة';
+
+  @override
+  String get fbSourceKindShare => 'نص مشارَك';
+
+  @override
+  String get fbSourceKindChat => 'محادثة محفوظة';
+
+  @override
+  String get fbSourceKindNote => 'ملاحظة';
+
+  @override
+  String get fbRuleSays => 'يقول شيئًا مثل';
+
+  @override
+  String get fbRuleTemplateLabel => 'نوع الرسالة';
+
+  @override
+  String get fbRuleLanguageLabel => 'لغة الرسالة';
+
+  @override
+  String get fbRuleLangEn => 'الإنجليزية';
+
+  @override
+  String get fbRuleLangAr => 'العربية';
+
+  @override
+  String get fbRuleTemplateHelp =>
+      'يقرأ FactsBook سطرًا واحدًا مثل «موعد: زيارة المكتبة | 2026-10-15T09:00».';
+
+  @override
+  String get fbRuleWordsLabel => 'كلمات يجب أن ترد فيها (اختياري)';
+
+  @override
+  String get fbRuleWordsHelp =>
+      'حتى 4 كلمات تفصل بينها فواصل. نص عادي وليس شيفرة.';
+
+  @override
+  String get fbRuleThen => 'ثم';
+
+  @override
+  String get fbRuleOutcomeReminder => 'اقتراح تذكير';
+
+  @override
+  String get fbRuleOutcomeReminderDetail => 'تؤكد التاريخ والوقت أولًا.';
+
+  @override
+  String get fbRuleOutcomeConversation => 'عرض الحديث عنها';
+
+  @override
+  String get fbRuleOutcomeConversationDetail => 'تقرر أنت هل تُفتح محادثة.';
+
+  @override
+  String get fbRuleOutcomeFactKept =>
+      'تقترح هذه القاعدة معلومة أيضًا. تُضبط المعلومات على خادم FactsBook، وتبقى كما هي.';
+
+  @override
+  String get fbRuleAutoStart => 'ابدأ هذه المحادثات تلقائيًا';
+
+  @override
+  String get fbRuleAutoStartOff =>
+      'تُعرض المحادثات فقط ولا تبدأ من تلقاء نفسها.';
+
+  @override
+  String get fbRuleOn => 'هذه القاعدة تعمل';
+
+  @override
+  String get fbRuleOnDetail =>
+      'أوقفها لإيقافها مؤقتًا. لا يُزال ما اقترحته سابقًا.';
+
+  @override
+  String get fbRuleLimit => 'الحد الأقصى يوميًا';
+
+  @override
+  String fbRuleLimitValue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count في اليوم',
+      many: '$count في اليوم',
+      few: '$count في اليوم',
+      two: '2 في اليوم',
+      one: '1 في اليوم',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get fbRuleTest => 'جرّبها على عيّنة';
+
+  @override
+  String get fbRuleSampleLabel => 'رسالة تجريبية';
+
+  @override
+  String get fbRuleSampleExample => 'استخدم مثالًا';
+
+  @override
+  String get fbRuleTestRun => 'اختبار';
+
+  @override
+  String get fbRuleTestAgain => 'اختبر مجددًا';
+
+  @override
+  String get fbRuleTestNeedsSave =>
+      'احفظ القاعدة أولًا ثم اختبرها. الاختبار لا يحفظ شيئًا.';
+
+  @override
+  String get fbRuleTestDirty => 'احفظ تغييراتك أولًا ليستخدمها الاختبار.';
+
+  @override
+  String fbRuleTestMatch(String summary, String when) {
+    return 'تطابق. وجدت: $summary، $when.';
+  }
+
+  @override
+  String get fbRuleTestMatchPlain => 'تطابق.';
+
+  @override
+  String fbRuleTestWould(String outcomes) {
+    return 'ستقترح: $outcomes. الاختبار لا يحفظ شيئًا.';
+  }
+
+  @override
+  String get fbRuleTestNoMatch => 'لا تطابق.';
+
+  @override
+  String get fbRuleSave => 'حفظ القاعدة';
+
+  @override
+  String get fbRuleSaved => 'حُفظت القاعدة.';
+
+  @override
+  String get fbRuleDelete => 'حذف القاعدة';
+
+  @override
+  String get fbRuleDeleteTitle => 'حذف هذه القاعدة؟';
+
+  @override
+  String fbRuleDeleteBody(String name) {
+    return 'تتوقف «$name» عن الاقتراح. ما اقترحته سابقًا يبقى لتقرر فيه.';
+  }
+
+  @override
+  String get fbRuleNeedsOwner =>
+      'لا يستطيع هذا الهاتف توقيع تغييرات القواعد بعد، فتُعرض القواعد دون تغييرها. أعدّ الموافقة لتغييرها.';
+
+  @override
+  String get fbRuleStale =>
+      'تغيّرت هذه القاعدة على الخادم. أُعيد تحميلها: راجعها ثم احفظ مجددًا.';
+
+  @override
+  String get fbRuleProblemName => 'أعطِ القاعدة اسمًا لا يزيد على 80 حرفًا.';
+
+  @override
+  String get fbRuleProblemWords => 'استخدم حتى 4 كلمات، كل منها حتى 40 حرفًا.';
+
+  @override
+  String get fbRuleProblemOutcome =>
+      'اختر شيئًا واحدًا على الأقل لتقترحه القاعدة.';
+
+  @override
+  String get fbRuleProblemTemplate =>
+      'هذه الذاكرة لا تقرأ هذا النوع من الرسائل.';
+
+  @override
+  String get fbRuleProblemLimit => 'اختر بين 1 و20 في اليوم.';
+
+  @override
+  String get fbEventTitle => 'ما الذي حدث لهذه الرسالة';
+
+  @override
+  String get fbEventFrom => 'من أين جاءت';
+
+  @override
+  String get fbEventSender => 'المرسل (ادّعاء)';
+
+  @override
+  String get fbEventApp => 'التطبيق (ادّعاء)';
+
+  @override
+  String get fbEventTrust => 'درجة الثقة';
+
+  @override
+  String get fbTrustUntrusted => 'من شخص آخر، غير موثّقة';
+
+  @override
+  String get fbTrustSelected => 'محادثة اخترتها';
+
+  @override
+  String get fbTrustAuthored => 'كتبتها أنت';
+
+  @override
+  String get fbEventRule => 'القاعدة المطابقة';
+
+  @override
+  String get fbEventIgnored => 'ملاحظات أخرى';
+
+  @override
+  String fbEventCollapsed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'دُمجت $count رسالة متشابهة أخرى في هذه.',
+      many: 'دُمجت $count رسالةً متشابهة أخرى في هذه.',
+      few: 'دُمجت $count رسائل متشابهة أخرى في هذه.',
+      two: 'دُمجت رسالتان متشابهتان أخريان في هذه.',
+      one: 'دُمجت رسالة متشابهة واحدة أخرى في هذه.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get fbEventUnverified =>
+      'مرسل غير موثّق. لا يستطيع FactsBook التحقق ممن أرسل هذا النص فعلًا، لذا لن يغيّر معلومة مالية دون موافقتك.';
+
+  @override
+  String get fbEventProposed => 'ما اقترحته';
+
+  @override
+  String get fbEventFootnote =>
+      'لا يُعرض النص الأصلي هنا ولا يُتبع أبدًا كتعليمات.';
+
+  @override
+  String get fbTriggerChip => 'من محفّز';
+
+  @override
+  String get fbWhyFired => 'ما الذي حدث لهذه الرسالة';
+
+  @override
+  String fbCareProposalWhen(String what, String when) {
+    return '$what، $when';
+  }
+
+  @override
+  String fbNeedsYouOffers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count عرض من محفّزات',
+      many: '$count عرضًا من محفّزات',
+      few: '$count عروض من محفّزات',
+      two: 'عرضان من محفّزين',
+      one: 'عرض واحد من محفّز',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get fbOfferTitle => 'هل تريد الحديث عن هذا مع وكيلك؟';
+
+  @override
+  String fbOfferFromRule(String name) {
+    return 'عرض · $name';
+  }
+
+  @override
+  String fbOfferSource(String source, String date) {
+    return 'من $source · $date';
+  }
+
+  @override
+  String get fbOfferTalk => 'تحدث عن هذا';
+
+  @override
+  String get fbOfferNotNow => 'ليس الآن';
+
+  @override
+  String get fbOfferExplain =>
+      'تُفتح محادثة جديدة مع وكيلك. يحصل على ملخص قصير لا على الرسالة كاملة. يستطيع القراءة والاقتراح دون التنفيذ. الرد أو الدفع يسألك أولًا دائمًا.';
+
+  @override
+  String get fbOfferChatLead =>
+      'لاحظ FactsBook شيئًا قد ترغب في الحديث عنه. هذا ملخص قصير وليس الرسالة الأصلية:';
+
+  @override
+  String get fbOfferStale => 'تغيّر هذا العرض أو انتهى، فجرى تحديثه.';
+
+  @override
+  String get fbOfferUnknown =>
+      'لم يستطع FactsBook تأكيد بدء المحادثة، فلم يُفتح شيء. لن يحاول مجددًا من تلقاء نفسه.';
+
+  @override
+  String get fbOfferDismissed => 'أُغلق العرض.';
+
+  @override
+  String get fbErrorBusy => 'الخادم مشغول للحظة. حاول مجددًا.';
+
+  @override
+  String get fbRuleOfferUnavailable =>
+      'هذه الذاكرة لا تعرض محادثات من القواعد.';
+
+  @override
+  String get fbNodeTitle => 'استخدم الذاكرة على هذا الهاتف';
+
+  @override
+  String get fbNodeRow => 'استخدم الذاكرة على هذا الهاتف';
+
+  @override
+  String get fbNodeRowDetail =>
+      'يبقى FactsBook داخل لينكس المدمج على هذا الهاتف. لا يغادر شيء الهاتف.';
+
+  @override
+  String get fbNodeUnsupportedTitle => 'غير متاح على هذا الجهاز';
+
+  @override
+  String get fbNodeUnsupportedBody =>
+      'تحتاج الذاكرة على الهاتف إلى لينكس المدمج، وهو متوفر في هواتف أندرويد فقط.';
+
+  @override
+  String get fbNodeLinuxTitle => 'أعدّ هذا الهاتف أولًا';
+
+  @override
+  String get fbNodeLinuxBody =>
+      'تعمل الذاكرة داخل لينكس المدمج. أعدّه أولًا ثم عد.';
+
+  @override
+  String get fbNodeLinuxAction => 'إعداد هذا الهاتف';
+
+  @override
+  String get fbNodeNoBuildTitle => 'لا يوجد برنامج ذاكرة لهذا الهاتف بعد';
+
+  @override
+  String get fbNodeNoBuildBody =>
+      'لا يحتوي هذا الإصدار من التطبيق على برنامج FactsBook لتثبيته على هذا الهاتف. سيأتي به إصدار لاحق.';
+
+  @override
+  String get fbNodeNotInstalledTitle => 'الذاكرة ليست على هذا الهاتف بعد';
+
+  @override
+  String get fbNodeNotInstalledBody =>
+      'يثبّت التطبيق FactsBook داخل لينكس المدمج ويشغّله ويتصل به تلقائيًا. يستمع داخل هذا الهاتف فقط.';
+
+  @override
+  String get fbNodeRun => 'إعداد الذاكرة على هذا الهاتف';
+
+  @override
+  String get fbNodeStepCopying => 'تثبيت البرنامج';
+
+  @override
+  String get fbNodeStepPreparing => 'إنشاء الذاكرة';
+
+  @override
+  String get fbNodeStepStarting => 'جارٍ التشغيل';
+
+  @override
+  String get fbNodeStepPairing => 'ربط هذا التطبيق';
+
+  @override
+  String get fbNodeRunningTitle => 'الذاكرة تعمل على هذا الهاتف';
+
+  @override
+  String get fbNodeRunningBody =>
+      'يعمل FactsBook داخل لينكس المدمج ومتصل بهذا التطبيق. يستمع داخل هذا الهاتف فقط.';
+
+  @override
+  String get fbNodeStoppedTitle => 'الذاكرة متوقفة';
+
+  @override
+  String get fbNodeStoppedBody =>
+      'ذاكرتك ما زالت على هذا الهاتف. شغّلها لاستخدامها.';
+
+  @override
+  String get fbNodeStart => 'تشغيل الذاكرة';
+
+  @override
+  String get fbNodeStop => 'إيقاف الذاكرة';
+
+  @override
+  String get fbNodeRestart => 'إعادة تشغيل الذاكرة';
+
+  @override
+  String get fbNodeStopping => 'جارٍ الإيقاف';
+
+  @override
+  String get fbNodeRemoving => 'جارٍ الإزالة';
+
+  @override
+  String get fbNodeOpen => 'فتح عنك';
+
+  @override
+  String get fbNodeAddress => 'العنوان';
+
+  @override
+  String get fbNodeAddressValue => 'داخل هذا الهاتف فقط';
+
+  @override
+  String get fbNodeRemove => 'إزالة الذاكرة من هذا الهاتف';
+
+  @override
+  String get fbNodeRemoveTitle => 'إزالة الذاكرة من هذا الهاتف؟';
+
+  @override
+  String get fbNodeRemoveBody =>
+      'يوقف هذا FactsBook ويحذف كل ما يحفظه على هذا الهاتف. لا يمكن التراجع.';
+
+  @override
+  String get fbNodeRemoveLoses1 =>
+      'كل ملاحظة ومعلومة وتذكير يحتفظ بها FactsBook هنا';
+
+  @override
+  String get fbNodeRemoveLoses2 => 'الاتصال به وربط مفتاح الموافقة';
+
+  @override
+  String get fbNodeRemoveKeeps =>
+      'الملاحظات التي ما زالت تنتظر على هذا الهاتف تبقى حتى ترسلها أو تتجاهلها.';
+
+  @override
+  String get fbNodeRemoved => 'أُزيلت الذاكرة من هذا الهاتف.';
+
+  @override
+  String get fbNodeFailInstall =>
+      'تعذّر تثبيت البرنامج هنا. حاول مجددًا؛ تقول التفاصيل السبب.';
+
+  @override
+  String get fbNodeFailStart => 'لم تبدأ الذاكرة. حاول مجددًا.';
+
+  @override
+  String get fbNodeFailPair =>
+      'الذاكرة تعمل لكن تعذّر على هذا التطبيق الاتصال بها. حاول مجددًا.';
+
+  @override
+  String get fbNodeFailStop => 'لم تتوقف الذاكرة. حاول مجددًا.';
+
+  @override
+  String get fbNodeFailRemove =>
+      'تعذّرت إزالة الذاكرة. قد تبقى بعض بياناتها على هذا الهاتف.';
+
+  @override
+  String get fbNodeLog => 'عرض السجل';
+
+  @override
+  String get fbReasonTargetStale =>
+      'تغيّر الشيء الذي تحدّثه هذه القاعدة، فلم يُقترح شيء.';
+
+  @override
+  String get fbReasonTargetGone =>
+      'الشيء الذي تحدّثه هذه القاعدة لم يعد موجودًا أو لم يعد متاحًا لها، فلم يُقترح شيء.';
+
+  @override
+  String get fbReasonRejectedEvent => 'لم يقبل FactsBook هذه الرسالة.';
+
+  @override
+  String get fbRuleProblemSender => 'يجب أن يكون اسم المرسل من 1 إلى 80 حرفًا.';
+
+  @override
+  String get fbRuleSenderLabel => 'اسم المرسل المزعوم (اختياري)';
+
+  @override
+  String get fbRuleSenderHelp =>
+      'فقط الرسائل التي تدّعي أنها من هذا الاسم. يستطيع أي شخص ادّعاء أي اسم، فهذا يضيّق القاعدة ولا يثبت من أرسلها.';
+
+  @override
+  String get fbRuleAreaLabel => 'المجال';
+
+  @override
+  String get fbRuleTestDraftNote =>
+      'يستخدم الاختبار ما تراه هنا، محفوظًا أو لا. لا يحفظ شيئًا.';
+
+  @override
+  String get fbCareProposalEdited => 'جرى التعديل. راجعه ثم وافق عليه.';
+
+  @override
+  String get fbCaptureRulesLook => 'اسمح لقواعدي بقراءة هذا';
+
+  @override
+  String get fbCaptureRulesLookDetail =>
+      'يحفظه حيث ترى قواعدك. الموافقة تعني توقيع أن النص عادي.';
+
+  @override
+  String get fbAuthReasonRules => 'السماح لقواعدك بقراءة هذا النص';
+
+  @override
+  String get fbOfferPendingNote => 'بانتظار إرسالك الرسالة الأولى.';
+
+  @override
+  String get fbNodeWhatTitle => 'ما هذا؟';
+
+  @override
+  String get fbNodeWhatBody =>
+      'تحفظ الذاكرة ملاحظاتك وتذكيراتك ومعلوماتك على هذا الهاتف وحدك. تعمل داخل لينكس المدمج في الهاتف ولا تغادره.';
+
+  @override
+  String get fbNodeOwnServer => 'الاتصال بخادمي الخاص';
+
+  @override
+  String get fbNodeOwnServerBody =>
+      'متقدم: صل هذا التطبيق بخادم ذاكرة تشغّله بنفسك بدل استخدام هذا الهاتف.';
+
+  @override
+  String get fbMemoryStopped => 'الذاكرة متوقفة';
+
+  @override
+  String get fbMemoryStoppedDetail => 'شغّلها لترى ملاحظاتك وتذكيراتك';
+
+  @override
+  String get fbMemoryStart => 'ابدأ';
+
+  @override
+  String get fbMemoryStarting => 'جارٍ تشغيل الذاكرة…';
+
+  @override
+  String get fbCareTapHint => 'المس البطاقة لتعديلها أو تخطيها.';
+
+  @override
+  String fbCareApproveNamed(String claim) {
+    return 'الموافقة على «$claim»';
+  }
+
+  @override
+  String fbCareRejectNamed(String claim) {
+    return 'رفض «$claim»';
+  }
+
+  @override
+  String fbCareEditNamed(String claim) {
+    return 'تعديل «$claim»';
+  }
+
+  @override
+  String fbCareSkipNamed(String claim) {
+    return 'تخطي «$claim»';
+  }
+
+  @override
+  String get fbCareSkipDetail => 'تبقى هنا لوقت لاحق';
+
+  @override
+  String get fbCareSourceRule => 'اقترحته قاعدة';
+
+  @override
+  String get fbCareSourceAgent => 'اقترحه وكيل';
+
+  @override
+  String get fbNodeNameThisPhone => 'ذاكرة هذا الهاتف';
+
+  @override
+  String get fbNodeNameDefault => 'هذه الذاكرة';
+
+  @override
+  String get fbStatusAllWorking => 'كل شيء يعمل';
+
+  @override
+  String fbStatusNeedsLook(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count أشياء تحتاج إلى نظرة',
+      one: 'شيء واحد يحتاج إلى نظرة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String fbStatusBackedUpAge(String age) {
+    return 'تم النسخ الاحتياطي · النسخة عمرها $age';
+  }
+
+  @override
+  String get fbReminderNotSounded => 'لا يرن على هذا الهاتف';
+
+  @override
+  String fbEventOutcomeProposed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'اقترحت عليك $count أشياء',
+      one: 'اقترحت عليك شيئًا واحدًا',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get fbEventWaitingForOk => 'بانتظار موافقتك';
+
+  @override
+  String get fbCaptureAddTo => 'أضِف إلى';
+
+  @override
+  String get fbCaptureAddToNone => 'دع الذاكرة تصنّفها';
+
+  @override
+  String get fbCaptureAddToFactNote => 'تُحفظ سطرًا واحدًا لتوافق عليه';
+
+  @override
+  String get fbCaptureArea => 'المجال';
+
+  @override
+  String get fbCaptureAreaAuto => 'دع الذاكرة تختار';
+
+  @override
+  String get fbCaptureRemindToo => 'ذكّرني بها أيضًا';
+
+  @override
+  String get fbCaptureRemindTooDetail => 'تراجع التاريخ والوقت قبل حفظ أي شيء.';
+
+  @override
+  String fbCaptureRulesOn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count قواعد مفعّلة',
+      one: 'قاعدة واحدة مفعّلة',
+      zero: 'لا قواعد مفعّلة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get fbCaptureSeeRules => 'اعرض قواعدك';
+
+  @override
+  String fbCaptureFactAdded(String thing) {
+    return 'أُضيفت إلى $thing.';
+  }
+
+  @override
+  String get fbCaptureFactProposed => 'أُرسلت لموافقتك. تنتظر في «يحتاجك».';
+
+  @override
+  String get fbCaptureSeeNeedsYou => 'اعرض «يحتاجك»';
+
+  @override
+  String fbThingAddFact(String thing) {
+    return 'أضِف معلومة إلى $thing';
+  }
+
+  @override
+  String get fbThingAddFactSave => 'أضِف المعلومة';
+
+  @override
+  String fbThingRemind(String thing) {
+    return 'ذكّرني بـ $thing';
+  }
+
+  @override
+  String fbThingReminderMade(String thing) {
+    return 'حُفظ تذكير بشأن $thing.';
+  }
+
+  @override
+  String get fbThingEditFact => 'تعديل هذه المعلومة';
+
+  @override
+  String get fbThingEditFactSave => 'أرسل تعديلي';
+
+  @override
+  String get fbThingFactChanged => 'تم التعديل.';
+
+  @override
+  String get fbThingChangeProposed => 'تعديلك ينتظر موافقتك في «يحتاجك».';
+
+  @override
+  String get fbThingOneLine => 'سطر واحد. ينتظر موافقتك قبل أن يُحفظ.';
+
+  @override
+  String get fbThingTapHint => 'المس معلومة لترى مصدرها أو لتعدّلها.';
+
+  @override
+  String fbThingExplainTold(String date) {
+    return 'أخبرتَ الذاكرة بهذا في $date.';
+  }
+
+  @override
+  String fbThingExplainSeen(String source, String date) {
+    return 'قرأت الذاكرة هذا من $source في $date. قد يكون المصدر مخطئًا، فتحقق قبل أن تعتمد عليه.';
+  }
+
+  @override
+  String fbThingExplainSeenNoSource(String date) {
+    return 'قرأت الذاكرة هذا في $date. قد يكون المصدر مخطئًا، فتحقق قبل أن تعتمد عليه.';
+  }
+
+  @override
+  String fbThingExplainGuessed(String source, String date) {
+    return 'خمّنت الذاكرة هذا من $source في $date. لم يؤكده أحد.';
+  }
+
+  @override
+  String fbThingExplainGuessedNoSource(String date) {
+    return 'خمّنت الذاكرة هذا في $date. لم يؤكده أحد.';
+  }
+
+  @override
+  String fbThingExplainCalculated(String date) {
+    return 'استنتجت الذاكرة هذا من معلومات أخرى في $date.';
+  }
+
+  @override
+  String get fbThingExplainWaiting => 'ينتظر موافقتك في «يحتاجك».';
+
+  @override
+  String get settingsV3GroupConnections => 'الاتصالات';
+
+  @override
+  String get settingsV3GroupAi => 'الذكاء الاصطناعي';
+
+  @override
+  String get settingsV3GroupChat => 'المحادثة';
+
+  @override
+  String get settingsV3GroupHelp => 'المساعدة وحول';
+
+  @override
+  String get settingsV3Servers => 'الخوادم';
+
+  @override
+  String get settingsV3ThisPhone => 'هذا الهاتف';
+
+  @override
+  String get settingsV3Providers => 'المزوّدون';
+
+  @override
+  String get settingsV3Shell => 'الصدفة للأوامر';
+
+  @override
+  String get settingsV3VoiceTyping => 'الكتابة الصوتية';
+
+  @override
+  String get settingsV3Permissions => 'الأذونات والأتمتة';
+
+  @override
+  String get settingsV3Notifications => 'الإشعارات';
+
+  @override
+  String get settingsV3Background => 'الخلفية';
+
+  @override
+  String get settingsV3Language => 'اللغة';
+
+  @override
+  String get settingsV3ByServer => 'حسب الخادم';
+
+  @override
+  String get settingsV3On => 'مفعّل';
+
+  @override
+  String get settingsV3Off => 'متوقف';
+
+  @override
+  String get settingsV3Connected => 'متصل';
+
+  @override
+  String get settingsV3NotConnected => 'غير متصل';
+
+  @override
+  String get settingsV3PhoneRunning => 'يعمل';
+
+  @override
+  String get settingsV3PhoneInstalled => 'مثبّت';
+
+  @override
+  String get settingsV3PhoneSetUp => 'إعداد';
+
+  @override
+  String get settingsV3ServersBlock => 'يمكنك تغيير بعضها لخادم واحد';
+
+  @override
+  String get settingsV3ServerGone => 'تمت إزالة هذا الخادم';
+
+  @override
+  String get settingsV3SectionConnection => 'الاتصال';
+
+  @override
+  String get settingsV3SectionInApp => 'في هذا التطبيق';
+
+  @override
+  String get settingsV3StatusVersion => 'الحالة والإصدار';
+
+  @override
+  String get settingsV3SignIn => 'تسجيل الدخول';
+
+  @override
+  String get settingsV3SignInPassword => 'كلمة مرور';
+
+  @override
+  String get settingsV3SignInToken => 'رمز';
+
+  @override
+  String get settingsV3SignInNone => 'غير محدد';
+
+  @override
+  String get settingsV3NameAddress => 'الاسم والعنوان';
+
+  @override
+  String get settingsV3Supports => 'ما يدعمه هذا الخادم';
+
+  @override
+  String get settingsV3ModelNew => 'النموذج للمحادثات الجديدة';
+
+  @override
+  String get settingsV3ServerPick => 'يختاره الخادم';
+
+  @override
+  String get settingsV3DifferentHere => 'مختلف هنا';
+
+  @override
+  String get settingsV3Watch => 'مراقبة هذا الخادم';
+
+  @override
+  String get settingsV3ShareRead => 'مشاركة حالة القراءة';
+
+  @override
+  String get settingsV3Updates => 'التحديثات والخدمة';
+
+  @override
+  String get settingsV3UseMyDefault => 'استخدام إعدادي الافتراضي';
+
+  @override
+  String get settingsV3AgentsTeam => 'فريق الذكاء الاصطناعي';
+
+  @override
+  String get settingsV3AgentsPhone => 'على هذا الهاتف';
+
+  @override
+  String get settingsV3ModelByServerNote =>
+      'يحتفظ كل خادم باختياره للمحادثات الجديدة. المحادثات المفتوحة تحتفظ بنموذجها.';
+
+  @override
+  String get settingsV3ProvidersByServerNote =>
+      'يسجّل كل خادم دخوله إلى المزوّدين بنفسه. تسجيل الدخول في أحدها لا يسجّل الدخول في الباقي.';
+
+  @override
+  String get settingsV3ShellByServerNote =>
+      'يُحفظ على كل خادم. التطبيقات الأخرى التي تستخدم الخادم تحصل على صدفته أيضًا.';
+
+  @override
+  String settingsV3ServerConnected(String name) {
+    return '$name · متصل';
+  }
+
+  @override
+  String settingsV3ServersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count خادم',
+      many: '$count خادمًا',
+      few: '$count خوادم',
+      two: 'خادمان',
+      one: 'خادم واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String settingsV3DifferentOn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'مختلف على $count خادم',
+      many: 'مختلف على $count خادمًا',
+      few: 'مختلف على $count خوادم',
+      two: 'مختلف على خادمين',
+      one: 'مختلف على خادم واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String settingsV3ModelNewOn(String name) {
+    return 'المحادثات الجديدة على $name';
+  }
+
+  @override
+  String settingsV3SectionOn(String name) {
+    return 'على $name';
+  }
+
+  @override
+  String settingsV3SavedOn(String name) {
+    return 'يُحفظ على $name. التطبيقات الأخرى التي تستخدم $name تحصل على هذا أيضًا.';
+  }
+
+  @override
+  String settingsV3ConnectedVersion(String version) {
+    return 'متصل · $version';
+  }
+
+  @override
+  String settingsV3ConnectTo(String name) {
+    return 'الاتصال بـ $name';
+  }
+
+  @override
+  String settingsV3UseMyDefaultDetail(String name) {
+    return 'تعود إشعارات $name والنموذج للمحادثات الجديدة ومشاركة حالة القراءة إلى اختياراتك.';
+  }
+
+  @override
+  String get settingsV3ServerSettings => 'إعدادات الخادم';
+
+  @override
+  String get settingsV3ShellAutomatic => 'تلقائي';
+
+  @override
+  String get settingsV3ReadStateByServerNote =>
+      'يُسأل كل خادم على حدة. لا يُشارك شيء مع خادم حتى تفعّله لهذا الخادم.';
+
+  @override
+  String settingsV3SharingCount(int count, int total) {
+    return '$count من $total تشارك';
+  }
+
+  @override
+  String get fbSettingsUsePhoneZone => 'استخدم المنطقة الزمنية لهذا الهاتف';
+
+  @override
+  String fbSettingsUsePhoneZoneDetail(String zone) {
+    return '$zone. تحتفظ التذكيرات بأوقاتها.';
+  }
+
+  @override
+  String get fbReasonKeyLockedNotYet =>
+      'فيها كلمة مرور أو رقم حساب، ولا تستطيع الذاكرة حفظ ذلك بعد. تبقى هنا على هذا الهاتف.';
+
+  @override
+  String get fbListLockedNoteNotYet =>
+      'الملاحظات التي فيها كلمات مرور أو أرقام حسابات لا تُحفظ بعد. تنتظر في «لم تُحفظ بعد».';
+
+  @override
+  String get fbReminderNotSoundedYet =>
+      'لا يستطيع هذا الهاتف تشغيل صوت التذكيرات بعد. يُحفظ التذكير ويظهر في «التذكيرات».';
+
+  @override
+  String get quotaAlertsSwitchTitle => 'نبّهني عندما تقترب الحصة من النفاد';
+
+  @override
+  String get quotaAlertsSwitchSupporting =>
+      'عندما يتجاوز مزوّد مُراقَب الحد الذي ضبطته له. ينطبق على كل الخوادم على هذا الهاتف.';
+
+  @override
+  String settingsV3ReconnectTo(String name) {
+    return 'إعادة الاتصال بـ $name';
+  }
+
+  @override
+  String get projectToolsNeedGitCommit =>
+      'تحتاج مساحات العمل المنفصلة والبيئات السحابية إلى مشروع يتتبعه git وفيه إيداع واحد على الأقل. اطلب من الوكيل إعداد git وعمل أول إيداع.';
+
+  @override
+  String settingsV3UseMyDefaultDone(String name, String what) {
+    return 'أُعيد على $name إلى اختياراتك: $what.';
+  }
+
+  @override
+  String get settingsV3NotificationsAllServers => 'الإشعارات لكل الخوادم';
+
+  @override
+  String get settingsV3AgentsOnPhone => 'الوكلاء على هذا الهاتف';
+
+  @override
+  String get settingsV3AgentsReady => 'جاهز';
+
+  @override
+  String settingsV3AgentsExternalCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count متصلون',
+      one: 'وكيل واحد متصل',
+      zero: 'لا يوجد وكيل متصل',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get usageWidgetStatusPaused =>
+      'متوقف مؤقتًا ما دام التطبيق في الخلفية.';
+
+  @override
+  String get usageWidgetStatusChecking => 'جارٍ التحقق…';
+
+  @override
+  String get usageWidgetStatusPhoneStopped =>
+      '‏Claude Code لا يعمل على هذا الهاتف. تتحدّث الأداة عندما يعمل.';
+
+  @override
+  String get usageWidgetStatusFailed =>
+      'تعذّرت قراءة الاستخدام. ستُعاد المحاولة بعد دقائق.';
+
+  @override
+  String get usageWidgetStatusNothingPhone =>
+      'لا أرقام للخطة بعد. سجّل الدخول إلى Claude Code على هذا الهاتف لرؤيتها.';
+
+  @override
+  String get usageWidgetStatusNothingServer =>
+      'لم يُبلغ هذا الخادم عن أرقام للخطة.';
+
+  @override
+  String usageWidgetStatusUpdated(String time) {
+    return 'حُدّث $time';
+  }
+
+  @override
+  String get projectHubBrowseFiles => 'تصفّح الملفات';
+
+  @override
+  String settingsV3NotConnectedVersion(String version) {
+    return 'غير متصل · آخر إصدار $version';
+  }
+
+  @override
+  String get settingsV3ConnectToChange =>
+      'اتصل لترى مزوّديه وأدواته وأذوناته وتغيّرها.';
+
+  @override
+  String quotaInAppTitle(String server) {
+    return 'اعرض الاستخدام من $server';
+  }
+
+  @override
+  String quotaInAppDescription(String server) {
+    return 'يقرأ ما تبقى في Codex وGLM وMiniMax من تسجيلات الدخول التي يملكها OpenCode هنا. يشغّل التطبيق مساعدًا صغيرًا داخل $server. لا يغادر الهاتف شيء سوى أسئلة الاستخدام إلى كل مزوّد.';
+  }
+
+  @override
+  String quotaInAppSetUp(String server) {
+    return 'إعداد الاستخدام على $server';
+  }
+
+  @override
+  String quotaInAppStepChecking(String server) {
+    return 'جارٍ فحص $server';
+  }
+
+  @override
+  String get quotaInAppStepCopying => 'جارٍ نسخ مساعد الاستخدام';
+
+  @override
+  String get quotaInAppStepSignIns => 'جارٍ البحث عن تسجيلات الدخول';
+
+  @override
+  String get quotaInAppStepStarting => 'جارٍ تشغيل مساعد الاستخدام';
+
+  @override
+  String get quotaInAppStepReading => 'جارٍ قراءة ما تبقى';
+
+  @override
+  String quotaInAppTurnOff(String server) {
+    return 'إيقاف الاستخدام على $server';
+  }
+
+  @override
+  String get quotaInAppTurnOffDetail =>
+      'يوقف المساعد ويزيل ملفاته ومفتاحه من هذا الهاتف. تبقى تسجيلات الدخول كما هي.';
+
+  @override
+  String quotaInAppCheckAgain(String server) {
+    return 'فحص تسجيلات الدخول على $server مرة أخرى';
+  }
+
+  @override
+  String quotaInAppNotSignedIn(String provider, String server) {
+    return 'لم تسجّل الدخول إلى $provider في OpenCode على $server. سجّل الدخول هناك ثم افحص مرة أخرى.';
+  }
+
+  @override
+  String quotaInAppSignInExpired(String provider, String server) {
+    return 'انتهت صلاحية تسجيل الدخول إلى $provider في OpenCode على $server. سجّل الدخول مرة أخرى هناك ثم افحص مرة أخرى.';
+  }
+
+  @override
+  String quotaInAppNotAnswering(String server) {
+    return 'الاستخدام على $server لا يستجيب. أعد إعداده لتشغيله.';
+  }
+
+  @override
+  String quotaInAppFailLinux(String server) {
+    return '$server ليس جاهزًا بعد. أكمل إعداد Ubuntu داخل التطبيق ثم حاول مرة أخرى.';
+  }
+
+  @override
+  String quotaInAppFailNoNode(String server) {
+    return 'لا يوجد Node في $server بعد وهو مطلوب للاستخدام. شغّل إعداد Ubuntu داخل التطبيق مرة أخرى لإضافته ثم حاول مرة أخرى.';
+  }
+
+  @override
+  String quotaInAppFailNodeOld(String server) {
+    return 'إصدار Node على $server أقدم من 20. شغّل إعداد Ubuntu داخل التطبيق مرة أخرى لتحديثه ثم حاول مرة أخرى.';
+  }
+
+  @override
+  String quotaInAppFailPrepare(String server) {
+    return 'تعذّر تجهيز الاستخدام على $server. حاول مرة أخرى؛ وإن استمر الفشل فأعد تشغيل التطبيق.';
+  }
+
+  @override
+  String quotaInAppFailStart(String server) {
+    return 'لم يبدأ مساعد الاستخدام على $server. حاول مرة أخرى بعد قليل.';
+  }
+
+  @override
+  String quotaInAppFailRemove(String server) {
+    return 'تعذّر إيقاف الاستخدام على $server. حاول مرة أخرى.';
+  }
+
+  @override
+  String get settingsV3ToolsByServerNote =>
+      'الأدوات هي ما يستطيع الوكيل استخدامه، مثل قراءة الملفات أو تشغيل الأوامر. يحتفظ كل خادم بمجموعته الخاصة.';
+
+  @override
+  String get launchUiUsageSignInServerGone =>
+      'هذا الخادم لم يعد محفوظًا، فهذا استخدامك بدلًا منه.';
+
+  @override
+  String get launchUiUsageSignInConnectionFailed =>
+      'تعذّر الاتصال بهذا الخادم لتسجيل الدخول. افحصه في الخوادم ثم جرّب الأداة مرة أخرى.';
+
+  @override
+  String get settingsHubSearchReasoningAliases =>
+      'transcript display thinking reasoning سجل عرض تفكير استدلال';
+
+  @override
+  String get usageTabPlans => 'الخطط';
+
+  @override
+  String get usageTabSpending => 'الإنفاق';
+
+  @override
+  String get usagePlansRefresh => 'تحديث الخطط';
+
+  @override
+  String get usageEmptyTitle => 'لا توجد اشتراكات بعد';
+
+  @override
+  String get usageEmptyBody => 'أضف خطة لترى كم تبقّى وموعد تجدّدها.';
+
+  @override
+  String get usageAddSection => 'إضافة اشتراك';
+
+  @override
+  String usageLeft(int percent) {
+    final intl.NumberFormat percentNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String percentString = percentNumberFormat.format(percent);
+
+    return 'المتبقي $percentString%';
+  }
+
+  @override
+  String usageUsedPercent(int percent) {
+    final intl.NumberFormat percentNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String percentString = percentNumberFormat.format(percent);
+
+    return 'المستخدم $percentString%';
+  }
+
+  @override
+  String usageUsedLeft(int used, int left) {
+    return 'المستخدم $used% · المتبقي $left%';
+  }
+
+  @override
+  String get usageWindowFiveHour => '5 ساعات';
+
+  @override
+  String get usageWindowWeek => 'أسبوع';
+
+  @override
+  String get usageWindowMonth => 'شهر';
+
+  @override
+  String get usageWindowTools => 'الأدوات · شهر';
+
+  @override
+  String get usageWindowOther => 'حد';
+
+  @override
+  String usageOnConnection(String connection) {
+    return 'على $connection';
+  }
+
+  @override
+  String get usageThisPhone => 'هذا الهاتف';
+
+  @override
+  String get usageAlertsTitle => 'التنبيهات';
+
+  @override
+  String usageAlertsSummaryOn(int percent) {
+    final intl.NumberFormat percentNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String percentString = percentNumberFormat.format(percent);
+
+    return 'مفعّلة · عند استخدام $percentString%';
+  }
+
+  @override
+  String get usageAlertsSummaryOff => 'متوقفة';
+
+  @override
+  String get usageWidgetRow => 'أداة الشاشة الرئيسية';
+
+  @override
+  String usageWidgetSubs(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString اشتراكات',
+      two: 'اشتراكان',
+      one: 'اشتراك واحد',
+      zero: 'لا اشتراكات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String usageApiKeyOnly(String provider, String connection) {
+    return 'مفتاح API لـ $provider على $connection · الدفع حسب الاستخدام، بلا حدود خطة';
+  }
+
+  @override
+  String usagePillPast(int percent) {
+    final intl.NumberFormat percentNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String percentString = percentNumberFormat.format(percent);
+
+    return 'تجاوز $percentString%';
+  }
+
+  @override
+  String get usagePillOut => 'بلغ الحد';
+
+  @override
+  String get usagePillSignInRanOut => 'انتهى تسجيل الدخول';
+
+  @override
+  String get usagePillBroken => 'تعذّرت القراءة';
+
+  @override
+  String get usagePillCantRead => 'لا يمكن القراءة بعد';
+
+  @override
+  String get usagePillNotSignedIn => 'غير مسجّل';
+
+  @override
+  String get usagePillOffline => 'غير متصل';
+
+  @override
+  String get usagePillNoLimits => 'بلا حدود';
+
+  @override
+  String usageCantReadBody(String connection) {
+    return 'مسجّل الدخول على $connection. لا يستطيع التطبيق قراءة حدوده من هناك بعد.';
+  }
+
+  @override
+  String get usageCantReadBodyOne =>
+      'مسجّل الدخول، لكن التطبيق لا يستطيع قراءة حدوده بعد.';
+
+  @override
+  String usageSignInRanOut(String provider, String connection) {
+    return 'انتهى تسجيل دخول $provider على $connection';
+  }
+
+  @override
+  String usageSignInRanOutOne(String provider) {
+    return 'انتهى تسجيل دخولك إلى $provider.';
+  }
+
+  @override
+  String get usageNotSignedInAnywhere => 'غير مسجّل الدخول في أي مكان';
+
+  @override
+  String get usageNotSignedInOne => 'غير مسجّل الدخول';
+
+  @override
+  String usageReaderBroken(String provider) {
+    return 'تعذّرت قراءة $provider الآن';
+  }
+
+  @override
+  String get usageNoLimits => 'لم تُبلَّغ حدود لهذه الخطة';
+
+  @override
+  String usageOfflineStale(String connection, String age) {
+    return '$connection غير متصل · قُرئ قبل $age';
+  }
+
+  @override
+  String usageOfflineStaleOne(String age) {
+    return 'غير متصل · قُرئ قبل $age';
+  }
+
+  @override
+  String usageDurationMinutes(int minutes) {
+    return '$minutes د';
+  }
+
+  @override
+  String usageDurationHours(int hours) {
+    return '$hours س';
+  }
+
+  @override
+  String usageDurationHoursMinutes(int hours, int minutes) {
+    return '$hours س $minutes د';
+  }
+
+  @override
+  String usageDurationDays(int days) {
+    return '$days ي';
+  }
+
+  @override
+  String usageDurationDaysHours(int days, int hours) {
+    return '$days ي $hours س';
+  }
+
+  @override
+  String usageResetsIn(String time, String duration) {
+    return 'تتجدد عند $time، بعد $duration';
+  }
+
+  @override
+  String get usageResetPassed => 'مرّ وقت التجدد. حدّث للتحقق.';
+
+  @override
+  String usageResetsAt(String time) {
+    return 'تتجدد $time';
+  }
+
+  @override
+  String usageFiveHourResets(String time) {
+    return 'حد الـ5 ساعات يتجدد $time';
+  }
+
+  @override
+  String usageWeekResets(String time) {
+    return 'الحد الأسبوعي يتجدد $time';
+  }
+
+  @override
+  String usageOutUntil(String time) {
+    return 'متوقف حتى $time';
+  }
+
+  @override
+  String usageResetSince(String time) {
+    return 'تجدد عند $time منذ آخر قراءة';
+  }
+
+  @override
+  String usageReadAgo(String age) {
+    return 'قُرئ قبل $age';
+  }
+
+  @override
+  String usageCheckedAgo(String age) {
+    return 'فُحص قبل $age';
+  }
+
+  @override
+  String usageReadFrom(String connection) {
+    return 'قراءة الاستخدام من $connection';
+  }
+
+  @override
+  String get usageReadUsageFromHere => 'قراءة الاستخدام من هنا';
+
+  @override
+  String get usageSignIn => 'تسجيل الدخول';
+
+  @override
+  String get usageSignInAgain => 'تسجيل الدخول مجددًا';
+
+  @override
+  String get usageAddKey => 'إضافة مفتاح';
+
+  @override
+  String get usageTryAgain => 'حاول مجددًا';
+
+  @override
+  String get usageSignInUnavailable =>
+      'لا يوجد مكان لتسجيل الدخول منه هنا بعد.';
+
+  @override
+  String usageAddTitle(String provider) {
+    return 'إضافة $provider';
+  }
+
+  @override
+  String usageAddWhere(String provider) {
+    return 'أين تريد تسجيل الدخول إلى $provider؟ يقرأ التطبيق الاستخدام من المكان الذي تختاره.';
+  }
+
+  @override
+  String get usageBest => 'الأفضل';
+
+  @override
+  String get usageAddInAppNote => 'على هذا الهاتف · يعمل الاستخدام فورًا';
+
+  @override
+  String get usageAddServerNote => 'خادم حفظته';
+
+  @override
+  String usageAddPhoneNote(String provider) {
+    return 'يسجّل دخول وكيل $provider على هذا الهاتف';
+  }
+
+  @override
+  String usageAddNoneTitle(String provider) {
+    return 'لا يمكن إضافة $provider بعد';
+  }
+
+  @override
+  String get usageAddNoneBody =>
+      'احفظ خادمًا أو جهّز Ubuntu داخل التطبيق وسيظهر هنا.';
+
+  @override
+  String get usageReadFromTitleHere => 'قراءة الاستخدام';
+
+  @override
+  String get usageReadFromGoneTitle => 'هذا الاتصال اختفى';
+
+  @override
+  String get usageReadFromGoneBody => 'ارجع إلى الخطط لترى ما تبقّى.';
+
+  @override
+  String usageReadFromSignedIn(String providers, String connection) {
+    return '$providers مسجّلة الدخول على $connection';
+  }
+
+  @override
+  String get usageReadFromBodyInApp =>
+      'لعرض حدودها يشغّل التطبيق قارئًا صغيرًا داخل Ubuntu في التطبيق. يقرأ فقط كم تبقّى، ولا يقرأ محادثاتك أو مفاتيحك أبدًا.';
+
+  @override
+  String get usageReadFromSetUpInApp => 'إعداد الاستخدام';
+
+  @override
+  String get usageNotNow => 'ليس الآن';
+
+  @override
+  String get usageSubGoneTitle => 'هذه الخطة اختفت';
+
+  @override
+  String get usageSubGoneBody => 'ارجع إلى الخطط لترى ما تبقّى.';
+
+  @override
+  String get usageStateSignedIn => 'مسجّل الدخول';
+
+  @override
+  String get usageStateExpired => 'انتهى تسجيل الدخول';
+
+  @override
+  String get usageStateNotSignedIn => 'غير مسجّل الدخول';
+
+  @override
+  String get usageConnOffline => 'غير متصل';
+
+  @override
+  String get usageConnReadsHere => 'الأرقام تأتي من هنا';
+
+  @override
+  String get usageSameAccount => 'الحساب نفسه';
+
+  @override
+  String get usageSignedInOn => 'مسجّل الدخول على';
+
+  @override
+  String get usageAlertAt => 'نبّهني عند';
+
+  @override
+  String usageAlertAtPlan(String provider, int percent) {
+    final intl.NumberFormat percentNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String percentString = percentNumberFormat.format(percent);
+
+    return 'لـ $provider فقط. الخطط الأخرى تستخدم $percentString%.';
+  }
+
+  @override
+  String get usageAlertAtDefault => 'الافتراضي لكل خطة';
+
+  @override
+  String get usageAlertAtSame => 'مثل خططك الأخرى';
+
+  @override
+  String usageAlertSameAsOthers(int percent) {
+    final intl.NumberFormat percentNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String percentString = percentNumberFormat.format(percent);
+
+    return 'مثل الخطط الأخرى ($percentString%)';
+  }
+
+  @override
+  String get usageNotifyReset => 'أخبرني عند التجدد';
+
+  @override
+  String get usageNotifyResetHelp => 'رسالة عندما يعود حد كان قد نفد.';
+
+  @override
+  String get usageNotifyResetAll => 'أخبرني عند تجدد الحد';
+
+  @override
+  String get usageSaveFailed => 'تعذّر الحفظ. يبقى كما كان.';
+
+  @override
+  String get usageDetails => 'التفاصيل';
+
+  @override
+  String get usageDetailReader => 'القارئ';
+
+  @override
+  String get usageDetailNone => 'لا شيء';
+
+  @override
+  String get usageDetailRead => 'القراءة';
+
+  @override
+  String get usageDetailChecked => 'الفحص';
+
+  @override
+  String get usageDetailAccount => 'الحساب';
+
+  @override
+  String get usageDetailWindows => 'النوافذ';
+
+  @override
+  String get usageYes => 'نعم، الحساب معروف';
+
+  @override
+  String get usageNo => 'لا حساب معروف';
+
+  @override
+  String get usageAlertsSwitch => 'تنبيهات الاستخدام';
+
+  @override
+  String get usageAlertsSwitchHelp => 'تراقب كل اشتراك يستطيع التطبيق قراءته';
+
+  @override
+  String get usageAlertsDifferent => 'مختلفة عن الافتراضي';
+
+  @override
+  String get usageAlertOverrideResetOn => 'يُعلمك عند التجدد';
+
+  @override
+  String get usageAlertOverrideResetOff => 'بلا رسالة تجدد';
+
+  @override
+  String get usageAlertsWhen => 'متى';
+
+  @override
+  String get usageQuietShared => 'مشتركة مع تنبيهاتك الأخرى';
+
+  @override
+  String get usageAlertsNothingToWatch =>
+      'لا شيء للمراقبة بعد. تبدأ التنبيهات عندما يمكن قراءة خطة.';
+
+  @override
+  String get usageWidgetSettingsShow => 'عرض هذه الخطط';
+
+  @override
+  String get usageWidgetSettingsWindows =>
+      'عرض حد الـ5 ساعات أو الأسبوعي أو كليهما';
+
+  @override
+  String get usageWidgetWindowBoth => 'كلاهما';
+
+  @override
+  String get usageWidgetWindowFiveHour => '5 ساعات';
+
+  @override
+  String get usageWidgetWindowWeekly => 'أسبوعي';
+
+  @override
+  String get usageWidgetSettingsSetup => 'عرض الصفوف التي تحتاج إعدادًا';
+
+  @override
+  String get usageWidgetSettingsSetupHelp =>
+      'صفوف تسجيل الدخول وإضافة المفتاح والإعداد';
+
+  @override
+  String get usageSources => 'المصادر';
+
+  @override
+  String get usageNoKey => 'لم يُضف مفتاح';
+
+  @override
+  String get usageStateCouldntCheck => 'تعذّر الفحص';
+
+  @override
+  String usageViaOpenCodeNoPlan(String connection) {
+    return 'Anthropic على $connection · لا حدود للخطة عبر OpenCode';
+  }
+
+  @override
+  String get usageNotReadYet => 'لم تُقرأ بعد';
+
+  @override
+  String get usageConnectionsHeader => 'الاتصالات';
+
+  @override
+  String get usageReadUsage => 'قراءة الاستخدام';
+
+  @override
+  String get usageWifiOnlyHelp => 'يوقف الفحص خارج شبكة Wi-Fi';
+
+  @override
+  String usageSetupSignedInOn(String connection) {
+    return 'تم تسجيل الدخول على $connection';
+  }
+
+  @override
+  String get usageSetupSignedIn => 'تم تسجيل الدخول';
+
+  @override
+  String usageSetupRanOutOn(String connection) {
+    return 'انتهى تسجيل الدخول على $connection';
+  }
+
+  @override
+  String get usageSetupRanOut => 'انتهى تسجيل الدخول';
+
+  @override
+  String get usageSetupCouldntRead => 'تعذّرت القراءة';
+
+  @override
+  String get usageNeedsSetupHeader => 'يحتاج إعدادًا';
+
+  @override
+  String get usageNoNumbersYet => 'لا أرقام للخطط بعد. أعدّ إحداها أدناه.';
+
+  @override
+  String usageComputerExplain(String server) {
+    return 'يشغّل التطبيق فحصًا صغيرًا للقراءة فقط على $server عبر OpenCode عند كل تحديث. لا يُثبَّت شيء ولا يبقى شيء قيد التشغيل. ولا يعود إلا المتبقي من الحد، ولا تعود مفاتيحك أو محادثاتك أبدًا.';
+  }
+
+  @override
+  String get usageComputerWhatRuns => 'ما الذي يعمل';
+
+  @override
+  String get usageComputerCommandLabel => 'الأمر';
+
+  @override
+  String get usageComputerReadsLabel => 'يقرأ';
+
+  @override
+  String usageComputerReadsValue(String server) {
+    return 'ملف تسجيل الدخول الخاص بـ OpenCode على $server، وملف Codex CLI لـ Codex. للقراءة فقط ولا يُكتب شيء.';
+  }
+
+  @override
+  String get usageComputerTurnOn => 'تشغيل';
+
+  @override
+  String get usageComputerTurnOff => 'إيقاف';
+
+  @override
+  String get usageComputerReadNow => 'اقرأ الآن';
+
+  @override
+  String get usageComputerDone => 'تم';
+
+  @override
+  String usageComputerChecking(String server) {
+    return 'جارٍ فحص $server…';
+  }
+
+  @override
+  String usageComputerFound(String plans, String server) {
+    return 'وُجد $plans على $server.';
+  }
+
+  @override
+  String usageComputerFoundNone(String server) {
+    return 'نجح الفحص، لكن لا توجد خطة مسجَّل الدخول إليها على $server.';
+  }
+
+  @override
+  String usageComputerOnNote(String server) {
+    return 'تتم القراءة من $server عبر OpenCode.';
+  }
+
+  @override
+  String usageComputerNeedsNode(String server) {
+    return 'يحتاج $server إلى Node.js بإصدار 20 أو أحدث.';
+  }
+
+  @override
+  String usageComputerServerTooOld(String server) {
+    return 'إصدار OpenCode على $server قديم لهذا. حدّثه ثم حاول مجددًا.';
+  }
+
+  @override
+  String usageComputerOffline(String server) {
+    return 'تعذّر الوصول إلى $server الآن.';
+  }
+
+  @override
+  String usageComputerNoAnswer(String server) {
+    return 'لم ينتهِ الفحص على $server. حاول مجددًا.';
+  }
+
+  @override
+  String usageComputerRowTitle(String server) {
+    return 'القراءة من $server عبر OpenCode';
+  }
+
+  @override
+  String get usageDetailLastCheck => 'آخر فحص';
+
+  @override
+  String get usagePhoneNotRunning => 'غير قيد التشغيل';
+
+  @override
+  String get kitRequestNeedsYouLabel => 'بحاجة إليك';
+
+  @override
+  String get kitRequestAlwaysAllowLike => 'السماح دائمًا بطلبات مثل هذا';
+
+  @override
+  String get chatRequestAlwaysAllowCommands => 'السماح دائمًا بأوامر مثل هذا';
+
+  @override
+  String get chatRequestAskCommand => 'تشغيل هذا الأمر؟';
+
+  @override
+  String get chatRequestAskEdit => 'تعديل هذا الملف؟';
+
+  @override
+  String get chatRequestAskRead => 'قراءة هذا الملف؟';
+
+  @override
+  String get chatRequestAskDirectory => 'فتح هذا المجلد؟';
+
+  @override
+  String get chatRequestAskFetch => 'فتح صفحة الويب هذه؟';
+
+  @override
+  String usageBackAt(String time) {
+    return 'تعود في $time';
+  }
+
+  @override
+  String get usageAlertsOnWord => 'مفعّلة';
+
+  @override
+  String usageWidgetPlans(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count خطط',
+      two: 'خطتان',
+      one: 'خطة واحدة',
+      zero: 'لا خطط',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get usageAlertsForEvery => 'لكل خطة يستطيع التطبيق قراءتها';
+
+  @override
+  String get usageAlertsTellMe => 'أخبرني عندما';
+
+  @override
+  String get usageAlertsQuietGroup => 'هدوء';
+
+  @override
+  String get usageAlertPlanDownTo => 'تنخفض خطة إلى';
+
+  @override
+  String get usageAlertUsedUpBack => 'تعود خطة نفدت';
+
+  @override
+  String get usageQuietSameAsOthers => 'مثل تنبيهاتك الأخرى';
+
+  @override
+  String get usageWifiOnlyShort => 'الفحص عبر Wi-Fi فقط';
+
+  @override
+  String kitTaskChipCount(int done, int total) {
+    return '$done/$total';
+  }
+
+  @override
+  String kitTaskChipDone(int done, int total) {
+    return '✓ $done/$total';
+  }
+
+  @override
+  String kitTaskChipAdded(int done, int total) {
+    return '+ $done/$total';
+  }
+
+  @override
+  String kitTaskChipSpoken(int done, int total) {
+    return 'المهام، اكتمل $done من $total';
+  }
+
+  @override
+  String kitTaskChipSpokenNow(int done, int total, String task) {
+    return 'المهام، اكتمل $done من $total، والآن: $task';
+  }
+
+  @override
+  String get toolCardUpdatedTasks => 'تم تحديث المهام';
+
+  @override
+  String kitDiffFoldAbove(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count سطرًا أعلاه',
+      one: 'سطر واحد أعلاه',
+    );
+    return '… $_temp0';
+  }
+
+  @override
+  String kitDiffFoldBelow(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count سطرًا أدناه',
+      one: 'سطر واحد أدناه',
+    );
+    return '… $_temp0';
+  }
+
+  @override
+  String kitDiffFoldBetween(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count سطرًا',
+      one: 'سطر واحد',
+    );
+    return '… $_temp0';
+  }
+
+  @override
+  String notifStatusNeedsYou(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count طلب ينتظرك',
+      many: '$count طلبًا ينتظرك',
+      few: '$count طلبات تنتظرك',
+      two: 'طلبان ينتظرانك',
+      one: 'طلب واحد ينتظرك',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String notifStatusStillWorking(int count) {
+    return '$count ما زالت تعمل';
+  }
+
+  @override
+  String notifStatusChatsWorking(int count) {
+    return '$count محادثات تعمل';
+  }
+
+  @override
+  String notifStatusMore(int count) {
+    return '+$count أخرى';
+  }
+
+  @override
+  String notifStatusWaitingCount(int count) {
+    return '$count في الانتظار';
+  }
+
+  @override
+  String notifStatusTasksProgress(int done, int total) {
+    return '$done من $total مهام';
+  }
+
+  @override
+  String notifStatusMinutes(int count) {
+    return '$count د';
+  }
+
+  @override
+  String notifStatusHours(int count) {
+    return '$count س';
+  }
+
+  @override
+  String notifStatusWaitingProvider(String provider) {
+    return 'في الانتظار · حدّ $provider';
+  }
+
+  @override
+  String get notifStatusWaitingGeneric => 'في الانتظار · المزوّد مشغول';
+
+  @override
+  String notifStatusTriesAgainAt(String time) {
+    return 'يعيد المحاولة في $time';
+  }
+
+  @override
+  String get notifStatusTriesAgainSoon => 'يعيد المحاولة قريبًا';
+
+  @override
+  String get notifStatusPausedAndroidTitle => 'متوقف · حدّ الخلفية في أندرويد';
+
+  @override
+  String get notifStatusPausedAndroidBody =>
+      'يوقف أندرويد العمل في الخلفية بعد 6 ساعات يوميًا. افتح OpenCode لتواصل.';
+
+  @override
+  String get notifStatusPausedHotTitle => 'متوقف · الهاتف ساخن';
+
+  @override
+  String get notifStatusPausedHotBody => 'يستأنف عندما يبرد';
+
+  @override
+  String get notifStatusPausedIdleTitle => 'متوقف · لم يكن شيء يعمل';
+
+  @override
+  String get notifStatusPausedIdleBody => 'المس لتشغيل OpenCode من جديد';
+
+  @override
+  String notifStatusReconnectingTitle(String server) {
+    return 'إعادة الاتصال بـ $server';
+  }
+
+  @override
+  String get notifStatusReconnectingGeneric => 'إعادة الاتصال';
+
+  @override
+  String get notifStatusReconnectingBody => 'بانتظار الاتصال';
+
+  @override
+  String get notifStatusReadyTitle => 'جاهز · لا شيء قيد التشغيل';
+
+  @override
+  String get notifStatusReadyBody => 'جاهز عندما تكون جاهزًا';
+
+  @override
+  String notifStatusLastReply(String ago) {
+    return 'آخر رد منذ $ago';
+  }
+
+  @override
+  String get notifStatusLastReplyNow => 'آخر رد قبل لحظات';
+
+  @override
+  String notifStatusSetupTitle(int step, int steps) {
+    return 'إعداد OpenCode · الخطوة $step من $steps';
+  }
+
+  @override
+  String notifStatusOnServer(String server) {
+    return 'على $server';
+  }
+
+  @override
+  String get notifStatusOnThisPhone => 'على هذا الهاتف';
+
+  @override
+  String notifStatusPublicWorking(int count) {
+    return 'OpenCode · $count تعمل';
+  }
+
+  @override
+  String get notifStatusPublicWaiting => 'OpenCode · في الانتظار';
+
+  @override
+  String get notifStatusPublicPaused => 'OpenCode · متوقف';
+
+  @override
+  String get notifStatusPublicReconnecting => 'OpenCode · إعادة الاتصال';
+
+  @override
+  String get notifStatusPublicReady => 'OpenCode · جاهز';
+
+  @override
+  String get notifStatusPublicSetup => 'OpenCode · الإعداد';
+
+  @override
+  String get integrationsSignInCodeLabel => 'رمزك';
+
+  @override
+  String get integrationsSignInCodeHint =>
+      'فتح المتصفح ينسخ الرمز لك. الصقه في الصفحة التي تُفتح.';
+
+  @override
+  String get integrationsCodeCopied => 'تم نسخ الرمز';
+
+  @override
+  String get integrationsCopyCode => 'نسخ الرمز';
+
+  @override
+  String get integrationsOpenBrowserAgain => 'فتح المتصفح مرة أخرى';
+
+  @override
+  String get integrationsSignInWaitingBrowser => 'بانتظار الموافقة في المتصفح';
+
+  @override
+  String get integrationsSignInWaitingDetail =>
+      'أدخل الرمز في المتصفح ووافق. التطبيق ينتظر ويُنهي تسجيل الدخول تلقائيًا عند عودتك.';
+
+  @override
+  String get integrationsSignInEnded => 'انتهى تسجيل الدخول';
+
+  @override
+  String get integrationsSignInEndedDetail =>
+      'انتهى تسجيل الدخول قبل الموافقة. ربما انتهت صلاحية الرمز أو أُعيد تشغيل الخادم. لم تتم إضافة شيء.';
+
+  @override
+  String get integrationsStartAgain => 'ابدأ من جديد';
+
+  @override
+  String get mentionToolTitle => 'ملف من المشروع';
+
+  @override
+  String get mentionToolSupporting => 'وجّه الوكيل إلى ملف في هذا المشروع';
+
+  @override
+  String get mentionSheetTitle => 'ملفات المشروع';
+
+  @override
+  String get mentionSearchLabel => 'البحث عن ملف بالاسم';
+
+  @override
+  String get mentionSearchHint =>
+      'اكتب جزءًا من اسم الملف للبحث في هذا المشروع.';
+
+  @override
+  String get mentionSearchFailedTitle => 'تعذّر البحث في هذا المشروع';
+
+  @override
+  String get mentionSearchFailedMessage =>
+      'تحقق من الاتصال بالخادم وحاول مرة أخرى.';
+
+  @override
+  String get mentionNoMatchWhat => 'ملفات المشروع';
+
+  @override
+  String get mentionProjectFolder => 'مجلد المشروع';
+
+  @override
+  String get inAppServerOwnershipRecoveryBody =>
+      'تعذّر إعادة تشغيل الخادم على هذا الهاتف بأمان. افتح إعدادات التطبيق، واضغط «فرض الإيقاف»، ثم افتح التطبيق مجددًا دون مسح التخزين؛ ستبقى محادثاتك.';
+
+  @override
+  String get liveStyleAurora => 'انجراف الشفق';
+
+  @override
+  String get liveStyleMesh => 'شبكة تتنفس';
+
+  @override
+  String get liveStyleDotRipple => 'تموّج النقاط';
+
+  @override
+  String get liveStyleTopo => 'خطوط الكنتور';
+
+  @override
+  String get liveStyleFlowThreads => 'خيوط متدفقة';
+
+  @override
+  String get liveStyleGlowSpill => 'انسكاب الوهج';
+
+  @override
+  String get liveStyleLightRays => 'أشعة الضوء';
+
+  @override
+  String get liveStyleConstellation => 'كوكبة';
+
+  @override
+  String get liveStyleHalftone => 'نصف تدرّج';
+
+  @override
+  String get liveStyleLiquidBlobs => 'فقاعات سائلة';
+
+  @override
+  String get liveStyleMatrixRain => 'مطر الشيفرة';
+
+  @override
+  String get liveStyleBlueprint => 'مخطط هندسي';
+
+  @override
+  String get liveStyleCircuit => 'دارة';
+
+  @override
+  String get liveStyleOscilloscope => 'راسم الذبذبات';
+
+  @override
+  String get liveStyleRadar => 'رادار';
+
+  @override
+  String get liveStyleHoneycomb => 'خلية النحل';
+
+  @override
+  String get liveStyleBrushedMetal => 'معدن مصقول';
+
+  @override
+  String get liveStyleSilk => 'حرير';
+
+  @override
+  String get liveStyleCaustics => 'انعكاسات الماء';
+
+  @override
+  String get liveStyleBokeh => 'بوكيه';
+
+  @override
+  String get liveStylePickerTitle => 'الشكل';
+
+  @override
+  String get liveStyleUse => 'استخدم هذا';
+
+  @override
+  String get liveStyleReplyRunning => 'الرد قيد الكتابة';
+
+  @override
+  String liveStyleSelected(String name) {
+    return '$name، محدد';
+  }
+
+  @override
+  String get liveIntensityTitle => 'الشدة';
+
+  @override
+  String get liveIntensitySubtle => 'خفيفة';
+
+  @override
+  String get liveIntensityNormal => 'عادية';
+
+  @override
+  String get liveIntensityBold => 'قوية';
+
+  @override
+  String get effectsLiveBackground => 'خلفية حيّة';
+
+  @override
+  String get effectsLiveBackgroundHint =>
+      'انجراف بطيء وناعم للألوان خلف كل صفحة';
+
+  @override
+  String get continueWithMenu => 'المتابعة مع…';
+
+  @override
+  String get continueWithMenuHint => 'انقل هذا العمل إلى وكيل أو نموذج آخر';
+
+  @override
+  String get continueWithTitle => 'تابع هذا العمل';
+
+  @override
+  String continueWithSubtitle(String title, String project) {
+    return '$title · $project';
+  }
+
+  @override
+  String get continueWithModelsHere => 'نماذج على هذا الخادم';
+
+  @override
+  String get continueWithAgents => 'وكلاء على هذا الهاتف';
+
+  @override
+  String get continueWithNothingReady =>
+      'لا يوجد وكيل أو نموذج آخر جاهز للمتابعة.';
+
+  @override
+  String get continueWithLoadFailed => 'تعذّر تحميل الوكلاء. حاول مرة أخرى.';
+
+  @override
+  String get continueWithTryAgain => 'حاول مرة أخرى';
+
+  @override
+  String get continueWithSignIn => 'تسجيل الدخول';
+
+  @override
+  String continueWithNeedsSignIn(String agent) {
+    return 'سجّل الدخول لاستخدام $agent.';
+  }
+
+  @override
+  String continueWithLimitReached(String agent) {
+    return 'وصل $agent إلى حدّه الآن.';
+  }
+
+  @override
+  String continueWithNotReady(String agent) {
+    return '$agent ليس جاهزًا على هذا الهاتف بعد.';
+  }
+
+  @override
+  String get continueWithNativeNote => 'تبقى محادثتك هنا.';
+
+  @override
+  String get continueWithUseModel => 'استخدم هذا النموذج';
+
+  @override
+  String get continueWithModelFailed => 'تعذّر تغيير النموذج. حاول مرة أخرى.';
+
+  @override
+  String get continueWithNewNote => 'ابدأ محادثة جديدة مع سجلّ لهذه المحادثة.';
+
+  @override
+  String get continueWithSourceStays => 'تبقى هذه المحادثة متاحة.';
+
+  @override
+  String get continueWithFactAgent => 'الوكيل';
+
+  @override
+  String get continueWithFactModel => 'النموذج';
+
+  @override
+  String get continueWithFactProject => 'المشروع';
+
+  @override
+  String get continueWithPreparing => 'جارٍ تجهيز سجلّ المحادثة…';
+
+  @override
+  String get continueWithSaving => 'جارٍ حفظ سجلّ المحادثة…';
+
+  @override
+  String get continueWithStarting => 'جارٍ بدء المحادثة…';
+
+  @override
+  String get continueWithLinking => 'جارٍ ربط المحادثتين…';
+
+  @override
+  String get continueWithRecordTitle => 'سجلّ المحادثة';
+
+  @override
+  String continueWithRecordSize(int kb) {
+    return 'نحو $kb كيلوبايت';
+  }
+
+  @override
+  String get continueWithOlderLeftOut =>
+      'تُركت الأدوار الأقدم لإبقاء السجلّ صغيرًا';
+
+  @override
+  String continueWithOmittedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count رسائل متروكة',
+      one: 'رسالة واحدة متروكة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get continueWithRedacted => 'أُخفي كل ما بدا مثل كلمة مرور أو مفتاح.';
+
+  @override
+  String get continueWithReadPreview =>
+      'اقرأ المعاينة أولًا. لا يمكنها التقاط كل تفصيل خاص.';
+
+  @override
+  String get continueWithShowPreview => 'عرض المعاينة';
+
+  @override
+  String get continueWithHidePreview => 'إخفاء المعاينة';
+
+  @override
+  String continueWithRecordFile(String path) {
+    return 'يُحفظ باسم $path';
+  }
+
+  @override
+  String get continueWithFirstMessage => 'الرسالة الأولى';
+
+  @override
+  String get continueWithFirstMessageHelp =>
+      'أبقِ اسم الملف ليتمكن الوكيل من قراءة السجلّ.';
+
+  @override
+  String get continueWithMessageInvalid =>
+      'اكتب رسالة أولى تُبقي اسم ملف السجلّ.';
+
+  @override
+  String get continueWithStart => 'ابدأ وتابع';
+
+  @override
+  String get continueWithCancel => 'إلغاء';
+
+  @override
+  String get continueWithPrepareAgain => 'جهّز مرة أخرى';
+
+  @override
+  String get continueWithSaveLinkAgain => 'احفظ الرابط مرة أخرى';
+
+  @override
+  String get continueWithOpenConversation => 'افتح المحادثة';
+
+  @override
+  String get continueWithAnother => 'تابع مع وكيل آخر';
+
+  @override
+  String get continueWithErrNoWriter =>
+      'لا يستطيع هذا الوكيل حفظ سجلّ محادثة هنا بعد.';
+
+  @override
+  String get continueWithErrProject =>
+      'هاتان المحادثتان غير مرتبطتين بالمشروع نفسه.';
+
+  @override
+  String get continueWithErrTarget => 'هذا النموذج غير متاح. اختر نموذجًا آخر.';
+
+  @override
+  String get continueWithErrSource =>
+      'تغيّرت هذه المحادثة. جهّز السجلّ مرة أخرى.';
+
+  @override
+  String get continueWithErrScope => 'تغيّر الخادم أو المشروع. ابدأ من جديد.';
+
+  @override
+  String get continueWithErrRead =>
+      'تعذّرت قراءة المحادثة. حاول تجهيزها مرة أخرى.';
+
+  @override
+  String get continueWithErrTooLarge => 'آخر دور كبير جدًا بحيث لا يمكن نقله.';
+
+  @override
+  String get continueWithErrFile => 'تعذّر حفظ السجلّ. لم تُرسل أي رسالة.';
+
+  @override
+  String get continueWithErrUnknown =>
+      'النتيجة غير مؤكدة. تحقّق من المحادثات الهدف قبل المحاولة مرة أخرى.';
+
+  @override
+  String get continueWithErrLink => 'بدأت المحادثة لكن تعذّر حفظ رابطها.';
+
+  @override
+  String get continueWithErrGeneric => 'تعذّر تجهيز السجلّ. حاول مرة أخرى.';
+
+  @override
+  String continuedIn(String agent) {
+    return 'تمت المتابعة في $agent';
+  }
+
+  @override
+  String continuedFrom(String title) {
+    return 'تمت المتابعة من $title';
+  }
+
+  @override
+  String get continuedGone => 'هذه المحادثة لم تعد متاحة.';
+
+  @override
+  String get continueWithChange => 'تغيير';
+
+  @override
+  String get workServerBusyPhone => 'OpenCode على هذا الهاتف مشغول';
+
+  @override
+  String get workServerRestartBodyCommand =>
+      'سيتوقف الأمر قيد التشغيل أيضًا. تبقى محادثاتك محفوظة.';
+
+  @override
+  String get connectionReconnectingQuiet => 'جارٍ إعادة الاتصال…';
+
+  @override
+  String get connectionTryNow => 'جرّب الآن';
+
+  @override
+  String kitComposerWaitsForAgent(String agent) {
+    return 'يُرسل عندما يستجيب $agent';
+  }
+
+  @override
+  String get textSizeTitle => 'حجم النص';
+
+  @override
+  String get textSizeSmallest => 'الأصغر';
+
+  @override
+  String get textSizeSmall => 'صغير';
+
+  @override
+  String get textSizeDefault => 'افتراضي';
+
+  @override
+  String get textSizeLarge => 'كبير';
+
+  @override
+  String get kitComposerAddToTurnNote => 'سيقرأ الوكيل هذا أثناء عمله.';
+
+  @override
+  String get continuedOpenFromList => 'ستجدها في محادثات ذلك الخادم.';
+
+  @override
+  String get teamModelsSection => 'النماذج';
+
+  @override
+  String get teamModelsNote =>
+      'تبدأ كل مهمة جديدة بالنموذج المختار لدورها. الاختيار المحفوظ ينطبق على المهام الجديدة لا على الجارية.';
+
+  @override
+  String get teamModelServerDefault => 'الافتراضي للخادم';
+
+  @override
+  String get teamModelServerDefaultHint =>
+      'يستخدم النموذج الذي يعتمده الخادم عند عدم اختيار نموذج. قد يختلف عن نموذج محادثتك.';
+
+  @override
+  String get teamModelPlannerSaved =>
+      'حُفظ نموذج المخطِّط. اطلب مرة أخرى ليخطط به.';
+
+  @override
+  String get teamProjectEditorTypePath => 'اكتب مساراً';
+
+  @override
+  String get teamProjectEditorChooseFolder => 'اختر مجلداً';
+
+  @override
+  String get teamProjectEditorFolderNone => 'لم يُختر مجلد بعد';
+
+  @override
+  String get teamProjectEditorFirstCommit => 'أنشئ أول إيداع لي';
+
+  @override
+  String get teamProjectEditorFirstCommitManual =>
+      'افتح الطرفية في ذلك المجلد ونفّذ: git commit --allow-empty -m \"First commit\"';
+
+  @override
+  String get teamProjectEditorFirstCommitFailed =>
+      'تعذّر إنشاء أول إيداع. افتح الطرفية في ذلك المجلد ونفّذ: git commit --allow-empty -m \"First commit\"';
+
+  @override
+  String get teamProjectEditorStarting => 'جارٍ فحص المجلد وبدء المخطِّط…';
+
+  @override
+  String get teamProjectEditorDraftRestored => 'عادت مسودتك غير المرسلة.';
+
+  @override
+  String get teamProjectEditorStartFresh => 'ابدأ من جديد';
+
+  @override
+  String get teamProjectEditorStarterNote =>
+      'صيغ معلم أول من مهمتك. عدّله قبل الموافقة.';
+
+  @override
+  String get teamRefusalRepoPathInvalid =>
+      'لا يستطيع الفريق إيجاد ذلك المجلد على هذا الهاتف.';
+
+  @override
+  String get teamRefusalRepoPathInvalidNext =>
+      'اختر المجلد من القائمة بدلاً من كتابته.';
+
+  @override
+  String effectsLookPreviewLabel(String name) {
+    return 'معاينة $name. تفتح الأشكال.';
+  }
+
+  @override
+  String get effectsLookPreviewOffLabel =>
+      'الخلفية الحيّة متوقفة. تفتح الأشكال.';
+
+  @override
+  String get effectsLookPreviewOff => 'متوقفة';
+
+  @override
+  String get teamProjectEditorFolderEmpty =>
+      'لا توجد في هذا المجلد أي عمليات حفظ بعد، والفريق يحتاج إلى واحدة ليبدأ منها.';
+
+  @override
+  String get teamProjectEditorChooseModeBudget =>
+      'اختر مسارًا واحدًا أو وكلاء متوازيين، وحدد ميزانية أو اختر بلا حد.';
+
+  @override
+  String get teamProjectEditorFallbackSection => 'اختياري';
+
+  @override
+  String get teamProjectEditorFallbackNote =>
+      'يُحفظ مع الدور، لكن الفريق لا ينتقل إليه تلقائيًا بعد.';
+
+  @override
+  String get teamUiRowChecking => 'جارٍ التحقق…';
+
+  @override
+  String get teamRefusalCheckerUnreadable =>
+      'انتهى الفحص، لكن تعذّرت قراءة نتيجته.';
+
+  @override
+  String get teamRefusalCheckerUnreadableNext =>
+      'الاستئناف يقرأ النتيجة مرة أخرى دون سؤال النموذج. إذا نجح العمل فسيُدمج في dev، وتبدأ المهام المنتظرة بعده.';
+
+  @override
+  String get teamProjectInterruptedResumeNote =>
+      'الاستئناف يقرأ نتيجة الفحص المكتمل مرة أخرى دون سؤال النموذج. إذا نجح العمل فسيُدمج في dev، وتبدأ المهام المنتظرة بعده.';
+
+  @override
+  String get teamProjectInterruptedResume => 'استئناف';
+
+  @override
+  String get widgetV2ConfigureTitle => 'شكل الأداة';
+
+  @override
+  String get widgetV2BackgroundLabel => 'الخلفية';
+
+  @override
+  String get widgetV2BackgroundSolid => 'سادة';
+
+  @override
+  String get widgetV2BackgroundTinted => 'ملوّنة بخفة';
+
+  @override
+  String get widgetV2BackgroundTransparent => 'شفافة';
+
+  @override
+  String get widgetV2AccentLabel => 'لون التمييز';
+
+  @override
+  String get widgetV2AccentWallpaper => 'خلفية الهاتف';
+
+  @override
+  String get widgetV2AccentApp => 'مظهر التطبيق';
+
+  @override
+  String get widgetV2AccentGreen => 'أخضر';
+
+  @override
+  String get widgetV2AccentTeal => 'أخضر مزرق';
+
+  @override
+  String get widgetV2AccentBlue => 'أزرق';
+
+  @override
+  String get widgetV2AccentAmber => 'كهرماني';
+
+  @override
+  String get widgetV2SaveStyle => 'حفظ الشكل';
+
+  @override
+  String get widgetV2SteerTitle => 'إضافة إلى هذا الدور';
+
+  @override
+  String get widgetV2AfterReplyTitle => 'إرسال بعد هذا الرد';
+
+  @override
+  String get widgetV2RestartTitle => 'إيقاف وإرسال';
+
+  @override
+  String get widgetV2RestartHelp => 'يوقف الرد الحالي ويبدأ من جديد برسالتك.';
+
+  @override
+  String get widgetV2VoiceTitle => 'رسالة جديدة';
+
+  @override
+  String get widgetV2MessageHint => 'اكتب رسالة';
+
+  @override
+  String get widgetV2Dictate => 'إملاء رسالة';
+
+  @override
+  String get widgetV2Send => 'إرسال';
+
+  @override
+  String get widgetV2Sending => 'جارٍ الإرسال…';
+
+  @override
+  String get widgetV2Accepted => 'تم الإرسال';
+
+  @override
+  String get widgetV2StaleRequest => 'تغيّرت المحادثة. رسالتك ما زالت هنا.';
+
+  @override
+  String get widgetV2Unavailable =>
+      'الاتصال في الخلفية غير متاح. رسالتك ما زالت هنا.';
+
+  @override
+  String get widgetV2Unsupported => 'لا يدعم هذا الاتصال هذا الإجراء.';
+
+  @override
+  String get widgetV2Uncertain =>
+      'تعذّر تأكيد إرسال الرسالة. تحقّق من المحادثة قبل الإرسال مرة أخرى.';
+
+  @override
+  String get widgetV2Busy => 'انتظر انتهاء الإجراء الحالي.';
+
+  @override
+  String get widgetV2InvalidRequest => 'اكتب رسالة قبل الإرسال.';
+
+  @override
+  String get widgetV2UnknownBehavior => 'بانتظار تفاصيل المحادثة…';
+
+  @override
+  String get widgetV2Cancel => 'إلغاء';
+
+  @override
+  String get widgetV2PreviewLabel => 'معاينة الأداة';
+
+  @override
+  String get widgetV2PreviewTitle => 'إصلاح صفحة تسجيل الدخول';
+
+  @override
+  String get widgetV2PreviewSecond => 'كتابة ملاحظات الإصدار';
+
+  @override
+  String get widgetV2PreviewStep => 'تعديل الملفات';
+
+  @override
+  String get widgetV2PreviewWorking => 'قيد العمل';
+
+  @override
+  String get widgetV2PreviewStop => 'إيقاف';
+
+  @override
+  String get widgetV2PreviewSteer => 'توجيه';
+
+  @override
+  String get widgetV2PreviewAllow => 'سماح';
+
+  @override
+  String get widgetV2SizeLabel => 'حجم المعاينة';
+
+  @override
+  String get widgetV2SizeCompact => 'صغير';
+
+  @override
+  String get widgetV2SizeCard => 'متوسط';
+
+  @override
+  String get widgetV2SizeList => 'عريض';
+
+  @override
+  String get widgetV2StyleStale =>
+      'تغيّرت هذه الأداة. أغلق هذه النافذة وحاول مرة أخرى.';
+
+  @override
+  String get widgetV2StyleUnavailable => 'تعذّر حفظ الشكل. حاول مرة أخرى.';
+
+  @override
+  String get widgetV2DictationUnavailable =>
+      'الإملاء غير متاح الآن. يمكنك الكتابة بدلاً من ذلك.';
+
+  @override
+  String get widgetV2RestartUnavailable =>
+      'لا يمكن تغيير هذه المحادثة إلا من داخل التطبيق.';
+
+  @override
+  String get phoneSetupErrorPackageRepair =>
+      'تحتاج بعض حزم Linux إلى إصلاح. تابع الإعداد للمحاولة مرة أخرى. توضح «التفاصيل» سبب التوقف.';
+
+  @override
+  String get setupSwitchSeparateHistoryDetail =>
+      'لدى OpenCode 2 محادثاته الخاصة بالفعل. تبقى محادثات OpenCode الأقدم فيه. لا يمكن التبديل عندما تكون هناك محادثات في كليهما. ابقَ على OpenCode الأقدم لمتابعة استخدام هذه المحادثات.';
+
+  @override
+  String get setupSwitchHistoryUnavailableDetail =>
+      'تعذّر التحقق من محادثاتك بأمان. ابقَ على OpenCode الأقدم وحاول مرة أخرى.';
+
+  @override
+  String get setupSwitchStay => 'البقاء على OpenCode الأقدم';
 }

@@ -20,16 +20,41 @@ import 'chats_project_sheet.dart' show chatsProjectIcon;
 
 /// Opens the start screen for a new chat. [directory] is the project to
 /// start in; null uses the last project the person used on this server.
-Future<void> showNewChat(BuildContext context, {String? directory}) =>
-    pushKitPage<void>(context, (_) => NewChatScreen(directory: directory));
+///
+/// [initialText] fills the composer so the person can read, change and send
+/// it (a FactsBook offer's summary); nothing is sent until they do.
+Future<void> showNewChat(
+  BuildContext context, {
+  String? directory,
+  String initialText = '',
+  VoidCallback? onSent,
+}) => pushKitPage<void>(
+  context,
+  (_) => NewChatScreen(
+    directory: directory,
+    initialText: initialText,
+    onSent: onSent,
+  ),
+);
 
 /// "What should we work on?": the project as a chip, the composer under it.
 /// Sending starts the conversation in the chosen project with the typed text
 /// as its first message and replaces this screen with that conversation.
 class NewChatScreen extends ConsumerStatefulWidget {
-  const NewChatScreen({super.key, this.directory});
+  const NewChatScreen({
+    super.key,
+    this.directory,
+    this.initialText = '',
+    this.onSent,
+  });
 
   final String? directory;
+
+  /// The composer starts with this text, unsent.
+  final String initialText;
+
+  /// Called once the first message has been sent and the chat started.
+  final VoidCallback? onSent;
 
   @override
   ConsumerState<NewChatScreen> createState() => _NewChatScreenState();
@@ -56,6 +81,7 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
   @override
   void initState() {
     super.initState();
+    _text.text = widget.initialText;
     // The agent chip shows the saved agent; read the rows so it is checked
     // against what this phone can run now (and a stopped helper restarts).
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -150,6 +176,7 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
         agentId: host.agents?.selectedChatAgentId ?? openCodeChatAgentId,
         prompt: text,
       );
+      widget.onSent?.call();
       if (!mounted) return;
       final problem = await host.showStartedChat(context, sessionID: id);
       if (!mounted) return;

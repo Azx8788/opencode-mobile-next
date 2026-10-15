@@ -216,9 +216,8 @@ void main() {
       ),
     );
 
-    testWidgets('an agent card wears the request heading: glyph in the tile', (
-      tester,
-    ) async {
+    testWidgets('the request card is the quiet "Needs you" card with no '
+        'glyph tile; an agent card keeps its tile', (tester) async {
       await tester.pumpWidget(
         _host(
           Column(
@@ -233,22 +232,8 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      final reqTile = tile(find.byKey(const Key('req')));
-      final agentTile = tile(find.byKey(const Key('agent')));
-      expect(reqTile, findsOneWidget);
-      expect(agentTile, findsOneWidget);
-      // The title sits beside the tile in both, at the same inset.
-      double titleInset(String key) =>
-          tester
-              .getTopLeft(
-                find.descendant(
-                  of: find.byKey(Key(key)),
-                  matching: find.text('Pick a branch'),
-                ),
-              )
-              .dx -
-          tester.getTopLeft(tile(find.byKey(Key(key)))).dx;
-      expect(titleInset('agent'), titleInset('req'));
+      expect(tile(find.byKey(const Key('req'))), findsNothing);
+      expect(tile(find.byKey(const Key('agent'))), findsOneWidget);
     });
 
     testWidgets('the answered row is one shape: the receipt under the title', (

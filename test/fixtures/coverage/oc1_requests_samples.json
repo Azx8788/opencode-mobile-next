@@ -951,9 +951,7 @@
           "key": "QuestionRequest.questions[].header",
           "path": "questions[].header",
           "kind": "string",
-          "probes": [
-            "Retry limit"
-          ],
+          "probes": [],
           "primary": false
         },
         {

@@ -222,8 +222,8 @@ void main() {
       );
       expect(OpenCodePins.v1X64.url, endsWith('linux-x64-baseline.tar.gz'));
       expect(OpenCodePins.v1Arm64.url, contains('/releases/download/v1.19.0/'));
-      expect(OpenCodePins.v2X64.url, contains('cli-linux-x64-baseline-2.0.10'));
-      expect(OpenCodePins.v2Arm64.url, contains('cli-linux-arm64-2.0.10'));
+      expect(OpenCodePins.v2X64.url, contains('cli-linux-x64-baseline-2.0.29'));
+      expect(OpenCodePins.v2Arm64.url, contains('cli-linux-arm64-2.0.29'));
       // Another version is not installed from an unpinned file.
       expect(
         SetupScripts.openCodeNativeInstall(
@@ -240,11 +240,21 @@ void main() {
       ).singleWhere((c) => c.id == SetupComponentIds.openCode);
       expect(
         builtin.installScript,
-        SetupScripts.openCodeNativeInstall(TermuxRuntime.openCode1),
+        SetupScripts.openCodeNativeInstall(TermuxRuntime.openCode2),
       );
       expect(
         builtin.checkScript,
-        SetupScripts.openCodeNativeCheck(TermuxRuntime.openCode1),
+        SetupScripts.openCodeNativeCheck(TermuxRuntime.openCode2),
+      );
+      final older = setupComponents(
+        en,
+        params: const {
+          'opencode': {'runtime': 'opencode1'},
+        },
+      ).singleWhere((c) => c.id == SetupComponentIds.openCode);
+      expect(
+        older.installScript,
+        SetupScripts.openCodeNativeInstall(TermuxRuntime.openCode1),
       );
       final termux = setupComponents(
         en,
@@ -317,14 +327,14 @@ void main() {
       final sha = archive(
         'x64.tgz',
         'package/bin/opencode',
-        _fakeProgram('opencode v2.0.10'),
+        _fakeProgram('opencode v2.0.29'),
       );
       final result = await install(TermuxRuntime.openCode2, (
         arm64: asset('missing-arm.tgz', '0' * 64, 'package/bin/opencode'),
         x64: asset('x64.tgz', sha, 'package/bin/opencode'),
       ), machine: 'x86_64');
       expect(result.exitCode, 0, reason: '${result.stdout}${result.stderr}');
-      expect(result.stdout, contains('::oc version 2.0.10'));
+      expect(result.stdout, contains('::oc version 2.0.29'));
       expect(
         File('${root.path}/opt/opencode2/bin/opencode2').existsSync(),
         isTrue,
@@ -335,7 +345,7 @@ void main() {
       );
       final after = await check(TermuxRuntime.openCode2);
       expect(after.exitCode, 0, reason: '${after.stderr}');
-      expect((after.stdout as String).trim(), '2.0.10');
+      expect((after.stdout as String).trim(), '2.0.29');
     }, skip: skip);
 
     test('a checksum mismatch stops before anything is unpacked', () async {

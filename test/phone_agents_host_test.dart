@@ -38,6 +38,7 @@ void main() {
   var running = false;
   var versionValid = true;
   Object? payloadPresent;
+  Object? foundVersion;
   var refuseDelete = false;
   var setupOwner = 'phone';
   var authOutput = '{"state":"signedOut"}';
@@ -57,6 +58,7 @@ void main() {
     running = false;
     versionValid = true;
     payloadPresent = null;
+    foundVersion = null;
     refuseDelete = false;
     setupOwner = 'phone';
     authOutput = '{"state":"signedOut"}';
@@ -142,6 +144,7 @@ void main() {
           return {
             'installed': versionValid,
             'payloadPresent': payloadPresent,
+            'foundVersion': foundVersion,
             'version': versionValid ? (call.arguments as Map)['version'] : null,
           };
         case 'deleteAgentHost':
@@ -205,6 +208,21 @@ void main() {
         payloadPresent = malformed;
         expect((await host.inspect('fx')).payloadPresent, isFalse);
       }
+    },
+  );
+
+  test(
+    'an older Claude Code that runs is installed, not "Not installed"',
+    () async {
+      // The pin moved on after this copy was installed (or it came from the
+      // setup component): the program runs, only the version differs.
+      versionValid = false;
+      foundVersion = '2.1.283';
+      expect((await host.inspect('claude')).installed, isTrue);
+      foundVersion = null;
+      expect((await host.inspect('claude')).installed, isFalse);
+      foundVersion = 42;
+      expect((await host.inspect('claude')).installed, isFalse);
     },
   );
 

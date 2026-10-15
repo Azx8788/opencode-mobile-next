@@ -22,6 +22,7 @@ KitStatus? connectionKitStatus(
   String? note,
   bool serverOnThisPhone = false,
   Future<void> Function()? onRestartServer,
+  VoidCallback? onRecoverOwnership,
   BuildContext? Function()? actionContext,
   ServerProfile? switchingTo,
 }) {
@@ -43,6 +44,21 @@ KitStatus? connectionKitStatus(
     );
   }
   if (!snapshot.visible) return null;
+  if (onRecoverOwnership != null) {
+    return KitStatus(
+      kind: KitStatusKind.connection,
+      id: 'connection:${snapshot.profileId}',
+      key: const ValueKey('connection-status-banner'),
+      icon: AppIconography.warning,
+      tone: AppStatusTone.failure,
+      message: l10n.inAppServerOwnershipRecoveryBody,
+      action: KitAction(
+        key: const ValueKey('connection-banner-recover-ownership'),
+        label: l10n.e7SetupOpenAppSettings,
+        onPressed: onRecoverOwnership,
+      ),
+    );
+  }
   BuildContext? target() => actionContext == null ? context : actionContext();
   void editServer() {
     final current = target();
@@ -146,28 +162,37 @@ KitStatus? connectionKitStatus(
   // A conversation with an agent on this phone (Claude Code) runs on that
   // agent's own connection, not OpenCode's: name it.
   final agentName = controller.isAgentBackend ? controller.profile?.name : null;
+  // Already connecting: say it once. The server is named only when more than
+  // one is saved, so the person can tell which one this is.
+  final several = controller.store.profiles.length > 1;
   final message = switch (snapshot.phase) {
-    ConnectionStatusPhase.connecting => l10n.e7SetupConnectingProfile(server),
-    ConnectionStatusPhase.reconnecting => l10n.e7BannerReconnectingServer(
-      server,
-    ),
+    ConnectionStatusPhase.serverBusy => l10n.workServerBusyPhone,
+    ConnectionStatusPhase.connecting || ConnectionStatusPhase.reconnecting =>
+      several
+          ? l10n.e7BannerReconnectingServer(server)
+          : l10n.connectionReconnectingQuiet,
     _ when agentName != null => l10n.agentNotAnsweringPhone(agentName),
     _ =>
       serverOnThisPhone
           ? l10n.workServerNotAnsweringPhone
           : l10n.workServerNotAnswering(server),
   };
-  final retry = snapshot.retrying
+  final busy = snapshot.phase == ConnectionStatusPhase.serverBusy;
+  // While it is already reconnecting the way out is waiting; "Try now" sits
+  // in the menu, and the action never repeats the title's words.
+  final retry = snapshot.retrying || busy
       ? null
       : KitAction(
           key: const ValueKey('connection-banner-retry'),
-          label: l10n.connectionReconnectTo(
-            serverDisplayName(
-              controller.profile,
-              l10n,
-              among: controller.store.profiles,
-            ),
-          ),
+          label: snapshot.waiting
+              ? l10n.connectionTryNow
+              : l10n.connectionReconnectTo(
+                  serverDisplayName(
+                    controller.profile,
+                    l10n,
+                    among: controller.store.profiles,
+                  ),
+                ),
           onPressed: () => unawaited(controller.retryConnection()),
         );
   final agentRecover = controller.recoverAgentBackend;
@@ -178,7 +203,8 @@ KitStatus? connectionKitStatus(
       : serverOnThisPhone
       ? onRestartServer
       : null;
-  final restartAction = restart == null || snapshot.retrying || snapshot.waiting
+  final restartAction =
+      restart == null || snapshot.retrying || snapshot.waiting || busy
       ? null
       : agentRoute
       ? KitAction(
@@ -193,7 +219,10 @@ KitStatus? connectionKitStatus(
             final current = target();
             if (current == null ||
                 !current.mounted ||
-                !await confirmPhoneServerRestart(current)) {
+                !await confirmPhoneServerRestart(
+                  current,
+                  commandRunning: controller.hasRunningTool,
+                )) {
               return;
             }
             await restart();
@@ -207,13 +236,18 @@ KitStatus? connectionKitStatus(
     kind: KitStatusKind.connection,
     id: 'connection:${snapshot.profileId}',
     key: const ValueKey('connection-status-banner'),
-    icon: snapshot.waiting ? AppIconography.sync : AppIconography.cloudOff,
-    tone: snapshot.waiting ? AppStatusTone.progress : AppStatusTone.failure,
+    icon: snapshot.waiting || busy
+        ? AppIconography.sync
+        : AppIconography.cloudOff,
+    tone: snapshot.waiting || busy
+        ? AppStatusTone.progress
+        : AppStatusTone.failure,
     message: message,
     supporting: supporting.isEmpty ? null : supporting.join(' '),
-    action: restartAction ?? retry,
+    action: snapshot.waiting ? null : restartAction ?? retry,
     more: [
-      if (restartAction != null && retry != null) retry,
+      if (snapshot.waiting && retry != null) retry,
+      if (!snapshot.waiting && restartAction != null && retry != null) retry,
       KitAction(
         key: const ValueKey('connection-banner-details'),
         label: l10n.e7BannerDetails,

@@ -132,8 +132,10 @@ extension _SetupEnginePoll on ChannelSetupEngine {
         return;
       }
       error = appFailureReason(failure.kind);
-    } catch (_) {
-      error = appFailureReason(SetupAppFailureKind.failed);
+    } catch (failure) {
+      error = _isRuntimeOwnershipFailure(failure)
+          ? _runtimeOwnershipUnknown
+          : appFailureReason(SetupAppFailureKind.failed);
     }
     _appDone(jobId, id);
     try {
@@ -203,7 +205,7 @@ extension _SetupEnginePoll on ChannelSetupEngine {
           ),
         );
       } catch (e) {
-        error = '$e';
+        error = _isRuntimeOwnershipFailure(e) ? _runtimeOwnershipUnknown : '$e';
       }
     }
     try {
@@ -211,7 +213,11 @@ extension _SetupEnginePoll on ChannelSetupEngine {
         jobId: record.jobId,
         id: SetupComponentIds.start,
         ok: error == null,
-        error: error == null ? null : KitRedact.text(error),
+        error: _isRuntimeOwnershipFailure(error)
+            ? _runtimeOwnershipUnknown
+            : error == null
+            ? null
+            : KitRedact.text(error),
         version: version == null ? null : KitRedact.text(version),
       );
     } on BuiltinLinuxException {
@@ -229,28 +235,19 @@ extension _SetupEnginePoll on ChannelSetupEngine {
     }
   }
 
-  Future<SetupJobRecord?> _read({Duration? timeout}) async {
-    final String? text;
-    final limit =
-        timeout ?? (host == SetupHostKind.termux ? readTimeout : null);
-    try {
-      final read = _linux.setupStatus();
-      text = await (limit == null ? read : read.timeout(limit));
-    } on BuiltinLinuxException {
-      if (host == SetupHostKind.termux) rethrow;
-      return null;
-    } on TimeoutException {
-      if (host == SetupHostKind.termux) rethrow;
-      debugPrint('setup: status read took over ${limit!.inSeconds} s');
-      return null;
-    }
+  Future<SetupJobRecord?> _read({
+    Duration? timeout,
+    SetupReadScope? scope,
+  }) async {
+    // An unreadable job is not evidence of a fresh install. In particular,
+    // never apply the new runtime default after a channel failure or timeout.
+    final text = await _statusText(timeout ?? readTimeout, scope);
     final record = SetupJobRecord.parse(text);
-    if (host == SetupHostKind.termux &&
-        text != null &&
-        text.trim().isNotEmpty &&
-        record == null) {
-      throw const BuiltinLinuxException(
-        'The saved Termux setup could not be read.',
+    if (text != null && text.trim().isNotEmpty && record == null) {
+      throw BuiltinLinuxException(
+        host == SetupHostKind.termux
+            ? 'The saved Termux setup could not be read.'
+            : 'The saved phone setup could not be read.',
         code: 'setup_status_invalid',
       );
     }
@@ -269,6 +266,33 @@ extension _SetupEnginePoll on ChannelSetupEngine {
       _record = record;
     }
     return record;
+  }
+
+  /// `setupStatus()` with a timeout that [scope] can cancel. Not
+  /// `Future.timeout`: that timer outlives a screen that has gone.
+  Future<String?> _statusText(Duration timeout, SetupReadScope? scope) {
+    final done = Completer<String?>();
+    final timer = Timer(timeout, () {
+      if (!done.isCompleted) {
+        done.completeError(TimeoutException(null, timeout));
+      }
+    });
+    final release = scope?.add(() {
+      timer.cancel();
+      if (!done.isCompleted) done.completeError(const SetupReadAbandoned());
+    });
+    _linux.setupStatus().then(
+      (text) {
+        if (!done.isCompleted) done.complete(text);
+      },
+      onError: (Object error, StackTrace stack) {
+        if (!done.isCompleted) done.completeError(error, stack);
+      },
+    );
+    return done.future.whenComplete(() {
+      timer.cancel();
+      release?.call();
+    });
   }
 
   void _show(SetupJobRecord record) {

@@ -82,6 +82,16 @@ class StateTests(unittest.TestCase):
         self.assertIn('command="/bin/false"', key)
         self.assertTrue(self.state.authenticate("phone-a", phone()["token"]))
 
+    def test_new_bundle_refuses_legacy_state_without_migration(self):
+        self.state.pair(phone())
+        data = json.loads(self.state.path.read_text())
+        data.update(bundleVersion="1.1.0", openCodeVersion="1.18.32")
+        self.state.path.write_text(json.dumps(data))
+        before = self.state.path.read_bytes()
+        with self.assertRaisesRegex(host.ProtocolError, "hostConflict"):
+            self.state.pair(phone("new-phone", b"c"))
+        self.assertEqual(self.state.path.read_bytes(), before)
+
     def test_keystore_p256_public_key_pairs_without_private_material(self):
         x = bytes.fromhex("6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296")
         y = bytes.fromhex("4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5")
@@ -328,7 +338,7 @@ class ProxyTests(unittest.TestCase):
             self.addCleanup(stream.close)
             key = base64.b64encode(b"1234567890abcdef").decode()
             request = (
-                "GET /pty/pty_abc/connect?cursor=0 HTTP/1.1\r\nHost: localhost\r\n"
+                "GET /api/pty/pty_abc/connect?cursor=0 HTTP/1.1\r\nHost: localhost\r\n"
                 "Connection: Upgrade\r\nUpgrade: websocket\r\nSec-WebSocket-Version: 13\r\n"
                 "Sec-WebSocket-Key: "
                 + key
@@ -442,8 +452,8 @@ class BundleTests(unittest.TestCase):
             manifest = installer.safe_bundle(
                 self.archive, first["archiveSha256"], destination
             )
-        self.assertEqual(manifest["bundleVersion"], "1.1.0")
-        self.assertEqual(manifest["openCodeVersion"], "1.18.32")
+        self.assertEqual(manifest["bundleVersion"], "2.0.0")
+        self.assertEqual(manifest["openCodeVersion"], "2.0.29")
         self.assertEqual(
             set(x.name for x in destination.iterdir()),
             {"supervisor.py", "install.sh", "opencode", "manifest.json"},
@@ -644,12 +654,13 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 p=argparse.ArgumentParser();p.add_argument('serve');p.add_argument('--hostname');p.add_argument('--port',type=int);a=p.parse_args()
 assert a.hostname == '127.0.0.1'
 assert os.environ['OPENCODE_SERVER_USERNAME'] == 'opencode'
+assert os.environ['OPENCODE_PASSWORD'] == os.environ['OPENCODE_SERVER_PASSWORD']
 print(os.environ['OPENCODE_SERVER_PASSWORD'], flush=True)
 class H(BaseHTTPRequestHandler):
  def log_message(self,*args): pass
  def do_GET(self):
   expected='Basic '+base64.b64encode(('opencode:'+os.environ['OPENCODE_SERVER_PASSWORD']).encode()).decode()
-  status=200 if self.headers.get('Authorization') == expected else 401
+  status=200 if self.headers.get('Authorization') == expected and self.path == '/api/info' else 401
   data=json.dumps({'pid':os.getpid()}).encode()
   self.send_response(status);self.send_header('Content-Length',str(len(data)));self.end_headers();self.wfile.write(data)
 HTTPServer((a.hostname,a.port),H).serve_forever()
@@ -676,6 +687,7 @@ HTTPServer((a.hostname,a.port),H).serve_forever()
                 ],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
+                env=dict(os.environ, OPENCODE_PASSWORD="wrong-inherited-value"),
             )
 
             def request(method, path, payload):
@@ -693,14 +705,14 @@ HTTPServer((a.hostname,a.port),H).serve_forever()
                 deadline = time.monotonic() + 5
                 while True:
                     try:
-                        _, before = request("GET", "/global/health", b)
+                        _, before = request("GET", "/api/info", b)
                         break
                     except (OSError, http.client.HTTPException):
                         if time.monotonic() > deadline:
                             self.fail("fake child did not become ready")
                         time.sleep(0.05)
                 self.assertEqual(request("POST", "/_oc/revoke", a)[0], 200)
-                self.assertEqual(request("GET", "/global/health", b)[1], before)
+                self.assertEqual(request("GET", "/api/info", b)[1], before)
                 self.assertIsNone(process.poll())
             finally:
                 process.terminate()

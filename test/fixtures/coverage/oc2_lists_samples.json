@@ -1394,7 +1394,7 @@
           "path": "time.idle",
           "kind": "number",
           "probes": [
-            "Done"
+            "Unread result"
           ],
           "primary": false
         },

@@ -16,7 +16,7 @@ RELEASE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(RELEASE)
 
 
-def fixture(architecture, filename="opencode", extra=False):
+def fixture(architecture, filename="package/bin/opencode", extra=False):
     data = bytearray(128)
     data[:6] = b"\x7fELF\x02\x01"
     struct.pack_into("<H", data, 18, 62 if architecture == "amd64" else 183)
@@ -25,6 +25,10 @@ def fixture(architecture, filename="opencode", extra=False):
         info = tarfile.TarInfo(filename)
         info.size = len(data)
         archive.addfile(info, io.BytesIO(data))
+        metadata = json.dumps({"name": "@opencode/cli-linux-" + ("x64-baseline" if architecture == "amd64" else "arm64"), "version": "2.0.29"}).encode()
+        info = tarfile.TarInfo("package/package.json")
+        info.size = len(metadata)
+        archive.addfile(info, io.BytesIO(metadata))
         if extra:
             link = tarfile.TarInfo("bad")
             link.type = tarfile.SYMTYPE
@@ -59,6 +63,15 @@ class ReleasePipelineTest(unittest.TestCase):
     def response(state=None, status=200):
         text = f"HTTP/2.0 {status} status\r\nx-test: yes\r\n\r\n" + json.dumps(state)
         return subprocess.CompletedProcess([], 0 if status == 200 else 1, text, "")
+
+    def test_default_pins_use_reviewed_oc2_npm_archives(self):
+        pins = RELEASE.load_pins(ROOT / "scripts/byo-host/release-pins.json")
+        self.assertEqual(pins["openCodeVersion"], "2.0.29")
+        self.assertEqual(pins["bundleVersion"], "2.0.0")
+        self.assertEqual(pins["appVersions"], {})
+        legacy = pins["legacyBundles"][0]
+        self.assertEqual(legacy["openCodeVersion"], "1.18.32")
+        self.assertIn("1.1.0+51", legacy["appVersions"])
 
     def test_pinned_source_before_unpack(self):
         with self.assertRaisesRegex(ValueError, "upstreamChecksumMismatch"):

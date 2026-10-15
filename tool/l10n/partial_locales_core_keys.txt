@@ -195,7 +195,6 @@ chatUiReferencesAttachedNotice
 chatUiResultOpenChild
 chatUiRetryingCountdown
 chatUiRetryingSoon
-chatUiSendNowAndSteerInstead
 chatUiSendPromptAgain
 chatUiSessionMenu
 chatUiSlashCommandsAndAgents
@@ -206,7 +205,6 @@ chatUiThisDraftHasNotBeenSentTo
 chatUiThisDraftIsTooLargeToQueue
 chatUiUseModelAndResend
 chatUiVoiceInput
-chatUiWaitForThisRunInstead
 chatsFilterChatCount
 chatsFilterNeedsYouWord
 chatsFilterOpenProject
@@ -351,9 +349,7 @@ kitChoiceCurrent
 kitChoiceOtherSend
 kitChoiceRecommended
 kitComposerAddToTurn
-kitComposerAddToTurnShort
 kitComposerCannotSendYet
-kitComposerDeliveryLabel
 kitComposerEditor
 kitComposerField
 kitComposerOffline
@@ -361,7 +357,6 @@ kitComposerPillNoAnswer
 kitComposerRailRetry
 kitComposerSend
 kitComposerSendAfter
-kitComposerSendAfterShort
 kitComposerSendOffline
 kitComposerSending
 kitComposerSendsAfter

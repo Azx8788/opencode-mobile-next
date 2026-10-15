@@ -118,7 +118,7 @@ void main() {
         find.textContaining('nothing is sent automatically'),
         findsOneWidget,
       );
-      expect(find.textContaining('Reconnect to '), findsOneWidget);
+      expect(find.textContaining('Reconnect to '), findsNothing);
     } finally {
       await tester.pumpWidget(const SizedBox());
       controller.dispose();

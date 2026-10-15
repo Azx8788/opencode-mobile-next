@@ -34,6 +34,21 @@ Future<void> _pump(WidgetTester tester) async {
   }
 }
 
+/// Drags the conversation, a little at a time, until [target] can be tapped.
+/// At 2.5x text with the keyboard up the list is a sliver between the banner
+/// and the composer, so the card passes through it by scrolling, as a person's
+/// thumb would.
+Future<void> _scrollUnderFinger(WidgetTester tester, Finder target) async {
+  final list = find.ancestor(of: target, matching: find.byType(Scrollable));
+  for (final dy in [-24.0, 24.0]) {
+    for (var i = 0; i < 40; i++) {
+      if (target.hitTestable().evaluate().isNotEmpty) return;
+      await tester.drag(list.first, Offset(0, dy), warnIfMissed: false);
+      await _pump(tester);
+    }
+  }
+}
+
 ConnectionController _demoController(WidgetTester tester) =>
     ProviderScope.containerOf(
       tester.element(find.byType(ChatScreen)),
@@ -217,16 +232,12 @@ void main() {
             reason:
                 'The pending request must keep its Details action reachable',
           );
-          await Scrollable.ensureVisible(tester.element(review), alignment: .5);
-          await _pump(tester);
-          await tester.tap(review);
-          await _pump(tester);
-          final allow = find.descendant(
-            of: find.byKey(const Key('permission-sheet')),
-            matching: find.widgetWithText(KitButton, 'Allow once'),
-          );
-          await Scrollable.ensureVisible(tester.element(allow), alignment: .5);
-          await _pump(tester);
+          // The quiet card answers in place: Allow once is on the card
+          // itself, so it is what must stay under a finger here (Details
+          // opens the same facts and is covered by the request-card tests).
+          final allow = find.byKey(const Key('permission-card-allow'));
+          expect(allow, findsOneWidget);
+          await _scrollUnderFinger(tester, allow);
           expect(allow.hitTestable(), findsOneWidget);
           await tester.tap(allow);
           await tester.pump(const Duration(seconds: 3));

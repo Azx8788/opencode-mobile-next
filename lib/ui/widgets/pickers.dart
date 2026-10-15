@@ -97,6 +97,10 @@ Future<void> showModelPicker(
   ModelPickerApplyScope applyScope = ModelPickerApplyScope.classic,
   String? sessionID,
   bool focusAgent = false,
+
+  /// A title that names whose model this is ("Model for new chats on
+  /// Laptop"); the generic one by default.
+  String? title,
 }) {
   final controller = ProviderScope.containerOf(
     context,
@@ -118,7 +122,7 @@ Future<void> showModelPicker(
   final scope = applyScope;
   return showKitSheet<void>(
     context,
-    title: strings.modelChooseTitle,
+    title: title ?? strings.modelChooseTitle,
     subtitle: scope == ModelPickerApplyScope.session
         ? strings.modelSessionScopeNote
         : null,

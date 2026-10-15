@@ -237,7 +237,18 @@ Future<FakeSetupEngine> pumpPhone(
 /// Ends a test that mounted a phone screen: nothing left pending.
 Future<void> unmountPhone(WidgetTester tester) async {
   KitUndo.commitPending();
+  // The page's connection polls a dead in-app server every 10 s; a finished
+  // test ends that poll before the test's own pending-timer check.
+  ConnectionController? connection;
+  final apps = find.byType(MaterialApp);
+  if (apps.evaluate().isNotEmpty) {
+    connection = ProviderScope.containerOf(
+      tester.element(apps.first),
+      listen: false,
+    ).read(connProvider);
+  }
   await tester.pumpWidget(const SizedBox.shrink());
+  connection?.dispose();
   debugDefaultTargetPlatformOverride = null;
 }
 

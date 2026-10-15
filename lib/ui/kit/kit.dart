@@ -19,9 +19,20 @@
 /// | [KitSheet], [showKitSheet], [showKitFramedSheet], [KitSheetHeight], [KitDraft] | kit v2 §1.1 the one sheet frame, a body that draws its own frame, its draft and unsaved-input guard |
 /// | [KitConfirmSheet], [showKitConfirm], [KitConfirmKind] | kit v2 §1.2 the one confirmation (§4.1 undo, confirm or neither) |
 /// | [KitConsequences], [KitConsequence] | §5 a sheet's panel of one-line consequences |
+/// | [KitLiveBackground], [KitLiveStyle] | the page ground with a slow, soft live look on it (Settings › Appearance), paused when still is wanted; never glass |
+/// | [KitLiveStylePicker] | the grid of live looks to choose from |
+/// | [KitLiveLookPreview] | a short live tile of the chosen look behind two mock chat lines (Settings › Appearance › Effects); "Off" when the live background is off |
+/// | [KitLiveStylePreview] | one look full screen behind a mock chat, with a reply-running switch and Use this |
+/// | [KitFloatingPanel] | a small card that floats over a transparent window (the home screen) on a dimmed ground, above the keyboard; tapping the ground closes it |
+/// | [KitSteerBox], [KitSteerBoxPhase] | the small composer a home-screen widget opens: what sending does, one field, a microphone and Send |
+/// | [KitWidgetPreview], [KitWidgetPreviewSize], [KitWidgetPreviewBackground] | a drawing of a home-screen widget in the style being chosen (ground, accent, layout) |
+/// | [KitWidgetStyleForm] | the choices that style one home-screen widget: a drawing of it, the ground, the accent |
 /// | [KitTokens] | kit v2 the colours (the theme's [ThemeRoles]), radii, heights, scrim, type and spacing every part reads (a ThemeExtension) |
 /// | [KitText], [KitTextRole], [KitTextTone] | visual language §2 the type roles, coloured by theme role |
 /// | [KitSelectable], [KitLtr] | KitText v2 a selectable region around several texts, and a left-to-right technical block |
+/// | [KitTaskChip], [showKitTaskSheet] | the agent's task list as one small chip with a progress ring beside the other chips above the field, and the list it opens |
+/// | [KitProjectFileList], [showKitProjectFileSheet] | a search field and the project files it finds (folders too), and the sheet that returns the chosen path |
+/// | [KitOneTimeCode] | kit v2 a one-time device code shown large and monospaced, with Copy |
 /// | [KitTechnicalValue] | kit v2 §1.8 a technical value shown under Details, left to right |
 /// | [KitButton], [KitActionBlock], [KitAction] | §2 one button hierarchy |
 /// | [KitActionStack] | §2 the same hierarchy with each rare path on its own line |
@@ -69,6 +80,7 @@
 /// | [KitContextRing], [KitContextLevel], [KitContextRingSize] | how full the model's context window is, as a ring with its percent; unknown draws nothing |
 /// | [KitContextChart], [KitContextBar] | the context after each reply, as bars with the compaction line |
 /// | [KitContextSheet] | the context details: big ring, tokens, model, window, one paragraph and the chart |
+/// | [KitFactRow], [KitProvenance] | one remembered fact or search hit: its text, a provenance border and word (You told it, From a source, It guessed), and its source and date line |
 /// | [KitTerminalView] | kit v2 §9.2 the terminal: a live xterm session or a transcript, in the theme's colours |
 /// | [KitPageRoute] | §10 a pushed page with the kit's one transition |
 /// | [KitSwap], [KitSpin], [KitAnimatedBox], [KitDim], [KitAnimatedValue], [KitPace] | §10 the small motion parts: cross-fade, spin, surface change, dim, eased number |
@@ -78,6 +90,8 @@
 /// | [KitIconButton] | kit v2 §1.10 the one icon-only control |
 /// | [KitInset] | §2 a row of tertiary buttons pulled back so their labels line up with the text above |
 /// | [KitProgressView] | §4 a [KitProgress] drawn: a rounded bar and its line of words |
+/// | [KitWindowRow] | one limit window: its name, a bar of what is left and the amount, on one line |
+/// | [KitPlanBlock] | one plan of a group: its name and tier, one small summary, and a line per limit window under them |
 /// | [KitProgressRow] | a row holding a measured amount: a quota window, a download, the context used, a budget |
 /// | [KitField] | kit v2 §1.4 the one labelled text input (plain, multiline, number, secret) |
 /// | [KitSearchField], [KitSearchNoMatch] | kit v2 §1.5 the one search field, and its inline "nothing matches" |
@@ -99,6 +113,9 @@
 /// | [KitChecklist] | a job made of steps, with the steps only the person can do mixed in |
 /// | [KitCapabilityExplainer] | kit v2 §2.2 a missing capability, explained in place and offered where it can be turned on |
 /// | [KitAgentCard], [KitAgentCardMode] | the frame for a card an agent describes: eyebrow, title, parts, its ask, and its receipt, passed-over and unreadable looks |
+/// | [KitHandoffRecord] | the record a new conversation starts from, ready to read before it is sent: size, what was left out, hidden secrets and a folded preview |
+/// | [KitContinuedLine] | the one quiet line that links a conversation to the one it was continued in or from, and opens it |
+/// | [KitPresence] | a part that fades in and out with its slot along a row, and is not built at all while hidden |
 /// | [KitKeyValue], [KitKeyValueRow] | label and value rows for an agent's facts, tabular figures, long values wrap |
 /// | [KitMiniTable] | a header and up to 20 rows of up to 6 columns that scrolls sideways inside its own panel |
 /// | [KitChart], [KitChartKind], [KitChartSeries], [KitChartWords] | a bar or line chart in theme roles, one scale, a legend, and a text summary for a screen reader |
@@ -115,6 +132,7 @@
 /// | [KitStepTimeline] | a turn's work as one quiet line that opens in place to a timeline: a thin rail, a dot for a sentence, a tile for a tool step, the live mark for the step in progress, a preview card for a file write or edit |
 /// | [KitMarkdown] | agent Markdown in kit text: the prose of a reply or a thought |
 /// | [KitComposer], [KitComposerChips], [KitComposerStatusStrip] | the composer, its chips, and the standing facts above it |
+/// | [KitPhraseChips] | the person's own common short phrases as one row above the message box: tap sends, long-press offers Edit and Hide |
 /// | [KitQueuedMessage] | STATE-17 everything waiting to reach the agent, in one bubble |
 /// | [KitAgentStrip] | who is working on a team task, in order |
 /// | [KitFoldersOpenScene], [ServersLinkScene], [ServersWelcomeScene], [SetupPhoneScene], [SetupReadyScene], [SetupStepsScene], [SetupUnpluggedScene] | §10 scenes: a folder opening, the servers and setup moments |
@@ -136,6 +154,14 @@ export 'kit_image_gallery.dart';
 export 'kit_image_markup.dart';
 export 'kit_illustration.dart';
 export 'kit_layout.dart';
+export 'kit_live_background.dart';
+export 'kit_live_look_preview.dart';
+export 'kit_live_style_picker.dart';
+export 'kit_floating_panel.dart';
+export 'kit_steer_box.dart';
+export 'kit_widget_preview.dart';
+export 'kit_widget_style_form.dart';
+export 'kit_live_style_preview.dart';
 export 'kit_motion.dart';
 export 'kit_panel.dart';
 export 'kit_notice.dart';
@@ -154,13 +180,17 @@ export 'kit_status_line.dart';
 export 'kit_status_mark.dart';
 export 'kit_bidi.dart';
 export 'kit_copy.dart';
+export 'kit_one_time_code.dart';
 export 'kit_redact.dart';
 export 'kit_technical_value.dart';
 export 'kit_text.dart';
 export 'kit_tokens.dart';
 export 'kit_task_mark.dart';
+export 'kit_task_chip.dart';
+export 'kit_task_sheet.dart';
 export 'kit_bottom_inset.dart';
 export 'kit_chip.dart';
+export 'kit_fact_row.dart';
 export 'kit_feed_item.dart';
 export 'kit_filter_chip.dart';
 export 'kit_filter_chips.dart';
@@ -175,6 +205,9 @@ export 'kit_image.dart';
 export 'kit_level_meter.dart';
 export 'kit_context_chart.dart';
 export 'kit_context_ring.dart';
+export 'kit_presence.dart';
+export 'kit_handoff_record.dart';
+export 'kit_continued_line.dart';
 export 'kit_context_sheet.dart';
 export 'kit_menu.dart';
 export 'kit_page_route.dart';
@@ -200,6 +233,7 @@ export 'motion/kit_reveal.dart';
 export 'motion/kit_tab_switcher.dart';
 export 'glass/kit_glass.dart';
 export 'chat/kit_message.dart';
+export 'chat/kit_phrase_chips.dart';
 export 'chat/kit_transcript_excerpt.dart';
 export 'chat/kit_turn.dart';
 export 'kit_request_sheet.dart';
@@ -224,6 +258,8 @@ export 'kit_jump_pill.dart';
 export 'kit_nav.dart';
 export 'kit_needs_you.dart';
 export 'kit_progress_row.dart';
+export 'kit_plan_block.dart';
+export 'kit_window_row.dart';
 export 'kit_receipt.dart';
 export 'kit_agent_card.dart';
 export 'kit_chart.dart';
@@ -239,6 +275,8 @@ export 'kit_work_graph.dart';
 export 'chat/kit_agent_strip.dart';
 export 'chat/kit_composer.dart';
 export 'chat/kit_composer_chips.dart';
+export 'chat/kit_project_file_list.dart';
+export 'chat/kit_project_file_sheet.dart';
 export 'chat/kit_find_mark.dart';
 export 'chat/kit_work_line.dart';
 export 'chat/kit_queued_message.dart';

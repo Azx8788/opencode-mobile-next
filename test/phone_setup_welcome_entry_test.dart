@@ -28,7 +28,7 @@ class _SlowRestoreEngine extends FakeSetupEngine {
   SetupProgress? onRestore;
 
   @override
-  Future<void> restore() async {
+  Future<void> restore({SetupReadScope? scope}) async {
     await super.restore();
     await release.future;
     if (onRestore != null) emit(onRestore!);

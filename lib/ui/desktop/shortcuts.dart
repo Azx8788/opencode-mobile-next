@@ -547,10 +547,17 @@ class _CommandPalette extends StatefulWidget {
 
 class _CommandPaletteState extends State<_CommandPalette> {
   final _query = TextEditingController();
+  final _focus = FocusNode();
 
   @override
   void initState() {
     super.initState();
+    // Opened by a tap on a Search button the field must be ready to type
+    // (keyboard up), not wait for a second tap; autofocus alone loses to the
+    // button that still holds focus while the sheet slides in.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _focus.requestFocus();
+    });
     // Filtering is local and instant; the field's settled callback only
     // drives its own count announcement.
     _query.addListener(_changed);
@@ -578,6 +585,7 @@ class _CommandPaletteState extends State<_CommandPalette> {
     _query
       ..removeListener(_changed)
       ..dispose();
+    _focus.dispose();
     super.dispose();
   }
 
@@ -595,6 +603,7 @@ class _CommandPaletteState extends State<_CommandPalette> {
           fieldKey: const ValueKey('command-palette-query'),
           controller: _query,
           label: l10n.shortcutsPaletteSearch,
+          focusNode: _focus,
           autofocus: true,
           resultCount: query.isEmpty ? null : matches.length,
           onChanged: (_) {},

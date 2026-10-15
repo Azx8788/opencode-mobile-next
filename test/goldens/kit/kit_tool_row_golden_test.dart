@@ -107,6 +107,7 @@ final _states = <String, List<Widget> Function()>{
       expanded: true,
       body: [
         KitDiffView(
+          inline: true,
           files: [
             KitDiffFile.fromTexts(
               'test/checkout/checkout_test.dart',

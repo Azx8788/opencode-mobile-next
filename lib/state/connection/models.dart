@@ -69,6 +69,7 @@ mixin _ConnectionControllerModels on ChangeNotifier {
   /// Default model for pickers opened outside a chat and for new sessions.
   ModelRef? selectedModel;
   String selectedAgent = '';
+  final Map<String, String> _anonymousSessionAgents = {};
   String selectedVariant = '';
 
   /// Model choices made from inside a chat, keyed by session ID. A choice
@@ -281,7 +282,7 @@ extension _ConnectionControllerModelsImpl on ConnectionController {
       : SessionSelection(
           model: sessionModels[sessionID]?.model ?? selectedModel,
           variant: sessionModels[sessionID]?.variant ?? selectedVariant,
-          agent: selectedAgent,
+          agent: _localAgentForSession(sessionID),
         );
 
   /// The server keeps this conversation's model and mode, but its record
@@ -368,9 +369,31 @@ extension _ConnectionControllerModelsImpl on ConnectionController {
     return tracked;
   }
 
+  String _localAgentForSession(String sessionID) {
+    final id = (_connectedProfile ?? profile)?.id;
+    return (id == null
+            ? _anonymousSessionAgents[sessionID]
+            : store.sessionAgentsFor(id)[sessionID]) ??
+        selectedAgent;
+  }
+
   /// The body of [selectAgentForSession].
   Future<void> _selectAgentForSession(String sessionID, String name) async {
-    if (!serverOwnsSessionSelection) return selectAgent(name);
+    if (!serverOwnsSessionSelection) {
+      final owner = (_connectedProfile ?? profile)?.id;
+      final generation = _generation;
+      if (owner == null) {
+        _anonymousSessionAgents[sessionID] = name;
+      } else {
+        await store.setSessionAgent(owner, sessionID, name);
+      }
+      if (!_disposed &&
+          generation == _generation &&
+          owner == (_connectedProfile ?? profile)?.id) {
+        _notifyListeners();
+      }
+      return;
+    }
     if (name.isEmpty) return;
     await _mutateSessionSelection(sessionID, (gateway) async {
       final current = selectionForSession(sessionID);
@@ -423,6 +446,15 @@ extension _ConnectionControllerModelsImpl on ConnectionController {
 
   void _forgetSessionModel(String sessionID) {
     _rememberDisplayModel(sessionID, null);
+    _anonymousSessionAgents.remove(sessionID);
+    final agentOwner = (_connectedProfile ?? profile)?.id;
+    if (agentOwner != null) {
+      unawaited(
+        store
+            .setSessionAgent(agentOwner, sessionID, null)
+            .catchError((Object _) {}),
+      );
+    }
     if (sessionModels.remove(sessionID) == null) return;
     final p = profile;
     if (p != null) unawaited(store.setSessionModels(p.id, sessionModels));

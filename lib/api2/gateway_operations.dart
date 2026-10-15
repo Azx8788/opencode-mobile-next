@@ -21,6 +21,7 @@ import '../domain/server_gateway.dart';
 import '../ui/kit/kit_redact.dart';
 import '../domain/parallel_requests.dart';
 import '../domain/session_title_text.dart';
+import '../domain/terminal_lifecycle.dart';
 import '../domain/plugin_inventory.dart';
 import 'plugin_mapper.dart';
 import 'client.dart';
@@ -59,7 +60,8 @@ class Api2OperationsGateway extends _Api2Core
         IntegrationCredentialGateway,
         IntegrationCommandGateway,
         IntegrationAuthRecoveryGateway,
-        UsageStatisticsGateway {
+        UsageStatisticsGateway,
+        HistoryMigrationGateway {
   Api2OperationsGateway({required super.client});
 }
 
@@ -78,7 +80,8 @@ abstract class _Api2Core extends ProductRepository
         IntegrationCredentialGateway,
         IntegrationCommandGateway,
         IntegrationAuthRecoveryGateway,
-        UsageStatisticsGateway {
+        UsageStatisticsGateway,
+        HistoryMigrationGateway {
   final Api2Client client;
 
   _Api2Core({required this.client});

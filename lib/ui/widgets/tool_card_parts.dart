@@ -3,14 +3,19 @@ part of 'tool_card.dart';
 /// An edit as a [KitDiffView] capped at 12 lines; "Open all changes" opens
 /// the read-only diff page.
 class _Diff extends StatelessWidget {
-  const _Diff({required this.files});
+  const _Diff({required this.files, this.wrap});
 
   final List<KitDiffFile> files;
+
+  /// The step line's "Wrap lines" choice; null leaves the view's own default.
+  final bool? wrap;
 
   @override
   Widget build(BuildContext context) => KitDiffView(
     files: files,
     maxLines: 12,
+    inline: true,
+    wrap: wrap,
     keyPrefix: 'tool-diff',
     onOpenAll: () => showKitDiff(
       context,

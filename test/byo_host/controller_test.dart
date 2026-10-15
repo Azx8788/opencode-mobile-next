@@ -4,6 +4,7 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:opencode_mobile/domain/byo_host.dart';
 import 'package:opencode_mobile/state/byo_host_controller.dart';
+import 'package:opencode_mobile/state/profiles.dart' show ServerFlavor;
 
 ByoHostKey key([int value = 1]) {
   final bytes = <int>[
@@ -97,10 +98,13 @@ class FakeRunner implements ByoHostSshRunner {
     return descriptor;
   }
 
+  String bundleVersion = '1.1.0';
+  String openCodeVersion = '1.18.32';
+
   ByoHostDescriptor get descriptor => ByoHostDescriptor(
     hostId: hostId,
-    bundleVersion: '1.1.0',
-    openCodeVersion: '1.18.32',
+    bundleVersion: bundleVersion,
+    openCodeVersion: openCodeVersion,
     port: 4096,
   );
   @override
@@ -235,6 +239,7 @@ void main() {
       await add();
       final profile = controller.connectedProfile(name: 'My machine');
       expect(profile.baseUrl, 'http://127.0.0.1:19001');
+      expect(profile.flavor, ServerFlavor.v1);
       expect(profile.password, store.secrets!.deviceToken);
       expect(
         jsonEncode(store.record!.toJson()),
@@ -255,6 +260,32 @@ void main() {
       expect(controller.snapshot.phase, ByoHostPhase.ready);
     },
   );
+  test(
+    'OC2 bundle selects OC2 while retaining per-phone proxy credentials',
+    () async {
+      runner.bundleVersion = '2.0.0';
+      runner.openCodeVersion = '2.0.29';
+      controller = ByoHostController(
+        profileId: 'phone-a',
+        runner: runner,
+        store: store,
+        bundle: ByoHostBundle(
+          version: '2.0.0',
+          openCodeVersion: '2.0.29',
+          artifacts: bundle.artifacts,
+        ),
+        enabled: true,
+      );
+      await add();
+      final profile = controller.connectedProfile(name: 'OC2 host');
+      expect(profile.flavor, ServerFlavor.v2);
+      expect(profile.serverVersion, '2.0.29');
+      expect(profile.username, 'phone-a');
+      expect(profile.password, store.secrets!.deviceToken);
+      await controller.dispose();
+    },
+  );
+
   test(
     'killed installation retries exact device tuple after fresh admin login',
     () async {

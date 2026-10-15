@@ -62,6 +62,12 @@ final _comma = RegExp(r'\s*,');
 
 final _optionsFileName = RegExp(r'(^|/)analysis_options\.(yaml|mustache)$');
 
+/// The widgetbook catalog is a dev-only package outside the shipped app: it
+/// drives real screens through @visibleForTesting seams on purpose, so its
+/// own lint options and suppressions are not the app's (owner-approved
+/// catalog, widgetbook/README.md).
+const _catalogPackage = 'widgetbook/';
+
 /// Every file in the repo, repo-relative with forward slashes, sorted:
 /// tracked plus untracked files git does not ignore. Falls back to a walk
 /// that skips hidden directories, build/ and symlinks when git is missing.
@@ -78,6 +84,7 @@ List<String> _repoFiles() {
       return (r.stdout as String)
           .split('\x00')
           .where((p) => p.isNotEmpty && File(p).existsSync())
+          .where((p) => !p.startsWith(_catalogPackage))
           .toSet()
           .toList()
         ..sort();
@@ -90,7 +97,9 @@ List<String> _repoFiles() {
     for (final e in dir.listSync(followLinks: false)) {
       final name = e.uri.pathSegments.lastWhere((s) => s.isNotEmpty);
       if (e is Directory) {
-        if (name.startsWith('.') || name == 'build') continue;
+        if (name.startsWith('.') || name == 'build' || name == 'widgetbook') {
+          continue;
+        }
         walk(e);
       } else if (e is File) {
         out.add(e.path.replaceAll(r'\', '/').replaceFirst(RegExp(r'^\./'), ''));

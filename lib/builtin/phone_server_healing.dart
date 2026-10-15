@@ -383,6 +383,10 @@ class PhoneServerHealing {
   }
 
   Future<void> _launchStart(ServerProfile profile) async {
+    if (starter.failureFor(profile)?.problem ==
+        BuiltinStartProblem.componentRecovery) {
+      return;
+    }
     final epoch = _launchEpoch;
     // The recovery owner may have just tried and failed: then the launch
     // start is the one more try.

@@ -107,6 +107,7 @@ extension _ChatComposerRegion on _ChatScreenState {
           onOpen: (chipContext) =>
               unawaited(_showApprovalModeMenu(chipContext)),
         ),
+      ?_taskChip(),
       if (showBackground)
         Semantics(
           hint: strings.backgroundWorkShortcut,
@@ -140,7 +141,10 @@ extension _ChatComposerRegion on _ChatScreenState {
   }) {
     final l10n = _chatL10n(context);
     final tokens = KitTokens.of(context);
-    final short = bodyConstraints.maxHeight < 420;
+    // A tip never competes with the keyboard, an open find or a waiting
+    // request for the height over the composer; the conversation keeps it.
+    final quiet =
+        compactComposer || _findOpen || _attentionPending(pendingPermissions);
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -221,7 +225,7 @@ extension _ChatComposerRegion on _ChatScreenState {
         // to a short (keyboard) layout like every quiet strip. At large text
         // the sentence is tall: it takes at most a third of the body and
         // scrolls, ending on its two controls.
-        if (!short)
+        if (!quiet)
           ConstrainedBox(
             constraints: BoxConstraints(
               maxHeight: bodyConstraints.maxHeight / 3,
@@ -265,7 +269,6 @@ extension _ChatComposerRegion on _ChatScreenState {
               : null,
           onDiscard: _discardQueuedPrompt,
           onCancelInbox: _cancelInboxSend,
-          onFlipDelivery: _flipInboxDelivery,
         ),
         if (!_conn.isIsolated)
           if (_conn.promptPhotos.pending case final photo?
@@ -361,6 +364,8 @@ extension _ChatComposerRegion on _ChatScreenState {
               ? null
               : _ComposerNote(key: _composerNoteKey, text: _composerNote!),
         ),
+        // The person's own common short phrases, one tap from sending.
+        _phraseChipsRow(bodyConstraints, pendingPermissions),
         // The chips wrap at a narrow width or a large text size; in the room
         // left over the composer they scroll instead of overflowing. While a
         // request waits it owns that room (its own Flexible above), so the
@@ -418,6 +423,9 @@ extension _ChatComposerRegion on _ChatScreenState {
           : const <CatalogAgent>[],
       onSelectCommand: _selectChatCommand,
       onSelectAgent: _insertAgentMention,
+      fileHits: _canMentionFiles ? _fileHits : const [],
+      onSelectFile: _canMentionFiles ? _insertFileMention : null,
+      onOpenProjectFiles: _canMentionFiles ? _openProjectFiles : null,
       onOpenCommands: _openCommandLauncher,
       onOpenAgents: () =>
           _openCommandLauncher(initialTab: CommandSheetTab.agents),
@@ -449,14 +457,11 @@ extension _ChatComposerRegion on _ChatScreenState {
       stopping: _aborting,
       sending: _sending,
       // OpenCode 1 runs a send made mid-turn after that turn; OpenCode 2
-      // steers or queues it; a Paseo agent adds it to the running turn or
+      // and Codex steer it; a Paseo agent adds it to the running turn or
       // starts over from it. Either way Send stays live.
       canSendWhileBusy: !_voiceConversation,
-      canChooseDelivery: _conn.supportsInbox,
+      promptSteering: _conn.capabilities.promptSteering,
       midTurnPrompt: _midTurnPrompt,
-      delivery: _delivery,
-      onDeliveryChanged: (delivery) =>
-          _setChatState(() => _delivery = delivery),
       voiceOpening: _voiceOpening,
       showAttachmentNote: showAttachmentNote,
       onAttach: _pickAttachment,

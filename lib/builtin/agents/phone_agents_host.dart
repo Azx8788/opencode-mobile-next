@@ -1039,7 +1039,11 @@ final class BuiltinPhoneAgents implements PhoneAgentHost {
     // Resume proof is supplied only by the controller's verified host load.
     return PhoneAgentRuntime(
       agentId: agentId,
-      installed: version['installed'] == true,
+      // Any version that runs is installed: a pin bump or the setup
+      // component's copy must not read as "Not installed" (the gate below
+      // still asks for the phone check on a version it did not qualify).
+      installed:
+          version['installed'] == true || version['foundVersion'] is String,
       payloadPresent: version['payloadPresent'] == true,
       hostAvailable: host['running'] == true,
       architectureQualified: qualified,

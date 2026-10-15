@@ -392,7 +392,7 @@ class Response:
     def read(self, maximum):
         assert maximum == 65537
         if ${oversizedResponse ? 'True' : 'False'}: return b'x' * 65537
-        value = {'healthy':True,'version':'${wrongOpenCodeVersion ? '9.0.0' : '1.18.32'}'} if self.path == '/global/health' else {'oc-ui':{'status':'$mcpStatus'}}
+        value = {'healthy':True,'version':'${wrongOpenCodeVersion ? '9.0.0' : '1.19.0'}'} if self.path == '/global/health' else {'oc-ui':{'status':'$mcpStatus'}}
         return json.dumps(value).encode()
 class Connection:
     def __init__(self, host, port, timeout):

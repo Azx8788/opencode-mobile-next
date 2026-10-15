@@ -52,6 +52,15 @@ class _RefusedStore extends InMemorySharedPreferencesStore {
   Future<bool> setValue(String type, String key, Object value) async => false;
 }
 
+/// The preferences store answers on the real clock; give it a moment, then
+/// let the sheet react.
+Future<void> _storeSettles(WidgetTester tester) async {
+  await tester.runAsync(
+    () => Future<void>.delayed(const Duration(milliseconds: 100)),
+  );
+  await tester.pumpAndSettle();
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   late ConnectionController controller;
@@ -115,7 +124,7 @@ void main() {
     await tester.tap(find.text('Language'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('العربية'));
-    await tester.pumpAndSettle();
+    await _storeSettles(tester);
     expect(controller.appLocale.value, const Locale('ar'));
     expect(prefs.getString(AppLocaleStore.preferenceKey), 'ar');
     await tester.tap(find.text('Language'));
@@ -135,7 +144,7 @@ void main() {
     await tester.tap(find.text('Language'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('العربية'));
-    await tester.pumpAndSettle();
+    await _storeSettles(tester);
     expect(controller.appLocale.value, isNull);
     expect(
       find.textContaining('Your previous choice is still active'),
@@ -194,7 +203,7 @@ void main() {
         });
       }
       await tester.tap(find.text('العربية'));
-      await tester.pumpAndSettle();
+      await _storeSettles(tester);
       expect(controller.appLocale.value, const Locale('ar'));
     });
   }

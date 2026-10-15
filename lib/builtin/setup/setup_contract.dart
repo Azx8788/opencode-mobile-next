@@ -387,6 +387,40 @@ abstract final class SetupJobParams {
   ];
 }
 
+/// Owns the pending status reads of one screen. Cancelling stops their
+/// timeout timers and ends them quietly: an abandoned read is not a failure
+/// and not a fresh install, it simply has no reader any more.
+class SetupReadScope {
+  final _cancels = <void Function()>{};
+  bool _cancelled = false;
+
+  bool get cancelled => _cancelled;
+
+  /// Registers [onCancel]; returns what to call when the read ends first.
+  /// Cancelled already: [onCancel] runs now.
+  void Function() add(void Function() onCancel) {
+    if (_cancelled) {
+      onCancel();
+      return () {};
+    }
+    _cancels.add(onCancel);
+    return () => _cancels.remove(onCancel);
+  }
+
+  void cancel() {
+    _cancelled = true;
+    for (final cancel in _cancels.toList()) {
+      cancel();
+    }
+    _cancels.clear();
+  }
+}
+
+/// Thrown into a read whose [SetupReadScope] was cancelled.
+class SetupReadAbandoned implements Exception {
+  const SetupReadAbandoned();
+}
+
 /// Runs any set of components; first setup, "Add tools" and updates are all
 /// just different selections. Running again after an interruption skips what
 /// the check scripts find installed, so every run is also a resume.
@@ -409,7 +443,10 @@ abstract class SetupEngine {
   Future<void> cancel();
 
   /// Reads the persisted job (after an app restart) into [progress].
-  Future<void> restore();
+  ///
+  /// A screen passes a [SetupReadScope] and cancels it when it leaves, so a
+  /// read that never answers does not keep its timeout timer alive.
+  Future<void> restore({SetupReadScope? scope});
 
   /// Ids of optional components that are installed now.
   Future<Set<String>> installedOptional();

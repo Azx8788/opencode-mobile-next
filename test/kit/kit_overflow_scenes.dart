@@ -28,6 +28,7 @@ import 'kit_core_overflow_scenes.dart';
 import 'kit_forms_overflow_scenes.dart';
 import 'kit_chats_overflow_scenes.dart';
 import 'kit_agent_cards_overflow_scenes.dart';
+import 'kit_overflow_usage_scenes.dart';
 
 part 'kit_overflow_scenes_core.dart';
 part 'kit_overflow_scenes_groups.dart';
@@ -183,6 +184,117 @@ final kitOverflowScenes = <KitOverflowScene>[
   ...kitOverflowTeamScenes,
   ...kitOverflowTeamSpecScenes,
   ...kitOverflowImageScenes,
+  ...kitOverflowUsageScenes,
+  KitOverflowScene(
+    const ['KitPresence'],
+    'default',
+    build: (_, c) => Row(
+      children: [
+        Flexible(
+          child: KitPresence(
+            show: true,
+            child: KitText(
+              c.t(
+                'Find latest finance hub project in the folder',
+                'ابحث عن أحدث مشروع للمالية في المجلد',
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  ),
+  KitOverflowScene(
+    const ['KitContinuedLine'],
+    'default',
+    build: (_, c) => KitContinuedLine(
+      text: c.t(
+        'Continued in Claude Code: fix the login redirect on the finance hub',
+        'تابعتها في Claude Code: إصلاح إعادة توجيه تسجيل الدخول في مركز المالية',
+      ),
+      onOpen: _noop,
+    ),
+  ),
+  KitOverflowScene(
+    const ['KitContinuedLine'],
+    'disabled',
+    build: (_, c) => KitContinuedLine(
+      text: c.t('Continued in Claude Code', 'تابعتها في Claude Code'),
+      onOpen: _noop,
+      gone: true,
+    ),
+  ),
+  KitOverflowScene(
+    const ['KitHandoffRecord'],
+    'default',
+    build: (_, c) => KitHandoffRecord(
+      sizeBytes: 48200,
+      omittedMessages: 12,
+      redacted: true,
+      markdown: c.t(
+        '# Conversation record\n\nFix the login redirect on the finance hub.',
+        '# سجل المحادثة\n\nإصلاح إعادة توجيه تسجيل الدخول في مركز المالية.',
+      ),
+      path: '.opencode/handoff/finance-hub-login-redirect-record.md',
+      initiallyExpanded: true,
+    ),
+  ),
+  KitOverflowScene(
+    const ['KitLiveBackground'],
+    'default',
+    build: (_, c) => SizedBox(
+      height: 240,
+      child: KitLiveBackground(
+        child: Center(
+          child: KitText(
+            c.t(
+              'Find latest finance hub project in the folder',
+              'ابحث عن أحدث مشروع للمالية في المجلد',
+            ),
+          ),
+        ),
+      ),
+    ),
+  ),
+  KitOverflowScene(
+    const ['KitLiveLookPreview'],
+    'default',
+    build: (_, c) => KitLiveLookPreview(
+      style: kitLiveStyleById('aurora'),
+      intensity: KitLiveIntensity.normal,
+      enabled: true,
+      onTap: _noop,
+    ),
+  ),
+  KitOverflowScene(
+    const ['KitLiveStylePicker'],
+    'default',
+    build: (_, c) => SizedBox(
+      height: 900,
+      child: KitLiveStylePicker(selectedId: 'aurora', onOpen: (_) {}),
+    ),
+  ),
+  KitOverflowScene(
+    const ['KitLiveStylePreview'],
+    'default',
+    build: (_, c) => SizedBox(
+      height: 640,
+      child: KitLiveStylePreview(
+        style: kitLiveStyleById('mesh'),
+        isCurrent: false,
+        onUse: _noop,
+      ),
+    ),
+  ),
+  KitOverflowScene(
+    const ['KitOneTimeCode'],
+    'default',
+    build: (_, c) => KitOneTimeCode(
+      code: 'VPFI-KC2ZK-LONGER',
+      label: c.t('Your code', 'رمزك'),
+      copyLabel: c.t('Copy code', 'نسخ الرمز'),
+    ),
+  ),
   KitOverflowScene(
     const ['KitSegmented'],
     'labels-overflow',
@@ -406,6 +518,116 @@ final kitOverflowScenes = <KitOverflowScene>[
       ),
     ),
   ]),
+  KitOverflowScene(
+    const ['KitFloatingPanel'],
+    'default',
+    build: (_, c) => SizedBox(
+      height: 400,
+      child: KitFloatingPanel(
+        onDismiss: _noop,
+        child: KitText(
+          c.t(
+            'A small panel over the home screen',
+            'لوحة صغيرة فوق الشاشة الرئيسية',
+          ),
+        ),
+      ),
+    ),
+  ),
+  KitOverflowScene(
+    const ['KitSteerBox'],
+    'default',
+    build: (_, c) => KitSteerBox(
+      title: c.t('Add to this turn', 'إضافة إلى هذا الدور'),
+      controller: TextEditingController(
+        text: c.t('Also add a test', 'أضف اختبارًا أيضًا'),
+      ),
+      hint: c.t('Write a message', 'اكتب رسالة'),
+      sendLabel: c.t('Send', 'إرسال'),
+      phase: KitSteerBoxPhase.ready,
+      message: c.t(
+        'The conversation changed. Your message is still here.',
+        'تغيّرت المحادثة. رسالتك ما زالت هنا.',
+      ),
+      onSend: (_) {},
+      onDictate: _noop,
+      onClose: _noop,
+    ),
+  ),
+  KitOverflowScene(
+    const ['KitSteerBox'],
+    'disabled',
+    build: (_, c) => KitSteerBox(
+      title: c.t('Add to this turn', 'إضافة إلى هذا الدور'),
+      controller: TextEditingController(
+        text: c.t('A draft that stays', 'مسودة باقية'),
+      ),
+      hint: c.t('Write a message', 'اكتب رسالة'),
+      sendLabel: c.t('Send', 'إرسال'),
+      phase: KitSteerBoxPhase.ready,
+      blockedReason: c.t(
+        'Waiting for conversation details…',
+        'بانتظار تفاصيل المحادثة…',
+      ),
+      onSend: (_) {},
+      onDictate: _noop,
+      onClose: _noop,
+    ),
+  ),
+  KitOverflowScene(
+    const ['KitSteerBox'],
+    'working',
+    build: (_, c) => KitSteerBox(
+      title: c.t('Add to this turn', 'إضافة إلى هذا الدور'),
+      controller: TextEditingController(
+        text: c.t('Also add a test', 'أضف اختبارًا أيضًا'),
+      ),
+      hint: c.t('Write a message', 'اكتب رسالة'),
+      sendLabel: c.t('Send', 'إرسال'),
+      phase: KitSteerBoxPhase.sending,
+      onSend: (_) {},
+      onDictate: _noop,
+      onClose: _noop,
+    ),
+  ),
+  KitOverflowScene(
+    const ['KitSteerBox'],
+    'answered',
+    build: (_, c) => KitSteerBox(
+      title: c.t('Add to this turn', 'إضافة إلى هذا الدور'),
+      controller: TextEditingController(text: c.t('Done', 'تم')),
+      hint: c.t('Write a message', 'اكتب رسالة'),
+      sendLabel: c.t('Send', 'إرسال'),
+      phase: KitSteerBoxPhase.sent,
+      onSend: (_) {},
+      onDictate: _noop,
+      onClose: _noop,
+    ),
+  ),
+  KitOverflowScene(
+    const ['KitWidgetPreview'],
+    'default',
+    build: (_, c) => const KitWidgetPreview(
+      size: KitWidgetPreviewSize.list,
+      background: KitWidgetPreviewBackground.tinted,
+      accent: Color(0xFF4187CD),
+    ),
+  ),
+  KitOverflowScene(
+    const ['KitWidgetStyleForm'],
+    'default',
+    build: (_, c) => KitWidgetStyleForm(
+      previewSize: 'card',
+      background: 'tinted',
+      accent: 'blue',
+      accentIds: const ['wallpaper', 'app', 'green', 'teal', 'blue', 'amber'],
+      accentName: (id) => id,
+      accentColor: (id) => Colors.primaries[id.length % 10],
+      onPreviewSize: (_) {},
+      onBackground: (_) {},
+      onAccent: (_) {},
+    ),
+  ),
 ];
 
 Iterable<KitOverflowScene> _testsDScenes(List<KitOverflowScene> scenes) =>

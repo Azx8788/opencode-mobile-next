@@ -20,6 +20,7 @@ enum _ToolKind {
   worktreeSetup,
   connectorSearch,
   backgroundNotice,
+  card,
   generic,
 }
 
@@ -319,22 +320,9 @@ class _ToolContract {
       case 'todowrite':
       case 'todo':
         kind = _ToolKind.todo;
-        title = strings.workTitle;
-        final todos = metadata['todos'] ?? input['todos'];
-        // One readout, the same as the opened list's: completed out of the
-        // tasks still tracked (cancelled ones are not).
-        final view = MobileTaskView.fromTodos(todos);
-        if (view != null && view.trackedCount > 0) {
-          subtitle = strings.mobileTasksProgress(
-            view.completedCount,
-            view.trackedCount,
-          );
-        } else if (todos is List) {
-          final done = todos
-              .where((item) => item is Map && item['status'] == 'completed')
-              .length;
-          subtitle = strings.chatUiCompletedCount(done, todos.length);
-        }
+        // One line: the list itself is the tasks chip and its sheet, so the
+        // transcript never draws it a second time.
+        title = strings.toolCardUpdatedTasks;
         break;
       case 'question':
         kind = _ToolKind.question;
@@ -423,6 +411,9 @@ class _ToolContract {
           // where the connection draws none: in words, with the card's own
           // title. Its server sets the raw name as the call's title, so
           // that never wins here.
+          // The call is one quiet line: its input and its reply (written
+          // for the model) are never shown as rows.
+          kind = _ToolKind.card;
           title = strings.chatUiToolShowCard;
           subtitle = _valueString(input['title']);
         } else {
@@ -501,6 +492,7 @@ class _ToolContract {
     _ToolKind.skill => KitToolKind.skill,
     _ToolKind.connectorSearch => KitToolKind.search,
     _ToolKind.generic ||
+    _ToolKind.card ||
     _ToolKind.worktreeSetup ||
     _ToolKind.backgroundNotice => KitToolKind.other,
   };

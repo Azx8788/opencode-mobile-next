@@ -78,15 +78,18 @@ class _ServersScreenState extends ConsumerState<ServersScreen> {
     // Settings, sit in its menu. Opened from Settings, Settings has them.
     final isRoot = !(ModalRoute.of(context)?.canPop ?? false);
     final topBar = KitTopBar(
-      title: copy.openCodeConnectionLabel,
-      brand: true,
+      // Opened from Settings this is the Servers page, named so; as the whole
+      // app (no shell yet) it carries the product mark and About.
+      title: isRoot ? copy.openCodeConnectionLabel : copy.settingsV3Servers,
+      brand: isRoot,
       actions: [
-        KitAction(
-          key: const ValueKey('servers-about'),
-          label: copy.e7SetupAboutNotices,
-          icon: AppIconography.info,
-          onPressed: () => Navigator.pushNamed(context, '/about'),
-        ),
+        if (isRoot)
+          KitAction(
+            key: const ValueKey('servers-about'),
+            label: copy.e7SetupAboutNotices,
+            icon: AppIconography.info,
+            onPressed: () => Navigator.pushNamed(context, '/about'),
+          ),
       ],
       menuKey: const ValueKey('servers-menu'),
       menu: [
@@ -242,6 +245,13 @@ class _ServersScreenState extends ConsumerState<ServersScreen> {
                                       accountConnection.api != null &&
                                       accountConnection.profile?.id == p.id,
                                   onOpen: _busy ? null : () => _connect(p),
+                                  onOpenPage: () => unawaited(
+                                    openServerPage(
+                                      context,
+                                      accountConnection,
+                                      p.id,
+                                    ),
+                                  ),
                                   onDisconnect: () async {
                                     if (!await confirmDisconnectServer(
                                       context,
@@ -285,6 +295,13 @@ class _ServersScreenState extends ConsumerState<ServersScreen> {
                                   onMoveQueued: () => _moveQueued(p),
                                   onConnect: () => _connect(p),
                                   onEdit: () => _edit(existing: p),
+                                  onSettings: () => unawaited(
+                                    openServerPage(
+                                      context,
+                                      accountConnection,
+                                      p.id,
+                                    ),
+                                  ),
                                   onRemove: () => _delete(p),
                                   onAccount: () => pushKitPage<void>(
                                     context,

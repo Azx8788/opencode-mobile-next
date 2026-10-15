@@ -225,6 +225,29 @@ const _inlineSource =
     r'|`([^`\n]+)`'
     r'|\[([^\]]+?)\]\(([^)\s]+?)\)';
 
+/// What an inline run lays out as once drawn: the words without their
+/// Markdown marks (a link is its label, not its address), and how many file
+/// paths in code spans draw as chips, each wider than its text by the chip's
+/// inset. A prompt bubble sizes itself from this, not from the raw source.
+({String text, int pathChips}) kitMarkdownDisplay(String source) {
+  var chips = 0;
+  final text = source.replaceAllMapped(_renderPattern, (m) {
+    final label = m.group(7);
+    if (label != null) return label;
+    final code = m.group(6);
+    if (code != null) {
+      if (KitMarkdown.looksLikeFilePath(code)) chips += 1;
+      return code;
+    }
+    for (final group in [1, 2, 3, 4, 5]) {
+      final inner = m.group(group);
+      if (inner != null) return inner;
+    }
+    return m.group(0)!;
+  });
+  return (text: text, pathChips: chips);
+}
+
 /// Speech keeps today's pattern: a bare URL is read as the agent wrote it.
 final _speechPattern = RegExp(_inlineSource, dotAll: true);
 
@@ -936,8 +959,8 @@ class _KitMdQuote extends StatelessWidget {
       decoration: BoxDecoration(
         border: BorderDirectional(
           start: BorderSide(
-            color: tokens.roles.hairline,
-            width: KitTokens.hairlineWidth(context),
+            color: tokens.roles.text3.withValues(alpha: 0.45),
+            width: KitTokens.focusRingWidth(context),
           ),
         ),
       ),

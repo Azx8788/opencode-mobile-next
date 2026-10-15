@@ -21,6 +21,7 @@ void main() {
   late String jar;
   late String jsonJar;
   const scenarios = [
+    'interrupted-installer-retry',
     'ordered-terminal',
     'installer-routed',
     'setup-work-owned',
@@ -63,6 +64,7 @@ void main() {
       compiler: compiler,
       sources: [
         'android/app/src/main/kotlin/io/github/eslamasabry/opencode_mobile/SetupRunner.kt',
+        'android/app/src/main/kotlin/io/github/eslamasabry/opencode_mobile/SetupScriptCompletion.kt',
         'android/app/src/main/kotlin/io/github/eslamasabry/opencode_mobile/SetupWorkScopes.kt',
         'android/app/src/main/kotlin/io/github/eslamasabry/opencode_mobile/SetupJob.kt',
         'android/app/src/main/kotlin/io/github/eslamasabry/opencode_mobile/NativeRuntimeOwnership.kt',

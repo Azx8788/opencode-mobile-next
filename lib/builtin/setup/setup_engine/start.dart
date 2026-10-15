@@ -40,7 +40,9 @@ extension _SetupEngineStart on ChannelSetupEngine {
         startedAt,
         job: job,
         state: SetupState.failed,
-        error: error.message,
+        error: _isRuntimeOwnershipFailure(error)
+            ? _runtimeOwnershipUnknown
+            : error.message,
       );
       return;
     }
@@ -92,7 +94,9 @@ extension _SetupEngineStart on ChannelSetupEngine {
         // proof of a failed install; reconcile without launching another job.
         _handedOver = jobId;
         _handoverUncertain = true;
-        _handoverError = KitRedact.text(error.message);
+        _handoverError = _isRuntimeOwnershipFailure(error)
+            ? _runtimeOwnershipUnknown
+            : KitRedact.text(error.message);
         try {
           await _refresh();
         } on BuiltinLinuxException {
@@ -110,7 +114,9 @@ extension _SetupEngineStart on ChannelSetupEngine {
         startedAt,
         job: job,
         state: SetupState.failed,
-        error: error.code == 'setup_persistence'
+        error: _isRuntimeOwnershipFailure(error)
+            ? _runtimeOwnershipUnknown
+            : error.code == 'setup_persistence'
             ? l10n.phoneSetupErrorInstall('OpenCode')
             : error.message,
       );
@@ -148,7 +154,9 @@ extension _SetupEngineStart on ChannelSetupEngine {
       _clock().millisecondsSinceEpoch,
       job: rows,
       state: SetupState.failed,
-      error: KitRedact.text('${error.runtimeType}: $error'),
+      error: _isRuntimeOwnershipFailure(error)
+          ? _runtimeOwnershipUnknown
+          : KitRedact.text('${error.runtimeType}: $error'),
     );
   }
 
@@ -245,8 +253,8 @@ extension _SetupEngineStart on ChannelSetupEngine {
             ? await _linux.runAgentSetupCheck(script)
             : await _linux.run(script, timeout: const Duration(minutes: 2));
         results.addAll(parseCombinedChecks(run.output));
-      } on BuiltinLinuxException {
-        if (!agentUser) rethrow;
+      } on BuiltinLinuxException catch (error) {
+        if (!agentUser || _isRuntimeOwnershipFailure(error)) rethrow;
         // The first agent install has not created oc yet. Its root bootstrap
         // precedes these components; missing checks leave them pending.
       }
@@ -274,7 +282,8 @@ extension _SetupEngineStart on ChannelSetupEngine {
   static Future<SetupCheckResult> _checkApp(SetupAppComponent app) async {
     try {
       return await app.check();
-    } catch (_) {
+    } catch (error) {
+      if (_isRuntimeOwnershipFailure(error)) rethrow;
       return (ok: false, version: null);
     }
   }

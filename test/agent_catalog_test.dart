@@ -193,6 +193,26 @@ void main() {
     },
   );
 
+  test('new catalog installs prefer OC2 without repurposing the legacy ID', () {
+    final catalog = AgentCatalog.builtIn;
+    final preferred = catalog.agents.first;
+    expect(preferred.id, 'opencode2');
+    expect(preferred.route, AgentRoute.opencode2);
+    expect(preferred.recipe!.version, '2.0.29');
+    for (final architecture in AgentArchitecture.values) {
+      expect(
+        preferred.artifactFor(architecture)!.url.path,
+        endsWith('-2.0.29.tgz'),
+      );
+    }
+    // Persisted selections still resolve to their original runtime and pin.
+    final older = catalog.byId('opencode')!;
+    expect(older.name, 'Older OpenCode');
+    expect(older.route, AgentRoute.opencode1);
+    expect(older.recipe!.version, '1.19.0');
+    expect(older.recipe!.signInArgs, ['auth', 'login']);
+  });
+
   test('unproven resume and visible limits require plain explanations', () {
     expect(
       () => AgentDescriptor(

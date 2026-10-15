@@ -28,6 +28,7 @@ import '../kit_buttons.dart';
 import '../kit_chip.dart' show KitChipWrap;
 import '../kit_copy.dart';
 import '../kit_divider.dart';
+import '../kit_icon.dart';
 import '../kit_image.dart';
 import '../kit_layout.dart';
 import '../kit_menu.dart';
@@ -97,7 +98,7 @@ class KitAttachment {
 }
 
 /// What a [KitSuggestion] would insert.
-enum KitSuggestionKind { command, agent }
+enum KitSuggestionKind { command, agent, file }
 
 /// One row of [KitComposerChips.suggestions].
 @immutable
@@ -1158,7 +1159,23 @@ class _SuggestionRowState extends State<_SuggestionRow> {
           );
 
     Widget content = label;
-    if (description != null) {
+    if (s.kind == KitSuggestionKind.file) {
+      // A path is read left to right and keeps its root and file name when
+      // it is cut: name first, its folder under it.
+      content = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          KitText.mono(s.label, cut: KitMonoCut.middle),
+          if (description != null)
+            KitText.mono(
+              description,
+              cut: KitMonoCut.middle,
+              tone: KitTextTone.secondary,
+            ),
+        ],
+      );
+    } else if (description != null) {
       content = LayoutBuilder(
         builder: (context, constraints) {
           final scaler = MediaQuery.textScalerOf(context);
@@ -1229,6 +1246,21 @@ class _SuggestionRowState extends State<_SuggestionRow> {
       );
     }
 
+    // A file says so with its glyph: the name and folder follow it.
+    final Widget body = s.kind == KitSuggestionKind.file
+        ? Row(
+            children: [
+              const KitIcon(AppIconography.fileText, size: KitIconSize.small),
+              SizedBox(width: tokens.space3),
+              Expanded(child: content),
+            ],
+          )
+        : Align(
+            alignment: AlignmentDirectional.centerStart,
+            widthFactor: 1,
+            heightFactor: 1,
+            child: content,
+          );
     Widget row = ConstrainedBox(
       constraints: BoxConstraints(minHeight: tokens.minTarget),
       child: Padding(
@@ -1236,12 +1268,7 @@ class _SuggestionRowState extends State<_SuggestionRow> {
           horizontal: tokens.space4,
           vertical: tokens.space2,
         ),
-        child: Align(
-          alignment: AlignmentDirectional.centerStart,
-          widthFactor: 1,
-          heightFactor: 1,
-          child: content,
-        ),
+        child: body,
       ),
     );
     row = DecoratedBox(

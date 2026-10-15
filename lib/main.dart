@@ -1,6 +1,14 @@
+export 'background/widget_action_entrypoint.dart' show widgetActionMain;
 import 'ui/search/search_index.dart';
 import 'ui/screens/profile_monitor_screen.dart';
+import 'state/paseo_usage_monitor.dart';
+import 'state/usage_signin_destination.dart';
+import 'ui/screens/library_screen.dart'
+    show IntegrationsMode, IntegrationsScreen;
+import 'ui/screens/agents/agent_sheet.dart' show AgentSheetStep, showAgentSheet;
+import 'ui/screens/usage/usage_read_from_screen.dart';
 import 'ui/screens/usage_hub_screen.dart';
+import 'ui/screens/usage_widget_screen.dart';
 import 'dart:async';
 import 'dart:io' show Platform;
 import 'dart:ui' show PlatformDispatcher;
@@ -80,6 +88,7 @@ import 'ui/screens/phone_setup/phone_setup_routes.dart'
     show openPhoneSetupFromNotification, openPhoneSetupStart;
 import 'ui/screens/app_diagnostics_screen.dart';
 import 'manage_space_main.dart' show runManageSpaceApp;
+import 'widgets_overlay/widget_overlay_app.dart' show runWidgetOverlayApp;
 
 part 'main_parts/bootstrap_gate.dart';
 part 'main_parts/share_route.dart';
@@ -92,6 +101,11 @@ part 'main_parts/root.dart';
 /// small app of its own that guards "Clear storage".
 @pragma('vm:entry-point')
 void manageSpaceMain() => runManageSpaceApp();
+
+/// Home-screen widgets' floating host (WidgetOverlayActivity): a transparent
+/// window with the style, steer or voice panel; no app shell, no connection.
+@pragma('vm:entry-point')
+void widgetOverlayMain() => runWidgetOverlayApp();
 
 Future<void> main() async {
   // First thing: starts the trace clock, so every later OCTRACE `at=` reads
@@ -362,13 +376,9 @@ class _OcAppState extends ConsumerState<OcApp> with WidgetsBindingObserver {
                   Theme.of(context),
                   Localizations.localeOf(context),
                 ),
-                child: MediaQuery(
-                  data: MediaQuery.of(context).copyWith(
-                    textScaler: KitText.appScaler(
-                      MediaQuery.textScalerOf(context),
-                      max: AppTheme.maxTextScale,
-                    ),
-                  ),
+                child: KitText.appScale(
+                  size: _controller.textSize,
+                  max: AppTheme.maxTextScale,
                   // The app's own line joins the conditions every screen's
                   // status slot reads; the update notices below add theirs.
                   child: AppConnectionStatusScope(

@@ -40,6 +40,10 @@ class _DelayedPreferences implements SharedPreferences {
   @override
   Set<String> getKeys() => data.keys.toSet();
   @override
+  Object? get(String key) => data[key];
+  @override
+  bool? getBool(String key) => null;
+  @override
   Future<bool> remove(String key) async {
     data.remove(key);
     return true;

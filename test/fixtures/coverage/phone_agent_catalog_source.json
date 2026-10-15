@@ -1,8 +1,50 @@
 {
   "agents": [
     {
+      "id": "opencode2",
+      "name": "OpenCode 2",
+      "iconKey": "opencode2",
+      "route": "opencode2",
+      "providerId": "opencode",
+      "signInMethod": "apiKeyHost",
+      "availability": "limited",
+      "limitation": "Needs a check on your phone before use.",
+      "resumeReason": "Can't reopen old chats",
+      "capabilities": {
+        "resumeVerified": false,
+        "modelList": false,
+        "permissions": false,
+        "images": false,
+        "cancel": false
+      },
+      "recipe": {
+        "version": "2.0.29",
+        "executable": "opencode",
+        "launchArgs": [
+          "serve",
+          "--hostname",
+          "127.0.0.1"
+        ],
+        "signInArgs": [],
+        "artifacts": {
+          "arm64": {
+            "url": "https://registry.npmjs.org/@opencode/cli-linux-arm64/-/cli-linux-arm64-2.0.29.tgz",
+            "sha256": "0af39e75dbdfacc20f8f531ef35fb4dcc0b44c08084203518614272f232283ae",
+            "format": "tarGz",
+            "archiveMember": "package/bin/opencode"
+          },
+          "x64": {
+            "url": "https://registry.npmjs.org/@opencode/cli-linux-x64-baseline/-/cli-linux-x64-baseline-2.0.29.tgz",
+            "sha256": "152c42ff57b15728f39e1d7b68a9c13b0635fe1c5e6dcccdc8b710955e4cef0b",
+            "format": "tarGz",
+            "archiveMember": "package/bin/opencode"
+          }
+        }
+      }
+    },
+    {
       "id": "opencode",
-      "name": "OpenCode",
+      "name": "Older OpenCode",
       "iconKey": "opencode",
       "route": "opencode1",
       "providerId": "opencode",
@@ -41,48 +83,6 @@
             "sha256": "6334d70db3990721ea454357e9cf2573c8685524ad7769af9d52cbffb7008438",
             "format": "tarGz",
             "archiveMember": "opencode"
-          }
-        }
-      }
-    },
-    {
-      "id": "opencode2",
-      "name": "OpenCode 2",
-      "iconKey": "opencode2",
-      "route": "opencode2",
-      "providerId": "opencode",
-      "signInMethod": "apiKeyHost",
-      "availability": "limited",
-      "limitation": "Needs a check on your phone before use.",
-      "resumeReason": "Can't reopen old chats",
-      "capabilities": {
-        "resumeVerified": false,
-        "modelList": false,
-        "permissions": false,
-        "images": false,
-        "cancel": false
-      },
-      "recipe": {
-        "version": "2.0.10",
-        "executable": "opencode",
-        "launchArgs": [
-          "serve",
-          "--hostname",
-          "127.0.0.1"
-        ],
-        "signInArgs": [],
-        "artifacts": {
-          "arm64": {
-            "url": "https://registry.npmjs.org/@opencode/cli-linux-arm64/-/cli-linux-arm64-2.0.10.tgz",
-            "sha256": "cf5416676240455dc5a98500237af296cb1a00efbd2cca302ad22c92ea080ebc",
-            "format": "tarGz",
-            "archiveMember": "package/bin/opencode"
-          },
-          "x64": {
-            "url": "https://registry.npmjs.org/@opencode/cli-linux-x64-baseline/-/cli-linux-x64-baseline-2.0.10.tgz",
-            "sha256": "700c4d0fcc209e42f61c10f9773331d1d1f7eff35670971ee316b38641a1a76c",
-            "format": "tarGz",
-            "archiveMember": "package/bin/opencode"
           }
         }
       }

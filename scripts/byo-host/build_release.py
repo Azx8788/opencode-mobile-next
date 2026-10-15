@@ -30,14 +30,14 @@ DIGEST = re.compile(r"[0-9a-f]{64}")
 def load_pins(path):
     pins = json.loads(Path(path).read_text())
     if (pins.get("schemaVersion") != 1
-            or pins.get("openCodeVersion") != "1.18.32"
+            or pins.get("openCodeVersion") != "2.0.29"
             or pins.get("bundleVersion") != packager().BUNDLE_VERSION
             or set(pins.get("artifacts", {})) != {"amd64", "arm64"}):
         raise ValueError("invalidPins")
     for architecture, pin in pins["artifacts"].items():
         name = "x64-baseline" if architecture == "amd64" else "arm64"
-        expected = ("https://github.com/anomalyco/opencode/releases/download/"
-                    f"v{pins['openCodeVersion']}/opencode-linux-{name}.tar.gz")
+        expected = (f"https://registry.npmjs.org/@opencode/cli-linux-{name}/-/"
+                    f"cli-linux-{name}-{pins['openCodeVersion']}.tgz")
         if pin.get("url") != expected or not DIGEST.fullmatch(pin.get("sha256", "")):
             raise ValueError("invalidPins")
     return pins
@@ -59,12 +59,23 @@ def verified_binary(data, expected_digest):
         raise ValueError("upstreamChecksumMismatch")
     # Read only the one binary member, never extract paths/links from upstream.
     with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as archive:
-        files = [m for m in archive.getmembers() if m.isfile()]
-        if (len(files) != 1 or files[0].name not in {"opencode", "./opencode"}
-                or any(not m.isfile() and not m.isdir() for m in archive.getmembers())
-                or not 64 <= files[0].size <= MAX_BINARY):
+        entries = archive.getmembers()
+        files = [m for m in entries if m.isfile()]
+        allowed = {"package/bin/opencode", "package/package.json"}
+        if (len(files) != 2 or {m.name for m in files} != allowed
+                or any(not m.isfile() and not m.isdir() for m in entries)
+                or len({m.name for m in entries}) != len(entries)):
             raise ValueError("invalidUpstreamArchive")
-        return archive.extractfile(files[0]).read(MAX_BINARY + 1)
+        binary = archive.getmember("package/bin/opencode")
+        metadata = archive.getmember("package/package.json")
+        if not 64 <= binary.size <= MAX_BINARY or metadata.size > 16384:
+            raise ValueError("invalidUpstreamArchive")
+        package = json.load(archive.extractfile(metadata))
+        if (package.get("version") != "2.0.29"
+                or package.get("name") not in {
+                    "@opencode/cli-linux-x64-baseline", "@opencode/cli-linux-arm64"}):
+            raise ValueError("invalidUpstreamArchive")
+        return archive.extractfile(binary).read(MAX_BINARY + 1)
 
 
 def packager():

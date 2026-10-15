@@ -10,6 +10,7 @@ export 'session_import.dart';
 export 'session_skill.dart';
 export 'active_context.dart';
 export 'usage_statistics.dart';
+export 'history_migration.dart';
 export 'server_gateway/capabilities.dart';
 export 'server_gateway/interfaces.dart';
 export 'server_gateway/value_types_catalog.dart';

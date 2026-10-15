@@ -204,6 +204,7 @@ void main() {
         'session-menu-compact',
         'session-menu-fork',
         'session-menu-rename',
+        'session-menu-continue-with',
         'session-menu-continue-computer',
         'session-menu-continue-phone',
         'session-menu-archive',
@@ -244,6 +245,7 @@ void main() {
           'session-menu-find',
           'session-menu-details',
           'session-menu-rename',
+          'session-menu-continue-with',
           'session-menu-continue-phone',
         ],
       );

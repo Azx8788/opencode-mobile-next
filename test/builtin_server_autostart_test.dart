@@ -68,6 +68,7 @@ class _FakeLinux extends BuiltinLinux {
   final List<String> events;
   bool serverRunning = false;
   bool serverDies = false;
+  BuiltinLinuxException? startError;
 
   /// The running process holds the port but rejects our password (it was
   /// started with another one): only a fresh start answers again.
@@ -127,6 +128,7 @@ class _FakeLinux extends BuiltinLinux {
   }) async {
     starts++;
     events.add('start');
+    if (startError case final error?) throw error;
     serverRunning = !serverDies;
     rejectsPassword = false;
   }
@@ -247,6 +249,33 @@ void main() {
     await mount(tester);
     await settle(tester);
     expect(connection.log, ['connect']);
+    await unmount(tester);
+  });
+
+  testWidgets('unknown ownership does not retry and offers Android recovery', (
+    tester,
+  ) async {
+    linux.startError = const BuiltinLinuxException(
+      'The app cannot safely identify previous work.',
+      code: 'runtime_ownership_unknown',
+    );
+    await mount(tester);
+    await settle(tester);
+    await tester.pump(const Duration(seconds: 3));
+    await settle(tester);
+    expect(linux.starts, 1);
+    expect(
+      find.byKey(const ValueKey('saved-server-recover-ownership')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('saved-server-start-phone')),
+      findsNothing,
+    );
+    expect(
+      find.byKey(const ValueKey('saved-server-open-in-app-setup')),
+      findsNothing,
+    );
     await unmount(tester);
   });
 

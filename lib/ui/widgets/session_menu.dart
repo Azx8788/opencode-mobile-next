@@ -5,6 +5,8 @@ import '../../l10n/app_localizations.dart';
 import '../app_iconography.dart';
 import '../kit/kit_menu.dart';
 
+export 'continue_with_sheet.dart' show showContinueWith;
+
 /// What the conversation menu can do (slice-P10.2). The chat's title menu
 /// and a Work row's menu offer the same entries; a row hands the ones that
 /// need the open conversation to the chat ([ChatRouteArguments.menuAction]).
@@ -19,6 +21,7 @@ enum SessionMenuAction {
   compact,
   fork,
   rename,
+  continueWith,
   continueOnComputer,
   continueOnPhone,
   archive,
@@ -27,6 +30,7 @@ enum SessionMenuAction {
   /// The entry's key, `session-menu-<value>`, and the stable name tests and
   /// the route use.
   String get value => switch (this) {
+    SessionMenuAction.continueWith => 'continue-with',
     SessionMenuAction.continueOnComputer => 'continue-computer',
     SessionMenuAction.continueOnPhone => 'continue-phone',
     _ => name,
@@ -58,6 +62,7 @@ class SessionMenuOffer {
     required this.fork,
     required this.continueOnComputer,
     required this.continueOnPhone,
+    this.continueWith = true,
     this.archive = false,
     this.delete = false,
     this.hasPrompt = true,
@@ -72,6 +77,7 @@ class SessionMenuOffer {
     bool compact = true,
     bool timeline = true,
     bool hasPrompt = true,
+    bool continueWith = true,
   }) => SessionMenuOffer(
     changes: capabilities.sessionDiff,
     timeline: timeline,
@@ -82,6 +88,7 @@ class SessionMenuOffer {
     fork: capabilities.sessionFork,
     continueOnComputer: capabilities.cliSessionResume,
     continueOnPhone: savedServer,
+    continueWith: continueWith,
     archive: capabilities.sessionArchive,
     delete: capabilities.sessionDelete,
     hasPrompt: hasPrompt,
@@ -96,6 +103,10 @@ class SessionMenuOffer {
   final bool fork;
   final bool continueOnComputer;
   final bool continueOnPhone;
+
+  /// "Continue with…": carry the work to another model or agent. Offered
+  /// whenever the conversation can be read; the sheet says what is not ready.
+  final bool continueWith;
   final bool archive;
   final bool delete;
 
@@ -219,6 +230,14 @@ List<KitMenuItem> sessionMenuItems(
       AppIconography.edit,
       act,
     ),
+    if (offer.continueWith)
+      item(
+        SessionMenuAction.continueWith,
+        l10n.continueWithMenu,
+        AppIconography.forward,
+        act,
+        supporting: l10n.continueWithMenuHint,
+      ),
     if (offer.continueOnComputer)
       item(
         SessionMenuAction.continueOnComputer,

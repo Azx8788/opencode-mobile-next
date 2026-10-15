@@ -303,7 +303,11 @@ class _AutoApprovalIndicator extends StatelessWidget {
     // Words, not the glyph alone, carry the state (STATE-9).
     return Semantics(
       button: true,
-      label: [label, ?detail, strings.approvalModeChange].join('. '),
+      // Copy may already end in a full stop; never read out "request..".
+      label: [
+        for (final part in [label, ?detail, strings.approvalModeChange])
+          part.endsWith('.') ? part.substring(0, part.length - 1) : part,
+      ].join('. '),
       excludeSemantics: true,
       onTap: () => onOpen(context),
       child: Builder(

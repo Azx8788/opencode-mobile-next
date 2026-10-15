@@ -120,4 +120,19 @@ void main() {
       expect(title.color, ThemeRoles.resolve(theme).text1);
     }
   });
+
+  test('a switch that cannot act looks unavailable, on or off (N1)', () {
+    for (final theme in [AppTheme.dark(), AppTheme.light()]) {
+      final switches = theme.switchTheme;
+      const live = {WidgetState.selected};
+      const rest = {WidgetState.selected, WidgetState.disabled};
+      final accent = ThemeRoles.resolve(theme).accent;
+      expect(switches.trackColor!.resolve(live), accent);
+      expect(switches.trackColor!.resolve(rest), isNot(accent));
+      expect(
+        switches.thumbColor!.resolve(rest),
+        isNot(switches.thumbColor!.resolve(live)),
+      );
+    }
+  });
 }

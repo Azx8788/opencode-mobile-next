@@ -8,7 +8,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
+import 'package:opencode_mobile/ui/app_theme.dart';
 import 'package:opencode_mobile/ui/kit/kit.dart';
 
 import 'kit_harness.dart';
@@ -94,6 +96,66 @@ void main() {
       expect(calls, 1);
     });
   }
+
+  testWidgets('fact row that opens a thing activates with keyboard', (
+    tester,
+  ) async {
+    var opened = 0;
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.dark(),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: KitFactRow(
+            title: 'Dentist',
+            text: 'Dentist appointment Wed 21 Oct 10:00.',
+            provenance: KitProvenance.told,
+            observedAt: DateTime(2026, 10, 8),
+            open: () => opened++,
+          ),
+        ),
+      ),
+    );
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pump();
+    expect(opened, 1);
+  });
+
+  testWidgets('window row is read-only: Tab passes over it', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.dark(),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: const Scaffold(
+          body: KitWindowRow(
+            title: '5 hours',
+            left: .4,
+            valueLabel: '40% left · 14:10',
+          ),
+        ),
+      ),
+    );
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pump();
+    expect(
+      find.descendant(
+        of: find.byType(KitWindowRow),
+        matching: find.byType(Focus),
+      ),
+      findsNothing,
+    );
+    expect(
+      find.descendant(
+        of: find.byType(KitWindowRow),
+        matching: find.byType(KitTappable),
+      ),
+      findsNothing,
+    );
+  });
 
   group('showKitConfirm', () {
     testWidgets('Esc cancels', (tester) async {

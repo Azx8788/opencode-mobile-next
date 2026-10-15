@@ -477,6 +477,11 @@ abstract final class AppIconography {
     fontFamily: 'AppPhosphorRegular',
     matchTextDirection: false,
   );
+  static const textSize = IconData(
+    0xe6ee,
+    fontFamily: 'AppPhosphorRegular',
+    matchTextDirection: false,
+  );
   static const cut = IconData(
     0xeae0,
     fontFamily: 'AppPhosphorRegular',

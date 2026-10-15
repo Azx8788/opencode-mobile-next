@@ -98,6 +98,7 @@ class KitRequestCard extends StatefulWidget {
     this.titleKey,
     this.detailsKey,
     this.inList = false,
+    this.queued = 0,
   }) : _icon = icon,
        tone = null,
        body = null,
@@ -137,6 +138,7 @@ class KitRequestCard extends StatefulWidget {
        since = null,
        detailsKey = null,
        inList = false,
+       queued = 0,
        _ask = false;
 
   /// More choices than this are not listed in place: the first
@@ -219,6 +221,10 @@ class KitRequestCard extends StatefulWidget {
   /// of its own (the list places it), as [KitAgentCard.inList]. The caller
   /// passes secondary answers, since the screen keeps its one primary.
   final bool inList;
+
+  /// How many other requests of this conversation wait behind this one; the
+  /// label says so ("Needs you · 1 more request is waiting").
+  final int queued;
 
   /// Pre-v2: [AppStatusTone.attention] paints the needs-you look; every
   /// other tone (and null) a plain `surface1` card.
@@ -542,15 +548,13 @@ class _KitRequestCardState extends State<KitRequestCard> {
     final waiting = widget.phase == KitRequestPhase.waiting;
 
     final (inScroll, fixed) = _answers(context);
-    final tertiary = _tertiaryLine(context);
+    final tertiary = _quietLine(context);
+    final large = MediaQuery.textScalerOf(context).scale(10) >= 20;
 
     return KitSince(
       since: widget.since,
       ticks: KitSinceTicks.minutes,
       builder: (context, status) {
-        final age = widget.since == null
-            ? null
-            : l10n.kitRequestAge(KitSince.ageLabel(context, status.elapsed));
         final ageSpoken = widget.since == null
             ? null
             : l10n.kitNeedsYouWaitingSpoken(status.elapsed.inMinutes);
@@ -563,16 +567,35 @@ class _KitRequestCardState extends State<KitRequestCard> {
           widget.ifIgnored!,
         ].join(', ');
 
-        final header = kitRequestHeading(
-          context,
-          icon: widget.icon,
-          attention: true,
-          caption: [reasonWord, whoOnServer, ?age].join(' · '),
-          captionTone: waiting ? KitTextTone.attention : KitTextTone.secondary,
-          title: widget.title,
-          titleKey: widget.titleKey,
-          lines: [
-            if (detail != null && detail.isNotEmpty)
+        // A question reads as its own words: the question is the headline
+        // and the short header is left to Details. Everything else keeps the
+        // title and the one line of why under it.
+        final promote =
+            (widget.kind == KitRequestKind.question ||
+                widget.kind == KitRequestKind.choice) &&
+            !widget.detailMarkdown &&
+            detail != null &&
+            detail.isNotEmpty;
+        final header = Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            KitText(
+              widget.queued > 0
+                  ? '${l10n.kitRequestNeedsYouLabel} · '
+                        '${l10n.chatRequestMoreWaiting(widget.queued).replaceFirst(RegExp(r'[.。]$'), '')}'
+                  : l10n.kitRequestNeedsYouLabel,
+              role: KitTextRole.caption,
+              tone: waiting ? KitTextTone.attention : KitTextTone.secondary,
+            ),
+            SizedBox(height: tokens.space1),
+            KitText(
+              promote ? detail : widget.title,
+              key: widget.titleKey,
+              role: KitTextRole.headline,
+              tone: KitTextTone.primary,
+            ),
+            if (!promote && detail != null && detail.isNotEmpty)
               Padding(
                 padding: EdgeInsetsDirectional.only(top: tokens.space1),
                 child: widget.detailMarkdown
@@ -583,14 +606,6 @@ class _KitRequestCardState extends State<KitRequestCard> {
                         tone: KitTextTone.secondary,
                       ),
               ),
-            Padding(
-              padding: EdgeInsetsDirectional.only(top: tokens.space1),
-              child: KitText(
-                widget.ifIgnored!,
-                role: KitTextRole.secondary,
-                tone: KitTextTone.secondary,
-              ),
-            ),
           ],
         );
 
@@ -618,6 +633,13 @@ class _KitRequestCardState extends State<KitRequestCard> {
                 padding: EdgeInsetsDirectional.only(top: tokens.space3),
                 child: inScroll,
               ),
+            // At large text the quiet line scrolls with the words, so the
+            // answers stay in sight; otherwise it sits under them.
+            if (large && tertiary != null)
+              Padding(
+                padding: EdgeInsetsDirectional.only(top: tokens.space2),
+                child: tertiary,
+              ),
           ],
         );
 
@@ -642,7 +664,7 @@ class _KitRequestCardState extends State<KitRequestCard> {
                     padding: EdgeInsetsDirectional.only(top: tokens.space3),
                     child: fixed,
                   ),
-                if (tertiary != null)
+                if (!large && tertiary != null)
                   Padding(
                     padding: EdgeInsetsDirectional.only(top: tokens.space2),
                     child: tertiary,
@@ -759,7 +781,6 @@ class _KitRequestCardState extends State<KitRequestCard> {
     );
     final reason = answers.disabledReason;
     final showReason = reason != null && (onAllow == null || onReject == null);
-    final always = answers.alwaysAllow;
     final pair = LayoutBuilder(
       builder: (context, constraints) {
         final half = (constraints.maxWidth - tokens.space2) / 2;
@@ -786,23 +807,7 @@ class _KitRequestCardState extends State<KitRequestCard> {
         );
       },
     );
-    final buttons = always == null
-        ? pair
-        : Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              pair,
-              SizedBox(height: tokens.space2),
-              KitButton.tertiary(
-                key: always.buttonKey,
-                label: l10n.chatUiAlwaysAllow,
-                onPressed: onAllow == null
-                    ? null
-                    : () => unawaited(_confirmAlways(always, l10n)),
-              ),
-            ],
-          );
+    final buttons = pair;
     if (!showReason) return buttons;
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -898,8 +903,10 @@ class _KitRequestCardState extends State<KitRequestCard> {
     return (field, action);
   }
 
-  /// "Details" and at most one more act, start-aligned (LAY-13).
-  Widget? _tertiaryLine(BuildContext context) {
+  /// The quiet line under the answers (LAY-13): the standing grant and the
+  /// one more act on the left, "Details" on the right, in small plain
+  /// buttons. It wraps rather than clips at large text.
+  Widget? _quietLine(BuildContext context) {
     final l10n = lookupAppLocalizations(Localizations.localeOf(context));
     final tokens = KitTokens.of(context);
     final answers = widget.answers;
@@ -908,25 +915,59 @@ class _KitRequestCardState extends State<KitRequestCard> {
         widget.phase == KitRequestPhase.waiting &&
         (answers is KitRequestInSheet || answers is KitRequestChooseMany);
     final details = widget.onDetails;
-    final actions = [
-      if (details != null && !sheetPrimary)
-        KitAction(
-          key: widget.detailsKey,
-          label: l10n.kitDetails,
-          onPressed: details,
+    final always =
+        widget.phase == KitRequestPhase.waiting && answers is KitRequestDecide
+        ? answers.alwaysAllow
+        : null;
+    final decide = answers is KitRequestDecide ? answers : null;
+    final disabled = decide?.disabledReason;
+    Widget quiet(
+      String label,
+      VoidCallback? onTap, {
+      Key? key,
+      String? reason,
+    }) => KitTappable(
+      key: key,
+      onTap: onTap,
+      label: label,
+      disabledReason: onTap == null ? (reason ?? label) : null,
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: tokens.space3),
+        child: KitText(
+          label,
+          role: KitTextRole.secondary,
+          tone: KitTextTone.secondary,
         ),
-      ...widget.tertiary.take(1),
-    ];
-    if (actions.isEmpty) return null;
-    return KitInset(
-      child: Wrap(
-        spacing: tokens.space2,
-        runSpacing: tokens.space1,
-        children: [
-          for (final action in actions)
-            KitButton.fromAction(action, role: KitButtonRole.tertiary),
-        ],
       ),
+    );
+    final start = <Widget>[
+      if (always != null)
+        quiet(
+          always.label ?? l10n.kitRequestAlwaysAllowLike,
+          decide?.onAllow == null
+              ? null
+              : () => unawaited(_confirmAlways(always, l10n)),
+          key: always.buttonKey,
+          reason: disabled,
+        ),
+      for (final action in widget.tertiary.take(1))
+        quiet(action.label, action.onPressed, key: action.key),
+    ];
+    final end = details != null && !sheetPrimary
+        ? quiet(l10n.kitDetails, details, key: widget.detailsKey)
+        : null;
+    if (start.isEmpty && end == null) return null;
+    // Alone, "Details" sits at the far end like it does beside a grant.
+    if (start.isEmpty) {
+      return Align(alignment: AlignmentDirectional.centerEnd, child: end);
+    }
+    // A Wrap, not a Row: at large text "Details" drops under the grant
+    // instead of squeezing it into a sliver.
+    return Wrap(
+      alignment: WrapAlignment.spaceBetween,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: tokens.space4,
+      children: [...start, ?end],
     );
   }
 

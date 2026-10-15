@@ -389,7 +389,14 @@ extension _ChatTranscript on _ChatScreenState {
         : null;
     return _MessageView(
       key: ValueKey('message-${m.info.id}'),
-      live: _live?.index == index ? _live!.live : null,
+      // While the request card asks for the person it says so itself: the
+      // turn adds no "Waiting for you…" line above it. The turn still counts
+      // as running (_live stays set), so Stop and the busy look hold.
+      live:
+          _live?.index == index &&
+              _live!.live.activity != KitTurnActivity.waitingForYou
+          ? _live!.live
+          : null,
       stall: _live?.index == index ? _turnStallLine(context) : null,
       stoppedHere: stoppedHere,
       unanswered: !silent && unanswered?.$1 == index,
@@ -401,6 +408,9 @@ extension _ChatTranscript on _ChatScreenState {
       onResendPrompt: endsUnanswered && _unansweredWords != null
           ? () => unawaited(_resendUnanswered())
           : null,
+      onContinueWithAnother: offline || index != _messages.length - 1
+          ? null
+          : () => unawaited(_continueWithAnotherAgent()),
       onSendInterruptedAgain: offline ? null : () => unawaited(_retryLast()),
       suggestedModel: suggestion == null ? null : _modelName(suggestion),
       onUseSuggestedModel: suggestion == null || _unansweredWords == null
@@ -444,9 +454,7 @@ extension _ChatTranscript on _ChatScreenState {
       onCompact: offline || !_supportsSessionCompact ? null : _compact,
       onOpenProviders: offline ? null : _openProviders,
       providersLabel: _conn.isAgentBackend
-          ? _chatL10n(
-              context,
-            ).agentsSignInStart(KitBidi.auto(_conn.profile?.name ?? ''))
+          ? _chatL10n(context).agentsSignInStart(KitBidi.auto(_agentName ?? ''))
           : null,
       onContinue: offline ? null : _continueTruncated,
       onChooseModel: offline

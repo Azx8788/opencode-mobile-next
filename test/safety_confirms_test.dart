@@ -207,7 +207,12 @@ void main() {
       final controller = await _controller();
       addTearDown(controller.dispose);
       await tester.pumpWidget(
-        _app(ServerSettingsScreen(controller: controller)),
+        _app(
+          ServerPageScreen(
+            controller: controller,
+            profileId: controller.profile!.id,
+          ),
+        ),
       );
       await tester.pumpAndSettle();
 
@@ -228,7 +233,12 @@ void main() {
       final controller = await _controller();
       addTearDown(controller.dispose);
       await tester.pumpWidget(
-        _app(ServerSettingsScreen(controller: controller)),
+        _app(
+          ServerPageScreen(
+            controller: controller,
+            profileId: controller.profile!.id,
+          ),
+        ),
       );
       await tester.pumpAndSettle();
 

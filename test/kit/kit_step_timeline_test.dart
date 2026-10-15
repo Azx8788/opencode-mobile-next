@@ -366,15 +366,14 @@ void main() {
       expect(find.text('lib/main.dart'), findsOneWidget);
       // The step's own glyph, as the node (the line's glyph is the same icon).
       expect(find.byIcon(AppIconography.fileText), findsNWidgets(2));
+      // One line: the verb and the file side by side.
       expect(
-        tester.getTopLeft(find.text('Read')).dy,
-        lessThan(tester.getTopLeft(find.text('lib/main.dart')).dy),
+        tester.getCenter(find.text('Read')).dy,
+        closeTo(tester.getCenter(find.text('lib/main.dart')).dy, .01),
       );
-      // Out of a timeline the same row has the glyph beside the title, and
-      // no tile.
     });
 
-    testWidgets('the step in progress carries the one live light', (
+    testWidgets('the step in progress shows the spinner in its node', (
       tester,
     ) async {
       await _pump(
@@ -398,10 +397,10 @@ void main() {
         reduceMotion: false,
       );
       await tester.pump(const Duration(milliseconds: 100));
-      // The step keeps its glyph; no spinner, no status mark (KitStepLight).
-      expect(find.byType(CircularProgressIndicator), findsNothing);
-      expect(find.byType(KitStatusMark), findsNothing);
-      expect(find.byKey(const ValueKey('kit-step-light')), findsOneWidget);
+      // The one spinner is the running step's node: nothing moves round a tile.
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(KitStatusMark), findsOneWidget);
+      expect(find.byKey(const ValueKey('kit-step-light')), findsNothing);
     });
 
     testWidgets('failed and waiting steps show their state on the rail', (
@@ -426,9 +425,8 @@ void main() {
       );
       expect(find.text('Failed'), findsOneWidget);
       expect(find.text('Waiting for you'), findsOneWidget);
-      // Failed settles on its mark; waiting holds a filled attention outline.
-      expect(find.byType(KitStatusMark), findsOneWidget);
-      expect(find.byKey(const ValueKey('kit-step-light')), findsOneWidget);
+      // Failed settles on its mark; waiting shows its ring.
+      expect(find.byType(KitStatusMark), findsNWidgets(2));
     });
 
     testWidgets('the same row outside a timeline is unchanged', (tester) async {

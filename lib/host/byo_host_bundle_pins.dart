@@ -1,6 +1,9 @@
 import '../domain/byo_host.dart';
 
 /// Reviewed bytes for the exact app version, never a remote checksum lookup.
+/// This historical OC1 bundle remains unchanged. New OC2 source bundles use
+/// version 2.0.0; new app versions stay unavailable until their reviewed bundles
+/// are published and their exact hashes are added here (no fallback to OC1).
 ByoHostBundle? byoHostBundleForAppVersion(String appVersion) {
   if (appVersion != '1.1.0+51') return null;
   return ByoHostBundle(

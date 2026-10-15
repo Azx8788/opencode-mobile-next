@@ -529,7 +529,10 @@ void main() {
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          routes: {'/home': (_) => const Scaffold(body: Text('New home'))},
+          routes: {
+            '/home': (_) => const Scaffold(body: Text('New home')),
+            '/servers': (_) => const ServersScreen(),
+          },
           home: Builder(
             builder: (context) => Scaffold(
               body: Column(
@@ -552,7 +555,13 @@ void main() {
     );
     await tester.tap(find.text('Servers'));
     await tester.pumpAndSettle();
+    // A row opens the server's own page; Connect there switches to it.
     await tester.tap(find.text(profile.name));
+    await tester.pumpAndSettle();
+    final connect = find.text('Connect to ${profile.name}');
+    await tester.ensureVisible(connect);
+    await tester.pumpAndSettle();
+    await tester.tap(connect);
     await tester.pumpAndSettle();
 
     expect(find.text('New home'), findsOneWidget);

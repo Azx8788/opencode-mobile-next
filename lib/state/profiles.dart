@@ -8,6 +8,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../ui/kit/kit_redact.dart';
+import 'factsbook/factsbook_store.dart' show FactsBookStore;
 import '../domain/phone_agent_host.dart';
 import '../builtin/agents/agent_host_cleanup.dart';
 import '../builtin/builtin_linux.dart';
@@ -22,13 +23,16 @@ import '../orchestration/adapters/gascity/gascity_probe.dart'
     show isTailnetHost;
 import '../platform/platform_capabilities.dart';
 // A plain value type (no widgets): the person's effect choices.
-import 'effects.dart'
-    show KitEffects, KitGlowColours, KitGlowSpeed, KitGlowStyle, KitMotionLevel;
+import 'effects.dart' show KitEffects, KitTextSize;
+import 'app_preferences.dart';
+import '../domain/settings_scope.dart';
 import 'model_library.dart';
 import 'interaction_defaults.dart';
 import 'context_usage_memory.dart';
+import 'phrase_chips.dart';
 import 'setup_audit_store.dart';
 import 'session_link_bindings.dart';
+import 'agent_handoff_links.dart';
 import 'pending_command_journal.dart';
 
 export '../api/server_probe.dart' show ServerFlavor;
@@ -58,6 +62,11 @@ class ProfileStore {
   static const byoHostSecretsKeyPrefix = 'oc.byoHostSecrets.';
   static const _codexTokenKey = 'oc.codexToken.';
   static const teamEngineAuthKey = 'oc.teamEngineAuth.';
+
+  /// Secure-storage slot (`oc.quotaToken.<profileId>`) for the read token of
+  /// the usage collector the app runs in In-app Ubuntu. Deleted with the
+  /// profile.
+  static const quotaTokenKeyPrefix = 'oc.quotaToken.';
   static const _modelKey = 'oc.model.'; // + profileId -> "providerID|modelID"
   static const _modelExplicitKey = 'oc.modelExplicit.'; // + profileId
   static const _agentKey = 'oc.agent.'; // + profileId
@@ -74,20 +83,12 @@ class ProfileStore {
   /// How many projects a server remembers. Enough to move between the ones
   /// in play this week; not a history.
   static const maxRecentLocations = 8;
-  static const _transcriptReasoningKey = 'oc.transcript.reasoningExpanded';
-  static const _transcriptTimestampsKey = 'oc.transcript.timestampsVisible';
-  static const _appearanceKey = 'oc.appearance';
-  static const _themePackKey = 'oc.themePack';
-  // App-wide (no profile id segment, so the deletion sweep never matches).
-  static const _effectsMotionKey = 'oc.effectsMotion';
-  static const _effectsCelebrationsKey = 'oc.effectsCelebrations';
-  static const _effectsActivityGlowKey = 'oc.effectsActivityGlow';
-  static const _effectsGlowStyleKey = 'oc.effectsGlowStyle';
-  static const _effectsGlowColoursKey = 'oc.effectsGlowColours';
-  static const _effectsGlowSpeedKey = 'oc.effectsGlowSpeed';
   static const _providerRuntimeRefreshVersion = 'v1';
 
   final SharedPreferences prefs;
+
+  AppPreferencesStore get appPreferences =>
+      AppPreferencesStore.forPreferences(prefs);
   final FlutterSecureStorage secure;
   final ByoHostSigner? byoHostSigner;
   final Future<void> Function(String)? agentHostCleanup;
@@ -107,10 +108,14 @@ class ProfileStore {
            byoHostSigner ??
            (AndroidByoHostSigner.supported ? AndroidByoHostSigner() : null);
 
-  List<ServerProfile> _cache = [];
+  static final _profileCaches = Expando<List<ServerProfile>>();
+  List<ServerProfile> get _cache => _profileCaches[prefs] ??= [];
+  set _cache(List<ServerProfile> value) => _profileCaches[prefs] = value;
   List<ServerProfile> get profiles => List.unmodifiable(_cache);
 
-  final _changes = _ProfileStoreChanges();
+  static final _changeOwners = Expando<_ProfileStoreChanges>();
+  _ProfileStoreChanges get _changes =>
+      _changeOwners[prefs] ??= _ProfileStoreChanges();
 
   /// Fires after a profile is saved. Profiles are also changed in place
   /// (phone setup renames the in-app one to "This phone" while the app is
@@ -143,6 +148,7 @@ class ProfileStore {
         key.startsWith(_passwordKey) ||
         key.startsWith(_codexTokenKey) ||
         key.startsWith(teamEngineAuthKey) ||
+        key.startsWith(quotaTokenKeyPrefix) ||
         key.startsWith(phoneAgentHostSecretPrefix) ||
         key.startsWith(byoHostSecretsKeyPrefix);
     try {
@@ -235,12 +241,34 @@ class ProfileStore {
     }
   }
 
+  /// Explicit one-shot launcher action: restore only its saved profile. Unlike
+  /// app bootstrap this performs no migrations, preference writes or hosting.
+  Future<ServerProfile?> loadForWidgetAction(String profileId) async {
+    await prefs.reload();
+    final raw = prefs.getString(_profilesKey);
+    if (raw == null) return null;
+    final values = jsonDecode(raw);
+    if (values is! List) return null;
+    final metadata = values
+        .whereType<Map>()
+        .where((p) => p['id'] == profileId)
+        .firstOrNull;
+    if (metadata == null) return null;
+    final profile = ServerProfile.fromJson(Map<String, dynamic>.from(metadata));
+    profile.cleartextConfirmedOrigin = prefs.getString(
+      '$cleartextConfirmedKeyPrefix$profileId',
+    );
+    await _restoreSecret(profile);
+    return profile;
+  }
+
   Future<List<ServerProfile>> load() async {
     await _retireQuotaBudgets();
     await _retireGlassPreferences();
     final raw = prefs.getString(_profilesKey);
     if (raw == null) {
       _cache = [];
+      await appPreferences.readStateConsent.migrateExistingProfiles(const []);
       return _cache;
     }
     try {
@@ -252,6 +280,9 @@ class ProfileStore {
     } catch (_) {
       _cache = [];
     }
+    await appPreferences.readStateConsent.migrateExistingProfiles(
+      _cache.map((profile) => profile.id),
+    );
     for (final p in _cache) {
       p.cleartextConfirmedOrigin = prefs.getString(
         '$cleartextConfirmedKeyPrefix${p.id}',
@@ -322,6 +353,19 @@ class ProfileStore {
   }
 
   Future<void> upsert(ServerProfile profile) async {
+    final oldIds = <String>[];
+    try {
+      final raw = prefs.getString(_profilesKey);
+      final saved = raw == null ? null : jsonDecode(raw);
+      if (saved is List) {
+        for (final value in saved) {
+          if (value is Map && value['id'] is String) {
+            oldIds.add(value['id'] as String);
+          }
+        }
+      }
+    } catch (_) {}
+    await appPreferences.readStateConsent.migrateExistingProfiles(oldIds);
     if (profile.transientTransport) {
       throw const ByoHostFailure(ByoHostFailureCode.storage);
     }
@@ -339,6 +383,12 @@ class ProfileStore {
     }
     if (!await prefs.setString(_profilesKey, _encode(next))) {
       throw StateError('Could not save the server profile');
+    }
+    // The same id added again after a finished removal (the built-in
+    // server's fixed id): a new server, readable again. The removed visit
+    // stays retired; only this new one may read.
+    if (i < 0 && appPreferences.readStateConsent.isClosed(profile.id)) {
+      appPreferences.readStateConsent.reopenProfile(profile.id);
     }
     var teamEngineAuth = profile.teamEngineAuth;
     try {
@@ -486,6 +536,13 @@ class ProfileStore {
     Set<String> excluding = const {},
   }) async {
     if (profileId.isEmpty) return const {};
+    await appPreferences.readStateConsent.closeProfile(profileId);
+    await _sessionAgentWrites[prefs]?[profileId];
+    _sessionAgentValues[prefs]?.remove(profileId);
+    await _selectionWrites[prefs];
+    _selectionValues[prefs]?.removeWhere(
+      (key, _) => key.endsWith('.$profileId'),
+    );
     // This method already runs inside the controller's deletion transaction.
     // Drain before key discovery so a late platform write cannot resurrect data.
     final defaultsDrain = InteractionDefaultsStore.closeProfile(
@@ -500,8 +557,14 @@ class ProfileStore {
       auditDrain,
       SessionLinkBindings.closeProfile(prefs, profileId),
       ContextUsageMemory.closeProfile(prefs, profileId),
+      PhraseChipStore.closeProfile(prefs, profileId),
     ]);
     final failed = <String>{};
+    try {
+      await AgentHandoffLinks.removeProfile(prefs, profileId);
+    } catch (_) {
+      failed.add(AgentHandoffLinks.keyFor(profileId));
+    }
     for (final key in profileScopedPreferenceKeys(profileId)) {
       if (excluding.contains(key)) continue;
       try {
@@ -528,6 +591,15 @@ class ProfileStore {
   /// the home-screen widget snapshot live in shared blobs; the full cascade
   /// is [ConnectionController.deleteProfileAndLocalData].
   Future<void> remove(String id) async {
+    await appPreferences.readStateConsent.closeProfile(id);
+    // Cross-profile navigation references must be gone while profile removal
+    // can still be aborted. The controller normally did this in its sweep.
+    try {
+      await AgentHandoffLinks.removeProfile(prefs, id);
+    } catch (_) {
+      await AgentHandoffLinks.cancelDeletion(prefs, id);
+      rethrow;
+    }
     final agentOwner = phoneAgentOwnerId(id);
     final retainAgents = phoneAgentOwnerRetainedAfterRemoving(id);
     final retainedAgentKeys = retainedPhoneAgentPreferenceKeys(id);
@@ -535,6 +607,7 @@ class ProfileStore {
     final previousActive = prefs.getString(_activeKey);
     final next = _cache.where((profile) => profile.id != id).toList();
     if (!await prefs.setString(_profilesKey, _encode(next))) {
+      await AgentHandoffLinks.cancelDeletion(prefs, id);
       throw StateError('Could not remove the server profile');
     }
     ServerProfile? removedProfile;
@@ -585,8 +658,15 @@ class ProfileStore {
       }
       await secure.delete(key: secretKey);
       await secure.delete(key: '$teamEngineAuthKey$id');
+      // FactsBook's token, owner key and unsent notes are secure slots too;
+      // its pairing record is a scoped preference swept below.
+      for (final key in FactsBookStore.secureKeys(id)) {
+        await secure.delete(key: key);
+      }
+      await secure.delete(key: '$quotaTokenKeyPrefix$id');
     } catch (error) {
       await _restoreProfiles(previousRaw);
+      await AgentHandoffLinks.cancelDeletion(prefs, id);
       if (previousActive == id &&
           !await prefs.setString(_activeKey, previousActive!)) {
         throw StateError('Could not restore the active server profile');
@@ -600,6 +680,7 @@ class ProfileStore {
       rethrow;
     }
     _cache = next;
+    _changes.changed();
     await removeScopedPreferences(id, excluding: retainedAgentKeys);
     if (!retainAgents && agentOwner != id) {
       for (final key in _phoneAgentPreferenceKeys(agentOwner)) {
@@ -858,15 +939,104 @@ class ProfileStore {
     if (!saved) throw StateError('Could not save model shortcuts');
   }
 
+  static final _selectionValues = Expando<Map<String, Object?>>();
+  static final _selectionWrites = Expando<Future<void>>();
+
+  /// Acknowledged local selection metadata for the read-only Settings facade.
+  Object? confirmedSelectionPreference(String key) {
+    if (![
+      _modelKey,
+      _agentKey,
+      _variantKey,
+      _modelExplicitKey,
+    ].any(key.startsWith)) {
+      throw const SettingsFailure(SettingsFailureReason.invalidValue);
+    }
+    return _selectionValue(key);
+  }
+
+  Object? _selectionValue(String key) =>
+      (_selectionValues[prefs] ??= {}).putIfAbsent(key, () => prefs.get(key));
+
+  Future<void> _writeSelection(Map<String, Object?> values) {
+    // Snapshot before the plugin can mutate its optimistic cache.
+    for (final key in values.keys) {
+      _selectionValue(key);
+    }
+    final ids = values.keys
+        .map((key) => key.substring(key.indexOf('.', 3) + 1))
+        .toSet();
+    bool closed() => ids.any(appPreferences.readStateConsent.isClosed);
+    if (closed()) {
+      return Future.error(
+        const SettingsFailure(SettingsFailureReason.staleTarget),
+      );
+    }
+    final result = (_selectionWrites[prefs] ?? Future<void>.value()).then((
+      _,
+    ) async {
+      if (closed()) {
+        throw const SettingsFailure(SettingsFailureReason.staleTarget);
+      }
+      final before = {for (final key in values.keys) key: _selectionValue(key)};
+      final attempted = <String>[];
+      Future<void> put(String key, Object? value) async {
+        final accepted = value == null
+            ? await prefs.remove(key)
+            : value is bool
+            ? await prefs.setBool(key, value)
+            : await prefs.setString(key, value as String);
+        if (!accepted) {
+          throw const SettingsFailure(SettingsFailureReason.storageFailed);
+        }
+      }
+
+      try {
+        for (final entry in values.entries) {
+          attempted.add(entry.key);
+          await put(entry.key, entry.value);
+        }
+        if (closed()) {
+          throw const SettingsFailure(SettingsFailureReason.staleTarget);
+        }
+        (_selectionValues[prefs] ??= {}).addAll(values);
+        _changes.changed();
+      } catch (error) {
+        for (final key in attempted.reversed) {
+          try {
+            await put(key, before[key]);
+          } catch (_) {}
+        }
+        try {
+          await prefs.reload();
+          for (final key in values.keys) {
+            (_selectionValues[prefs] ??= {})[key] = prefs.get(key);
+          }
+          _changes.changed();
+        } catch (_) {}
+        if (error is SettingsFailure &&
+            error.reason == SettingsFailureReason.staleTarget) {
+          rethrow;
+        }
+        throw const SettingsFailure(SettingsFailureReason.storageFailed);
+      }
+    });
+    _selectionWrites[prefs] = result.then<void>(
+      (_) {},
+      onError: (Object _, StackTrace _) {},
+    );
+    return result;
+  }
+
   (String?, String?) modelFor(String profileId) {
-    final v = prefs.getString('$_modelKey$profileId');
+    final v = _selectionValue('$_modelKey$profileId') as String?;
     if (v == null || !v.contains('|')) return (null, null);
     final parts = v.split('|');
     return (parts[0], parts[1]);
   }
 
   bool modelWasExplicitlySelected(String profileId) =>
-      prefs.getBool('$_modelExplicitKey$profileId') ?? false;
+      _selectionValue('$_modelExplicitKey$profileId') as bool? ?? false;
 
   Future<void> setModel(
     String profileId,
@@ -874,25 +1044,27 @@ class ProfileStore {
     String modelID, {
     bool explicit = false,
   }) async {
-    await prefs.setString('$_modelKey$profileId', '$providerID|$modelID');
-    await prefs.setBool('$_modelExplicitKey$profileId', explicit);
+    await _writeSelection({
+      '$_modelKey$profileId': '$providerID|$modelID',
+      '$_modelExplicitKey$profileId': explicit,
+    });
   }
 
   Future<void> clearModel(String profileId) async {
-    await prefs.remove('$_modelKey$profileId');
-    await prefs.remove('$_modelExplicitKey$profileId');
-    await prefs.remove('$_variantKey$profileId');
+    await _writeSelection({
+      '$_modelKey$profileId': null,
+      '$_modelExplicitKey$profileId': null,
+      '$_variantKey$profileId': null,
+    });
   }
 
   String variantFor(String profileId) =>
-      prefs.getString('$_variantKey$profileId') ?? '';
+      _selectionValue('$_variantKey$profileId') as String? ?? '';
 
   Future<void> setVariant(String profileId, String variant) async {
-    if (variant.isEmpty) {
-      await prefs.remove('$_variantKey$profileId');
-    } else {
-      await prefs.setString('$_variantKey$profileId', variant);
-    }
+    await _writeSelection({
+      '$_variantKey$profileId': variant.isEmpty ? null : variant,
+    });
   }
 
   /// Per-session model choices for [profileId]; malformed entries are
@@ -945,195 +1117,117 @@ class ProfileStore {
     await prefs.setString('$_sessionModelsKey$profileId', jsonEncode(encoded));
   }
 
-  String agentFor(String profileId) =>
-      prefs.getString('$_agentKey$profileId') ?? '';
+  static final _sessionAgentWrites = Expando<Map<String, Future<void>>>();
+  static final _sessionAgentValues =
+      Expando<Map<String, Map<String, String>>>();
 
-  Future<void> setAgent(String profileId, String agent) =>
-      prefs.setString('$_agentKey$profileId', agent);
-
-  // ----- app-wide transcript display -----
-
-  bool get transcriptReasoningExpanded =>
-      prefs.getBool(_transcriptReasoningKey) ?? false;
-
-  bool get transcriptTimestampsVisible =>
-      prefs.getBool(_transcriptTimestampsKey) ?? false;
-
-  Future<void> setTranscriptReasoningExpanded(bool expanded) async {
-    if (!await prefs.setBool(_transcriptReasoningKey, expanded)) {
-      throw StateError('Could not save the reasoning display preference');
-    }
-  }
-
-  Future<void> setTranscriptTimestampsVisible(bool visible) async {
-    if (!await prefs.setBool(_transcriptTimestampsKey, visible)) {
-      throw StateError('Could not save the timestamp display preference');
-    }
-  }
-
-  AppAppearance get appearance => switch (prefs.getString(_appearanceKey)) {
-    'system' => AppAppearance.system,
-    'light' => AppAppearance.light,
-    _ => AppAppearance.dark,
-  };
-
-  ThemePackId get themePack {
-    final raw = prefs.getString(_themePackKey);
-    for (final pack in ThemePackId.values) {
-      if (pack.name == raw) return pack;
-    }
-    return ThemePackId.opencode;
-  }
-
-  Future<void> setThemePack(ThemePackId pack) => _saveDisplayPreference(
-    _themePackKey,
-    pack.name,
-    'Could not save the theme preference',
-  );
-
-  Future<void> setAppearance(AppAppearance appearance) =>
-      _saveDisplayPreference(
-        _appearanceKey,
-        appearance.name,
-        'Could not save the appearance preference',
-      );
-
-  /// Settings › Appearance › Motion: one choice. Full plays animations and
-  /// celebrations, Calm is reduced with no celebrations, Off is none. Vibration
-  /// is fixed parts of the design ([KitEffects.defaults]).
-  /// Older installs stored animations and celebrations separately; those
-  /// keys are read here and folded into the one choice (Full with
-  /// celebrations switched off reads as Calm). Unknown values read as Full.
-  KitEffects get effects {
-    final stored = prefs.getString(_effectsMotionKey);
-    var level = KitMotionLevel.values.firstWhere(
-      (level) => level.name == stored,
-      orElse: () => KitMotionLevel.full,
+  Map<String, String> sessionAgentsFor(String profileId) {
+    final values = _sessionAgentValues[prefs] ??= {};
+    return Map.of(
+      values.putIfAbsent(profileId, () => _readSessionAgents(profileId)),
     );
-    bool? celebrations;
+  }
+
+  Map<String, String> _readSessionAgents(String profileId) {
     try {
-      celebrations = prefs.getBool(_effectsCelebrationsKey);
+      final raw = prefs.getString('oc.sessionAgents.$profileId');
+      final decoded = raw == null ? null : jsonDecode(raw);
+      if (decoded is! Map) return {};
+      return {
+        for (final entry
+            in decoded.entries.toList().reversed.take(200).toList().reversed)
+          if (entry.key is String && entry.value is String)
+            entry.key as String: entry.value as String,
+      };
     } catch (_) {
-      celebrations = null;
+      return {};
     }
-    if (level == KitMotionLevel.full && celebrations == false) {
-      level = KitMotionLevel.calm;
-    }
-    // The glowing border is on unless the person switched it off: no stored
-    // choice (never touched, or from before it was on by default) reads as on.
-    bool glow;
-    try {
-      glow = prefs.getBool(_effectsActivityGlowKey) ?? true;
-    } catch (_) {
-      glow = true;
-    }
-    T pick<T extends Enum>(String key, List<T> values, T fallback) {
-      try {
-        final stored = prefs.getString(key);
-        return values.firstWhere(
-          (v) => v.name == stored,
-          orElse: () => fallback,
-        );
-      } catch (_) {
-        return fallback;
+  }
+
+  Future<void> _changeSessionAgents(
+    String profileId,
+    Map<String, String> Function(Map<String, String>) update,
+  ) {
+    final queue = _sessionAgentWrites[prefs] ??= {};
+    final result = (queue[profileId] ?? Future<void>.value()).then((_) async {
+      if (appPreferences.readStateConsent.isClosed(profileId)) {
+        throw const SettingsFailure(SettingsFailureReason.staleTarget);
       }
-    }
-
-    return KitEffects(
-      motion: level,
-      celebrations: level == KitMotionLevel.full,
-      activityGlow: glow,
-      glowStyle: pick(
-        _effectsGlowStyleKey,
-        KitGlowStyle.values,
-        KitGlowStyle.classic,
-      ),
-      glowColours: pick(
-        _effectsGlowColoursKey,
-        KitGlowColours.values,
-        KitGlowColours.one,
-      ),
-      glowSpeed: pick(
-        _effectsGlowSpeedKey,
-        KitGlowSpeed.values,
-        KitGlowSpeed.normal,
-      ),
-    );
-  }
-
-  Future<void> setEffects(KitEffects effects) async {
-    const error = 'Could not save the effects preference';
-    final before = this.effects;
-    if (effects.motion != before.motion) {
-      await _saveDisplayPreference(
-        _effectsMotionKey,
-        effects.motion.name,
-        error,
+      final choices = update(sessionAgentsFor(profileId));
+      final entries = choices.entries.toList();
+      final kept = entries.skip(
+        entries.length > 200 ? entries.length - 200 : 0,
       );
-    }
-    if (effects.activityGlow != before.activityGlow) {
+      final encoded = {for (final e in kept) e.key: e.value};
       try {
-        if (!await prefs.setBool(
-          _effectsActivityGlowKey,
-          effects.activityGlow,
-        )) {
-          throw StateError(error);
+        final key = 'oc.sessionAgents.$profileId';
+        final saved = encoded.isEmpty
+            ? await prefs.remove(key)
+            : await prefs.setString(key, jsonEncode(encoded));
+        if (!saved) {
+          throw const SettingsFailure(SettingsFailureReason.storageFailed);
         }
-      } catch (_) {
+        if (appPreferences.readStateConsent.isClosed(profileId)) {
+          throw const SettingsFailure(SettingsFailureReason.staleTarget);
+        }
+        (_sessionAgentValues[prefs] ??= {})[profileId] = encoded;
+      } catch (error) {
         try {
           await prefs.reload();
         } catch (_) {}
-        rethrow;
+        if (error is SettingsFailure &&
+            error.reason == SettingsFailureReason.staleTarget) {
+          rethrow;
+        }
+        throw const SettingsFailure(SettingsFailureReason.storageFailed);
       }
-    }
-    if (effects.glowStyle != before.glowStyle) {
-      await _saveDisplayPreference(
-        _effectsGlowStyleKey,
-        effects.glowStyle.name,
-        error,
-      );
-    }
-    if (effects.glowColours != before.glowColours) {
-      await _saveDisplayPreference(
-        _effectsGlowColoursKey,
-        effects.glowColours.name,
-        error,
-      );
-    }
-    if (effects.glowSpeed != before.glowSpeed) {
-      await _saveDisplayPreference(
-        _effectsGlowSpeedKey,
-        effects.glowSpeed.name,
-        error,
-      );
-    }
-    // The old separate celebrations key would otherwise turn a saved Full
-    // into Calm on the next start.
-    if (effects.motion == KitMotionLevel.full &&
-        prefs.containsKey(_effectsCelebrationsKey)) {
-      try {
-        await prefs.remove(_effectsCelebrationsKey);
-      } catch (_) {}
-    }
+    });
+    queue[profileId] = result.then<void>(
+      (_) {},
+      onError: (Object _, StackTrace _) {},
+    );
+    return result;
   }
 
-  Future<void> _saveDisplayPreference(
-    String key,
-    String value,
-    String error,
-  ) async {
-    try {
-      if (!await prefs.setString(key, value)) throw StateError(error);
-    } catch (_) {
-      // SharedPreferences writes its cache before the platform acknowledges.
-      // Reload so a refused preview save cannot become the next controller's
-      // apparent saved appearance, while preserving the original failure.
-      try {
-        await prefs.reload();
-      } catch (_) {
-        // The live controller still keeps the last acknowledged selection.
-      }
-      rethrow;
-    }
+  Future<void> setSessionAgents(String profileId, Map<String, String> choices) {
+    final snapshot = Map<String, String>.of(choices);
+    return _changeSessionAgents(profileId, (_) => snapshot);
   }
+
+  Future<void> setSessionAgent(
+    String profileId,
+    String sessionId,
+    String? agent,
+  ) => _changeSessionAgents(profileId, (choices) {
+    choices.remove(sessionId);
+    if (agent != null) choices[sessionId] = agent;
+    return choices;
+  });
+
+  String agentFor(String profileId) =>
+      _selectionValue('$_agentKey$profileId') as String? ?? '';
+
+  Future<void> setAgent(String profileId, String agent) =>
+      _writeSelection({'$_agentKey$profileId': agent});
+
+  // One shared owner publishes acknowledged device preferences to every controller.
+  bool get transcriptReasoningExpanded =>
+      appPreferences.value.reasoningExpanded;
+  bool get transcriptTimestampsVisible =>
+      appPreferences.value.timestampsVisible;
+  Future<void> setTranscriptReasoningExpanded(bool value) =>
+      appPreferences.setReasoningExpanded(value);
+  Future<void> setTranscriptTimestampsVisible(bool value) =>
+      appPreferences.setTimestampsVisible(value);
+  AppAppearance get appearance => appPreferences.value.appearance;
+  ThemePackId get themePack => appPreferences.value.themePack;
+  KitEffects get effects => appPreferences.value.effects;
+  KitTextSize get textSize => appPreferences.value.textSize;
+  Future<void> setTextSize(KitTextSize value) =>
+      appPreferences.setTextSize(value);
+  Future<void> setAppearance(AppAppearance value) =>
+      appPreferences.setAppearance(value);
+  Future<void> setThemePack(ThemePackId value) =>
+      appPreferences.setThemePack(value);
+  Future<void> setEffects(KitEffects value) => appPreferences.setEffects(value);
 }

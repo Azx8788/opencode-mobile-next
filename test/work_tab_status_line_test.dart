@@ -83,7 +83,7 @@ void main() {
       try {
         await tester.pump(const Duration(seconds: 7));
         expect(line('server'), findsOneWidget);
-        expect(find.textContaining('Connecting to '), findsOneWidget);
+        expect(find.text('Reconnecting…'), findsOneWidget);
         controller
           ..status = StreamStatus.connected
           ..notifyListeners();

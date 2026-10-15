@@ -58,7 +58,7 @@ export function oc2ListsFamily(contract) {
   session('session_child', (() => { const b = info('02', { title: 'Audit the cart tests (@explore subagent)', parentID: 'ses_lists01', outcome: 'succeeded' }); delete b.revert; delete b.metadata; return b; })(), { outcome: [] });
   session('session_archived', info('03', { title: 'Old checkout experiment', outcome: 'interrupted', time: { created: T - 86400000 * 9, updated: T - 86400000 * 8, archived: T - 86400000 * 7 } }), { 'time.created': [], 'time.updated': [], outcome: [] }, { archived: true });
   // A finished run nobody has opened since: the list says Done.
-  session('session_done', (() => { const b = info('08', { title: 'Explain the receipt layout', outcome: 'succeeded' }); delete b.revert; delete b.metadata; return b; })(), { outcome: [], 'time.idle': ['Done'], 'location.workspaceID': [] });
+  session('session_done', (() => { const b = info('08', { title: 'Explain the receipt layout', outcome: 'succeeded' }); delete b.revert; delete b.metadata; return b; })(), { outcome: [], 'time.idle': ['Unread result'], 'location.workspaceID': [] });
   // The fork boundary's other variant.
   session('session_fork_through', info('04', { title: 'Cart total, second try', fork: { sessionID: 'ses_lists01', boundary: { type: 'through', messageID: 'msg_lists_f2' } } }));
 

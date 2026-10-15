@@ -315,35 +315,7 @@ class ProjectFolderActions {
     if (await isInAppServer(controller.profile, linux)) {
       if (!context.mounted) return null;
       final folders = BuiltinProjectFolders(linux);
-      // The project space is searched from the app's own files.
-      final host = folderListerOverride != null
-          ? null
-          : await BuiltinRootfsFolders().hostDirectory(
-              managedProjectsDirectory,
-            );
-      if (!context.mounted) return null;
-      final choice = await showKitFramedSheet<FolderBrowserChoice>(
-        context,
-        builder: (_) => FolderBrowserSheet(
-          list: folderListerOverride ?? BuiltinFolders(linux).list,
-          knownProjects: () => _knownProjects(controller),
-          phone: _phonePlace(
-            controller,
-            projectSpaceScan: (limit) => host == null
-                ? PhoneProjectScan.fromFuture(
-                    _listProjectSpace(
-                      folderListerOverride ?? BuiltinFolders(linux).list,
-                    ),
-                  )
-                : PhoneProjectScanner(
-                    root: host,
-                    reportAs: managedProjectsDirectory,
-                    childrenAreProjects: true,
-                  ).start(timeLimit: limit),
-          ),
-          recent: () => _recentFolders(controller),
-        ),
-      );
+      final choice = await _builtinChoice(context, controller, linux);
       if (choice == null || !context.mounted) return null;
       return switch (choice) {
         FolderBrowserOpen(:final path) => _open(context, controller, path),
@@ -398,6 +370,80 @@ class ProjectFolderActions {
     }
     if (!context.mounted) return null;
     return _openRemote(context, controller);
+  }
+
+  /// The browser sheet for the folders of the app's own Ubuntu; what it was
+  /// closed with, or null when it was dismissed.
+  static Future<FolderBrowserChoice?> _builtinChoice(
+    BuildContext context,
+    ConnectionController controller,
+    BuiltinLinux linux,
+  ) async {
+    // The project space is searched from the app's own files.
+    final host = folderListerOverride != null
+        ? null
+        : await BuiltinRootfsFolders().hostDirectory(managedProjectsDirectory);
+    if (!context.mounted) return null;
+    return showKitFramedSheet<FolderBrowserChoice>(
+      context,
+      builder: (_) => FolderBrowserSheet(
+        list: folderListerOverride ?? BuiltinFolders(linux).list,
+        knownProjects: () => _knownProjects(controller),
+        phone: _phonePlace(
+          controller,
+          projectSpaceScan: (limit) => host == null
+              ? PhoneProjectScan.fromFuture(
+                  _listProjectSpace(
+                    folderListerOverride ?? BuiltinFolders(linux).list,
+                  ),
+                )
+              : PhoneProjectScanner(
+                  root: host,
+                  reportAs: managedProjectsDirectory,
+                  childrenAreProjects: true,
+                ).start(timeLimit: limit),
+        ),
+        recent: () => _recentFolders(controller),
+      ),
+    );
+  }
+
+  /// Picks a project folder of the app's own Ubuntu for something other than
+  /// a chat (the AI Team's repo) without opening it as the chat's project:
+  /// the same browser, an existing folder is returned as it is and a new
+  /// one is made first. Null when dismissed, when "Enter a path" was chosen
+  /// (the caller types it), or when this server is not on this phone.
+  static Future<String?> pickFolder(
+    BuildContext context,
+    ConnectionController controller,
+  ) async {
+    final linux = _linux;
+    if (!await isInAppServer(controller.profile, linux)) return null;
+    if (!context.mounted) return null;
+    final choice = await _builtinChoice(context, controller, linux);
+    if (choice == null || !context.mounted) return null;
+    switch (choice) {
+      case FolderBrowserOpen(:final path):
+        return path;
+      case FolderBrowserEnterPath():
+        return null;
+      case FolderBrowserCreate(:final path):
+        final l10n = lookupAppLocalizations(Localizations.localeOf(context));
+        try {
+          return (await BuiltinProjectFolders(linux).create(path)).path;
+        } on BuiltinLinuxException catch (error) {
+          if (context.mounted) {
+            await _alert(
+              context,
+              l10n.projectFolderCreateFailedTitle,
+              l10n.projectFolderCreateFailed(
+                productErrorText(error, l10n: l10n),
+              ),
+            );
+          }
+          return null;
+        }
+    }
   }
 
   /// A server that is not on this phone cannot be browsed (OpenCode lists

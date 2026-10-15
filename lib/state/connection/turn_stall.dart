@@ -6,6 +6,7 @@ extension _ConnectionTurnStalls on ConnectionController {
     _turnStallTimer = null;
     _cancelTurnStallProbe();
     _turnStallSessions.clear();
+    _turnStallTools.clear();
     _turnStalls.clear();
     _turnStallTransportConnected = null;
   }
@@ -45,6 +46,7 @@ extension _ConnectionTurnStalls on ConnectionController {
     };
     for (final id in _turnStallSessions.difference(active)) {
       _turnStalls.finish(id);
+      _turnStallTools.remove(id);
     }
     _turnStallSessions
       ..clear()
@@ -59,6 +61,7 @@ extension _ConnectionTurnStalls on ConnectionController {
     for (final id in active) {
       _turnStalls.begin(id);
       _turnStalls.setWaiting(id, _turnWaiting(id));
+      _turnStalls.setToolRunning(id, _turnStallTools[id]?.isNotEmpty == true);
     }
     if (active.isEmpty) {
       _turnStallTimer?.cancel();
@@ -78,6 +81,18 @@ extension _ConnectionTurnStalls on ConnectionController {
     final raw =
         props['sessionID'] ?? (nested is Map ? nested['sessionID'] : null);
     if (raw is! String || raw.isEmpty) return;
+    if (event.type == 'message.part.updated' && nested is Map) {
+      final status = nested['state'] is Map ? nested['state']['status'] : null;
+      final partId = (nested['id'] ?? nested['callID'])?.toString() ?? '';
+      if (nested['type'] == 'tool' && partId.isNotEmpty && status is String) {
+        final tools = _turnStallTools.putIfAbsent(raw, () => <String>{});
+        if (status == 'pending' || status == 'running') {
+          tools.add(partId);
+        } else {
+          tools.remove(partId);
+        }
+      }
+    }
     _syncTurnStalls();
     // Status polls, heartbeats and activity in other sessions cannot extend
     // the silence clock. Only actual message/tool output counts as progress.

@@ -215,6 +215,9 @@ KitRequestAlwaysAllowStep? permissionAlwaysStep(
   return KitRequestAlwaysAllowStep(
     what: what,
     covers: broader.isEmpty ? null : broader.join(', '),
+    label: permission.permission == 'bash'
+        ? l10n.chatRequestAlwaysAllowCommands
+        : null,
     onConfirmed: onConfirmed,
     buttonKey: const Key('permission-card-always'),
     confirmKey: const Key('permission-card-always-confirm'),
@@ -241,13 +244,22 @@ KitRequestCard permissionRequestCard(
   VoidCallback? onUndo,
   String? detail,
   String? ifIgnored,
+  int queued = 0,
   DateTime? since,
   Key? key,
   Key? detailsKey,
   bool inList = false,
 }) {
   final l10n = _l10n(context);
-  final title = permissionRequestTitle(permission.permission, l10n: l10n);
+  // The ask is one question; the statement ("Run a shell command") is what
+  // the rest of the app calls this kind of request, and a screen reader
+  // still hears it.
+  final statement = permissionRequestTitle(permission.permission, l10n: l10n);
+  final title = permissionRequestQuestion(
+    permission.permission,
+    l10n: l10n,
+    fallback: statement,
+  );
   final held = heldLabel != null && onUndo != null;
   final sending = !held && answered != null && !answered.failed;
   return KitRequestCard.ask(
@@ -257,7 +269,8 @@ KitRequestCard permissionRequestCard(
     who: who,
     reason: KitNeedsYouReason.decision,
     ifIgnored: ifIgnored ?? l10n.chatRequestIfIgnored,
-    announcement: l10n.chatUiPermissionNeeded(title),
+    queued: queued,
+    announcement: l10n.chatUiPermissionNeeded(statement),
     icon: permissionActionIcon(permission.permission),
     // OpenCode's bash and task tools say in words what they are for.
     detail:

@@ -110,7 +110,13 @@ Future<void> openProjectTool(
             : projectForDirectory(await repository.listProjects(), directory);
         if (!context.mounted) return;
         if (project == null) {
-          throw ProductException(l10n.e7LibraryNoProjectFolderIsOpenChooseOne);
+          // A folder is open, but OpenCode does not track it as a git
+          // project with a commit (a new folder, or no git): say that.
+          throw ProductException(
+            directory?.isNotEmpty == true
+                ? l10n.projectToolsNeedGitCommit
+                : l10n.e7LibraryNoProjectFolderIsOpenChooseOne,
+          );
         }
         await pushKitPage<void>(
           context,
@@ -151,6 +157,12 @@ WorkspaceProject? projectForDirectory(
 class ProjectHubBackController {
   bool Function()? _handler;
   bool handleBack() => _handler?.call() ?? false;
+
+  VoidCallback? _hub;
+
+  /// Back to the hub's rows from Files (the Project tab tapped again). The
+  /// browser keeps its folder and scroll for the next visit.
+  void showHub() => _hub?.call();
 }
 
 /// The Files tab: the title, a chip naming the project it shows (tap to
@@ -242,7 +254,9 @@ class _ProjectHubState extends State<ProjectHub> {
     super.initState();
     widget.focusSearchSignal?.addListener(_searchFiles);
     widget.openFilesSignal?.addListener(_openFiles);
-    widget.backController?._handler = _handleBack;
+    widget.backController
+      ?.._handler = _handleBack
+      .._hub = _showHub;
     widget.controller.addListener(_followConnection);
     _wasBusy = widget.controller.busySessions.isNotEmpty;
     _followConnection();
@@ -341,8 +355,12 @@ class _ProjectHubState extends State<ProjectHub> {
       widget.openFilesSignal?.addListener(_openFiles);
     }
     if (oldWidget.backController != widget.backController) {
-      oldWidget.backController?._handler = null;
-      widget.backController?._handler = _handleBack;
+      oldWidget.backController
+        ?.._handler = null
+        .._hub = null;
+      widget.backController
+        ?.._handler = _handleBack
+        .._hub = _showHub;
     }
     if (oldWidget.controller != widget.controller) {
       oldWidget.controller.removeListener(_followConnection);
@@ -356,7 +374,9 @@ class _ProjectHubState extends State<ProjectHub> {
   void dispose() {
     widget.focusSearchSignal?.removeListener(_searchFiles);
     widget.openFilesSignal?.removeListener(_openFiles);
-    widget.backController?._handler = null;
+    widget.backController
+      ?.._handler = null
+      .._hub = null;
     widget.controller.removeListener(_followConnection);
     _focusFilesSearch.dispose();
     super.dispose();
@@ -369,6 +389,10 @@ class _ProjectHubState extends State<ProjectHub> {
     if (_filesBack.handleBack()) return true;
     setState(() => _filesOpen = false);
     return true;
+  }
+
+  void _showHub() {
+    if (_filesOpen) setState(() => _filesOpen = false);
   }
 
   void _openFiles() {
@@ -563,10 +587,13 @@ class _ProjectHubState extends State<ProjectHub> {
     return Padding(
       padding: EdgeInsetsDirectional.only(
         start: tokens.gutter,
-        end: tokens.space1,
+        end: tokens.gutter,
         bottom: tokens.sectionGap,
       ),
+      // spaceBetween, not a Spacer: a Spacer beside the loose Flexible only
+      // takes half the free room, which left the menu stranded mid-row.
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Flexible(
             child: Semantics(
@@ -586,7 +613,6 @@ class _ProjectHubState extends State<ProjectHub> {
                     ),
             ),
           ),
-          const Spacer(),
           KitRowMenu(
             key: const ValueKey('project-hub-menu'),
             items: [
@@ -620,7 +646,8 @@ class _ProjectHubState extends State<ProjectHub> {
     ProjectTool.files => _row(
       tool,
       icon: AppIconography.files,
-      title: l10n.readerUiFiles,
+      // Not "Files" again inside the Files tab.
+      title: l10n.projectHubBrowseFiles,
       onTap: _openFiles,
     ),
     ProjectTool.changes => _row(

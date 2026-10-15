@@ -39,6 +39,10 @@ mixin _ConnectionControllerPhoneChat on ChangeNotifier {
   final Map<String, DateTime> _openTurns = {};
   TurnStallTracker _turnStalls = TurnStallTracker();
   final _turnStallSessions = <String>{};
+
+  /// Tool calls (by part id) seen pending or running per session; a long
+  /// command is the agent working, so it holds the stall watch off.
+  final _turnStallTools = <String, Set<String>>{};
   Timer? _turnStallTimer;
   Future<TurnStallEvidence> Function()? _turnStallProbe;
   Completer<void>? _turnStallProbeCancellation;
@@ -87,7 +91,8 @@ extension _ConnectionControllerPhoneChatImpl on ConnectionController {
         !isIsolated &&
         owner?.id == id &&
         owner?.backend == ServerBackend.openCode &&
-        owner?.flavor == ServerFlavor.v1 &&
+        api?.capabilities.phoneTeamExecution == true &&
+        (api is OpenCodeApi || api is Api2Gateway) &&
         BuiltinLinux.managesServerUrl(owner?.baseUrl) &&
         owner?.orchestration?.provider == OrchestrationProvider.phoneEngine &&
         !_deletingReadProfiles.contains(id);
@@ -192,7 +197,7 @@ extension _ConnectionControllerPhoneChatImpl on ConnectionController {
 
   Future<void> _beforePhoneChatDispatch(
     ServerProfile owner,
-    OpenCodeApi transport,
+    ServerGateway transport,
     String sessionId,
   ) async {
     try {

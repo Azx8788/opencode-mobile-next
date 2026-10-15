@@ -19,6 +19,10 @@
     "scope": "profile",
     "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
   },
+  "oc.agentHandoffs.": {
+    "scope": "profile",
+    "why": "profile id is the suffix, swept by profileScopedPreferenceKeys and AgentHandoffLinks.removeProfile"
+  },
   "oc.agentHostSecret.": {
     "scope": "profile",
     "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
@@ -127,6 +131,10 @@
     "scope": "profile",
     "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
   },
+  "oc.dev.factsbook": {
+    "scope": "global",
+    "why": "app-wide, not tied to one server"
+  },
   "oc.developmentServices.": {
     "scope": "profile",
     "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
@@ -159,6 +167,18 @@
     "scope": "global",
     "why": "app-wide, not tied to one server"
   },
+  "oc.effectsLiveBackground": {
+    "scope": "global",
+    "why": "app-wide, not tied to one server"
+  },
+  "oc.effectsLiveIntensity": {
+    "scope": "global",
+    "why": "app-wide, not tied to one server"
+  },
+  "oc.effectsLiveStyle": {
+    "scope": "global",
+    "why": "app-wide, not tied to one server"
+  },
   "oc.effectsMotion": {
     "scope": "global",
     "why": "app-wide, not tied to one server"
@@ -166,6 +186,26 @@
   "oc.externalAgents": {
     "scope": "global",
     "why": "app-wide, not tied to one server"
+  },
+  "oc.factsbook": {
+    "scope": "global",
+    "why": "app-wide stop flag of the person's own FactsBook node (oc.factsbook-node.stopped)"
+  },
+  "oc.factsbook.": {
+    "scope": "profile",
+    "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
+  },
+  "oc.factsbookNode.": {
+    "scope": "profile",
+    "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
+  },
+  "oc.factsbookOutbox.": {
+    "scope": "profile",
+    "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
+  },
+  "oc.factsbookOwner.": {
+    "scope": "profile",
+    "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
   },
   "oc.firstRun.notifyAsk": {
     "scope": "other",
@@ -223,6 +263,10 @@
     "scope": "profile",
     "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
   },
+  "oc.mobile.permissionRequests": {
+    "scope": "other",
+    "why": "not a local preference: a metadata field stored on the OpenCode 2 session itself, deleted with the session on the server"
+  },
   "oc.mobileDownloadConsent.": {
     "scope": "profile",
     "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
@@ -252,6 +296,10 @@
     "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
   },
   "oc.monitorRoutes.": {
+    "scope": "profile",
+    "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
+  },
+  "oc.moveToOpenCode2Dismissed.": {
     "scope": "profile",
     "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
   },
@@ -315,6 +363,10 @@
     "scope": "profile",
     "why": "profile id infix, swept"
   },
+  "oc.paseoUsage.": {
+    "scope": "profile",
+    "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
+  },
   "oc.pendingAuth.": {
     "scope": "other",
     "why": "keyed by sign-in attempt id"
@@ -347,6 +399,14 @@
     "scope": "profile",
     "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
   },
+  "oc.phraseChips.": {
+    "scope": "profile",
+    "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
+  },
+  "oc.phraseChips.enabled": {
+    "scope": "global",
+    "why": "app-wide, not tied to one server"
+  },
   "oc.pinnedShortcuts": {
     "scope": "shared",
     "why": "shared blob: its entries for a profile are removed by deleteProfileAndLocalData (test/profile_deletion_test.dart)"
@@ -371,7 +431,7 @@
     "scope": "profile",
     "why": "profile id infix, swept"
   },
-  "oc.quotaAnswers.": {
+  "oc.quotaCollector.": {
     "scope": "profile",
     "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
   },
@@ -379,9 +439,17 @@
     "scope": "profile",
     "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
   },
+  "oc.quotaToken.": {
+    "scope": "profile",
+    "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
+  },
   "oc.readAloudConsent": {
     "scope": "global",
     "why": "app-wide, not tied to one server"
+  },
+  "oc.readStateConsentMigration.v1": {
+    "scope": "other",
+    "why": "app-wide one-time migration flag, not tied to one server"
   },
   "oc.readerPreferences.": {
     "scope": "profile",
@@ -406,6 +474,10 @@
   "oc.secure.probe": {
     "scope": "other",
     "why": "secure-storage probe, not a preference"
+  },
+  "oc.sessionAgents.": {
+    "scope": "profile",
+    "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
   },
   "oc.sessionDisplayModels.": {
     "scope": "profile",
@@ -450,6 +522,18 @@
   "oc.shareSessionViews": {
     "scope": "global",
     "why": "app-wide, not tied to one server"
+  },
+  "oc.shareSessionViews.": {
+    "scope": "profile",
+    "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
+  },
+  "oc.shareSessionViewsDefault.": {
+    "scope": "profile",
+    "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
+  },
+  "oc.shareSessionViewsOrigin.": {
+    "scope": "profile",
+    "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
   },
   "oc.sharedProjects.": {
     "scope": "profile",
@@ -511,6 +595,10 @@
     "scope": "profile",
     "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
   },
+  "oc.textSize": {
+    "scope": "global",
+    "why": "app-wide, not tied to one server"
+  },
   "oc.themePack": {
     "scope": "global",
     "why": "app-wide, not tied to one server"
@@ -531,6 +619,26 @@
     "scope": "global",
     "why": "app-wide, not tied to one server"
   },
+  "oc.usageAlertSeen.v1": {
+    "scope": "shared",
+    "why": "shared blob: entries of removed subscriptions are pruned by UsageSubscriptionsController.removeProfile"
+  },
+  "oc.usageAlerts.v1": {
+    "scope": "shared",
+    "why": "shared blob: overrides of subscriptions that no longer exist are pruned by UsageSubscriptionsController.removeProfile"
+  },
+  "oc.usageComputerReader.": {
+    "scope": "profile",
+    "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
+  },
+  "oc.usageLast.": {
+    "scope": "profile",
+    "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys; also dropped by UsageSubscriptionsController.removeProfile"
+  },
+  "oc.usageWidget.v1": {
+    "scope": "global",
+    "why": "app-wide, not tied to one server"
+  },
   "oc.variant.": {
     "scope": "profile",
     "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
@@ -538,5 +646,17 @@
   "oc.widgetSessions": {
     "scope": "shared",
     "why": "shared blob: its entries for a profile are removed by deleteProfileAndLocalData (test/profile_deletion_test.dart)"
+  },
+  "oc.widgetTarget.": {
+    "scope": "profile",
+    "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
+  },
+  "oc.widgetUsage": {
+    "scope": "profile",
+    "why": "key is oc.widgetUsage.<profile id>, swept by profileScopedPreferenceKeys"
+  },
+  "oc.widgetUsageSubs": {
+    "scope": "shared",
+    "why": "shared blob rebuilt from the live subscriptions; cleared by UsageWidgetSnapshot when none remain"
   }
 }

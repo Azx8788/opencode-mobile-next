@@ -386,6 +386,7 @@ void main() {
       expect(connection.profile!.orchestration, isNull);
       expect(find.byType(TeamIntroScreen), findsOneWidget);
       await tester.pumpWidget(const SizedBox.shrink());
+      connection.dispose();
     });
 
     testWidgets('opened on its own over a task, a turned-off team goes back '

@@ -358,7 +358,7 @@ void main() {
     final tools = find.byKey(const ValueKey('settings-tools'));
     expect(
       find.descendant(
-        of: find.byKey(const ValueKey('settings-group-agent')),
+        of: find.byKey(const ValueKey('settings-group-ai')),
         matching: tools,
       ),
       findsOneWidget,

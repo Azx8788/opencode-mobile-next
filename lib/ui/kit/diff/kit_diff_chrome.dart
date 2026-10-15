@@ -153,7 +153,9 @@ extension _KitDiffChrome on _KitDiffViewState {
     Widget? fileList,
   }) {
     final file = widget.files[_file];
-    final header = _header(context, tokens, l10n, file, window, wrap, picker);
+    final header = widget.inline && widget.files.length == 1
+        ? const SizedBox.shrink()
+        : _header(context, tokens, l10n, file, window, wrap, picker);
     Widget body;
     Widget? footer;
     if (file.binary) {
@@ -264,6 +266,13 @@ extension _KitDiffChrome on _KitDiffViewState {
     // only there. The counts sit at the end, the folder and the status
     // word under the name.
     final switcher = multi && picker;
+    final changes = _changes;
+    final more = widget.fileActions?.call(file) ?? const <KitMenuItem>[];
+    // One change in all: nothing to step through, so no arrows, no "Change
+    // 1 of 1" and no More button. What the menu offered (comment on the
+    // file, add it to the prompt, copy) opens on a long press of the header.
+    final single = changes.length == 1;
+    final compact = single && !switcher;
     final directory = _directory(file.path);
     final supporting = [
       if (directory.isNotEmpty) KitBidi.ltr(directory),
@@ -344,7 +353,45 @@ extension _KitDiffChrome on _KitDiffViewState {
         ],
       ),
     );
-    final Widget title = switcher
+    // One line: the name, then the folder and the counts small beside it
+    // (wrapping under the name only when the text is too large to fit).
+    final compactRow = Padding(
+      padding: EdgeInsetsDirectional.only(
+        start: tokens.gutter,
+        top: tokens.space1,
+        end: file.binary ? tokens.gutter : tokens.space3,
+        bottom: tokens.space1,
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: tokens.space2,
+              children: [
+                name,
+                if (supporting.isNotEmpty)
+                  KitText(
+                    supporting,
+                    role: KitTextRole.secondary,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                counts,
+              ],
+            ),
+          ),
+          if (!file.binary)
+            KitIconButton(
+              icon: AppIconography.wrapText,
+              tooltip: l10n.kitWrapLines,
+              selected: wrap,
+              onPressed: () => _toggleWrap(window),
+            ),
+        ],
+      ),
+    );
+    final Widget header = switcher
         ? KitTappable(
             key: ValueKey('${widget.keyPrefix}-file-picker'),
             label: label,
@@ -355,11 +402,28 @@ extension _KitDiffChrome on _KitDiffViewState {
             container: true,
             label: label,
             excludeSemantics: true,
-            child: row,
+            child: compact ? compactRow : row,
           );
+    final Widget title = single && more.isNotEmpty
+        ? Builder(
+            builder: (anchor) {
+              void open() =>
+                  showKitMenu(anchor, items: more, semanticsLabel: file.path);
+              return Semantics(
+                customSemanticsActions: {
+                  CustomSemanticsAction(label: l10n.kitMore): open,
+                },
+                child: GestureDetector(
+                  key: ValueKey('${widget.keyPrefix}-file-header-menu'),
+                  behavior: HitTestBehavior.opaque,
+                  onLongPress: open,
+                  child: header,
+                ),
+              );
+            },
+          )
+        : header;
 
-    final changes = _changes;
-    final more = widget.fileActions?.call(file) ?? const <KitMenuItem>[];
     final tools = Padding(
       // The last icon target clears the edge by a full step.
       padding: EdgeInsetsDirectional.only(
@@ -368,7 +432,7 @@ extension _KitDiffChrome on _KitDiffViewState {
       ),
       child: Row(
         children: [
-          if (changes.isNotEmpty) ...[
+          if (changes.length > 1) ...[
             KitIconButton(
               key: ValueKey('${widget.keyPrefix}-nav-previous'),
               icon: AppIconography.chevronUp,
@@ -405,7 +469,7 @@ extension _KitDiffChrome on _KitDiffViewState {
               selected: wrap,
               onPressed: () => _toggleWrap(window),
             ),
-          if (more.isNotEmpty)
+          if (more.isNotEmpty && !single)
             Builder(
               builder: (anchor) => KitIconButton(
                 icon: AppIconography.more,
@@ -421,7 +485,8 @@ extension _KitDiffChrome on _KitDiffViewState {
     return Container(
       key: ValueKey('${widget.keyPrefix}-file-header-${file.path}'),
       decoration: BoxDecoration(
-        color: roles.surface1,
+        // The page's own ground with a hairline under it, not a card.
+        color: roles.ground,
         border: Border(
           bottom: BorderSide(
             color: roles.hairline,
@@ -432,7 +497,7 @@ extension _KitDiffChrome on _KitDiffViewState {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [title, tools],
+        children: [title, if (!compact) tools],
       ),
     );
   }
@@ -676,7 +741,10 @@ extension _KitDiffChrome on _KitDiffViewState {
       onKeyEvent: _onKey,
       child: Directionality(
         textDirection: TextDirection.ltr,
-        child: ColoredBox(color: tokens.detailsSurface, child: list),
+        child: ColoredBox(
+          color: widget.inline ? Colors.transparent : tokens.detailsSurface,
+          child: list,
+        ),
       ),
     );
     return (view, capped);

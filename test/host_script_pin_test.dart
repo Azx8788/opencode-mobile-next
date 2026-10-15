@@ -36,7 +36,7 @@ const _scripts = {'ubuntu': HostScripts.ubuntu, 'front': HostScripts.front};
 /// Details: docs/qa/slice-script-pins-2026-09-28/README.md.
 const _pendingPinUpdate = <String, String>{
   'scripts/host/ubuntu-opencode.sh':
-      '768e27428c29dffa68b43e1d3253b358a3a0505f1b6dd874448e66efed034e04',
+      '6e9bed8b5e3060365463aa17e78b44da285f45baca6b4c3a8369881ffbb77b75',
 };
 
 /// Files that show or run shell commands: the app's own copy, the guides at
@@ -188,18 +188,15 @@ void main() {
     expect(_pipedToShell.hasMatch(text), isFalse);
     expect(text, isNot(contains('opencode.ai/install')));
     expect(text, isNot(contains('" upgrade')));
-    // The release is the one the app pins, from OpenCode's GitHub releases.
+    // The default release uses the app's reviewed official npm tarballs.
     expect(
       text,
       contains(
         'readonly OPENCODE_VERSION="'
-        '${TermuxRuntime.openCode1.pinnedVersion}"',
+        '${TermuxRuntime.openCode2.pinnedVersion}"',
       ),
     );
-    expect(
-      text,
-      contains('https://github.com/anomalyco/opencode/releases/download'),
-    );
+    expect(text, contains('https://registry.npmjs.org/@opencode'));
     for (final arch in ['X64', 'ARM64']) {
       expect(
         text,

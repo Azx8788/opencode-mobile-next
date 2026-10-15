@@ -39,6 +39,7 @@ class _ServerRow extends StatelessWidget {
     required this.onMoveQueued,
     required this.onConnect,
     required this.onEdit,
+    required this.onSettings,
     required this.onRemove,
     required this.onAccount,
   });
@@ -63,6 +64,7 @@ class _ServerRow extends StatelessWidget {
   final VoidCallback onMoveQueued;
   final VoidCallback onConnect;
   final VoidCallback onEdit;
+  final VoidCallback onSettings;
   final VoidCallback onRemove;
   final VoidCallback onAccount;
 
@@ -113,66 +115,92 @@ class _ServerRow extends StatelessWidget {
     );
     // The state first, in words (R1, the switcher's words): "Needs you",
     // "2 working", a credential to enter again, then what it is.
-    return KitRow(
-      key: ValueKey('server-row-${p.id}'),
-      leading: waiting > 0
-          ? KitNeedsYou.mark()
-          : KitRowIcon(
-              isPhoneOwnServer(p)
-                  ? AppIconography.phone
-                  : AppIconography.server,
-              current: connected,
-            ),
-      title: p.name,
-      supporting: TextSpan(
-        children: [
-          if (connected) kitCurrentSpan(context, copy.serverRowConnected),
-          if (waiting > 0) KitNeedsYou.span(context, count: waiting),
-          if (running > 0)
-            TextSpan(
-              text: '${copy.otherServerWorking(running)} · ',
-              style: wordStyle,
-            ),
-          // LOOK-5 interim: a credential to re-enter is said in words, in
-          // the strong label weight, never in the danger colour.
-          if (reentry != null) TextSpan(text: '$reentry · ', style: wordStyle),
-          if (queued > 0)
-            TextSpan(
-              text: '${copy.serverRowQueuedWaiting(queued)} · ',
-              style: wordStyle,
-            ),
-          TextSpan(text: kind),
-        ],
+    final menu = <KitMenuItem>[
+      if (showAccount)
+        KitMenuItem(label: copy.agentAccountTitle, onSelected: onAccount),
+      KitMenuItem(label: copy.e7SetupConnect, onSelected: onConnect),
+      if (queued > 0 && moveDestination != null)
+        KitMenuItem(
+          key: ValueKey('server-move-queued-${p.id}'),
+          label: copy.serverRowMoveQueued(queued, moveDestination!),
+          onSelected: onMoveQueued,
+        ),
+      // The server's own page: connection, what it keeps in this app, and
+      // what is saved on it (Servers › the server).
+      KitMenuItem(
+        key: ValueKey('server-settings-${p.id}'),
+        label: copy.settingsV3ServerSettings,
+        onSelected: onSettings,
       ),
-      supportingMaxLines: 2,
+      KitMenuItem(label: copy.e7SetupEdit, onSelected: onEdit),
+      KitMenuItem(
+        key: ValueKey('server-details-${p.id}'),
+        label: copy.kitDetails,
+        onSelected: () => unawaited(_showDetails(context, copy)),
+      ),
+      // Destructive: last, confirmed by the sheet it opens.
+      KitMenuItem(
+        label: copy.capsuleRemove,
+        destructive: true,
+        onSelected: onRemove,
+      ),
+    ];
+    return Semantics(
+      container: true,
       selected: connected,
-      enabled: !busy,
-      disabledReason: busy ? copy.e7SetupServerOperation : null,
-      onTap: onConnect,
-      menuLabel: p.name,
-      menu: [
-        if (showAccount)
-          KitMenuItem(label: copy.agentAccountTitle, onSelected: onAccount),
-        KitMenuItem(label: copy.e7SetupConnect, onSelected: onConnect),
-        if (queued > 0 && moveDestination != null)
-          KitMenuItem(
-            key: ValueKey('server-move-queued-${p.id}'),
-            label: copy.serverRowMoveQueued(queued, moveDestination!),
-            onSelected: onMoveQueued,
-          ),
-        KitMenuItem(label: copy.e7SetupEdit, onSelected: onEdit),
-        KitMenuItem(
-          key: ValueKey('server-details-${p.id}'),
-          label: copy.kitDetails,
-          onSelected: () => unawaited(_showDetails(context, copy)),
+      child: KitRow(
+        key: ValueKey('server-row-${p.id}'),
+        leading: waiting > 0
+            ? KitNeedsYou.mark()
+            : KitRowIcon(
+                isPhoneOwnServer(p)
+                    ? AppIconography.phone
+                    : AppIconography.server,
+                current: connected,
+              ),
+        title: p.name,
+        supporting: TextSpan(
+          children: [
+            if (connected) kitCurrentSpan(context, copy.serverRowConnected),
+            if (waiting > 0) KitNeedsYou.span(context, count: waiting),
+            if (running > 0)
+              TextSpan(
+                text: '${copy.otherServerWorking(running)} · ',
+                style: wordStyle,
+              ),
+            // LOOK-5 interim: a credential to re-enter is said in words, in
+            // the strong label weight, never in the danger colour.
+            if (reentry != null)
+              TextSpan(text: '$reentry · ', style: wordStyle),
+            if (queued > 0)
+              TextSpan(
+                text: '${copy.serverRowQueuedWaiting(queued)} · ',
+                style: wordStyle,
+              ),
+            // Every row says its state: a saved server that is not connected
+            // says so, like the connected one does.
+            if (!connected && waiting == 0 && running == 0)
+              TextSpan(text: '${copy.settingsV3NotConnected} · '),
+            TextSpan(text: kind),
+          ],
         ),
-        // Destructive: last, confirmed by the sheet it opens.
-        KitMenuItem(
-          label: copy.capsuleRemove,
-          destructive: true,
-          onSelected: onRemove,
+        supportingMaxLines: 2,
+        selected: connected,
+        enabled: !busy,
+        disabledReason: busy ? copy.e7SetupServerOperation : null,
+        // The row opens the server's own page; connecting is a named action
+        // there (and in this menu), never what a tap on the name does.
+        onTap: onSettings,
+        menuLabel: p.name,
+        menu: menu,
+        // The same visible "More" as the phone's own row, so every row of the
+        // list offers its actions the same way.
+        trailing: KitRowMenu(
+          key: ValueKey('server-row-menu-${p.id}'),
+          menuLabel: p.name,
+          items: menu,
         ),
-      ],
+      ),
     );
   }
 }

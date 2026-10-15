@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +10,7 @@ import '../../builtin/thermal_guard.dart';
 import '../../builtin/thermal_guard_teams.dart';
 import '../../state/background_pause_notice.dart';
 import '../../state/connection.dart';
+import '../../termux/bridge.dart' show TermuxBridge;
 import '../kit/kit.dart';
 import '../screens/servers_screen.dart' show ServersRouteRequest;
 import 'app_exit_notice.dart';
@@ -66,6 +69,11 @@ class AppConnectionStatusScope extends ConsumerWidget {
                 context,
                 controller,
                 serverOnThisPhone: phone.onThisPhone,
+                onRecoverOwnership:
+                    builtin.failureFor(controller.profile)?.problem ==
+                        BuiltinStartProblem.componentRecovery
+                    ? () => unawaited(TermuxBridge.openAppSettings())
+                    : null,
                 actionContext: actionContext,
                 switchingTo: phoneRuntimeSwitchTarget(controller, builtin),
                 onRestartServer: phone.restart == null

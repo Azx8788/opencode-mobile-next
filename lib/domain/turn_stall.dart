@@ -156,6 +156,16 @@ final class TurnStallTracker {
     noteProgress(sessionId);
   }
 
+  /// A tool call (a long command, a sub-agent) that is pending or running is
+  /// the agent working, not silence. While one runs the turn is never due;
+  /// when the last one finishes the silence clock restarts from that moment.
+  void setToolRunning(String sessionId, bool running) {
+    final turn = _turns[sessionId];
+    if (turn == null || turn.toolRunning == running) return;
+    turn.toolRunning = running;
+    noteProgress(sessionId);
+  }
+
   void finish(String sessionId) => _turns.remove(sessionId);
 
   /// Recheck changed helper/transport facts without inventing turn progress.
@@ -183,6 +193,7 @@ final class TurnStallTracker {
 
   bool _due(_SilentTurn turn, Duration now) =>
       !turn.waiting &&
+      !turn.toolRunning &&
       !turn.probing &&
       turn.diagnosis == null &&
       now - turn.lastProgress >= silenceThreshold;
@@ -204,7 +215,8 @@ final class TurnStallTracker {
     if (turn == null ||
         turn.revision != probe._revision ||
         !turn.probing ||
-        turn.waiting) {
+        turn.waiting ||
+        turn.toolRunning) {
       return null;
     }
     turn.probing = false;
@@ -221,6 +233,7 @@ final class _SilentTurn {
   Duration lastProgress;
   int revision;
   bool waiting = false;
+  bool toolRunning = false;
   bool probing = false;
   TurnStallDiagnosis? diagnosis;
 }

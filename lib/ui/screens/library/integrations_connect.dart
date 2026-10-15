@@ -9,19 +9,28 @@ extension _IntegrationsConnect on _IntegrationsScreenState {
   Future<bool> _confirmAuthorizationLaunch(
     Uri destination, {
     String instructions = '',
-  }) async {
+  }) {
     final l10n = _l10n;
     final host = destination.hasPort
         ? '${destination.host}:${destination.port}'
         : destination.host;
+    // A one-time code is shown on its own, large, with Copy; the rest of
+    // what the server said stays as the line it was.
+    final code = providerDeviceCode(instructions);
+    final said = code == null
+        ? instructions.trim()
+        : providerInstructionsWithoutCode(instructions);
     return showKitConfirm(
       context,
       icon: AppIconography.browser,
       title: l10n.integrationsSignInAtHost(host),
       body: l10n.integrationsSignInBody,
+      code: code,
+      codeLabel: l10n.integrationsSignInCodeLabel,
+      codeCopyLabel: l10n.integrationsCopyCode,
       consequences: [
-        if (instructions.trim().isNotEmpty)
-          l10n.integrationsSignInInstructions(instructions.trim()),
+        if (said.isNotEmpty) l10n.integrationsSignInInstructions(said),
+        if (code != null) l10n.integrationsSignInCodeHint,
       ],
       confirmLabel: l10n.e7LibraryOpenBrowser,
       cancelLabel: l10n.workCancel,
@@ -288,21 +297,41 @@ extension _IntegrationsConnect on _IntegrationsScreenState {
         // Persisted before handing off to the browser. Declining/open failure
         // retains the row: only an explicit Cancel contacts the server again.
         final destination = parseAuthorizationUrl(launch.url, l10n: actionL10n);
+        final code = providerDeviceCode(launch.instructions);
+        final entry = widget.controller.pendingIntegrationAuth
+            .where((e) => e.attemptID == launch.attemptID)
+            .firstOrNull;
+        if (entry != null) {
+          _set(() {
+            _signInUrls[entry.key] = destination;
+            if (code != null) _signInCodes[entry.key] = code;
+          });
+        }
         final confirmed = await _confirmAuthorizationLaunch(
           destination,
           instructions: launch.instructions,
         );
-        if (!confirmed ||
-            !mounted ||
-            source != _authSourceFor(widget.controller)) {
+        if (!mounted || source != _authSourceFor(widget.controller)) return;
+        if (!confirmed) {
+          // Cancel on the sheet ends the attempt: nothing is left waiting.
+          if (entry != null) await _cancelSavedSignIn(entry);
           return;
         }
-        final opened = await _openAuthorization(destination);
+        final opened = await _launchAuthorization(destination, code);
         if (!opened && mounted && source == _authSourceFor(widget.controller)) {
           _say(
             actionL10n.e7LibraryAuthorizationWasNotOpenedThePendingAttempt,
             tone: AppStatusTone.failure,
           );
+        }
+        // The server saves an automatic sign-in only while the app holds
+        // its check open, so the wait starts as the browser opens.
+        if (opened &&
+            entry != null &&
+            launch.mode == IntegrationAuthMode.auto &&
+            mounted &&
+            source == _authSourceFor(widget.controller)) {
+          unawaited(_waitForAutoSignIn(entry, name));
         }
       });
       return;
@@ -335,7 +364,10 @@ extension _IntegrationsConnect on _IntegrationsScreenState {
           return;
         }
         if (!mounted || legacySource != _mcpSource) return;
-        final opened = await _openAuthorization(destination);
+        final opened = await _launchAuthorization(
+          destination,
+          providerDeviceCode(launch.instructions),
+        );
         if (!opened) {
           throw ProductException(actionL10n.e7LibraryCouldNotOpenOAuth);
         }

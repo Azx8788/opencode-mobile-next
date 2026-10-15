@@ -57,6 +57,13 @@ extension _ChatMessageActions on _ChatScreenState {
         icon: AppIcons.copy,
         onSelected: () => unawaited(_copyMessageText(message)),
       ),
+    if (_offersContinueAfterFailure(message))
+      KitMenuItem(
+        key: const ValueKey('message-menu-continue-with'),
+        label: _chatL10n(context).continueWithAnother,
+        icon: AppIconography.link,
+        onSelected: () => unawaited(_continueWithAnotherAgent()),
+      ),
     if (message.info.role == 'user' && _conn.capabilities.sessionFork)
       KitMenuItem(
         key: const ValueKey('message-menu-fork'),
@@ -94,6 +101,23 @@ extension _ChatMessageActions on _ChatScreenState {
         onSelected: () => unawaited(_deleteMessage(message)),
       ),
   ];
+
+  /// The newest reply failed at the provider (not a stop, not a content
+  /// filter refusal): the person may carry the work to another agent. Only
+  /// ever offered, never opened by itself.
+  bool _offersContinueAfterFailure(MessageWithParts message) {
+    if (_conn.isIsolated || _watching) return false;
+    if (message.info.role != 'assistant' || _messages.isEmpty) return false;
+    if (message.info.id != _messages.last.info.id) return false;
+    final raw = message.info.errorText;
+    if (raw == null || raw.isEmpty) return false;
+    final kind = MessageErrorKind.refineFromText(
+      message.info.errorKind ?? MessageErrorKind.unknown,
+      raw,
+    );
+    return kind != MessageErrorKind.aborted &&
+        kind != MessageErrorKind.contentFilter;
+  }
 
   Future<void> _deleteMessage(MessageWithParts message) async {
     final confirmed = await showKitConfirm(

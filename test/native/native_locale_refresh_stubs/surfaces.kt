@@ -10,6 +10,10 @@ object BackgroundConnectionService {
     fun refreshLocale(context: Context) { refreshPayloads.add(unchangedPayload) }
 }
 
+object UsageWidgetProvider {
+    fun refreshAll(context: Context) {}
+}
+
 object SessionsWidgetProvider {
     var refreshes = 0
     fun refreshAll(context: Context) { refreshes++ }

@@ -165,6 +165,52 @@ mixin _ConnectionControllerPhoneAgents on ChangeNotifier
     return null;
   }
 
+  /// The agent conversation [sessionID] as the saved list or the live feed
+  /// knows it, or null when it is not an agent's (OpenCode's own are not).
+  ChatFeedItem? _paKnownAgentRow(String sessionID) {
+    bool agents(ChatFeedItem item) =>
+        item.sessionID == sessionID &&
+        item.sourceId != null &&
+        item.sourceId != _openCodeSourceId;
+    for (final row in _paSavedRows) {
+      if (agents(row.item)) return row.item;
+    }
+    final merged = _paMerged;
+    if (merged == null) return null;
+    for (final item
+        in merged
+            .chatFeed(const ChatFeedFilter(includeSubagents: true))
+            .items) {
+      if (agents(item)) return item;
+    }
+    return null;
+  }
+
+  /// An agent's conversation whose own connection is not open yet (the app
+  /// was opened on it from a notification, a shortcut or a link): its page
+  /// must wait for that connection, never fall back to OpenCode's.
+  bool agentConversationNeedsBackend(String sessionID) =>
+      backendForConversation(sessionID) == null &&
+      _paKnownAgentRow(sessionID) != null;
+
+  /// Opens the connection an agent conversation runs on, the way the list
+  /// does, and returns it. Null when it cannot be reached or the
+  /// conversation is not an agent's.
+  Future<ConnectionController?> openBackendForConversation(
+    String sessionID,
+  ) async {
+    final open = backendForConversation(sessionID);
+    if (open != null) return open;
+    final row = _paKnownAgentRow(sessionID);
+    if (row == null) return null;
+    try {
+      final route = await openChatFeedItem(row);
+      return backendForConversation(route.sessionID);
+    } catch (_) {
+      return null;
+    }
+  }
+
   AgentCatalog get _paCatalog => AgentCatalog.builtIn;
 
   /// The phone profile the agents run under: the main connection's when it
@@ -221,6 +267,35 @@ mixin _ConnectionControllerPhoneAgents on ChangeNotifier
   }) => _paResumeAfterIdle(profileId, expectedIdleGeneration);
 
   // ---- host and auth owners ------------------------------------------------
+
+  /// This phone can host agents, whether or not the host is running now.
+  bool get phoneUsageSupported =>
+      _self._phoneAgentHostFactory != null || BuiltinLinux.supported;
+
+  /// Plan usage through the built-in host session that is already open. A
+  /// stopped or never-started host answers null: reading usage must not wake
+  /// it (battery), so the widget keeps the last numbers instead.
+  Future<List<ProviderUsageReading>?> _paReadUsage() async {
+    if (_self._disposed) return null;
+    // An open conversation proves the helper runs, whatever the flags say.
+    final open = _paSources.values.firstOrNull?.gateway;
+    if (open != null && !open.isClosed) {
+      return PaseoProviderUsageGateway.over(open.transport).read();
+    }
+    if (!(_paHostRunning || _paHelperAvailable)) return null;
+    // No project's conversations are open yet (right after the app starts):
+    // one short connection to the helper that is already running, closed
+    // after the read. It never starts the helper.
+    final host = _paHost;
+    final directory = _paDesiredDirectories().firstOrNull;
+    if (host == null || directory == null) return null;
+    final gateway = await host.openGateway(directory);
+    try {
+      return await PaseoProviderUsageGateway.over(gateway.transport).read();
+    } finally {
+      gateway.close();
+    }
+  }
 
   PhoneAgentHostPort _paEnsureHost() {
     final profile = _paProfile;
@@ -965,6 +1040,11 @@ mixin _ConnectionControllerPhoneAgents on ChangeNotifier
     final folder = directory.split('/').where((p) => p.isNotEmpty).last;
     final source = _self._genUiPhoneFeed(gateway, directory, folder);
     _paSources[directory] = (gateway: gateway, source: source);
+    // A connected gateway is proof the helper answers now, whoever started
+    // it (a conversation's own backend, an earlier session). Without this the
+    // flag stayed false until the Agents page re-read the rows, and readers
+    // of "is it running" (usage) reported a stopped host beside open chats.
+    _paHostRunning = true;
     return source;
   }
 
@@ -1028,16 +1108,6 @@ mixin _ConnectionControllerPhoneAgents on ChangeNotifier
 
   // ---- saved rows -----------------------------------------------------------
 
-  List<({ChatFeedItem item, bool canReopen})> get _paSavedRows {
-    final id = _paProfile?.id;
-    if (id == null || !phoneAgentsAvailable) return const [];
-    if (_paCacheOwner != id) {
-      _paCacheOwner = id;
-      _paCacheRows = _paCache.read(id);
-    }
-    return _paCacheRows ?? const [];
-  }
-
   /// The agents' saved conversations as titles, for the opening screen's
   /// last-known list (beside OpenCode's), newest first.
   List<SessionPreview> get savedAgentSessionPreviews => List.unmodifiable([
@@ -1049,81 +1119,6 @@ mixin _ConnectionControllerPhoneAgents on ChangeNotifier
           row.item.lastActivity.millisecondsSinceEpoch,
         ),
   ]);
-
-  /// The saved row for [item] while its folder has not been read live yet.
-  ({ChatFeedItem item, bool canReopen})? _paSavedRowFor(ChatFeedItem item) {
-    if (_paLoadedDirs.contains(item.directory)) return null;
-    for (final row in _paSavedRows) {
-      if (row.item.identity == item.identity) return row;
-    }
-    return null;
-  }
-
-  /// Folders read live replace their saved rows; the rest are kept.
-  void _paSaveRows(MergedChatFeed merged) {
-    final id = _paProfile?.id;
-    if (id == null) return;
-    final checks = merged.sourceChecks;
-    for (final entry in _paSources.keys) {
-      final check = checks[_paseoSourceId(entry)];
-      if (check != null && (check.complete || check.items.isNotEmpty)) {
-        _paLoadedDirs.add(entry);
-      }
-    }
-    final live = merged
-        .chatFeed(const ChatFeedFilter(includeSubagents: true))
-        .items
-        .where(
-          (item) =>
-              item.sourceId != _openCodeSourceId &&
-              _paLoadedDirs.contains(item.directory),
-        )
-        .map(
-          (item) => (
-            item: _paPersistableRow(item),
-            canReopen: agentResumeNotice(item).canReopen,
-          ),
-        )
-        .toList();
-    final rows = [
-      ...live,
-      for (final row in _paSavedRows)
-        if (!_paLoadedDirs.contains(row.item.directory)) row,
-    ]..sort((a, b) => compareChatFeedItems(a.item, b.item));
-    _paCacheRows = List.unmodifiable(rows);
-    _paCacheOwner = id;
-    unawaited(_paCache.write(id, rows));
-  }
-
-  /// Saved rows outlive the gateway's draft aliases: persist the daemon's ids.
-  ChatFeedItem _paPersistableRow(ChatFeedItem item) {
-    final gateway = _paSources[item.directory]?.gateway;
-    if (gateway == null || item.sourceId != _paseoSourceId(item.directory)) {
-      return item;
-    }
-    final id = gateway.daemonSessionId(item.sessionID);
-    final parent = item.parentID == null
-        ? null
-        : gateway.daemonSessionId(item.parentID!);
-    if (id == item.sessionID && parent == item.parentID) return item;
-    return ChatFeedItem(
-      sessionID: id,
-      title: item.title,
-      directory: item.directory,
-      projectName: item.projectName,
-      isGit: item.isGit,
-      status: item.status,
-      lastActivity: item.lastActivity,
-      preview: item.preview,
-      parentID: parent,
-      agentId: item.agentId,
-      agentLabel: item.agentLabel,
-      sourceId: item.sourceId,
-      sourceLabel: item.sourceLabel,
-      finishedUnseen: item.finishedUnseen,
-      contextUsage: item.contextUsage,
-    );
-  }
 
   // ---- one paint ------------------------------------------------------------
 

@@ -306,6 +306,9 @@ class BuiltinLinux(private val context: Context) {
     private val installerGuard = Any()
     @Volatile private var installerProcess: Process? = null
     private var installerLaunchId: String? = null
+    // Guarded by this + installerGuard. PRoot's exit status can hide
+    // a guest termination initiated by the ownership monitor.
+    private var installerMonitorFailure: Throwable? = null
     private var componentUpdatesRecovered = false
     private val componentUpdateFailure = "A component update could not be restored. Run setup again."
     private val componentRecovery by lazy { NativeComponentUpdateRecovery(context.filesDir, home, rootfs) }
@@ -370,7 +373,7 @@ class BuiltinLinux(private val context: Context) {
             Os.kill(pid, 0)
             false
         } catch (error: ErrnoException) {
-            error.errno == OsConstants.ESRCH
+            NativeInstallerVisibility.goneAfterRefusedProbe(error.errno, OsConstants.ESRCH, OsConstants.EPERM)
         } catch (_: Throwable) {
             false
         }
@@ -451,7 +454,7 @@ class BuiltinLinux(private val context: Context) {
             }
             if (ticket != null) check(installerPreferences.edit().remove("ticket").commit()) { componentUpdateFailure }
             componentUpdatesRecovered = true
-        } catch (_: Throwable) { throw IllegalStateException(componentUpdateFailure) }
+        } catch (error: Throwable) { throw IllegalStateException(componentUpdateFailure, error) }
     }
 
     private fun recoverPendingServerReceipt() {
@@ -485,7 +488,7 @@ class BuiltinLinux(private val context: Context) {
     internal fun startInstaller(script: String, targets: Set<InstallerTarget>, operation: InstallerOperation,
         agentUser: Boolean = false): Process = try {
         startQualifiedInstaller(script, targets, operation, agentUser)
-    } catch (_: Throwable) { throw IllegalStateException(componentUpdateFailure) }
+    } catch (error: Throwable) { throw IllegalStateException(componentUpdateFailure, error) }
 
     private fun startQualifiedInstaller(script: String, targets: Set<InstallerTarget>, operation: InstallerOperation,
         agentUser: Boolean = false): Process {
@@ -494,12 +497,10 @@ class BuiltinLinux(private val context: Context) {
         check(installerProcess == null) { componentUpdateFailure }
         recoverColdComponentUpdates()
         check(installerTicket() == null) { componentUpdateFailure }
+        installerMonitorFailure = null
         val nonce = ByteArray(32).also { java.security.SecureRandom().nextBytes(it) }
             .joinToString("") { "%02x".format(it) }
-        val others = knownOtherRuntime() + services[SERVER]?.process?.takeIf { it.isAlive }?.let { process ->
-            val pid = pidOf(process) ?: error(componentUpdateFailure)
-            (listOf(pid) + descendants(pid)).map { kernelIdentity(it) ?: error(componentUpdateFailure) }
-        }.orEmpty()
+        val others = knownOtherRuntime(includeServer = true)
         val generation = installerPreferences.getLong("generation", 0L) + 1L
         check(generation > 0L) { componentUpdateFailure }
         val prepared = InstallerTicket(nonce, installerRootfsGeneration(), targets, operation,
@@ -533,12 +534,12 @@ class BuiltinLinux(private val context: Context) {
             launched.outputStream.flush(); launched.outputStream.close()
             monitorInstallerOwnership(launched, nonce, committed)
             return launched
-        } catch (_: Throwable) {
+        } catch (error: Throwable) {
             try { process?.outputStream?.close() } catch (_: Throwable) { }
             drainFailedInstaller(committedTicket, exactRoot)
             installerProcess = null
             installerLaunchId = null
-            throw IllegalStateException(componentUpdateFailure)
+            throw IllegalStateException(componentUpdateFailure, error)
         }
     }
 
@@ -574,9 +575,11 @@ class BuiltinLinux(private val context: Context) {
                         val observed = liveInstallerPlan(ticket, launched, nonce).server
                         if (observed != ticket.observed) saveInstaller(ticket.copy(observed = observed))
                     } }
-                } catch (_: Throwable) {
+                } catch (error: Throwable) {
                     synchronized(this@BuiltinLinux) { synchronized(installerGuard) {
                         if (installerProcess !== launched) return@Thread
+                        if (installerLaunchId != nonce) return@Thread
+                        installerMonitorFailure = error
                         try { drainInstaller(committed, launched, nonce) } catch (_: Throwable) { }
                     } }
                     return@Thread // Durable receipt remains; completion must still prove the drain.
@@ -625,8 +628,17 @@ class BuiltinLinux(private val context: Context) {
                 check(installerPreferences.edit().remove("ticket").commit()) { componentUpdateFailure }
                 installerProcess = null
                 installerLaunchId = null
+                // Release the slot before reporting failure: Continue setup
+                // must be able to repair the interrupted apt transaction in
+                // this same app process, without weakening the drain proof.
+                val monitorFailure = installerMonitorFailure
+                installerMonitorFailure = null
+                if (monitorFailure != null) {
+                    componentUpdatesRecovered = false
+                    throw monitorFailure
+                }
             }
-        } catch (_: Throwable) { throw IllegalStateException(componentUpdateFailure) }
+        } catch (error: Throwable) { throw IllegalStateException(componentUpdateFailure, error) }
     }
 
     /** proot's own path: the program a terminal session (LocalTerminal.kt) starts. */
@@ -717,7 +729,10 @@ class BuiltinLinux(private val context: Context) {
             }
         }
         val request = File(profileHome, ".oc-open-url").apply { delete() }
+        // CLAUDE_HOME: Paseo's usage reader looks for Claude's sign-in there
+        // (or ~/.claude), not in CLAUDE_CONFIG_DIR.
         val command = listOf("/usr/bin/env", "HOME=$guestHome", "CLAUDE_CONFIG_DIR=$guestHome/claude",
+            "CLAUDE_HOME=$guestHome/claude",
             "BROWSER=$guestHome/.oc-bin/open-url",
             "PATH=$guestHome/.oc-bin:/home/oc/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
             "CODEX_HOME=$guestHome/codex",
@@ -766,7 +781,11 @@ class BuiltinLinux(private val context: Context) {
         val profileHome = PhoneAgentPaths.prepare(context.filesDir, "linux/ubuntu/home/oc/.oc-profiles/$profileId")
         Os.chmod(profileHome.absolutePath, 448)
         val guestHome = "/home/oc/.oc-profiles/$profileId"
+        // CLAUDE_HOME: Paseo's usage reader looks for Claude's sign-in there
+        // (or ~/.claude), not in CLAUDE_CONFIG_DIR; without it the Usage
+        // widget never shows Claude.
         val command = listOf("/usr/bin/env", "HOME=$guestHome", "CLAUDE_CONFIG_DIR=$guestHome/claude",
+            "CLAUDE_HOME=$guestHome/claude",
             "CODEX_HOME=$guestHome/codex", "DISABLE_AUTOUPDATER=1", "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1") + argv
         val builder = ProcessBuilder(prootCommand(command, agentUser = true)).apply {
             environment().clear()
@@ -2079,9 +2098,11 @@ class BuiltinLinux(private val context: Context) {
             .coerceIn(MIN_RESTART_DELAY_MS, MAX_RESTART_DELAY_MS)
     }
 
-    private fun kernelIdentity(pid: Int): RuntimeProcessIdentity? = try {
-        RuntimeProcessIdentity.stat(File("/proc/$pid/stat").readText())
-    } catch (_: java.io.FileNotFoundException) { null }
+    private fun kernelIdentity(pid: Int): RuntimeProcessIdentity? {
+        val visible = try { RuntimeProcessIdentity.stat(File("/proc/$pid/stat").readText()) }
+            catch (_: java.io.FileNotFoundException) { null }
+        return NativeEnginePeer.resolve(pid, visible, phoneEngine.ownedIdentity())
+    }
     private fun processUid(pid: Int): Int? {
         val entry = File("/proc/$pid")
         return try {
@@ -2093,16 +2114,22 @@ class BuiltinLinux(private val context: Context) {
     }
     private fun sameUidInventory(): List<RuntimeProcessIdentity> {
         val entries = File("/proc").listFiles() ?: error("ownershipUnknown")
-        return entries.mapNotNull { entry ->
+        val peer = phoneEngine.ownedIdentity()
+        val visible = entries.mapNotNull { entry ->
             val pid = entry.name.toIntOrNull() ?: return@mapNotNull null
-            if (processUid(pid) == AndroidProcess.myUid()) kernelIdentity(pid) else null
+            // The authenticated direct child deliberately hides /proc metadata.
+            // No other hidden PID gains an exemption, including descendants.
+            if (pid == peer?.pid || processUid(pid) == AndroidProcess.myUid()) kernelIdentity(pid) else null
         }
+        return NativeEnginePeer.merge(visible, phoneEngine.ownedIdentity())
     }
     /** Event admission cannot silently omit a live same-UID process whose stat was unreadable. */
     private fun serverEventInventory(): List<RuntimeProcessIdentity> {
         val entries = File("/proc").listFiles() ?: error("ownershipUnknown")
-        return entries.mapNotNull { entry ->
+        val peer = phoneEngine.ownedIdentity()
+        val visible = entries.mapNotNull { entry ->
             val pid = entry.name.toIntOrNull() ?: return@mapNotNull null
+            if (pid == peer?.pid) return@mapNotNull kernelIdentity(pid)
             if (processUid(pid) != AndroidProcess.myUid()) return@mapNotNull null
             val identity = kernelIdentity(pid)
             check(identity != null || processUid(pid) == null) { "ownershipUnknown" }
@@ -2110,6 +2137,7 @@ class BuiltinLinux(private val context: Context) {
                 identity.sameProcess(kernelIdentity(pid))) { "ownershipUnknown" }
             identity
         }
+        return NativeEnginePeer.merge(visible, phoneEngine.ownedIdentity())
     }
     private fun registeredRuntimePids(): Set<Int> = registeredAppProcessIds(
         context.getSystemService(ActivityManager::class.java)?.runningAppProcesses,
@@ -2125,8 +2153,7 @@ class BuiltinLinux(private val context: Context) {
             pidOf(it.process) ?: error("ownershipUnknown")
         } + LocalTerminal.get(context).list().filter { it.running }.map { it.pid }
         val ids = roots.flatMap { listOf(it) + descendants(it) }.distinct()
-        check(ids.size <= 128) { "ownershipUnknown" }
-        return ids.map { kernelIdentity(it) ?: error("ownershipUnknown") }
+        return NativeRuntimeOwnership.capturePeers(ids, ::kernelIdentity, ::installerAbsenceConfirmed)
     }
     private fun nonceMatches(pid: Int, nonce: String): Boolean = try {
         // Inspect only the ownership key; never expose another environment value.

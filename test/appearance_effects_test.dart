@@ -119,6 +119,30 @@ void main() {
       expect(store.prefs.getString('oc.effectsMotion'), 'calm');
     });
 
+    test('Live background and its look survive a restart', () async {
+      final (controller, store) = await _controller();
+      expect(controller.effects.value.liveBackground, isTrue);
+      expect(controller.effects.value.liveStyle, 'aurora');
+      await controller.setEffects(
+        controller.effects.value.copyWith(
+          liveBackground: false,
+          liveStyle: 'topo',
+        ),
+      );
+      controller.dispose();
+      final restarted = ConnectionController(ProfileStore(prefs: store.prefs));
+      addTearDown(restarted.dispose);
+      expect(restarted.effects.value.liveBackground, isFalse);
+      expect(restarted.effects.value.liveStyle, 'topo');
+      // Per device, never per server.
+      expect(
+        store
+            .profileScopedPreferenceKeys('3f2a9c1e-7d4b-4e21-9a0f-5c6d7e8f9a0b')
+            .contains('oc.effectsLiveStyle'),
+        isFalse,
+      );
+    });
+
     test('older installs map onto the one Motion choice', () async {
       for (final (saved, expected, celebrates) in [
         (<String, Object>{}, KitMotionLevel.full, true),
@@ -401,6 +425,100 @@ void main() {
       for (final id in ['style', 'colours', 'speed']) {
         expect(find.byKey(ValueKey('effects-glow-$id')), findsNothing);
       }
+    });
+
+    testWidgets(
+      'Live background: switch, look row, picker, preview, Use this',
+      (tester) async {
+        tester.view.physicalSize = const Size(412, 2400);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+        final (controller, store) = await _controller();
+        addTearDown(controller.dispose);
+        await tester.pumpWidget(_page(controller));
+        await tester.pumpAndSettle();
+        await _show(
+          tester,
+          find.byKey(const ValueKey('effects-live-background')),
+        );
+        final toggle = find.byKey(
+          const ValueKey('effects-live-background-switch'),
+        );
+        expect(tester.widget<Switch>(toggle).value, isTrue);
+        // The look row opens the picker; a tile opens its preview; Use this
+        // saves it for this device.
+        await tester.tap(find.byKey(const ValueKey('effects-live-style')));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const ValueKey('live-style-topo')));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const ValueKey('live-style-use')));
+        await tester.pumpAndSettle();
+        expect(controller.effects.value.liveStyle, 'topo');
+        expect(store.prefs.getString('oc.effectsLiveStyle'), 'topo');
+        Navigator.of(tester.element(find.byType(KitScreen).first)).pop();
+        await tester.pumpAndSettle();
+        // Off hides the look row.
+        await _show(
+          tester,
+          find.byKey(const ValueKey('effects-live-background')),
+        );
+        await tester.tap(toggle);
+        await tester.pumpAndSettle();
+        expect(controller.effects.value.liveBackground, isFalse);
+        expect(find.byKey(const ValueKey('effects-live-style')), findsNothing);
+      },
+    );
+
+    testWidgets('a live sample of the chosen look heads the card', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(412, 915);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final (controller, _) = await _controller();
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(_page(controller));
+      await tester.pumpAndSettle();
+      final sample = find.byKey(const ValueKey('effects-look-preview'));
+      expect(sample, findsOneWidget);
+      // Short, and the Motion row follows it closely.
+      expect(tester.getSize(sample).height, lessThan(121));
+      expect(find.byType(KitIllustration), findsNothing);
+      final motion = find.byKey(const ValueKey('effects-motion'));
+      expect(
+        tester.getTopLeft(motion).dy - tester.getBottomLeft(sample).dy,
+        lessThan(40),
+      );
+      // It shows the chosen look and Intensity.
+      KitLiveLookPreview part() => tester.widget<KitLiveLookPreview>(sample);
+      expect(part().style.id, 'aurora');
+      await _show(
+        tester,
+        find.byKey(const ValueKey('effects-live-intensity-bold')),
+      );
+      await tester.tap(
+        find.byKey(const ValueKey('effects-live-intensity-bold')),
+      );
+      await tester.pumpAndSettle();
+      expect(part().intensity, KitLiveIntensity.bold);
+      // Tapping it opens the look picker.
+      await tester.ensureVisible(sample);
+      await tester.pumpAndSettle();
+      await tester.tap(sample);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('live-style-topo')), findsOneWidget);
+      Navigator.of(tester.element(find.byType(KitScreen).first)).pop();
+      await tester.pumpAndSettle();
+      // Switch off: the sample goes flat and says so.
+      await tester.tap(
+        find.byKey(const ValueKey('effects-live-background-switch')),
+      );
+      await tester.pumpAndSettle();
+      expect(part().enabled, isFalse);
+      expect(
+        find.descendant(of: sample, matching: find.text('Off')),
+        findsOneWidget,
+      );
     });
 
     testWidgets('each option saves when chosen', (tester) async {

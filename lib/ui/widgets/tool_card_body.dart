@@ -97,6 +97,7 @@ class _ToolBody extends StatelessWidget {
     required this.embedded,
     this.facts = const [],
     this.suppressOutput = false,
+    this.wrap,
     this.onRerunCommand,
     this.onEnableConnectorCatalogue,
   });
@@ -111,6 +112,9 @@ class _ToolBody extends StatelessWidget {
   /// True when the ordered segment rendering already shows the output; the
   /// body then only adds the input JSON.
   final bool suppressOutput;
+
+  /// Wrap lines in an inline diff; null leaves the view's default.
+  final bool? wrap;
 
   Map<String, dynamic> get _metadata =>
       state.metadata ?? const <String, dynamic>{};
@@ -144,6 +148,8 @@ class _ToolBody extends StatelessWidget {
     if (contract.kind == _ToolKind.task && !suppressOutput) {
       return _taskBody(context);
     }
+    // A shell call's error text is the output of its own command box.
+    if (contract.kind == _ToolKind.shell) return _shellRerun(context);
     if (state.status == 'error') {
       return [
         // What was asked stays visible next to why it failed.
@@ -156,7 +162,7 @@ class _ToolBody extends StatelessWidget {
     if (suppressOutput) return [_genericInput()];
     return switch (contract.kind) {
       _ToolKind.read => [_readBody(context)],
-      _ToolKind.shell => _shellBody(context),
+      _ToolKind.shell => _shellRerun(context),
       _ToolKind.edit => [_editBody(context)],
       _ToolKind.write => _writeBody(context),
       _ToolKind.patch => _patchBody(context),
@@ -173,6 +179,7 @@ class _ToolBody extends StatelessWidget {
       _ToolKind.skill => [_skillBody()],
       _ToolKind.connectorSearch => _connectorSearchBody(context),
       _ToolKind.backgroundNotice => _backgroundNoticeBody(),
+      _ToolKind.card => const [],
       _ToolKind.generic => _genericBody(context),
     };
   }
@@ -276,51 +283,17 @@ class _ToolBody extends StatelessWidget {
     return _plainOutput(context, 'read-output.txt');
   }
 
-  /// The command (copyable, never wrapped), its output with the exit code
-  /// in words, and "Run this command again" when the host offers it.
-  List<Widget> _shellBody(BuildContext context) {
+  /// "Run this command again" when the host offers it; the command and its
+  /// output are the step's own box ([_stepCommandOf]).
+  List<Widget> _shellRerun(BuildContext context) {
     final l10n = _chatL10n(context);
     final command = _valueString(state.input['command']) ?? '';
-    final streamed = _rawString(_metadata['output']);
-    var output = state.output?.trim().isNotEmpty == true
-        ? state.output!
-        : streamed ?? '';
-    output = output
-        .replaceAll(
-          RegExp(r'\n*<shell_metadata>.*?</shell_metadata>', dotAll: true),
-          '',
-        )
-        .trimRight();
-    final shellStatus = _valueString(_metadata['shellStatus']);
-    final exit = contract.exitCode;
-    final outcome = [
-      if (shellStatus == 'timeout')
-        l10n.chatUiTimedOut
-      else if (shellStatus == 'killed')
-        l10n.chatUiKilled
-      else if (exit == 0)
-        l10n.toolCardExitPassed
-      else if (exit != null)
-        l10n.toolCardExitFailed(exit),
-      if (_metadata['truncated'] == true) l10n.chatUiTruncated,
-    ];
     final rerun = onRerunCommand;
     return [
-      if (command.isNotEmpty)
-        KitCodeBlock(
-          key: const Key('tool-shell-command'),
-          text: command,
-          kind: KitCodeKind.command,
-          copyLabel: l10n.toolCardCopyCommand,
-        ),
-      if (output.isNotEmpty || outcome.isNotEmpty)
-        _Output(
-          key: const Key('tool-shell-output'),
-          text: output.isEmpty ? l10n.chatUiNoOutput : output,
-          name: 'command-output.txt',
-          caption: outcome.isEmpty ? null : outcome.join(' · '),
-        ),
-      if (rerun != null && command.isNotEmpty && state.executed)
+      if (rerun != null &&
+          command.isNotEmpty &&
+          state.executed &&
+          !state.inFlight)
         Align(
           alignment: AlignmentDirectional.centerStart,
           child: KitButton.tertiary(
@@ -339,7 +312,7 @@ class _ToolBody extends StatelessWidget {
     final patch = filediff is Map ? _rawString(filediff['patch']) : null;
     final diff = patch ?? _rawString(_metadata['diff']);
     if (diff?.trim().isNotEmpty == true) {
-      return _Diff(files: [KitDiffFile.fromPatch(path, diff!)]);
+      return _Diff(files: [KitDiffFile.fromPatch(path, diff!)], wrap: wrap);
     }
     final oldText = _rawString(state.input['oldString']);
     final newText = _rawString(state.input['newString']);
@@ -353,6 +326,7 @@ class _ToolBody extends StatelessWidget {
             status: KitDiffFileStatus.modified,
           ),
         ],
+        wrap: wrap,
       );
     }
     return _plainOutput(context, 'edit-output.txt');
@@ -377,6 +351,7 @@ class _ToolBody extends StatelessWidget {
                 : KitDiffFileStatus.added,
           ),
         ],
+        wrap: wrap,
       ),
       if (_hasDiagnostics) _diagnostics(),
     ];
@@ -402,7 +377,7 @@ class _ToolBody extends StatelessWidget {
         }
       }
       return [
-        if (diffs.isNotEmpty) _Diff(files: diffs),
+        if (diffs.isNotEmpty) _Diff(files: diffs, wrap: wrap),
         if (plain.isNotEmpty)
           _Output(text: plain.join('\n'), name: 'changed-files.txt'),
         if (_hasDiagnostics) _diagnostics(),
@@ -413,7 +388,10 @@ class _ToolBody extends StatelessWidget {
     return [
       diff?.trim().isNotEmpty != true
           ? _plainOutput(context, 'patch-output.txt')
-          : _Diff(files: [KitDiffFile.fromPatch('changes.diff', diff!)]),
+          : _Diff(
+              files: [KitDiffFile.fromPatch('changes.diff', diff!)],
+              wrap: wrap,
+            ),
     ];
   }
 
@@ -894,4 +872,55 @@ class _CatalogueOffActionState extends State<_CatalogueOffAction> {
       ],
     );
   }
+}
+
+/// A shell call as the step's own command box: the command, what it printed
+/// (the output's tail is where a run says how it went, but the box shows the
+/// first lines and "Show all"), and how it ended in words. Null for a call
+/// with no command.
+KitStepCommand? _stepCommandOf(
+  BuildContext context,
+  _ToolContract contract,
+  ToolState state, {
+  bool withOutput = true,
+}) {
+  if (contract.kind != _ToolKind.shell) return null;
+  final l10n = _chatL10n(context);
+  final command = _valueString(state.input['command']) ?? '';
+  if (command.isEmpty) return null;
+  final metadata = state.metadata ?? const <String, dynamic>{};
+  final streamed = _rawString(metadata['output']);
+  var output = state.output?.trim().isNotEmpty == true
+      ? state.output!
+      : streamed ?? '';
+  output = output
+      .replaceAll(
+        RegExp(r'\n*<shell_metadata>.*?</shell_metadata>', dotAll: true),
+        '',
+      )
+      .replaceFirst(RegExp(r'^Error:\s*'), '')
+      .trimRight();
+  final shellStatus = _valueString(metadata['shellStatus']);
+  final exit = contract.exitCode;
+  final outcome = [
+    if (shellStatus == 'timeout')
+      l10n.chatUiTimedOut
+    else if (shellStatus == 'killed')
+      l10n.chatUiKilled
+    else if (exit == 0)
+      l10n.toolCardExitPassed
+    else if (exit != null)
+      l10n.toolCardExitFailed(exit),
+    if (metadata['truncated'] == true) l10n.chatUiTruncated,
+  ];
+  return KitStepCommand(
+    command: command,
+    output: withOutput ? _inline(output) : '',
+    caption: outcome.isEmpty ? null : outcome.join(' · '),
+    copyLabel: l10n.toolCardCopyCommand,
+    onOpenFull: (text) => showFilePreviewSheet(
+      context,
+      FilePreviewData(name: 'command-output.txt', text: text),
+    ),
+  );
 }

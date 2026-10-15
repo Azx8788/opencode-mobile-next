@@ -280,7 +280,9 @@ const graphiteDark = ThemeRoles(
 const graphiteLight = ThemeRoles(
   brightness: Brightness.light,
   ground: Color(0xFFF3F3F1),
-  surface1: Color(0xFFFFFFFF),
+  // surface1 sits one step under surface2 (it was the same white), so a
+  // surface2 element on a surface1 panel keeps an edge of its own.
+  surface1: Color(0xFFFAFAF8),
   surface2: Color(0xFFFFFFFF),
   surface3: Color(0xFFE9E9E6),
   hairline: Color(0x14000000), // rgba(0,0,0,.08)

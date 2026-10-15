@@ -1,4 +1,4 @@
-import 'dart:ffi' show Abi;
+import '../abi_shim.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../platform/platform_capabilities.dart';
@@ -20,7 +20,7 @@ import 'voice_component.dart';
 /// are.
 ///
 /// [params] are per component id; `opencode` reads `runtime`
-/// (`opencode1`, the default, or `opencode2`) and `version` (the pinned one
+/// (`opencode2`, the new-install default, or `opencode1`) and `version` (the pinned one
 /// unless a caller asks for another on purpose).
 ///
 /// The estimates start from the emulator (setup.json keeps each component's
@@ -40,7 +40,9 @@ List<SetupComponent> setupComponents(
   SetupHostKind host = SetupHostKind.builtin,
 }) {
   final openCode = params[SetupComponentIds.openCode] ?? const {};
-  final runtime = TermuxRuntime.parse(openCode['runtime']);
+  final runtime = openCode['runtime'] == null
+      ? TermuxRuntime.defaultForNewInstall
+      : TermuxRuntime.parse(openCode['runtime']);
   final version = openCode['version'];
   return [
     SetupComponent(
@@ -240,10 +242,10 @@ typedef OpenCodeAsset = ({String url, String sha256, String member});
 ///   pins as scripts/host/ubuntu-opencode.sh (GitHub's asset digests, read
 ///   and matched against the files 2026-09-28). x64 is the baseline build,
 ///   which also runs on CPUs without AVX2.
-/// - OpenCode 2 (`@opencode/cli` 2.0.10) has no GitHub release. Its official
+/// - OpenCode 2 (`@opencode/cli` 2.0.29) has no GitHub release. Its official
 ///   per-platform npm packages hold only the program and a package.json,
 ///   with no install script; their tarballs' SHA-512 matched the registry's
-///   published `integrity` on 2026-09-28, and these are those files'
+///   published `integrity` on 2026-10-14, and these are those files'
 ///   SHA-256s.
 ///
 /// Moving to a newer OpenCode means new pins here, next to
@@ -266,15 +268,15 @@ abstract final class OpenCodePins {
   static const v2Arm64 = (
     url:
         'https://registry.npmjs.org/@opencode/cli-linux-arm64/-/'
-        'cli-linux-arm64-2.0.10.tgz',
-    sha256: 'cf5416676240455dc5a98500237af296cb1a00efbd2cca302ad22c92ea080ebc',
+        'cli-linux-arm64-2.0.29.tgz',
+    sha256: '0af39e75dbdfacc20f8f531ef35fb4dcc0b44c08084203518614272f232283ae',
     member: 'package/bin/opencode',
   );
   static const v2X64 = (
     url:
         'https://registry.npmjs.org/@opencode/cli-linux-x64-baseline/-/'
-        'cli-linux-x64-baseline-2.0.10.tgz',
-    sha256: '700c4d0fcc209e42f61c10f9773331d1d1f7eff35670971ee316b38641a1a76c',
+        'cli-linux-x64-baseline-2.0.29.tgz',
+    sha256: '152c42ff57b15728f39e1d7b68a9c13b0635fe1c5e6dcccdc8b710955e4cef0b',
     member: 'package/bin/opencode',
   );
 

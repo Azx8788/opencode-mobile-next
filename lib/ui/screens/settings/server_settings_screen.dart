@@ -1,8 +1,9 @@
 part of '../settings_screen.dart';
 
-/// "This server": connection identity, health, host management, and the
-/// server update flow. Saved servers are a sibling row in the hub, not a row
-/// here, so each has one home.
+/// Status and version of the connected server: health, host management and
+/// the server update flow. Reached from the server's own page (Servers ›
+/// the server); Disconnect and Remove live there, on the page of the thing
+/// they act on.
 ///
 /// Versions are the health probe's first ("Health-reported version
 /// everywhere"): the connection's own reading only fills in until it
@@ -12,18 +13,7 @@ part of '../settings_screen.dart';
 class ServerSettingsScreen extends StatefulWidget {
   final ConnectionController controller;
 
-  /// A section to scroll to once the page is shown: search opens the page
-  /// at the row it names ([disconnectSection]).
-  final String? initialSection;
-
-  const ServerSettingsScreen({
-    super.key,
-    required this.controller,
-    this.initialSection,
-  });
-
-  /// [initialSection] for the Disconnect row.
-  static const disconnectSection = 'disconnect';
+  const ServerSettingsScreen({super.key, required this.controller});
 
   @override
   State<ServerSettingsScreen> createState() => _ServerSettingsScreenState();
@@ -65,31 +55,13 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen> {
 
   /// The update commands were copied from their row: its line says so.
   bool _updateCommandsCopied = false;
-  final _disconnectKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
-    if (widget.initialSection == ServerSettingsScreen.disconnectSection) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        final target = _disconnectKey.currentContext;
-        if (mounted && target != null) Scrollable.ensureVisible(target);
-      });
-    }
     _health = serverHealthCache[widget.controller.profile?.id];
     widget.controller.addListener(_connectionChanged);
     _checkHealth();
-  }
-
-  /// Confirms, then disconnects and returns to the server list. The same
-  /// flow the Settings hub's Disconnect button ran before it moved here.
-  Future<void> _disconnect() async {
-    final controller = widget.controller;
-    final confirmed = await confirmDisconnectServer(context, controller);
-    if (!confirmed || !mounted) return;
-    final navigator = Navigator.of(context);
-    await controller.disconnect();
-    navigator.pushNamedAndRemoveUntil('/servers', (_) => false);
   }
 
   void _connectionChanged() {
@@ -129,6 +101,11 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen> {
     // Runs from initState, so inherited lookups are not yet allowed.
     final copy = earlyAppLocalizations(context);
     if (_checking) return;
+    // Cached means the page painted a last known answer at once (S1).
+    final span = PerfTrace.begin(
+      'settings.health',
+      attrs: {'cached': _health != null},
+    );
     setState(() {
       _checking = true;
       _blocking = _health == null;
@@ -143,7 +120,9 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen> {
       final id = widget.controller.profile?.id;
       if (id != null) serverHealthCache[id] = health;
       if (mounted) setState(() => _health = health);
+      span.finish();
     } catch (error) {
+      span.finish(error: error);
       // A failed check outdates the cached answer: never show "Server
       // healthy" beside the reason it did not answer.
       serverHealthCache.remove(widget.controller.profile?.id);
@@ -559,41 +538,6 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen> {
                 id: 'settings-server-plugins',
                 child: ServerPluginsSection(controller: widget.controller),
               ),
-            ),
-          ],
-          // Destructive and last, one section gap below the rest; it names
-          // the server and says what stops and what stays where.
-          if (profile != null) ...[
-            SizedBox(height: tokens.sectionGap),
-            KitRowGroup(
-              key: _disconnectKey,
-              children: [
-                KitRow(
-                  key: const ValueKey('server-disconnect'),
-                  destructive: true,
-                  leading: KitRow.icon(context, AppIconography.unlink),
-                  title: copy.serverSettingsDisconnectTitle(profile.name),
-                  titleMaxLines: 2,
-                  supporting: TextSpan(
-                    text: copy.serverSettingsDisconnectDetail(profile.name),
-                  ),
-                  supportingMaxLines: 4,
-                  onTap: _disconnect,
-                ),
-                KitRow(
-                  key: const ValueKey('server-remove'),
-                  destructive: true,
-                  leading: KitRow.icon(context, AppIconography.delete),
-                  title: copy.serverSettingsRemoveTitle(profile.name),
-                  titleMaxLines: 2,
-                  supporting: TextSpan(text: copy.serverSettingsRemoveDetail),
-                  supportingMaxLines: 3,
-                  onTap: () => Navigator.of(context).pushNamed(
-                    '/servers',
-                    arguments: ServersRouteRequest.forget(profile.id),
-                  ),
-                ),
-              ],
             ),
           ],
         ],

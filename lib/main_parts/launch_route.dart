@@ -90,6 +90,28 @@ extension _OcAppLaunchRoute on _OcAppState {
             await _openNewTaskForLaunch(navigator, current);
           case LaunchAction.activity:
             _openActivityForLaunch(navigator, current);
+          case LaunchAction.usage:
+            _openUsageForLaunch(navigator, current);
+          case LaunchAction.usageSettings:
+            _consumeLaunchAction(current);
+            navigator.push(
+              KitPageRoute<void>(
+                builder: (_) => UsageWidgetScreen(controller: _controller),
+              ),
+            );
+          case LaunchAction.backgroundSettings:
+            _consumeLaunchAction(current);
+            navigator.push(
+              KitPageRoute<void>(
+                builder: (_) => NotificationsSettingsScreen(
+                  controller: _controller,
+                  page: NotificationsPage.background,
+                  initialSection: 'background',
+                ),
+              ),
+            );
+          case LaunchAction.usageSignIn:
+            await _openUsageSignInForLaunch(navigator, current);
           case LaunchAction.phoneSetup:
           case LaunchAction.phoneSetupDone:
             // Never waits on the connection: setup has its own screens, and
@@ -225,6 +247,110 @@ extension _OcAppLaunchRoute on _OcAppState {
       _shortcutSignals,
       const OpenChatsIntent(needsYou: true),
     );
+  }
+
+  /// The Usage widget opens Usage → Plans. It needs no live connection:
+  /// the page reads its own sources, and a person with no saved server is
+  /// sent to Servers first.
+  void _openUsageForLaunch(NavigatorState navigator, LaunchAction action) {
+    _consumeLaunchAction(action);
+    if (_controller.store.profiles.isEmpty) {
+      _showServersForLaunch(navigator);
+      _showLaunchNotice(
+        AppLocalizations.of(navigator.context).launchUiUsageNoServer,
+      );
+      return;
+    }
+    navigator.push(
+      KitPageRoute<void>(
+        builder: (_) => UsageHubScreen(
+          controller: _controller,
+          initialSection: UsageSection.plans,
+        ),
+      ),
+    );
+  }
+
+  /// A Usage widget row for a provider that is not signed in (or needs its
+  /// key) opens the exact screen that fixes it on the row's own server: that
+  /// server's provider sign-in, or this phone's agent sign-in. A server that
+  /// is not the active one is connected first, the way a session link does.
+  /// A server that is gone opens the Usage page with a note.
+  Future<void> _openUsageSignInForLaunch(
+    NavigatorState navigator,
+    LaunchAction action,
+  ) async {
+    final target = _launchShortcut.takeUsageTarget();
+    _consumeLaunchAction(action);
+    final l10n = AppLocalizations.of(navigator.context);
+    if (target == null) {
+      _openUsageForLaunch(navigator, action);
+      return;
+    }
+    final profile = _savedProfile(target.profileId);
+    final destination = usageSignInDestination(target, profile: profile);
+    switch (destination.kind) {
+      case UsageSignInKind.usagePage:
+        if (profile == null && target.profileId != PaseoUsageMonitor.phoneId) {
+          _showLaunchNotice(l10n.launchUiUsageSignInServerGone);
+        }
+        _openUsageForLaunch(navigator, action);
+      case UsageSignInKind.readUsageFrom:
+        _consumeLaunchAction(action);
+        unawaited(
+          navigator.push(
+            KitPageRoute<void>(
+              builder: (_) => UsageReadFromScreen(
+                controller: _controller,
+                usage: _controller.usageSubscriptions,
+                connectionId: destination.profileId!,
+                providerId: target.providerId,
+              ),
+            ),
+          ),
+        );
+      case UsageSignInKind.agentSignIn:
+        unawaited(
+          showAgentSheet(
+            navigator.context,
+            agentId: destination.agentId,
+            step: AgentSheetStep.signIn,
+          ),
+        );
+      case UsageSignInKind.openCodeProvider:
+        final server = profile!;
+        if (server.requiresPasswordReentry ||
+            server.requiresCodexTokenReentry) {
+          _showServersForLaunch(navigator);
+          _showLaunchNotice(l10n.launchUiSessionReentry);
+          return;
+        }
+        if (server.id != _controller.profile?.id) {
+          Object? failure;
+          try {
+            await _controller.connect(server);
+          } catch (error) {
+            failure = error;
+          }
+          if (!mounted) return;
+          if (failure != null || _controller.api == null) {
+            _showServersForLaunch(navigator);
+            _showLaunchNotice(l10n.launchUiUsageSignInConnectionFailed);
+            return;
+          }
+        }
+        unawaited(
+          navigator.push(
+            KitPageRoute<void>(
+              builder: (_) => IntegrationsScreen(
+                controller: _controller,
+                mode: IntegrationsMode.providers,
+                connectProviderID: destination.providerId,
+              ),
+            ),
+          ),
+        );
+    }
   }
 
   /// Consumes [action] only if it is still the pending one, so an action that

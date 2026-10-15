@@ -20,8 +20,8 @@ import '../kit_icon.dart';
 import '../kit_icon_button.dart';
 import '../kit_layout.dart';
 import '../kit_level_meter.dart';
+import '../kit_live_background.dart';
 import '../kit_motion.dart';
-import '../kit_segmented.dart';
 import '../kit_tappable.dart';
 import '../kit_text.dart';
 import '../kit_tokens.dart';
@@ -49,7 +49,7 @@ part 'kit_composer_layer.dart';
 /// bottom row of a window too tight for that line ([model]).
 ///
 /// States: idle empty, idle with text, sending, busy empty, busy with text
-/// (stop + send, delivery choice), busy with text that cannot send yet,
+/// (stop + send, fixed delivery), busy with text that cannot send yet,
 /// offline, read-only, focused, voice (every [KitVoicePhase]) (KIT-12). No
 /// loading or empty state of its own.
 ///
@@ -69,8 +69,8 @@ class KitComposer extends StatefulWidget {
     this.sending = false,
     this.canSendWhileBusy = false,
     this.delivery = KitComposerDelivery.afterThisReply,
-    this.onDeliveryChanged,
     this.offline = false,
+    this.offlineAgentName = 'OpenCode',
     this.readOnlyReason,
     this.note,
     this.attachments,
@@ -89,7 +89,6 @@ class KitComposer extends StatefulWidget {
     this.toolsKey,
     this.voiceButtonKey,
     this.editorKey,
-    this.deliveryKey,
     this.hasAttachments = false,
     this.activityGlow,
     this.failure,
@@ -132,14 +131,17 @@ class KitComposer extends StatefulWidget {
   /// Send queues: "Send when back online".
   final bool offline;
 
+  /// Whose answer a waiting message is for ("Sends when OpenCode answers").
+  final String offlineAgentName;
+
   /// Stop: it takes Send's place while [busy] and the field is empty (and
   /// leads the row when words are typed). Null: no Stop (a host that cannot
   /// stop); while busy and empty the trailing control is then the mic.
   final VoidCallback? onStop;
-  final KitComposerDelivery delivery;
 
-  /// Null: no choice (the words still say "after this reply").
-  final ValueChanged<KitComposerDelivery>? onDeliveryChanged;
+  /// What Send does while a reply runs. It is fixed by the agent, never a
+  /// choice: the words say it on the button and in the note.
+  final KitComposerDelivery delivery;
 
   /// Non-null: no typing; the reason is shown in the pill.
   final String? readOnlyReason;
@@ -182,8 +184,7 @@ class KitComposer extends StatefulWidget {
       stopKey,
       toolsKey,
       voiceButtonKey,
-      editorKey,
-      deliveryKey;
+      editorKey;
 
   /// Lays [composer] over the bottom of [body] (the transcript) as the
   /// floating navigation layer: [body] scrolls under the glass, and the
@@ -394,28 +395,19 @@ class _KitComposerState extends State<KitComposer> {
     return l10n.kitComposerSend;
   }
 
-  bool get _deliveryShown =>
-      !_readOnly &&
-      widget.busy &&
-      _hasContent &&
-      widget.canSendWhileBusy &&
-      widget.onDeliveryChanged != null;
-
   String? _noteLine(AppLocalizations l10n) {
     final reason = widget.readOnlyReason;
     if (reason != null) return reason;
     final parts = <String>[
       if (widget.note case final note? when note.isNotEmpty) note,
       if (widget.toolsDisabledReason case final r? when r.isNotEmpty) r,
-      if (widget.offline) l10n.kitComposerOffline,
+      if (widget.offline)
+        l10n.kitComposerWaitsForAgent(widget.offlineAgentName),
       if (widget.busy && _hasContent && !widget.canSendWhileBusy)
         l10n.kitComposerCannotSendYet,
-      if (widget.busy &&
-          _hasContent &&
-          widget.canSendWhileBusy &&
-          widget.onDeliveryChanged == null)
+      if (widget.busy && _hasContent && widget.canSendWhileBusy)
         switch (widget.delivery) {
-          KitComposerDelivery.addToThisTurn => l10n.kitComposerAddToTurn,
+          KitComposerDelivery.addToThisTurn => l10n.kitComposerAddToTurnNote,
           KitComposerDelivery.stopAndSend => l10n.kitComposerStopAndSendNote,
           KitComposerDelivery.afterThisReply => l10n.kitComposerSendsAfter,
         },
@@ -583,9 +575,9 @@ class _KitComposerState extends State<KitComposer> {
       ],
     );
 
-    // What sits above the field: the note, the delivery choice, the
+    // What sits above the field: the note, the
     // suggestions and the attachments. When they do not fit (large text on
-    // a small window, where the delivery choice stacks as radio rows) they
+    // a small window) they
     // scroll and give their room up to the field and the send row, which
     // always stay; nothing is truncated (KIT-24).
     final accessories = <Widget>[
@@ -597,34 +589,16 @@ class _KitComposerState extends State<KitComposer> {
             end: tokens.space3,
             top: tokens.space2,
           ),
-          child: KitText(
-            note,
-            role: KitTextRole.secondary,
-            tone: KitTextTone.secondary,
-          ),
-        ),
-      if (_deliveryShown)
-        Padding(
-          padding: EdgeInsetsDirectional.only(
-            start: tokens.space2,
-            end: tokens.space2,
-            top: tokens.space2,
-          ),
-          child: KitSegmented<KitComposerDelivery>(
-            key: widget.deliveryKey,
-            semanticsLabel: l10n.kitComposerDeliveryLabel,
-            selected: widget.delivery,
-            onChanged: widget.onDeliveryChanged,
-            segments: [
-              KitSegment(
-                value: KitComposerDelivery.afterThisReply,
-                label: l10n.kitComposerSendAfterShort,
-              ),
-              KitSegment(
-                value: KitComposerDelivery.addToThisTurn,
-                label: l10n.kitComposerAddToTurnShort,
-              ),
-            ],
+          // A note that changes (a send's words as the agent starts working,
+          // an offline line) fades to the new words instead of jumping.
+          child: KitSwap(
+            alignment: AlignmentDirectional.centerStart,
+            child: KitText(
+              note,
+              key: ValueKey<String>(note),
+              role: KitTextRole.secondary,
+              tone: KitTextTone.secondary,
+            ),
           ),
         ),
       if (!readOnly && _suggestionsShown)

@@ -175,7 +175,7 @@ export function oc1PartsFamily(contract) {
     tool_glob: { label: 'Find files', stateProbes: noTime, toolOpts: { probes: { 'metadata.truncated': ['Truncated'] } } },
     tool_webfetch: { label: 'Fetch page', stateProbes: noTime },
     tool_task: { label: 'Delegated to explore', stateProbes: noTime },
-    tool_todowrite: { label: 'Tasks', stateProbes: noTime, toolOpts: { probes: { 'input.todos[].status': ['Completed', 'In progress', 'Pending'], 'input.todos[].priority': ['High priority', 'Medium priority', 'Low priority'] } } },
+    tool_todowrite: { label: 'Updated tasks', stateProbes: noTime },
     tool_attachments: { label: 'Read', stateProbes: { ...noTime, 'attachments[]': ['logo.png'] }, toolOpts: { probes: { 'input.filePath': ['logo.png'] } } },
   };
   toolCase('tool_bash_ok', 'bash', 'completed', { input: { command: 'flutter test test/upload_screen_test.dart', description: 'Run the upload screen tests', workdir: '/work/app', timeout: 120000 }, output: '00:04 +12: All tests passed!', title: 'Run the upload screen tests', metadata: { output: '00:04 +12: All tests passed!', exit: 0, description: 'Run the upload screen tests' }, time: { ...T(100, 4100), compacted: T0 + 99000 } }, { input: { command: 'flutter test test/upload_screen_test.dart', description: 'Run the upload screen tests', workdir: '/work/app', timeout: 120000 }, output: '00:04 +12: All tests passed!', metadata: { output: '00:04 +12: All tests passed!', exit: 0 } },

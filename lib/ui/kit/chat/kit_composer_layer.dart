@@ -262,8 +262,11 @@ class _KitComposerLayerState extends State<_KitComposerLayer> {
     Widget above,
     Widget composer,
   ) {
+    // Transparent: the page's live background shows through the parts over
+    // the composer. The body is clipped above this band, so nothing shows
+    // behind it.
     final band = ColoredBox(
-      color: tokens.roles.ground,
+      color: Colors.transparent,
       child: Center(
         heightFactor: 1,
         child: ConstrainedBox(
@@ -338,12 +341,19 @@ class _KitComposerLayerState extends State<_KitComposerLayer> {
             end: 0,
             top: 0,
             bottom: 0,
-            child: KitBottomInset.add(extraBottom: _height, child: widget.body),
+            child: ClipRect(
+              clipper: _AboveBand(_height + inherited),
+              child: KitBottomInset.add(
+                extraBottom: _height,
+                child: widget.body,
+              ),
+            ),
           ),
-          // The composer's band is solid ground from its top edge to the
-          // window's bottom edge, across the full width: the transcript
-          // scrolls out of sight at the composer and never shows beside
-          // or beneath it (owner report, build 2055). The measured height
+          // The composer's band runs from its top edge to the window's
+          // bottom edge, across the full width. It paints nothing, so the
+          // live background shows through; the transcript is clipped at its
+          // top edge instead and never shows beside or beneath the composer
+          // (owner reports, build 2055 and 2316). The measured height
           // excludes [inherited], which the body already clears.
           PositionedDirectional(
             start: 0,
@@ -351,7 +361,7 @@ class _KitComposerLayerState extends State<_KitComposerLayer> {
             bottom: 0,
             child: ColoredBox(
               key: const ValueKey('kit-composer-band'),
-              color: tokens.roles.ground,
+              color: Colors.transparent,
               child: Padding(
                 padding: EdgeInsetsDirectional.only(bottom: inherited),
                 child: _SizeReporter(
@@ -382,6 +392,24 @@ class _KitComposerLayerState extends State<_KitComposerLayer> {
       ),
     );
   }
+}
+
+/// Clips the transcript at the composer band's top edge.
+class _AboveBand extends CustomClipper<Rect> {
+  const _AboveBand(this.bottom);
+
+  final double bottom;
+
+  @override
+  Rect getClip(Size size) => Rect.fromLTRB(
+    0,
+    0,
+    size.width,
+    (size.height - bottom).clamp(0, size.height),
+  );
+
+  @override
+  bool shouldReclip(_AboveBand old) => old.bottom != bottom;
 }
 
 /// The height [KitComposer.layer] lays its composer out in: the field's

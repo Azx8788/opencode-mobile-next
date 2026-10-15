@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:opencode_mobile/api/models.dart';
 import 'package:opencode_mobile/background/live_background.dart';
+import 'package:opencode_mobile/background/notification_status.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -241,14 +242,12 @@ void main() {
         final controller = await controllerWith(live);
         addTearDown(controller.dispose);
 
-        expect(
-          controller.liveStatus(),
-          const LiveStatus(
-            runningCount: 2,
-            pendingCount: 2,
-            title: 'Fix login',
-          ),
-        );
+        final status = controller.liveStatus();
+        expect(status.runningCount, 2);
+        expect(status.pendingCount, 2);
+        expect(status.title, 'Fix login');
+        expect(status.status?.kind, NotificationStatusKind.needsYou);
+        expect(status.status?.title, '2 need you');
       },
     );
 
@@ -259,14 +258,12 @@ void main() {
       addTearDown(controller.dispose);
 
       controller.notifyListeners();
-      expect(_statusCalls(calls), [
-        {
-          'runningCount': 2,
-          'pendingCount': 2,
-          'title': 'Fix login',
-          'detail': null,
-        },
-      ]);
+      final first = _statusCalls(calls).single!;
+      expect(first['runningCount'], 2);
+      expect(first['pendingCount'], 2);
+      expect(first['title'], 'Fix login');
+      expect(first['detail'], isNull);
+      expect((first['status'] as Map)['kind'], 'needs_you');
 
       controller.handleEventForTesting(
         EventEnvelope(

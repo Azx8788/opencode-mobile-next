@@ -234,21 +234,19 @@ private fun localizedServiceCopy(scenario: String) {
     val language = if (scenario == "localized-copy-ar") "ar" else "en"
     val service = BuiltinServerService().apply { selectedLanguage = language }
     check(service.onStartCommand(null, 0, 1) == Service.START_NOT_STICKY)
+    // The phone server's row is the one shared status row: the service asks
+    // for it as the server owner, with a supplied title only when it has one.
+    // The row's own copy and language are StatusNotificationModelTest's.
     val notification = checkNotNull(service.foregroundNotification)
-    check(notification.title == "$language:phone-title")
-    check(notification.text == "$language:phone-body")
-    check(notification.actions.map { it.label } == listOf("$language:stop"))
-    val channel = NotificationManager.instance.channels.last()
-    check(channel.name == "$language:phone-channel")
-    check(channel.description == "$language:phone-description")
+    check(notification.title == "status-row")
+    check(StatusNotification.begun.last() == (StatusNotification.OWNER_SERVER to null))
 
     service.selectedLanguage = if (language == "ar") "en" else "ar"
     service.onStartCommand(Intent(service, BuiltinServerService::class.java)
         .putExtra("title", "authored supplied title"), 0, 2)
     val changed = checkNotNull(service.foregroundNotification)
     check(changed.title == "authored supplied title")
-    check(changed.text == "${service.selectedLanguage}:phone-body")
-    check(changed.actions.single().label == "${service.selectedLanguage}:stop")
+    check(StatusNotification.begun.last() == (StatusNotification.OWNER_SERVER to "authored supplied title"))
 
     val setup = SetupService().apply { selectedLanguage = language }
     setup.onStartCommand(null, 0, 1)

@@ -130,6 +130,24 @@ void main() {
       },
     );
 
+    test('a start failure keeps the phone\'s details', () async {
+      answer = (_) => throw PlatformException(
+        code: 'builtin_linux',
+        message: 'The phone operation could not finish. Try again.',
+        details: 'IllegalStateException: Check failed.',
+      );
+      await expectLater(
+        BuiltinLinux().startServer('serve'),
+        throwsA(
+          isA<BuiltinLinuxException>().having(
+            (e) => e.details,
+            'details',
+            'IllegalStateException: Check failed.',
+          ),
+        ),
+      );
+    });
+
     test('run sends the script and timeout and reads the result', () async {
       answer = (_) => {'exitCode': 3, 'output': 'boom'};
       final result = await BuiltinLinux().run(
@@ -284,12 +302,29 @@ void main() {
   });
 
   group('scripts', () {
+    test('fresh script defaults install and start OC2 at its pin', () {
+      expect(
+        BuiltinLinux.installOpenCodeScript(),
+        contains("export OC_RUNTIME='opencode2'"),
+      );
+      expect(
+        BuiltinLinux.installOpenCodeScript(),
+        contains("export OC_REQUESTED_VERSION='2.0.29'"),
+      );
+      expect(
+        BuiltinLinux.serverScript(),
+        contains('exec opencode2 serve --hostname 127.0.0.1 --port 4097'),
+      );
+    });
+
     test('the install uses the shared setup text at the pinned version', () {
-      final script = BuiltinLinux.installOpenCodeScript();
+      final script = BuiltinLinux.installOpenCodeScript(
+        runtime: TermuxRuntime.openCode1,
+      );
       expect(
         script,
         contains(
-          "export OC_REQUESTED_VERSION='${TermuxBridge.defaultOpenCodeVersion}'",
+          "export OC_REQUESTED_VERSION='${TermuxRuntime.openCode1.pinnedVersion}'",
         ),
       );
       expect(script, contains("export OC_RUNTIME='opencode1'"));
@@ -319,7 +354,9 @@ void main() {
     });
 
     test('the server binds 127.0.0.1 only and reads its password file', () {
-      final script = BuiltinLinux.serverScript();
+      final script = BuiltinLinux.serverScript(
+        runtime: TermuxRuntime.openCode1,
+      );
       expect(
         script,
         contains('exec opencode serve --hostname 127.0.0.1 --port 4097\n'),
@@ -368,11 +405,13 @@ void main() {
 
     test('every script parses as shell', () async {
       final scripts = {
-        'install1': BuiltinLinux.installOpenCodeScript(),
+        'install1': BuiltinLinux.installOpenCodeScript(
+          runtime: TermuxRuntime.openCode1,
+        ),
         'install2': BuiltinLinux.installOpenCodeScript(
           runtime: TermuxRuntime.openCode2,
         ),
-        'server1': BuiltinLinux.serverScript(),
+        'server1': BuiltinLinux.serverScript(runtime: TermuxRuntime.openCode1),
         'server2': BuiltinLinux.serverScript(runtime: TermuxRuntime.openCode2),
         'password': BuiltinLinux.writePasswordScript('pw'),
         'version': BuiltinLinux.versionScript(TermuxRuntime.openCode1),
@@ -408,6 +447,20 @@ void main() {
       expect(created.exitCode, 0, reason: '${created.stderr}');
       expect(created.stdout, 'created $path\n');
       expect(Directory('$path/.git').existsSync(), isTrue);
+      // A new project has its first commit, so a team can branch from it.
+      expect((await sh(BuiltinLinux.repoStateScript(path))).stdout, 'ready\n');
+      final other = await Directory.systemTemp.createTemp('oc-bare-');
+      addTearDown(() => other.delete(recursive: true));
+      final bare = Directory('${other.path}/bare')..createSync();
+      await Process.run('git', ['init', '-q', bare.path]);
+      expect(
+        (await sh(BuiltinLinux.repoStateScript(bare.path))).stdout,
+        'empty\n',
+      );
+      expect(
+        (await sh(BuiltinLinux.repoStateScript('${root.path}/nope'))).stdout,
+        'notgit\n',
+      );
       expect((await sh(BuiltinLinux.folderExistsScript(path))).exitCode, 0);
 
       final again = await sh(BuiltinLinux.createFolderScript(path));
@@ -440,19 +493,25 @@ void main() {
 
   group('shared OpenCode setup script', () {
     // The Termux manager is now composed from the shared constant. This pins
-    // it to the exact text it had before the split (48944 characters), so the
+    // it to the reviewed text, so the
     // refactor provably changed nothing for Termux. A deliberate edit to the
     // manager script or the shared setup text updates this hash with it.
     // Pinned so the manager on people's phones never changes by accident.
     // Last deliberate change: npm is told to allow exactly the OpenCode
     // package's own install script (`--allow-scripts`, npm 11.19;
-    // slice-builtin-opencode-pin, 2026-09-28).
+    // slice-builtin-opencode-pin, 2026-09-28). Then: the OpenCode 2 runner
+    // copies the OpenCode 1 chat database across before its first start
+    // (oc2-switch-keeps-chats, 2026-10-14). Then: the OpenCode 2 pin moved
+    // from 2.0.28 to 2.0.29 (AI Team on OpenCode 2, 2026-10-14). Then: a
+    // fresh setup defaults to OpenCode 2 while an existing install keeps its
+    // runtime (oc2-default phase 2, 2026-10-15). Then: refuse an unsafe
+    // two-history move and propagate fresh-copy failures (release blockers).
     test('the Termux manager script changes only on purpose', () {
       final script = TermuxBridge.managerScriptForTesting();
-      expect(script.length, 51954);
+      expect(script.length, 55442);
       expect(
         sha256.convert(utf8.encode(script)).toString(),
-        'e86c0fa05d2fcadec609c189231e33af3398a17e7d41e407f5820cfa52ea6d06',
+        '7d60b08e6ab10926b4d96ddabbeb55ff743a5dada772ab4a50611546fc9fa9f2',
       );
     });
 

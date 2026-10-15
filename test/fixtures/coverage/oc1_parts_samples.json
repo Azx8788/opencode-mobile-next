@@ -11677,9 +11677,9 @@
           "path": "input.todos[].status",
           "kind": "string",
           "probes": [
-            "Completed",
-            "In progress",
-            "Pending"
+            "completed",
+            "in_progress",
+            "pending"
           ],
           "primary": false
         },
@@ -11688,9 +11688,9 @@
           "path": "input.todos[].priority",
           "kind": "string",
           "probes": [
-            "High priority",
-            "Medium priority",
-            "Low priority"
+            "high",
+            "medium",
+            "low"
           ],
           "primary": false
         },
@@ -11744,7 +11744,7 @@
           "path": "tool",
           "kind": "string",
           "probes": [
-            "Tasks"
+            "Updated tasks"
           ],
           "primary": false
         },

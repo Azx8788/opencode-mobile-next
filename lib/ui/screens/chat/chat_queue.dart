@@ -221,27 +221,19 @@ extension _ChatQueue on _ChatScreenState {
     }
     if (!mounted || text == null || text.isEmpty) return;
     final withdrawn = text;
-    final delivery = switch (item.delivery) {
-      Api2Delivery.steer => PromptDelivery.steer,
-      Api2Delivery.queue => PromptDelivery.queue,
-      _ => null,
-    };
     returnWithdrawnToDraft(
       _undoHost,
       composer: _composer,
       text: withdrawn,
       focus: _focus,
-      onUndo: () => _sendWithdrawnAgain(withdrawn, delivery),
+      onUndo: () => _sendWithdrawnAgain(withdrawn),
     );
   }
 
   /// Undo for a cancelled server send: the same words go back to the
-  /// server with the same delivery. A failure reaches the Undo bar, which
-  /// says so and offers Try again.
-  Future<void> _sendWithdrawnAgain(
-    String text,
-    PromptDelivery? delivery,
-  ) async {
+  /// server the way any send does, steering a running turn. A failure
+  /// reaches the Undo bar, which says so and offers Try again.
+  Future<void> _sendWithdrawnAgain(String text) async {
     final reconnecting = _chatL10n(
       context,
     ).chatUiOpenCodeIsReconnectingTryAgainWhenThe;
@@ -254,7 +246,7 @@ extension _ChatQueue on _ChatScreenState {
       model: selection.model,
       agent: selection.agent?.isNotEmpty == true ? selection.agent : null,
       variant: selection.variant.isEmpty ? null : selection.variant,
-      delivery: _conn.busySessions.contains(widget.sessionID) ? delivery : null,
+      delivery: _activeDelivery,
     );
   }
 
@@ -292,30 +284,6 @@ extension _ChatQueue on _ChatScreenState {
     return texts;
   }
 
-  /// Flips a pending server send between steer and queue delivery.
-  Future<void> _flipInboxDelivery(Api2InboxItem item) async {
-    final next = item.delivery == Api2Delivery.steer
-        ? Api2Delivery.queue
-        : Api2Delivery.steer;
-    try {
-      await _conn.setInboxDelivery(widget.sessionID, item.id, delivery: next);
-    } on ApiException catch (error) {
-      if (!mounted) return;
-      if (error.statusCode == 409) {
-        _showComposerNote(_chatL10n(context).chatUiAlreadyDelivered);
-        return;
-      }
-      _showActionError(error);
-    } catch (error) {
-      if (mounted) _showActionError(error);
-    }
-  }
-
-  /// The delivery mode that rides on an OpenCode 2 send made while a turn
-  /// runs. Off a running turn — and on v1, which has no inbox — nothing is
-  /// sent, so the server default applies. While a turn runs the composer's
-  /// visible delivery control decides; "Send after this reply" is the
-  /// default and adding to the running turn is the choice (P6.6).
   /// What this conversation's agent does with a message sent while it
   /// works, when it never holds it for after the turn (Paseo): the message
   /// is then never "queued".
@@ -329,8 +297,15 @@ extension _ChatQueue on _ChatScreenState {
   /// The agent adds a message sent while it works to the running turn.
   bool get _sendJoinsRunningTurn => _midTurnPrompt == MidTurnPrompt.joinsTurn;
 
+  /// The delivery that rides on a send made while a turn runs. Wherever
+  /// steering is possible a message is added to that turn: there is one send,
+  /// never a choice of queueing it. Steering is requested only from servers
+  /// that take the request; a Paseo agent joins the turn on its own, and
+  /// OpenCode 1 runs the message after the reply, so nothing is sent for
+  /// either.
   PromptDelivery? get _activeDelivery =>
-      _conn.supportsInbox && _conn.busySessions.contains(widget.sessionID)
-      ? _delivery
+      _conn.capabilities.promptSteering &&
+          _conn.busySessions.contains(widget.sessionID)
+      ? PromptDelivery.steer
       : null;
 }

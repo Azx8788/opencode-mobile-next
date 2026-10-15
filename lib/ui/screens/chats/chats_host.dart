@@ -447,6 +447,9 @@ class ConnectionChatsHost implements ChatsHost {
         directory,
       );
       if (project == null || project.directory.trim().isEmpty) return null;
+      // A separate copy is a git worktree: it needs a repository with at
+      // least one commit. OpenCode names a folder without one "global".
+      if (project.isGit == false || project.id == 'global') return null;
       return project;
     } catch (_) {
       return null;

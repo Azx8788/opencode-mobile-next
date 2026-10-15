@@ -51,8 +51,7 @@ void main() {
   });
   tearDownAll(() => generated?.deleteSync(recursive: true));
   for (final scenario in [
-    'phone-fallback',
-    'supplied-title',
+    'status-row-owns-phone',
     'channel-policy',
     'empty-surfaces',
   ]) {

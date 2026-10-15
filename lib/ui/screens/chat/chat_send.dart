@@ -84,12 +84,6 @@ List<PromptAgentMention> _promptAgentMentions(
 }
 
 mixin _ChatSendFields {
-  /// What Send does while a turn is running, on servers that support the
-  /// inbox. Steer matches the server default; the visible delivery control
-  /// in the composer both shows and sets this, and the Send long-press
-  /// shortcut updates it too so the label never lies (UX-P0-04).
-  PromptDelivery _delivery = PromptDelivery.queue;
-
   final List<_PendingSend> _pendingSends = [];
   bool _sending = false;
 
@@ -174,10 +168,9 @@ extension _ChatSend on _ChatScreenState {
     _persistDraft();
   }
 
-  /// [delivery] rides only on OpenCode 2 sends made while a turn runs. When
-  /// it is omitted the composer's current delivery choice applies; the
-  /// long-press shortcut passes an explicit steer or queue.
-  Future<void> _send({PromptDelivery? delivery}) async {
+  /// A send made while a turn runs steers it wherever steering is possible
+  /// ([_activeDelivery]); there is no other way to send it.
+  Future<void> _send() async {
     final tapMicros = PerfTrace.nowMicros;
     final strings = _chatL10n(context);
     final conversationSend = _voiceConversation;
@@ -198,7 +191,9 @@ extension _ChatSend on _ChatScreenState {
       _showComposerNote(strings.voiceConversationCommandsOnly);
       return;
     }
-    delivery ??= _activeDelivery;
+    final delivery = _activeDelivery;
+    // The moment this prompt is sent in, for the phrase chips to learn.
+    final phraseMoment = _phraseMomentState().moment;
     await _voice?.cancel();
     if (!mounted || !voiceSendCurrent()) return;
     if (conversationSend && !_conversationCanSend) return;
@@ -288,7 +283,10 @@ extension _ChatSend on _ChatScreenState {
         return;
       }
       final draftText = _composer.text.trim();
-      final draftAttachments = List<PromptAttachment>.from(_attachments);
+      final draftAttachments = resolveFileMentions(
+        draftText,
+        List<PromptAttachment>.from(_attachments),
+      );
       final draftMentions = _supportsPromptAgentMentions
           ? _promptAgentMentions(draftText, _subagents)
           : const <PromptAgentMention>[];
@@ -315,7 +313,10 @@ extension _ChatSend on _ChatScreenState {
         localID:
             'local-${now.millisecondsSinceEpoch}-${now.microsecondsSinceEpoch}',
         text: _composer.text.trim(),
-        attachments: List<PromptAttachment>.from(_attachments),
+        attachments: resolveFileMentions(
+          _composer.text.trim(),
+          List<PromptAttachment>.from(_attachments),
+        ),
         createdAt: now.millisecondsSinceEpoch,
       );
       _showOptimisticBubble(early);
@@ -361,8 +362,11 @@ extension _ChatSend on _ChatScreenState {
       _setChatState(() => _sending = false);
       return;
     }
+    // A project file goes as the file part of the `@path` still in the text;
+    // a mention the person deleted before Send sends nothing.
     final attachments =
-        early?.attachments ?? List<PromptAttachment>.from(_attachments);
+        early?.attachments ??
+        resolveFileMentions(text, List<PromptAttachment>.from(_attachments));
     final agentMentions = _supportsPromptAgentMentions
         ? _promptAgentMentions(text, _subagents)
         : const <PromptAgentMention>[];
@@ -435,6 +439,7 @@ extension _ChatSend on _ChatScreenState {
       }
       if (!conversationSend) {
         unawaited(_rememberSentPrompt(selectionProfileID ?? '', text));
+        _learnPhrase(text, attachments, phraseMoment);
       }
       PerfTrace.recordSince('chat.send_to_ack', tapMicros);
       if (!mounted) return;
@@ -499,6 +504,11 @@ extension _ChatSend on _ChatScreenState {
 
   void _insertAgentMention(CatalogAgent agent) {
     if (!_supportsPromptAgentMentions) return;
+    _insertMentionText(agent.id);
+  }
+
+  /// Writes `@name ` over the `@word` being typed, or at the caret.
+  void _insertMentionText(String name) {
     final current = _composer.value;
     final query = _activeAgentQuery(current);
     final selection = current.selection;
@@ -519,7 +529,7 @@ extension _ChatSend on _ChatScreenState {
         end == current.text.length ||
         !RegExp(r'\s').hasMatch(current.text.substring(end, end + 1));
     final replacement =
-        '${needsLeadingSpace ? ' ' : ''}@${agent.id}${needsTrailingSpace ? ' ' : ''}';
+        '${needsLeadingSpace ? ' ' : ''}@$name${needsTrailingSpace ? ' ' : ''}';
     final nextText = current.text.replaceRange(start, end, replacement);
     _composer.value = TextEditingValue(
       text: nextText,

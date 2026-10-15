@@ -262,7 +262,8 @@ class SetupRunner private constructor(private val context: Context) {
                 } catch (e: Throwable) {
                     // Agent process exceptions can include private home paths.
                     Log.e(BuiltinLinux.TAG, "setup component failed")
-                    "The setup step could not finish. Try again."
+                    if (NativeRuntimeOwnership.isUnknownFailure(e)) NativeRuntimeOwnership.UNKNOWN_CODE
+                    else "The setup step could not finish. Try again."
                 }
                 synchronized(lock) {
                     component.endedAt = System.currentTimeMillis()
@@ -369,13 +370,16 @@ class SetupRunner private constructor(private val context: Context) {
     private fun runScript(spec: Spec, component: SetupComponentStatus): String? {
         if (!linux.installed) return "The Linux base is not installed"
         val script = spec.script ?: return "No script for ${spec.id}"
-        val started = linux.startInstaller(script, NativeInstallerOwnership.targetsForComponent(spec.id),
+        val completion = SetupScriptCompletion()
+        val started = linux.startInstaller(
+            completion.wrap(script), NativeInstallerOwnership.targetsForComponent(spec.id),
             InstallerOperation.INSTALL, agentUser = spec.agentUser)
-        return try { runInstallerScript(spec, component, started) }
+        return try { runInstallerScript(spec, component, started, completion) }
         finally { linux.finishInstaller(started) }
     }
 
-    private fun runInstallerScript(spec: Spec, component: SetupComponentStatus, started: Process): String? {
+    private fun runInstallerScript(spec: Spec, component: SetupComponentStatus, started: Process,
+        completion: SetupScriptCompletion): String? {
         val wasCancelled = synchronized(lock) {
             process = started
             cancelled
@@ -388,6 +392,7 @@ class SetupRunner private constructor(private val context: Context) {
         try {
             started.outputStream.close()
             started.inputStream.bufferedReader().forEachLine { line ->
+                if (completion.accept(line)) return@forEachLine
                 val parsed = SetupProtocol.parse(line)
                 val event = installerEvent(spec, parsed)
                 if (event == null) {
@@ -411,7 +416,9 @@ class SetupRunner private constructor(private val context: Context) {
         val code = try { started.waitFor() } finally {
             synchronized(lock) { process = null }
         }
-        return if (cancelled) "cancelled" else installerFailure(spec, component, code, last)
+        return if (cancelled) "cancelled"
+        else if (code == 0 && completion.exitCode != 0) "The setup step could not finish. Try again."
+        else installerFailure(spec, component, code, last)
     }
 
     private fun installerFailure(spec: Spec, component: SetupComponentStatus, code: Int, last: String?): String? =

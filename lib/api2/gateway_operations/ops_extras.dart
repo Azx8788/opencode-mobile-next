@@ -264,4 +264,16 @@ mixin _Api2ExtrasOps on _Api2Core {
       ),
     );
   }
+
+  @override
+  Future<HistoryMigrationStatus?> historyMigrationStatus() async {
+    try {
+      return HistoryMigrationStatus.fromJson(
+        await _transport.getJson('/experimental/migration/v1'),
+      );
+    } on Api2Error {
+      // A server without the route (the beta) has nothing to report.
+      return null;
+    }
+  }
 }

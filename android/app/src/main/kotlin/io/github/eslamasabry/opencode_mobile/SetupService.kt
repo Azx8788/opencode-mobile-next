@@ -106,8 +106,17 @@ class SetupService : Service() {
         const val LAUNCH_ACTION_PROGRESS = "phone_setup"
         const val LAUNCH_ACTION_DONE = "phone_setup_done"
 
+        /**
+         * Removes the finished-setup "ready" row. It is part of the status
+         * once the phone server runs, so it must not stay beside it.
+         */
+        fun cancelResult(context: Context) {
+            try { context.getSystemService(NotificationManager::class.java)?.cancel(RESULT_NOTIFICATION_ID) }
+            catch (_: Throwable) { }
+        }
+
         fun start(context: Context, channel: String, title: String, text: String) {
-            context.getSystemService(NotificationManager::class.java)?.cancel(RESULT_NOTIFICATION_ID)
+            cancelResult(context)
             val intent = Intent(context, SetupService::class.java)
                 .putExtra(EXTRA_CHANNEL, channel)
                 .putExtra(EXTRA_TITLE, title)

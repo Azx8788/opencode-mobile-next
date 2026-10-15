@@ -192,6 +192,31 @@ void main() {
     expect(controller.awaitingPermissionCount, 1);
   });
 
+  test('OpenCode 2 shell and edit requests wait in Asks first mode', () async {
+    final (controller, api) = await _boot();
+    controller.handleEventForTesting(_v2Ask('per_edit', 'parent'));
+    controller.handleEventForTesting(
+      EventEnvelope(
+        type: 'permission.v2.asked',
+        properties: {
+          'id': 'per_shell',
+          'sessionID': 'parent',
+          'action': 'shell',
+          'resources': ['echo hello'],
+          'save': ['echo *'],
+        },
+      ),
+    );
+    await _settle();
+    expect(api.v2Replies, isEmpty);
+    expect(controller.permissionsForSession('parent'), hasLength(2));
+    await controller.setSessionAutoApproval('parent', _auto);
+    await _settle();
+    await _settle();
+    expect(api.v2Replies.map((reply) => reply.reply), ['once', 'once']);
+    expect(controller.permissionsForSession('parent'), isEmpty);
+  });
+
   test('OpenCode 1 request is answered once and recorded', () async {
     final (controller, api) = await _boot();
     await controller.setSessionAutoApproval('parent', _auto);

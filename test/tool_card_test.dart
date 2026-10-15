@@ -207,6 +207,57 @@ void _shellTests() {
     });
   }
 
+  // Owner's phone, 2026-10-14: a finished card call the card could not be
+  // drawn for showed its input as rows and the model's reply as details.
+  for (final status in ['completed', 'error']) {
+    testWidgets('a $status card call with no card is one quiet line', (
+      tester,
+    ) async {
+      await _pumpTool(
+        tester,
+        name: 'oc-ui_show',
+        state: ToolState.fromJson({
+          'status': status,
+          'title': 'oc-ui_show',
+          'input': {
+            'v': 1,
+            'id': 'financehub-interactive-preview',
+            'title': 'FinanceHub \u2014 interactive answer preview',
+            'body': [
+              {'type': 'text', 'text': 'Hello'},
+            ],
+          },
+          'output': status == 'completed'
+              ? 'Card accepted for display in OpenCode Mobile. If it asks a '
+                    'question, end your turn and wait for the person\'s next '
+                    'message tagged [oc-ui answer <id>]. This call does not '
+                    'return their answer.'
+              : 'Agent card unavailable or invalid.',
+          'metadata': <String, Object?>{},
+        }, toolName: 'oc-ui_show'),
+      );
+      expect(
+        _text(
+          status == 'completed' ? 'Showed a card' : "Couldn't show this card",
+        ),
+        findsOneWidget,
+      );
+      expect(
+        _text('FinanceHub \u2014 interactive answer preview'),
+        findsOneWidget,
+      );
+      // Nothing opens: no input rows, no model-facing reply, no details.
+      expect(find.byType(KitToolRow), findsOneWidget);
+      await tester.tap(find.byType(KitToolRow));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(_text('Id'), findsNothing);
+      expect(_text('V'), findsNothing);
+      expect(find.textContaining('Card accepted'), findsNothing);
+      expect(find.textContaining('unavailable or invalid'), findsNothing);
+      expect(find.text('Technical details'), findsNothing);
+    });
+  }
+
   testWidgets('a passing command says so in words, not "exit 0"', (
     tester,
   ) async {
@@ -222,7 +273,8 @@ void _shellTests() {
     expect(find.text('Failed'), findsNothing);
     await tester.tap(find.text('Shell'));
     await tester.pump();
-    expect(find.byKey(const Key('tool-shell-command')), findsOneWidget);
+    expect(find.byKey(const Key('kit-step-command')), findsOneWidget);
+    expect(_text('\$ flutter test'), findsOneWidget);
     expect(_text('All tests passed.'), findsWidgets);
     expect(_text('Passed · exit code 0'), findsOneWidget);
     expect(_text('shell_metadata'), findsNothing);
@@ -242,7 +294,7 @@ void _shellTests() {
     expect(_text('Failed · exit code 1'), findsOneWidget);
   });
 
-  testWidgets('long output is capped at 12 lines with Open full output', (
+  testWidgets('long output shows its first 6 lines and Show all N lines', (
     tester,
   ) async {
     final output = List.generate(40, (i) => 'line ${i + 1}').join('\n');
@@ -253,9 +305,13 @@ void _shellTests() {
     );
     await tester.tap(find.text('Shell'));
     await tester.pump();
-    expect(_text('line 12'), findsWidgets);
-    expect(_text('line 13'), findsNothing);
-    expect(find.text('Open full output'), findsOneWidget);
+    expect(_text('line 6'), findsWidgets);
+    expect(_text('line 7'), findsNothing);
+    expect(find.text('Show all 40 lines'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('kit-step-show-all')));
+    await tester.pump();
+    expect(_text('line 40'), findsWidgets);
+    expect(find.text('Show all 40 lines'), findsNothing);
   });
 
   testWidgets('Run this command again appears only when the host offers it', (
@@ -281,6 +337,22 @@ void _shellTests() {
     expect(reruns, ['flutter test']);
   });
 
+  for (final status in ['running', 'pending']) {
+    testWidgets('Run this command again waits for a $status command', (
+      tester,
+    ) async {
+      await _pumpTool(
+        tester,
+        name: 'bash',
+        state: _shell(status: status),
+        onRerunCommand: (_) {},
+      );
+      await tester.tap(find.text('Shell'));
+      await tester.pump();
+      expect(find.text('Run this command again'), findsNothing);
+    });
+  }
+
   testWidgets('an embedded failure starts open with the error output', (
     tester,
   ) async {
@@ -295,7 +367,7 @@ void _shellTests() {
       }, toolName: 'bash'),
     );
     expect(find.byKey(const Key('embedded-tool-row')), findsOneWidget);
-    expect(find.byKey(const Key('embedded-tool-error-output')), findsOneWidget);
+    expect(find.byKey(const Key('kit-step-command')), findsOneWidget);
     expect(_text('Checkout test failed'), findsWidgets);
     expect(_text('Error:'), findsNothing);
   });
@@ -451,7 +523,7 @@ void _stateTests() {
     expect(find.text('report.csv'), findsOneWidget);
   });
 
-  testWidgets('copying output uses the kit copy of the whole text', (
+  testWidgets('the copy icon in the command box copies the command', (
     tester,
   ) async {
     final writes = <String>[];
@@ -478,11 +550,9 @@ void _stateTests() {
     );
     await tester.tap(find.text('Shell'));
     await tester.pump();
-    final copies = find.bySemanticsLabel(RegExp('^Copy'));
-    expect(copies, findsWidgets);
-    await tester.tap(copies.last);
+    await tester.tap(find.byKey(const Key('kit-step-command-copy')));
     await tester.pump();
-    expect(writes, contains(output));
+    expect(writes, ['flutter test']);
     await tester.pump(const Duration(seconds: 3));
   });
 }
@@ -546,7 +616,7 @@ void _editAndTodoTests() {
     expect(find.textContaining('Open full output'), findsNothing);
   });
 
-  testWidgets('the plan step reads one count, the same as its list', (
+  testWidgets('a task-list update is one line that does not open', (
     tester,
   ) async {
     await _pumpTool(
@@ -564,13 +634,13 @@ void _editAndTodoTests() {
         'output': 'Tasks updated.',
       }, toolName: 'todowrite'),
     );
-    // Cancelled tasks are not tracked: 1 of 2, on the line and in the list.
-    expect(_text('1 of 2 done'), findsOneWidget);
+    // The list itself is the tasks chip and its sheet, never a card here.
+    expect(_text('Updated tasks'), findsOneWidget);
+    expect(_text('1 of 2 done'), findsNothing);
     await tester.tap(find.byType(KitToolRow));
     await tester.pump();
-    expect(find.text('Inspect contract'), findsOneWidget);
-    expect(find.text('Run simulator'), findsOneWidget);
-    expect(_text('1 of 2 done'), findsNWidgets(2));
+    expect(find.text('Inspect contract'), findsNothing);
+    expect(find.text('Run simulator'), findsNothing);
   });
 }
 

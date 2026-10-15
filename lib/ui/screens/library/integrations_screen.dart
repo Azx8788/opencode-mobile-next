@@ -5,6 +5,10 @@ part of '../library_screen.dart';
 /// surface.
 enum IntegrationsMode { providers, mcp, all }
 
+/// How long a brief confirmation stays at the top of the page.
+@visibleForTesting
+Duration integrationBriefNoticeDuration = const Duration(seconds: 3);
+
 /// The page's sections that can fail to load, in page order.
 enum _Section { providers, servers, resources }
 
@@ -74,6 +78,17 @@ class _IntegrationsScreenState extends State<IntegrationsScreen>
   /// about each persisted one (keyed by [PendingAuthAttempt.key]).
   final Set<Object> _signInBusy = {};
   final Map<Object, IntegrationAuthState> _signInStatus = {};
+
+  /// What the person needs to finish an automatic sign-in, kept for this
+  /// launch only (never persisted): the device code and the page to open.
+  final Map<Object, String> _signInCodes = {};
+  final Map<Object, Uri> _signInUrls = {};
+
+  /// Automatic sign-ins this screen is waiting on, and those that ended.
+  final Set<Object> _signInWaiting = {};
+  final Set<Object> _signInEnded = {};
+  final Map<Timer, Completer<bool>> _waitPauses = {};
+  Object? _reloadedForSource;
   final TextEditingController _providerSearch = TextEditingController();
   String _providerQuery = '';
   _IntegrationsNotice? _notice;
@@ -96,12 +111,34 @@ class _IntegrationsScreenState extends State<IntegrationsScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    widget.controller.addListener(_onControllerChanged);
     final connectID = widget.connectProviderID;
     if (connectID == null) {
-      _load();
+      unawaited(_load().then((_) => _attachAutoSignIns()));
     } else {
-      unawaited(_load().then((_) => _autoConnect(connectID)));
+      unawaited(
+        _load().then((_) {
+          _attachAutoSignIns();
+          return _autoConnect(connectID);
+        }),
+      );
     }
+  }
+
+  /// The connection was replaced (the app came back from the background and
+  /// reconnected): the lists are read again for it, and the waits on
+  /// automatic sign-ins are picked up again, instead of the page sitting on
+  /// "could not load" until someone taps Try again.
+  void _onControllerChanged() {
+    if (!mounted ||
+        _integrations == null ||
+        !_catalogAvailable ||
+        _integrationsSource == _mcpSource ||
+        _reloadedForSource == _mcpSource) {
+      return;
+    }
+    _reloadedForSource = _mcpSource;
+    unawaited(_load().then((_) => _attachAutoSignIns()));
   }
 
   Future<void> _autoConnect(String id) async {
@@ -116,12 +153,31 @@ class _IntegrationsScreenState extends State<IntegrationsScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Returning from a browser is not consent to poll or submit a code.
+    // Coming back from the browser re-attaches the wait of an automatic
+    // sign-in the app lost while it was in the background.
+    if (state == AppLifecycleState.resumed) _attachAutoSignIns();
   }
 
-  void _say(String message, {AppStatusTone tone = AppStatusTone.ok}) {
+  Timer? _noticeTimer;
+
+  /// [brief] notices (a confirmation such as "Code copied") clear
+  /// themselves after a few seconds instead of sitting at the top.
+  void _say(
+    String message, {
+    AppStatusTone tone = AppStatusTone.ok,
+    bool brief = false,
+  }) {
     if (!mounted) return;
-    setState(() => _notice = _IntegrationsNotice(message, tone));
+    _noticeTimer?.cancel();
+    final notice = _IntegrationsNotice(message, tone);
+    setState(() => _notice = notice);
+    if (brief) {
+      _noticeTimer = Timer(integrationBriefNoticeDuration, () {
+        if (mounted && identical(_notice, notice)) {
+          setState(() => _notice = null);
+        }
+      });
+    }
   }
 
   Future<void> _load() async {
@@ -234,22 +290,46 @@ class _IntegrationsScreenState extends State<IntegrationsScreen>
   );
 
   /// Amber only where the person must act: finishing in the browser.
-  static KitTaskState _signInMark(IntegrationAuthState state) =>
+  /// Never red: a sign-in that ended or failed is neutral (the provider's
+  /// own logo, secondary words) and its way forward is on the row.
+  static KitTaskState? _signInMark(IntegrationAuthState state) =>
       switch (state) {
         IntegrationAuthState.pending => KitTaskState.needsYou,
         IntegrationAuthState.complete => KitTaskState.done,
-        IntegrationAuthState.failed ||
-        IntegrationAuthState.expired => KitTaskState.failed,
+        IntegrationAuthState.failed || IntegrationAuthState.expired => null,
       };
 
-  /// Connected providers first, then alphabetical, so the ones a user can
-  /// already use sit at the top of the list.
+  /// The providers most people sign in to, in this order, right after the
+  /// connected ones; the long tail follows alphabetically.
+  static const popularProviders = [
+    'openai',
+    'anthropic',
+    'google',
+    'zai-coding-plan',
+    'minimax',
+    'openrouter',
+    'github-copilot',
+    'deepseek',
+    'xai',
+    'mistral',
+    'groq',
+  ];
+
+  /// Connected providers first, then the popular ones, then alphabetical, so
+  /// the ones a user can use or is likely to want sit at the top.
   static List<PresentedIntegration> _sortedIntegrations(
     List<IntegrationInfo> integrations,
   ) {
     final presented = presentIntegrations(integrations);
+    int rank(PresentedIntegration p) {
+      final i = popularProviders.indexOf(p.integration.id);
+      return i < 0 ? popularProviders.length : i;
+    }
+
     presented.sort((a, b) {
       if (a.connected != b.connected) return a.connected ? -1 : 1;
+      final byRank = rank(a).compareTo(rank(b));
+      if (byRank != 0) return byRank;
       return a.name.toLowerCase().compareTo(b.name.toLowerCase());
     });
     return presented;
@@ -261,6 +341,13 @@ class _IntegrationsScreenState extends State<IntegrationsScreen>
     _resourceLoadGeneration++;
     _integrationLoadGeneration++;
     _providerSearch.dispose();
+    _noticeTimer?.cancel();
+    widget.controller.removeListener(_onControllerChanged);
+    for (final entry in _waitPauses.entries.toList()) {
+      entry.key.cancel();
+      if (!entry.value.isCompleted) entry.value.complete(false);
+    }
+    _waitPauses.clear();
     if (_pendingMcpOAuth case final pending?) {
       unawaited(_disposePendingMcpAuthentication(pending));
     }

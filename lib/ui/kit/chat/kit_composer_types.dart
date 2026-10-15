@@ -19,11 +19,12 @@ class KitComposerFailure {
 
 /// What Send does while a reply is being written.
 enum KitComposerDelivery {
-  /// The default (P6.6 "Queue over Steer"): sent when the reply finishes.
+  /// A server that cannot steer (OpenCode 1) runs the message when the reply
+  /// finishes. Never called steering.
   afterThisReply,
 
-  /// Steer: reaches the agent at its next step (OpenCode 2, and the Paseo
-  /// agents that steer).
+  /// Steer: reaches the agent at its next step (OpenCode 2, Codex, and the
+  /// Paseo agents that steer).
   addToThisTurn,
 
   /// The agent cannot take a message mid-reply: Send stops the reply and

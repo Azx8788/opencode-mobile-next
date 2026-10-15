@@ -252,18 +252,14 @@
           "key": "todo.items[].completed",
           "path": "items[].completed",
           "kind": "boolean",
-          "probes": [
-            "1 of 3 done"
-          ],
+          "probes": [],
           "primary": false
         },
         {
           "key": "todo.items[].status",
           "path": "items[].status",
           "kind": "enum",
-          "probes": [
-            "In progress"
-          ],
+          "probes": [],
           "primary": false
         },
         {
@@ -310,9 +306,7 @@
           "key": "todo.items[].completed",
           "path": "items[].completed",
           "kind": "boolean",
-          "probes": [
-            "1 of 2 done"
-          ],
+          "probes": [],
           "primary": false
         }
       ]

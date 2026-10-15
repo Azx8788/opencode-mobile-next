@@ -16,6 +16,7 @@ import 'kit_swipe_action.dart';
 import 'kit_tappable.dart';
 import 'kit_text.dart';
 import 'kit_tokens.dart';
+import 'motion/kit_motion_parts.dart' show KitSwap;
 
 /// The one list row (design standard §6, visual language §5;
 /// docs/ux-system/kit-api/KitRow.md): a leading icon tile, a title, a muted
@@ -411,7 +412,15 @@ class KitRow extends StatelessWidget {
                 constraints: BoxConstraints(
                   maxWidth: MediaQuery.sizeOf(context).width / 2,
                 ),
-                child: trailing,
+                // A trailing mark that changes kind (chevron, spinner, check)
+                // cross-fades instead of popping.
+                child: KitSwap(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: KeyedSubtree(
+                    key: ValueKey<Object>(trailing.key ?? trailing.runtimeType),
+                    child: trailing,
+                  ),
+                ),
               ),
           ],
         ),
@@ -612,7 +621,7 @@ class _KitRowIconTile extends StatelessWidget {
         child: Center(
           child: Icon(
             icon,
-            size: tokens.smallIconSize,
+            size: tokens.iconSize(context, tokens.smallIconSize),
             color: dimmed
                 ? tokens.roles.text3
                 : accent
@@ -731,19 +740,31 @@ class KitRowValue extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (count == null)
+            // A new value cross-fades (KitMotion.quick) rather than popping.
             Flexible(
-              child: Text(
-                value,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: tokens.rowValue,
+              child: KitSwap(
+                alignment: AlignmentDirectional.centerEnd,
+                child: Text(
+                  value,
+                  key: ValueKey<String>(value),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: tokens.rowValue,
+                ),
               ),
             )
-          else if (count > 0)
-            Semantics(
-              label: value,
-              excludeSemantics: true,
-              child: _KitCountPill(count > 99 ? '99+' : '$count'),
+          else
+            // The badge fades in, changes number and fades out with its count.
+            KitSwap(
+              alignment: AlignmentDirectional.centerEnd,
+              child: count > 0
+                  ? Semantics(
+                      key: ValueKey<int>(count),
+                      label: value,
+                      excludeSemantics: true,
+                      child: _KitCountPill(count > 99 ? '99+' : '$count'),
+                    )
+                  : const SizedBox.shrink(key: ValueKey<int>(0)),
             ),
           if (chevron)
             Padding(
@@ -753,7 +774,7 @@ class KitRowValue extends StatelessWidget {
               ),
               child: Icon(
                 AppIconography.chevronRight,
-                size: tokens.smallIconSize,
+                size: tokens.iconSize(context, tokens.smallIconSize),
                 color: tokens.roles.text3,
               ),
             )

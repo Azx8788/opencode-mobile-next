@@ -18,6 +18,10 @@ import 'package:flutter/material.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../app_iconography.dart';
 import '../kit_buttons.dart';
+import '../kit_icon_button.dart';
+import '../kit_menu.dart';
+import '../kit_redact.dart';
+import '../kit_surface.dart';
 import '../kit_motion.dart';
 import '../kit_since.dart';
 import '../kit_status_mark.dart';
@@ -71,6 +75,43 @@ enum KitToolStatus {
   background,
 }
 
+/// A shell step's command and what it printed, for the opened step: one box
+/// with the whole command after `$` (wrapped, once), the first lines of the
+/// output in muted mono and "Show all N lines" when it is longer, and a copy
+/// icon in the corner. Data only; the row draws it (and redacts it).
+@immutable
+class KitStepCommand {
+  const KitStepCommand({
+    required this.command,
+    this.output = '',
+    this.caption,
+    this.copyLabel,
+    this.onOpenFull,
+  });
+
+  /// The command as it was run.
+  final String command;
+
+  /// What it printed, ANSI already stripped by the host.
+  final String output;
+
+  /// How it ended, in words ("Exit code 1 · failed"), under the output.
+  final String? caption;
+
+  /// The copy icon's tooltip and word ("Copy command"); null reads "Copy".
+  final String? copyLabel;
+
+  /// Opens an output too long to show in place (more than [inlineCap] lines)
+  /// elsewhere; it gets the whole output.
+  final ValueChanged<String>? onOpenFull;
+
+  /// Lines shown before "Show all".
+  static const int previewLines = 6;
+
+  /// Lines "Show all" reveals in place; longer output opens elsewhere.
+  static const int inlineCap = 200;
+}
+
 /// From this text scale the title may take two lines and the path or detail
 /// moves under it (A11Y-8).
 const double _kWrapTextScale = 1.3;
@@ -96,6 +137,8 @@ class KitToolRow extends StatefulWidget {
     this.startedAt,
     this.note,
     this.body = const <Widget>[],
+    this.command,
+    this.menu = const <KitMenuItem>[],
     this.preview,
     this.expanded,
     this.onExpansionChanged,
@@ -134,6 +177,8 @@ class KitToolRow extends StatefulWidget {
        duration = null,
        note = null,
        body = const <Widget>[],
+       command = null,
+       menu = const <KitMenuItem>[],
        preview = null,
        expanded = null,
        onExpansionChanged = null,
@@ -177,6 +222,14 @@ class KitToolRow extends StatefulWidget {
   /// What it produced, shown in order when open: KitCodeBlock output
   /// (capped by the host), KitDiffView, KitImage or file rows, KitNotice.
   final List<Widget> body;
+
+  /// A shell step: its command and output as one box, shown first when open
+  /// (before [body]).
+  final KitStepCommand? command;
+
+  /// What a long press (or a right click) on the step's line offers: the
+  /// host's own per-step choices ("Wrap lines"). Empty: none.
+  final List<KitMenuItem> menu;
 
   /// A file write or edit: a few lines of what it changed. Drawn only in a
   /// [KitStepTimeline], as a card under the step while it is closed; a tap
@@ -288,14 +341,16 @@ class _KitToolRowState extends State<KitToolRow>
     curve: KitMotion.enter,
   );
 
-  bool get _opens => widget.note != null || widget.body.isNotEmpty;
+  bool get _opens =>
+      widget.note != null || widget.body.isNotEmpty || widget.command != null;
 
   bool get _open => _opens && (widget.expanded ?? _own);
 
   @override
   void didUpdateWidget(covariant KitToolRow old) {
     super.didUpdateWidget(old);
-    final wasOpen = old.note != null || old.body.isNotEmpty
+    final wasOpen =
+        old.note != null || old.body.isNotEmpty || old.command != null
         ? (old.expanded ?? _own)
         : false;
     if (!wasOpen && _open) _playFade();
@@ -334,17 +389,18 @@ class _KitToolRowState extends State<KitToolRow>
 
   // ── The step on a timeline ───────────────────────────────────────────────
 
-  /// The step inside a [KitStepTimeline]: its node on the rail (a tile with
-  /// the step's glyph, or the state's mark in its place), the title in the
-  /// row's first-line role with the file or detail muted under it, the
-  /// counts and state words at the end, and, for a file write or edit, the
-  /// preview card under it until the step is opened (then the full body).
+  /// The step inside a [KitStepTimeline]: one line, 32 dp (taller only for
+  /// larger text). A shell step's line is its command in mono; any other
+  /// step reads as one sentence, "Read lib/x.dart", "Edit checkout_test.dart
+  /// +3 −1". Its node (a small tile with the step's glyph; the kit's spinner
+  /// while it runs) sits on the rail and nothing else marks the line: the
+  /// group's line has the one chevron, and a tap on a step opens it. Opened,
+  /// its command box or body sits at the text's own x, under the line.
   Widget _buildTimelineStep(BuildContext context) {
     final tokens = KitTokens.of(context);
     final l10n = lookupAppLocalizations(Localizations.localeOf(context));
     final row = widget;
     final status = row.status;
-    // A running step keeps its glyph; the one light on its node is its mark.
     final live =
         status == KitToolStatus.running || status == KitToolStatus.background;
     final word = KitToolRow.wordFor(context, status);
@@ -357,47 +413,103 @@ class _KitToolRowState extends State<KitToolRow>
     final path = row.path;
     final detail = row.detail;
     final label = _labelOf(l10n, row, word, durationWords);
+    final stepHeight = KitStepTimeline.stepLineHeight(context);
+    final firstLine = MediaQuery.textScalerOf(context).scale(20);
+    // The first line sits in the middle of the 32 dp, so the node and the
+    // rail can be placed from the tokens alone.
+    final pad = (stepHeight - firstLine) / 2;
 
-    final Widget titleText = KitStepTimeline.sweep(
-      context,
-      active: live,
-      child: KitText(
-        row.title,
-        role: KitTextRole.rowTitle,
-        tone: status == KitToolStatus.notRun
-            ? KitTextTone.tertiary
-            : KitTextTone.primary,
-        maxLines: wide ? 3 : 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
+    final tone = status == KitToolStatus.notRun
+        ? KitTextTone.tertiary
+        : (live ||
+              status == KitToolStatus.waitingForYou ||
+              status == KitToolStatus.failed)
+        ? KitTextTone.primary
+        : KitTextTone.secondary;
+    final hasPath = path != null && path.isNotEmpty;
+    final shellLine = row.kind == KitToolKind.shell && hasPath;
 
-    Widget? second;
-    if (path != null && path.isNotEmpty) {
-      second = KitText.mono(
+    final Widget? counts = hasCounts ? _Counts(row.added, row.removed) : null;
+
+    // What the line says: a command alone, or the verb with what it touched.
+    final Widget? secondText = shellLine
+        ? null
+        : hasPath
+        ? KitText.mono(path, cut: row.pathCut, tone: tone, maxLines: 1)
+        : (detail != null && detail.isNotEmpty)
+        ? KitText(
+            detail,
+            role: KitTextRole.secondary,
+            tone: KitTextTone.tertiary,
+            maxLines: wide ? 3 : 1,
+            overflow: TextOverflow.ellipsis,
+          )
+        : null;
+    final Widget sentence;
+    if (shellLine) {
+      sentence = KitText.mono(
         path,
-        cut: row.pathCut,
-        tone: KitTextTone.secondary,
-        maxLines: 1,
+        cut: wide ? KitMonoCut.wrap : row.pathCut,
+        tone: tone,
+        maxLines: wide ? 3 : 1,
       );
-      if (!_opens) {
-        second = Tooltip(
-          message: path,
-          excludeFromSemantics: true,
-          child: second,
-        );
-      }
-    } else if (detail != null && detail.isNotEmpty) {
-      second = KitText(
-        detail,
-        role: KitTextRole.secondary,
-        tone: KitTextTone.secondary,
-        maxLines: wide ? 3 : 2,
-        overflow: TextOverflow.ellipsis,
+    } else if (wide) {
+      sentence = Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          KitText(
+            row.title,
+            role: KitTextRole.secondary,
+            tone: tone,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+          ),
+          ?secondText,
+          ?counts,
+        ],
+      );
+    } else {
+      sentence = LayoutBuilder(
+        builder: (context, constraints) {
+          final titleText = KitText(
+            row.title,
+            role: KitTextRole.secondary,
+            tone: tone,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          );
+          return Row(
+            children: [
+              if (secondText == null)
+                Flexible(child: titleText)
+              else
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: (constraints.maxWidth * 0.6).floorToDouble(),
+                  ),
+                  child: titleText,
+                ),
+              if (secondText != null) ...[
+                SizedBox(width: tokens.space1),
+                Expanded(child: secondText),
+              ],
+              if (counts != null) ...[SizedBox(width: tokens.space2), counts],
+            ],
+          );
+        },
       );
     }
+    final Widget sentenceWithCounts = shellLine && counts != null
+        ? Row(
+            children: [
+              Expanded(child: sentence),
+              SizedBox(width: tokens.space2),
+              counts,
+            ],
+          )
+        : sentence;
 
-    final counts = hasCounts ? _Counts(row.added, row.removed) : null;
     final started = row.startedAt;
     final Widget? words = live && started != null
         ? KitSince(
@@ -413,102 +525,84 @@ class _KitToolRowState extends State<KitToolRow>
             ),
           )
         : _stepWords(status, word, durationWords, maxLines: wide ? 2 : 1);
-    final Widget? chevron = _opens
-        ? SizedBox.square(
-            dimension: tokens.smallIconSize,
-            child: KitSpin.chevron(expanded: open),
-          )
-        : row.onOpen != null
+    // Only the group's line has a chevron; a step that opens another page
+    // keeps its forward arrow (it leaves this list).
+    final Widget? forward = row.onOpen != null && !_opens
         ? const _ForwardChevron()
         : null;
 
-    final Widget middle = Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        titleText,
-        ?second,
-        if (wide) ...[?counts, ?words],
-      ],
-    );
-    final Widget titleLine = LayoutBuilder(
-      builder: (context, constraints) {
-        final Widget? tail = wide
-            ? null
-            : (counts == null && words == null)
-            ? null
-            : ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxWidth: (constraints.maxWidth * 0.45).floorToDouble(),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ?counts,
-                    if (counts != null && words != null)
-                      SizedBox(width: tokens.space2),
-                    if (words != null) Flexible(child: words),
-                  ],
-                ),
-              );
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    final Widget line = Padding(
+      padding: EdgeInsetsDirectional.symmetric(vertical: pad),
+      child: LayoutBuilder(
+        builder: (context, constraints) => Row(
+          crossAxisAlignment: wide
+              ? CrossAxisAlignment.start
+              : CrossAxisAlignment.center,
           children: [
-            Expanded(child: middle),
-            if (tail != null) ...[
+            Expanded(child: sentenceWithCounts),
+            if (words != null) ...[
               SizedBox(width: tokens.space2),
-              _FirstLine(height: 22, child: tail),
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: (constraints.maxWidth * 0.3).floorToDouble(),
+                ),
+                child: words,
+              ),
             ],
-            if (chevron != null) ...[
-              SizedBox(width: tokens.space1),
-              _FirstLine(height: 22, child: chevron),
-            ],
+            if (forward != null) ...[SizedBox(width: tokens.space1), forward],
           ],
-        );
-      },
-    );
-
-    // The 48 dp target is the top of the box: the first line stays at the
-    // same place whatever the box adds below it, so the node and the rail
-    // can be placed from the tokens alone.
-    final Widget headerBox = ConstrainedBox(
-      constraints: BoxConstraints(minHeight: tokens.minTarget),
-      child: Align(
-        alignment: AlignmentDirectional.topStart,
-        child: Padding(
-          padding: EdgeInsetsDirectional.only(
-            top: tokens.space1,
-            bottom: tokens.space2,
-          ),
-          child: titleLine,
         ),
       ),
     );
+    final Widget lineBox = ConstrainedBox(
+      constraints: BoxConstraints(minHeight: stepHeight),
+      child: Align(alignment: AlignmentDirectional.centerStart, child: line),
+    );
+
+    // The line is 32 dp, but a line that taps keeps the kit's 48 dp target:
+    // the target is centred on the line and reaches 8 dp over each
+    // neighbour's edge. (From 1.3x text the words wrap and the row is taller
+    // than 48 on its own.)
+    Widget target(Widget tappable) => wide
+        ? tappable
+        : SizedBox(
+            height: stepHeight,
+            child: OverflowBox(
+              minHeight: tokens.minTarget,
+              maxHeight: tokens.minTarget,
+              child: tappable,
+            ),
+          );
 
     final Widget header;
     if (_opens) {
-      header = Semantics(
-        expanded: open,
-        child: KitTappable(
-          tappableKey: row.rowKey,
-          onTap: _toggle,
-          label: label,
-          tooltip: path != null && path.isNotEmpty ? path : null,
-          shape: KitShape.tile,
-          surface: KitSurfaceLevel.ground,
-          child: headerBox,
+      header = target(
+        Semantics(
+          expanded: open,
+          child: KitTappable(
+            tappableKey: row.rowKey,
+            onTap: _toggle,
+            label: label,
+            tooltip: hasPath ? path : null,
+            menu: open ? row.menu : const <KitMenuItem>[],
+            shape: KitShape.tile,
+            surface: KitSurfaceLevel.ground,
+            child: lineBox,
+          ),
         ),
       );
     } else if (row.onOpen case final onOpen?) {
-      header = Semantics(
-        hint: row.openLabel ?? l10n.kitToolOpenDetails,
-        child: KitTappable(
-          tappableKey: row.rowKey,
-          onTap: onOpen,
-          label: label,
-          shape: KitShape.tile,
-          surface: KitSurfaceLevel.ground,
-          child: headerBox,
+      header = target(
+        Semantics(
+          hint: row.openLabel ?? l10n.kitToolOpenDetails,
+          child: KitTappable(
+            tappableKey: row.rowKey,
+            onTap: onOpen,
+            label: label,
+            shape: KitShape.tile,
+            surface: KitSurfaceLevel.ground,
+            child: lineBox,
+          ),
         ),
       );
     } else {
@@ -517,7 +611,7 @@ class _KitToolRowState extends State<KitToolRow>
         container: true,
         label: label,
         excludeSemantics: true,
-        child: headerBox,
+        child: lineBox,
       );
     }
 
@@ -558,31 +652,40 @@ class _KitToolRowState extends State<KitToolRow>
         if (open)
           FadeTransition(
             opacity: _fadeCurve,
-            child: _Body(children: [?row.note, ...row.body]),
+            child: _Body(children: _openContent()),
           ),
       ],
     );
 
-    // Every state keeps the glyph; only a failure settles on its mark.
-    final nodeState = switch (status) {
-      KitToolStatus.running => KitStepNodeState.running,
-      KitToolStatus.background => KitStepNodeState.background,
-      KitToolStatus.waitingForYou => KitStepNodeState.waiting,
-      KitToolStatus.pending || KitToolStatus.notRun => KitStepNodeState.queued,
-      KitToolStatus.done => KitStepNodeState.done,
-      KitToolStatus.failed => KitStepNodeState.failed,
-      KitToolStatus.stopped => KitStepNodeState.stopped,
+    // The node: the step's glyph in its tile; the kit's spinner while it
+    // runs; the waiting ring; the failed mark. Nothing moves around a tile.
+    final Widget? nodeMark = switch (status) {
+      KitToolStatus.running || KitToolStatus.background => const KitStatusMark(
+        state: KitMarkState.working,
+      ),
+      KitToolStatus.waitingForYou => const KitStatusMark(
+        state: KitMarkState.waiting,
+      ),
+      KitToolStatus.failed => _stepMark(status),
+      _ => null,
     };
     return KitStepTimeline.node(
       context,
-      lineHeight: 22,
-      top: tokens.space1,
-      icon: _glyphFor(row.kind),
-      mark: status == KitToolStatus.failed ? _stepMark(status) : null,
-      state: nodeState,
+      boxHeight: stepHeight,
+      icon: nodeMark == null ? _glyphFor(row.kind) : null,
+      mark: nodeMark,
+      dim: status == KitToolStatus.pending || status == KitToolStatus.notRun,
       child: column,
     );
   }
+
+  /// What the opened step shows, in order: the agent's note, the command
+  /// box, then the host's blocks.
+  List<Widget> _openContent() => [
+    ?widget.note,
+    if (widget.command case final command?) _CommandBox(command: command),
+    ...widget.body,
+  ];
 
   /// The row's one spoken line: title, where, counts, state and time.
   String _labelOf(
@@ -789,6 +892,7 @@ class _KitToolRowState extends State<KitToolRow>
           onTap: _toggle,
           label: label,
           tooltip: path != null && path.isNotEmpty ? path : null,
+          menu: open ? row.menu : const <KitMenuItem>[],
           shape: KitShape.tile,
           surface: KitSurfaceLevel.ground,
           child: line,
@@ -850,7 +954,7 @@ class _KitToolRowState extends State<KitToolRow>
         ?retry,
         FadeTransition(
           opacity: _fadeCurve,
-          child: _Body(children: [?row.note, ...row.body]),
+          child: _Body(children: _openContent()),
         ),
       ],
     );
@@ -1192,6 +1296,118 @@ class _ForwardChevron extends StatelessWidget {
         AppIconography.chevronRight,
         size: tokens.smallIconSize,
         color: tokens.roles.text2,
+      ),
+    );
+  }
+}
+
+/// A shell step's opened command: one box with the whole command after `$`
+/// (wrapped, shown once), the first lines of what it printed in muted mono
+/// and "Show all N lines" when there are more, a copy icon in the corner.
+/// Tight padding, the kit's code shape; left to right whatever the reading
+/// direction. The command and the output pass through [KitRedact] first.
+class _CommandBox extends StatefulWidget {
+  const _CommandBox({required this.command});
+
+  final KitStepCommand command;
+
+  @override
+  State<_CommandBox> createState() => _CommandBoxState();
+}
+
+class _CommandBoxState extends State<_CommandBox> {
+  bool _all = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = KitTokens.of(context);
+    final l10n = lookupAppLocalizations(Localizations.localeOf(context));
+    final data = widget.command;
+    final command = KitRedact.text(data.command);
+    final printed = KitRedact.text(data.output).trimRight();
+    final lines = printed.isEmpty ? const <String>[] : printed.split('\n');
+    final total = lines.length;
+    final cap = _all ? KitStepCommand.inlineCap : KitStepCommand.previewLines;
+    final shown = lines.take(cap).toList();
+    final more = !_all && total > KitStepCommand.previewLines;
+    final caption = data.caption;
+
+    void showAll() {
+      if (total > KitStepCommand.inlineCap && data.onOpenFull != null) {
+        data.onOpenFull!(printed);
+        return;
+      }
+      setState(() => _all = true);
+    }
+
+    return KitSurface(
+      key: const ValueKey('kit-step-command'),
+      level: KitSurfaceLevel.surface1,
+      shape: KitShape.code,
+      padding: KitSurfacePadding.none,
+      outlined: true,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(minHeight: tokens.minTarget),
+        child: Stack(
+          children: [
+            Padding(
+              padding: EdgeInsetsDirectional.only(
+                start: tokens.space3,
+                top: tokens.space2,
+                // Clear of the copy icon's corner.
+                end: tokens.minTarget - tokens.space2,
+                bottom: tokens.space2,
+              ),
+              child: KitLtr(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    KitText.mono(
+                      '\$ $command',
+                      key: const ValueKey('kit-step-command-text'),
+                      tone: KitTextTone.primary,
+                    ),
+                    if (shown.isNotEmpty) SizedBox(height: tokens.space1),
+                    for (final line in shown)
+                      KitText.mono(
+                        line.isEmpty ? ' ' : line,
+                        tone: KitTextTone.tertiary,
+                        cut: KitMonoCut.end,
+                        maxLines: 1,
+                      ),
+                    if (caption != null && caption.isNotEmpty) ...[
+                      SizedBox(height: tokens.space1),
+                      KitText(
+                        caption,
+                        role: KitTextRole.caption,
+                        tone: KitTextTone.secondary,
+                      ),
+                    ],
+                    if (more)
+                      Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: KitButton.tertiary(
+                          key: const ValueKey('kit-step-show-all'),
+                          label: l10n.kitCodeShowAll(total),
+                          onPressed: showAll,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            PositionedDirectional(
+              top: 0,
+              end: 0,
+              child: KitIconButton.copy(
+                key: const ValueKey('kit-step-command-copy'),
+                text: () => command,
+                tooltip: data.copyLabel,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

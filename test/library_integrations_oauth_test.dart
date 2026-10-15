@@ -38,9 +38,9 @@ void main() {
   });
 
   // Provider logos are fetched favicons; tests render the monogram instead.
-  setUpAll(() => ProviderLogo.imageProviderOverride = (_) => null);
+  setUpAll(() => ProviderLogo.logoLoaderOverride = (_) => null);
 
-  tearDownAll(() => ProviderLogo.imageProviderOverride = null);
+  tearDownAll(() => ProviderLogo.logoLoaderOverride = null);
 
   testWidgets(
     'OAuth rejects blank required text while allowing blank optional text',
@@ -252,11 +252,11 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('connect-provider-cloud')));
       await tester.pumpAndSettle();
-      expect(find.textContaining('The server says:'), findsOneWidget);
+      // The one-time code stands on its own in the sheet.
       expect(
         find.descendant(
           of: find.byKey(const ValueKey('authorization-launch-sheet')),
-          matching: find.textContaining('Enter code: ABCD-EFGH'),
+          matching: find.text('ABCD-EFGH'),
         ),
         findsOneWidget,
       );

@@ -33,6 +33,8 @@ extension _ServersActions on _ServersScreenState {
         );
       case ServersRouteRequestKind.forget:
         if (target != null) await _delete(target);
+      case ServersRouteRequestKind.edit:
+        if (target != null) await _edit(existing: target);
     }
   }
 
@@ -101,7 +103,8 @@ extension _ServersActions on _ServersScreenState {
           onForget: _delete,
           onManage: _openTermuxSetup,
           onConnect: (profile) => _connect(profile, detectedRunning: true),
-          onOpenSaved: _connect,
+          onOpenSaved: (p) =>
+              unawaited(openServerPage(context, connection, p.id)),
         ),
       ],
     );
@@ -141,7 +144,7 @@ extension _ServersActions on _ServersScreenState {
       onForget: _delete,
       onManage: _openTermuxSetup,
       onConnect: (profile) => _connect(profile, detectedRunning: true),
-      onOpenSaved: _connect,
+      onOpenSaved: (p) => unawaited(openServerPage(context, connection, p.id)),
       onEnterCredentials: (server, existing) => _enterPhoneCredentials(
         existing: existing,
         openCode2: server.flavor == ServerFlavor.v2,

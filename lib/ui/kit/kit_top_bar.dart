@@ -8,7 +8,6 @@ import 'glass/kit_glass.dart';
 import 'kit_screen.dart';
 import 'kit_bidi.dart';
 import 'kit_buttons.dart';
-import 'kit_chip.dart';
 import 'kit_divider.dart';
 import 'kit_icon.dart';
 import 'kit_icon_button.dart';
@@ -16,6 +15,7 @@ import 'kit_layout.dart';
 import 'kit_menu.dart';
 import 'kit_motion.dart';
 import 'kit_needs_you.dart';
+import 'kit_presence.dart';
 import 'kit_status_mark.dart';
 import 'kit_tappable.dart';
 import 'kit_text.dart';
@@ -46,6 +46,7 @@ class KitTopBarScope {
     this.icon,
     this.chipKey,
     this.menuLabel,
+    this.suffix,
   });
 
   /// The name shown on the chip; wrap a name the person or server chose
@@ -62,6 +63,10 @@ class KitTopBarScope {
 
   /// The menu's name for a screen reader.
   final String? menuLabel;
+
+  /// A second name on the same line, after " · " (the server, when more than
+  /// one is connected).
+  final String? suffix;
 }
 
 bool _actionsHaveIcons(List<KitAction> actions) {
@@ -101,6 +106,7 @@ class KitTopBar extends StatelessWidget {
     this.titleTapLabel,
     this.actions = const [],
     this.accessory,
+    this.accessoryShown = true,
     this.menu = const [],
     this.brand = false,
     this.exit = KitTopBarExit.auto,
@@ -143,6 +149,7 @@ class KitTopBar extends StatelessWidget {
        titleKey = null,
        exitKey = null,
        accessory = null,
+       accessoryShown = true,
        scope = null;
 
   /// Non-null only for [KitTopBar.shell].
@@ -174,6 +181,11 @@ class KitTopBar extends StatelessWidget {
   /// width (the chat's context ring): shown before the ⋯ button, never
   /// moved into it. Its own tap target is its own business.
   final Widget? accessory;
+
+  /// Whether the accessory shows now. Flipping it fades the accessory in or
+  /// out and opens or closes its slot (no jump); false from the start
+  /// builds nothing.
+  final bool accessoryShown;
 
   /// The overflow's own entries, after the actions that did not fit.
   final List<KitMenuItem> menu;
@@ -284,7 +296,11 @@ class KitTopBar extends StatelessWidget {
         (window == KitWindow.expanded && KitLayout.finePointer(context));
     final bar = LayoutBuilder(
       builder: (context, constraints) {
+        // The buttons sit on the title's first line. A tall title block
+        // (large text, the server and project lines under it) used to centre
+        // them against itself, which left the title above the back arrow.
         final row = Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (resolved == KitTopBarExit.back) ...[
               exitButton(AppIconography.back, l10n.kitTopBarBack),
@@ -299,16 +315,19 @@ class KitTopBar extends StatelessWidget {
                     : tokens.gutter - tokens.space2,
               ),
             Expanded(
-              child: _KitTopBarTitle(
-                title: title,
-                subtitle: subtitle,
-                subtitleTone: subtitleTone,
-                needsYou: needsYou,
-                onTitleTap: onTitleTap,
-                titleTapLabel: titleTapLabel,
-                brand: brand,
-                titleKey: titleKey,
-                scope: scope,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: tokens.minTarget),
+                child: _KitTopBarTitle(
+                  title: title,
+                  subtitle: subtitle,
+                  subtitleTone: subtitleTone,
+                  needsYou: needsYou,
+                  onTitleTap: onTitleTap,
+                  titleTapLabel: titleTapLabel,
+                  brand: brand,
+                  titleKey: titleKey,
+                  scope: scope,
+                ),
               ),
             ),
             if (actions.isNotEmpty || menu.isNotEmpty || accessory != null) ...[
@@ -316,6 +335,7 @@ class KitTopBar extends StatelessWidget {
               _KitTopBarActions(
                 actions: actions,
                 accessory: accessory,
+                accessoryShown: accessoryShown,
                 menu: menu,
                 window: window,
                 menuKey: menuKey,
@@ -343,17 +363,17 @@ class KitTopBar extends StatelessWidget {
     );
     if (toolbar) {
       // On PC the bar is the pane's toolbar: flat on the ground with a
-      // hairline below. Glass stays on the floating navigation layer.
-      return ColoredBox(
-        color: tokens.roles.ground,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [bar, const KitDivider()],
-        ),
+      // hairline below. It paints no ground of its own: the page's live
+      // background shows through it.
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [bar, const KitDivider()],
       );
     }
-    return ColoredBox(color: tokens.roles.ground, child: bar);
+    // No band at rest: the bar sits on the page ground (KitScreen paints the
+    // live background behind it), so a strong look runs up under the title.
+    return bar;
   }
 }
 
@@ -388,8 +408,41 @@ class _KitTopBarTitle extends StatelessWidget {
     AppStatusTone.progress => KitTextTone.accent,
     AppStatusTone.ok => KitTextTone.success,
     AppStatusTone.attention => KitTextTone.attention,
-    AppStatusTone.failure => KitTextTone.danger,
+    AppStatusTone.failure => KitTextTone.primary,
   };
+
+  /// The title: one line on a phone, with the full words on a tap; two
+  /// lines when the text is large or the bar is wide. A new title crosses
+  /// over from the old one.
+  Widget _titleText(BuildContext context) {
+    final reduced = KitMotion.reduced(context);
+    final phone = KitLayout.windowOf(context) == KitWindow.compact;
+    final large = MediaQuery.textScalerOf(context).scale(1) >= 1.3;
+    final oneLine = phone && !large;
+    final text = AnimatedSwitcher(
+      duration: reduced ? Duration.zero : KitMotion.quick,
+      switchInCurve: KitMotion.enter,
+      switchOutCurve: KitMotion.exit,
+      layoutBuilder: (current, previous) => Stack(
+        alignment: AlignmentDirectional.centerStart,
+        children: [...previous, ?current],
+      ),
+      child: KitText(
+        title,
+        key: ValueKey(title),
+        role: KitTextRole.headline,
+        maxLines: oneLine ? 1 : 2,
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+    if (!oneLine || title.isEmpty || onTitleTap != null) return text;
+    return Tooltip(
+      message: title,
+      triggerMode: TooltipTriggerMode.tap,
+      excludeFromSemantics: true,
+      child: text,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -429,12 +482,7 @@ class _KitTopBarTitle extends StatelessWidget {
               ),
             ],
           )
-        : KitText(
-            title,
-            role: KitTextRole.headline,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          );
+        : _titleText(context);
 
     final subtitleLine = hasSubtitle
         ? AnimatedSwitcher(
@@ -512,34 +560,13 @@ class _KitTopBarTitle extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          titleBlock,
-          Builder(
-            builder: (chipContext) => Semantics(
-              container: true,
-              label: scope.semanticsLabel,
-              button: true,
-              excludeSemantics: true,
-              onTap: () => unawaited(
-                showKitMenu(
-                  chipContext,
-                  items: scope.items,
-                  semanticsLabel: scope.menuLabel,
-                ),
-              ),
-              child: KitChip.action(
-                key: scope.chipKey,
-                label: scope.label,
-                icon: scope.icon,
-                onPressed: () => unawaited(
-                  showKitMenu(
-                    chipContext,
-                    items: scope.items,
-                    semanticsLabel: scope.menuLabel,
-                  ),
-                ),
-              ),
-            ),
+          // The title sits where the other pages' titles do (centred in a
+          // touch target's height): a little room under the status bar.
+          Padding(
+            padding: EdgeInsetsDirectional.only(top: tokens.space2),
+            child: titleBlock,
           ),
+          _KitTopBarScopeLine(scope: scope),
         ],
       );
     }
@@ -574,6 +601,138 @@ class _KitTopBarTitle extends StatelessWidget {
   }
 }
 
+/// The quiet line under the title: folder glyph, the name, an optional
+/// second name, and a small chevron that turns over while its menu is open.
+/// The whole line is one target at least `minTarget` tall; at large text it
+/// wraps instead of growing sideways. The second name (the server) joins the
+/// line with a short fade and slide.
+class _KitTopBarScopeLine extends StatefulWidget {
+  const _KitTopBarScopeLine({required this.scope});
+
+  final KitTopBarScope scope;
+
+  @override
+  State<_KitTopBarScopeLine> createState() => _KitTopBarScopeLineState();
+}
+
+class _KitTopBarScopeLineState extends State<_KitTopBarScopeLine> {
+  bool _open = false;
+
+  Future<void> _openMenu(BuildContext anchor) async {
+    setState(() => _open = true);
+    try {
+      await showKitMenu(
+        anchor,
+        items: widget.scope.items,
+        semanticsLabel: widget.scope.menuLabel,
+      );
+    } finally {
+      if (mounted) setState(() => _open = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scope = widget.scope;
+    final tokens = KitTokens.of(context);
+    final reduced = KitMotion.reduced(context);
+    final suffix = scope.suffix;
+    final hasSuffix = suffix != null && suffix.isNotEmpty;
+    final icon = scope.icon;
+    final small = tokens.iconSize(context, tokens.smallIconSize);
+    return Builder(
+      builder: (anchor) => Semantics(
+        container: true,
+        label: scope.semanticsLabel,
+        button: true,
+        excludeSemantics: true,
+        onTap: () => unawaited(_openMenu(anchor)),
+        child: Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: KitTappable(
+            tappableKey: scope.chipKey,
+            onTap: () => unawaited(_openMenu(anchor)),
+            shape: KitShape.button,
+            surface: KitSurfaceLevel.ground,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: tokens.minTarget),
+              child: Padding(
+                // No padding at the start: the folder glyph begins on the
+                // title's own edge.
+                padding: EdgeInsetsDirectional.only(end: tokens.space1),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (icon != null) ...[
+                      Icon(icon, size: small, color: tokens.roles.text2),
+                      SizedBox(width: tokens.space1),
+                    ],
+                    Flexible(
+                      // The server follows the project on the same line, and
+                      // drops under it where the words are too large to share.
+                      child: Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          KitText(
+                            scope.label,
+                            role: KitTextRole.secondary,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          KitPresence(
+                            show: hasSuffix,
+                            child: TweenAnimationBuilder<double>(
+                              tween: Tween<double>(end: hasSuffix ? 0 : 1),
+                              duration: reduced
+                                  ? Duration.zero
+                                  : KitMotion.quick,
+                              curve: KitMotion.enter,
+                              builder: (context, slide, child) =>
+                                  Transform.translate(
+                                    offset: Offset(
+                                      (Directionality.of(context) ==
+                                                  TextDirection.rtl
+                                              ? -1
+                                              : 1) *
+                                          slide *
+                                          tokens.space2,
+                                      0,
+                                    ),
+                                    child: child,
+                                  ),
+                              child: KitText(
+                                ' \u00b7 ${suffix ?? ''}',
+                                role: KitTextRole.secondary,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: tokens.space1),
+                    AnimatedRotation(
+                      turns: _open ? 0.5 : 0,
+                      duration: reduced ? Duration.zero : KitMotion.quick,
+                      curve: KitMotion.enter,
+                      child: Icon(
+                        AppIconography.chevronDown,
+                        size: small,
+                        color: tokens.roles.text2,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// The actions and overflow at the end of the bar, laid out for [window]
 /// (K2 §8.2 row KitTopBar).
 class _KitTopBarActions extends StatelessWidget {
@@ -584,12 +743,14 @@ class _KitTopBarActions extends StatelessWidget {
     required this.menuKey,
     required this.reserved,
     this.accessory,
+    this.accessoryShown = true,
     this.menuLabel,
     this.maxWidth = 0,
   });
 
   final List<KitAction> actions;
   final Widget? accessory;
+  final bool accessoryShown;
   final List<KitMenuItem> menu;
   final KitWindow window;
   final Key? menuKey;
@@ -679,11 +840,17 @@ class _KitTopBarActions extends StatelessWidget {
     // with its reason (STATE-8).
     final ready = [
       for (final action in actions)
-        if (action.enabled) action,
+        if (action.enabled && action.visible) action,
     ];
     final parked = [
       for (final action in actions)
-        if (!action.enabled) action,
+        if (!action.enabled && action.visible) action,
+    ];
+    // An act that has nothing to do right now keeps its place in the row,
+    // folded to nothing, so it can fade in and out without moving the rest.
+    final resting = [
+      for (final action in actions)
+        if (!action.visible && action.enabled && action.key != null) action,
     ];
 
     var labelled = <KitAction>[];
@@ -718,11 +885,39 @@ class _KitTopBarActions extends StatelessWidget {
       ...menu,
     ];
 
+    // One small gap between neighbours, none after the last one shown. It
+    // sits inside each part so a part that is hidden takes its gap with it.
+    final Object? last = overflow.isNotEmpty
+        ? null
+        : accessory != null && accessoryShown
+        ? #accessory
+        : icons.isNotEmpty
+        ? icons.last
+        : labelled.isNotEmpty
+        ? labelled.last
+        : null;
+    EdgeInsetsDirectional gap(Object part) => identical(part, last)
+        ? EdgeInsetsDirectional.zero
+        : EdgeInsetsDirectional.only(end: tokens.space1);
     final children = <Widget>[
       for (final action in labelled)
-        KitButton.fromAction(action, role: KitButtonRole.tertiary),
-      for (final action in icons) _icon(action),
-      ?accessory,
+        Padding(
+          padding: gap(action),
+          child: KitButton.fromAction(action, role: KitButtonRole.tertiary),
+        ),
+      for (final action in actions)
+        if (icons.contains(action) || resting.contains(action))
+          KitPresence(
+            key: ValueKey('kit-top-bar-presence:${action.label}'),
+            show: action.visible,
+            child: Padding(padding: gap(action), child: _icon(action)),
+          ),
+      if (accessory != null)
+        KitPresence(
+          key: const ValueKey('kit-top-bar-accessory'),
+          show: accessoryShown,
+          child: Padding(padding: gap(#accessory), child: accessory),
+        ),
       if (overflow.isNotEmpty)
         Builder(
           builder: (anchor) => KitIconButton(
@@ -737,11 +932,7 @@ class _KitTopBarActions extends StatelessWidget {
           ),
         ),
     ];
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      spacing: tokens.space1,
-      children: children,
-    );
+    return Row(mainAxisSize: MainAxisSize.min, children: children);
   }
 }
 
@@ -776,6 +967,7 @@ class KitShellControls extends StatelessWidget {
     this.project,
     this.onProject,
     this.onSearch,
+    this.showServer = true,
     this.layout = KitShellControlsLayout.bar,
     this.serverKey,
     this.projectKey,
@@ -802,6 +994,10 @@ class KitShellControls extends StatelessWidget {
 
   /// Null hides search.
   final VoidCallback? onSearch;
+
+  /// False leaves the server pill out of the bar layout, for a destination
+  /// that has no current server (Settings, SC3). The sidebar keeps it.
+  final bool showServer;
   final KitShellControlsLayout layout;
   final Key? serverKey;
   final Key? projectKey;
@@ -840,6 +1036,22 @@ class KitShellControls extends StatelessWidget {
       count: needsYou,
       child: KitGlass(borderRadius: radius, child: pillButton),
     );
+
+    if (!sidebar && !showServer) {
+      if (onSearch == null) return const SizedBox.shrink();
+      return Align(
+        alignment: AlignmentDirectional.centerEnd,
+        child: KitGlass(
+          borderRadius: radius,
+          child: KitIconButton(
+            key: searchKey,
+            icon: AppIconography.search,
+            tooltip: l10n.kitTopBarSearch,
+            onPressed: onSearch,
+          ),
+        ),
+      );
+    }
 
     if (!sidebar) {
       if (onSearch == null) {
@@ -931,7 +1143,10 @@ class KitShellControls extends StatelessWidget {
                         Expanded(
                           child: KitText(
                             l10n.kitTopBarSearch,
-                            role: KitTextRole.secondary,
+                            // Semibold: at 13 px a lighter weight on the
+                            // white pill reads under AA once sampled (G5).
+                            role: KitTextRole.label,
+                            tone: KitTextTone.secondary,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -1065,9 +1280,14 @@ class _KitServerPillContent extends StatelessWidget {
         final name = KitText(
           KitBidi.auto(server),
           role: KitTextRole.rowTitle,
-          maxLines: stack ? 2 : 1,
+          maxLines: 1,
           overflow: TextOverflow.ellipsis,
         );
+        if (stack && tone == AppStatusTone.ok) {
+          // Connected is left to the green dot (the pill's semantics still
+          // say it): one line, the name cut with an ellipsis.
+          return name;
+        }
         if (stack) {
           return Column(
             mainAxisSize: MainAxisSize.min,
@@ -1078,6 +1298,8 @@ class _KitServerPillContent extends StatelessWidget {
                 status,
                 role: KitTextRole.caption,
                 tone: KitTextTone.secondary,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           );

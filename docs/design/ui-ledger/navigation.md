@@ -624,14 +624,12 @@ graph LR
   guide["guide"]:::ext
   home_shell["home-shell"]:::ext
   host_management["host-management"]
-  notifications_settings["notifications-settings"]:::ext
   pairing_scanner["pairing-scanner"]
   permission_sheet["permission-sheet"]:::ext
   phone_setup_progress["phone-setup-progress"]:::ext
   phone_setup_start["phone-setup-start"]:::ext
   profile_editor["profile-editor"]
   profile_editor_discard_sheet(["profile-editor-discard-sheet"])
-  provider_quota["provider-quota"]
   root_connecting["root-connecting"]:::ext
   server_settings["server-settings"]
   server_settings_upgrade_sheet(["server-settings-upgrade-sheet"])
@@ -688,7 +686,6 @@ graph LR
   external_task --> external_task_cancel_sheet
   external_task --> external_task_forget_sheet
   embedded_profile_monitor_inbox --> permission_sheet
-  provider_quota --> notifications_settings
   ai_setup --> servers
   embedded_termux_running_server_entry --> servers_remove_server_sheet
   phone_setup_start --> servers
@@ -697,7 +694,6 @@ graph LR
   settings --> servers
   settings_disconnect_sheet --> servers
   usage_hub --> usage
-  usage_hub --> provider_quota
   guide --> profile_editor
   agents_screen --> servers
   servers --> external_agents
@@ -1063,6 +1059,8 @@ graph LR
   integrations_forget_pending_auth_sheet(["integrations-forget-pending-auth-sheet"])
   integrations_remove_mcp_sheet(["integrations-remove-mcp-sheet"])
   language_sheet(["language-sheet"])
+  live_style_picker["live-style-picker"]
+  live_style_preview["live-style-preview"]
   mcp_add_sheet(["mcp-add-sheet"])
   mcp_catalog["mcp-catalog"]
   mcp_catalog_node_sheet(["mcp-catalog-node-sheet"])
@@ -1074,7 +1072,6 @@ graph LR
   privacy_settings_clear_drafts_sheet(["privacy-settings-clear-drafts-sheet"])
   privacy_settings_clear_queued_sheet(["privacy-settings-clear-queued-sheet"])
   prompt_tools_sheet["prompt-tools-sheet"]:::ext
-  provider_quota["provider-quota"]:::ext
   references["references"]
   saved_permissions["saved-permissions"]
   server_capabilities["server-capabilities"]
@@ -1098,6 +1095,7 @@ graph LR
   tools_detail_sheet(["tools-detail-sheet"])
   usage["usage"]:::ext
   usage_hub["usage-hub"]
+  usage_plans["usage-plans"]
   voice_model_setup_sheet["voice-model-setup-sheet"]:::ext
   web_sources["web-sources"]
   home_shell --> settings
@@ -1127,7 +1125,6 @@ graph LR
   embedded_message_view --> integrations
   servers --> about
   servers_welcome --> about
-  provider_quota --> notifications_settings
   termux_setup_installed --> notifications_settings
   embedded_termux_running_server_entry --> settings_disconnect_sheet
   team_conversation --> app_diagnostics
@@ -1149,12 +1146,15 @@ graph LR
   settings --> about
   settings_disconnect_sheet --> servers
   usage_hub --> usage
-  usage_hub --> provider_quota
+  usage_hub --> usage_plans
   appearance_settings --> language_sheet
   appearance_settings --> theme_pack_preview_sheet
+  appearance_settings --> live_style_picker
   privacy_settings --> privacy_settings_clear_queued_sheet
   privacy_settings --> privacy_settings_clear_drafts_sheet
   app_diagnostics --> app_diagnostics_clear_sheet
+  live_style_picker --> live_style_preview
+  live_style_preview --> appearance_settings
   commands --> chat
   skills --> skill_activation_sheet
   tools --> model_picker_sheet
@@ -1196,6 +1196,48 @@ graph LR
   chat --> references
   chat --> tools
   settings --> session_import
+  classDef ext stroke-dasharray: 4 3,opacity:0.7
+```
+
+### Memory (FactsBook, developer flag)
+
+```mermaid
+graph LR
+  factsbook_about_you["factsbook-about-you"]
+  factsbook_areas["factsbook-areas"]
+  factsbook_capture["factsbook-capture"]
+  factsbook_connect["factsbook-connect"]
+  factsbook_event["factsbook-event"]
+  factsbook_memory_care["factsbook-memory-care"]
+  factsbook_not_saved["factsbook-not-saved"]
+  factsbook_reminder_check(["factsbook-reminder-check"])
+  factsbook_reminders["factsbook-reminders"]
+  factsbook_rule_editor["factsbook-rule-editor"]
+  factsbook_search["factsbook-search"]
+  factsbook_settings["factsbook-settings"]
+  factsbook_status["factsbook-status"]
+  factsbook_thing["factsbook-thing"]
+  factsbook_triggers["factsbook-triggers"]
+  factsbook_about_you --> factsbook_search
+  factsbook_about_you --> factsbook_thing
+  factsbook_about_you --> factsbook_reminders
+  factsbook_about_you --> factsbook_memory_care
+  factsbook_about_you --> factsbook_areas
+  factsbook_about_you --> factsbook_status
+  factsbook_about_you --> factsbook_capture
+  factsbook_about_you --> factsbook_settings
+  factsbook_about_you --> factsbook_triggers
+  factsbook_search --> factsbook_thing
+  factsbook_capture --> factsbook_reminder_check
+  factsbook_capture --> factsbook_not_saved
+  factsbook_memory_care --> factsbook_connect
+  factsbook_memory_care --> factsbook_event
+  factsbook_reminders --> factsbook_reminder_check
+  factsbook_status --> factsbook_connect
+  factsbook_settings --> factsbook_areas
+  factsbook_settings --> factsbook_triggers
+  factsbook_triggers --> factsbook_rule_editor
+  factsbook_triggers --> factsbook_event
   classDef ext stroke-dasharray: 4 3,opacity:0.7
 ```
 
@@ -1471,8 +1513,6 @@ graph LR
 | `pairing-scanner` | screen | 3 / 2 | `profile-editor` / profile-editor-pairing-scan | _none_ |
 | `profile-monitor-switch-server-dialog` | dialog | system only | `embedded-profile-monitor-inbox` / embedded-profile-monitor-inbox-request-row<br>`system` / system-entry-alert-monitored-request | -> `chat` |
 | `embedded-profile-monitor-inbox` | overlay | unreachable | _none_ | embedded-profile-monitor-inbox-request-row -> `permission-sheet`<br>embedded-profile-monitor-inbox-request-row -> `profile-monitor-switch-server-dialog`<br>-> `form-sheet` |
-| `provider-quota` | tab | 2 / 4 | `usage-hub` / usage-hub-tab-remaining | provider-quota-clear-thresholds -> `provider-quota-clear-dialog`<br>provider-quota-monitor-notification-settings -> `notifications-settings` |
-| `provider-quota-clear-dialog` | dialog | 3 / 5 | `provider-quota` / provider-quota-clear-thresholds | _none_ |
 | `servers` | screen | 1 / 0 | `profile-editor`<br>`settings` / settings-saved-servers<br>`root-connecting` / root-connecting-change<br>`root-connecting` / root-connecting-primary-password<br>`root-connecting` / root-connecting-primary-token<br>`root-connecting` / root-connecting-primary-change<br>`home-shell` / home-shell-banner-update-token<br>`home-shell` / home-shell-banner-update-password<br>`server-switcher-sheet` / server-switcher-sheet-profile<br>`server-switcher-sheet` / server-switcher-sheet-manage<br>`server-switcher-sheet` / server-switcher-sheet-phone-connect<br>`server-switcher-sheet` / server-switcher-sheet-phone-forget<br>`connection-status-details-sheet` / connection-status-details-sheet-change-server<br>`embedded-connection-status-banner` / embedded-connection-status-banner-update-token<br>`embedded-connection-status-banner` / embedded-connection-status-banner-update-password<br>`system` / system-entry-launch-connect<br>`session-link-server-missing-banner` / session-link-server-missing-banner-open-servers<br>`ai-setup` / ai-setup-change-sign-in<br>`phone-setup-start` / phone-setup-start-primary-connect<br>`phone-setup-start` / phone-setup-start-by-address<br>`phone-setup-progress` / phone-setup-progress-termux-connect-existing<br>`settings-disconnect-sheet` / settings-disconnect-sheet-confirm<br>`agents-screen` / agents-screen-switch | servers-about -> `about`<br>servers-guide -> `guide`<br>servers-profile-row -> `home-shell`<br>servers-profile-menu-account -> `agent-account`<br>servers-profile-menu-connect -> `home-shell`<br>servers-profile-menu-edit -> `profile-editor`<br>servers-profile-menu-remove -> `servers-remove-server-sheet`<br>servers-add-server -> `profile-editor`<br>servers-connect-opencode2 -> `profile-editor`<br>servers-try-demo -> `demo`<br>servers-termux-setup -> `termux-setup-installed`<br>servers-tailscale -> `tailscale-setup`<br>servers-setup-guide -> `guide`<br>servers-external-agents -> `capabilities`<br>servers-profile-row -> `profile-editor`<br>servers-external-agents -> `external-agents`<br>(state) -> `servers-welcome`<br>(embedded) -> `embedded-termux-running-server-entry`<br>(embedded) -> `embedded-local-agent-server-entry`<br>-> `phone-setup-start`<br>(embedded) -> `embedded-phone-server-card`<br>-> `termux-migration` |
 | `servers-remove-server-sheet` | sheet | 2 / 1 | `servers` / servers-profile-menu-remove<br>`embedded-termux-running-server-entry` / embedded-termux-running-server-entry-menu-forget | _none_ |
 | `profile-editor` | screen | 2 / 1 | `servers` / servers-add-server<br>`servers` / servers-connect-opencode2<br>`servers` / servers-profile-menu-edit<br>`servers` / servers-profile-row<br>`embedded-termux-running-server-entry`<br>`servers-welcome` / servers-welcome-connect<br>`guide` / guide-add-server<br>`server-switcher-sheet` / server-switcher-sheet-add<br>`system` / system-servers-opened-with-arguments-edit-active-connection-banner--to-profile-editor<br>`tailscale-setup` / tailscale-setup-continue | profile-editor-close -> `profile-editor-discard-sheet`<br>profile-editor-tailscale-help -> `tailscale-setup`<br>profile-editor-pairing-scan -> `pairing-scanner`<br>profile-editor-test-guide -> `guide`<br>profile-editor-team-learn -> `team-host-guide-sheet`<br>profile-editor-team-add -> `team-host-sheet`<br>profile-editor-not-same-network -> `tailscale-setup`<br>-> `servers` |
@@ -1622,22 +1662,58 @@ graph LR
 | `saved-permissions` | screen | unreachable | _none_ | saved-permissions-revoke -> `saved-permissions-revoke-dialog`<br>(embedded) -> `embedded-product-states` |
 | `saved-permissions-revoke-dialog` | dialog | unreachable | `saved-permissions` / saved-permissions-revoke | _none_ |
 | `server-capabilities` | screen | 1 / 2 | `settings` / settings-server-capabilities<br>`capabilities` / capabilities-unavailable-why<br>`settings` / settings-unavailable-why | _none_ |
+| `agents-hub` | screen | unreachable | _none_ | _none_ |
+| `permissions-automation` | screen | unreachable | _none_ | _none_ |
 | `coding-settings-shell-sheet` | sheet | 1 / 3 | `settings` / settings-default-shell | _none_ |
-| `notifications-settings` | screen | 1 / 2 | `settings` / settings-category-background<br>`provider-quota` / provider-quota-monitor-notification-settings<br>`home-shell` / home-shell-app-exit-keep-running<br>`termux-setup-installed` / termux-setup-installed-keep-running | notifications-settings-quiet-start -> `notifications-settings-quiet-time-dialog`<br>notifications-settings-quiet-end -> `notifications-settings-quiet-time-dialog` |
+| `by-server` | screen | unreachable | _none_ | _none_ |
+| `live-style-picker` | screen | 2 / 4 | `appearance-settings` / appearance-settings-live-style | live-style-picker-tile -> `live-style-preview` |
+| `live-style-preview` | screen | 3 / 5 | `live-style-picker` / live-style-picker-tile | live-style-preview-use -> `appearance-settings` |
+| `notifications-settings` | screen | 1 / 2 | `settings` / settings-category-background<br>`home-shell` / home-shell-app-exit-keep-running<br>`termux-setup-installed` / termux-setup-installed-keep-running | notifications-settings-quiet-start -> `notifications-settings-quiet-time-dialog`<br>notifications-settings-quiet-end -> `notifications-settings-quiet-time-dialog` |
 | `notifications-settings-quiet-time-dialog` | dialog | 2 / 3 | `notifications-settings` / notifications-settings-quiet-start<br>`notifications-settings` / notifications-settings-quiet-end | _none_ |
-| `appearance-settings` | screen | 1 / 3 | `settings` / settings-category-appearance<br>`command-launcher-sheet` / chat-command-themes | appearance-settings-language -> `language-sheet`<br>appearance-settings-theme-pack -> `theme-pack-preview-sheet` |
+| `appearance-settings` | screen | 1 / 3 | `settings` / settings-category-appearance<br>`command-launcher-sheet` / chat-command-themes<br>`live-style-preview` / live-style-preview-use | appearance-settings-language -> `language-sheet`<br>appearance-settings-theme-pack -> `theme-pack-preview-sheet`<br>appearance-settings-live-style -> `live-style-picker` |
 | `privacy-settings` | screen | 1 / 3 | `settings` / settings-category-privacy | privacy-settings-clear-queued -> `privacy-settings-clear-queued-sheet`<br>privacy-settings-clear-drafts -> `privacy-settings-clear-drafts-sheet` |
 | `privacy-settings-clear-drafts-sheet` | sheet | 2 / 4 | `privacy-settings` / privacy-settings-clear-drafts | _none_ |
 | `privacy-settings-clear-queued-sheet` | sheet | 2 / 4 | `privacy-settings` / privacy-settings-clear-queued | _none_ |
+| `server-page` | screen | unreachable | _none_ | _none_ |
 | `settings` | tab | 0 / 2 | `home-shell` / home-shell-tab-more<br>`global-shortcuts` / global-shortcuts-settings<br>`command-palette-dialog` / command-palette-dialog-cmd-settings<br>`system` / system-desktop-command-settings-shortcut-mod-4-go-3-lib-main-dart-1-to-settings<br>`system` / system-desktop-shortcut-mod-opensettings-pushes-settingsscreen-lib--to-settings | settings-category-server -> `server-settings`<br>settings-saved-servers -> `servers`<br>settings-on-this-phone -> `termux-setup-installed`<br>settings-model-and-mode -> `model-picker-sheet`<br>settings-providers -> `integrations`<br>settings-tools -> `capabilities`<br>settings-ai-team -> `team-intro`<br>settings-default-shell -> `coding-settings-shell-sheet`<br>settings-voice -> `voice-model-setup-sheet`<br>settings-category-background -> `notifications-settings`<br>settings-category-appearance -> `appearance-settings`<br>settings-category-privacy -> `privacy-settings`<br>settings-category-usage -> `usage-hub`<br>settings-setup-guide -> `guide`<br>settings-server-capabilities -> `server-capabilities`<br>settings-about-notices -> `about`<br>settings-unavailable-why -> `server-capabilities`<br>settings-ai-team -> `team-settings`<br>-> `shortcuts-help-dialog`<br>(embedded) -> `embedded-product-states`<br>-> `team-home`<br>-> `settings-disconnect-sheet`<br>-> `app-diagnostics`<br>-> `session-import` |
 | `settings-disconnect-sheet` | sheet | 1 / 1 | `settings`<br>`server-switcher-sheet` / server-switcher-sheet-disconnect<br>`server-switcher-sheet` / server-switcher-sheet-phone-disconnect<br>`embedded-termux-running-server-entry` / embedded-termux-running-server-entry-menu-disconnect | settings-disconnect-sheet-confirm -> `servers` |
 | `tools` | screen | 2 / 2 | `chat`<br>`capabilities` / capabilities-tab-tools | tools-choose-model-empty -> `model-picker-sheet`<br>tools-model-summary -> `model-picker-sheet`<br>tools-header-change -> `model-picker-sheet`<br>tools-callable-row -> `tools-detail-sheet`<br>(embedded) -> `embedded-product-states` |
 | `tools-detail-sheet` | sheet | 3 / 3 | `tools` / tools-callable-row | _none_ |
-| `usage-hub` | screen | 1 / 3 | `settings` / settings-category-usage<br>`system` / system-entry-alert-quota | usage-hub-tab-spent -> `usage`<br>usage-hub-tab-remaining -> `provider-quota` |
+| `usage-add-picker` | screen | unreachable | _none_ | _none_ |
+| `usage-add` | screen | unreachable | _none_ | _none_ |
+| `usage-alerts` | screen | unreachable | _none_ | _none_ |
+| `usage-plans` | screen | 2 / 4 | `usage-hub` / usage-hub-tab-remaining | _none_ |
+| `usage-read-from` | screen | unreachable | _none_ | _none_ |
+| `usage-subscription` | screen | unreachable | _none_ | _none_ |
+| `usage-hub` | screen | 1 / 3 | `settings` / settings-category-usage<br>`system` / system-entry-alert-quota | usage-hub-tab-spent -> `usage`<br>usage-hub-tab-remaining -> `usage-plans` |
+| `usage-widget` | screen | unreachable | _none_ | _none_ |
 | `web-sources` | screen | 2 / 3 | `chat` / chat-composer-web-sources<br>`prompt-tools-sheet` / prompt-tools-sheet-web-sources | -> `external-link-dialog` |
+| `widget-configure` | overlay | unreachable | _none_ | _none_ |
+| `widget-steer` | overlay | unreachable | _none_ | _none_ |
 | `theme-pack-preview-sheet` | sheet | 2 / 4 | `appearance-settings` / appearance-settings-theme-pack | _none_ |
 | `language-sheet` | sheet | 2 / 4 | `appearance-settings` / appearance-settings-language | _none_ |
 | `model-picker-sheet` | sheet | 1 / 2 | `home-shell`<br>`chat` / chat-prompt-error-choose-model<br>`chat` / chat-message-error-choose-model<br>`chat` / chat-composer-choose-model<br>`command-launcher-sheet` / chat-command-models<br>`command-launcher-sheet` / chat-command-agents<br>`command-launcher-sheet` / chat-command-variants<br>`embedded-composer` / embedded-composer-model-chip<br>`embedded-prompt-error-banner` / embedded-prompt-error-banner-choose-model<br>`embedded-message-view` / embedded-message-view-error-choose-model<br>`settings` / settings-model-and-mode<br>`tools` / tools-choose-model-empty<br>`tools` / tools-model-summary<br>`tools` / tools-header-change | _none_ |
+
+### Memory (FactsBook, developer flag)
+
+| Page | Kind | Depth | Inbound (page / element) | Outbound (element -> page) |
+|---|---|---|---|---|
+| `factsbook-about-you` | screen | unreachable | _none_ | factsbook-about-search -> `factsbook-search`<br>factsbook-about-thing-row -> `factsbook-thing`<br>factsbook-about-reminders -> `factsbook-reminders`<br>factsbook-about-care -> `factsbook-memory-care`<br>factsbook-about-areas -> `factsbook-areas`<br>factsbook-about-status -> `factsbook-status`<br>factsbook-about-add -> `factsbook-capture`<br>factsbook-about-settings -> `factsbook-settings`<br>factsbook-about-triggers -> `factsbook-triggers` |
+| `factsbook-areas` | screen | unreachable | `factsbook-about-you` / factsbook-about-areas<br>`factsbook-settings` / factsbook-settings-areas | _none_ |
+| `factsbook-capture` | screen | unreachable | `factsbook-about-you` / factsbook-about-add | factsbook-capture-remind -> `factsbook-reminder-check`<br>factsbook-capture-see-kept -> `factsbook-not-saved` |
+| `factsbook-connect` | screen | unreachable | `factsbook-memory-care` / factsbook-care-setup<br>`factsbook-status` / factsbook-status-approve | _none_ |
+| `factsbook-event` | screen | unreachable | `factsbook-memory-care` / factsbook-care-why<br>`factsbook-triggers` / factsbook-triggers-event | _none_ |
+| `factsbook-memory-care` | screen | unreachable | `factsbook-about-you` / factsbook-about-care | factsbook-care-setup -> `factsbook-connect`<br>factsbook-care-why -> `factsbook-event` |
+| `factsbook-not-saved` | screen | unreachable | `factsbook-capture` / factsbook-capture-see-kept | _none_ |
+| `factsbook-phone-node` | screen | unreachable | _none_ | _none_ |
+| `factsbook-reminder-check` | sheet | unreachable | `factsbook-capture` / factsbook-capture-remind<br>`factsbook-reminders` / factsbook-reminders-add<br>`factsbook-reminders` / factsbook-reminders-edit | _none_ |
+| `factsbook-reminders` | screen | unreachable | `factsbook-about-you` / factsbook-about-reminders | factsbook-reminders-add -> `factsbook-reminder-check`<br>factsbook-reminders-edit -> `factsbook-reminder-check` |
+| `factsbook-rule-editor` | screen | unreachable | `factsbook-triggers` / factsbook-triggers-rule<br>`factsbook-triggers` / factsbook-triggers-new | _none_ |
+| `factsbook-search` | screen | unreachable | `factsbook-about-you` / factsbook-about-search | factsbook-search-hit -> `factsbook-thing` |
+| `factsbook-settings` | screen | unreachable | `factsbook-about-you` / factsbook-about-settings | factsbook-settings-areas -> `factsbook-areas`<br>factsbook-settings-triggers -> `factsbook-triggers` |
+| `factsbook-status` | screen | unreachable | `factsbook-about-you` / factsbook-about-status | factsbook-status-approve -> `factsbook-connect` |
+| `factsbook-thing` | screen | unreachable | `factsbook-about-you` / factsbook-about-thing-row<br>`factsbook-search` / factsbook-search-hit | _none_ |
+| `factsbook-triggers` | screen | unreachable | `factsbook-about-you` / factsbook-about-triggers<br>`factsbook-settings` / factsbook-settings-triggers | factsbook-triggers-rule -> `factsbook-rule-editor`<br>factsbook-triggers-event -> `factsbook-event`<br>factsbook-triggers-new -> `factsbook-rule-editor` |
 
 ### Onboarding
 

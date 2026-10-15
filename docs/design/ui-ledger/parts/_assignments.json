@@ -146,6 +146,7 @@
     "lib/ui/screens/settings/notifications_settings_screen.dart",
     "lib/ui/screens/settings/default_shell_row.dart",
     "lib/ui/screens/settings/personal_settings_screens.dart",
+    "lib/ui/screens/settings/live_background_screens.dart",
     "lib/ui/screens/settings/plugins_screen.dart",
     "lib/ui/screens/settings/server_plugins_section.dart",
     "lib/ui/screens/about_screen.dart",

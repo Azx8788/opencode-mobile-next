@@ -385,7 +385,7 @@ class KitTokens extends ThemeExtension<KitTokens> {
   static const double requestTileSize = 36;
 
   /// KitRequestCard.md: the request card tile's corners.
-  static const double requestTileRadius = 10;
+  static const double requestTileRadius = 9;
 
   /// KitRequestCard.md: the card's window-height cap at 2.0 text.
   static const double requestMaxHeightShare = .45;
@@ -454,8 +454,8 @@ class KitTokens extends ThemeExtension<KitTokens> {
   /// KitQr.md: the QR ink, dark on light in every theme (graphiteLight).
   static Color get qrInk => graphiteLight.text1;
 
-  /// KitQr.md: the QR paper (graphiteLight's `surface1`).
-  static Color get qrPaper => graphiteLight.surface1;
+  /// KitQr.md: the QR paper (graphiteLight's `surface2`, pure white).
+  static Color get qrPaper => graphiteLight.surface2;
 
   /// The kit's one status tone map (README.md decision D12): neutral →
   /// secondary, progress → accent, ok → success, attention → primary,

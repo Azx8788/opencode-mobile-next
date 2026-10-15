@@ -334,6 +334,16 @@ extension _ConnectionControllerEventsImpl on ConnectionController {
         _onRunStatusEvent(env, props);
         break;
 
+      case 'todo.updated':
+        // The agent's plan changed: "5 of 6 tasks" on the status notification.
+        final todoSession = props['sessionID']?.toString() ?? '';
+        if (todoSession.isNotEmpty &&
+            busySessions.contains(todoSession) &&
+            _noteTasks(todoSession, props['todos'])) {
+          _publishLiveStatus();
+        }
+        break;
+
       case 'pty.created':
       case 'pty.updated':
       case 'pty.exited':

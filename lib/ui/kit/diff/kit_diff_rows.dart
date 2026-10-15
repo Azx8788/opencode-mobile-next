@@ -57,6 +57,12 @@ extension _KitDiffRows on _KitDiffViewState {
   };
 
   Widget _hunkRow(KitTokens tokens, int seg, KitDiffLine line, _Geometry g) {
+    // The fold line above a hunk already says where it starts: one line
+    // says it, not the fold line and "Lines 51–58" under it.
+    final segments = widget.files[_file].segments;
+    if (seg > 0 && segments[seg - 1] is KitDiffGap) {
+      return const SizedBox.shrink();
+    }
     final match = KitDiffFile._hunkHeader.firstMatch(line.text);
     var label = line.text;
     if (match != null) {
@@ -394,8 +400,15 @@ extension _KitDiffRows on _KitDiffViewState {
     final bottom = (_shownBottom[seg] ?? 0).clamp(0, gap.count - top);
     final remaining = gap.count - top - bottom;
     final expandable = lines != null;
-    final step = remaining.clamp(1, KitDiffView.expandStep);
     final indent = g.indent;
+    // One fold line, "… 50 lines above", wherever it sits against the
+    // changes; tapping it shows more when the lines are known.
+    final segmentCount = widget.files[_file].segments.length;
+    final fold = seg == 0
+        ? l10n.kitDiffFoldAbove(remaining)
+        : seg == segmentCount - 1
+        ? l10n.kitDiffFoldBelow(remaining)
+        : l10n.kitDiffFoldBetween(remaining);
 
     Widget rowsOf(Iterable<KitDiffLine> ls) => Column(
       mainAxisSize: MainAxisSize.min,
@@ -427,6 +440,7 @@ extension _KitDiffRows on _KitDiffViewState {
               label: l10n.kitDiffHideUnchanged,
               icon: AppIconography.unfoldLess,
               indent: indent,
+              flat: widget.inline,
               onTap: () => _update(() {
                 _shownTop.remove(seg);
                 _shownBottom.remove(seg);
@@ -436,30 +450,24 @@ extension _KitDiffRows on _KitDiffViewState {
         KitReveal(
           child: expandable && top > 0 ? rowsOf(lines.take(top)) : null,
         ),
-        if (remaining > 0 && expandable && seg > 0)
-          bar(
-            _GapBar(
-              key: ValueKey('${widget.keyPrefix}-expand-down-$seg'),
-              label: l10n.kitDiffShowUnchanged(step),
-              icon: AppIconography.chevronDown,
-              indent: indent,
-              onTap: () =>
-                  _update(() => _shownTop[seg] = top + KitDiffView.expandStep),
-            ),
-          ),
         if (remaining > 0)
           bar(
             _GapBar(
               key: ValueKey('${widget.keyPrefix}-gap-$seg'),
-              label: expandable
-                  ? l10n.kitDiffShowUnchanged(step)
-                  : l10n.kitDiffUnchangedCount(remaining),
-              icon: expandable ? AppIconography.chevronUp : null,
+              label: fold,
+              icon: null,
               indent: indent,
+              flat: widget.inline,
+              // Next to the changes: from the bottom of the lines above the
+              // first change, from the top of the rest.
               onTap: expandable
-                  ? () => _update(
-                      () => _shownBottom[seg] = bottom + KitDiffView.expandStep,
-                    )
+                  ? () => _update(() {
+                      if (seg == 0) {
+                        _shownBottom[seg] = bottom + KitDiffView.expandStep;
+                      } else {
+                        _shownTop[seg] = top + KitDiffView.expandStep;
+                      }
+                    })
                   : null,
             ),
           ),
@@ -551,11 +559,15 @@ class _GapBar extends StatelessWidget {
     required this.icon,
     required this.indent,
     required this.onTap,
+    this.flat = false,
   });
 
   final String label;
   final IconData? icon;
   final double indent;
+
+  /// No fill of its own: the bar sits on the page (an inline diff).
+  final bool flat;
   final VoidCallback? onTap;
 
   @override
@@ -586,7 +598,7 @@ class _GapBar extends StatelessWidget {
       ),
     );
     final bar = ColoredBox(
-      color: roles.surface2,
+      color: flat ? Colors.transparent : roles.surface2,
       child: onTap == null
           ? Semantics(
               container: true,

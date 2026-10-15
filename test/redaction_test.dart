@@ -260,6 +260,22 @@ const _verbatimOwnContent = <String, (int, String)>{
     'Copy code copies the one-time device code the agent printed for the '
         'person to type on its sign-in page; masked it would not work (FA1)',
   ),
+  'lib/ui/kit/kit_one_time_code.dart': (
+    1,
+    'Copy code copies the one-time sign-in code shown beside it for the '
+        'person to type on the provider\'s page; masked it would not work',
+  ),
+  'lib/ui/screens/library/integrations_autowait.dart': (
+    2,
+    'copies the one-time sign-in code of an automatic provider sign-in so '
+        'the person can type it on the provider\'s page; masked it would '
+        'not work',
+  ),
+  'lib/ui/screens/factsbook/not_saved_screen.dart': (
+    2,
+    'Copy and Export copy the person\'s own FactsBook notes as they are '
+        '(SEC-13)',
+  ),
   'lib/ui/kit/kit_viewer.dart': (
     1,
     'Copy contents copies the person\'s own file as it is (SEC-13)',

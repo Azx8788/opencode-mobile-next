@@ -1,5 +1,5 @@
 // Shell steps in a chat: the step line reads as one clean command, the
-// output block keeps its status line at normal kit spacing, nothing paints
+// opened step is one box whose status line sits at normal kit spacing, nothing paints
 // across "Run this command again", and the top bar's "Collapse all steps"
 // shows in any chat while a step is open.
 import 'package:flutter/material.dart';
@@ -62,8 +62,6 @@ void main() {
     tester,
   ) async {
     await _pumpCard(tester);
-    final row = find.byKey(const Key('tool-shell-command'));
-    expect(row, findsOneWidget);
     // The line's own text: the whole command (the cut is the renderer's),
     // and the last path never appears as a second, separate piece.
     final line = find.byWidgetPredicate(
@@ -106,14 +104,19 @@ void main() {
     }
   });
 
-  testWidgets('the output block keeps its status line close to the top', (
+  testWidgets('the command box holds its status line, close under the output', (
     tester,
   ) async {
     await _pumpCard(tester);
-    final block = tester.getRect(find.byKey(const Key('tool-shell-output')));
+    final block = tester.getRect(
+      find.byKey(const ValueKey('kit-step-command')),
+    );
     final status = tester.getRect(find.text('Passed · exit code 0'));
-    // Normal kit spacing: the 48 dp controls' own room, not 16 dp more.
-    expect(status.top - block.top, lessThan(24));
+    final output = tester.getRect(find.textContaining('total 14'));
+    // The one box carries the command, the output and the outcome.
+    expect(block.contains(status.center), isTrue);
+    // Normal kit spacing: the status follows the last output line.
+    expect(status.top - output.bottom, lessThan(24));
   });
 
   testWidgets(
@@ -169,8 +172,99 @@ void main() {
       expect(button, findsNothing);
       await tester.tap(find.byKey(const Key('work-group-header')));
       await tester.pump(const Duration(milliseconds: 300));
+      // The button fades in over a short while.
+      await tester.pump(const Duration(milliseconds: 300));
       expect(button, findsOneWidget);
       await tester.tap(button);
+      await tester.pump(const Duration(milliseconds: 300));
+      // The button fades out over a short while before it leaves the bar.
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(button, findsNothing);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
+  testWidgets(
+    'Collapse all steps keeps the phone bar over the running-work count',
+    (tester) async {
+      tester.view.physicalSize = const Size(360, 780);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final prefs = await setupCapturePreferences();
+      final api = _Api()
+        ..busy = {}
+        ..messagesHandler = (_) async => [
+          MessageWithParts(
+            info: MessageInfo(
+              id: 'tools',
+              sessionID: checkoutSessionID,
+              role: 'assistant',
+            ),
+            parts: [
+              for (final id in ['read', 'test'])
+                Part(
+                  id: id,
+                  callID: id,
+                  type: 'tool',
+                  toolName: 'bash',
+                  toolState: ToolState.fromJson({
+                    'status': 'completed',
+                    'input': {
+                      'command': id == 'read' ? 'cat a.ts' : 'npm test',
+                    },
+                    'output': 'ok',
+                  }, toolName: 'bash'),
+                ),
+            ],
+          ),
+        ];
+      final controller = await captureController(prefs: prefs, api: api);
+      addTearDown(controller.dispose);
+      controller
+        ..sessionsById = {
+          checkoutSessionID: Session(
+            id: checkoutSessionID,
+            title: 'Checkout',
+            directory: controller.directory,
+            time: SessionTime(created: 0),
+          ),
+          'child': Session(
+            id: 'child',
+            title: 'Explore',
+            parentID: checkoutSessionID,
+            directory: controller.directory,
+            time: SessionTime(created: 1),
+          ),
+        }
+        ..busySessions = {'child'};
+      await tester.pumpWidget(
+        captureApp(
+          home: const ChatScreen(sessionID: checkoutSessionID),
+          boundaryKey: GlobalKey(),
+          controller: controller,
+        ),
+      );
+      for (var frame = 0; frame < 8; frame++) {
+        await tester.pump(const Duration(milliseconds: 120));
+      }
+      final button = find.descendant(
+        of: find.byType(KitTopBar),
+        matching: find.byKey(const Key('chat-collapse-all')),
+      );
+      expect(button, findsNothing);
+      // The count is the bar's one action until a step opens.
+      expect(find.byKey(const Key('running-work-indicator')), findsOneWidget);
+      await tester.tap(find.byKey(const Key('work-group-header')));
+      await tester.pump(const Duration(milliseconds: 300));
+      // The button fades in over a short while.
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(button, findsOneWidget);
+      // One action fits a phone bar: the page's own, not the count.
+      expect(find.byKey(const Key('running-work-indicator')), findsNothing);
+      await tester.tap(button);
+      await tester.pump(const Duration(milliseconds: 300));
+      // The button fades out over a short while before it leaves the bar.
       await tester.pump(const Duration(milliseconds: 300));
       expect(button, findsNothing);
       expect(tester.takeException(), isNull);

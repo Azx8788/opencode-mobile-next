@@ -322,6 +322,7 @@ class _LocalAgentServerEntryState extends State<LocalAgentServerEntry>
       if (profile == null) return const SizedBox.shrink();
       return LocalServerRow(
         dividerAbove: widget.dividerAbove,
+        tapOpensPage: widget.onOpenSaved != null,
         keyPrefix: 'local-agent-server',
         mark: AppIconography.agent,
         title: l10n.localAgentTitle,
@@ -460,9 +461,13 @@ class _LocalAgentServerEntryState extends State<LocalAgentServerEntry>
           stopLabel: l10n.localAgentStopNamed,
           onStart: () => unawaited(_start()),
           onConnect: () => unawaited(_connect()),
+          tapOpensPage: widget.onOpenSaved != null,
+          connectLabel: l10n.settingsV3ConnectTo(l10n.localAgentTitle),
           onRestart: () => unawaited(_restart()),
           onStop: () => unawaited(_stop()),
-          onOpen: widget.onManage,
+          onOpen: profile != null && widget.onOpenSaved != null
+              ? () => widget.onOpenSaved!(profile)
+              : widget.onManage,
         );
       },
     );

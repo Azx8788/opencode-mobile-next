@@ -81,10 +81,13 @@ extension _ChatTopBar on _ChatScreenState {
     return false;
   }
 
+  /// The ring appears once the window is half used; below that the bar
+  /// stays quiet.
+  static const double _contextRingFrom = 0.5;
+
   /// The ring in the bar, absent while the use is unknown. It also leaves
   /// the value behind for the chats list.
-  Widget? _contextRing() {
-    final used = _contextWindowUsage();
+  Widget? _contextRing(double? used) {
     if (_conn.isIsolated || _watching || used == null) return null;
     _conn.contextUsageMemory?.remember(widget.sessionID, used);
     return KitContextRing(
@@ -167,10 +170,14 @@ extension _ChatTopBar on _ChatScreenState {
     return watch.title?.call() ?? own;
   }
 
-  /// The project this conversation lives in, as a chip under the title with
-  /// a compact menu of what can be done there. Absent for a temporary folder
+  /// The project this conversation lives in, as a quiet line under the title
+  /// (with the server after it when several are connected) and a compact menu of what can be done there. Absent for a temporary folder
   /// (never shown as a project), a watched team worker and the demo.
-  KitTopBarScope? _projectScope(Session? session, AppLocalizations l10n) {
+  KitTopBarScope? _projectScope(
+    Session? session,
+    AppLocalizations l10n, {
+    String? serverName,
+  }) {
     if (_watching || _conn.isIsolated) return null;
     final directory = session?.directory ?? _conn.directory;
     if (isTemporaryProjectDirectory(directory)) return null;
@@ -206,7 +213,10 @@ extension _ChatTopBar on _ChatScreenState {
     return KitTopBarScope(
       chipKey: const ValueKey('chat-project-chip'),
       label: KitBidi.auto(name),
-      semanticsLabel: l10n.chatProjectChipSemantics(name),
+      suffix: serverName,
+      semanticsLabel: serverName == null
+          ? l10n.chatProjectChipSemantics(name)
+          : l10n.chatProjectServerChipSemantics(name, serverName),
       icon: AppIconography.folderOpen,
       menuLabel: l10n.chatProjectMenuLabel,
       items: items,
@@ -220,14 +230,18 @@ extension _ChatTopBar on _ChatScreenState {
     required int runningWorkCount,
   }) {
     final l10n = _chatL10n(context);
+    // One line under the title: the project (and the server when several
+    // are connected). Without a project line the server stands alone.
+    final scope = _projectScope(session, l10n, serverName: serverName);
+    final used = _contextWindowUsage();
     return KitTopBar(
       titleKey: const Key('chat-title'),
       // Watching a team worker: the task it is on, not its internal title.
       title: _topBarTitle(session, l10n),
       // Which server (and so which agent) this conversation is with, when
       // there is more than one to be with.
-      subtitle: serverName,
-      scope: _projectScope(session, l10n),
+      subtitle: scope == null ? serverName : null,
+      scope: scope,
       actions: [
         if (_readAloudRequestBusy || _readAloud?.speaking == true)
           KitAction(
@@ -235,6 +249,16 @@ extension _ChatTopBar on _ChatScreenState {
             label: l10n.readAloudStop,
             onPressed: () => unawaited(_stopReading()),
           ),
+        // One tap folds every open step and fold on the page, in any chat. It comes before the
+        // running-work count: on a phone the bar shows one action, and this one
+        // is the page's own.
+        KitAction(
+          visible: _transcriptExpansion.anyOpen,
+          key: const Key('chat-collapse-all'),
+          icon: AppIconography.unfoldLess,
+          label: l10n.chatCollapseAllSteps,
+          onPressed: _collapseAllSteps,
+        ),
         if (!_conn.isIsolated &&
             !_watching &&
             _conn.capabilities.projectManagement &&
@@ -251,21 +275,14 @@ extension _ChatTopBar on _ChatScreenState {
             label: l10n.demoReviewChanges,
             onPressed: _showDiff,
           ),
-        // One tap folds every open step and fold on the page, in any chat.
-        if (_transcriptExpansion.anyOpen)
-          KitAction(
-            key: const Key('chat-collapse-all'),
-            icon: AppIconography.unfoldLess,
-            label: l10n.chatCollapseAllSteps,
-            onPressed: _collapseAllSteps,
-          ),
         // Watching: the worker's own page (its state and controls).
         if (widget.watch case final watch?) ?_watchDetailsAction(watch),
       ],
       // Watching: the conversation is the worker's; nothing in the menu
       // (share, fork, rename) is ours. The demo has none either.
       // The context ring stays in the bar at every width, left of the ⋯.
-      accessory: _contextRing(),
+      accessory: _contextRing(used),
+      accessoryShown: (used ?? 0) >= _contextRingFrom,
       menu: _sessionMenu(shared: shared),
       menuKey: const ValueKey('session-actions-button'),
       menuLabel: l10n.chatUiSessionMenu,

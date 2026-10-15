@@ -17,14 +17,15 @@ mixin _ConnectionControllerStatus on ChangeNotifier {
 
   /// A bounded presentation grace, never a claim that the link is reachable.
   bool get defersTurnInterruption =>
+      _self._localServerBusyQuiet ||
       _quietReconnectToken != null &&
-      _quietReconnectOwner == (_self._connectedProfile ?? profile)?.id &&
-      _quietReconnectAttempt == connectionAttemptRevision &&
-      !passwordRejected &&
-      !((_self._connectedProfile ?? profile)?.requiresPasswordReentry ??
-          false) &&
-      !((_self._connectedProfile ?? profile)?.requiresCodexTokenReentry ??
-          false);
+          _quietReconnectOwner == (_self._connectedProfile ?? profile)?.id &&
+          _quietReconnectAttempt == connectionAttemptRevision &&
+          !passwordRejected &&
+          !((_self._connectedProfile ?? profile)?.requiresPasswordReentry ??
+              false) &&
+          !((_self._connectedProfile ?? profile)?.requiresCodexTokenReentry ??
+              false);
 
   /// Read-only BD13 evidence, retained across recovery within this profile.
   Future<AgentHelperStatus?> readConnectionHelperExit() =>
@@ -35,6 +36,38 @@ mixin _ConnectionControllerStatus on ChangeNotifier {
   int? _connectionStatusAttempt;
   DateTime? _connectionStatusSince;
   bool _connectionStatusExpired = false;
+
+  /// The phone's own server process, as the native side sees it, while the
+  /// link to it is down: alive but not answering is busy (a heavy build loads
+  /// the phone), not dead. Polled only while disconnected.
+  Timer? _localAliveTimer;
+  bool _localServerAlive = false;
+  DateTime? _localBusySince;
+
+  /// Test seam for the native liveness read.
+  @visibleForTesting
+  Future<bool> Function()? localServerAliveProbe;
+
+  /// Alive but not answering, within the quiet period.
+  bool get localServerBusy =>
+      _localServerAlive && _self.status != StreamStatus.connected;
+
+  @visibleForTesting
+  Duration localBusyLongAfter = const Duration(minutes: 2);
+
+  /// Longer than two minutes with a command running: worth one neutral line.
+  bool get localServerBusyLong =>
+      localServerBusy &&
+      _hasRunningTool &&
+      _localBusySince != null &&
+      DateTime.now().difference(_localBusySince!) >= localBusyLongAfter;
+
+  bool get _localServerBusyQuiet => localServerBusy && !localServerBusyLong;
+
+  /// A command, sub-agent or other tool of any turn is still running.
+  bool get hasRunningTool => _hasRunningTool;
+  bool get _hasRunningTool =>
+      _self._turnStallTools.values.any((s) => s.isNotEmpty);
 
   /// Consumers localize this snapshot; they never infer their own grace period
   /// or promote a disconnected transport to a healthy status.
@@ -147,6 +180,7 @@ extension _ConnectionControllerStatusImpl on ConnectionController {
   /// Stream reconnect churn preserves the period; an explicit retry resets it.
   void _syncConnectionStatusClock() {
     final owner = _connectedProfile ?? profile;
+    _syncLocalLiveness(owner);
     if (_disposed ||
         isIsolated ||
         owner == null ||
@@ -168,6 +202,49 @@ extension _ConnectionControllerStatusImpl on ConnectionController {
       _connectionStatusExpired = true;
       _notifyListeners();
     });
+  }
+
+  void _syncLocalLiveness(ServerProfile? owner) {
+    final probe = localServerAliveProbe;
+    final wanted =
+        !_disposed &&
+        !isIsolated &&
+        owner != null &&
+        status != StreamStatus.connected &&
+        (probe != null ||
+            (BuiltinLinux.supported && looksLikeInAppServer(owner)));
+    if (!wanted) {
+      _localAliveTimer?.cancel();
+      _localAliveTimer = null;
+      _localServerAlive = false;
+      _localBusySince = null;
+      return;
+    }
+    if (_localAliveTimer != null) return;
+    _localAliveTimer = Timer.periodic(
+      const Duration(seconds: 10),
+      (_) => unawaited(_probeLocalAlive()),
+    );
+    unawaited(_probeLocalAlive());
+  }
+
+  Future<void> _probeLocalAlive() async {
+    var alive = false;
+    try {
+      alive =
+          await (localServerAliveProbe ??
+              () async => (await BuiltinLinux().status()).serverRunning)();
+    } catch (_) {}
+    if (_disposed || _localAliveTimer == null) return;
+    final wasLong = localServerBusyLong;
+    final was = _localServerAlive;
+    _localServerAlive = alive;
+    if (!alive) {
+      _localBusySince = null;
+    } else {
+      _localBusySince ??= DateTime.now();
+    }
+    if (was != alive || wasLong != localServerBusyLong) _notifyListeners();
   }
 
   void _resetConnectionStatusClock() {
@@ -194,6 +271,8 @@ extension _ConnectionControllerStatusImpl on ConnectionController {
         ? ConnectionStatusPhase.credentialsRequired
         : status == StreamStatus.connected
         ? ConnectionStatusPhase.connected
+        : localServerBusyLong
+        ? ConnectionStatusPhase.serverBusy
         : !connectionLoading || _connectionStatusExpired
         ? ConnectionStatusPhase.notAnswering
         : status == StreamStatus.connecting

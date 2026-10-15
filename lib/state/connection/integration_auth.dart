@@ -20,6 +20,10 @@ mixin _ConnectionControllerIntegrationAuth on ChangeNotifier {
   final _oauthStarts = <Object>{};
   final _oauthRequestsInFlight = <Object>{};
   final _authRecoveryActions = <Object>{};
+
+  /// Sign-ins whose last check was answered by the server with a refusal
+  /// (the attempt is gone or ran out), kept until the wait reads them.
+  final _authEndedByServer = <Object>{};
   final _authStartReservations = <String, int>{};
 
   /// Dispatches whose response supplied no recoverable attempt ID. These are
@@ -85,6 +89,12 @@ mixin _ConnectionControllerIntegrationAuth on ChangeNotifier {
     code: code,
     locationRevision: locationRevision,
   );
+
+  /// True once, right after a [recoverIntegrationAuth] failure that the
+  /// server itself answered with a refusal (the attempt is gone after a
+  /// restart, or the code ran out). A cut connection is not one.
+  bool takeIntegrationAuthEndedByServer(PendingAuthAttempt entry) =>
+      _authEndedByServer.remove(entry.key);
 
   /// Explicit local dismissal does not claim server cancellation or revocation.
   Future<void> forgetIntegrationAuth(
@@ -360,7 +370,11 @@ extension _ConnectionControllerIntegrationAuthImpl on ConnectionController {
     }
 
     check();
-    if (!_authRecoveryActions.add(entry.key)) {
+    // A cancel may overlap the wait on the same sign-in (the app keeps a
+    // check open while the person approves in the browser); anything else
+    // may not.
+    final ownsAction = _authRecoveryActions.add(entry.key);
+    if (!ownsAction && !cancel) {
       throw StateError('Sign-in action is already running.');
     }
     try {
@@ -459,12 +473,13 @@ extension _ConnectionControllerIntegrationAuthImpl on ConnectionController {
       if (!_disposed) _notifyListeners();
       // Never return provider-controlled messages to recovery UI.
       return IntegrationAuthStatus(state: result.state);
-    } catch (_) {
+    } catch (error) {
+      if (errorIsServerAnswer(error)) _authEndedByServer.add(entry.key);
       throw StateError(
         'Could not confirm sign-in. Check pending recovery before trying again.',
       );
     } finally {
-      _authRecoveryActions.remove(entry.key);
+      if (ownsAction) _authRecoveryActions.remove(entry.key);
       if (!_disposed) _notifyListeners();
     }
   }

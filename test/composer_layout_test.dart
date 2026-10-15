@@ -782,6 +782,9 @@ void main() {
         await tester.pumpAndSettle();
         final choice = find.byKey(Key('composer-tool-$name'));
         await tester.ensureVisible(choice);
+        // The sheet has one more row (the project file) and, at 1.7x text on
+        // a 320 dp phone, scrolls: lay out the scrolled sheet before tapping.
+        await tester.pumpAndSettle();
         await tester.tap(choice);
         await tester.pumpAndSettle();
         await tester.pumpAndSettle();

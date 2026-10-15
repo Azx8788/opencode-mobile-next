@@ -142,11 +142,12 @@ void main() {
       final done = await mount(tester, PhoneServerScene.phoneRunning);
       // P1.5 replaced the old Termux screen with This phone: runtime is
       // the title, the version/host are its detail, and state has one word.
-      expect(find.text('In-app Ubuntu'), findsOneWidget);
+      // The page is named like the Settings row that opens it.
+      expect(find.text('This phone'), findsOneWidget);
       expect(find.text('OpenCode 2'), findsOneWidget);
       expect(find.text('Running'), findsOneWidget);
       expect(
-        find.textContaining('2.0.10 · In Termux', findRichText: true),
+        find.textContaining('2.0.29 · In Termux', findRichText: true),
         findsOneWidget,
       );
       final management = find.byKey(const ValueKey('this-phone-list'));

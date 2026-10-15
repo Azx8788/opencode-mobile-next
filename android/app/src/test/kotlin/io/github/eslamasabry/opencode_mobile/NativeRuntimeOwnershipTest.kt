@@ -7,6 +7,47 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class NativeRuntimeOwnershipTest {
+    @Test fun ownershipFailureCodeUsesOnlyExactBoundedNativeCauses() {
+        assertTrue(NativeRuntimeOwnership.isUnknownFailure(IllegalStateException("ownershipUnknown")))
+        assertTrue(NativeRuntimeOwnership.isUnknownFailure(IllegalStateException("component recovery",
+            IllegalArgumentException("ownershipUnknown"))))
+        assertFalse(NativeRuntimeOwnership.isUnknownFailure(IllegalStateException("output: ownershipUnknown")))
+        val first = IllegalStateException("first")
+        val second = IllegalStateException("second", first)
+        first.initCause(second)
+        assertFalse(NativeRuntimeOwnership.isUnknownFailure(first))
+    }
+
+    @Test fun peerExitBetweenEnumerationAndStatDoesNotBlockInstallerAdmission() {
+        val live = RuntimeProcessIdentity(40, 10, 1, 40, 40)
+        val checked = mutableListOf<Int>()
+        val captured = NativeRuntimeOwnership.capturePeers(listOf(40, 41, 41),
+            { if (it == 40) live else null }, { checked.add(it); it == 41 })
+        assertEquals(listOf(live), captured)
+        assertEquals(listOf(41), checked)
+    }
+    @Test fun missingLivePeerStillBlocksAndCannotBecomeAnExclusion() {
+        val error = assertThrows(IllegalStateException::class.java) {
+            NativeRuntimeOwnership.capturePeers(listOf(41), { null }, { false })
+        }
+        assertEquals("ownershipUnknown", error.message)
+    }
+    @Test fun missingPeerWithUncertainAbsenceStillBlocks() {
+        assertThrows(IllegalStateException::class.java) {
+            NativeRuntimeOwnership.capturePeers(listOf(41), { null }, { error("unreadable") })
+        }
+    }
+    @Test fun allConfirmedExitedPeersProduceNoLiveExclusions() {
+        assertTrue(NativeRuntimeOwnership.capturePeers(listOf(40, 41), { null }, { true }).isEmpty())
+    }
+    @Test fun peerInventoryRejectsInvalidOrUnboundedPidsBeforeReading() {
+        for (pids in listOf(listOf(1), List(129) { it + 2 })) {
+            assertThrows(IllegalStateException::class.java) {
+                NativeRuntimeOwnership.capturePeers(pids, { error("must not read") }, { error("must not probe") })
+            }
+        }
+    }
+
     private val boot = "11111111-1111-1111-1111-111111111111"
     private val nonce = "a".repeat(64)
     private fun p(pid: Int, parent: Int = 1, sid: Int = pid, ticks: Long = 10) =

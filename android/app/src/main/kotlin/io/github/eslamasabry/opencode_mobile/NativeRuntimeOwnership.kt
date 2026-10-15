@@ -5,6 +5,7 @@ private const val PROC_STAT_START_TICKS_INDEX = 19
 private const val PROC_STAT_SESSION_INDEX = 3
 private const val MAX_OTHER_RUNTIME_IDENTITIES = 128
 private const val MAX_STICKY_ATTEMPTS = 3
+private const val MAX_FAILURE_CAUSE_DEPTH = 16
 
 /** Kernel identity is never a PID alone. These records contain no argv, output or credentials. */
 internal data class RuntimeProcessIdentity(
@@ -70,6 +71,37 @@ internal data class NativeRuntimeReceipt(
 
 /** Pure admission: all same-UID children must have a positive, current ownership proof. */
 internal object NativeRuntimeOwnership {
+    const val UNKNOWN_CODE = "runtime_ownership_unknown"
+
+    /** Snapshot tracked peers without treating an unreadable live process as absent. */
+    fun capturePeers(pids: List<Int>, identity: (Int) -> RuntimeProcessIdentity?,
+        absenceConfirmed: (Int) -> Boolean,
+    ): List<RuntimeProcessIdentity> {
+        val unique = pids.distinct()
+        check(unique.size <= MAX_OTHER_RUNTIME_IDENTITIES && unique.all { it > 1 }) { "ownershipUnknown" }
+        return unique.mapNotNull { pid ->
+            identity(pid) ?: run {
+                // Short-lived checks can exit after enumeration. A failed stat
+                // alone is never proof: a live/unreadable peer still blocks.
+                check(absenceConfirmed(pid)) { "ownershipUnknown" }
+                null
+            }
+        }
+    }
+
+    /** Fixed native cause only; never classify arbitrary output or expose it. */
+    fun isUnknownFailure(error: Throwable): Boolean {
+        var current: Throwable? = error
+        val seen = mutableSetOf<Throwable>()
+        var depth = 0
+        while (depth < MAX_FAILURE_CAUSE_DEPTH && current != null && seen.add(current)) {
+            if (current.message == "ownershipUnknown") return true
+            current = current.cause
+            depth++
+        }
+        return false
+    }
+
     /** A cold worker cannot adopt a later Start or clear another worker's schedule. */
     data class ColdWorker(val generation: Long, val scheduleId: Long) {
         fun runIfCurrent(currentGeneration: Long, currentScheduleId: Long, action: () -> Unit): Boolean {

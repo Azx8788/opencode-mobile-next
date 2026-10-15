@@ -201,8 +201,8 @@ class _TeamProjectConversationState extends State<TeamProjectConversation> {
       case 'interrupted':
         return [
           ?_gated(
-            TeamExecutionNeed.lanes,
-            l.teamProjectTaskResume,
+            TeamExecutionNeed.resume,
+            l.teamProjectInterruptedResume,
             () => _run(p, TeamProjectAction.resumeTask),
           ),
         ];
@@ -729,6 +729,9 @@ class _TeamProjectConversationState extends State<TeamProjectConversation> {
                         title: request.title,
                         status: _age(request.createdAt),
                         state: KitTeamState.needsYou,
+                        summary: request.kind == 'interrupted'
+                            ? l.teamProjectInterruptedResumeNote
+                            : null,
                         actions: _requestActions(p, t, request),
                       ),
                     if (events.isNotEmpty)
@@ -902,7 +905,9 @@ class _TeamProjectConversationState extends State<TeamProjectConversation> {
                             l.teamProjectTaskPause,
                             () => _run(p, TeamProjectAction.pauseTask),
                           ),
-                        if (t.status == 'paused' || t.status == 'interrupted')
+                        if ((t.status == 'paused' ||
+                                t.status == 'interrupted') &&
+                            !requests.any((r) => r.kind == 'interrupted'))
                           ?_gated(
                             t.status == 'interrupted'
                                 ? TeamExecutionNeed.resume

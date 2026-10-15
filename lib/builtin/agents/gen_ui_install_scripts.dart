@@ -67,7 +67,7 @@ String _genUiManagedScript({
         'verify': verify,
         'claudeVersion': claudeVersion,
         'nodeVersion': PaseoPhoneScripts.nodeVersion,
-        'openCodeVersion': '1.18.32',
+        'openCodeVersion': '1.19.0',
         'serverPort': BuiltinLinux.serverPort,
         'serverDirectory': BuiltinLinux.projectsDir,
         'serverUsername': BuiltinLinux.serverUsername,
@@ -169,7 +169,8 @@ def oc1_nested_collision(config):
     return isinstance(servers, dict) and 'oc-ui' in servers
 
 def check_oc1_overlays(parent):
-    # v1.18.32 merges config.json -> opencode.json -> opencode.jsonc deeply.
+    # v1.19.0 merges config.json -> opencode.json -> opencode.jsonc deeply
+    # (rechecked 2026-10-14 against a live 1.19.0 /config).
     # A disjoint managed entry in opencode.json survives the JSONC overlay.
     # The older extensionless TOML file migrates/merges last; do not adopt it.
     legacy = parent + '/config'

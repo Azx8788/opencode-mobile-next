@@ -117,6 +117,21 @@ final class AgentRow {
   final String? resumeLabel;
   final String? resumeNote;
   final DateTime? resetAt;
+
+  /// The agent is installed on this phone, whether or not its host runs now.
+  /// A row that only offers Install, or that the phone cannot run, is not.
+  bool get installedOnPhone {
+    if (status == PhoneAgentStatus.ready) return true;
+    return switch (hiddenReason) {
+      null ||
+      PhoneAgentHiddenReason.catalogUnavailable ||
+      PhoneAgentHiddenReason.runtimeUnknown ||
+      PhoneAgentHiddenReason.needsInstall ||
+      PhoneAgentHiddenReason.unsupportedArchitecture ||
+      PhoneAgentHiddenReason.unverifiedDownload => false,
+      _ => true,
+    };
+  }
 }
 
 /// Intersect only semantically matching server gates. The server contract has

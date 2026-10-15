@@ -371,7 +371,7 @@ void main() {
     });
   });
 
-  group('Tell me when the agent needs me', () {
+  group('Notify me when the agent needs me', () {
     // The question itself is a line in the chat's status slot
     // (test/chat_notify_offer_test.dart); here only its answers.
     Future<FirstReplyNotifyOffer> ask(
@@ -460,8 +460,20 @@ void main() {
       // The one-time question is settled, so tips are no longer held back.
       expect(FirstReplyNotifyOffer.pendingFor(c), isFalse);
       await _openSettings(tester, c);
-      expect(find.text(_en.consentWhyUnfinished), findsOneWidget);
-      expect(find.text(_en.consentValueUnanswered), findsOneWidget);
+      // A plain setting that is off, never a stale question.
+      expect(find.text(_en.consentRowNeedsYou), findsOneWidget);
+      expect(find.text(_en.consentWhyNeedsYou), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byKey(
+            const ValueKey('automation-consent-needsYouNotifications'),
+          ),
+          matching: find.text(_en.settingsV3Off),
+        ),
+        findsOneWidget,
+      );
+      expect(find.textContaining('question closed'), findsNothing);
+      expect(find.text(_en.consentValueUnanswered), findsNothing);
     });
   });
 

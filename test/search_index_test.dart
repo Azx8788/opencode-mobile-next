@@ -86,6 +86,44 @@ const _excluded = <String, String>{
   'phone-setup-progress':
       'a step of phone setup; opened from On this phone '
       'or a setup notification',
+  // FactsBook is compiled behind the OC_FACTSBOOK developer flag and is not in
+  // the search index while the flag is off (decision D33); its screens are
+  // reached from the Memory row, not from search.
+  'factsbook-about-you':
+      'behind the FactsBook developer flag; opened from Memory',
+  'factsbook-areas': 'behind the FactsBook developer flag; opened from Memory',
+  'factsbook-capture':
+      'behind the FactsBook developer flag; opened from Memory',
+  'factsbook-connect':
+      'behind the FactsBook developer flag; opened from Memory',
+  'factsbook-event': 'behind the FactsBook developer flag; opened from Memory',
+  'factsbook-memory-care':
+      'behind the FactsBook developer flag; opened from Memory',
+  'factsbook-not-saved':
+      'behind the FactsBook developer flag; opened from Memory',
+  'factsbook-phone-node':
+      'behind the FactsBook developer flag; opened from Memory',
+  'factsbook-reminders':
+      'behind the FactsBook developer flag; opened from Memory',
+  'factsbook-rule-editor':
+      'behind the FactsBook developer flag; opened from Memory',
+  'factsbook-search': 'behind the FactsBook developer flag; opened from Memory',
+  'factsbook-settings':
+      'behind the FactsBook developer flag; opened from Memory',
+  'factsbook-status': 'behind the FactsBook developer flag; opened from Memory',
+  'factsbook-thing': 'behind the FactsBook developer flag; opened from Memory',
+  'factsbook-triggers':
+      'behind the FactsBook developer flag; opened from Memory',
+  'server-page': "one saved server's own page; opened from Servers",
+  'by-server':
+      'settings listed per server; appears once more than one server '
+      'is saved',
+  'usage-add-picker': 'a step of adding a subscription; opened from Usage',
+  'usage-add': 'a step of adding a subscription; opened from Usage',
+  'usage-read-from': 'a step of adding a subscription',
+  'usage-subscription': 'one plan; opened from Plans',
+  'live-style-picker': 'opened from Appearance › Live background',
+  'live-style-preview': 'one look; opened from the look picker',
   'phone-setup-ready':
       'a step of phone setup; shown automatically when a '
       'first setup finishes',
@@ -383,7 +421,7 @@ void main() {
       addTearDown(controller.dispose);
       final found = searchEntries(_en, scope(controller), 'ai setup');
       expect(found.first.id, 'inside-server-ai-setup');
-      expect(found.first.parent, _en.settingsHubThisServer);
+      expect(found.first.parent, _en.settingsV3Servers);
       expect(
         _ids(searchEntries(_en, scope(controller), 'suggestions')),
         contains('inside-server-ai-setup'),
@@ -657,6 +695,25 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(AppearanceSettingsScreen), findsOneWidget);
       expect(_key('theme-pack-${'opencode'}'), findsWidgets);
+    });
+
+    testWidgets('usage finds the cost row, not Show reasoning (Q4)', (
+      tester,
+    ) async {
+      final controller = await _controller();
+      addTearDown(controller.dispose);
+      final ids = _ids(found(controller, 'usage'));
+      expect(ids, contains('settings-show-timestamps'));
+      expect(ids, isNot(contains('settings-show-reasoning')));
+      expect(
+        _ids(found(controller, 'reasoning')),
+        contains('settings-show-reasoning'),
+      );
+      // The old "Remaining" heading is not an entry title any more.
+      expect(
+        _ids(found(controller, _en.usageTabPlans)),
+        contains('inside-usage-remaining'),
+      );
     });
 
     testWidgets('budget and always allowed are found', (tester) async {

@@ -10,7 +10,7 @@ import '../../builtin/builtin_server.dart'
         BuiltinServerStarter,
         builtinLinuxProvider,
         builtinServerStarterProvider;
-import '../../domain/chat_feed.dart' show ChatFeedFilter;
+import '../../domain/chat_feed.dart' show ChatFeedFilter, ChatListSourceKind;
 import '../../domain/server_gateway.dart' show ServerCapabilities;
 import '../../domain/connection_status.dart';
 import '../../state/connection.dart';
@@ -47,9 +47,9 @@ import 'this_phone_screen.dart' show openThisPhone;
 /// Main mobile product shell for a connected OpenCode server.
 ///
 /// Built from kit parts only (kit-v2 §9): [KitNav] draws the destinations
-/// as the floating glass dock (compact), the glass rail (medium) or the PC
+/// as the floating dock (compact), the rail (medium) or the PC
 /// sidebar (expanded and large), switching at the KitLayout window classes;
-/// the content is one [KitScreen] whose bar is the glass [KitShellControls]
+/// the content is one [KitScreen] whose bar is the [KitShellControls]
 /// (server pill with its status word, and search) on compact and medium.
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key, this.initialTab, this.initialChatFilter});
@@ -255,7 +255,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   }
 
   /// The server new conversations start on, with how many other
-  /// connections the Conversations list also shows ("In-app Ubuntu +2").
+  /// servers the Conversations list also shows ("In-app Ubuntu +2"). The
+  /// agents source is not a server, so it is not counted.
   String _serverName(ConnectionController conn, {ServerProfile? switchingTo}) {
     final name = serverDisplayName(
       switchingTo ?? conn.profile,
@@ -263,7 +264,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       among: conn.store.profiles,
     );
     final others = conn.chatListSources
-        .where((source) => source.shown && !source.main)
+        .where(
+          (source) =>
+              source.shown &&
+              !source.main &&
+              source.kind == ChatListSourceKind.openCode,
+        )
         .length;
     return others == 0
         ? name
@@ -355,6 +361,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       onSearch: perform == null
           ? null
           : () => perform(const OpenCommandPaletteIntent()),
+      // Settings has no current server (SC3): its tab shows search only.
+      showServer: activeTab != _settingsTab,
       layout: sidebar
           ? KitShellControlsLayout.sidebar
           : KitShellControlsLayout.bar,
@@ -363,7 +371,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     );
 
     final content = KitScreen(
-      // Compact and medium: the glass top controls; the dock or rail names
+      // Compact and medium: the top controls; the dock or rail names
       // the tab. The PC sidebar holds the controls and highlights the
       // destination, so the pane has no bar at all: it starts with the
       // destination's own header (Chats' title, visual language
@@ -415,7 +423,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           navKey: const ValueKey('home-shell-nav'),
           destinations: [for (final entry in destinations) entry.destination],
           selected: selected < 0 ? 0 : selected,
-          onSelected: (index) => _selectTab(destinations[index].id),
+          onSelected: (index) {
+            final id = destinations[index].id;
+            // The Project tab tapped again leaves Files for the hub.
+            if (id == _filesTab && _tab == _filesTab) _projectBack.showHub();
+            _selectTab(id);
+          },
           sidebarHeader: sidebar ? controls : null,
           child: content,
         ),

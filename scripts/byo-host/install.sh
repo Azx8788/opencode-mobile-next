@@ -196,8 +196,8 @@ def safe_bundle(archive_path, expected, destination):
         machine = {"x86_64": "amd64", "aarch64": "arm64"}.get(platform.machine())
         if (
             manifest.get("schemaVersion") != 1
-            or manifest.get("bundleVersion") != "1.1.0"
-            or manifest.get("openCodeVersion") != "1.18.32"
+            or manifest.get("bundleVersion") != "2.0.0"
+            or manifest.get("openCodeVersion") != "2.0.29"
             or manifest.get("port") != 4096
             or machine is None
             or manifest.get("architecture") != machine

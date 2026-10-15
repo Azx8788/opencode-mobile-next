@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show RenderParagraph;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:opencode_mobile/domain/chat_feed.dart';
 import 'package:opencode_mobile/ui/kit/kit_bidi.dart';
@@ -96,7 +97,7 @@ double _y(WidgetTester tester, String text) =>
 void main() {
   setUpAll(loadCaptureFonts);
 
-  clocked('lists Needs you, Today, then Earlier, newest first', (tester) async {
+  clocked('lists Today, then Earlier, newest first', (tester) async {
     await _pump(tester, FakeChatsHost(_source()));
     expect(find.text('Conversations'), findsWidgets);
     expect(
@@ -111,19 +112,68 @@ void main() {
       _y(tester, KitBidi.auto('Explain the build')),
       lessThan(_y(tester, KitBidi.auto('Old idea'))),
     );
-    // The three group names, and a subagent is not a row.
+    // The two time groups, no group of its own for a chat that needs you
+    // (its amber word and the chip say it), and a subagent is not a row.
+    expect(find.text('Needs you'), findsNothing);
     expect(find.text('Today'), findsOneWidget);
     expect(find.text('Earlier'), findsOneWidget);
     expect(find.text(KitBidi.auto('Subagent work')), findsNothing);
-    // Status tags on the right, the time otherwise, the last line below.
-    expect(find.text('Running'), findsWidgets);
-    expect(find.text('3d ago'), findsOneWidget);
-    expect(find.text(KitBidi.auto('Allow running the tests?')), findsOneWidget);
-    // The project label with a Git badge only where the project is Git.
-    expect(find.text('Git'), findsNWidgets(2));
+    // Two lines per row: the state word only when it matters, then the
+    // project and the time. No preview, no Git mark.
+    expect(find.textContaining('Working', findRichText: true), findsWidgets);
+    expect(find.textContaining('3d ago', findRichText: true), findsOneWidget);
+    expect(find.text(KitBidi.auto('Allow running the tests?')), findsNothing);
+    expect(find.text('Git'), findsNothing);
   });
 
-  clocked('a small context ring per chat when its use is known', (
+  clocked('a chat that needs you sorts first inside its time group, not in a '
+      'group of its own', (tester) async {
+    await _pump(
+      tester,
+      FakeChatsHost(
+        FakeChatFeedSource(
+          items: [
+            chat(
+              'n',
+              'Waiting on you, older',
+              status: ChatStatus.needsYou,
+              at: _now.subtract(const Duration(days: 3)),
+            ),
+            chat(
+              'm',
+              'Newer but fine',
+              at: _now.subtract(const Duration(days: 2)),
+            ),
+            chat(
+              't',
+              'Today normal',
+              at: _now.subtract(const Duration(minutes: 5)),
+            ),
+            chat(
+              'u',
+              'Today needs you',
+              status: ChatStatus.needsYou,
+              at: _now.subtract(const Duration(hours: 4)),
+            ),
+          ],
+        ),
+      ),
+    );
+    // No group header says it a third time; the chip still counts them.
+    expect(find.text('Needs you'), findsNothing);
+    expect(find.text('Needs you · 2'), findsOneWidget);
+    expect(find.text('Today'), findsOneWidget);
+    expect(find.text('Earlier'), findsOneWidget);
+    double y(String title) => _y(tester, KitBidi.auto(title));
+    // Today: the older chat that needs you is above the newer normal one.
+    expect(y('Today needs you'), lessThan(y('Today normal')));
+    // Earlier: the same, and both stay under the Earlier header.
+    expect(y('Waiting on you, older'), lessThan(y('Newer but fine')));
+    expect(_y(tester, 'Earlier'), lessThan(y('Waiting on you, older')));
+    expect(y('Today normal'), lessThan(_y(tester, 'Earlier')));
+  });
+
+  clocked('rows carry no context ring or percentage, known use or not', (
     tester,
   ) async {
     await _pump(
@@ -154,11 +204,8 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    // Two rings: the unknown one draws none.
-    expect(find.byType(KitContextRing), findsNWidgets(2));
-    // The number only from 70 %.
-    expect(find.text('82 %'), findsOneWidget);
-    expect(find.text('31 %'), findsNothing);
+    expect(find.byType(KitContextRing), findsNothing);
+    expect(find.text('82 %'), findsNothing);
   });
 
   clocked('a row with the server\'s dated placeholder title reads New '
@@ -182,7 +229,7 @@ void main() {
     expect(find.text(KitBidi.auto('New conversation')), findsWidgets);
   });
 
-  clocked('Done tags an idle row that finished unseen; running wins', (
+  clocked('only a running row names a state; a finished one has none', (
     tester,
   ) async {
     final at = DateTime(2026, 9, 26, 10);
@@ -204,8 +251,9 @@ void main() {
         ),
       ),
     );
-    expect(find.text('Done'), findsOneWidget);
-    expect(find.text('Running'), findsWidgets);
+    // A finished conversation has no state word; a running one says Working.
+    expect(find.textContaining('Done', findRichText: true), findsNothing);
+    expect(find.textContaining('Working', findRichText: true), findsOneWidget);
   });
 
   clocked('the Needs you chip shows its count and filters', (tester) async {
@@ -399,25 +447,34 @@ void main() {
     expect(find.text(KitBidi.auto('Fix the login bug')), findsNothing);
   });
 
-  clocked('names the agent only when the feed mixes agents', (tester) async {
-    await _pump(tester, FakeChatsHost(_source()));
-    expect(find.text(KitBidi.auto('Claude Code')), findsNothing);
-    final mixed = _source()
-      ..items = [
-        ..._source().items,
-        chat(
-          'cc',
-          'Review the diff',
-          at: _now.subtract(const Duration(minutes: 5)),
-          agentId: 'claude',
-          agentLabel: 'Claude Code',
-        ),
-      ];
-    await _pump(tester, FakeChatsHost(mixed));
-    expect(find.text(KitBidi.auto('Claude Code')), findsOneWidget);
-    // Each OpenCode row says so too, so no row leaves its agent to guess.
-    expect(find.text(KitBidi.auto('OpenCode')), findsWidgets);
-  });
+  clocked(
+    'names the agent first in the meta line only when it is not OpenCode',
+    (tester) async {
+      await _pump(tester, FakeChatsHost(_source()));
+      expect(
+        find.textContaining('Claude Code', findRichText: true),
+        findsNothing,
+      );
+      final mixed = _source()
+        ..items = [
+          ..._source().items,
+          chat(
+            'cc',
+            'Review the diff',
+            at: _now.subtract(const Duration(minutes: 5)),
+            agentId: 'claude',
+            agentLabel: 'Claude Code',
+          ),
+        ];
+      await _pump(tester, FakeChatsHost(mixed));
+      expect(
+        find.textContaining('Claude Code', findRichText: true),
+        findsOneWidget,
+      );
+      // The default agent is never named, and no row carries an agent chip.
+      expect(find.textContaining('OpenCode', findRichText: true), findsNothing);
+    },
+  );
 
   clocked('rows of two OpenCode servers name their server', (tester) async {
     final both = _source()
@@ -438,8 +495,11 @@ void main() {
         ),
       ];
     await _pump(tester, FakeChatsHost(both));
-    expect(find.text(KitBidi.auto('OpenCode · Termux')), findsOneWidget);
-    expect(find.text(KitBidi.auto('OpenCode · This phone')), findsOneWidget);
+    expect(find.textContaining('Termux', findRichText: true), findsOneWidget);
+    expect(
+      find.textContaining('This phone', findRichText: true),
+      findsOneWidget,
+    );
   });
 
   clocked('the connections chip lists each source and hides one', (
@@ -520,10 +580,31 @@ void main() {
     await tester.tap(find.text(KitBidi.auto('Explain the build')));
     await tester.pump();
     expect(find.byKey(const ValueKey('chats-row-opening')), findsOneWidget);
-    expect(find.text('Opening…'), findsOneWidget);
+    expect(find.textContaining('Opening…', findRichText: true), findsOneWidget);
     host.openGate!.complete(null);
     await tester.pump();
     expect(find.byKey(const ValueKey('chats-row-opening')), findsNothing);
+  });
+
+  clocked('quiet lines scroll with the feed, not in the fixed header', (
+    tester,
+  ) async {
+    final source = _source()..unreachableServers = ['termux'];
+    await _pump(tester, FakeChatsHost(source));
+    final line = find.byKey(const ValueKey('chats-unreachable'));
+    expect(line, findsOneWidget);
+    expect(
+      find.ancestor(of: line, matching: find.byType(Scrollable)),
+      findsWidgets,
+    );
+    // The filter chips stay fixed above the feed.
+    expect(
+      find.ancestor(
+        of: find.byKey(const ValueKey('chats-filter-running')),
+        matching: find.byType(CustomScrollView),
+      ),
+      findsNothing,
+    );
   });
 
   clocked('a server that isn\'t answering is named, with Try again in the '
@@ -645,6 +726,13 @@ void main() {
     );
     await tester.pump(const Duration(milliseconds: 300));
     expect(tester.takeException(), isNull);
+    // The page title keeps to one line: it never breaks mid-word.
+    final title = find.byType(Text).evaluate().map((e) => e.widget as Text);
+    expect(title.any((t) => t.data == 'Conversation'), isFalse);
+    final heading = tester.renderObject<RenderParagraph>(
+      find.text('Conversations').first,
+    );
+    expect(heading.size.height, lessThan(34 * 1.5 * 1.3));
   });
 
   clocked('the leftover-process notice shows above the list only when the '

@@ -57,9 +57,9 @@ void main() {
   });
 
   // Provider logos are fetched favicons; tests render the monogram instead.
-  setUpAll(() => ProviderLogo.imageProviderOverride = (_) => null);
+  setUpAll(() => ProviderLogo.logoLoaderOverride = (_) => null);
 
-  tearDownAll(() => ProviderLogo.imageProviderOverride = null);
+  tearDownAll(() => ProviderLogo.logoLoaderOverride = null);
 
   testWidgets('MCP resources remain available when integrations fail', (
     tester,

@@ -69,9 +69,17 @@ extension _ChatRequests on _ChatScreenState {
   bool _toolWaitsForYou(Part part) {
     final callID = part.callID;
     if (callID == null || callID.isEmpty) return false;
-    return _conn
-        .permissionsForSession(widget.sessionID)
-        .any((request) => request.tool?.callID == callID);
+    return _conn.permissionsForSession(widget.sessionID).any((request) {
+      final tool = request.tool;
+      if (tool != null) return tool.callID == callID;
+      // A server that does not say which step asks: the step still running
+      // the very command the request names.
+      final status = part.toolState.status;
+      final command = request.commandPreview;
+      return command != null &&
+          (status == 'running' || status == 'pending') &&
+          part.toolState.input['command'] == command;
+    });
   }
 
   /// A permission request lands as an inline card above the composer —

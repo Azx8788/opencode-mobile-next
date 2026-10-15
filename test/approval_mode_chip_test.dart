@@ -133,6 +133,9 @@ void main() {
     await _pump(tester, controller);
     expect(_chip, findsOneWidget);
     expect(find.text('Asks first'), findsOneWidget);
+    // Copy ending in a full stop is not read out with two.
+    final spoken = tester.getSemantics(_chip).label;
+    expect(spoken, isNot(contains('..')));
 
     await controller.setSessionAutoApproval(
       'parent',

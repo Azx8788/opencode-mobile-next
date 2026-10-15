@@ -249,14 +249,50 @@ class ChannelSetupEngine implements SetupEngine {
           return;
         }
       }
-      final last = await _read();
+      final SetupJobRecord? last;
+      var selectedParams = params;
+      try {
+        last = await _read();
+        if (host == SetupHostKind.builtin &&
+            last == null &&
+            params[SetupComponentIds.openCode]?['runtime'] == null) {
+          // Pre-job installers left no setup.json. An existing rootfs is
+          // therefore not proof of a fresh phone: preserve legacy OC1 unless
+          // the caller explicitly selected another runtime.
+          final installed = (await _linux.status().timeout(
+            readTimeout,
+          )).installed;
+          if (installed) {
+            selectedParams = {
+              ...params,
+              SetupComponentIds.openCode: {
+                ...?params[SetupComponentIds.openCode],
+                'runtime': TermuxRuntime.openCode1.wireName,
+              },
+            };
+          }
+        }
+      } catch (error) {
+        // Callers rely on published progress, not a thrown start error.
+        // Keep the stored job untouched and expose Continue to retry its read.
+        // Never echo channel/JSON contents, which may include private data.
+        _failStart(
+          _isRuntimeOwnershipFailure(error)
+              ? _runtimeOwnershipUnknown
+              : const BuiltinLinuxException(
+                  'The saved setup could not be read. Try Continue setup.',
+                  code: 'setup_status_invalid',
+                ),
+        );
+        return;
+      }
       if (last != null && last.state == 'running') {
         // Already running (the app came back to it): watch, do not restart.
         _show(last);
         _ensurePolling();
         return;
       }
-      final effectiveParams = effectiveJobParams(params, last);
+      final effectiveParams = effectiveJobParams(selectedParams, last);
       if (host == SetupHostKind.termux) {
         TermuxSetupHost.validateParams(effectiveParams);
       }
@@ -293,8 +329,13 @@ class ChannelSetupEngine implements SetupEngine {
   }
 
   @override
-  Future<void> restore() async {
-    final record = await _read();
+  Future<void> restore({SetupReadScope? scope}) async {
+    final SetupJobRecord? record;
+    try {
+      record = await _read(scope: scope);
+    } on SetupReadAbandoned {
+      return;
+    }
     if (record == null) return;
     _show(record);
     if (record.state == 'running') _ensurePolling();

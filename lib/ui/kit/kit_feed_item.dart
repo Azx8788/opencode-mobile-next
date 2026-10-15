@@ -1,40 +1,45 @@
 import 'package:flutter/material.dart';
 
-import '../app_iconography.dart';
-import '../../l10n/app_localizations.dart';
 import 'kit_bidi.dart';
-import 'kit_context_ring.dart';
-import 'kit_motion.dart';
-import 'kit_status_tag.dart';
 import 'kit_tappable.dart';
 import 'kit_text.dart';
 import 'kit_tokens.dart';
 
-/// One conversation in a feed (Chats home): the project it lives in (small
-/// and muted, with a Git mark), the title on one line, the state at the end
-/// of that line (a [KitStatusTag], else the relative time) and the last line
-/// of the conversation under it.
+/// Which state a [KitFeedItem] names in its meta line.
+enum KitFeedStateTone {
+  /// "Needs you": amber, the only amber on the list.
+  needsYou,
+
+  /// "Working": the accent colour.
+  running,
+
+  /// "Failed", "Can't reopen": plain secondary text, never red.
+  quiet,
+}
+
+/// One conversation in a feed (Chats home), two lines at most: the title on
+/// one line, then one meta line in the small size. The meta line holds, in
+/// order, the agent's name (only when it is not the default), the state word
+/// (only when it matters), the project and the time:
+/// "Needs you - shopfront - 2 h ago".
 ///
-/// The whole row is one target. Its semantics read as one sentence:
-/// project, title, state or time, preview. At large text the preview takes a
-/// second line and the tag wraps under nothing: the title line shrinks first.
+/// No preview, no Git mark, no pills: those live inside the conversation.
+/// The whole row is one target. Its semantics read as one sentence: title,
+/// agent, state, project, time. At large text the title and the meta line
+/// each take a second line instead of being cut.
 ///
-/// States: none — a conversation that exists; press, hover and focus come
-/// from [KitTappable], and a tag or a missing preview is only its content.
+/// States: none - a conversation that exists; press, hover and focus come
+/// from [KitTappable], and a missing state or time is only its content.
 class KitFeedItem extends StatelessWidget {
   const KitFeedItem({
     super.key,
     required this.project,
     required this.title,
     required this.onTap,
-    this.gitLabel,
     this.agent,
-    this.agentIcon,
-    this.notice,
-    this.preview = '',
-    this.tag,
+    this.state,
+    this.stateTone = KitFeedStateTone.quiet,
     this.time,
-    this.contextUsage,
     this.semanticsLabel,
     this.tappableKey,
   });
@@ -43,36 +48,19 @@ class KitFeedItem extends StatelessWidget {
   /// bidirectional text here.
   final String project;
 
-  /// "Git" when the project is a Git repository (the caller's ARB), else null.
-  final String? gitLabel;
-
   final String title;
 
-  /// The agent's name ('Claude Code'), shown after the project only when the
-  /// feed holds more than one agent; null otherwise.
+  /// The agent's name ('Claude Code'), first in the meta line; null for the
+  /// default agent.
   final String? agent;
 
-  /// The agent's glyph, drawn before its name so a glance tells an
-  /// OpenCode conversation from a Claude Code one.
-  final IconData? agentIcon;
+  /// The state word ("Needs you", "Working", "Failed"); null when nothing
+  /// needs saying.
+  final String? state;
+  final KitFeedStateTone stateTone;
 
-  /// One quiet line under the last line: why opening is different
-  /// ("Can't reopen old conversations").
-  final String? notice;
-
-  /// The last line; empty shows nothing.
-  final String preview;
-
-  /// The state at the line's end; wins over [time].
-  final KitStatusTag? tag;
-
-  /// The relative time ("5 min ago"), shown when there is no [tag].
+  /// The relative time ("2 h ago").
   final String? time;
-
-  /// Share of the model's context window the conversation last used, 0..1;
-  /// a small ring before the state, the number only from 70 %. Null draws
-  /// nothing (never guessed).
-  final double? contextUsage;
 
   final VoidCallback onTap;
 
@@ -84,61 +72,42 @@ class KitFeedItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final tokens = KitTokens.of(context);
     final roles = tokens.roles;
-    final tag = this.tag;
-    final time = this.time;
-    final preview = this.preview.trim();
-    final git = gitLabel;
     final agent = this.agent;
-    // From 1.3x text the title takes two lines and the state goes under it,
-    // so neither is cut to a few letters.
+    final state = this.state;
+    final time = this.time;
+    // From 1.3x text the lines take a second line, so nothing is cut.
     final large = MediaQuery.textScalerOf(context).scale(1) > 1.3;
-    final Widget? state =
-        tag ??
-        (time != null
-            ? KitText(
-                time,
-                role: KitTextRole.caption,
-                tone: KitTextTone.tertiary,
-                maxLines: 1,
-              )
-            : null);
-    // A state that changes ("Running" to "Just now") crossfades instead of
-    // jumping; the time ticking on is not a change.
-    final Widget? end = state == null
-        ? null
-        : Flexible(
-            flex: 0,
-            child: AnimatedSwitcher(
-              duration: KitMotion.reduced(context)
-                  ? Duration.zero
-                  : KitMotion.quick,
-              switchInCurve: KitMotion.enter,
-              switchOutCurve: KitMotion.exit,
-              child: KeyedSubtree(
-                key: ValueKey(tag?.label ?? 'time'),
-                child: state,
-              ),
-            ),
-          );
-    final usage = contextUsage;
-    final Widget? ring = usage == null
-        ? null
-        : KitContextRing(used: usage, size: KitContextRingSize.row);
+    final base = KitText.styleOf(
+      context,
+      KitTextRole.secondary,
+      tone: KitTextTone.secondary,
+    );
+    final stateColor = switch (stateTone) {
+      KitFeedStateTone.needsYou => roles.attention,
+      KitFeedStateTone.running => roles.accent,
+      KitFeedStateTone.quiet => roles.text2,
+    };
+    final dot = ' \u00b7 ';
     final words =
-        semanticsLabel ??
-        [
-          project,
-          ?agent,
-          ?git,
-          title,
-          ?(tag?.label ?? time),
-          if (usage != null)
-            lookupAppLocalizations(
-              Localizations.localeOf(context),
-            ).kitContextRingSemantics('${KitContextLevel.percentOf(usage)}'),
-          if (preview.isNotEmpty) preview,
-          ?notice,
-        ].join(', ');
+        semanticsLabel ?? [title, ?agent, ?state, project, ?time].join(', ');
+    final meta = TextSpan(
+      style: base,
+      children: [
+        if (agent != null) TextSpan(text: '${KitBidi.auto(agent)}$dot'),
+        if (state != null)
+          TextSpan(
+            text: '$state$dot',
+            style: TextStyle(
+              color: stateColor,
+              fontWeight: stateTone == KitFeedStateTone.quiet
+                  ? null
+                  : FontWeight.w600,
+            ),
+          ),
+        TextSpan(text: KitBidi.auto(project)),
+        if (time != null) TextSpan(text: '$dot$time'),
+      ],
+    );
     return KitTappable(
       tappableKey: tappableKey,
       onTap: onTap,
@@ -149,131 +118,34 @@ class KitFeedItem extends StatelessWidget {
             horizontal: tokens.gutter,
             vertical: tokens.space3,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            spacing: tokens.space1,
+          child: Row(
             children: [
-              Row(
-                spacing: tokens.space2,
-                children: [
-                  // Which agent first: the conversation's most telling fact
-                  // once the list holds more than one.
-                  if (agent != null) ...[
-                    if (agentIcon != null)
-                      Icon(
-                        agentIcon,
-                        size: tokens.smallIconSize,
-                        color: roles.text2,
-                      ),
-                    Flexible(
-                      flex: 0,
-                      child: KitText(
-                        KitBidi.auto(agent),
-                        role: KitTextRole.caption,
-                        tone: KitTextTone.secondary,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  spacing: tokens.space1,
+                  children: [
                     KitText(
-                      '·',
-                      role: KitTextRole.caption,
-                      tone: KitTextTone.tertiary,
-                    ),
-                  ],
-                  Flexible(
-                    child: KitText(
-                      KitBidi.auto(project),
-                      role: KitTextRole.caption,
-                      tone: KitTextTone.secondary,
-                      maxLines: 1,
+                      KitBidi.auto(title),
+                      role: KitTextRole.rowTitle,
+                      maxLines: large ? 2 : 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                  if (git != null)
-                    _GitMark(
-                      label: git,
-                      size: tokens.smallIconSize,
-                      color: roles.text2,
+                    KitText.rich(
+                      meta,
+                      role: KitTextRole.secondary,
+                      tone: KitTextTone.secondary,
+                      maxLines: large ? null : 1,
+                      overflow: large ? null : TextOverflow.ellipsis,
                     ),
-                ],
-              ),
-              if (large) ...[
-                KitText(
-                  KitBidi.auto(title),
-                  role: KitTextRole.rowTitle,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                if (ring != null || end != null)
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    spacing: tokens.space2,
-                    children: [?ring, ?end],
-                  ),
-              ] else
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  spacing: tokens.space2,
-                  children: [
-                    Expanded(
-                      child: KitText(
-                        KitBidi.auto(title),
-                        role: KitTextRole.rowTitle,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    ?ring,
-                    ?end,
                   ],
                 ),
-              if (preview.isNotEmpty)
-                KitText(
-                  KitBidi.auto(preview),
-                  role: KitTextRole.secondary,
-                  tone: KitTextTone.secondary,
-                  maxLines: large ? 2 : 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              if (notice != null)
-                KitText(
-                  notice!,
-                  role: KitTextRole.caption,
-                  tone: KitTextTone.tertiary,
-                ),
+              ),
             ],
           ),
         ),
       ),
     );
   }
-}
-
-class _GitMark extends StatelessWidget {
-  const _GitMark({
-    required this.label,
-    required this.size,
-    required this.color,
-  });
-
-  final String label;
-  final double size;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) => Row(
-    mainAxisSize: MainAxisSize.min,
-    spacing: 2,
-    children: [
-      Icon(AppIconography.branch, size: size * .75, color: color),
-      KitText(
-        label,
-        role: KitTextRole.caption,
-        tone: KitTextTone.secondary,
-        maxLines: 1,
-      ),
-    ],
-  );
 }

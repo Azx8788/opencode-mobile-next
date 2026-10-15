@@ -123,7 +123,16 @@ void main() {
     serverHealthCache['speed-1'] = Health(healthy: true, version: '9.9.9');
     final transport = Completer<void>();
     final c = await _make(transport, Completer<void>()..complete());
-    await tester.pumpWidget(_app(c, ValueNotifier(true)));
+    // The hub no longer checks the server; its own page does, and paints the
+    // last known answer at once.
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light(),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: ServerSettingsScreen(controller: c),
+      ),
+    );
     await tester.pump();
     expect(find.textContaining('9.9.9'), findsOneWidget);
     expect(find.byType(LinearProgressIndicator), findsNothing);

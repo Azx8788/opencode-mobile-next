@@ -8,6 +8,7 @@ import '../../domain/model_display_name.dart';
 import '../../domain/server_gateway.dart'
     show ProviderRuntimeBusyException, StreamStatus;
 import '../../api/provider_presentation.dart';
+import '../widgets/phone_server_card.dart' show serverDisplayName;
 import '../../api/product_repository.dart';
 import '../../state/connection.dart';
 import '../../state/pending_auth.dart';
@@ -28,6 +29,7 @@ part 'library/integrations_mcp.dart';
 part 'library/integrations_page.dart';
 part 'library/integrations_signin.dart';
 part 'library/integrations_connect.dart';
+part 'library/integrations_autowait.dart';
 part 'library/integration_tiles.dart';
 part 'library/credential_sheet.dart';
 part 'library/command_auth_sheet.dart';

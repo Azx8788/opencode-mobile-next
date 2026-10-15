@@ -21,6 +21,20 @@ mixin _ConnectionControllerAlerts on ChangeNotifier {
   /// gleaned from `message.part.updated` on the way past. Feeds the ongoing
   /// Android notification only; pruned lazily against [busySessions].
   final Map<String, String> _runningToolDetail = {};
+
+  /// When each busy session was first seen busy (elapsed time on the status).
+  final Map<String, DateTime> _busySince = {};
+
+  /// Each busy session's plan: finished and tracked tasks, and the one in
+  /// progress. Feeds "5 of 6 tasks" and the status's live line.
+  final Map<String, ({int done, int total, String? current})> _sessionTasks =
+      {};
+
+  /// The last reply that finished, for "Last reply 12 min ago".
+  ({String title, DateTime at})? _lastReply;
+
+  /// What the last working chat was doing, for the reconnecting status.
+  String? _lastActivityLine;
   CodingAlertOpen? _pendingCodingAlertOpen;
 
   PendingQuestion? questionForSession(String sessionID) =>
@@ -116,9 +130,13 @@ extension _ConnectionControllerAlertsImpl on ConnectionController {
             return true;
           }
           final question = questions[action.requestID];
+          // A typed reply needs a prompt that accepts custom text; an option
+          // button sends one of the question's own labels, which is always an
+          // answer it accepts.
           if (question == null ||
               question.sessionID != action.sessionID ||
-              !_questionSupportsQuickReply(question)) {
+              !(_questionSupportsQuickReply(question) ||
+                  notificationOptionsOf(question).contains(text))) {
             _syncInputAlerts();
             return true;
           }
@@ -128,6 +146,22 @@ extension _ConnectionControllerAlertsImpl on ConnectionController {
           return true;
       }
       return false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// A button on the status notification. "Stop the reply" stops exactly the
+  /// chat the notification named, and only while it is still running or
+  /// waiting on a provider; anything else is left to open the app.
+  Future<bool> _handleStatusAction(String action, String sessionID) async {
+    if (_disposed || _lifecycleSuspended) return false;
+    if (action != 'stop_reply' || sessionID.isEmpty) return false;
+    final currentApi = api;
+    if (currentApi == null || !busySessions.contains(sessionID)) return false;
+    try {
+      await currentApi.abort(sessionID);
+      return true;
     } catch (_) {
       return false;
     }
@@ -178,12 +212,18 @@ extension _ConnectionControllerAlertsImpl on ConnectionController {
       ? 'status:$sessionID'
       : 'status:${profile!.id}:$sessionID';
 
+  /// Whether an alert may post now. Quiet hours do not stop one: requests
+  /// and failures still post, silently ([_quietNow]); only the lower-priority
+  /// finished-reply alerts wait for the morning.
   bool get _canShowCodingAlert =>
       keepLiveInBackground &&
       _lifecycleWasBackgrounded &&
       backgroundLive.notificationGranted &&
-      profileMonitor.rulesFor(_alertProfileId).notifications &&
-      !profileMonitor.rulesFor(_alertProfileId).quietAt(DateTime.now());
+      profileMonitor.rulesFor(_alertProfileId).notifications;
+
+  /// Quiet hours are on for this server right now.
+  bool get _quietNow =>
+      profileMonitor.rulesFor(_alertProfileId).quietAt(DateTime.now());
 
   /// The body of [finishedRunNotificationsReady].
   bool get _finishedRunNotificationsReady {
@@ -205,7 +245,11 @@ extension _ConnectionControllerAlertsImpl on ConnectionController {
     }
   }
 
-  void _settleSessionAttention(String sessionID, CodingAlertKind kind) {
+  void _settleSessionAttention(
+    String sessionID,
+    CodingAlertKind kind, {
+    String reason = '',
+  }) {
     if (sessionID.isEmpty || !_attentionActiveSessions.remove(sessionID)) {
       return;
     }
@@ -221,22 +265,50 @@ extension _ConnectionControllerAlertsImpl on ConnectionController {
         sessionsById[sessionID]?.parentID != null) {
       return;
     }
+    final quiet = _quietNow;
+    // A finished reply can wait for the morning; a failure posts, silently.
+    if (quiet && kind == CodingAlertKind.complete) return;
     if (!_alertedStatusSessions.add(sessionID)) return;
-    unawaited(
-      backgroundLive
-          .showCodingAlert(
-            kind: kind,
-            profileID: _alertProfileId,
-            agentName: isAgentBackend ? profile?.name ?? '' : '',
-            sessionID: sessionID,
-            key: _statusAlertKey(sessionID),
-          )
-          .then((shown) {
-            if (!shown && !_disposed && _lifecycleWasBackgrounded) {
-              _alertedStatusSessions.remove(sessionID);
-            }
-          }),
-    );
+    unawaited(() async {
+      final chatTitle = displaySessionTitleText(sessionsById[sessionID]?.title);
+      final detail = kind == CodingAlertKind.complete
+          ? await _firstReplyLineFor(sessionID)
+          : '';
+      if (_disposed) return;
+      // The reply may have been opened, or another run started, meanwhile.
+      if (!_alertedStatusSessions.contains(sessionID)) return;
+      final shown = await backgroundLive.showCodingAlert(
+        kind: kind,
+        profileID: _alertProfileId,
+        agentName: isAgentBackend ? profile?.name ?? '' : '',
+        sessionID: sessionID,
+        key: _statusAlertKey(sessionID),
+        chatTitle: chatTitle,
+        detail: detail,
+        reason: kind == CodingAlertKind.error
+            ? (reason.isEmpty ? 'other' : reason)
+            : '',
+        silent: quiet,
+      );
+      if (!shown && !_disposed && _lifecycleWasBackgrounded) {
+        _alertedStatusSessions.remove(sessionID);
+      }
+    }());
+  }
+
+  /// The first line of the newest reply, for the finished alert: read from
+  /// the transcript's newest page, never waited on for long. Empty when it
+  /// cannot be read quickly.
+  Future<String> _firstReplyLineFor(String sessionID) async {
+    try {
+      if (!canLoadSessionTail(sessionID)) return '';
+      final page = await loadSessionTail(
+        sessionID,
+      ).timeout(const Duration(seconds: 2));
+      return firstReplyLine(page.items);
+    } catch (_) {
+      return '';
+    }
   }
 
   void _showInputAlert(String sessionID, CodingAlertKind kind) {
@@ -265,6 +337,22 @@ extension _ConnectionControllerAlertsImpl on ConnectionController {
     final alerted = (kind: kind, requestID: requestID);
     if (_alertedInputKinds[sessionID] == alerted) return;
     _alertedInputKinds[sessionID] = alerted;
+    // What the shade shows beside the question: the command or file (masked)
+    // for a permission, the question's own words for a question. The lock
+    // screen keeps only the count.
+    final permission = kind == CodingAlertKind.permission
+        ? permissionForSession(sessionID)
+        : null;
+    final question = kind == CodingAlertKind.question
+        ? (quickReplyQuestion ?? questionForSession(sessionID))
+        : null;
+    final detail = permission != null
+        ? redactForNotification(
+            permission.commandPreview ?? permission.filePath ?? '',
+          )
+        : question != null && question.prompts.isNotEmpty
+        ? redactForNotification(question.prompts.first.question)
+        : '';
     unawaited(
       backgroundLive
           .showCodingAlert(
@@ -275,6 +363,13 @@ extension _ConnectionControllerAlertsImpl on ConnectionController {
             key: _inputAlertKey(sessionID),
             quickReply: quickReplyQuestion != null || permissionReply,
             requestID: requestID,
+            chatTitle: displaySessionTitleText(sessionsById[sessionID]?.title),
+            detail: detail,
+            options: question == null
+                ? const []
+                : notificationOptionsOf(question),
+            silent: _quietNow,
+            shellCommand: permission?.commandPreview != null,
           )
           .then((shown) {
             if (!shown &&
@@ -313,6 +408,14 @@ extension _ConnectionControllerAlertsImpl on ConnectionController {
             ? CodingAlertKind.permission
             : CodingAlertKind.question,
       );
+    }
+  }
+
+  /// The person opened [sessionID]: its finished or stopped alert has done
+  /// its job.
+  void _dismissFinishedAlert(String sessionID) {
+    if (_alertedStatusSessions.remove(sessionID)) {
+      unawaited(backgroundLive.dismissCodingAlert(_statusAlertKey(sessionID)));
     }
   }
 

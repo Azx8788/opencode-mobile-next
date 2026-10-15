@@ -206,6 +206,26 @@ void main() {
       expect(tester.getSize(find.byKey(_bubbleKey)).width, lessThan(120));
     });
 
+    testWidgets('a link prompt hugs its label, not the address', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        _prompt(
+          text: '[docs](https://example.com/a/very/long/address/that/goes/on)',
+        ),
+      );
+      expect(tester.getSize(find.byKey(_bubbleKey)).width, lessThan(140));
+    });
+
+    test('display text drops marks and counts path chips', () {
+      final shown = kitMarkdownDisplay(
+        'See [docs](https://x.dev/a), **bold** and `lib/a/b.dart`.',
+      );
+      expect(shown.text, 'See docs, bold and lib/a/b.dart.');
+      expect(shown.pathChips, 1);
+    });
+
     testWidgets('time shows as a caption under the bubble', (tester) async {
       await _pump(tester, _prompt(time: DateTime(2026, 9, 27, 14, 5)));
       final time = find.text('2:05 PM');

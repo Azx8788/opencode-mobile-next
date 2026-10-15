@@ -30,6 +30,7 @@ Uint8List? _thumbnailBytes(PromptAttachment attachment) {
 /// this moment cannot run stays in its place and says why (STATE-8).
 class _PromptToolsList extends StatelessWidget {
   const _PromptToolsList({
+    this.projectFilesSupported = false,
     required this.attachBlocked,
     required this.attachmentsSupported,
     this.imagesOnly = false,
@@ -49,6 +50,7 @@ class _PromptToolsList extends StatelessWidget {
   /// place of "this server".
   final String? agentName;
 
+  final bool projectFilesSupported;
   final bool attachBlocked;
   final bool attachmentsSupported;
   final bool imagesOnly;
@@ -92,6 +94,16 @@ class _PromptToolsList extends StatelessWidget {
       children: [
         KitRowGroup(
           children: [
+            // Pointing at a project file uploads nothing, so it stays live
+            // while a reply runs.
+            if (projectFilesSupported)
+              tool(
+                _PromptTool.projectFile,
+                key: 'project-file',
+                icon: AppIconography.fileText,
+                title: l10n.mentionToolTitle,
+                supporting: l10n.mentionToolSupporting,
+              ),
             if (attachmentsSupported && !imagesOnly)
               tool(
                 _PromptTool.attach,

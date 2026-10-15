@@ -302,19 +302,22 @@ extension _FilesBody on _FilesScreenState {
               : onlyHidden
               ? l10n.filesOnlyHidden
               : l10n.readerUiPullRefresh,
-          primary: onlyHidden
-              ? KitAction(
-                  key: const ValueKey('files-show-hidden-action'),
-                  label: l10n.filesShowHidden,
-                  onPressed: () => _set(() => _showHidden = true),
-                )
-              : searching
+          // Hidden files (a new project's .git) are not what the person
+          // came for: a quiet second action, never the big green one.
+          primary: searching || onlyHidden
               ? null
               : KitAction(
                   key: const ValueKey('files-refresh'),
                   label: l10n.fileReload,
                   onPressed: () => unawaited(_refreshFiles()),
                 ),
+          secondary: onlyHidden
+              ? KitAction(
+                  key: const ValueKey('files-show-hidden-action'),
+                  label: l10n.filesShowHidden,
+                  onPressed: () => _set(() => _showHidden = true),
+                )
+              : null,
         ),
       );
       final leads = [?inside, ?changes];

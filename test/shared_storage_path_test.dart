@@ -83,7 +83,15 @@ void main() {
 
     final activity = File('$native/MainActivity.kt').readAsStringSync();
     expect(activity, contains('StorageAccess.register('));
-    expect(activity, contains('StorageAccess.onPermissionResult('));
+    expect(
+      activity,
+      contains('media.onPermissionResult(requestCode, grantResults)'),
+    );
+    final media = File('$native/MainActivityMedia.kt').readAsStringSync();
+    expect(
+      media,
+      contains('StorageAccess.onPermissionResult(activity, requestCode)'),
+    );
 
     // Nothing about the permission is saved, so profile deletion has no
     // per-profile key to sweep.

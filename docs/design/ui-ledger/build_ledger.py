@@ -52,6 +52,8 @@ AREA_OF_PART = {
     "k-session-misc": "chat",
     "l-chats": "workspace",
     "m-agents": "workspace",
+    "n-factsbook": "memory",
+    "o-usage-and-settings": "settings",
 }
 AREA_TITLES = collections.OrderedDict([
     ("shell", "Shell and navigation"),
@@ -62,6 +64,7 @@ AREA_TITLES = collections.OrderedDict([
     ("termux", "Termux / on-device setup"),
     ("team", "AI Team / orchestration"),
     ("settings", "Settings / More"),
+    ("memory", "Memory (FactsBook, developer flag)"),
     ("onboarding", "Onboarding"),
     ("misc", "Misc dialogs and sheets"),
 ])

@@ -14,6 +14,20 @@ enum KitMotionLevel {
   off,
 }
 
+/// The app's own text size, chosen in Settings > Appearance > Text size. It
+/// multiplies on top of the phone's font scale and applies at the app root.
+enum KitTextSize {
+  smallest(0.85),
+  small(0.92),
+  normal(1.0),
+  large(1.15);
+
+  const KitTextSize(this.factor);
+
+  /// Multiplies the phone's own text scale.
+  final double factor;
+}
+
 /// How the glowing border while a reply runs is drawn (Settings >
 /// Appearance > Effects).
 enum KitGlowStyle {
@@ -23,6 +37,19 @@ enum KitGlowStyle {
 
   /// The soft ring sweep: a wide soft wash and a thin line, no head.
   softRing,
+}
+
+/// How strongly the live background shows (Settings > Appearance > Live
+/// background > Intensity). Normal is the strength that ships.
+enum KitLiveIntensity {
+  subtle(0.7),
+  normal(1.0),
+  bold(1.6);
+
+  const KitLiveIntensity(this.strength);
+
+  /// Multiplies every look's strength.
+  final double strength;
 }
 
 /// How many hues the glowing border uses.
@@ -51,6 +78,9 @@ class KitEffects {
     this.glowStyle = KitGlowStyle.classic,
     this.glowColours = KitGlowColours.one,
     this.glowSpeed = KitGlowSpeed.normal,
+    this.liveBackground = true,
+    this.liveStyle = 'aurora',
+    this.liveIntensity = KitLiveIntensity.normal,
   });
 
   /// Everything on: the default until the person changes it.
@@ -74,6 +104,17 @@ class KitEffects {
   final KitGlowColours glowColours;
   final KitGlowSpeed glowSpeed;
 
+  /// A calm, slowly drifting colour wash on the ground of every page
+  /// (Settings › Appearance › Effects). On by default.
+  final bool liveBackground;
+
+  /// Which look it has (a `KitLiveStyle.id`; an unknown id falls back to the
+  /// default).
+  final String liveStyle;
+
+  /// How strongly the look shows.
+  final KitLiveIntensity liveIntensity;
+
   /// The choices in force here, or [defaults] above any scope (tests).
   static KitEffects of(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<KitEffectsScope>()?.effects ??
@@ -92,6 +133,9 @@ class KitEffects {
     KitGlowStyle? glowStyle,
     KitGlowColours? glowColours,
     KitGlowSpeed? glowSpeed,
+    bool? liveBackground,
+    String? liveStyle,
+    KitLiveIntensity? liveIntensity,
   }) => KitEffects(
     motion: motion ?? this.motion,
     celebrations: celebrations ?? this.celebrations,
@@ -100,6 +144,9 @@ class KitEffects {
     glowStyle: glowStyle ?? this.glowStyle,
     glowColours: glowColours ?? this.glowColours,
     glowSpeed: glowSpeed ?? this.glowSpeed,
+    liveBackground: liveBackground ?? this.liveBackground,
+    liveStyle: liveStyle ?? this.liveStyle,
+    liveIntensity: liveIntensity ?? this.liveIntensity,
   );
 
   @override
@@ -111,7 +158,10 @@ class KitEffects {
       other.activityGlow == activityGlow &&
       other.glowStyle == glowStyle &&
       other.glowColours == glowColours &&
-      other.glowSpeed == glowSpeed;
+      other.glowSpeed == glowSpeed &&
+      other.liveBackground == liveBackground &&
+      other.liveStyle == liveStyle &&
+      other.liveIntensity == liveIntensity;
 
   @override
   int get hashCode => Object.hash(
@@ -122,6 +172,9 @@ class KitEffects {
     glowStyle,
     glowColours,
     glowSpeed,
+    liveBackground,
+    liveStyle,
+    liveIntensity,
   );
 }
 

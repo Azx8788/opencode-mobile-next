@@ -206,7 +206,9 @@ void main() {
       tester.getSize(find.byType(KitTopBar)).height,
       lessThanOrEqualTo(64),
     );
-    expect(tester.getSize(_title).height, lessThanOrEqualTo(31));
+    // The title's box is the 48 dp row the buttons share; its words are one
+    // line inside it.
+    expect(tester.getSize(find.text('Fix CI')).height, lessThanOrEqualTo(31));
   });
 
   testWidgets(

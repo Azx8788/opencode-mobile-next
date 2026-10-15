@@ -205,31 +205,31 @@ void _commandAndTimelineTests() {
     expect(controller.appearance.value, AppAppearance.light);
   });
 
-  testWidgets('the menu\'s Tasks lands on the plan in the transcript, open', (
+  Part planPart(List<Map<String, String>> todos, {String id = 'tool-plan'}) =>
+      Part(
+        id: id,
+        messageID: 'assistant-plan',
+        type: 'tool',
+        toolName: 'todowrite',
+        toolState: ToolState.fromJson({
+          'status': 'completed',
+          'input': {'todos': todos},
+          'output': '',
+        }),
+      );
+
+  const twoTasks = [
+    {'content': 'Fix the flaky test', 'status': 'completed'},
+    {'content': 'Run the whole suite', 'status': 'in_progress'},
+  ];
+
+  testWidgets('a task list is the chip beside the model, not a card', (
     tester,
   ) async {
     final api = _FakeOpenCodeApi()
       ..messagesHandler = (_) async => [
         _message('assistant-plan', 'assistant', [
-          Part(
-            id: 'tool-plan',
-            messageID: 'assistant-plan',
-            type: 'tool',
-            toolName: 'todowrite',
-            toolState: ToolState.fromJson({
-              'status': 'completed',
-              'input': {
-                'todos': [
-                  {
-                    'content': 'Verify production release',
-                    'status': 'pending',
-                    'priority': 'high',
-                  },
-                ],
-              },
-              'output': '',
-            }),
-          ),
+          planPart(twoTasks),
           Part(
             id: 'text-plan',
             messageID: 'assistant-plan',
@@ -241,16 +241,62 @@ void _commandAndTimelineTests() {
 
     await _pumpChat(tester, api);
     await tester.pumpAndSettle();
-    // The plan's step shows closed until asked for.
-    expect(find.text('Verify production release'), findsNothing);
 
-    // The plan is a command in the sheet now (slice-P10.1).
+    // "1/2" rides in the line above the field; no list in the transcript.
+    expect(find.byKey(const Key('task-chip')), findsOneWidget);
+    expect(find.text('1/2'), findsOneWidget);
+    expect(find.text('Run the whole suite'), findsNothing);
+    expect(find.text('Fix the flaky test'), findsNothing);
+    // The call itself is a one-line step that does not open.
+    expect(find.text('Updated tasks'), findsOneWidget);
+    expect(find.text('Tasks'), findsNothing);
+  });
+
+  testWidgets('the tasks chip opens the whole list in a Tasks sheet', (
+    tester,
+  ) async {
+    final api = _FakeOpenCodeApi()
+      ..messagesHandler = (_) async => [
+        _message('assistant-plan', 'assistant', [planPart(twoTasks)]),
+      ];
+
+    await _pumpChat(tester, api);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('task-chip')));
+    // The task in progress has a spinner: it never settles.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(find.byKey(const Key('task-sheet')), findsOneWidget);
+    expect(find.text('Tasks'), findsOneWidget);
+    expect(find.text('1 of 2 done'), findsOneWidget);
+    expect(find.text('Fix the flaky test'), findsOneWidget);
+    expect(find.text('Run the whole suite'), findsOneWidget);
+  });
+
+  testWidgets('the menu\'s Tasks opens the same sheet', (tester) async {
+    final api = _FakeOpenCodeApi()
+      ..messagesHandler = (_) async => [
+        _message('assistant-plan', 'assistant', [
+          planPart(const [
+            {'content': 'Fix the flaky test', 'status': 'completed'},
+            {'content': 'Run the whole suite', 'status': 'pending'},
+          ]),
+        ]),
+      ];
+
+    await _pumpChat(tester, api);
+    await tester.pumpAndSettle();
     await _runSheetCommand(tester, 'plan');
 
-    // No sheet: the transcript's own checklist, opened in place.
-    expect(find.byKey(const Key('timeline-sheet')), findsNothing);
-    expect(find.text('Verify production release'), findsOneWidget);
-    expect(find.text('Pending'), findsWidgets);
+    expect(find.byKey(const Key('task-sheet')), findsOneWidget);
+    expect(find.text('Run the whole suite'), findsOneWidget);
+  });
+
+  testWidgets('no task list, no tasks chip', (tester) async {
+    await _pumpChat(tester, _FakeOpenCodeApi());
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('task-chip')), findsNothing);
   });
 
   testWidgets('no plan in the transcript, no Tasks entry in the menu', (

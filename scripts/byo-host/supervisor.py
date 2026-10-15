@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Per-phone authentication in front of a loopback OpenCode 1 process.
+"""Per-phone authentication in front of a loopback OpenCode 2 process.
 
 No third-party Python dependencies. This is an SSH-forward-only endpoint, not a
 public HTTP server. A host account is a trust boundary; phone tokens never reach
@@ -31,8 +31,8 @@ import time
 import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-BUNDLE_VERSION = "1.1.0"
-OPENCODE_VERSION = "1.18.32"
+BUNDLE_VERSION = "2.0.0"
+OPENCODE_VERSION = "2.0.29"
 DEFAULT_PORT = 4096
 MAX_BODY = 16 * 1024 * 1024
 ID = re.compile(r"[A-Za-z0-9_-]{1,128}\Z")
@@ -437,7 +437,7 @@ class Handler(BaseHTTPRequestHandler):
             if (
                 self.command != "GET"
                 or body
-                or not re.fullmatch(r"/pty/[^/?]+/connect(?:\?[^\r\n]*)?", self.path)
+                or not re.fullmatch(r"/(?:api/)?pty/[^/?]+/connect(?:\?[^\r\n]*)?", self.path)
                 or self.headers.get("Upgrade", "").lower() != "websocket"
                 or "upgrade"
                 not in {
@@ -586,6 +586,7 @@ def serve(state, binary):
             os.environ,
             OPENCODE_SERVER_USERNAME="opencode",
             OPENCODE_SERVER_PASSWORD=password,
+            OPENCODE_PASSWORD=password,
         )
         server = HostServer(state, upstream_port, password)
         child = subprocess.Popen(
@@ -626,7 +627,7 @@ def serve(state, binary):
                     auth = base64.b64encode(("opencode:" + password).encode()).decode()
                     probe.request(
                         "GET",
-                        "/global/health",
+                        "/api/info",
                         headers={"Authorization": "Basic " + auth},
                     )
                     response = probe.getresponse()

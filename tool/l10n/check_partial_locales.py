@@ -206,7 +206,14 @@ def main():
         english = {k: v for k, v in english_data.items() if not k.startswith("@") and isinstance(v, str)}
         core = read_core(args.core)
         missing_from_english = sorted(core - set(english))
-        shrink = core_shrink(core, args.base_ref) if args.base_ref is not None else []
+        dropped = core_shrink(core, args.base_ref) if args.base_ref is not None else []
+        # A key the app deleted from English is a retired string, not a lost
+        # translation: it may leave the core list with it. A key English still
+        # has may not.
+        retired = [key for key in dropped if key not in english]
+        shrink = [key for key in dropped if key in english]
+        if retired:
+            print_keys("Core keys retired with their English message", retired)
         failed = bool(missing_from_english or shrink)
         if missing_from_english:
             print_keys("Core keys English does not have", missing_from_english)

@@ -36,10 +36,18 @@ extension _OcAppAlertsAndShortcuts on _OcAppState {
         if (link != null) unawaited(_openTeamLink(navigator, link));
         return;
       }
-      if (target.kind == CodingAlertKind.quota) {
+      if (target.kind == CodingAlertKind.quota ||
+          target.kind == CodingAlertKind.quotaReset) {
         unawaited(
-          _controller.quotaMonitor
-              .resolveRoute(target.profileID, target.monitorToken)
+          (_controller.usageSubscriptions.ownsAlertToken(
+                    target.profileID,
+                    target.monitorToken,
+                  )
+                  ? Future<Object?>.value(true)
+                  : _controller.quotaMonitor.resolveRoute(
+                      target.profileID,
+                      target.monitorToken,
+                    ))
               .then((route) {
                 if (!mounted) {
                   return;
@@ -57,7 +65,7 @@ extension _OcAppAlertsAndShortcuts on _OcAppState {
                     // Quota monitoring is part of Usage → Remaining.
                     builder: (_) => UsageHubScreen(
                       controller: _controller,
-                      initialSection: UsageSection.remaining,
+                      initialSection: UsageSection.plans,
                     ),
                   ),
                 );

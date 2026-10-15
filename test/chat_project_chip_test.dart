@@ -1,3 +1,8 @@
+// Regenerate deliberately:
+//   flutter test --update-goldens test/chat_project_chip_test.dart
+// and look at every changed image before committing it.
+//
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -14,6 +19,7 @@ import 'package:opencode_mobile/ui/navigation/last_project.dart';
 import 'package:opencode_mobile/ui/screens/chat_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../tool/capture/fixtures.dart' show loadCaptureFonts;
 import 'support/complete_message_history.dart';
 
 /// The conversation's project, as a small chip under the title, with a
@@ -53,7 +59,10 @@ class _Api extends OpenCodeApi with CompleteMessageHistory {
   Future<Session> session(String id) async => current;
 }
 
-Future<ConnectionController> _controller(_Api api) async {
+Future<ConnectionController> _controller(
+  _Api api, {
+  bool second = false,
+}) async {
   SharedPreferences.setMockInitialValues({
     'oc.profiles': jsonEncode([
       {
@@ -62,6 +71,13 @@ Future<ConnectionController> _controller(_Api api) async {
         'baseUrl': 'http://localhost',
         'username': '',
       },
+      if (second)
+        {
+          'id': 'profile-2',
+          'name': 'Work box',
+          'baseUrl': 'http://localhost:2',
+          'username': '',
+        },
     ]),
     'oc.activeProfile': 'profile-1',
   });
@@ -79,6 +95,7 @@ Future<void> _pumpChat(
   WidgetTester tester,
   ConnectionController conn, {
   Brightness brightness = Brightness.dark,
+  double textScale = 1,
 }) async {
   tester.view.physicalSize = const Size(390, 760);
   tester.view.devicePixelRatio = 1;
@@ -87,6 +104,13 @@ Future<void> _pumpChat(
     ProviderScope(
       overrides: [connProvider.overrideWithValue(conn)],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(
+            context,
+          ).copyWith(textScaler: TextScaler.linear(textScale)),
+          child: child!,
+        ),
         theme: brightness == Brightness.dark
             ? AppTheme.dark()
             : AppTheme.light(),
@@ -101,8 +125,16 @@ Future<void> _pumpChat(
 
 Finder get _chip => find.byKey(const ValueKey('chat-project-chip'));
 
+/// The quiet line's words, without the invisible direction marks.
+String _lineText(WidgetTester tester) => tester
+    .widgetList<Text>(find.descendant(of: _chip, matching: find.byType(Text)))
+    .map((text) => text.data!)
+    .join()
+    .replaceAll(RegExp('[\u2066-\u2069\u200e\u200f]'), '');
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  setUpAll(loadCaptureFonts);
 
   setUp(() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -128,7 +160,7 @@ void main() {
     );
     expect(find.bySemanticsLabel(RegExp('Project .*IPTV_King')), findsWidgets);
     expect(tester.takeException(), isNull);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.android));
 
   testWidgets('tapping the chip opens Files, Terminal and Changes', (
     tester,
@@ -144,7 +176,7 @@ void main() {
     expect(find.text('Files'), findsOneWidget);
     expect(find.text('Terminal'), findsOneWidget);
     expect(find.text('Changes'), findsOneWidget);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.android));
 
   testWidgets('a server with none of the project tools shows no chip', (
     tester,
@@ -155,7 +187,7 @@ void main() {
     await _pumpChat(tester, conn);
     // Nothing to open from the project: no chip at all.
     expect(_chip, findsNothing);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.android));
 
   testWidgets('opening a conversation makes its project the last used', (
     tester,
@@ -165,7 +197,7 @@ void main() {
     expect(lastUsedProjectOf(conn), isNull);
     await _pumpChat(tester, conn);
     expect(lastUsedProjectOf(conn), '/root/projects/IPTV_King');
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.android));
 
   testWidgets('a temporary folder is never shown as a project', (tester) async {
     final conn = await _controller(_Api(directory: '/tmp/scratch'));
@@ -173,5 +205,93 @@ void main() {
     await _pumpChat(tester, conn);
     expect(_chip, findsNothing);
     expect(find.text('scratch'), findsNothing);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.android));
+
+  testWidgets('one server: the line is the project alone, 48dp tall', (
+    tester,
+  ) async {
+    final conn = await _controller(_Api(directory: '/root/projects/IPTV_King'));
+    addTearDown(conn.dispose);
+    await _pumpChat(tester, conn);
+    expect(_lineText(tester), 'IPTV_King');
+    expect(find.textContaining('Test server'), findsNothing);
+    expect(tester.getSize(_chip).height, greaterThanOrEqualTo(48));
+  }, variant: TargetPlatformVariant.only(TargetPlatform.android));
+
+  testWidgets('two servers: the same line adds the server, no extra row', (
+    tester,
+  ) async {
+    final conn = await _controller(
+      _Api(directory: '/root/projects/IPTV_King'),
+      second: true,
+    );
+    addTearDown(conn.dispose);
+    await _pumpChat(tester, conn);
+    expect(_lineText(tester), 'IPTV_King \u00b7 Test server');
+    expect(
+      find.bySemanticsLabel(RegExp('Project .*IPTV_King on Test server')),
+      findsWidgets,
+    );
+    // The server is no longer a line of its own.
+    expect(find.text('Test server'), findsNothing);
+    await expectLater(
+      find.byType(MaterialApp),
+      matchesGoldenFile('goldens/chat_one_bar_two_servers_dark.png'),
+    );
+    await tester.tap(_chip);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('chat-project-files')), findsOneWidget);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.android));
+
+  testWidgets('at text size 2.0 the title stays beside the back arrow', (
+    tester,
+  ) async {
+    final conn = await _controller(
+      _Api(directory: '/root/projects/IPTV_King'),
+      second: true,
+    );
+    addTearDown(conn.dispose);
+    await tester.pumpWidget(const SizedBox());
+    final nav = GlobalKey<NavigatorState>();
+    tester.view.physicalSize = const Size(390, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [connProvider.overrideWithValue(conn)],
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          navigatorKey: nav,
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(
+              context,
+            ).copyWith(textScaler: const TextScaler.linear(2)),
+            child: child!,
+          ),
+          theme: AppTheme.dark(),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const Scaffold(body: SizedBox()),
+        ),
+      ),
+    );
+    unawaited(
+      nav.currentState!.push(
+        MaterialPageRoute<void>(
+          builder: (_) => const ChatScreen(sessionID: _sessionID),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final back = tester.getRect(find.byTooltip('Back'));
+    final title = tester.getRect(find.byKey(const Key('chat-title')));
+    expect(title.top, lessThan(back.bottom));
+    expect(title.left, greaterThanOrEqualTo(back.right - 1));
+    expect(_chip, findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await expectLater(
+      find.byType(MaterialApp),
+      matchesGoldenFile('goldens/chat_one_bar_title_text2_dark.png'),
+    );
+  }, variant: TargetPlatformVariant.only(TargetPlatform.android));
 }

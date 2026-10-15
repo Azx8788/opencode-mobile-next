@@ -159,6 +159,33 @@ void main() {
     expect(state.waiting(scope, 's'), isEmpty);
   });
 
+  test('a finished card call reads as a read-only card while unconfirmed', () {
+    final part = gateway.history.first.parts.first;
+    // Qualification not (yet) ready: the call is still a card, never a row.
+    register(ready: false);
+    final parse = state.cardForPart(scope, 's', 'm', part);
+    expect(parse, isA<GenUiParsed>());
+    expect(state.waiting(scope, 's'), isEmpty);
+    expect(state.state((parse as GenUiParsed).card), GenUiCardState.unknown);
+    // A call that is not finished stays an ordinary tool step.
+    expect(
+      state.cardForPart(
+        scope,
+        's',
+        'm',
+        Part(
+          id: 'p2',
+          type: 'tool',
+          messageID: 'm',
+          callID: 'c2',
+          toolName: 'oc-ui_show',
+          toolState: ToolState(status: 'running', input: const {'v': 1}),
+        ),
+      ),
+      isNull,
+    );
+  });
+
   test('unknown session deltas do not notify card listeners', () async {
     await state.journal.drained;
     var notifications = 0;

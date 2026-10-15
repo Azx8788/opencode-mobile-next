@@ -190,7 +190,8 @@ void main() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
           const MethodChannel('oc/background'),
-          (_) async => null,
+          (call) async =>
+              call.method == 'clearWidgetProfile' ? {'cleared': true} : null,
         );
     shortcutPublishes = [];
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -266,7 +267,14 @@ void main() {
     final result = await controller.deleteProfileAndLocalData('doomed');
 
     // Reported truthfully: the UI copy depends on these numbers.
-    expect(result.removedPreferenceKeys, hasLength(10));
+    expect(result.removedPreferenceKeys, hasLength(12));
+    expect(
+      result.removedPreferenceKeys,
+      containsAll([
+        'oc.shareSessionViews.doomed',
+        'oc.shareSessionViewsOrigin.doomed',
+      ]),
+    );
     expect(result.removedQueuedPrompts, 2);
     expect(result.removedDrafts, 2); // owned + unattributable
     expect(result.clearedWidgetSnapshot, isTrue);
@@ -658,8 +666,8 @@ void main() {
 
       expect(result.removedProfile, isFalse);
       expect(result.failures, ['1 saved setting']);
-      // The nine keys that did go are reported; the refused key is not claimed.
-      expect(result.removedPreferenceKeys, hasLength(9));
+      // Include the two migrated consent keys; the refused key is not claimed.
+      expect(result.removedPreferenceKeys, hasLength(11));
       expect(result.removedPreferenceKeys, isNot(contains('oc.agent.doomed')));
       expect(await onDisk('oc.agent.doomed'), 'build');
       expect(controller.store.profiles.map((p) => p.id), ['doomed', 'keeper']);

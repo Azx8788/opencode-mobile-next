@@ -8,6 +8,7 @@ import 'kit_bottom_inset.dart';
 import 'kit_buttons.dart';
 import 'kit_details_fold.dart';
 import 'kit_jump_pill.dart';
+import 'kit_live_background.dart';
 import 'kit_layout.dart';
 import 'kit_nav.dart';
 import 'kit_page_route.dart';
@@ -227,12 +228,26 @@ class KitScreen extends StatelessWidget {
   /// True when this window shows the detail beside the list (expanded or
   /// large, not short).
   static bool showsDetail(BuildContext context) =>
-      KitLayout.windowOf(context).isWide && !KitLayout.isShort(context);
+      KitLayout.windowOf(context).isWide &&
+      !KitLayout.isShort(context) &&
+      _roomForDetail(context) >= KitLayout.paneDetailMinWidth;
+
+  /// What the detail pane gets once the sidebar, the list (unless the
+  /// sidebar already holds it) and, when [withSide], the side pane are
+  /// taken from the window: panes follow the body, not the window.
+  static double _roomForDetail(BuildContext context, {bool withSide = false}) {
+    final list = KitNav.hostsPane(context) ? 0 : KitLayout.paneListWidth;
+    return MediaQuery.sizeOf(context).width -
+        KitNav.sidebarInsetOf(context) -
+        list -
+        (withSide ? KitLayout.paneSideWidth : 0);
+  }
 
   /// True when this window shows threePane's side pane (large, not short).
   static bool showsSide(BuildContext context) =>
       KitLayout.windowOf(context) == KitWindow.large &&
-      !KitLayout.isShort(context);
+      !KitLayout.isShort(context) &&
+      _roomForDetail(context, withSide: true) >= KitLayout.paneDetailMinWidth;
 
   /// True inside a twoPane/threePane detail or side pane. The seam for
   /// `KitTopBar(exit: auto)`, which shows no Back there (KitScreen.md
@@ -471,28 +486,31 @@ class _PageFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = KitTokens.of(context);
     final keyboard = MediaQuery.viewInsetsOf(context).bottom;
     final topBar = this.topBar;
     // One flat ground on every page, root tabs included (critique §4).
-    return Material(
-      color: tokens.roles.ground,
-      child: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: EdgeInsetsDirectional.only(bottom: keyboard),
-          child: MediaQuery.removeViewInsets(
-            context: context,
-            removeBottom: true,
-            child: topBar == null
-                ? child
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      topBar,
-                      Expanded(child: child),
-                    ],
-                  ),
+    // The ground is [KitLiveBackground]: flat, with a calm drift of colour
+    // on it that cards, rows and sheets cover solidly.
+    return KitLiveBackground(
+      child: Material(
+        color: Colors.transparent,
+        child: SafeArea(
+          bottom: false,
+          child: Padding(
+            padding: EdgeInsetsDirectional.only(bottom: keyboard),
+            child: MediaQuery.removeViewInsets(
+              context: context,
+              removeBottom: true,
+              child: topBar == null
+                  ? child
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        topBar,
+                        Expanded(child: child),
+                      ],
+                    ),
+            ),
           ),
         ),
       ),

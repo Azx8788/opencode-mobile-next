@@ -16,8 +16,8 @@ import struct
 import sys
 import tarfile
 
-BUNDLE_VERSION = "1.1.0"
-OPENCODE_VERSION = "1.18.32"
+BUNDLE_VERSION = "2.0.0"
+OPENCODE_VERSION = "2.0.29"
 
 
 def package(binary, expected_digest, architecture, output):

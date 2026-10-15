@@ -163,6 +163,17 @@ class CoreHistoryTest(Fixtures):
         self.assertEqual(result.returncode, 1, result.stdout)
         self.assertIn("Core list may not shrink", result.stdout)
 
+    def test_core_key_retired_with_its_english_message_passes(self):
+        base = self.initialize_history()
+        english = {k: v for k, v in ENGLISH.items() if k not in ("named", "@named")}
+        self.write("app_en.arb", english)
+        for locale in LOCALES:
+            self.write_locale(locale, named=None)
+        self.write_core(["count", "hello"])
+        result = self.run_check(["--base-ref", base])
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("retired with their English message", result.stdout)
+
     def test_grown_core_list_passes_against_base_commit(self):
         base = self.initialize_history()
         for locale in LOCALES:

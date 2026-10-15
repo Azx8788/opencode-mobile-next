@@ -407,6 +407,70 @@ final kitChatOverflowScenes = <KitOverflowScene>[
       state,
       build: (_, c) => _LogScene(copy: c, state: state),
     ),
+  KitOverflowScene(
+    ['KitPhraseChips'],
+    'default',
+    build: (_, c) => KitPhraseChips(
+      phrases: [
+        c.t('Continue', 'تابع'),
+        c.t(
+          'Run the tests and fix what fails',
+          'شغّل الاختبارات وأصلح ما يفشل',
+        ),
+        c.t('Commit this', 'احفظ هذا'),
+      ],
+      onChoose: (_) {},
+      onEdit: (_) {},
+      onHide: (_) {},
+    ),
+  ),
+  KitOverflowScene(
+    ['KitPhraseChips'],
+    'empty',
+    build: (_, _) => KitPhraseChips(
+      phrases: const [],
+      onChoose: (_) {},
+      onEdit: (_) {},
+      onHide: (_) {},
+    ),
+  ),
+  // KitFactRow: States none; one scene per provenance, then a waiting hit.
+  for (final provenance in KitProvenance.values)
+    KitOverflowScene(
+      ['KitFactRow'],
+      provenance.name,
+      build: (_, c) => KitFactRow(
+        text: c.t(
+          'The annual fee for the travel card is [AMOUNT] CUR and renews every September.',
+          'الرسوم السنوية لبطاقة السفر [AMOUNT] CUR وتتجدد كل سبتمبر.',
+        ),
+        provenance: provenance,
+        source: c.t('a shared message', 'رسالة مشاركة'),
+        observedAt: DateTime(2026, 9, 12),
+      ),
+    ),
+  KitOverflowScene(
+    ['KitFactRow'],
+    'waiting-hit',
+    build: (_, c) => KitFactRow(
+      text: c.t(
+        'Statement is due on the 15th of each month.',
+        'يستحق كشف الحساب في الخامس عشر من كل شهر.',
+      ),
+      provenance: KitProvenance.guessed,
+      observedAt: DateTime(2026, 10, 9),
+      title: c.t('Travel card', 'بطاقة السفر'),
+      waitingForOk: true,
+      open: _noop,
+      answers: [
+        KitAction(
+          label: c.t('Yes, keep it', 'نعم، احتفظ به'),
+          onPressed: _noop,
+        ),
+        KitAction(label: c.t('Not right', 'غير صحيح'), onPressed: _noop),
+      ],
+    ),
+  ),
 ];
 
 class _ComposerScene extends StatefulWidget {

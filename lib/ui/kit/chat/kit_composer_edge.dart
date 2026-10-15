@@ -79,6 +79,7 @@ class _ComposerFrameState extends State<_ComposerFrame>
     duration: _Classic.cycle,
   );
   bool _running = false;
+  bool _counted = false;
   Duration _duration = _Classic.cycle;
 
   /// Re-reads the choices; starts or stops the lap to match.
@@ -99,8 +100,28 @@ class _ComposerFrameState extends State<_ComposerFrame>
     }
   }
 
+  /// Tells the live background a reply runs (it brightens while any does).
+  void _count(bool active) {
+    if (active == _counted) return;
+    _counted = active;
+    KitLiveBackground.running.value += active ? 1 : -1;
+  }
+
+  @override
+  void didUpdateWidget(_ComposerFrame old) {
+    super.didUpdateWidget(old);
+    _count(widget.active);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _count(widget.active);
+  }
+
   @override
   void dispose() {
+    _count(false);
     _lap.dispose();
     super.dispose();
   }

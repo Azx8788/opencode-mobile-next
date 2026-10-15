@@ -15,6 +15,13 @@ class NativeInstallerVisibilityTest {
         assertNull(error.cause)
     }
 
+    @Test fun aPidReusedByAnotherAppProvesTheRecordedProcessGone() {
+        // Linux errno values: EPERM 1, ESRCH 3, EINTR 4.
+        assertEquals(true, NativeInstallerVisibility.goneAfterRefusedProbe(3, 3, 1))
+        assertEquals(true, NativeInstallerVisibility.goneAfterRefusedProbe(1, 3, 1))
+        assertFalse(NativeInstallerVisibility.goneAfterRefusedProbe(4, 3, 1))
+    }
+
     @Test fun visibleIdentitiesDoNotProbeAbsence() {
         val root = identity(20)
         val reparented = identity(21).copy(parent = 99)

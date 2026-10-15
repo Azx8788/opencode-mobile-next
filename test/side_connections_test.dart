@@ -578,7 +578,7 @@ void main() {
       ),
     );
     await tester.pump();
-    expect(find.text('Run a shell command'), findsOneWidget);
+    expect(find.text('Run this command?'), findsOneWidget);
     // Allow, then Undo inside the window: nothing is sent.
     await tester.tap(find.byKey(const Key('permission-card-allow')));
     await tester.pump();

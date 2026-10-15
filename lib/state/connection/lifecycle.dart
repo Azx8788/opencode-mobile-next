@@ -84,7 +84,15 @@ extension _ConnectionControllerLifecycleImpl on ConnectionController {
     ++_paIdleLifecycleEpoch;
     _resetTurnStalls();
     _lifecycleWasBackgrounded = true;
+    _usageSubscriptions?.setRuntime(
+      foreground: false,
+      backgroundAllowed: keepLiveInBackground && backgroundLive.active,
+    );
     _quotaMonitor?.setRuntime(
+      foreground: false,
+      backgroundAllowed: keepLiveInBackground && backgroundLive.active,
+    );
+    _paseoUsageMonitor?.setRuntime(
       foreground: false,
       backgroundAllowed: keepLiveInBackground && backgroundLive.active,
     );
@@ -113,7 +121,15 @@ extension _ConnectionControllerLifecycleImpl on ConnectionController {
   /// The body of [resumeFromLifecycle].
   Future<void> _resumeFromLifecycle() {
     if (_disposed || isIsolated) return Future.value();
+    _usageSubscriptions?.setRuntime(
+      foreground: true,
+      backgroundAllowed: keepLiveInBackground && backgroundLive.active,
+    );
     _quotaMonitor?.setRuntime(
+      foreground: true,
+      backgroundAllowed: keepLiveInBackground && backgroundLive.active,
+    );
+    _paseoUsageMonitor?.setRuntime(
       foreground: true,
       backgroundAllowed: keepLiveInBackground && backgroundLive.active,
     );
@@ -523,9 +539,12 @@ extension _ConnectionControllerLifecycleImpl on ConnectionController {
     sessionDetailsErrors.clear();
     _deletedSessionIDs.clear();
     sessionModels = {};
+    _anonymousSessionAgents.clear();
     _modelLibrary = const ModelLibrary();
     busySessions = {};
     _openTurns.clear();
+    _widgetTasks.clear();
+    _widgetRunMarkers.clear();
     observedCompletedMessageIDs.clear();
     retryStates = {};
     permissions = {};

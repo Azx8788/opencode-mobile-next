@@ -372,6 +372,8 @@ void main() {
       phone.endReply();
       await _settle(tester);
       await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpWidget(const SizedBox());
+      controller.dispose();
     });
 
     testWidgets('AI Team installed but not on: no download offer, Turn on '
@@ -398,6 +400,8 @@ void main() {
       expect(find.text(_en.teamIntroTurnOnPhone), findsOneWidget);
       expect(find.text(_en.teamIntroSetUpPhone), findsNothing);
       await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpWidget(const SizedBox());
+      controller.dispose();
     });
 
     testWidgets('Termux: Set it up is Add tools › AI Team on the Termux host', (
@@ -480,6 +484,8 @@ void main() {
       );
       expect(_key('team-intro-set-up'), findsNothing);
       await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpWidget(const SizedBox());
+      controller.dispose();
     });
   });
 
@@ -489,7 +495,7 @@ void main() {
       ConnectionController controller,
     ) async {
       _tallScreen(tester);
-      await tester.pumpWidget(_app(SettingsScreen(controller: controller)));
+      await tester.pumpWidget(_app(AgentsHubScreen(controller: controller)));
       await _settle(tester);
     }
 
@@ -587,7 +593,7 @@ void main() {
       );
 
       // Settings says turning on, never Off.
-      await tester.pumpWidget(_app(SettingsScreen(controller: controller)));
+      await tester.pumpWidget(_app(AgentsHubScreen(controller: controller)));
       await _settle(tester);
       await tester.ensureVisible(_key('settings-ai-team'));
       await _settle(tester);
@@ -606,6 +612,8 @@ void main() {
       await _settle(tester);
       expect(line(), startsWith(_en.teamUiRowOff));
       await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpWidget(const SizedBox());
+      controller.dispose();
     });
 
     testWidgets('once the phone team is on, one state: On · This phone', (
@@ -619,7 +627,7 @@ void main() {
       final controller = await _boot(
         _inApp()..orchestration = BuiltinTeam.config(),
       );
-      await tester.pumpWidget(_app(SettingsScreen(controller: controller)));
+      await tester.pumpWidget(_app(AgentsHubScreen(controller: controller)));
       await _settle(tester);
       await tester.ensureVisible(_key('settings-ai-team'));
       await _settle(tester);
@@ -634,6 +642,8 @@ void main() {
       expect(line, teamStateLine(_en, controller));
       expect(line, isNot(startsWith(_en.teamUiRowOff)));
       await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpWidget(const SizedBox());
+      controller.dispose();
     });
   });
 
@@ -708,6 +718,8 @@ class _WaitingPhone extends ChangeNotifier implements PhoneTeamSetupPorts {
   Future<void> stopServer() async {}
   @override
   Future<void> closeTerminals() async {}
+  @override
+  Future<void> stopEngine() async {}
   @override
   Future<PhoneEngineHealth> startEngine() => throw UnimplementedError();
   @override

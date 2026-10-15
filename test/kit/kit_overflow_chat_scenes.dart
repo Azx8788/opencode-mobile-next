@@ -197,7 +197,6 @@ final kitOverflowChatScenes = <KitOverflowScene>[
     'sending',
     'busy empty',
     'busy with text',
-    'busy with delivery choice',
     'busy cannot send yet',
     'offline',
     'read-only',
@@ -636,7 +635,6 @@ class _ComposerSceneState extends State<_ComposerScene> {
       onOpenEditor: _noop,
       busy: state.startsWith('busy'),
       canSendWhileBusy: state != 'busy cannot send yet',
-      onDeliveryChanged: state == 'busy with delivery choice' ? (_) {} : null,
       sending: state == 'sending',
       offline: state == 'offline',
       readOnlyReason: state == 'read-only'

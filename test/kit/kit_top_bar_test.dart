@@ -370,15 +370,15 @@ void main() {
     semantics.dispose();
   });
 
-  // Emulator QA F8: at 2.0 the pill cut "127.0.0.1" to "127.…" to keep
-  // " · Connected" beside it.
-  testWidgets('shell at 200 % text: the server name is whole, the status '
-      'goes under it', (tester) async {
+  // Emulator QA F8, then sweep 2310: at 2.0 the pill is one line. A name
+  // too long for it ends in an ellipsis; "Connected" is left to the dot.
+  testWidgets('shell at 200 % text: a long server name is one line with an '
+      'ellipsis, not three lines', (tester) async {
     await _pump(
       tester,
       KitTopBar.shell(
         controls: KitShellControls(
-          server: '127.0.0.1',
+          server: 'Computer at 10.0.2.2',
           serverStatus: 'Connected',
           serverTone: AppStatusTone.ok,
           onServer: () {},
@@ -388,11 +388,32 @@ void main() {
       textScale: 2,
     );
     expect(tester.takeException(), isNull);
-    final name = find.textContaining('127.0.0.1');
+    final name = find.textContaining('Computer at');
     expect(name, findsOneWidget);
-    final painter = tester.renderObject<RenderParagraph>(name);
-    expect(painter.didExceedMaxLines, isFalse);
-    final status = find.text('Connected');
+    final paragraph = tester.renderObject<RenderParagraph>(name);
+    expect(paragraph.didExceedMaxLines, isTrue);
+    expect(paragraph.size.height, lessThan(60));
+    expect(find.text('Connected'), findsNothing);
+  });
+
+  testWidgets('shell at 200 % text: a status that needs words stays on one '
+      'line under the name', (tester) async {
+    await _pump(
+      tester,
+      KitTopBar.shell(
+        controls: KitShellControls(
+          server: '127.0.0.1',
+          serverStatus: 'Reconnecting',
+          serverTone: AppStatusTone.attention,
+          onServer: () {},
+          onSearch: () {},
+        ),
+      ),
+      textScale: 2,
+    );
+    expect(tester.takeException(), isNull);
+    final name = find.textContaining('127.0.0.1');
+    final status = find.text('Reconnecting');
     expect(status, findsOneWidget);
     expect(
       tester.getTopLeft(status).dy,

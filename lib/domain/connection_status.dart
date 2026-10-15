@@ -11,6 +11,10 @@ enum ConnectionStatusPhase {
   /// again helps. Ranked with [credentialsRequired], ahead of transport.
   credentialsUnreadable,
   notAnswering,
+
+  /// The phone's own server is alive but slow to answer (a heavy command is
+  /// running): a quiet neutral line, never a failure or a Restart.
+  serverBusy,
 }
 
 class ConnectionStatusSnapshot {

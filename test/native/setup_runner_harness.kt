@@ -43,6 +43,41 @@ fun main(args: Array<String>) {
         val state = SetupJobState("job", "running", emptyList(), startedAt = 1)
         field(runner, "job").set(runner, state)
         when (args.single()) {
+            "interrupted-installer-retry" -> {
+                val installedCurl = File(dir, "installed-curl")
+                val nodeStarted = File(dir, "node-started")
+                val specs = listOf(
+                    SetupRunner.Spec("essentials", "touch '${installedCurl.path}'", false, false,
+                        1.0, false, null, null, emptyMap(), emptyMap()),
+                    SetupRunner.Spec("node", "test -f '${installedCurl.path}' && touch '${nodeStarted.path}'", false, false,
+                        1.0, false, null, null, emptyMap(), emptyMap()),
+                )
+                val texts = SetupRunner.Texts("channel", "title", "{percent}", "done", "stopped")
+                BuiltinLinux.interruptNextInstallerWithZeroExit = true
+                runner.start("interrupted", specs, null, texts)
+                (field(runner, "worker").get(runner) as Thread).join(5000)
+                check(!runner.running) { "interrupted installer did not terminate" }
+                val failed = JSONObject(runner.status()!!)
+                check(failed.getString("state") == "failed") { "zero launcher exit hid interrupted installation" }
+                val components = failed.getJSONObject("components")
+                check(components.getJSONObject("essentials").getString("state") == "failed") {
+                    "interrupted essentials was recorded as done"
+                }
+                check(components.getJSONObject("node").getString("state") == "pending") {
+                    "Node ran before essentials completed"
+                }
+                check(!installedCurl.exists() && !nodeStarted.exists())
+                check(BuiltinLinux.installerStarts == 1 && BuiltinLinux.installerFinishes == 1)
+
+                // Continue setup on the same runner and process, without relaunch.
+                runner.start("retry", specs, null, texts)
+                (field(runner, "worker").get(runner) as Thread).join(5000)
+                check(!runner.running) { "same-process retry did not terminate" }
+                val retried = JSONObject(runner.status()!!)
+                check(retried.getString("state") == "done") { "same-process retry failed" }
+                check(installedCurl.exists() && nodeStarted.exists()) { "retry skipped required installation" }
+                check(BuiltinLinux.installerStarts == 3 && BuiltinLinux.installerFinishes == 3)
+            }
             "paseo-checksum-failed", "paseo-launch-failed" -> {
                 val stage = if (args.single() == "paseo-checksum-failed") "Checking Paseo checksum" else "Checking Paseo launch command"
                 val script = "printf '::oc stage $stage\\nprivate-provider-output\\n'; exit 1"

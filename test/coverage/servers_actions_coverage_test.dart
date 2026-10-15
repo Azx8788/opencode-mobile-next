@@ -263,8 +263,7 @@ void main() {
   path('app servers.connect', (tester) async {
     final (store, controller) = await serversState(profiles: [_profile]);
     await pump(tester, store, controller);
-    await tester.tap(find.byKey(const ValueKey('server-row-srv')));
-    await tester.pumpAndSettle();
+    await rowMenu(tester, 'Connect');
     expect(controller.connects.map((p) => p.id), ['srv']);
     expect(find.text('home-route'), findsOneWidget);
   });
@@ -338,6 +337,8 @@ void main() {
     final test = find.text('Test connection');
     expect(test, findsOneWidget);
     await tester.ensureVisible(test);
+    // The page scrolls to the button over a frame; tap where it ends up.
+    await tester.pump();
     await tester.tap(test);
     await frames(tester, 10);
     expect(probed, isNotEmpty);
@@ -476,8 +477,9 @@ void main() {
 
   // Server settings.
   Future<(_Settings, _HealthApi, List<String>)> settings(
-    WidgetTester tester,
-  ) async {
+    WidgetTester tester, {
+    bool serverPage = false,
+  }) async {
     final (store, base) = await serversState(
       profiles: [
         ServerProfile(
@@ -501,7 +503,11 @@ void main() {
         controller: controller,
         store: store,
         routes: _routes(pushed),
-        home: ServerSettingsScreen(controller: controller),
+        // Disconnect and Remove live on the server's own page (Servers ›
+        // the server); status and updates are its Status and version page.
+        home: serverPage
+            ? ServerPageScreen(controller: controller, profileId: 'srv')
+            : ServerSettingsScreen(controller: controller),
       ),
     );
     await frames(tester, 10);
@@ -540,9 +546,10 @@ void main() {
   });
 
   path('app server-settings.remove', (tester) async {
-    final (_, _, pushed) = await settings(tester);
+    final (_, _, pushed) = await settings(tester, serverPage: true);
     final row = find.byKey(const ValueKey('server-remove'));
     await tester.ensureVisible(row);
+    await frames(tester, 3);
     expect(find.text('Remove Lab OpenCode'), findsOneWidget);
     await tester.tap(row);
     await frames(tester, 10);
@@ -596,9 +603,10 @@ void main() {
   });
 
   path('app server-settings.disconnect', (tester) async {
-    final (controller, _, pushed) = await settings(tester);
+    final (controller, _, pushed) = await settings(tester, serverPage: true);
     final row = find.byKey(const ValueKey('server-disconnect'));
     await tester.ensureVisible(row);
+    await frames(tester, 3);
     await tester.tap(row);
     await frames(tester, 10);
     await tester.tap(find.byKey(const ValueKey('confirm-disconnect')));

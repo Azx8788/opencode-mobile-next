@@ -27,6 +27,7 @@ import 'kit_layout.dart';
 import 'kit_menu.dart';
 import 'kit_motion.dart';
 import 'kit_notice.dart';
+import 'kit_one_time_code.dart';
 import 'kit_progress.dart';
 import 'kit_technical_value.dart';
 import 'kit_text.dart';

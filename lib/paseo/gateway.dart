@@ -19,6 +19,8 @@ import '../domain/agent_tools/agent_tool_adapter.dart';
 import '../domain/agent_tools/browser_claude_launch.dart';
 import '../domain/genui/gen_ui_history.dart';
 import '../domain/server_gateway.dart';
+import '../domain/agent_handoff.dart';
+import '../ui/kit/kit_redact.dart';
 import 'mappers.dart';
 import 'host_agent_providers.dart';
 import 'tested_versions.dart';
@@ -41,6 +43,7 @@ part 'gateway/payload_use.dart';
 part 'gateway/idle_work.dart';
 part 'gateway/workspace_base.dart';
 part 'gateway/files.dart';
+part 'gateway/handoff.dart';
 part 'gateway/changes.dart';
 part 'gateway/worktrees.dart';
 part 'gateway/terminals.dart';
@@ -60,7 +63,8 @@ class PaseoGateway extends _PaseoWorkspace
         HostDaemonUpdateGateway,
         AgentFeatureGateway,
         MidTurnPromptGateway,
-        ProviderConversationImportGateway {
+        ProviderConversationImportGateway,
+        AgentHandoffTargetGateway {
   @override
   final PaseoTransport transport;
   final Future<void> Function()? _beforePayloadUse;
@@ -334,7 +338,47 @@ class PaseoGateway extends _PaseoWorkspace
        );
 
   @override
-  ServerCapabilities get capabilities => paseoServerCapabilities;
+  ServerCapabilities get capabilities => paseoServerCapabilities.withGenUi(
+    false,
+    agentHandoffFiles: transport.connected && transport.workspaceFileEditing,
+  );
+  @override
+  String handoffSessionId(String sessionID) => daemonSessionId(sessionID);
+
+  @override
+  String handoffNavigationSessionId(String sessionID) => _app(sessionID);
+
+  @override
+  Future<void> promptAgentHandoff(
+    String sessionID, {
+    required String text,
+    required ModelRef model,
+    String? agent,
+    String? variant,
+    required void Function() beforeSend,
+  }) => _promptAsync(
+    sessionID,
+    messageID: _uuid(),
+    beforeSend: beforeSend,
+    text: text,
+    model: model,
+    agent: agent,
+    variant: variant,
+  );
+
+  @override
+  Future<String> writeAgentHandoff({
+    required String directory,
+    required String recordId,
+    required String markdown,
+  }) => _withPayloadUse(
+    () => _writeAgentHandoff(
+      directory: directory,
+      recordId: recordId,
+      markdown: markdown,
+    ),
+  );
+
   @override
   String? get directory => _directory;
   @override

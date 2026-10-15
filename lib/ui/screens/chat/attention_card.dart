@@ -138,6 +138,7 @@ class _PermissionAttentionCardState extends State<_PermissionAttentionCard> {
             context,
             conn.permissionsForSession(permission.sessionID).length - 1,
           ),
+          queued: conn.permissionsForSession(permission.sessionID).length - 1,
           answered: answered,
           alwaysAllow: permissionAlwaysStep(
             context,
@@ -563,16 +564,17 @@ String retryBannerHeadline(
   final cause = classifyAgentError(retry.message ?? '');
   final rateLimit = cause == null || cause == AgentErrorCause.rateLimited;
   final next = retry.next;
-  if (next == null) {
+  final delta = next?.difference(now ?? DateTime.now());
+  // No time, or a time already past, has no countdown to show: a clock
+  // stuck at 0:00 reads as a frozen app, so the plain "Retrying…" stands.
+  if (next == null || delta == null || delta <= Duration.zero) {
     return rateLimit
         ? strings.chatUiRateLimitRetry(attempt)
         : strings.chatUiRetryingSoon(attempt);
   }
-  final delta = next.difference(now ?? DateTime.now());
-  final remaining = delta.isNegative ? Duration.zero : delta;
   return rateLimit
-      ? strings.chatUiRateLimitCountdown(attempt, _countdown(remaining))
-      : strings.chatUiRetryingCountdown(attempt, _countdown(remaining));
+      ? strings.chatUiRateLimitCountdown(attempt, _countdown(delta))
+      : strings.chatUiRetryingCountdown(attempt, _countdown(delta));
 }
 
 String _countdown(Duration d) {

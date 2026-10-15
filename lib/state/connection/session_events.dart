@@ -166,6 +166,9 @@ extension _ConnectionControllerSessionEventsImpl on ConnectionController {
         final info = props['info'];
         if (info is Map<String, dynamic>) {
           final msg = MessageInfo.fromJson(info);
+          if (msg.role == 'user' && msg.id.isNotEmpty) {
+            _widgetRunMarkers[msg.sessionID] = msg.id;
+          }
           if (msg.role == 'user' && !_openTurns.containsKey(msg.sessionID)) {
             _openTurns[msg.sessionID] = DateTime.now();
           }
@@ -210,6 +213,17 @@ extension _ConnectionControllerSessionEventsImpl on ConnectionController {
           final toolStatus = state is Map ? state['status']?.toString() : null;
           if (sid.isNotEmpty && toolStatus != null) {
             final before = _runningToolDetail[sid];
+            var planChanged = false;
+            final tool = part['tool']?.toString().toLowerCase() ?? '';
+            if (tool == 'todowrite' || tool == 'todo') {
+              final input = state is Map ? state['input'] : null;
+              final meta = state is Map ? state['metadata'] : null;
+              planChanged = _noteTasks(
+                sid,
+                (meta is Map ? meta['todos'] : null) ??
+                    (input is Map ? input['todos'] : null),
+              );
+            }
             if (toolStatus == 'running') {
               _runningToolDetail[sid] = ConnectionController.toolSentence(
                 part['tool']?.toString() ?? '',
@@ -218,7 +232,9 @@ extension _ConnectionControllerSessionEventsImpl on ConnectionController {
             } else if (toolStatus == 'completed' || toolStatus == 'error') {
               _runningToolDetail.remove(sid);
             }
-            if (_runningToolDetail[sid] != before) _publishLiveStatus();
+            if (planChanged || _runningToolDetail[sid] != before) {
+              _publishLiveStatus();
+            }
           }
         }
         break;
@@ -244,22 +260,28 @@ extension _ConnectionControllerSessionEventsImpl on ConnectionController {
               busySessions.remove(sid);
               _openTurns.remove(sid);
               retryStates.remove(sid);
+              _noteRunEnded(sid, replied: true);
               _settleSessionAttention(sid, CodingAlertKind.complete);
               unawaited(_refreshOneSession(sid));
               _resumeDeferredProviderHeal();
+              _publishLiveStatus();
               break;
             case 'busy':
               _phoneChatDispatch.observeBusy(sid);
               busySessions.add(sid);
               retryStates.remove(sid);
+              _noteRunStarted(sid);
               _markSessionAttentionActive(sid);
+              _publishLiveStatus();
               break;
             case 'retry':
               _phoneChatDispatch.observeBusy(sid);
               busySessions.add(sid);
               final retry = SessionRetryState.fromStatusJson(rawStatus);
               if (retry != null) retryStates[sid] = retry;
+              _noteRunStarted(sid);
               _markSessionAttentionActive(sid);
+              _publishLiveStatus();
               break;
             default:
               _invalidatePhoneChatStatus();
@@ -288,8 +310,21 @@ extension _ConnectionControllerSessionEventsImpl on ConnectionController {
           busySessions.remove(sid);
           _openTurns.remove(sid);
           retryStates.remove(sid);
-          if (!stopped) _settleSessionAttention(sid, CodingAlertKind.error);
+          _noteRunEnded(sid, replied: false);
+          if (!stopped) {
+            final rawError = props['error'];
+            _settleSessionAttention(
+              sid,
+              CodingAlertKind.error,
+              reason: stoppedReasonToken(
+                rawError is Map
+                    ? (rawError['name'] ?? rawError['type'])?.toString()
+                    : null,
+              ),
+            );
+          }
           _resumeDeferredProviderHeal();
+          _publishLiveStatus();
         }
         final err = props['error'];
         if (!stopped && err is Map<String, dynamic>) {
@@ -318,9 +353,11 @@ extension _ConnectionControllerSessionEventsImpl on ConnectionController {
           busySessions.remove(sid);
           _openTurns.remove(sid);
           retryStates.remove(sid);
+          _noteRunEnded(sid, replied: true);
           _settleSessionAttention(sid, CodingAlertKind.complete);
           unawaited(_refreshOneSession(sid));
           _resumeDeferredProviderHeal();
+          _publishLiveStatus();
           _notifyListeners();
         }
         break;

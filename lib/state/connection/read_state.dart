@@ -22,11 +22,15 @@ mixin _ConnectionControllerReadState on ChangeNotifier {
     ReturnBrief shown, {
     required (String, String, int) expectedScope,
   }) => _self._dismissReturnBrief(shown, expectedScope: expectedScope);
-  bool get shareSessionViews => _self._shareSessionViews;
-  bool _savingReadPrivacy = false;
-  bool get savingReadPrivacy => _savingReadPrivacy;
-  int _readPrivacyRevision = 0;
-  int get readPrivacyRevision => _readPrivacyRevision;
+  String? get readStateProfileId =>
+      (_self._connectedProfile ?? _self.profile)?.id;
+  bool get shareSessionViews =>
+      readStateProfileId != null &&
+      _self.store.appPreferences.readStateConsent.enabled(readStateProfileId!);
+  bool get savingReadPrivacy =>
+      readStateProfileId != null &&
+      _self.store.appPreferences.readStateConsent.saving(readStateProfileId!);
+  int get readPrivacyRevision => _self.store.appPreferences.privacyEpoch;
   final _viewOperations = <Object, Future<void>>{};
   final _deletingReadProfiles = <String>{};
   final _closedQueueProfiles = <String>{};
@@ -34,8 +38,8 @@ mixin _ConnectionControllerReadState on ChangeNotifier {
   final _profileDeletions = <String, Future<DeleteProfileResult>>{};
   Future<void> _profileDeletionChanges = Future.value();
 
-  Future<void> setShareSessionViews(bool value) =>
-      _self._setShareSessionViews(value);
+  Future<void> setShareSessionViews(bool value, {String? expectedProfileId}) =>
+      _self._setShareSessionViews(value, expectedProfileId: expectedProfileId);
 
   bool isSessionUnread(Session session) => _self._isSessionUnread(session);
 
@@ -84,36 +88,40 @@ extension _ConnectionControllerReadStateImpl on ConnectionController {
   }
 
   bool _readProfileAvailable(String id) =>
+      !store.appPreferences.readStateConsent.isClosed(id) &&
       !_deletingReadProfiles.contains(id) &&
       (id.isEmpty || _isKnownProfile(id));
 
   /// The body of [setShareSessionViews].
-  Future<void> _setShareSessionViews(bool value) async {
-    if (_savingReadPrivacy) return;
-    final previous = _shareSessionViews;
-    if (previous == value) return;
-    _shareSessionViews = value;
-    _savingReadPrivacy = true;
-    final revision = ++_readPrivacyRevision;
-    _notifyListeners();
-    try {
-      if (!await store.prefs.setBool('oc.shareSessionViews', value)) {
-        throw StateError('Could not save the read-state preference');
-      }
-    } catch (_) {
-      // A failed opt-out stays private in this process. Turning sharing on
-      // requires a successful saved preference before observers may send.
-      if (_readPrivacyRevision == revision) {
-        _shareSessionViews = false;
-        _readPrivacyRevision++;
-        _notifyListeners();
-      }
-      rethrow;
-    } finally {
-      _savingReadPrivacy = false;
-      _readPrivacyRevision++;
-      if (!_disposed) _notifyListeners();
+  Future<void> _setShareSessionViews(
+    bool value, {
+    String? expectedProfileId,
+  }) async {
+    final id = readStateProfileId;
+    if (_disposed ||
+        id == null ||
+        (expectedProfileId != null && expectedProfileId != id) ||
+        !_readProfileAvailable(id)) {
+      throw const SettingsFailure(SettingsFailureReason.staleTarget);
     }
+    final owner = (_connectedProfile ?? profile)!;
+    final savedOwner = store.profiles.where((p) => p.id == id).firstOrNull;
+    Object identity(ServerProfile p) =>
+        (p.baseUrl, p.backend, p.username, p.flavor, p.codexDirectory);
+    final identityBefore = identity(owner);
+    final savedIdentity = savedOwner == null ? null : identity(savedOwner);
+    await store.appPreferences.readStateConsent.setEnabledIfCurrent(
+      id,
+      value,
+      isCurrent: () =>
+          !_disposed &&
+          identity(owner) == identityBefore &&
+          identical(
+            store.profiles.where((p) => p.id == id).firstOrNull,
+            savedOwner,
+          ) &&
+          (savedOwner == null || identity(savedOwner) == savedIdentity),
+    );
   }
 
   (String, String) _sessionReadKey(Session session) {
@@ -207,7 +215,7 @@ extension _ConnectionControllerReadStateImpl on ConnectionController {
       return Future.value();
     }
     final scope = locationRevision;
-    final privacy = _readPrivacyRevision;
+    final privacy = readPrivacyRevision;
     final (profileID, localKey) = _sessionReadKey(session);
     if (!_readProfileAvailable(profileID)) return Future.value();
     final operationKey = (scope, privacy, id, idle);
@@ -229,7 +237,7 @@ extension _ConnectionControllerReadStateImpl on ConnectionController {
     bool current() =>
         !_disposed &&
         locationRevision == scope &&
-        _readPrivacyRevision == privacy &&
+        readPrivacyRevision == privacy &&
         isForeground() &&
         !busySessions.contains(id) &&
         _readProfileAvailable(profileID) &&
@@ -246,10 +254,10 @@ extension _ConnectionControllerReadStateImpl on ConnectionController {
         }
         _notifyListeners();
         if (shareSessionViews &&
-            !_savingReadPrivacy &&
+            !savingReadPrivacy &&
             (sessionsById[id]?.time?.viewed ?? 0) < idle) {
           final transport = await prepareActionRepository();
-          if (!current() || !shareSessionViews || _savingReadPrivacy) {
+          if (!current() || !shareSessionViews || savingReadPrivacy) {
             completion.complete();
             return;
           }

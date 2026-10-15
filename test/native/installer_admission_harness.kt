@@ -41,6 +41,7 @@ private class BuiltinLinux(private val scenario: String) {
         else -> committed()
     }
     private var installerLaunchId: String? = installerProcess?.let { ticket!!.id }
+    private var installerMonitorFailure: Throwable? = null
     private var componentUpdatesRecovered = !scenario.contains("cold")
     private var pendingJournal = scenario.contains("install") && !scenario.startsWith("normal")
     private val savedGeneration = 7L

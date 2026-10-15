@@ -73,7 +73,7 @@ List<Widget> stepTimelineSteps(
   KitMessage.thought(
     heading: t(
       'The home route needs its own screen and a test',
-      'يحتاج المسار الرئيسي إلى شاشة واختبار',
+      'يحتاج المسار الرئيسي في التطبيق إلى شاشة خاصة به واختبار يغطي سلوكه',
     ),
     body: KitMarkdown(
       t(

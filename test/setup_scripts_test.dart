@@ -388,7 +388,12 @@ esac
         );
       }
 
-      final pinned = await check({});
+      expect(
+        (await check({})).exitCode,
+        isNot(0),
+        reason: 'a fresh setup requires pinned OC2, not installed OC1',
+      );
+      final pinned = await check({'runtime': 'opencode1'});
       expect(pinned.exitCode, 0);
       expect((pinned.stdout as String).trim(), '1.19.0');
       expect((await check({'version': '1.18.30'})).exitCode, isNot(0));
@@ -411,7 +416,7 @@ esac
     for (final params in [
       const <String, Map<String, String>>{},
       const {
-        'opencode': {'runtime': 'opencode2'},
+        'opencode': {'runtime': 'opencode1'},
       },
     ]) {
       for (final component in setupComponents(l10n, params: params)) {

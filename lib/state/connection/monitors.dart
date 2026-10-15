@@ -8,7 +8,21 @@ mixin _ConnectionControllerMonitors on ChangeNotifier {
 
   ProfileMonitor? _profileMonitor;
   ProviderQuotaMonitor? _quotaMonitor;
+  PaseoUsageMonitor? _paseoUsageMonitor;
+  UsageSubscriptionsController? _usageSubscriptions;
+  ComputerUsageSource? _computerUsage;
+
+  /// Every subscription across every connection, with its alert state. See
+  /// docs/design/usage-subscriptions-contract-2026-10-13.md.
+  UsageSubscriptionsController get usageSubscriptions =>
+      _self._usageSubscriptionsBody;
   ProviderQuotaMonitor get quotaMonitor => _self._quotaMonitorBody;
+
+  /// The one-shot usage check on saved OpenCode computers (opt-in per server).
+  ComputerUsageSource get computerUsage => _self._computerUsageBody;
+
+  /// Plan usage from opted-in Paseo servers, for the Usage widget.
+  PaseoUsageMonitor get paseoUsageMonitor => _self._paseoUsageMonitorBody;
 
   /// The shared rules as they apply now: the migrated value, or what the
   /// legacy per-server records say while the migration has not run.
@@ -34,25 +48,194 @@ mixin _ConnectionControllerMonitors on ChangeNotifier {
 }
 
 extension _ConnectionControllerMonitorsImpl on ConnectionController {
+  /// Something is set up to be read, so the subscriptions refresh may run on
+  /// its own. Without it the controller waits for the Usage page to ask.
+  bool get _hasUsageReaders =>
+      quotaMonitor.sources.isNotEmpty ||
+      paseoUsageMonitor.optedIn(UsageConnection.phoneId) ||
+      paseoUsageMonitor.paseoProfiles.any(
+        (p) => paseoUsageMonitor.optedIn(p.id),
+      ) ||
+      store.profiles.any(
+        (p) =>
+            looksLikeInAppServer(p) &&
+            (store.prefs.getBool(InAppQuotaCollector.enabledKey(p.id)) ??
+                false),
+      ) ||
+      store.profiles.any((p) => computerUsage.isEnabled(p.id));
+
+  /// The body of [computerUsage].
+  ComputerUsageSource get _computerUsageBody =>
+      _computerUsage ??= ComputerUsageSource(
+        prefs: store.prefs,
+        profiles: () => store.profiles,
+        isReadable: (id) => _ownsProfileServices && isProfileReadable(id),
+        isInApp: looksLikeInAppServer,
+        createPort: (profile) {
+          final pair = (_monitorGatewayFactory ?? _buildTransportPair)(profile);
+          return GatewayComputerTerminalPort(
+            pair.operations,
+            onClose: pair.gateway.close,
+          );
+        },
+        loadSource: () => rootBundle.loadString(computerUsageAsset),
+      );
+
+  /// The body of [usageSubscriptions].
+  UsageSubscriptionsController get _usageSubscriptionsBody {
+    final existing = _usageSubscriptions;
+    if (existing != null) return existing;
+    final collector = QuotaCollectorSource(
+      profiles: () => store.profiles,
+      isReadable: (id) => _ownsProfileServices && isProfileReadable(id),
+      isInApp: looksLikeInAppServer,
+      inAppEnabled: (id) =>
+          store.prefs.getBool(InAppQuotaCollector.enabledKey(id)) ?? false,
+      createGateway: (profile, provider) => HttpProviderQuotaGateway(
+        profile,
+        provider: provider,
+        inAppToken: InAppQuotaCollector.tokenReaderFor(profile),
+      ),
+      monitor: quotaMonitor,
+      sharedRules: () => sharedNotifyRules,
+    );
+    final controller = UsageSubscriptionsController(
+      prefs: store.prefs,
+      connections: () => [
+        for (final p in store.profiles)
+          UsageConnection(
+            id: p.id,
+            name: p.name,
+            kind: usageConnectionKindFor(p, inApp: looksLikeInAppServer(p)),
+          ),
+        if (phoneUsageSupported)
+          const UsageConnection(
+            id: UsageConnection.phoneId,
+            name: '',
+            kind: UsageConnectionKind.phoneAgents,
+          ),
+      ],
+      sources: [
+        collector,
+        computerUsage,
+        PaseoUsageSource(
+          monitor: paseoUsageMonitor,
+          paseoProfileIds: () => [
+            for (final p in store.profiles)
+              if (p.backend == ServerBackend.paseo) p.id,
+          ],
+        ),
+        AgentAccountSource(
+          current: () {
+            final gateway = api;
+            final saved = profile;
+            if (!isConnected ||
+                saved == null ||
+                !capabilities.agentAccount ||
+                gateway is! AgentAccountGateway) {
+              return null;
+            }
+            return (
+              connection: UsageConnection(
+                id: saved.id,
+                name: saved.name,
+                kind: usageConnectionKindFor(saved, inApp: false),
+              ),
+              gateway: gateway as AgentAccountGateway,
+            );
+          },
+        ),
+        OpenCodeSignInSource(
+          profiles: () => store.profiles,
+          isReadable: (id) => _ownsProfileServices && isProfileReadable(id),
+          providers: (profile) async {
+            final pair = (_monitorGatewayFactory ?? _buildTransportPair)(
+              profile,
+            );
+            try {
+              return await pair.gateway.providers();
+            } finally {
+              pair.gateway.close();
+            }
+          },
+        ),
+      ],
+      sharedRules: () => sharedNotifyRules,
+      setQuotaAlerts: (value) => updateSharedNotifyRules(
+        (rules) => rules.copyWith(quotaAlerts: value),
+      ),
+      alertBridge: collector,
+      readerNotes: computerUsage,
+      subscriptionAlerts: SubscriptionAlertDelivery(
+        prefs: store.prefs,
+        sharedRules: () => sharedNotifyRules,
+        wifi: backgroundLive.monitorWifiAvailable,
+        dismiss: (key) async {
+          await backgroundLive.dismissCodingAlert(key);
+        },
+        show: (note) => _postQuotaAlert(
+          kind: note.reset ? CodingAlertKind.quotaReset : CodingAlertKind.quota,
+          profileID: note.profileId,
+          key: note.key,
+          token: note.token,
+          agentName: note.providerName,
+        ),
+      ),
+      widget: UsageWidgetSnapshot(prefs: store.prefs),
+    )..addListener(_quotaMonitorChanged);
+    return _usageSubscriptions = controller;
+  }
+
+  /// The body of [paseoUsageMonitor].
+  PaseoUsageMonitor get _paseoUsageMonitorBody =>
+      _paseoUsageMonitor ??= PaseoUsageMonitor(
+        store: store,
+        widget: UsageWidgetSnapshot(prefs: store.prefs),
+        createGateway: PaseoProviderUsageGateway.new,
+        phoneSupported: () => _self.phoneUsageSupported,
+        phoneRead: _self._paReadUsage,
+        autoRead: true,
+        isReadable: (id) => _ownsProfileServices && isProfileReadable(id),
+      )..addListener(_quotaMonitorChanged);
+
   /// The body of [quotaMonitor].
   ProviderQuotaMonitor get _quotaMonitorBody =>
       _quotaMonitor ??= ProviderQuotaMonitor(
         store: store,
-        createGateway: (profile, provider) =>
-            HttpProviderQuotaGateway(profile, provider: provider),
+        widget: UsageWidgetSnapshot(prefs: store.prefs),
+        createGateway: (profile, provider) => HttpProviderQuotaGateway(
+          profile,
+          provider: provider,
+          inAppToken: InAppQuotaCollector.tokenReaderFor(profile),
+        ),
         isReadable: (id) => _ownsProfileServices && isProfileReadable(id),
         networkWifi: backgroundLive.monitorWifiAvailable,
         dismiss: backgroundLive.dismissCodingAlert,
         alert: ({required profileID, required key, required token}) =>
-            backgroundLive.showCodingAlert(
+            _postQuotaAlert(
               kind: CodingAlertKind.quota,
-              sessionID: 'quota',
               profileID: profileID,
               key: key,
-              monitorToken: token,
-              allowActions: false,
+              token: token,
             ),
       )..addListener(_quotaMonitorChanged);
+
+  /// The one place a usage alert is posted; both monitors come through here.
+  Future<bool> _postQuotaAlert({
+    required CodingAlertKind kind,
+    required String profileID,
+    required String key,
+    required String token,
+    String agentName = '',
+  }) => backgroundLive.showCodingAlert(
+    kind: kind,
+    sessionID: 'quota',
+    profileID: profileID,
+    key: key,
+    monitorToken: token,
+    allowActions: false,
+    agentName: agentName,
+  );
 
   /// The connected server first, so its quiet hours win a disagreement.
   List<String> get _notifyMigrationOrder {

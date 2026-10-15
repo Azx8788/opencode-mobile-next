@@ -50,6 +50,10 @@ class _ProfileEditorScreen extends StatefulWidget {
   State<_ProfileEditorScreen> createState() => _ProfileEditorScreenState();
 }
 
+/// No app-wide conditions: what the add-server flow shows instead of them.
+final ValueListenable<List<KitStatus>> _noStatus =
+    ValueNotifier<List<KitStatus>>(const []);
+
 class _ProfileEditorScreenState extends State<_ProfileEditorScreen> {
   /// "More options" starts open only when something in it was already set:
   /// a username other than the default, or an AI Team host.
@@ -319,56 +323,61 @@ class _ProfileEditorScreenState extends State<_ProfileEditorScreen> {
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) _exit();
       },
-      child: KitScreen(
-        key: const ValueKey('server-profile-editor'),
-        width: KitScreenWidth.reading,
-        topBar: KitTopBar(
-          title: title,
-          // Back steps within Add server; Close leaves (asking first when
-          // something is unsaved). Nothing closes while a save is in flight.
-          exit: back ? KitTopBarExit.back : KitTopBarExit.close,
-          exitKey: ValueKey(
-            back ? 'server-editor-back' : 'server-editor-close',
+      // Adding a server is about a different server: the app-wide line about
+      // the current one ("isn't answering") stays out of this flow.
+      child: KitStatusScope(
+        conditions: isNew ? _noStatus : KitStatusScope.of(context),
+        child: KitScreen(
+          key: const ValueKey('server-profile-editor'),
+          width: KitScreenWidth.reading,
+          topBar: KitTopBar(
+            title: title,
+            // Back steps within Add server; Close leaves (asking first when
+            // something is unsaved). Nothing closes while a save is in flight.
+            exit: back ? KitTopBarExit.back : KitTopBarExit.close,
+            exitKey: ValueKey(
+              back ? 'server-editor-back' : 'server-editor-close',
+            ),
+            onExit: _exit,
           ),
-          onExit: _exit,
-        ),
-        bottom: bottom,
-        body: AbsorbPointer(
-          absorbing: _submitting,
-          // One box, not a lazy list: every field exists while the form is
-          // open, so focus can move to one that is scrolled away.
-          child: CustomScrollView(
-            key: const ValueKey('server-profile-fields'),
-            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            slivers: [
-              SliverPadding(
-                padding: EdgeInsetsDirectional.only(
-                  top: tokens.space1,
-                  bottom: KitScreen.endPadding(context),
-                ),
-                sliver: SliverToBoxAdapter(
-                  // Each step replaces the last in place.
-                  child: Column(
-                    key: ValueKey('server-add-step-${_step.name}'),
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      if (_stepped) _stepLine(copy, tokens),
-                      ...switch (_step) {
-                        _AddStep.kind => _kindStep(copy, tokens),
-                        _AddStep.tailscale => _tailscaleStep(copy, tokens),
-                        _AddStep.ready => _readyStep(copy, tokens),
-                        _AddStep.connect => _connectStep(
-                          copy,
-                          tokens,
-                          isNew: isNew,
-                          showsCommand: showsCommand,
-                        ),
-                      },
-                    ],
+          bottom: bottom,
+          body: AbsorbPointer(
+            absorbing: _submitting,
+            // One box, not a lazy list: every field exists while the form is
+            // open, so focus can move to one that is scrolled away.
+            child: CustomScrollView(
+              key: const ValueKey('server-profile-fields'),
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              slivers: [
+                SliverPadding(
+                  padding: EdgeInsetsDirectional.only(
+                    top: tokens.space1,
+                    bottom: KitScreen.endPadding(context),
+                  ),
+                  sliver: SliverToBoxAdapter(
+                    // Each step replaces the last in place.
+                    child: Column(
+                      key: ValueKey('server-add-step-${_step.name}'),
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (_stepped) _stepLine(copy, tokens),
+                        ...switch (_step) {
+                          _AddStep.kind => _kindStep(copy, tokens),
+                          _AddStep.tailscale => _tailscaleStep(copy, tokens),
+                          _AddStep.ready => _readyStep(copy, tokens),
+                          _AddStep.connect => _connectStep(
+                            copy,
+                            tokens,
+                            isNew: isNew,
+                            showsCommand: showsCommand,
+                          ),
+                        },
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

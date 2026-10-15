@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -45,6 +46,7 @@ import 'guide_screen.dart' show GuideScreen;
 import 'agent_account_screen.dart';
 import 'pairing_scanner_screen.dart';
 import 'tailscale_setup_screen.dart';
+import 'settings_screen.dart' show openServerPage;
 import 'this_phone_screen.dart' show openThisPhone;
 import '../../state/tailscale_address.dart';
 import 'capabilities_screen.dart' show openExternalAgents;
@@ -144,6 +146,15 @@ class ServersRouteRequest {
        initialUrl = null,
        detectedRunning = true;
 
+  /// Open the editor for the saved server [profileID] (its name, address and
+  /// sign-in), whichever server the app is connected to.
+  const ServersRouteRequest.edit(String this.profileID)
+    : kind = ServersRouteRequestKind.edit,
+      backend = null,
+      initialUrl = null,
+      detectedRunning = false,
+      openCode2 = false;
+
   /// Confirm and forget the saved server [profileID].
   const ServersRouteRequest.forget(String this.profileID)
     : kind = ServersRouteRequestKind.forget,
@@ -160,7 +171,13 @@ class ServersRouteRequest {
   final bool openCode2;
 }
 
-enum ServersRouteRequestKind { connect, add, enterPhoneCredentials, forget }
+enum ServersRouteRequestKind {
+  connect,
+  add,
+  enterPhoneCredentials,
+  forget,
+  edit,
+}
 
 /// Manage opencode server profiles and connect.
 class ServersScreen extends ConsumerStatefulWidget {

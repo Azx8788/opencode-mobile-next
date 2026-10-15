@@ -153,7 +153,7 @@ void main() {
     );
     await tester.pump();
     expect(find.byTooltip('Send when back online'), findsOneWidget);
-    expect(find.textContaining("sends when you're back online"), findsWidgets);
+    expect(find.textContaining("Sends when OpenCode answers"), findsWidgets);
     await tester.pumpWidget(const SizedBox.shrink());
     conn.dispose();
   });

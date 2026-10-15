@@ -20,7 +20,7 @@ open class Service : Context() {
     fun stopForeground(flags: Int) { foreground = false; ServiceEvents.add("foreground.stop") }
     fun stopSelf() { stopped = true; ServiceEvents.add("service.stop") }
     fun stopSelf(id: Int) { stopSelf() }
-    companion object { const val START_STICKY = 1; const val START_NOT_STICKY = 2; const val STOP_FOREGROUND_REMOVE = 1; var denyForeground = false }
+    companion object { const val START_STICKY = 1; const val START_NOT_STICKY = 2; const val STOP_FOREGROUND_REMOVE = 1; const val STOP_FOREGROUND_DETACH = 2; var denyForeground = false }
 }
 class Notification {
     var title = ""

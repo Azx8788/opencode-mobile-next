@@ -165,7 +165,8 @@ void main() {
     );
     final card = tester.widget<KitRequestCard>(find.byType(KitRequestCard));
     expect(card.kind, KitRequestKind.question);
-    expect(find.text('Pick a target'), findsOneWidget);
+    // The question is the headline; its short header stays in Details.
+    expect(find.text('Pick a target'), findsNothing);
     expect(find.text('Where should this deploy?'), findsOneWidget);
     expect(find.text('Staging'), findsOneWidget);
     expect(find.text('Test environment'), findsOneWidget);

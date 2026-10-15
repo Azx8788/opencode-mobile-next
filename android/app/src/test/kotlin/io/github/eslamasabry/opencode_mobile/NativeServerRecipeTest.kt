@@ -27,6 +27,25 @@ class NativeServerRecipeTest {
     }
 
     @Test
+    fun freshOc2SelectionPersistsWithoutChangingAnExistingOc1Recipe() {
+        val existing = request().map()
+        val fresh = request(value = requested("runtime" to "openCode2"))
+        val restored = NativeServerRecipe.read(fresh.map())
+        assertEquals("openCode2", restored.runtime)
+        assertTrue(restored.restorationScript().contains("exec opencode2 serve "))
+        val older = NativeServerRecipe.read(existing)
+        assertEquals("openCode1", older.runtime)
+        assertTrue(older.restorationScript().contains("exec opencode serve "))
+        assertFalse(older.restorationScript().contains(".oc-opencode2"))
+    }
+
+    @Test
+    fun anOmittedRuntimeNeverAdoptsANewInstallDefaultDuringRestoration() {
+        rejects { request(value = requested() - "runtime") }
+        rejects { NativeServerRecipe.read(stored() - "runtime") }
+    }
+
+    @Test
     fun requestMustMatchCurrentProfileBinding() {
         for (bound in listOf(null, "", "other-profile", "Phone_1-A")) {
             rejects { request(bound = bound) }

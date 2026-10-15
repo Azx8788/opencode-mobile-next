@@ -11,7 +11,7 @@ extension _IndexInsidePages on _IndexBuild {
         kind: SearchEntryKind.insideSettings,
         icon: AppIconography.unlink,
         title: l10n.e7SettingsUi8,
-        parent: l10n.settingsHubThisServer,
+        parent: l10n.settingsV3Servers,
         keywords: l10n.settingsHubSearchDisconnectAliases,
         pages: const ['server-settings'],
         target: const SettingsSearchTarget(
@@ -19,11 +19,11 @@ extension _IndexInsidePages on _IndexBuild {
           sectionId: 'disconnect',
         ),
         gate: (scope) => scope.controller.profile != null,
-        open: _screen(
-          (scope) => ServerSettingsScreen(
-            controller: scope.controller,
-            initialSection: ServerSettingsScreen.disconnectSection,
-          ),
+        open: (context, scope) => openServerPage(
+          context,
+          scope.controller,
+          scope.controller.profile!.id,
+          arrive: 'server-disconnect',
         ),
       ),
       // AI setup (review only, 2026-09-28) is a row of the connected
@@ -36,7 +36,7 @@ extension _IndexInsidePages on _IndexBuild {
         kind: SearchEntryKind.insideSettings,
         icon: AppIconography.sparkle,
         title: l10n.aiSetupTitle,
-        parent: l10n.settingsHubThisServer,
+        parent: l10n.settingsV3Servers,
         keywords: l10n.aiSetupEntryDetail,
         pages: const ['server-settings', 'ai-setup'],
         gate: (scope) =>
@@ -76,6 +76,7 @@ extension _IndexInsidePages on _IndexBuild {
           (scope) => NotificationsSettingsScreen(
             controller: scope.controller,
             initialSection: 'what',
+            page: NotificationsPage.notifications,
           ),
         ),
       ),
@@ -97,6 +98,7 @@ extension _IndexInsidePages on _IndexBuild {
           (scope) => NotificationsSettingsScreen(
             controller: scope.controller,
             initialSection: 'quiet',
+            page: NotificationsPage.notifications,
           ),
         ),
       ),
@@ -117,6 +119,7 @@ extension _IndexInsidePages on _IndexBuild {
           (scope) => NotificationsSettingsScreen(
             controller: scope.controller,
             initialSection: 'background',
+            page: NotificationsPage.background,
           ),
         ),
       ),
@@ -143,6 +146,7 @@ extension _IndexInsidePages on _IndexBuild {
           (scope) => NotificationsSettingsScreen(
             controller: scope.controller,
             initialSection: 'servers',
+            page: NotificationsPage.notifications,
           ),
         ),
       ),
@@ -170,19 +174,14 @@ extension _IndexInsidePages on _IndexBuild {
         kind: SearchEntryKind.insideSettings,
         icon: AppIconography.globe,
         title: l10n.e7LocaleUiLanguage,
-        parent: appearance,
+        parent: l10n.settingsHubGroupThisApp,
         keywords: l10n.discoverLanguageAliases,
         pages: const ['appearance-settings'],
         target: const SettingsSearchTarget(
           pageId: 'appearance-settings',
           sectionId: 'language',
         ),
-        open: _screen(
-          (scope) => AppearanceSettingsScreen(
-            controller: scope.controller,
-            initialSection: AppearanceSection.language,
-          ),
-        ),
+        open: _hubAt(SettingsGroup.thisApp, 'settings-category-language'),
       ),
       SearchEntry(
         id: 'inside-appearance-theme',
@@ -226,12 +225,15 @@ extension _IndexInsidePages on _IndexBuild {
         parent: usage,
         keywords: l10n.discoverSpentAliases,
         pages: const ['usage'],
-        target: const SettingsSearchTarget(pageId: 'usage', sectionId: 'spent'),
+        target: const SettingsSearchTarget(
+          pageId: 'usage',
+          sectionId: 'spending',
+        ),
         gate: (scope) => scope.controller.supportsUsageStatistics,
         open: _screen(
           (scope) => UsageHubScreen(
             controller: scope.controller,
-            initialSection: UsageSection.spent,
+            initialSection: UsageSection.spending,
           ),
         ),
       ),
@@ -243,12 +245,15 @@ extension _IndexInsidePages on _IndexBuild {
         parent: usage,
         keywords: l10n.discoverBudgetAliases,
         pages: const ['usage'],
-        target: const SettingsSearchTarget(pageId: 'usage', sectionId: 'spent'),
+        target: const SettingsSearchTarget(
+          pageId: 'usage',
+          sectionId: 'spending',
+        ),
         gate: (scope) => scope.controller.supportsUsageStatistics,
         open: _screen(
           (scope) => UsageHubScreen(
             controller: scope.controller,
-            initialSection: UsageSection.spent,
+            initialSection: UsageSection.spending,
           ),
         ),
       ),
@@ -256,39 +261,32 @@ extension _IndexInsidePages on _IndexBuild {
         id: 'inside-usage-remaining',
         kind: SearchEntryKind.insideSettings,
         icon: AppIconography.usageRing,
-        title: l10n.usageSectionRemaining,
+        title: l10n.usageTabPlans,
         parent: usage,
         keywords: l10n.discoverRemainingAliases,
-        pages: const ['provider-quota'],
-        target: const SettingsSearchTarget(
-          pageId: 'usage',
-          sectionId: 'remaining',
-        ),
-        gate: (scope) => scope.controller.profile != null,
+        pages: const ['usage-plans'],
+        target: const SettingsSearchTarget(pageId: 'usage', sectionId: 'plans'),
+        gate: (scope) => scope.controller.store.profiles.isNotEmpty,
         open: _screen(
           (scope) => UsageHubScreen(
             controller: scope.controller,
-            initialSection: UsageSection.remaining,
+            initialSection: UsageSection.plans,
           ),
         ),
       ),
       SearchEntry(
-        id: 'inside-usage-quota-monitoring',
+        id: 'inside-usage-alerts',
         kind: SearchEntryKind.insideSettings,
         icon: AppIconography.notificationImportant,
-        title: l10n.quotaMonitorTitle,
+        title: l10n.usageAlertsTitle,
         parent: usage,
         keywords: l10n.discoverQuotaMonitorAliases,
-        pages: const ['provider-quota'],
-        target: const SettingsSearchTarget(
-          pageId: 'usage',
-          sectionId: 'remaining',
-        ),
-        gate: (scope) => scope.controller.profile != null,
+        pages: const ['usage-alerts'],
+        gate: (scope) => scope.controller.store.profiles.isNotEmpty,
         open: _screen(
-          (scope) => UsageHubScreen(
+          (scope) => UsageAlertsScreen(
             controller: scope.controller,
-            initialSection: UsageSection.remaining,
+            usage: scope.controller.usageSubscriptions,
           ),
         ),
       ),

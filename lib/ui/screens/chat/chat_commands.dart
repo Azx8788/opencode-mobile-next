@@ -14,19 +14,19 @@ extension _ChatCommands on _ChatScreenState {
   /// The heading of the server's own actions: the agent's name in a
   /// conversation with an agent on this phone.
   String get _commandServerGroup =>
-      _conn.isAgentBackend ? (_conn.profile?.name ?? 'OpenCode') : 'OpenCode';
+      _conn.isAgentBackend ? (_agentName ?? 'OpenCode') : 'OpenCode';
 
   /// "Reconnecting" naming this conversation's own backend: an agent on
   /// this phone (Claude Code) is not OpenCode.
   String _reconnectingWords(BuildContext context) => _conn.isAgentBackend
       ? _chatL10n(
           context,
-        ).chatUiAgentIsReconnecting(KitBidi.auto(_conn.profile?.name ?? ''))
+        ).chatUiAgentIsReconnecting(KitBidi.auto(_agentName ?? ''))
       : _chatL10n(context).chatUiOpenCodeIsReconnecting;
 
   String _reconnectingShortlyWords(BuildContext context) => _conn.isAgentBackend
       ? _chatL10n(context).chatUiAgentIsReconnectingTryAgainShortly(
-          KitBidi.auto(_conn.profile?.name ?? ''),
+          KitBidi.auto(_agentName ?? ''),
         )
       : _chatL10n(context).chatUiOpenCodeIsReconnectingTryAgainShortly;
 
@@ -624,7 +624,7 @@ extension _ChatCommands on _ChatScreenState {
         description: _chatL10n(context).commandSheetPlanDescription,
         group: _chatL10n(context).chatUiCurrentSession,
         action: _ChatCommandAction.plan,
-        enabled: _latestPlan != null,
+        enabled: _latestTasks != null,
       ),
       CommandSheetEntry.app(
         slash: 'reload',

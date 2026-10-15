@@ -40,7 +40,7 @@ class ByoHostController {
   bool _busy = false;
   bool _disposed = false;
 
-  /// Ephemeral profile for the existing OpenCode1 ServerGateway factory.
+  /// Ephemeral profile for the verified host runtime and ServerGateway factory.
   /// Never upsert this credential/loopback port in ProfileStore. Persist only
   /// the BYO record; resume verifies a fresh tunnel before returning a profile.
   ServerProfile connectedProfile({required String name}) {
@@ -59,6 +59,9 @@ class ByoHostController {
       username: profileId,
       password: secrets.deviceToken,
       serverVersion: snapshot.record?.openCodeVersion,
+      flavor: snapshot.record?.openCodeVersion?.startsWith('2.') == true
+          ? ServerFlavor.v2
+          : ServerFlavor.v1,
     );
   }
 

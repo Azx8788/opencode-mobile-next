@@ -1,4 +1,4 @@
-// Gallery (gate G4) for KitFeedItem (one conversation in a feed: project, title, state or time, last line): at 412x915 and 1280x800, dark and
+// Gallery (gate G4) for KitFeedItem (one conversation in a feed: title, then state, project, time): at 412x915 and 1280x800, dark and
 // light, and at 2.0 text.
 //
 // Regenerate deliberately:
@@ -15,33 +15,31 @@ Widget _part() => KitRowGroup(
   children: [
     KitFeedItem(
       project: 'alpha',
-      gitLabel: 'Git',
       title: 'Fix the login bug',
-      preview: 'Allow running the tests?',
-      tag: const KitStatusTag(
-        label: 'Needs you',
-        tone: KitStatusTagTone.needsYou,
-      ),
+      state: 'Needs you',
+      stateTone: KitFeedStateTone.needsYou,
+      time: '2 h ago',
       onTap: () {},
     ),
     KitFeedItem(
       project: 'beta',
       title: 'Add dark mode',
-      preview: 'Editing lib/ui/theme.dart',
-      tag: const KitStatusTag(label: 'Running', tone: KitStatusTagTone.running),
+      state: 'Working',
+      stateTone: KitFeedStateTone.running,
+      time: 'now',
       onTap: () {},
     ),
     KitFeedItem(
       project: 'alpha',
-      gitLabel: 'Git',
+      agent: 'Claude Code',
       title: 'Rename the settings page and move its tests next to it',
-      preview: 'Done. Four files changed.',
-      time: '3d ago',
+      time: '3 d ago',
       onTap: () {},
     ),
     KitFeedItem(
       project: 'gamma',
       title: 'Plan the release notes',
+      state: 'Failed',
       time: 'Sep 24',
       onTap: () {},
     ),

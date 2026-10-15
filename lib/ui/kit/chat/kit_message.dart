@@ -567,9 +567,12 @@ double? _hugWidth(BuildContext context, KitMarkdown body, double maxWidth) {
   final data = body.data.trim();
   if (data.isEmpty) return null;
   if (data.split('\n').any(_blockLine.hasMatch)) return null;
+  // What is drawn, not the source: a link is its label, and a file path in
+  // code is a chip with an inset either side.
+  final shown = kitMarkdownDisplay(data);
   final painter = TextPainter(
     text: TextSpan(
-      text: data,
+      text: shown.text,
       style: KitText.styleOf(context, body.role, tone: body.tone),
     ),
     textDirection: Directionality.of(context),
@@ -579,7 +582,9 @@ double? _hugWidth(BuildContext context, KitMarkdown body, double maxWidth) {
   painter.dispose();
   // One step of slack for rounding and inline marks (a code chip's inset).
   final tokens = KitTokens.of(context);
-  return (width + tokens.space1).ceilToDouble().clamp(0.0, maxWidth);
+  return (width + tokens.space1 + shown.pathChips * 2 * tokens.space1)
+      .ceilToDouble()
+      .clamp(0.0, maxWidth);
 }
 
 /// The keyboard focus ring on the bubble's own shape: [width] in `accent`,
@@ -713,46 +718,70 @@ class _FoldState extends State<_Fold> with SingleTickerProviderStateMixin {
     final open = _open;
     final onRail = KitStepTimeline.inside(context);
 
-    // On a timeline the first line stays at the top of the 48 dp target, so
-    // the node and the rail can be placed from the tokens alone.
+    // On a timeline a fold is one line like every step: 32 dp (more only
+    // for larger text), its first line in the middle of it so the node and
+    // the rail can be placed from the tokens alone, no chevron (a tap opens
+    // it), and the 48 dp target centred on the line. Off a timeline it is
+    // the 48 dp line with the kit's chevron.
+    final wide = MediaQuery.textScalerOf(context).scale(1) >= _kWrapTextScale;
+    final stepHeight = onRail ? KitStepTimeline.stepLineHeight(context) : 0.0;
+    final pad = onRail
+        ? (stepHeight - MediaQuery.textScalerOf(context).scale(20)) / 2
+        : tokens.space1;
     Widget lineBox(Widget child) => ConstrainedBox(
-      constraints: BoxConstraints(minHeight: tokens.minTarget),
+      constraints: BoxConstraints(
+        minHeight: onRail ? stepHeight : tokens.minTarget,
+      ),
       child: Align(
-        alignment: onRail
+        alignment: onRail && wide
             ? AlignmentDirectional.topStart
             : AlignmentDirectional.centerStart,
         heightFactor: onRail ? null : 1,
         child: Padding(
-          padding: EdgeInsetsDirectional.symmetric(vertical: tokens.space1),
+          padding: EdgeInsetsDirectional.symmetric(vertical: pad),
           child: child,
         ),
       ),
     );
+    Widget target(Widget tappable) => onRail && !wide
+        ? SizedBox(
+            height: stepHeight,
+            child: OverflowBox(
+              minHeight: tokens.minTarget,
+              maxHeight: tokens.minTarget,
+              child: tappable,
+            ),
+          )
+        : tappable;
 
     final Widget header;
     if (_opens) {
-      header = Semantics(
-        expanded: open,
-        child: KitTappable(
-          tappableKey: widget.foldKey,
-          onTap: _toggle,
-          label: widget.label,
-          shape: KitShape.tile,
-          surface: KitSurfaceLevel.ground,
-          child: lineBox(
-            Row(
-              children: [
-                Expanded(child: widget.line),
-                SizedBox(width: tokens.space1),
-                _FirstLine(
-                  child: ExcludeSemantics(
-                    child: SizedBox.square(
-                      dimension: tokens.smallIconSize,
-                      child: KitSpin.chevron(expanded: open),
+      header = target(
+        Semantics(
+          expanded: open,
+          child: KitTappable(
+            tappableKey: widget.foldKey,
+            onTap: _toggle,
+            label: widget.label,
+            shape: KitShape.tile,
+            surface: KitSurfaceLevel.ground,
+            child: lineBox(
+              onRail
+                  ? widget.line
+                  : Row(
+                      children: [
+                        Expanded(child: widget.line),
+                        SizedBox(width: tokens.space1),
+                        _FirstLine(
+                          child: ExcludeSemantics(
+                            child: SizedBox.square(
+                              dimension: tokens.smallIconSize,
+                              child: KitSpin.chevron(expanded: open),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ),
-              ],
             ),
           ),
         ),
@@ -770,7 +799,6 @@ class _FoldState extends State<_Fold> with SingleTickerProviderStateMixin {
     Widget top = header;
     final trailing = widget.trailing;
     if (trailing != null) {
-      final wide = MediaQuery.textScalerOf(context).scale(1) >= _kWrapTextScale;
       top = wide
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -811,7 +839,8 @@ class _FoldState extends State<_Fold> with SingleTickerProviderStateMixin {
     return KitStepTimeline.node(
       context,
       lineHeight: 20,
-      top: tokens.space1,
+      top: onRail ? 0 : tokens.space1,
+      boxHeight: onRail ? stepHeight : null,
       icon: widget.railIcon,
       mark: widget.railMark,
       child: column,

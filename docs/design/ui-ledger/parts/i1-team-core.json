@@ -2718,6 +2718,10 @@
       "reason": "Pure mapping from a refused project command's code to plain words, a way forward and Details text; no surface and no interactive element."
     },
     {
+      "file": "lib/ui/screens/team/projects/team_status_words.dart",
+      "reason": "Pure functions (teamProgressWords, teamPlanningMinutes) turning project task counts and planner timestamps into the Tasks line and the slow-planning threshold; no surface and no interactive element."
+    },
+    {
       "file": "lib/ui/screens/team/policy_block.dart",
       "reason": "TeamPolicyBlock is a read-only rendering block (supervision line + boundary chips) embedded in the run Overview (run_screen.dart:775) only when `controller.policy != null`; no surface and no interactive element."
     },

@@ -36,11 +36,20 @@ extension _IntegrationsSignIn on _IntegrationsScreenState {
       final status = entry.expired
           ? IntegrationAuthState.expired
           : _signInStatus[entry.key];
+      final ended =
+          entry.kind == PendingAuthKind.oauth && _signInIsEnded(entry);
+      final waiting = !ended && _signInIsWaiting(entry);
       rows.add(
         _SignInRow(
           integrationID: entry.integrationID,
           name: name,
-          word: _signInWord(status ?? IntegrationAuthState.pending),
+          word: ended
+              ? l10n.integrationsSignInEnded
+              : waiting &&
+                    (status ?? IntegrationAuthState.pending) ==
+                        IntegrationAuthState.pending
+              ? l10n.integrationsSignInWaitingBrowser
+              : _signInWord(status ?? IntegrationAuthState.pending),
           mark: _IntegrationsScreenState._signInMark(
             status ?? IntegrationAuthState.pending,
           ),
@@ -96,6 +105,9 @@ extension _IntegrationsSignIn on _IntegrationsScreenState {
           _SignInChoice.enterCode => AppIconography.permissions,
           _SignInChoice.cancel => AppIconography.close,
           _SignInChoice.forget => AppIconography.delete,
+          _SignInChoice.copyCode => AppIconography.copy,
+          _SignInChoice.openBrowser => AppIconography.browser,
+          _SignInChoice.restart => AppIconography.restart,
         },
         destructive: choice == _SignInChoice.forget,
         onSelected: () => unawaited(run(choice)),
@@ -157,6 +169,7 @@ extension _IntegrationsSignIn on _IntegrationsScreenState {
         if (!widget.controller.integrationAuthRecoverySupported && !terminal)
           l10n.integrationsPendingNotRecoverable,
       ],
+      code: providerDeviceCode(pending.launch.instructions),
       actions: _liveSignInActions(pending),
       primary: terminal ? null : _SignInChoice.finish,
     );
@@ -194,14 +207,44 @@ extension _IntegrationsSignIn on _IntegrationsScreenState {
   ) {
     final l10n = _l10n;
     final supported = widget.controller.integrationAuthRecoverySupported;
+    final oauth = entry.kind == PendingAuthKind.oauth;
+    final ended = oauth && _signInIsEnded(entry);
     final expired =
         entry.expired ||
         _signInStatus[entry.key] == IntegrationAuthState.expired;
-    final canResume = supported && !expired;
-    final codeEntry =
-        entry.kind == PendingAuthKind.oauth &&
-        entry.mode == IntegrationAuthMode.code;
+    // An automatic sign-in finishes by itself: the app is waiting on it, so
+    // there is nothing to tap but the way back to the page and the code.
+    final waiting = !ended && _signInIsWaiting(entry);
+    final canResume = supported && !expired && !waiting;
+    final codeEntry = oauth && entry.mode == IntegrationAuthMode.code;
     return [
+      if (ended && supported)
+        (
+          _SignInChoice.restart,
+          KitAction(
+            key: const ValueKey('pending-auth-restart'),
+            label: l10n.integrationsStartAgain,
+            onPressed: () {},
+          ),
+        ),
+      if (waiting && _signInUrls.containsKey(entry.key))
+        (
+          _SignInChoice.openBrowser,
+          KitAction(
+            key: const ValueKey('pending-auth-open-browser'),
+            label: l10n.integrationsOpenBrowserAgain,
+            onPressed: () {},
+          ),
+        ),
+      if (waiting && _signInCodes.containsKey(entry.key))
+        (
+          _SignInChoice.copyCode,
+          KitAction(
+            key: const ValueKey('pending-auth-copy-code'),
+            label: l10n.integrationsCopyCode,
+            onPressed: () {},
+          ),
+        ),
       if (canResume)
         (
           _SignInChoice.finish,
@@ -245,24 +288,45 @@ extension _IntegrationsSignIn on _IntegrationsScreenState {
     final status = entry.expired
         ? IntegrationAuthState.expired
         : _signInStatus[entry.key] ?? IntegrationAuthState.pending;
+    final oauth = entry.kind == PendingAuthKind.oauth;
+    final ended = oauth && _signInIsEnded(entry);
+    final waiting = !ended && _signInIsWaiting(entry);
     final actions = _savedSignInActions(entry, name);
+    // The code has its own Copy in the sheet; the row's menu keeps the act.
+    final sheetActions = [
+      for (final action in actions)
+        if (action.$1 != _SignInChoice.copyCode) action,
+    ];
     final choice = await _showSignInSheet(
       context,
       name: name,
-      word: _signInWord(status),
+      word: ended
+          ? l10n.integrationsSignInEnded
+          : waiting
+          ? l10n.integrationsSignInWaitingBrowser
+          : _signInWord(status),
       message: entry.kind == PendingAuthKind.command
           ? l10n.commandAuthPending
+          : ended
+          ? l10n.integrationsSignInEndedDetail
+          : waiting
+          ? l10n.integrationsSignInWaitingDetail
           : l10n.pendingAuthDetail,
       notes: [
         if (!widget.controller.integrationAuthRecoverySupported)
           l10n.pendingAuthUnsupported,
-        if (status == IntegrationAuthState.expired) l10n.pendingAuthExpired,
-        if (status == IntegrationAuthState.failed) l10n.pendingAuthServerFailed,
+        if (!ended && status == IntegrationAuthState.expired)
+          l10n.pendingAuthExpired,
+        if (status == IntegrationAuthState.failed && !ended)
+          l10n.pendingAuthServerFailed,
       ],
-      actions: actions,
-      primary: actions.any((a) => a.$1 == _SignInChoice.finish)
-          ? _SignInChoice.finish
-          : null,
+      code: waiting ? _signInCodes[entry.key] : null,
+      actions: sheetActions,
+      primary: [
+        _SignInChoice.restart,
+        _SignInChoice.openBrowser,
+        _SignInChoice.finish,
+      ].where((c) => sheetActions.any((a) => a.$1 == c)).firstOrNull,
     );
     if (choice == null || !mounted) return;
     await _runSavedSignIn(entry, name, choice);
@@ -274,6 +338,16 @@ extension _IntegrationsSignIn on _IntegrationsScreenState {
     _SignInChoice choice,
   ) async {
     if (_signInBusy.contains(entry.key)) return;
+    switch (choice) {
+      case _SignInChoice.copyCode:
+        return _copySignInCode(entry);
+      case _SignInChoice.openBrowser:
+        return _reopenSignInBrowser(entry, name);
+      case _SignInChoice.restart:
+        return _startSignInAgain(entry, name);
+      default:
+        break;
+    }
     final l10n = _l10n;
     final controller = widget.controller;
     final source = _authSourceFor(controller);
@@ -321,6 +395,13 @@ extension _IntegrationsSignIn on _IntegrationsScreenState {
         locationRevision: location,
       );
       if (!current()) return;
+      if (choice == _SignInChoice.cancel) {
+        // The person ended it: the row goes back to its normal state, and
+        // "expired" is not said about a sign-in that was cancelled.
+        _clearSignInLocalState(entry);
+        _say(l10n.agentAccountCancelled);
+        return;
+      }
       _set(() => _signInStatus[entry.key] = result.state);
       switch (result.state) {
         case IntegrationAuthState.complete:
@@ -338,6 +419,32 @@ extension _IntegrationsSignIn on _IntegrationsScreenState {
     } finally {
       if (mounted) _set(() => _signInBusy.remove(entry.key));
     }
+  }
+
+  void _clearSignInLocalState(PendingAuthAttempt entry) {
+    _set(() {
+      _signInStatus.remove(entry.key);
+      _signInEnded.remove(entry.key);
+      _signInCodes.remove(entry.key);
+      _signInUrls.remove(entry.key);
+    });
+  }
+
+  /// Cancel on the code sheet: the same cancel as the row's own, so the
+  /// attempt is dropped and the provider reads "Not connected" again.
+  Future<void> _cancelSavedSignIn(PendingAuthAttempt entry) async {
+    final controller = widget.controller;
+    try {
+      await controller.recoverIntegrationAuth(
+        entry,
+        cancel: true,
+        locationRevision: controller.locationRevision,
+      );
+    } catch (_) {
+      if (mounted) _say(_l10n.pendingAuthFailed, tone: AppStatusTone.failure);
+      return;
+    }
+    if (mounted) _clearSignInLocalState(entry);
   }
 
   /// A start the server may have taken without confirming it: the app

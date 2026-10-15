@@ -216,6 +216,7 @@ extension _ChatPage on _ChatScreenState {
           siblingIndex: siblingIndex,
         ),
         header: [
+          ..._handoffLinkHeader(),
           // The demo has no bar of its own here; its one extra action sits
           // under the host's bar. While the keyboard is up the room goes to
           // the conversation and what waits on the person; the action is

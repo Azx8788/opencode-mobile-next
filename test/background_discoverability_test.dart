@@ -85,9 +85,12 @@ void main() {
     );
     await tester.pumpAndSettle();
     // The state as the row's short value (canvas Settings.png).
-    expect(find.text('Background: On · running now'), findsOneWidget);
-
     final row = find.byKey(const ValueKey('settings-category-background'));
+    expect(
+      find.descendant(of: row, matching: find.text('On · running now')),
+      findsOneWidget,
+    );
+
     await tester.ensureVisible(row);
     await tester.pumpAndSettle();
     await tester.tap(row);

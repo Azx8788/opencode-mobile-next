@@ -1,3 +1,4 @@
+import '../../domain/opencode_history_copy.dart';
 import '../../domain/phone_agent_context.dart';
 import '../opencode_ubuntu_setup.dart';
 
@@ -37,6 +38,16 @@ managed_runtime() {
     opencode2) printf opencode2 ;;
     *) echo 'unsupported-managed-runtime' >&2; return 64 ;;
   esac
+}
+
+# Only setup may choose a new default. Status/restart still interpret missing
+# records as Older OpenCode, including installs made before runtime selection.
+setup_runtime() {
+  if [ -f "$RUNTIME_FILE" ] || [ -f "$STATE" ] || ubuntu_rootfs_exists; then
+    managed_runtime
+  else
+    printf opencode2
+  fi
 }
 
 runtime_command() {
@@ -156,6 +167,11 @@ proot-distro login opencode-ubuntu -- mkdir -p /root/projects >/dev/null 2>&1 ||
 if [ "${#runtime_env[@]}" -gt 0 ]; then
   proot-distro login opencode-ubuntu -- mkdir -p /root/.oc-opencode2/data/opencode \
     /root/.oc-opencode2/cache /root/.oc-opencode2/state /root/.oc-opencode2/config/opencode || exit 74
+  # Bring the OpenCode 1 chats along before OpenCode 2's first start.
+  proot-distro login opencode-ubuntu -- sh -s 2>&1 <<'OC_HISTORY_COPY' | "$manager" write-log server || exit 74
+''' +
+    openCode1HistoryCopyScript +
+    r'''OC_HISTORY_COPY
 fi
 proot-distro login --work-dir /root/projects opencode-ubuntu -- env \
   "${runtime_env[@]}" \
@@ -724,12 +740,12 @@ setup() {
   local requested_version="${2:-}"
   local dispatcher_pid="${3:-}"
   local dispatcher_start="${4:-}"
-  CURRENT_RUNTIME="${5:-$(managed_runtime)}"
+  CURRENT_RUNTIME="${5:-$(setup_runtime)}"
   managed_runtime >/dev/null || return 64
   if [ -z "$requested_version" ]; then
     case "$CURRENT_RUNTIME" in
       opencode1) requested_version=1.19.0 ;;
-      opencode2) requested_version=2.0.10 ;;
+      opencode2) requested_version=2.0.29 ;;
     esac
   fi
   SETUP_SUCCEEDED=0
@@ -739,6 +755,8 @@ setup() {
     rm -f "$MANAGER_PID"
     return 75
   fi
+  printf '%s' "$CURRENT_RUNTIME" > "$RUNTIME_FILE.tmp.$$"
+  mv "$RUNTIME_FILE.tmp.$$" "$RUNTIME_FILE"
   trap on_setup_error ERR
   trap cleanup_setup EXIT
   [ "$(process_group "$$" 2>/dev/null || true)" = "$$" ] ||
@@ -983,6 +1001,17 @@ switch_runtime() {
     fail_setup 'The saved profile credential differs from this runtime; restore its original saved credential before returning'
   fi
   ubuntu_usable || fail_setup 'The managed Ubuntu environment is unavailable'
+  # Refuse before stopping the old server or changing either history.
+  if [ "$target" = opencode2 ] && [ "$current" = opencode1 ]; then
+    local history_check
+    if ! history_check=$(proot-distro login opencode-ubuntu -- sh -s 2>&1 <<'OC_HISTORY_SWITCH'
+''' +
+    openCode1HistorySwitchCheckScript +
+    r'''OC_HISTORY_SWITCH
+    ); then
+      fail_setup "$history_check"
+    fi
+  fi
   # Revocation is durable and precedes every generation-changing action.
   rm -f "$RECOVERY_PERMIT"
   # Capture current credential only when its runtime is known, never replace a
@@ -1008,7 +1037,7 @@ switch_runtime() {
     local requested_version
     case "$target" in
       opencode1) requested_version=1.19.0 ;;
-      opencode2) requested_version=2.0.10 ;;
+      opencode2) requested_version=2.0.29 ;;
     esac
     install_runtime "$requested_version"
     installed_version=$(runtime_version 2>/dev/null || true)

@@ -324,6 +324,12 @@ void main() {
         tester,
         controller,
         const ChatScreen(sessionID: checkoutSessionID),
+        // The live background drifts for good by design; this test is about
+        // the chat's own signals settling.
+        wrap: (app) => KitEffectsScope(
+          effects: const KitEffects(liveBackground: false),
+          child: app,
+        ),
       );
       final stop = find.byKey(const Key('chat-stop-button'));
       expect(stop, findsOneWidget);
@@ -338,6 +344,7 @@ void main() {
       expect(stop, findsNothing);
       expect(tester.hasRunningAnimations, isFalse);
       await _unmount(tester);
+      controller.dispose();
     });
 
     testWidgets('under reduced motion the working signal is still', (

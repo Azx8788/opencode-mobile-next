@@ -55,9 +55,10 @@ class TermuxBridge {
   /// verified against; raising it is a code change with a test run behind it,
   /// not something that happens on its own.
   ///
-  /// Keep this in step with the shell fallback in [_managerScript]
-  /// (`requested_version="${2:-…}"`); a test asserts the two agree.
-  static const defaultOpenCodeVersion = '1.19.0';
+  /// Fresh-install pin; existing runtime records retain their own selection.
+  /// Keep this in step with [TermuxRuntime.defaultForNewInstall] and the
+  /// corresponding runtime-specific manager pin.
+  static const defaultOpenCodeVersion = '2.0.29';
 
   /// The npm dist-tag, available only when a caller passes it to
   /// [installAndServeScript] on purpose. Nothing in the app does today: it
@@ -481,7 +482,7 @@ class TermuxBridge {
     int port = 4096,
     required String password,
     String? version,
-    TermuxRuntime runtime = TermuxRuntime.openCode1,
+    TermuxRuntime runtime = TermuxRuntime.defaultForNewInstall,
   }) => termuxInstallAndServeScript(
     port: port,
     password: password,

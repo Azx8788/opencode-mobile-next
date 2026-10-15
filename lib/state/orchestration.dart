@@ -253,6 +253,14 @@ class OrchestrationController extends ChangeNotifier {
   OrchestrationStreamStatus get streamStatus => _streamStatus;
   OrchestrationError? get lastError => _lastError;
 
+  /// When the last probe or connect failed, and whether the team ever
+  /// answered: a host that is still starting reads as unreachable for a
+  /// moment, and the first failure is not yet news.
+  DateTime? get failedAt => _failedAt;
+  bool get everReady => _everReady;
+  DateTime? _failedAt;
+  bool _everReady = false;
+
   /// Resume position, advanced by every numbered event.
   EventCursor get cursor => _cursor;
 
@@ -339,6 +347,7 @@ class OrchestrationController extends ChangeNotifier {
     final error = OrchestrationError.fromVerdict(verdict);
     if (error != null || verdict is! ProbeFound) {
       _lastError = error;
+      _failedAt = DateTime.now();
       _setPhase(OrchestrationPhase.failed);
       return;
     }
@@ -380,6 +389,7 @@ class OrchestrationController extends ChangeNotifier {
       if (_stoppedMeanwhile) return;
     }
     _subscribe(gateway);
+    _everReady = true;
     _setPhase(OrchestrationPhase.ready);
     await refresh();
   }
@@ -402,6 +412,7 @@ class OrchestrationController extends ChangeNotifier {
   void _fail(OrchestrationErrorKind kind, String message) {
     if (_stoppedMeanwhile) return;
     _lastError = OrchestrationError(kind, message);
+    _failedAt = DateTime.now();
     _setPhase(OrchestrationPhase.failed);
   }
 

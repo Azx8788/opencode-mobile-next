@@ -118,7 +118,7 @@ jobs:
           node-version: "24.19.0"
 
       - name: Test optional quota collector with synthetic inputs
-        run: node --test tool/quota/collector.test.mjs
+        run: node --test tool/quota/collector.test.mjs tool/quota/glm.test.mjs tool/quota/minimax.test.mjs tool/quota/read_once.test.mjs
 
       - name: Test PR APK link automation with synthetic APIs
         run: node --test tool/qa/test_apk_comment.mjs

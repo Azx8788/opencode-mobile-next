@@ -171,7 +171,7 @@ void main() {
       expect(_ids(controller, 'حرارة').first, 'inside-keep-running-thermal');
       expect(
         _ids(controller, ar.settingsHubGroupNotifications),
-        contains('settings-category-background'),
+        contains('settings-category-notifications'),
       );
       expect(
         _ids(controller, 'animations', l10n: ar).first,

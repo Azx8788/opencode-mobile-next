@@ -167,6 +167,10 @@ void main() {
     await tester.ensureVisible(row);
     await tester.tap(row);
     await tester.pumpAndSettle();
+    // Agents is one page for the AI Team, the agents on this phone and the
+    // external ones; the phone's own agents are its middle row.
+    await tester.tap(_key('agents-hub-phone'));
+    await tester.pumpAndSettle();
     expect(_key('agents-screen'), findsOneWidget);
     expect(_key('agents-section'), findsOneWidget);
     expect(find.text('Check this phone'), findsOneWidget);
@@ -190,14 +194,16 @@ void main() {
     await tester.pumpAndSettle();
     final row = _key('settings-agents');
     await tester.ensureVisible(row);
+    await tester.tap(row);
+    await tester.pumpAndSettle();
     expect(
       find.descendant(
-        of: row,
+        of: _key('agents-hub-phone'),
         matching: find.text('Agents run on the built-in server'),
       ),
       findsOneWidget,
     );
-    await tester.tap(row);
+    await tester.tap(_key('agents-hub-phone'));
     await tester.pumpAndSettle();
     expect(_key('agents-unavailable'), findsOneWidget);
     expect(_key('agents-switch-builtin'), findsNothing);
@@ -216,6 +222,8 @@ void main() {
     await tester.ensureVisible(_key('settings-agents'));
     await tester.tap(_key('settings-agents'));
     await tester.pumpAndSettle();
+    await tester.tap(_key('agents-hub-phone'));
+    await tester.pumpAndSettle();
     expect(find.text('Switch to the built-in server'), findsOneWidget);
     await tester.tap(_key('agents-switch-builtin'));
     await tester.pumpAndSettle();
@@ -223,7 +231,7 @@ void main() {
     expect(request.profileID, 'phone');
   });
 
-  testWidgets('off a phone, with no agents, there is no Agents row', (
+  testWidgets('off a phone, Agents still holds the AI Team and external ones', (
     tester,
   ) async {
     debugPlatformCapabilities = const PlatformCapabilities.linuxDesktop();
@@ -231,6 +239,10 @@ void main() {
     addTearDown(controller.dispose);
     await tester.pumpWidget(_app(controller));
     await tester.pumpAndSettle();
-    expect(_key('settings-agents'), findsNothing);
+    expect(_key('settings-agents'), findsOneWidget);
+    await tester.ensureVisible(_key('settings-agents'));
+    await tester.tap(_key('settings-agents'));
+    await tester.pumpAndSettle();
+    expect(_key('agents-hub-external'), findsOneWidget);
   });
 }

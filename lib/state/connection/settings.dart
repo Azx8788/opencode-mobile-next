@@ -6,7 +6,6 @@ part of '../connection.dart';
 mixin _ConnectionControllerSettings on ChangeNotifier {
   ConnectionController get _self;
 
-  late final AppLocaleStore _localeStore;
   late final ValueNotifier<Locale?> appLocale;
   late final ValueNotifier<AppAppearance> appearance;
   late final ValueNotifier<ThemePackId> themePack;
@@ -14,6 +13,9 @@ mixin _ConnectionControllerSettings on ChangeNotifier {
   /// Settings › Appearance › Effects, provided to the app by
   /// `KitEffectsScope` in `main.dart`.
   late final ValueNotifier<KitEffects> effects;
+
+  /// Settings › Appearance › Text size: the app's own multiplier.
+  late final ValueNotifier<KitTextSize> textSize;
   bool transcriptReasoningExpanded = false;
   bool transcriptTimestampsVisible = false;
 
@@ -24,29 +26,58 @@ mixin _ConnectionControllerSettings on ChangeNotifier {
       _self._setTranscriptTimestampsVisible(visible);
 
   Future<void> setAppLocale(Locale? value) async {
-    await _localeStore.save(value);
+    try {
+      await _self.store.appPreferences.setLocale(value);
+    } on SettingsFailure catch (error) {
+      if (error.reason == SettingsFailureReason.storageFailed) {
+        throw const AppLocaleSaveException();
+      }
+      if (error.reason == SettingsFailureReason.invalidValue) {
+        throw ArgumentError.value(value, 'locale', 'Unsupported language');
+      }
+      rethrow;
+    }
     if (_self._disposed) return;
-    appLocale.value = value == null ? null : Locale(value.languageCode);
     await _self.backgroundLive.refreshNativeLocale();
   }
 
   Future<void> setThemePack(ThemePackId value) async {
     await _self.store.setThemePack(value);
-    themePack.value = value;
+    if (!_self._disposed) {
+      themePack.value = value;
+      _self._notifyListeners();
+    }
   }
 
   Future<void> setAppearance(AppAppearance value) async {
     await _self.store.setAppearance(value);
     if (_self._disposed) return;
     appearance.value = value;
+    _self._notifyListeners();
   }
 
-  /// Shows the new choice at once and saves it; a refused save puts the
-  /// saved choice back and rethrows.
+  Future<void> setTextSize(KitTextSize value) async {
+    await _self.store.setTextSize(value);
+  }
+
+  /// Publishes the choice to every controller after storage acknowledges it.
   Future<void> setEffects(KitEffects value) => _self._setEffects(value);
 }
 
 extension _ConnectionControllerSettingsImpl on ConnectionController {
+  void _appPreferencesChanged() {
+    if (_disposed) return;
+    final value = store.appPreferences.value;
+    appLocale.value = value.locale;
+    appearance.value = value.appearance;
+    themePack.value = value.themePack;
+    effects.value = value.effects;
+    textSize.value = value.textSize;
+    transcriptReasoningExpanded = value.reasoningExpanded;
+    transcriptTimestampsVisible = value.timestampsVisible;
+    _notifyListeners();
+  }
+
   /// The body of [setTranscriptReasoningExpanded].
   Future<void> _setTranscriptReasoningExpanded(bool expanded) async {
     await store.setTranscriptReasoningExpanded(expanded);
@@ -65,13 +96,6 @@ extension _ConnectionControllerSettingsImpl on ConnectionController {
 
   /// The body of [setEffects].
   Future<void> _setEffects(KitEffects value) async {
-    final before = effects.value;
-    effects.value = value;
-    try {
-      await store.setEffects(value);
-    } catch (_) {
-      if (!_disposed) effects.value = before;
-      rethrow;
-    }
+    await store.setEffects(value);
   }
 }

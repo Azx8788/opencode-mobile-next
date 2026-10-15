@@ -222,7 +222,7 @@ void main() {
 
     final chat = tester.widget<ChatScreen>(find.byType(ChatScreen));
     expect(chat.sessionID, 'session-1');
-    expect(find.text('Edit a file'), findsOneWidget);
+    expect(find.text('Edit this file?'), findsOneWidget);
     // The card answers in place (chat-5); Details opens the exact request.
     expect(find.byKey(const Key('permission-card-allow')), findsOneWidget);
     expect(find.byKey(const Key('permission-sheet')), findsNothing);

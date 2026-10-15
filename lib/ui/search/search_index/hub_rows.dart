@@ -5,16 +5,19 @@ extension _IndexHubRows on _IndexBuild {
     return [
       // ---- Settings hub rows (target-ia §1.3), in hub order ------------
       // Server: the connected server, every saved server, this phone.
+      // The connected server's health, version and updates: a page of the
+      // server (Servers › the server), no longer a row of the hub.
       SearchEntry(
         id: 'settings-category-server',
-        kind: SearchEntryKind.hubRow,
-        group: SettingsGroup.server,
+        kind: SearchEntryKind.insideSettings,
+        parent: l10n.settingsV3Servers,
         icon: AppIconography.server,
-        title: l10n.settingsHubThisServer,
+        title: l10n.settingsV3StatusVersion,
         keywords:
             '${l10n.settingsHubSearchServerAliases} ${l10n.e7SettingsUi1} '
-            '${l10n.e7SettingsUi65}',
+            '${l10n.e7SettingsUi65} ${l10n.settingsHubThisServer}',
         pages: const ['server-settings', 'host-management'],
+        gate: (scope) => scope.controller.profile != null,
         open: _screen(
           (scope) => ServerSettingsScreen(controller: scope.controller),
         ),
@@ -22,9 +25,9 @@ extension _IndexHubRows on _IndexBuild {
       SearchEntry(
         id: 'settings-saved-servers',
         kind: SearchEntryKind.hubRow,
-        group: SettingsGroup.server,
+        group: SettingsGroup.connections,
         icon: AppIconography.database,
-        title: l10n.activitySavedServers,
+        title: l10n.settingsV3Servers,
         // The screen's own heading is the product name over "Servers".
         keywords:
             '${l10n.settingsHubSearchSavedServersAliases} '
@@ -39,13 +42,19 @@ extension _IndexHubRows on _IndexBuild {
       SearchEntry(
         id: 'settings-this-phone',
         kind: SearchEntryKind.hubRow,
-        group: SettingsGroup.server,
+        group: SettingsGroup.connections,
         icon: AppIconography.phone,
-        title: l10n.phoneServerCardTitle,
-        keywords: '${l10n.settingsHubSearchPhoneAliases} $onThisPhone',
+        title: l10n.settingsV3ThisPhone,
+        keywords:
+            '${l10n.settingsHubSearchPhoneAliases} $onThisPhone '
+            '${l10n.phoneServerCardTitle}',
         pages: const ['termux-setup-installed'],
-        gate: (scope) => scope.platform.supportsTermux && _phoneSetUp(scope),
-        open: (context, _) => openThisPhone(context),
+        // Always findable on a phone that can host OpenCode: set up it is
+        // the place of its own, otherwise it starts the setup.
+        gate: (scope) => scope.platform.supportsTermux,
+        open: (context, scope) => _phoneSetUp(scope)
+            ? openThisPhone(context)
+            : openPhoneSetupStart(context),
       ),
       // The agents this phone can run (Claude Code and friends). Visible
       // whenever they can run here, and on any phone, so it is always
@@ -53,15 +62,13 @@ extension _IndexHubRows on _IndexBuild {
       SearchEntry(
         id: 'settings-agents',
         kind: SearchEntryKind.hubRow,
-        group: SettingsGroup.server,
+        group: SettingsGroup.ai,
         icon: AppIconography.terminal,
         title: l10n.agentsSectionTitle,
         keywords:
-            'agents claude code gemini ${l10n.settingsHubSearchPhoneAliases} $onThisPhone',
-        pages: const ['agents-screen'],
-        gate: (scope) =>
-            scope.controller.phoneAgentsAvailable || scope.platform.isAndroid,
-        open: (context, _) => _push(context, const AgentsScreen()),
+            'agents ${l10n.teamUiHomeTitle} ${l10n.a2aTitle} claude code gemini ${l10n.settingsHubSearchPhoneAliases} $onThisPhone',
+        pages: const ['agents-screen', 'agents-hub'],
+        open: _screen((scope) => AgentsHubScreen(controller: scope.controller)),
       ),
       // Before that, setting it up is one of Add server's ways (R3): the hub
       // holds no second door to it, and search finds it here.
@@ -82,7 +89,7 @@ extension _IndexHubRows on _IndexBuild {
       SearchEntry(
         id: 'settings-model-and-mode',
         kind: SearchEntryKind.hubRow,
-        group: SettingsGroup.agent,
+        group: SettingsGroup.ai,
         icon: AppIconography.model,
         title: l10n.settingsHubModelRow,
         keywords:
@@ -95,11 +102,11 @@ extension _IndexHubRows on _IndexBuild {
       SearchEntry(
         id: 'settings-providers',
         kind: SearchEntryKind.hubRow,
-        group: SettingsGroup.agent,
+        group: SettingsGroup.ai,
         icon: AppIconography.cloud,
-        title: l10n.settingsHubProvidersRow,
+        title: l10n.settingsV3Providers,
         keywords:
-            '${l10n.libraryProvidersTitle} ${l10n.settingsHubAccounts} '
+            '${l10n.settingsHubProvidersRow} ${l10n.libraryProvidersTitle} ${l10n.settingsHubAccounts} '
             '${l10n.settingsHubSearchProvidersAliases} '
             '${l10n.settingsHubSearchAccountsAliases}',
         pages: const ['integrations', 'agent-account'],
@@ -118,7 +125,7 @@ extension _IndexHubRows on _IndexBuild {
       SearchEntry(
         id: 'settings-tools',
         kind: SearchEntryKind.hubRow,
-        group: SettingsGroup.agent,
+        group: SettingsGroup.ai,
         icon: AppIconography.tools,
         title: l10n.settingsHubToolsRow,
         keywords:
@@ -136,8 +143,8 @@ extension _IndexHubRows on _IndexBuild {
       // 'ai-team' below uses.
       SearchEntry(
         id: 'settings-ai-team',
-        kind: SearchEntryKind.hubRow,
-        group: SettingsGroup.agent,
+        kind: SearchEntryKind.insideSettings,
+        parent: l10n.agentsSectionTitle,
         icon: AppIconography.agent,
         title: l10n.teamUiHomeTitle,
         keywords:
@@ -155,12 +162,14 @@ extension _IndexHubRows on _IndexBuild {
       // background; still found by its own words.
       SearchEntry(
         id: 'settings-automation',
-        kind: SearchEntryKind.insideSettings,
-        parent: notifications,
-        icon: AppIconography.sync,
-        title: l10n.automationTitle,
-        keywords: l10n.automationSearchAliases,
-        pages: const ['notifications-settings'],
+        kind: SearchEntryKind.hubRow,
+        group: SettingsGroup.chat,
+        icon: AppIconography.permissions,
+        title: l10n.settingsV3Permissions,
+        keywords:
+            '${l10n.automationTitle} ${l10n.automationSearchAliases} '
+            '${l10n.settingsHubSearchPermissionsAliases}',
+        pages: const ['notifications-settings', 'permissions-automation'],
         target: const SettingsSearchTarget(
           pageId: 'notifications-settings',
           sectionId: 'automation',
@@ -169,10 +178,14 @@ extension _IndexHubRows on _IndexBuild {
           scope.controller,
           team: scope.hasTeam,
         ).any,
+        serverGate: (scope) => AutomationSettingsSections.of(
+          scope.controller,
+          team: scope.hasTeam,
+        ).any,
         open: _screen(
-          (scope) => NotificationsSettingsScreen(
+          (scope) => PermissionsAutomationScreen(
             controller: scope.controller,
-            initialSection: 'automation',
+            teamAvailable: scope.hasTeam,
           ),
         ),
       ),
@@ -195,19 +208,19 @@ extension _IndexHubRows on _IndexBuild {
       SearchEntry(
         id: 'settings-show-reasoning',
         kind: SearchEntryKind.hubRow,
-        group: SettingsGroup.conversations,
+        group: SettingsGroup.chat,
         icon: AppIconography.idea,
         title: l10n.settingsHubShowReasoning,
         keywords:
-            '${l10n.settingsHubSearchTranscriptAliases} '
+            '${l10n.settingsHubSearchReasoningAliases} '
             '${l10n.chatUiTranscriptDisplay} ${l10n.transcriptFindReasoning}',
         pages: const ['settings'],
-        open: _hubAt(SettingsGroup.conversations, 'settings-show-reasoning'),
+        open: _hubAt(SettingsGroup.chat, 'settings-show-reasoning'),
       ),
       SearchEntry(
         id: 'settings-show-timestamps',
         kind: SearchEntryKind.hubRow,
-        group: SettingsGroup.conversations,
+        group: SettingsGroup.chat,
         icon: AppIconography.clock,
         title: l10n.settingsHubShowTimestamps,
         keywords:
@@ -215,33 +228,42 @@ extension _IndexHubRows on _IndexBuild {
             '${l10n.chatUiTranscriptDisplay} ${l10n.chatUiTimestampsUsage} '
             'cost tokens',
         pages: const ['settings'],
-        open: _hubAt(SettingsGroup.conversations, 'settings-show-timestamps'),
+        open: _hubAt(SettingsGroup.chat, 'settings-show-timestamps'),
       ),
       SearchEntry(
         id: 'default-shell-settings-entry',
         kind: SearchEntryKind.hubRow,
-        group: SettingsGroup.conversations,
+        group: SettingsGroup.chat,
         icon: AppIconography.terminal,
-        title: l10n.e7SettingsUi35,
-        keywords: l10n.settingsHubSearchShellAliases,
+        title: l10n.settingsV3Shell,
+        keywords:
+            '${l10n.e7SettingsUi35} ${l10n.settingsHubSearchShellAliases}',
         // Rule 7: absent where the server cannot change it; the group's line
         // counts it and "Available on this server" says why.
         gate: (scope) => scope.capabilities.shellSettings,
         serverGate: (scope) => scope.capabilities.shellSettings,
         // The hub row is its own control; from anywhere else, open the hub
         // arrived at it.
-        open: _hubAt(
-          SettingsGroup.conversations,
-          'default-shell-settings-entry',
-        ),
+        open: _hubAt(SettingsGroup.chat, 'default-shell-settings-entry'),
+      ),
+      SearchEntry(
+        id: 'settings-phrase-chips',
+        kind: SearchEntryKind.hubRow,
+        group: SettingsGroup.chat,
+        icon: AppIconography.chat,
+        title: l10n.settingsPhraseChipsTitle,
+        keywords: l10n.settingsPhraseChipsSupporting,
+        pages: const ['settings'],
+        open: _hubAt(SettingsGroup.chat, 'settings-phrase-chips'),
       ),
       SearchEntry(
         id: 'settings-voice',
         kind: SearchEntryKind.hubRow,
-        group: SettingsGroup.conversations,
+        group: SettingsGroup.chat,
         icon: AppIconography.mic,
-        title: l10n.settingsHubVoice,
-        keywords: l10n.settingsHubSearchVoiceAliases,
+        title: l10n.settingsV3VoiceTyping,
+        keywords:
+            '${l10n.settingsHubVoice} ${l10n.settingsHubSearchVoiceAliases}',
         // The speech models can neither download nor run off Android.
         gate: (scope) => scope.platform.supportsVoice,
         open: _openVoice,
@@ -249,15 +271,37 @@ extension _IndexHubRows on _IndexBuild {
       // This app: what notifies, what keeps it running, how it looks, what
       // it keeps, what it has cost.
       SearchEntry(
-        id: 'settings-category-background',
+        id: 'settings-category-notifications',
         kind: SearchEntryKind.hubRow,
         group: SettingsGroup.thisApp,
         icon: AppIconography.notificationImportant,
-        title: notifications,
-        keywords: l10n.settingsHubSearchNotificationsAliases,
+        title: l10n.settingsV3Notifications,
+        keywords:
+            '$notifications ${l10n.settingsHubSearchNotificationsAliases}',
         pages: const ['notifications-settings'],
         open: _screen(
-          (scope) => NotificationsSettingsScreen(controller: scope.controller),
+          (scope) => NotificationsSettingsScreen(
+            controller: scope.controller,
+            page: NotificationsPage.notifications,
+          ),
+        ),
+      ),
+      SearchEntry(
+        id: 'settings-category-background',
+        kind: SearchEntryKind.hubRow,
+        group: SettingsGroup.thisApp,
+        icon: AppIconography.sync,
+        title: l10n.settingsV3Background,
+        keywords:
+            '${l10n.keepRunningTitle} ${l10n.e7SettingsUi25} '
+            '${l10n.settingsHubSearchNotificationsAliases}',
+        pages: const ['notifications-settings'],
+        gate: (scope) => scope.platform.supportsBackgroundService,
+        open: _screen(
+          (scope) => NotificationsSettingsScreen(
+            controller: scope.controller,
+            page: NotificationsPage.background,
+          ),
         ),
       ),
       SearchEntry(
@@ -290,6 +334,21 @@ extension _IndexHubRows on _IndexBuild {
         ),
       ),
       SearchEntry(
+        id: 'settings-category-language',
+        kind: SearchEntryKind.hubRow,
+        group: SettingsGroup.thisApp,
+        icon: AppIconography.globe,
+        title: l10n.settingsV3Language,
+        keywords: '${l10n.e7LocaleUiLanguage} ${l10n.discoverLanguageAliases}',
+        pages: const ['appearance-settings'],
+        target: const SettingsSearchTarget(
+          pageId: 'appearance-settings',
+          sectionId: 'language',
+        ),
+        // A quick pick that acts in place: open the hub arrived at it.
+        open: _hubAt(SettingsGroup.thisApp, 'settings-category-language'),
+      ),
+      SearchEntry(
         id: 'settings-category-privacy',
         kind: SearchEntryKind.hubRow,
         group: SettingsGroup.thisApp,
@@ -306,15 +365,28 @@ extension _IndexHubRows on _IndexBuild {
       SearchEntry(
         id: 'settings-category-usage',
         kind: SearchEntryKind.hubRow,
-        group: SettingsGroup.thisApp,
+        group: SettingsGroup.ai,
         icon: AppIconography.usage,
         title: usage,
         keywords: l10n.settingsHubSearchUsageAliases,
         pages: const ['usage-hub'],
-        // "Spent" needs usage statistics, "Remaining" needs a saved server.
+        // "Spending" needs usage statistics, "Plans" needs a saved server.
         gate: (scope) =>
             UsageHubScreen.sectionsFor(scope.controller).isNotEmpty,
         open: _screen((scope) => UsageHubScreen(controller: scope.controller)),
+      ),
+      SearchEntry(
+        id: 'settings-category-usage-widget',
+        // Inside Usage, so This app keeps five rows (G-rules).
+        kind: SearchEntryKind.insideSettings,
+        parent: usage,
+        icon: AppIconography.usageRing,
+        title: l10n.usageWidgetTitle,
+        keywords: l10n.usageWidgetSearchAliases,
+        pages: const ['usage-widget'],
+        open: _screen(
+          (scope) => UsageWidgetScreen(controller: scope.controller),
+        ),
       ),
       // Help, the last, unlabelled panel.
       SearchEntry(
@@ -347,8 +419,8 @@ extension _IndexHubRows on _IndexBuild {
       // group's "Why" opens it too.
       SearchEntry(
         id: 'settings-server-capabilities',
-        kind: SearchEntryKind.hubRow,
-        group: SettingsGroup.help,
+        kind: SearchEntryKind.insideSettings,
+        parent: l10n.settingsV3Servers,
         icon: AppIconography.checklist,
         title: l10n.capabilityScreenTitle,
         keywords: l10n.capabilityScreenAliases,

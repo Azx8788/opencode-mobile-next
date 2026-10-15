@@ -2051,6 +2051,10 @@
     {
       "file": "lib/ui/widgets/team_vocabulary.dart",
       "reason": "strings/glyph/classification helpers (teamGateKindWord, teamWorkGlyph, TeamRunProgress ...); no surface and no interactive element"
+    },
+    {
+      "file": "lib/ui/screens/team/projects/team_project_editors_roles.dart",
+      "reason": "Part file of team_project_editors.dart (same library, same sheets): the per-role model rows, the roles list and plan recovery split out of the editor for size; recorded on the Team editor sheets, not a surface of its own."
     }
   ],
   "notes": [

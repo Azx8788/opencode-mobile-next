@@ -1,27 +1,33 @@
 {
   "schemaVersion": 1,
-  "openCodeVersion": "1.18.32",
-  "bundleVersion": "1.1.0",
+  "openCodeVersion": "2.0.29",
+  "bundleVersion": "2.0.0",
   "upstreamProvenance": {
-    "source": "https://api.github.com/repos/anomalyco/opencode/releases/tags/v1.18.32",
-    "observedOn": "2026-10-02",
-    "publishedAt": "2026-09-21T22:51:20Z",
-    "digestSource": "GitHub release asset digest field; frozen here before downloads, subject to maintainer review"
+    "source": "https://registry.npmjs.org/@opencode/cli/2.0.29",
+    "observedOn": "2026-10-14",
+    "digestSource": "Same official npm tarballs and reviewed SHA-256 as lib/builtin/setup/components.dart; SHA-512 integrity verified in the AI Team OC2 probe"
   },
   "artifacts": {
     "amd64": {
-      "url": "https://github.com/anomalyco/opencode/releases/download/v1.18.32/opencode-linux-x64-baseline.tar.gz",
-      "sha256": "763af386ef88a8cab18df00fcf055690e5a55e31a7088beabe02307142a6adce"
+      "url": "https://registry.npmjs.org/@opencode/cli-linux-x64-baseline/-/cli-linux-x64-baseline-2.0.29.tgz",
+      "sha256": "152c42ff57b15728f39e1d7b68a9c13b0635fe1c5e6dcccdc8b710955e4cef0b"
     },
     "arm64": {
-      "url": "https://github.com/anomalyco/opencode/releases/download/v1.18.32/opencode-linux-arm64.tar.gz",
-      "sha256": "568461b7d4d8c19865c97e9a1102e613049c6039d01fe772154de873c1865840"
+      "url": "https://registry.npmjs.org/@opencode/cli-linux-arm64/-/cli-linux-arm64-2.0.29.tgz",
+      "sha256": "0af39e75dbdfacc20f8f531ef35fb4dcc0b44c08084203518614272f232283ae"
     }
   },
-  "appVersions": {
-    "1.1.0+51": {
-      "amd64": "014d92fefcbb520af55af5bf6e3290715c47030f0c1a9b4aa5c91ddc44ff9118",
-      "arm64": "691396beda4d71cb5c5cbd43951260e56d67fb5b3543a39a8be8dd46a757def0"
+  "appVersions": {},
+  "legacyBundles": [
+    {
+      "openCodeVersion": "1.18.32",
+      "bundleVersion": "1.1.0",
+      "appVersions": {
+        "1.1.0+51": {
+          "amd64": "014d92fefcbb520af55af5bf6e3290715c47030f0c1a9b4aa5c91ddc44ff9118",
+          "arm64": "691396beda4d71cb5c5cbd43951260e56d67fb5b3543a39a8be8dd46a757def0"
+        }
+      }
     }
-  }
+  ]
 }

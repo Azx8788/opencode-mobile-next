@@ -39,10 +39,11 @@ void main() {
       expect(caps.formatterStatus, isFalse);
       expect(caps.toolInventory, isFalse);
       expect(caps.experimentalCapabilities, isFalse);
-      expect(caps.shellSettings, isFalse);
+      expect(caps.shellSettings, isTrue);
       expect(caps.remoteUpgrade, isFalse);
       expect(caps.clientDiagnostics, isFalse);
-      expect(caps.gitInit, isFalse);
+      expect(caps.gitInit, isTrue);
+      expect(caps.worktreeCreate, isTrue);
       expect(caps.providerRuntimeRefresh, isFalse);
       expect(caps.configuredProviderFallback, isFalse);
       expect(caps.globalEventStream, isTrue);

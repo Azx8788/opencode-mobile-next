@@ -15,6 +15,7 @@ class _AssistantErrorRow extends StatelessWidget {
     this.onContinue,
     this.onChooseModel,
     this.onResend,
+    this.onContinueWithAnother,
     this.suggestion,
     this.onUseSuggestion,
   });
@@ -36,6 +37,10 @@ class _AssistantErrorRow extends StatelessWidget {
   /// Sends the turn's prompt again as it was: given only for the newest
   /// turn when it got no answer and the prompt is words alone.
   final VoidCallback? onResend;
+
+  /// Opens "Continue with…": a quiet second way out of a provider failure
+  /// (never for a refusal by the content filter, never automatic).
+  final VoidCallback? onContinueWithAnother;
 
   /// The model the server suggested in a "model not found" error, by name,
   /// when this server has it; [onUseSuggestion] switches to it and resends.
@@ -132,6 +137,18 @@ class _AssistantErrorRow extends StatelessWidget {
         notes: [?hint],
         actions: [
           ?fix,
+          // A notice shows two actions. When nothing else fixes the failure
+          // this is the way on; otherwise it waits in the reply's menu and
+          // the conversation menu, never crowding out Details.
+          if (fix == null &&
+              onContinueWithAnother != null &&
+              !recovered &&
+              kind != MessageErrorKind.contentFilter)
+            KitAction(
+              key: const Key('error-action-continue-with'),
+              label: strings.continueWithAnother,
+              onPressed: onContinueWithAnother,
+            ),
           KitAction(
             key: const Key('error-action-details'),
             label: strings.chatUiErrorDetails,
