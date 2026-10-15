@@ -216,12 +216,12 @@ class AppRuntimeUiTests(unittest.TestCase):
     def test_app_page_requires_real_confirmation_before_switch(self):
         device = Device()
         pages = [
-            self.page(["In-app Ubuntu", "Switch to OpenCode 1"]),
+            self.page(["In-app Ubuntu", "Switch to Older OpenCode"]),
             self.page(
                 [
-                    "Switch to OpenCode 1?",
+                    "Switch to Older OpenCode?",
                     "Stops this phone’s server and running tasks. Conversations, provider settings and credentials stay separate; project files and configuration are shared. You can switch back.",
-                    "Switch to OpenCode 1",
+                    "Switch to Older OpenCode",
                 ]
             ),
         ]
@@ -247,7 +247,7 @@ class AppRuntimeUiTests(unittest.TestCase):
         settings.findall(".//node")[-1].set("clickable", "true")
         pages = [
             ET.tostring(settings),
-            self.page(["In-app Ubuntu", "Switch to OpenCode 1"]),
+            self.page(["In-app Ubuntu", "Switch to Older OpenCode"]),
             self.page([
                 next(iter(ui.labels("setupSwitchConfirmTitle", "opencode"))),
                 next(iter(ui.labels("setupSwitchConfirmDetail"))),
@@ -282,7 +282,7 @@ class AppRuntimeUiTests(unittest.TestCase):
         device.launch = Mock()
         device.adb = Mock(
             return_value=self.page(
-                ["In-app Ubuntu", "Switch to OpenCode 1"], package="foreign.app"
+                ["In-app Ubuntu", "Switch to Older OpenCode"], package="foreign.app"
             )
         )
         with self.assertRaises(DriverFailure):

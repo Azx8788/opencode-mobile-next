@@ -162,6 +162,11 @@ jobs:
         working-directory: packages/opencode_sdk
         run: dart analyze
 
+      - name: Resolve the Widgetbook catalog
+        # flutter analyze also reads the nested catalog package, which has its
+        # own dependencies.
+        run: flutter pub get --directory widgetbook
+
       - name: Analyze
         run: flutter analyze
 
