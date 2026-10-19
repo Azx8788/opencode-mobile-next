@@ -62,10 +62,14 @@ PYRELEASE
   gh run download "$build_run" --repo "$repo" \
     --name "opencode-mobile-signed-$head" --dir "$scratch/ci"
   gh release download "$RELEASE_TAG" --repo "$repo" --dir "$scratch/draft" \
-    --pattern "$apk_name" --pattern SHA256SUMS
+    --pattern "opencode-mobile-$VERSION*.apk" --pattern SHA256SUMS
   python3 scripts/verify_github_release.py artifacts "$scratch" "$head" "$VERSION"
   EXPECTED_CERT_SHA256="$PUBLIC_SIDELOAD_CERT_SHA256"
-  assert_apk_identity "$scratch/draft/$apk_name"
+  # The universal APK of record and the per-ABI APKs derived from it.
+  local candidate
+  for candidate in "$apk_name" "opencode-mobile-$VERSION-arm64-v8a.apk" "opencode-mobile-$VERSION-armeabi-v7a.apk"; do
+    assert_apk_identity "$scratch/draft/$candidate"
+  done
 
   if [[ "$PUBLISH" != true ]]; then
     echo "==> Verified draft $RELEASE_TAG, CI provenance, full quality gate and public APK identity."

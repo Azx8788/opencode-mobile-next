@@ -13,13 +13,15 @@ cp "$repo_root/.github/workflows/android-quality.yml" "$task_root/.github/workfl
 printf 'version: 1.0.43+49\n' > "$task_root/pubspec.yaml"
 printf '# OpenCode Mobile 1.0.43+49\n\nFixture release notes.\n' > "$task_root/docs/releases/v1.0.43+49.md"
 printf 'fixture signed APK bytes\n' > "$task_root/artifact/opencode-mobile-1.0.43+49.apk"
+printf 'fixture arm64 APK bytes\n' > "$task_root/artifact/opencode-mobile-1.0.43+49-arm64-v8a.apk"
+printf 'fixture armv7 APK bytes\n' > "$task_root/artifact/opencode-mobile-1.0.43+49-armeabi-v7a.apk"
 python3 - "$task_root" <<'PY'
 import hashlib
 from pathlib import Path
 import sys
 root = Path(sys.argv[1])
-name = 'opencode-mobile-1.0.43+49.apk'
-(root/'artifact/SHA256SUMS').write_text(hashlib.sha256((root/'artifact'/name).read_bytes()).hexdigest()+'  '+name+'\n')
+names = ['opencode-mobile-1.0.43+49.apk', 'opencode-mobile-1.0.43+49-arm64-v8a.apk', 'opencode-mobile-1.0.43+49-armeabi-v7a.apk']
+(root/'artifact/SHA256SUMS').write_text(''.join(hashlib.sha256((root/'artifact'/name).read_bytes()).hexdigest()+'  '+name+'\n' for name in names))
 (root/'artifact/RELEASE_NOTES.md').write_text((root/'docs/releases/v1.0.43+49.md').read_text()+'\n## Verify this build\n\n- Source commit: `'+('a'*40)+'`\n- Build: Shorebird release 1.0.43+49, Flutter 3.47.1 (Shorebird engine)\n')
 PY
 cat > "$task_root/mock-bin/git" <<'MOCK'
@@ -82,7 +84,8 @@ notes = (root/'artifact/RELEASE_NOTES.md').read_text()
 if flag('MOCK_NO_PROVENANCE'):
     notes = without_provenance(notes)
 def release():
-    assets = [dict(id=1, name='opencode-mobile-1.0.43+49.apk'), dict(id=2, name='SHA256SUMS')]
+    assets = [dict(id=1, name='opencode-mobile-1.0.43+49.apk'), dict(id=2, name='SHA256SUMS'),
+              dict(id=5, name='opencode-mobile-1.0.43+49-arm64-v8a.apk'), dict(id=6, name='opencode-mobile-1.0.43+49-armeabi-v7a.apk')]
     if flag('MOCK_UNEXPECTED_APK'):
         assets.append(dict(id=3, name='unverified.apk'))
     if flag('MOCK_DUPLICATE_ASSET'):
@@ -184,9 +187,13 @@ elif args[:2] in (['run', 'download'], ['release', 'download']):
     elif flag('MOCK_DRAFT_DIFFERENT'):
         apk = target/'opencode-mobile-1.0.43+49.apk'
         apk.write_text('different bytes')
-        (target/'SHA256SUMS').write_text(hashlib.sha256(apk.read_bytes()).hexdigest()+'  '+apk.name+'\n')
+        sums = (target/'SHA256SUMS').read_text().splitlines()
+        sums = [hashlib.sha256(apk.read_bytes()).hexdigest()+'  '+apk.name if line.endswith('  '+apk.name) else line for line in sums]
+        (target/'SHA256SUMS').write_text('\n'.join(sums)+'\n')
     elif flag('MOCK_BAD_CHECKSUM'):
-        (target/'SHA256SUMS').write_text('0'*64+'  opencode-mobile-1.0.43+49.apk\n')
+        sums = (target/'SHA256SUMS').read_text().splitlines()
+        sums = ['0'*64+'  opencode-mobile-1.0.43+49.apk' if line.endswith('  opencode-mobile-1.0.43+49.apk') else line for line in sums]
+        (target/'SHA256SUMS').write_text('\n'.join(sums)+'\n')
 elif args[:2] == ['release', 'view']:
     if flag('MOCK_RELEASE_ABSENT'):
         raise SystemExit(1)

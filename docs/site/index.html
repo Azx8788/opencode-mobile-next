@@ -3,197 +3,205 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#edf4fb" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#0d161e" media="(prefers-color-scheme: dark)">
-    <meta name="color-scheme" content="light dark">
-    <title>Claude Code on Android, no computer or Termux | OpenCode Mobile</title>
-    <meta name="description" content="Run Claude Code and OpenCode on your Android phone. The app installs its own Ubuntu, so you need no computer and no Termux. Free, open source, MIT.">
+    <meta name="theme-color" content="#0c120f">
+    <meta name="color-scheme" content="dark">
+    <title>OpenCode Mobile 2.0: coding agents on your Android phone</title>
+    <meta name="description" content="Build a game from your phone. OpenCode Mobile 2.0 runs Claude Code, Codex, Gemini, Kilo, Cline and OpenCode on Android in its own built-in Linux. No computer, no Termux. Free, open source, MIT.">
     <link rel="canonical" href="https://eslamasabry.github.io/opencode-mobile-next/">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="OpenCode Mobile">
-    <meta property="og:title" content="Claude Code on your Android phone. No computer, no Termux.">
-    <meta property="og:description" content="OpenCode Mobile installs its own Ubuntu and runs Claude Code and OpenCode on your phone, or follows the agent on your computer.">
+    <meta property="og:title" content="Build a game. From your phone. OpenCode Mobile 2.0">
+    <meta property="og:description" content="Six coding agents on Android, in the app's own built-in Linux. No computer, no Termux. Free and open source.">
     <meta property="og:url" content="https://eslamasabry.github.io/opencode-mobile-next/">
     <meta property="og:image" content="https://eslamasabry.github.io/opencode-mobile-next/assets/og-image.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="OpenCode Mobile welcome screen: choose where your coding agent runs.">
+    <meta property="og:image:alt" content="OpenCode Mobile 2.0: Build a game. From your phone. A neon brick-breaker running in the in-app preview.">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Claude Code on your Android phone. No computer, no Termux.">
-    <meta name="twitter:description" content="Runs Claude Code and OpenCode in its own Ubuntu on the phone, or follows your computer. Free and open source.">
+    <meta name="twitter:title" content="Build a game. From your phone. OpenCode Mobile 2.0">
+    <meta name="twitter:description" content="Six coding agents on Android, in the app's own built-in Linux. Free and open source.">
     <meta name="twitter:image" content="https://eslamasabry.github.io/opencode-mobile-next/assets/og-image.jpg">
     <link rel="icon" href="favicon.ico" sizes="any">
     <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link rel="stylesheet" href="site.css">
+    <script>document.documentElement.classList.add("js")</script>
   <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"SoftwareApplication","name":"OpenCode Mobile","applicationCategory":"DeveloperApplication","operatingSystem":"Android 8.0 or newer","description":"Android app that runs Claude Code and OpenCode on the phone in its own Ubuntu, or connects to OpenCode on your computer. Independent community project.","url":"https://eslamasabry.github.io/opencode-mobile-next/","downloadUrl":"https://github.com/Eslamasabry/opencode-mobile-next/releases/latest","softwareVersion":"1.4.0","license":"https://github.com/Eslamasabry/opencode-mobile-next/blob/master/LICENSE","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"image":"https://eslamasabry.github.io/opencode-mobile-next/assets/og-image.jpg","codeRepository":"https://github.com/Eslamasabry/opencode-mobile-next"}
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"OpenCode Mobile","applicationCategory":"DeveloperApplication","operatingSystem":"Android 8.0 or newer","description":"Android app that runs Claude Code, Codex, Gemini, Kilo, Cline and OpenCode on the phone in its own built-in Linux, or connects to an agent on your computer. Independent community project.","url":"https://eslamasabry.github.io/opencode-mobile-next/","downloadUrl":"https://github.com/Eslamasabry/opencode-mobile-next/releases/latest","softwareVersion":"2.0.0","license":"https://github.com/Eslamasabry/opencode-mobile-next/blob/master/LICENSE","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"image":"https://eslamasabry.github.io/opencode-mobile-next/assets/og-image.jpg","codeRepository":"https://github.com/Eslamasabry/opencode-mobile-next"}
     </script>
   </head>
-  <body>
+    <body>
     <a class="skip-link" href="#main">Skip to content</a>
-    <header class="site-header wrap">
-      <a class="brand" href="#top" aria-label="OpenCode Mobile home">
-        <img src="assets/logo.png" width="40" height="40" alt="">
-        <span>OpenCode <span class="brand-detail">Mobile</span></span>
-      </a>
-      <nav aria-label="Main navigation">
-        <a href="#new">What's new</a>
-        <a href="#inside">Inside the app</a>
-        <a href="#get-started">Get started</a>
-        <a href="#faq">FAQ</a>
-        <a href="#arabic" lang="ar" dir="rtl">العربية</a>
-        <a class="nav-source" href="https://github.com/Eslamasabry/opencode-mobile-next">GitHub</a>
-      </nav>
+    <header class="site-header">
+      <div class="wrap header-row">
+        <a class="brand" href="#top" aria-label="OpenCode Mobile home">
+          <img src="assets/logo.png" width="40" height="40" alt="">
+          <span>OpenCode <span class="brand-detail">Mobile</span></span>
+        </a>
+        <nav aria-label="Main navigation">
+          <a href="#features">Features</a>
+          <a href="#agents">Agents</a>
+          <a href="#get-started">Get started</a>
+          <a href="#faq">FAQ</a>
+          <a href="#arabic" lang="ar" dir="rtl">العربية</a>
+          <a class="nav-source" href="https://github.com/Eslamasabry/opencode-mobile-next">GitHub</a>
+        </nav>
+        <a class="button button-small header-cta" href="https://github.com/Eslamasabry/opencode-mobile-next/releases/latest">Download</a>
+      </div>
     </header>
 
     <main id="main">
       <section class="hero wrap" id="top" aria-labelledby="hero-title">
         <div class="hero-copy">
-          <h1 id="hero-title">Claude Code on your Android phone.</h1>
-          <p class="hero-promise">No computer. No Termux.</p>
-          <p class="hero-description">OpenCode Mobile installs its own Ubuntu inside the app and runs Claude Code and OpenCode there. Ask for a change, watch it work, approve what it wants to do. Prefer your computer? Connect to the agent running there instead.</p>
+          <p class="eyebrow"><span class="pill">2.0</span> Android &middot; open source</p>
+          <h1 id="hero-title">Build a game.<br><span class="accent">From your phone.</span></h1>
+          <p class="hero-description">One prompt, and a neon brick-breaker is running in the app's own preview. Approve what the agent wants to do from a notification, send it a screenshot, ask for power-ups. Six coding agents, in a Linux the app installs itself. No computer, no Termux.</p>
           <div class="hero-actions">
             <a class="button" href="https://github.com/Eslamasabry/opencode-mobile-next/releases/latest">Download for Android</a>
             <a class="button button-secondary" href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/Eslamasabry/opencode-mobile-next">Get it on Obtainium</a>
-            <a class="text-link" href="#new">See what's new</a>
           </div>
-          <p class="requirements">Version 1.4.0. Free and open source (MIT). Android 8 or newer; on-phone setup needs a 64-bit phone. You bring your own model provider, or try OpenCode's free model.</p>
+          <p class="requirements">Version 2.0.0 (build 56). Free, MIT. Android 8 or newer; the built-in Linux needs a 64-bit phone. OpenCode's free models need no API key.</p>
         </div>
-        <div class="hero-phones" aria-label="OpenCode Mobile on Android">
-          <figure class="hero-phone phone-welcome">
-            <div class="phone-frame">
-              <img src="assets/screenshots/1_welcome.jpg" width="540" height="1200" alt="Welcome screen with choices to run an agent on your computer, on this phone, or try a simulated conversation.">
-            </div>
-            <figcaption>Choose where it runs.</figcaption>
-          </figure>
-          <figure class="hero-phone phone-chat">
-            <div class="phone-frame">
-              <img src="assets/screenshots/3_chat.jpg" width="540" height="1200" alt="A conversation streaming an agent's reply, with the model selector and Stop button beside the message box.">
-            </div>
-            <figcaption>Keep the conversation moving.</figcaption>
-          </figure>
-        </div>
+        <figure class="hero-video">
+          <div class="video-frame">
+            <video controls playsinline preload="metadata" poster="assets/video/poster.jpg" width="720" height="1280" aria-describedby="video-caption">
+              <source src="assets/video/launch-720.mp4" type="video/mp4">
+              <p>Your browser can't play this video. <a href="assets/video/launch-720.mp4">Download the demo video</a>.</p>
+            </video>
+          </div>
+          <figcaption id="video-caption">About a minute, recorded in the app: one prompt, a playable game, a screenshot, power-ups, a reviewed diff and a git commit. Press play for sound.</figcaption>
+        </figure>
       </section>
 
-      <section class="new wrap" id="new" aria-labelledby="new-title">
-        <div class="section-heading">
-          <h2 id="new-title">New in the next release</h2>
-          <p>Act on your agents from the home screen, schedule a prompt for the morning, and see your dev server in the app, in a much smaller download.</p>
-        </div>
-        <div class="new-grid">
-          <!-- needs proof: I5, I6, I7 (widgets settle after Allow, Reject, Stop and show the latest reply) -->
-          <article class="new-card new-card-wide">
-            <div>
-              <h3>Home-screen widgets that settle</h3>
-              <p>Allow a request, reject it or stop a reply without opening the app. Afterwards the widget stops saying the agent is working and shows its latest reply. The idle card shows the model, the last activity and an Open button. To allow with the app closed, turn on "Stay connected in the background".</p>
-            </div>
-          </article>
-          <!-- needs proof: Q1, Q2, Q8 (scheduled prompts run on time with the app closed, history, morning summary) -->
-          <article class="new-card">
-            <h3>Scheduled prompts</h3>
-            <p>Run a prompt at a time you choose, once or repeating. Each schedule keeps a history of its runs, and an optional morning summary tells you what ran while you were away. Android may delay or stop background work, so the app explains the battery setting that matters.</p>
-          </article>
-          <!-- needs proof: Q9 (localhost link opens the running app in a preview) -->
-          <article class="new-card">
-            <h3>Preview your running app</h3>
-            <p>Tap a localhost link in a reply and your dev server opens inside the app, with reload, open in browser and copy address. It loads only that one address; anything else opens through the app's external-link check.</p>
-          </article>
-          <!-- needs proof: SIZE (arm64 asset about 36 MB), B3, B4, B5 (plain HTTP consent, certificate pinning), M2, M3 (uncertain sends kept, never sent twice) -->
-          <article class="new-card">
-            <h3>Smaller, steadier first hour</h3>
-            <p>There is now one download for each processor type: about 36 MB for most phones instead of 105 MB. A message the app could not confirm is kept for you to review and is never sent twice. You can connect to a plain-HTTP server after an explicit yes, or pin a self-signed certificate. OpenCode 2 is the only OpenCode the app supports now.</p>
-          </article>
-        </div>
+      <section class="trust wrap" aria-label="At a glance">
+        <ul class="glance">
+          <li><strong>6</strong> agents</li>
+          <li><strong>0</strong> computers needed</li>
+          <li><strong>0</strong> API keys for free models</li>
+          <li><strong>MIT</strong> open source</li>
+        </ul>
       </section>
 
-      <section class="inside" id="inside" aria-labelledby="inside-title">
+      <section class="story" id="story" aria-labelledby="story-title">
         <div class="wrap">
-          <div class="section-heading">
-            <h2 id="inside-title">From first setup<br>to the next commit.</h2>
-            <p>The work stays readable on a small screen. Follow the agent, choose its model, and approve the changes that need you.</p>
+          <div class="section-heading reveal">
+            <h2 id="story-title">From one prompt<br>to a game you can play.</h2>
+            <p>This is the demo, screen by screen. Every image is a real capture from the app.</p>
           </div>
-          <div class="gallery">
-            <figure class="feature">
-              <div class="feature-copy">
-                <h3>Set up on your phone</h3>
-                <p>Guided setup installs Ubuntu and OpenCode inside the app. Follow each step, then open your project.</p>
-              </div>
-              <div class="phone-frame">
-                <img src="assets/screenshots/2_setup_on_phone.jpg" width="540" height="1200" loading="lazy" alt="On-phone setup showing the installation steps for OpenCode and its tools.">
-              </div>
-              <figcaption>Your phone can be the host.</figcaption>
-            </figure>
-            <figure class="feature">
-              <div class="feature-copy">
-                <h3>Approve before it acts</h3>
-                <p>Review a permission request in the conversation. Look closer at a change before deciding to allow it.</p>
-              </div>
-              <div class="phone-frame">
-                <img src="assets/screenshots/4_approve.png" width="840" height="1871" loading="lazy" alt="An edit awaiting approval in the chat, with controls to review or allow the requested change.">
-              </div>
-              <figcaption>The decision stays with you.</figcaption>
-            </figure>
-            <figure class="feature">
-              <div class="feature-copy">
-                <h3>Choose your model</h3>
-                <p>Pick from the models available on your server. Try OpenCode's free model or add your own provider.</p>
-              </div>
-              <div class="phone-frame">
-                <img src="assets/screenshots/5_models.jpg" width="540" height="1200" loading="lazy" alt="The model picker displaying the models available for a conversation.">
-              </div>
-              <figcaption>A model that fits the work.</figcaption>
-            </figure>
-            <figure class="feature">
-              <div class="feature-copy">
-                <h3>Give AI Team a project</h3>
-                <p>A planner, workers and a checker work through your milestones. Review the receipts before promoting to main.</p>
-              </div>
-              <div class="phone-frame">
-                <img src="assets/screenshots/6_ai_team.jpg" width="540" height="1200" loading="lazy" alt="AI Team showing completed merges into dev and a separate confirmation to promote those changes to main.">
-              </div>
-              <figcaption>See what changed, then promote.</figcaption>
-            </figure>
-          </div>
-          <p class="capture-note">Real Android emulator captures from QA; personal paths are masked in the approval image. AI Team is new; physical-phone testing is still underway.</p>
+          <ol class="steps-rail">
+            <li class="step reveal">
+              <div class="phone-frame"><img src="assets/screens/build-chat.webp" width="480" height="1010" loading="lazy" alt="A conversation where the user asks for a neon brick-breaker game and the agent writes it, with the Auto-approve chip and the free GLM-5.3-Flash model selected."></div>
+              <h3><span class="num">1</span> Say what you want</h3>
+              <p>Describe the game in plain words. A free OpenCode model builds it, no API key needed.</p>
+            </li>
+            <li class="step reveal">
+              <div class="phone-frame"><img src="assets/screens/approve.webp" width="480" height="1010" loading="lazy" alt="The neon game conversation with a pending request to run ls -la and Reject and Allow once buttons."></div>
+              <h3><span class="num">2</span> Approve, or let it run</h3>
+              <p>Allow a command from the notification, the home-screen widget or here. Or turn on auto-approve.</p>
+            </li>
+            <li class="step reveal">
+              <div class="phone-frame"><img src="assets/screens/preview.webp" width="480" height="1010" loading="lazy" alt="The in-app preview showing the neon brick-breaker running from a local dev server."></div>
+              <h3><span class="num">3</span> Play it right here</h3>
+              <p>Open the dev server in the in-app preview. Send a screenshot back into the chat to ask for changes.</p>
+            </li>
+            <li class="step reveal">
+              <div class="phone-frame"><img src="assets/screens/diff.webp" width="480" height="1010" loading="lazy" alt="The review screen showing a code diff with added lines highlighted in green."></div>
+              <h3><span class="num">4</span> Review every line</h3>
+              <p>Step through the whole diff, change by change, before anything is committed.</p>
+            </li>
+            <li class="step reveal">
+              <div class="phone-frame"><img src="assets/screens/terminal.webp" width="480" height="1010" loading="lazy" alt="The built-in Linux terminal in the neon game project showing the git log with the agent's commits."></div>
+              <h3><span class="num">5</span> Real Linux, real git</h3>
+              <p>A full terminal in the app's own Ubuntu. Commit, branch and run what you like.</p>
+            </li>
+            <li class="step reveal">
+              <div class="phone-frame"><img src="assets/screens/models.webp" width="480" height="1010" loading="lazy" alt="The model picker listing free OpenCode models, with GLM-5.3-Flash Free selected."></div>
+              <h3><span class="num">6</span> Pick the model</h3>
+              <p>Free models to start. Add your own provider key when you want something bigger.</p>
+            </li>
+          </ol>
         </div>
       </section>
 
-      <section class="start wrap" id="get-started" aria-labelledby="start-title">
-        <div class="start-intro">
-          <h2 id="start-title">Your phone.<br>Your project.</h2>
-          <p>OpenCode Mobile connects to the servers you choose. It isn't a hosted service and doesn't include a model subscription.</p>
-          <div class="hero-actions"><a class="button" href="https://github.com/Eslamasabry/opencode-mobile-next/releases/latest">Download for Android</a>
-          <a class="button button-secondary" href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/Eslamasabry/opencode-mobile-next">Get it on Obtainium</a></div>
-          <p class="requirements">Direct link: <a href="https://github.com/Eslamasabry/opencode-mobile-next/releases/download/v1.4.0%2B54/opencode-mobile-1.4.0%2B54.apk">opencode-mobile-1.4.0+54.apk</a>. Or <a href="https://github.com/Eslamasabry/opencode-mobile-next">browse the source on GitHub</a>. Obtainium checks GitHub releases and updates the app for you.</p>
+      <section class="agents wrap" id="agents" aria-labelledby="agents-title">
+        <div class="section-heading reveal">
+          <h2 id="agents-title">Six agents.<br>Pick one per conversation.</h2>
+          <p>Switch agents without leaving the app. Each conversation keeps its own agent, model and history.</p>
         </div>
-        <ol class="steps">
-          <li>
-            <h3>Install the APK</h3>
-            <p>Download the latest release from GitHub. Android will ask you to allow installation from outside the Play Store.</p>
-          </li>
-          <li>
-            <h3>Choose where to work</h3>
-            <p>Set up on your phone, or connect to OpenCode on your computer. Use Wi-Fi for the first on-phone download.</p>
-          </li>
-          <li>
-            <h3>Start a conversation</h3>
-            <p>Choose a model and ask for a change. Add a provider key in Settings if you want models beyond the free option.</p>
-          </li>
-        </ol>
-        <aside class="compatibility" aria-label="Agent availability">
-          <p><strong>Start with Claude Code or OpenCode.</strong> Codex, Gemini CLI, Qwen Code, Goose and Pi are newer on-phone options and have not yet been checked on a physical phone.</p>
-          <a href="https://github.com/Eslamasabry/opencode-mobile-next/blob/master/SUPPORT.md">Read the setup and support guide</a>
-        </aside>
+        <ul class="agent-list">
+          <li class="reveal" style="--i:0"><strong>Claude Code</strong><span>Anthropic's coding agent</span></li>
+          <li class="reveal" style="--i:1"><strong>Codex</strong><span>OpenAI's coding agent</span></li>
+          <li class="reveal" style="--i:2"><strong>Gemini</strong><span>Google's coding agent</span></li>
+          <li class="reveal" style="--i:3"><strong>Kilo</strong><span>Kilo Code agent</span></li>
+          <li class="reveal" style="--i:4"><strong>Cline</strong><span>The Cline agent</span></li>
+          <li class="reveal" style="--i:5"><strong>OpenCode</strong><span>Free models, no API key</span></li>
+        </ul>
+        <p class="note">Models run at the provider you choose. OpenCode's free models, such as GLM-5.3-Flash Free, need no API key. The others need that provider's sign-in or key.</p>
+      </section>
+
+      <section class="widgets" id="widgets" aria-labelledby="widgets-title">
+        <div class="wrap widgets-grid">
+          <div class="widgets-copy reveal">
+            <h2 id="widgets-title">Act from your<br>home screen.</h2>
+            <p>The Conversations widget comes in five sizes. When an agent needs you, Allow or Reject from the widget without opening the app. It settles afterwards and shows what the agent is doing.</p>
+            <p>To allow with the app closed, turn on "Stay connected in the background". Android limits background work, so the app explains the battery setting that matters.</p>
+          </div>
+          <ul class="widget-shots">
+            <li class="reveal wide" style="--i:0"><img src="assets/screens/widget-list.webp" width="480" height="614" loading="lazy" alt="The Conversations widget on the home screen with a request, Run ls -la, with Reject and Allow buttons above the other conversations."><span>Needs you, in the list</span></li>
+            <li class="reveal small" style="--i:1"><img src="assets/screens/widget-small.webp" width="346" height="448" loading="lazy" alt="A small widget titled Needs you for neon-game, asking Run this command? ls -la, with Open and Allow buttons."><span>A small one asks too</span></li>
+            <li class="reveal wide" style="--i:2"><img src="assets/screens/widget-ready.webp" width="560" height="527" loading="lazy" alt="A wide widget and a strip widget both showing the neon brick breaker game build as ready, with a follow-up box and microphone button."><span>Back to work</span></li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="features wrap" id="features" aria-labelledby="features-title">
+        <div class="section-heading reveal">
+          <h2 id="features-title">Everything you'd want<br>from a desk, in a pocket.</h2>
+          <p>Built for steering an agent from a small screen, and for leaving it alone when you want to.</p>
+        </div>
+        <div class="feature-grid">
+          <article class="card reveal" style="--i:0"><h3>Approve from anywhere</h3><p>Allow or reject a request from the notification or the widget. See exactly what the command is first.</p></article>
+          <article class="card reveal" style="--i:1"><h3>Auto-approve</h3><p>Let a conversation run on its own when you trust the task. Turn it off again any time.</p></article>
+          <article class="card reveal" style="--i:2"><h3>Steer mid-task</h3><p>Send a new instruction while the agent is working, instead of waiting for it to finish.</p></article>
+          <article class="card reveal" style="--i:3"><h3>Review every line</h3><p>A full diff view with change-by-change navigation. Nothing is committed behind your back.</p></article>
+          <article class="card reveal" style="--i:4"><h3>In-app preview</h3><p>Tap a localhost link and your dev server opens inside the app, with reload and open in browser.</p></article>
+          <article class="card reveal" style="--i:5"><h3>Show it your screen</h3><p>Send a screenshot or a photo into the chat so the agent sees what you see.</p></article>
+          <article class="card reveal" style="--i:6"><h3>Scheduled prompts</h3><p>Run a prompt at a time you choose, once or repeating, with the app closed. Each schedule keeps a history of its runs.</p></article>
+          <article class="card reveal" style="--i:7"><h3>Built-in Linux</h3><p>The app installs its own Ubuntu. Or connect to an agent already running on your computer.</p></article>
+          <article class="card reveal" style="--i:8"><h3>Real git and terminal</h3><p>Branches, commits and a full shell, in the same place as the conversation.</p></article>
+        </div>
+      </section>
+
+      <section class="start" id="get-started" aria-labelledby="start-title">
+        <div class="wrap start-grid">
+          <div class="start-intro reveal">
+            <h2 id="start-title">Your phone.<br>Your project.</h2>
+            <p>OpenCode Mobile connects to the servers you choose. It isn't a hosted service and doesn't include a model subscription.</p>
+            <div class="hero-actions">
+              <a class="button" href="https://github.com/Eslamasabry/opencode-mobile-next/releases/latest">Download for Android</a>
+              <a class="button button-secondary" href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/Eslamasabry/opencode-mobile-next">Get it on Obtainium</a>
+            </div>
+            <p class="requirements">Direct links for 2.0.0 (build 56): <a href="https://github.com/Eslamasabry/opencode-mobile-next/releases/download/v2.0.0%2B56/opencode-mobile-2.0.0%2B56.apk">universal APK</a>, <a href="https://github.com/Eslamasabry/opencode-mobile-next/releases/download/v2.0.0%2B56/opencode-mobile-2.0.0%2B56-arm64-v8a.apk">arm64-v8a</a> or <a href="https://github.com/Eslamasabry/opencode-mobile-next/releases/download/v2.0.0%2B56/opencode-mobile-2.0.0%2B56-armeabi-v7a.apk">armeabi-v7a</a>. Most phones want arm64-v8a. Or <a href="https://github.com/Eslamasabry/opencode-mobile-next">browse the source on GitHub</a>. Obtainium checks GitHub releases and updates the app for you.</p>
+          </div>
+          <ol class="steps">
+            <li class="reveal"><h3>Install the APK</h3><p>Download the latest release from GitHub. Android will ask you to allow installation from outside the Play Store.</p></li>
+            <li class="reveal"><h3>Choose where to work</h3><p>Set up the built-in Linux on your phone, or connect to an agent on your computer. Use Wi-Fi for the first on-phone download.</p></li>
+            <li class="reveal"><h3>Start a conversation</h3><p>Pick an agent and a model, and ask for a change. OpenCode's free models work with no key.</p></li>
+          </ol>
+          <aside class="compatibility" aria-label="Support">
+            <p><strong>OpenCode 2 only.</strong> The app supports OpenCode 2; OpenCode 1 is no longer supported.</p>
+            <a href="https://github.com/Eslamasabry/opencode-mobile-next/blob/master/SUPPORT.md">Read the setup and support guide</a>
+          </aside>
+        </div>
       </section>
 
       <section class="compare" id="compare" aria-labelledby="compare-title">
         <div class="wrap">
-          <div class="section-heading">
+          <div class="section-heading reveal">
             <h2 id="compare-title">How it differs from the usual ways</h2>
             <p>People run coding agents from a phone in a few ways. Here is where the work happens in each.</p>
           </div>
-          <div class="table-scroll">
+          <div class="table-scroll reveal">
             <table>
               <caption class="sr-only">Comparing ways to use a coding agent from an Android phone</caption>
               <thead>
@@ -207,37 +215,34 @@
               </tbody>
             </table>
           </div>
-          <p class="capture-note">General descriptions of common approaches, not a review of any one product. On-phone setup downloads about 210 MB the first time.</p>
+          <p class="note">General descriptions of common approaches, not a review of any one product. On-phone setup downloads about 210 MB the first time.</p>
         </div>
       </section>
 
       <section class="faq wrap" id="faq" aria-labelledby="faq-title">
-        <h2 id="faq-title">Questions</h2>
+        <h2 id="faq-title" class="reveal">Questions</h2>
         <details open>
           <summary>Is this the official OpenCode or Claude Code app?</summary>
-          <p>No. OpenCode Mobile is an independent community project. It is not built, maintained or endorsed by the OpenCode team, and it is not affiliated with Anthropic. It was built with substantial AI assistance.</p>
+          <p>No. OpenCode Mobile is an independent, MIT-licensed, open-source community project. It is not built, maintained or endorsed by the OpenCode team, and it is not affiliated with Anthropic, OpenAI or Google. It was built with substantial AI assistance.</p>
         </details>
         <details>
           <summary>What runs where?</summary>
-          <p>On this phone, the app installs Ubuntu inside itself and runs OpenCode 2 and Claude Code there; they use your phone's processor and memory, and their projects live inside the app. Or choose your computer: the app then connects to OpenCode 2 there and your files stay on that computer. Models always run at the provider you pick, whichever way you choose.</p>
+          <p>On this phone, the app installs Ubuntu inside itself and runs the agent there; it uses your phone's processor and memory, and projects live inside the app. Or choose your computer: the app then connects to the agent there and your files stay on that computer. Models always run at the provider you pick, whichever way you choose.</p>
         </details>
         <details>
           <summary>Which agents work?</summary>
-          <p>Claude Code and OpenCode are the ones to start with. Codex, Gemini CLI, Qwen Code, Goose and Pi use the same on-phone path, but they are newer and have not yet been checked on a physical phone.</p>
+          <p>Claude Code, Codex, Gemini, Kilo, Cline and OpenCode. You pick one per conversation. OpenCode's free models need no API key; the other agents need that provider's sign-in or key.</p>
         </details>
         <details>
           <summary>Can I schedule a prompt?</summary>
-          <!-- needs proof: Q1, Q2, Q8 -->
-          <p>Yes, from the next release. Pick an agent, write the prompt and choose a time, once or repeating. Each run is kept in the schedule's history, and an optional morning summary lists what ran. Android limits background work, so a run can start late, and a long job on the phone is not guaranteed to finish.</p>
+          <p>Yes. Pick an agent, write the prompt and choose a time, once or repeating. It runs with the app closed, and each run is kept in the schedule's history. Android limits background work, so a run can start late, and a long job on the phone is not guaranteed to finish.</p>
         </details>
         <details>
           <summary>Can I see the app my agent is building?</summary>
-          <!-- needs proof: Q9 -->
           <p>Tap a localhost link in a reply and the running dev server opens in a preview inside the app. For a server on your computer, the dev server must listen on 0.0.0.0 so the phone can reach it.</p>
         </details>
         <details>
           <summary>Does it connect to a server without HTTPS?</summary>
-          <!-- needs proof: B3, B4, B5 -->
           <p>After an explicit yes for that server, it connects over plain HTTP, which sends everything unencrypted, so use it only on a network you trust such as your own Tailscale. For a self-signed HTTPS server you can check its certificate fingerprint and pin it; if the certificate later changes, the app blocks the connection until you verify the new one.</p>
         </details>
         <details>
@@ -246,7 +251,7 @@
         </details>
         <details>
           <summary>Does it cost anything?</summary>
-          <p>The app is free and open source under the MIT license. It is not a hosted service and includes no model subscription: bring an API key or sign-in for the provider you want, or try OpenCode's free model.</p>
+          <p>The app is free and open source under the MIT license. It is not a hosted service and includes no model subscription: bring an API key or sign-in for the provider you want, or use OpenCode's free models.</p>
         </details>
         <details>
           <summary>What about my data?</summary>
@@ -254,7 +259,7 @@
         </details>
         <details>
           <summary>What phone do I need?</summary>
-          <p>Android 8 or newer. Running agents on the phone needs a 64-bit phone; about 2 GB of memory works, slowly. From the next release the download is one file per processor type, about 36 MB for most phones (the universal file stays larger). The first setup then downloads about 210 MB of Ubuntu and tools, so Wi-Fi is best.</p>
+          <p>Android 8 or newer. Running agents on the phone needs a 64-bit phone; about 2 GB of memory works, slowly. Most phones want the arm64-v8a download; the universal file is larger. The first setup then downloads about 210 MB of Ubuntu and tools, so Wi-Fi is best.</p>
         </details>
         <details>
           <summary>How do I get updates?</summary>
@@ -266,7 +271,7 @@
         <div class="wrap arabic-content">
           <div>
             <h2 id="arabic-title">مساعدك البرمجي،<br>على هاتفك.</h2>
-            <p>شغّل <bdi>Claude Code</bdi> و<bdi>OpenCode</bdi> على هاتف أندرويد، دون حاسوب أو <bdi>Termux</bdi>. أو تابع عمل الوكيل على حاسوبك، وراجع التغييرات ووافق عليها من هاتفك.</p>
+            <p>شغّل <bdi>Claude Code</bdi> و<bdi>Codex</bdi> و<bdi>Gemini</bdi> و<bdi>OpenCode</bdi> وغيرها على هاتف أندرويد، دون حاسوب أو <bdi>Termux</bdi>. أو تابع عمل الوكيل على حاسوبك، وراجع التغييرات ووافق عليها من هاتفك.</p>
             <p>التطبيق متاح بالعربية والإنجليزية. يتطلب أندرويد ٨ أو أحدث، وهاتفًا بمعمارية ٦٤ بت للتشغيل المحلي.</p>
           </div>
           <a class="button button-secondary" href="https://github.com/Eslamasabry/opencode-mobile-next/releases/latest">تنزيل التطبيق لأندرويد</a>
@@ -276,7 +281,7 @@
 
     <footer class="site-footer wrap">
       <div class="footer-top">
-        <p class="footer-name">OpenCode Mobile</p>
+        <p class="footer-name">OpenCode Mobile 2.0</p>
         <nav aria-label="Project links">
           <a href="https://github.com/Eslamasabry/opencode-mobile-next">Source code</a>
           <a href="https://github.com/Eslamasabry/opencode-mobile-next/blob/master/SUPPORT.md">Support</a>
@@ -284,7 +289,21 @@
           <a href="https://github.com/Eslamasabry/opencode-mobile-next/blob/master/LICENSE">MIT license</a>
         </nav>
       </div>
-      <p class="community-note">An independent community project, not affiliated with the official OpenCode team or Anthropic. Built with substantial AI assistance.</p>
+      <p class="community-note">An independent, open-source community project, not affiliated with the official OpenCode team, Anthropic, OpenAI or Google. Built with substantial AI assistance.</p>
     </footer>
+    <script>
+      (function () {
+        var root = document.documentElement;
+        var items = document.querySelectorAll('.reveal');
+        var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (calm || !('IntersectionObserver' in window)) { root.classList.remove('js'); return; }
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) {
+            if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+          });
+        }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+        items.forEach(function (el) { io.observe(el); });
+      })();
+    </script>
   </body>
 </html>

@@ -14,14 +14,7 @@ from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[2]
 SITE = ROOT / 'docs' / 'site'
-SCREENSHOTS = (
-    '1_welcome.jpg',
-    '2_setup_on_phone.jpg',
-    '3_chat.jpg',
-    '4_approve.png',
-    '5_models.jpg',
-    '6_ai_team.jpg',
-)
+SCREENSHOT_DIR = 'screens'
 DOWNLOAD = 'https://github.com/Eslamasabry/opencode-mobile-next/releases/latest'
 VOID_TAGS = frozenset(('area', 'base', 'br', 'col', 'embed', 'hr', 'img',
                        'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'))
@@ -142,12 +135,22 @@ class StaticSiteTest(unittest.TestCase):
         self.assertTrue(any('download' in element.content.lower() for element in links),
                         'Include a named Download link to the latest GitHub release.')
 
-    def test_page_has_no_javascript_or_embedded_rendering_dependency(self):
+    def test_page_works_without_javascript_and_has_no_embedded_dependency(self):
+        # Inline progressive-enhancement script is allowed; external scripts are not,
+        # and content must be visible by default (hidden only under the .js class).
         for tag in ('script', 'iframe', 'object', 'embed', 'base'):
             found = self.document.tags(tag)
-            if tag == 'script':  # JSON-LD is data, not executable script
-                found = [e for e in found if e.attrs.get('type') != 'application/ld+json']
+            if tag == 'script':  # JSON-LD is data; inline scripts only, never a src
+                found = []
+                for e in self.document.tags('script'):
+                    self.assertFalse(e.attrs.get('src'), 'Scripts must be inline, not external.')
             self.assertFalse(found, f'Unexpected active/embedded tag: {tag}')
+        css = CSS_COMMENT.sub('', '\n'.join(text for _, text in self.stylesheets))
+        for match in re.finditer(r'([^{}]*)\{([^{}]*opacity\s*:\s*0\s*[;}][^{}]*)\}', css):
+            if match.group(1).strip() == 'from':
+                continue  # keyframe start state; it ends visible
+            if 'transition' in match.group(2) or 'transform' in match.group(2):
+                self.assertIn('.js', match.group(1), 'Hidden-until-reveal styles must need the .js class.')
         for element in self.document.elements:
             for key, value in element.attrs.items():
                 self.assertFalse(key.lower().startswith('on'), f'Inline event handler: {key}')
@@ -185,24 +188,35 @@ class StaticSiteTest(unittest.TestCase):
                 continue  # Document-local SVG/filter reference does not fetch a file.
             local_path(reference, source)
 
-    def test_exact_six_screenshots_are_each_displayed_once_with_alt_text(self):
-        images = self.document.tags('img')
-        screenshot_images = []
-        for image in images:
+    def test_screens_are_all_used_with_alt_text_and_nothing_is_orphaned(self):
+        folder = (SITE / 'assets' / SCREENSHOT_DIR).resolve()
+        used = Counter()
+        for image in self.document.tags('img'):
             self.assertIn('alt', image.attrs,
                           f'Declare alternative text for image {image.attrs.get("src", "")}')
             path = local_path(image.attrs.get('src') or '', self.index)
-            if path.parent == (SITE / 'assets' / 'screenshots').resolve():
-                self.assertTrue((image.attrs.get('alt') or '').strip(),
-                                f'Provide descriptive alt text for screenshot {path.name}')
-                screenshot_images.append(path.name)
-        self.assertEqual(Counter(screenshot_images), Counter(SCREENSHOTS))
-        folder = SITE / 'assets' / 'screenshots'
-        self.assertEqual({path.name for path in folder.iterdir() if path.is_file()}, set(SCREENSHOTS))
-        for filename in SCREENSHOTS:
-            signature = b'\x89PNG\r\n\x1a\n' if filename.endswith('.png') else b'\xff\xd8\xff'
-            self.assertTrue((folder / filename).read_bytes().startswith(signature),
-                            f'{filename} must be a local screenshot image.')
+            if path.parent == folder:
+                self.assertGreater(len((image.attrs.get('alt') or '').split()), 3,
+                                   f'Provide descriptive alt text for {path.name}')
+                used[path.name] += 1
+        files = {path.name for path in folder.iterdir() if path.is_file()}
+        self.assertEqual(set(used), files, 'Every screen file is used, and every used file exists.')
+        self.assertTrue(all(count == 1 for count in used.values()), 'Show each screen once.')
+        for name in files:
+            self.assertTrue((folder / name).read_bytes()[8:12] == b'WEBP', f'{name} must be WebP.')
+
+    def test_hero_video_has_poster_controls_and_no_sound_autoplay(self):
+        videos = self.document.tags('video')
+        self.assertTrue(videos, 'Include the launch video.')
+        for video in videos:
+            self.assertIn('controls', video.attrs)
+            self.assertIn('playsinline', video.attrs)
+            self.assertNotIn('autoplay', video.attrs, 'Never autoplay the video with sound.')
+            local_path(video.attrs.get('poster') or '', self.index)
+
+    def test_total_site_weight_stays_reasonable(self):
+        total = sum(path.stat().st_size for path in SITE.rglob('*') if path.is_file())
+        self.assertLess(total, 15 * 1024 * 1024, 'Keep the whole site under 15 MB.')
 
     def test_fragment_links_have_unique_existing_targets(self):
         ids = [element.attrs['id'] for element in self.document.elements if element.attrs.get('id')]

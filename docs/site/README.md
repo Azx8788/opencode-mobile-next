@@ -1,11 +1,11 @@
 # Static product page
 
 `index.html` is a standalone page with local styles, fonts, logo and screenshots.
-It needs no JavaScript, package install or build step. Open `index.html` directly
+It works without JavaScript (one tiny inline script only adds scroll-reveal animation; content is visible by default) and needs no package install or build step. Open `index.html` directly
 with a `file://` URL for an offline preview, or serve this directory locally:
 
 ```bash
-python3 -m http.server 8000 --bind 127.0.0.1 --directory pages
+python3 -m http.server 8000 --bind 127.0.0.1 --directory docs/site
 ```
 
 Open `http://127.0.0.1:8000` after starting the server from the repository root.
@@ -19,36 +19,35 @@ Run the focused structural check from the repository root:
 python3 tool/qa/test_site.py
 ```
 
-The standard-library check covers asset paths and existence, no-JavaScript
-render dependencies, screenshot use, alternative text, anchors, language,
+The standard-library check covers asset paths and existence, that the page works
+without JavaScript, that every screen is used once, the video's controls, site weight, alternative text, anchors, language,
 viewport, keyboard-focus styling and reduced-motion styling. Passing these
 checks does not establish browser rendering, accessibility audit results or
 physical-device behavior. Check the page visually at narrow and wide widths,
 with keyboard navigation and reduced motion, before claiming those results.
 
-## Screenshot provenance
+## Media provenance
 
-The six page screenshots are local copies from
-`fastlane/metadata/android/en-US/images/phoneScreenshots/`:
+- `assets/video/launch-720.mp4`: the 64-second launch video
+  (`launch-footage/motion/out/v4-vertical-m2.mp4`, 1080x1920) re-encoded with
+  ffmpeg to 720x1280, H.264 High, yuv420p, `+faststart`, CRF 23 capped at 1 Mbit/s,
+  AAC 128k (about 4.9 MB). `poster.jpg` is the frame at 31 s. The video never
+  autoplays; it has controls and plays with sound only when pressed.
+- `assets/screens/*.webp`: raw emulator captures from `launch-footage/emu-shots/`
+  (status bar cropped off, resized to 480 px wide): `build-chat` (r10), `approve`
+  (cl3), `preview` (pz3), `diff` (x6), `terminal` (xg4), `models` (k1). The three
+  `widget-*` images are crops of the home-screen widget from `wv89` and `wv1011`.
+  All use demo data from the synthetic `neon-game` and `settings-demo` projects;
+  no account values, errors or status bars are shown.
+- `assets/og-image.jpg` is composed from the preview capture, the logo and the
+  bundled Geist font.
+- The site uses the project's own logo; the bundled font license accompanies the
+  local font assets.
 
-- `1_welcome.jpg`
-- `2_setup_on_phone.jpg`
-- `3_chat.jpg`
-- `4_approve.jpg`
-- `5_models.jpg`
-- `6_ai_team.jpg`
-
-The page uses `4_approve.png`, a privacy-redacted derivative of `4_approve.jpg`.
-The two personal filesystem paths are masked; the original source is unchanged.
-The other five screenshots are exact copies. No account values are shown. The
-screenshot set documents the app's existing screens; it does not certify every
-pictured runtime or workflow.
-The site uses the project's own logo; the bundled font license accompanies the
-local font assets.
-
-Do not produce an animated demonstration from interim device runs. Any future
-GIF should come from the final successful, approved device verification run and
-receive a privacy review before inclusion.
+Deployment: `.github/workflows/pages.yml` publishes `docs/site` to GitHub Pages
+on pushes to `master` that touch `docs/site/**`, or by manual dispatch. The site
+URL is https://eslamasabry.github.io/opencode-mobile-next/ (Pages must be set to
+"GitHub Actions" as its source in the repository settings).
 
 ## Final-pass demo recorder
 
@@ -76,16 +75,14 @@ The script intentionally does not copy recordings into this website.
 
 ## Slice verification
 
-The 8 static-page checks and 12 mocked recorder checks pass:
+The 10 static-page checks and the mocked recorder checks pass:
 
 ```bash
 python3 -m unittest tool.qa.test_site tool.qa.test_record_demo_gif
 ```
 
-No adb, ffmpeg or recording was run during this slice. The source screenshot
-set and redacted image were visually reviewed. Browser rendering was deferred
-because the shared host had under 500 MB available memory and full swap.
-The full application test pass and final device capture belong to integration.
+The 2.0 page was also rendered in headless Chromium at 390 px and 1440 px
+wide (renders kept outside the repository).
 
 ## Publishing and search (2026-10-15)
 

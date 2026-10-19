@@ -149,16 +149,28 @@ def verify_notes(root, version):
     return notes
 
 
-def verify_artifact(folder, name):
-    manifest = (folder / "SHA256SUMS").read_text().strip()
-    match = re.fullmatch(r"([0-9a-f]{64})  " + re.escape(name), manifest)
-    require(match is not None, "Checksum manifest must contain exactly the candidate APK")
+ABIS = ("arm64-v8a", "armeabi-v7a")
+
+
+def apk_names(version):
+    """The universal APK of record and the per-ABI APKs derived from it."""
+    return [f"opencode-mobile-{version}.apk"] + [f"opencode-mobile-{version}-{abi}.apk" for abi in ABIS]
+
+
+def verify_artifact(folder, name, names):
+    lines = (folder / "SHA256SUMS").read_text().strip().splitlines()
+    entries = {}
+    for line in lines:
+        match = re.fullmatch(r"([0-9a-f]{64})  (\S+)", line)
+        require(match is not None, "Checksum manifest has a malformed line")
+        entries[match.group(2)] = match.group(1)
+    require(set(entries) == set(names), "Checksum manifest must list exactly the candidate APKs")
     with (folder / name).open("rb") as apk:
         hasher = hashlib.sha256()
         for chunk in iter(lambda: apk.read(1024 * 1024), b""):
             hasher.update(chunk)
         digest = hasher.hexdigest()
-    require(digest == match.group(1), "APK checksum mismatch")
+    require(digest == entries[name], "APK checksum mismatch")
     return digest
 
 
@@ -168,14 +180,14 @@ def main():
     release = read_json(root, "release.json")
     require(release.get("tag_name") == f"v{version}", "Release tag mismatch")
     require(isinstance(release.get("id"), int) and release["id"] > 0, "Missing release identity")
-    expected_assets = {f"opencode-mobile-{version}.apk", "SHA256SUMS"}
+    expected_assets = set(apk_names(version)) | {"SHA256SUMS"}
     assets = release.get("assets")
     require(isinstance(assets, list), "Release asset inventory is missing")
     require(
         len(assets) == len(expected_assets)
         and all(isinstance(asset, dict) for asset in assets)
         and {asset.get("name") for asset in assets} == expected_assets,
-        "Release must contain exactly one candidate APK and one SHA256SUMS asset",
+        "Release must contain exactly the candidate APKs and one SHA256SUMS asset",
     )
     if action == "preflight":
         previous = root / "release-verified.json"
@@ -197,11 +209,12 @@ def main():
         verify_run(read_json(root, "quality.json"), "android-quality", head)
         verify_quality_jobs(read_json(root, "jobs.json"), workflow_shard_count(QUALITY_WORKFLOW))
     elif action == "artifacts":
-        name = f"opencode-mobile-{version}.apk"
-        require(
-            verify_artifact(root / "ci", name) == verify_artifact(root / "draft", name),
-            "Draft APK differs from the signed CI artifact",
-        )
+        names = apk_names(version)
+        for name in names:
+            require(
+                verify_artifact(root / "ci", name, names) == verify_artifact(root / "draft", name, names),
+                f"Draft {name} differs from the signed CI artifact",
+            )
         notes = verify_notes(root, version)
         require(f"Source commit: `{head}`" in notes, "Release notes have no matching source evidence")
         require(shorebird_provenance(version) in notes, "Release notes have no Shorebird release provenance")
