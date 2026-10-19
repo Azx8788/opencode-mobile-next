@@ -307,7 +307,7 @@ jobs:
           }
           printf '%s\n' "$certificate_output"
           mapfile -t signers < <(printf '%s\n' "$certificate_output" |
-            sed -En 's/^(Signer #[0-9]+|V[0-9]+ Signer:)[[:space:]]+certificate SHA-256 digest:[[:space:]]*//p' |
+            sed -En 's/^(Signer #[0-9]+|V[0-9]+ Signer:|Signer \([^)]*\))[[:space:]]+certificate SHA-256 digest:[[:space:]]*//p' |
             tr '[:lower:]' '[:upper:]' | sort -u)
           [ "${#signers[@]}" = 1 ] || { echo "::error::APK has ${#signers[@]} signers, expected 1"; exit 1; }
           [ "${signers[0]}" = "$SIDELOAD_CERT_SHA256" ] || { echo "::error::APK signer ${signers[0]} is not the sideload lineage"; exit 1; }
@@ -323,8 +323,11 @@ jobs:
             split="build/abi-apks/$abi.apk"
             test -s "$split"
             split_signers="$("$tools/apksigner" verify --print-certs "$split" |
-              sed -En 's/^Signer #[0-9]+ certificate SHA-256 digest:[[:space:]]*//p' | tr '[:lower:]' '[:upper:]' | sort -u)"
-            [ "$split_signers" = "$SIDELOAD_CERT_SHA256" ] || { echo "::error::$abi APK signer $split_signers is not the sideload lineage"; exit 1; }
+              sed -En 's/^[^:]*[Ss]igner:?[^:]*certificate SHA-256 digest:[[:space:]]*//p' |
+              tr '[:lower:]' '[:upper:]' | sort -u)"
+            [ "$split_signers" = "$SIDELOAD_CERT_SHA256" ] || {
+              "$tools/apksigner" verify --print-certs "$split" | sed -n '1,12p'
+              echo "::error::$abi APK signer $split_signers is not the sideload lineage"; exit 1; }
             split_badging="$("$tools/aapt" dump badging "$split")"
             grep -q "versionCode='$code'" <<<"$split_badging" || { echo "::error::$abi versionCode mismatch"; exit 1; }
             grep -q "^native-code: '$abi'$" <<<"$split_badging" || { echo "::error::$abi APK has unexpected native code"; exit 1; }
