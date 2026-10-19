@@ -2,7 +2,7 @@
 
 This project is in public alpha. Only the newest preview is supported.
 
-## 2.0.0+55 — 2026-10-19
+## 2.0.0+56 — 2026-10-19
 
 Scheduled prompts that run with the app closed, dev servers you can watch,
 preview and stop, a manager for the Linux inside the app (what is running,
@@ -11,7 +11,7 @@ one go, Kilo and Cline beside Claude Code, Codex, Gemini and OpenCode, a
 Conversations widget in five sizes that asks and answers on the home screen,
 a terminal that copies to the clipboard and opens links, and nothing painted
 red. OpenCode 1 support has ended; OpenCode 2, direct Codex and Paseo remain.
-Full notes: [docs/releases/v2.0.0+55.md](docs/releases/v2.0.0+55.md).
+Full notes: [docs/releases/v2.0.0+56.md](docs/releases/v2.0.0+56.md).
 
 ## 1.4.0+54 — 2026-10-15
 
