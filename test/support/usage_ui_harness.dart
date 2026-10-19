@@ -144,6 +144,7 @@ Future<UsageHarness> usageHarness({
           {
             'id': c.id,
             'name': c.name,
+            'flavor': 'v2',
             'baseUrl': 'http://${c.id}.example:4096',
             'username': '',
           },

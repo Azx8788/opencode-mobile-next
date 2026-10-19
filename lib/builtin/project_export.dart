@@ -203,7 +203,11 @@ abstract final class ProjectStorageScanner {
     final projects = <ProjectFacts>[];
     for (final top in _projectTops(layout)) {
       var bytes = 0, files = 0, privateFiles = 0;
-      _walk(top.path, top.name, (relative, path, size) {
+      _walk(top.path, top.name, gitLinksUnder: filesDir, (
+        relative,
+        path,
+        size,
+      ) {
         bytes += size;
         files++;
         final inProject = relative.contains('/')
@@ -257,7 +261,11 @@ abstract final class ProjectStorageScanner {
     final layout = AppStorageLayout(filesDir);
     final entries = <ProjectExportEntry>[];
     for (final top in _projectTops(layout)) {
-      _walk(top.path, 'projects/${top.name}', (name, path, size) {
+      _walk(top.path, 'projects/${top.name}', gitLinksUnder: filesDir, (
+        name,
+        path,
+        size,
+      ) {
         final inProject = name.substring('projects/${top.name}'.length);
         final relative = inProject.startsWith('/')
             ? inProject.substring(1)
@@ -334,15 +342,29 @@ abstract final class ProjectStorageScanner {
   /// Calls [visit] for every regular file under [path] (or [path] itself),
   /// named `prefix/…`. Links and special files are skipped, unreadable
   /// folders too (they are counted as nothing, never followed).
+  ///
+  /// With [gitLinksUnder] (a project), proot's link2symlink links are the
+  /// one exception. Ubuntu's proot turns each hard link (every Git object
+  /// Git ever stored, for one) into a link to a `.l2s.` file holding the
+  /// bytes. Skipping those left an exported repository without its objects
+  /// (`bad object HEAD` once unzipped). Such a link goes in as a regular file
+  /// under its own name with the bytes it leads to, when that is a `.l2s.`
+  /// file inside [gitLinksUnder]; the `.l2s.` files themselves stay out.
   static void _walk(
     String path,
     String prefix,
     void Function(String name, String path, int bytes) visit, {
     Set<String> skip = const {},
+    String? gitLinksUnder,
   }) {
     final kind = _kind(path);
     if (kind == FileSystemEntityType.file) {
       visit(prefix, path, _size(path));
+      return;
+    }
+    if (kind == FileSystemEntityType.link && gitLinksUnder != null) {
+      final bytes = linkedObjectFile(path, gitLinksUnder);
+      if (bytes != null) visit(prefix, bytes, _size(bytes));
       return;
     }
     if (kind != FileSystemEntityType.directory) return;
@@ -355,8 +377,53 @@ abstract final class ProjectStorageScanner {
     for (final child in children) {
       final name = child.path.substring(child.path.lastIndexOf('/') + 1);
       if (skip.contains(name)) continue;
-      _walk(child.path, '$prefix/$name', visit);
+      if (gitLinksUnder != null && name.startsWith(l2sPrefix)) continue;
+      _walk(child.path, '$prefix/$name', visit, gitLinksUnder: gitLinksUnder);
     }
+  }
+
+  /// The name prefix proot's link2symlink gives the files behind its links.
+  static const l2sPrefix = '.l2s.';
+
+  /// The regular `.l2s.` file a link2symlink link at [link] leads to, inside
+  /// [root]; null for any other link, a dangling one or one leading out.
+  /// A hop whose absolute target is gone (the folder moved since) is looked
+  /// for under the same name next to the link, where proot made it.
+  static String? linkedObjectFile(String link, String root) {
+    final String top;
+    try {
+      top = Directory(root).resolveSymbolicLinksSync();
+    } on FileSystemException {
+      return null;
+    }
+    var current = link;
+    for (var hop = 0; hop < 8; hop++) {
+      final String target;
+      try {
+        target = Link(current).targetSync();
+      } on FileSystemException {
+        return null;
+      }
+      final name = target.substring(target.lastIndexOf('/') + 1);
+      if (!name.startsWith(l2sPrefix)) return null;
+      final folder = current.substring(0, current.lastIndexOf('/'));
+      var next = target.startsWith('/') ? target : '$folder/$target';
+      if (_kind(next) == FileSystemEntityType.notFound) next = '$folder/$name';
+      switch (_kind(next)) {
+        case FileSystemEntityType.link:
+          current = next;
+        case FileSystemEntityType.file:
+          try {
+            final real = File(next).resolveSymbolicLinksSync();
+            return real.startsWith('$top/') ? real : null;
+          } on FileSystemException {
+            return null;
+          }
+        default:
+          return null;
+      }
+    }
+    return null;
   }
 
   static FileSystemEntityType _kind(String path) =>

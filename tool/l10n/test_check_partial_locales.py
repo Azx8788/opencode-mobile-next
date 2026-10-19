@@ -8,7 +8,9 @@ import sys
 import tempfile
 import unittest
 
-from check_partial_locales import CORE_HEADER, CORE_REPO_PATH, LOCALES, icu_shape
+from check_partial_locales import (
+    CORE_HEADER, CORE_REPO_PATH, LOCALES, TIER2_HEADER, TIER2_LOCALES, TIER2_REPO_PATH, icu_shape,
+)
 
 
 SCRIPT = Path(os.environ.get("L10N_PARTIAL_SCRIPT", Path(__file__).with_name("check_partial_locales.py"))).resolve()
@@ -34,6 +36,10 @@ class Fixtures(unittest.TestCase):
         for locale in LOCALES:
             self.write_locale(locale)
         self.write_core(["count", "hello", "named"])
+        self.tier2_path = self.root / TIER2_REPO_PATH
+
+    def write_tier2(self, keys):
+        self.tier2_path.write_text(TIER2_HEADER + "".join(f"{key}\n" for key in keys), encoding="utf-8")
 
     def write(self, name, data):
         (self.l10n / name).write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
@@ -53,7 +59,7 @@ class Fixtures(unittest.TestCase):
 
     def run_check(self, extra=()):
         return subprocess.run(
-            [sys.executable, str(SCRIPT), "--l10n-dir", str(self.l10n), "--core", str(self.core_path), *extra],
+            [sys.executable, str(SCRIPT), "--l10n-dir", str(self.l10n), "--core", str(self.core_path), "--tier2", str(self.tier2_path), *extra],
             capture_output=True, text=True, check=False, cwd=self.root,
         )
 
@@ -139,6 +145,49 @@ class CheckTest(Fixtures):
     def test_core_key_english_lacks_fails(self):
         self.write_core(["count", "ghost", "hello", "named"])
         self.assertEqual(self.run_check().returncode, 1)
+
+
+class Tier2Test(Fixtures):
+    def test_tier2_is_required_in_its_locales_only(self):
+        self.write_tier2(["untranslated"])
+        result = self.run_check()
+        self.assertEqual(result.returncode, 1, result.stdout)
+        for locale in LOCALES:
+            self.assertEqual(f"{locale}: core key not translated" in result.stdout, locale in TIER2_LOCALES)
+
+    def test_tier2_translated_in_its_locales_passes(self):
+        self.write_tier2(["untranslated"])
+        for locale in TIER2_LOCALES:
+            self.write_locale(locale, untranslated=f"u-{locale}")
+        result = self.run_check()
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("tier 2 1", result.stdout)
+
+    def test_tier2_repeating_a_core_key_is_invalid(self):
+        self.write_tier2(["hello"])
+        self.assertEqual(self.run_check().returncode, 2)
+
+    def test_tier2_needs_its_header_and_sorted_unique_keys(self):
+        self.tier2_path.write_text("untranslated\n")
+        self.assertEqual(self.run_check().returncode, 2)
+        self.write_tier2(["untranslated", "untranslated"])
+        self.assertEqual(self.run_check().returncode, 2)
+
+    def test_shrunk_tier2_list_fails_against_base_commit(self):
+        for locale in TIER2_LOCALES:
+            self.write_locale(locale, untranslated=f"u-{locale}")
+        self.write_tier2(["untranslated"])
+        git = lambda *a: subprocess.run(["git", "-C", str(self.root), *a], check=True, capture_output=True, text=True).stdout.strip()
+        git("init", "--quiet", "--initial-branch=t2")
+        for c in (("user.name", "F"), ("user.email", "f@example.invalid"), ("commit.gpgsign", "false"), ("core.hooksPath", "/dev/null")):
+            git("config", *c)
+        git("add", ".")
+        git("commit", "--quiet", "-m", "x [skip ci]")
+        base = git("rev-parse", "HEAD")
+        self.write_tier2([])
+        result = self.run_check(["--base-ref", base])
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("may not shrink", result.stdout)
 
 
 class CoreHistoryTest(Fixtures):

@@ -4,9 +4,9 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -78,6 +78,11 @@ class _FinderRepository implements ProductRepository {
 
 class _FinderController extends ConnectionController {
   _FinderController(super.store);
+
+  // This generic repository implements moving conversations between folders.
+  @override
+  ServerCapabilities get capabilities =>
+      const ServerCapabilities(sessionSteal: true);
 
   final locations = <({String? directory, String? workspace})>[];
 

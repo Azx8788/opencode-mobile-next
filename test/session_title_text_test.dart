@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/domain/session_title_text.dart';
 import 'package:opencode_mobile/ui/widgets/session_title.dart';
 

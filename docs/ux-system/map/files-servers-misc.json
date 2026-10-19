@@ -12,14 +12,14 @@
   "module": "files",
   "chrome": "dock",
   "needs": [
-   "server.oc1",
    "server.oc2",
-   "project.open"
+   "project.open",
+   "flag:fileBrowsing+terminal"
   ],
   "whenMissing": {
-   "server.oc1": "hidden (Codex/Paseo report fileBrowsing/terminal/projectManagement false; the dock drops the Project tab, home_screen.dart:256)",
    "server.oc2": "hidden (Codex/Paseo report fileBrowsing/terminal/projectManagement false; the dock drops the Project tab, home_screen.dart:256)",
-   "project.open": "explains ('No project selected' header, project_hub_screen.dart:301) but offers no chooser"
+   "project.open": "explains ('No project selected' header, project_hub_screen.dart:301) but offers no chooser",
+   "flag:fileBrowsing+terminal": "hidden: available only when the server advertises this capability"
   },
   "personas": [
    "remote-lead",
@@ -163,14 +163,14 @@
   "module": "files",
   "chrome": "dock",
   "needs": [
-   "server.oc1",
    "server.oc2",
-   "project.open"
+   "project.open",
+   "flag:fileBrowsing+terminal"
   ],
   "whenMissing": {
-   "server.oc1": "hidden (every opener checks capabilities.fileBrowsing: home_screen.dart:120, chat_screen.dart:596)",
    "server.oc2": "hidden (every opener checks capabilities.fileBrowsing: home_screen.dart:120, chat_screen.dart:596)",
-   "project.open": "explains via the hub header; Files lists nothing useful"
+   "project.open": "explains via the hub header; Files lists nothing useful",
+   "flag:fileBrowsing+terminal": "hidden: available only when the server advertises this capability"
   },
   "personas": [
    "remote-lead",
@@ -406,14 +406,14 @@
   "module": "files",
   "chrome": "sheet-handle",
   "needs": [
-   "server.oc1",
    "server.oc2",
-   "project.open"
+   "project.open",
+   "flag:fileBrowsing+terminal"
   ],
   "whenMissing": {
-   "server.oc1": "hidden (every opener checks capabilities.fileBrowsing: home_screen.dart:120, chat_screen.dart:596)",
    "server.oc2": "hidden (every opener checks capabilities.fileBrowsing: home_screen.dart:120, chat_screen.dart:596)",
-   "project.open": "hidden (reached only from files)"
+   "project.open": "hidden (reached only from files)",
+   "flag:fileBrowsing+terminal": "hidden: available only when the server advertises this capability"
   },
   "personas": [
    "remote-lead",
@@ -525,14 +525,14 @@
   "module": "review",
   "chrome": "sheet-handle",
   "needs": [
-   "server.oc1",
    "server.oc2",
-   "project.open"
+   "project.open",
+   "flag:sessionDiff"
   ],
   "whenMissing": {
-   "server.oc1": "hidden (every opener checks capabilities.fileBrowsing: home_screen.dart:120, chat_screen.dart:596)",
    "server.oc2": "hidden (every opener checks capabilities.fileBrowsing: home_screen.dart:120, chat_screen.dart:596)",
-   "project.open": "hidden"
+   "project.open": "hidden",
+   "flag:sessionDiff": "hidden: available only when the server advertises this capability"
   },
   "personas": [
    "remote-lead",
@@ -643,14 +643,14 @@
   "module": "files",
   "chrome": "sheet-handle",
   "needs": [
-   "server.oc1",
    "server.oc2",
-   "project.open"
+   "project.open",
+   "flag:fileBrowsing+terminal"
   ],
   "whenMissing": {
-   "server.oc1": "hidden (every opener checks capabilities.fileBrowsing: home_screen.dart:120, chat_screen.dart:596)",
    "server.oc2": "hidden (every opener checks capabilities.fileBrowsing: home_screen.dart:120, chat_screen.dart:596)",
-   "project.open": "hidden"
+   "project.open": "hidden",
+   "flag:fileBrowsing+terminal": "hidden: available only when the server advertises this capability"
   },
   "personas": [
    "remote-lead",
@@ -784,14 +784,14 @@
   "module": "review",
   "chrome": "title-header",
   "needs": [
-   "server.oc1",
    "server.oc2",
-   "project.open"
+   "project.open",
+   "flag:sessionDiff"
   ],
   "whenMissing": {
-   "server.oc1": "hidden (chat opener checks sessionDiff; Codex/Paseo report it false)",
    "server.oc2": "hidden (same gate)",
-   "project.open": "hidden"
+   "project.open": "hidden",
+   "flag:sessionDiff": "hidden: available only when the server advertises this capability"
   },
   "personas": [
    "remote-lead",
@@ -1024,14 +1024,14 @@
   "module": "review",
   "chrome": "sheet-handle",
   "needs": [
-   "server.oc1",
    "server.oc2",
-   "project.open"
+   "project.open",
+   "flag:sessionDiff"
   ],
   "whenMissing": {
-   "server.oc1": "hidden",
    "server.oc2": "hidden",
-   "project.open": "hidden"
+   "project.open": "hidden",
+   "flag:sessionDiff": "hidden: available only when the server advertises this capability"
   },
   "personas": [
    "remote-lead",
@@ -1134,14 +1134,14 @@
   "module": "terminal",
   "chrome": "title-header",
   "needs": [
-   "server.oc1",
    "server.oc2",
-   "phone.builtin"
+   "phone.builtin",
+   "flag:terminal"
   ],
   "whenMissing": {
-   "server.oc1": "hidden (openers check capabilities.terminal: home_screen.dart:132, chat_screen.dart:597)",
    "server.oc2": "hidden (same)",
-   "phone.builtin": "hidden (source defaults to server when Linux is not installed, terminal_screen.dart:143); no offer to install"
+   "phone.builtin": "hidden (source defaults to server when Linux is not installed, terminal_screen.dart:143); no offer to install",
+   "flag:terminal": "hidden: available only when the server advertises this capability"
   },
   "personas": [
    "tinkerer",
@@ -1321,12 +1321,12 @@
   "module": "terminal",
   "chrome": "none",
   "needs": [
-   "server.oc1",
-   "server.oc2"
+   "server.oc2",
+   "flag:terminal"
   ],
   "whenMissing": {
-   "server.oc1": "hidden",
-   "server.oc2": "hidden"
+   "server.oc2": "hidden",
+   "flag:terminal": "hidden: available only when the server advertises this capability"
   },
   "personas": [
    "tinkerer"
@@ -1393,12 +1393,12 @@
   "module": "terminal",
   "chrome": "sheet-handle",
   "needs": [
-   "server.oc1",
-   "server.oc2"
+   "server.oc2",
+   "flag:terminal"
   ],
   "whenMissing": {
-   "server.oc1": "hidden",
-   "server.oc2": "hidden"
+   "server.oc2": "hidden",
+   "flag:terminal": "hidden: available only when the server advertises this capability"
   },
   "personas": [
    "tinkerer"
@@ -1473,12 +1473,12 @@
   "module": "terminal",
   "chrome": "title-header",
   "needs": [
-   "server.oc1",
-   "server.oc2"
+   "server.oc2",
+   "flag:terminal"
   ],
   "whenMissing": {
-   "server.oc1": "hidden",
-   "server.oc2": "hidden"
+   "server.oc2": "hidden",
+   "flag:terminal": "hidden: available only when the server advertises this capability"
   },
   "personas": [
    "tinkerer",
@@ -3423,7 +3423,7 @@
  {
   "pageId": "host-management",
   "area": "g-servers",
-  "title": "Run as a Linux service",
+  "title": "Set up OpenCode 2",
   "kind": "screen",
   "file": "lib/ui/screens/host_management_screen.dart",
   "journey": [
@@ -3433,11 +3433,9 @@
   "module": "servers",
   "chrome": "title-header",
   "needs": [
-   "server.oc1",
    "server.oc2"
   ],
   "whenMissing": {
-   "server.oc1": "hidden (row absent for the phone's own server, server_settings_screen.dart:266)",
    "server.oc2": "hidden (same)"
   },
   "personas": [
@@ -3542,11 +3540,11 @@
   "chrome": "title-header",
   "needs": [
    "server.any",
-   "server.oc1"
+   "server.oc2"
   ],
   "whenMissing": {
    "server.any": "hidden (Settings category needs a connection)",
-   "server.oc1": "explains ('Server updates — Upgrade from the machine running the server' row when remoteUpgrade is false, e.g. OpenCode 2)"
+   "server.oc2": "explains: requires the supported OpenCode 2 server capabilities for this page"
   },
   "personas": [
    "remote-lead",
@@ -3591,7 +3589,7 @@
   ],
   "actions": [
    "check health",
-   "Run as a Linux service",
+   "Set up OpenCode 2",
    "Update",
    "Restart notice",
    "Update managed OpenCode"
@@ -3671,12 +3669,8 @@
   ],
   "module": "servers",
   "chrome": "none",
-  "needs": [
-   "server.oc1"
-  ],
-  "whenMissing": {
-   "server.oc1": "hidden (remoteUpgrade only)"
-  },
+  "needs": [],
+  "whenMissing": {},
   "personas": [
    "remote-lead",
    "tinkerer"
@@ -3732,7 +3726,8 @@
   "evidence": [
    "lib/ui/screens/settings/server_settings_screen.dart:69",
    "docs/qa/screen-census/g-servers/server-settings-restart-dialog.png"
-  ]
+  ],
+  "availability": "Retired with OpenCode 1 support on 2026-10-15; this historical design record does not describe an available control."
  },
  {
   "pageId": "server-settings-upgrade-sheet",
@@ -3745,12 +3740,8 @@
   ],
   "module": "servers",
   "chrome": "sheet-handle",
-  "needs": [
-   "server.oc1"
-  ],
-  "whenMissing": {
-   "server.oc1": "hidden"
-  },
+  "needs": [],
+  "whenMissing": {},
   "personas": [
    "remote-lead",
    "tinkerer"
@@ -3808,7 +3799,8 @@
   "evidence": [
    "lib/ui/screens/settings/server_settings_screen.dart:91",
    "docs/qa/screen-census/g-servers/server-settings-upgrade-sheet.png"
-  ]
+  ],
+  "availability": "Retired with OpenCode 1 support on 2026-10-15; this historical design record does not describe an available control."
  },
  {
   "pageId": "agent-account",
@@ -5955,11 +5947,9 @@
   "module": "chat",
   "chrome": "title-header",
   "needs": [
-   "server.oc1",
    "server.oc2"
   ],
   "whenMissing": {
-   "server.oc1": "hidden (chat opener gates on projectManagement)",
    "server.oc2": "hidden (same)"
   },
   "personas": [
@@ -6929,11 +6919,9 @@
   "module": "chat",
   "chrome": "sheet-handle",
   "needs": [
-   "server.oc1",
    "server.oc2"
   ],
   "whenMissing": {
-   "server.oc1": "explains (unavailable state with no action)",
    "server.oc2": "explains (same)"
   },
   "personas": [

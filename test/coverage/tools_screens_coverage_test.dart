@@ -5,7 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import '../support/fake_server_gateway.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/ui/screens/active_context_screen.dart';
 import 'package:opencode_mobile/ui/screens/capabilities_screen.dart';
@@ -17,7 +17,7 @@ import 'paseo_coverage_support.dart';
 import 'servers_support.dart';
 import 'tools_support.dart';
 
-class _NoCatalogApi extends OpenCodeApi {
+class _NoCatalogApi extends FakeServerGateway {
   _NoCatalogApi() : super(baseUrl: 'ws://build.example.net:6767');
 
   @override
@@ -48,7 +48,7 @@ void main() {
     String name,
     ToolsRepo repo,
     Widget Function(dynamic controller) home, {
-    OpenCodeApi? api,
+    FakeServerGateway? api,
   }) async {
     tester.view.physicalSize = const Size(412, 915);
     tester.view.devicePixelRatio = 1;

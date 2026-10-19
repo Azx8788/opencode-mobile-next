@@ -1,11 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/domain/session_command_handoff.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -28,24 +24,6 @@ class _MetadataRepository implements ServerOperationsGateway {
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
-
-class _CommandRepository extends _MetadataRepository
-    implements SessionCommandHandoffGateway {
-  String serverURL = 'https://code.example.test';
-  @override
-  SessionCommandHandoff createSessionCommandHandoff({
-    required String sessionID,
-    required String? directory,
-    required String? workspaceID,
-    required String username,
-  }) => SessionCommandHandoff.openCode1(
-    serverURL: serverURL,
-    sessionID: sessionID,
-    directory: directory,
-    workspaceID: workspaceID,
-    username: username,
-  );
 }
 
 class _Controller extends ConnectionController {
@@ -72,123 +50,6 @@ class _Controller extends ConnectionController {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-
-  test(
-    'POSIX resume command preserves shell-special values as literal arguments',
-    () {
-      const directory = r"/srv/a project/'quoted' $(printf injected) `id`; *";
-      const username = r"-user'$(printf injected)";
-      final handoff = SessionCommandHandoff.openCode1(
-        serverURL: 'https://code.example.test/team/',
-        sessionID: 'session-1',
-        directory: directory,
-        workspaceID: null,
-        username: username,
-      );
-      final result = Process.runSync('sh', [
-        '-c',
-        'opencode() { printf \'%s\\n\' "\$@"; }\n${handoff.command}',
-      ]);
-      expect(result.exitCode, 0, reason: '${result.stderr}');
-      expect((result.stdout as String).trimRight().split('\n'), [
-        'attach',
-        'https://code.example.test/team/',
-        '--session=session-1',
-        '--dir=$directory',
-        '--username=$username',
-      ]);
-      expect(handoff.command, isNot(contains('--password')));
-    },
-    skip: Platform.isWindows,
-  );
-
-  test(
-    'loopback, credential URLs, insecure and unverified workspace targets have no command',
-    () {
-      for (final url in [
-        'http://127.0.0.1:4096',
-        'https://localhost',
-        'https://foo.localhost',
-        'https://[::1]',
-        'https://[0:0:0:0:0:0:0:1]',
-        'https://[::ffff:127.0.0.1]',
-        'https://2130706433',
-        'https://0177.0.0.1',
-        'https://0x7f.0.0.1',
-        'https://0.0.0.0',
-        'http://code.example.test',
-        'https://user:secret@code.example.test',
-        'https://code.example.test?password=secret',
-        'https://code.example.test#secret',
-      ]) {
-        expect(
-          SessionCommandHandoff.openCode1(
-            serverURL: url,
-            sessionID: 's1',
-            directory: '/srv/project',
-            workspaceID: null,
-            username: '',
-          ).command,
-          isNull,
-        );
-      }
-      expect(
-        SessionCommandHandoff.openCode1(
-          serverURL: 'https://code.example.test',
-          sessionID: 's1',
-          directory: '/srv/project',
-          workspaceID: 'workspace-1',
-          username: '',
-        ).unavailable,
-        SessionCommandUnavailable.unsupportedWorkspace,
-      );
-      expect(
-        SessionCommandHandoff.openCode1(
-          serverURL: 'https://code.example.test',
-          sessionID: 's1',
-          directory: null,
-          workspaceID: null,
-          username: '',
-        ).unavailable,
-        SessionCommandUnavailable.missingDirectory,
-      );
-    },
-  );
-
-  test(
-    'v1 repository advertises the command facet without exposing transport password',
-    () {
-      final api = OpenCodeApi(
-        baseUrl: 'https://code.example.test',
-        username: 'test-user',
-        password: 'never-copy-password',
-      );
-      addTearDown(api.close);
-      final repository = SdkProductRepository(api.sdkClient);
-      final command = repository
-          .createSessionCommandHandoff(
-            sessionID: 's1',
-            directory: '/srv/project',
-            workspaceID: null,
-            username: 'test-user',
-          )
-          .command!;
-      expect(command, contains('opencode attach'));
-      expect(command, isNot(contains('never-copy-password')));
-      repository.setLocation(workspace: 'workspace-1');
-      expect(
-        repository
-            .createSessionCommandHandoff(
-              sessionID: 's1',
-              directory: '/srv/project',
-              workspaceID: null,
-              username: '',
-            )
-            .command,
-        isNull,
-      );
-    },
-  );
 
   Future<({_Controller controller, List<String> clipboard})> mount(
     WidgetTester tester,
@@ -250,7 +111,7 @@ void main() {
   // as the conversation menu.
   testWidgets('a list door opens the continue-on-computer sheet with the '
       'resume command for the folder the server reports now', (tester) async {
-    final repo = _CommandRepository();
+    final repo = _MetadataRepository();
     final fixture = await mount(tester, repo);
     expect(repo.reads, 1);
     expect(find.byKey(const Key('continue-on-computer-sheet')), findsOneWidget);
@@ -267,7 +128,7 @@ void main() {
     await tester.tap(copy);
     await tester.pumpAndSettle();
     expect(fixture.clipboard, [
-      "cd '/srv/project' && opencode --session 'session-1'",
+      "cd '/srv/project' && opencode2 --session 'session-1'",
     ]);
     expect(
       fixture.clipboard.single,

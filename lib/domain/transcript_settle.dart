@@ -1,4 +1,4 @@
-import '../api/models.dart';
+import '../domain/models.dart';
 
 /// Live state that has outlived what it described, cleared before the
 /// transcript draws it. Servers do not always send the closing event: Claude

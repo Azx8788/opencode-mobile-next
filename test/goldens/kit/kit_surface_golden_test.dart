@@ -142,7 +142,7 @@ Widget _tiles(_Copy copy) => Row(
     const SizedBox(width: 12),
     KitSurface.tile(
       AppIconography.warning,
-      tone: KitTextTone.danger,
+      tone: KitTextTone.primary,
       semanticsLabel: copy.warning,
     ),
     const SizedBox(width: 12),

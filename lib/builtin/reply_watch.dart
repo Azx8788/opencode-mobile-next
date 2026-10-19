@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../api/models.dart' show EventEnvelope;
+import '../domain/models.dart' show EventEnvelope;
 import '../diagnostics/perf_trace.dart';
 import '../state/connection.dart';
 import 'builtin_linux.dart';

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/server_probe.dart';
+import 'package:opencode_mobile/domain/server_probe.dart';
 import 'package:opencode_mobile/builtin/setup/phone_setup.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -454,7 +454,7 @@ void main() {
     final probed = <String>[];
     serverProbe = ({required baseUrl, username, password}) async {
       probed.add(baseUrl);
-      return const ServerProbeResult.success('1.18.23');
+      return const ServerProbeResult.success('2.0.29');
     };
 
     final (store, controller) = await _state();
@@ -485,10 +485,7 @@ void main() {
 
     expect(probed, ['https://box.example:4096']);
     expect(find.byKey(const ValueKey('server-test-success')), findsOneWidget);
-    expect(
-      find.text('OpenCode 1 · 1.18.23 — limited feature set'),
-      findsOneWidget,
-    );
+    expect(find.text('OpenCode 2 · 2.0.29'), findsOneWidget);
     expect(find.text('Connected — save to finish.'), findsOneWidget);
   });
 
@@ -686,7 +683,7 @@ void main() {
 
     expect(calls, 0);
     expect(
-      find.text('Server URLs must use https://, or http:// for local Termux.'),
+      find.text('Server URLs must use https:// or http://.'),
       findsOneWidget,
     );
   });

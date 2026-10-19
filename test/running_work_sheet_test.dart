@@ -56,6 +56,7 @@ Future<ConnectionController> connection(
       {
         'id': 'p1',
         'name': 'Test',
+        'flavor': 'v2',
         'baseUrl': 'http://localhost',
         'username': '',
       },

@@ -15,9 +15,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import '../support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import '../support/fake_event_channel.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/l10n/app_localizations_en.dart';
 import 'package:opencode_mobile/state/automation_policy.dart';
@@ -54,7 +54,7 @@ void _mockSecure() {
 // ---------------------------------------------------------------------------
 // Project tab fixtures.
 
-class _HubApi extends OpenCodeApi {
+class _HubApi extends FakeServerGateway {
   _HubApi() : super(baseUrl: 'http://localhost');
   @override
   Future<List<Session>> sessions() async => [];

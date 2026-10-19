@@ -97,6 +97,77 @@ void main() {
     expect(taps, 1);
   });
 
+  testWidgets('a done state is green text in the state slot, no new line', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _host(
+        KitFeedItem(
+          project: 'alpha',
+          title: 'Explain the build',
+          state: 'Done',
+          stateTone: KitFeedStateTone.done,
+          time: '3 h ago',
+          onTap: () {},
+        ),
+      ),
+    );
+    expect(_meta('Done'), findsOneWidget);
+    final rich = tester.widget<RichText>(
+      find.byWidgetPredicate(
+        (w) => w is RichText && w.text.toPlainText().contains('Done'),
+      ),
+    );
+    TextSpan? done;
+    rich.text.visitChildren((span) {
+      if (span is TextSpan && (span.text ?? '').startsWith('Done')) done = span;
+      return true;
+    });
+    final roles = KitTokens.of(
+      tester.element(find.text('Explain the build'.isolated)),
+    ).roles;
+    expect(done!.style!.color, isNot(roles.text2));
+    expect(done!.style!.color, isNot(roles.attention));
+    final g = done!.style!.color!;
+    expect(g.g, greaterThan(g.r));
+    expect(g.g, greaterThan(g.b));
+  });
+
+  testWidgets('Done carries a check, Working sweeps and stills when reduced', (
+    tester,
+  ) async {
+    addTearDown(() => KitMotion.loops = false);
+    KitMotion.loops = true;
+    KitFeedItem row(String state, KitFeedStateTone tone) => KitFeedItem(
+      project: 'alpha',
+      title: 'Row $state',
+      state: state,
+      stateTone: tone,
+      onTap: () {},
+    );
+    await tester.pumpWidget(
+      _host(row('Done', KitFeedStateTone.done), scroll: false),
+    );
+    expect(find.byIcon(Icons.check_rounded), findsOneWidget);
+    expect(find.byKey(const ValueKey('kit-feed-state-sweep')), findsNothing);
+    await tester.pumpWidget(
+      _host(row('Working', KitFeedStateTone.running), scroll: false),
+    );
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byIcon(Icons.check_rounded), findsNothing);
+    expect(find.byKey(const ValueKey('kit-feed-state-sweep')), findsOneWidget);
+    // Reduced motion: the word is still green, nothing sweeps.
+    await tester.pumpWidget(
+      MediaQuery(
+        data: const MediaQueryData(disableAnimations: true),
+        child: _host(row('Working', KitFeedStateTone.running), scroll: false),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byKey(const ValueKey('kit-feed-state-sweep')), findsNothing);
+    expect(find.text('Working'), findsOneWidget);
+  });
+
   testWidgets('a row is two lines: no preview, no Git mark, no ring', (
     tester,
   ) async {

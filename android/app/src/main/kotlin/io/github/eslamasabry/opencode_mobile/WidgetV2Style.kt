@@ -19,23 +19,13 @@ object WidgetV2Style {
     private const val ACCENT_BLUE = -12482611
     private const val ACCENT_TEAL = -14317693
     private const val LIGHT_TEXT_THRESHOLD = 128
-    private const val USAGE_BLEND_START = 20
-    private const val USAGE_BLEND_RANGE = 80f
     private const val BACKGROUND_TINT_FRACTION = 0.16f
     private const val HSV_COMPONENT_COUNT = 3
-    private const val RED_SATURATION_THRESHOLD = 0.2f
-    private const val RED_HUE_LOW = 30f
-    private const val RED_HUE_HIGH = 330f
 
     data class Palette(val background: Int, val text: Int, val muted: Int, val accent: Int) {
         val running: Int = if (Color.red(text) > LIGHT_TEXT_THRESHOLD) RUNNING_DARK else RUNNING_LIGHT
         val attention: Int = if (Color.red(text) > LIGHT_TEXT_THRESHOLD) ATTENTION_DARK else ATTENTION_LIGHT
         val neutral: Int get() = muted
-        fun usage(left: Int): Int {
-            if (WidgetLayoutPolicy.usageRole(left) == "neutral") return neutral
-            val amount = ((left - USAGE_BLEND_START) / USAGE_BLEND_RANGE).coerceIn(0f, 1f)
-            return blend(attention, running, amount)
-        }
     }
 
     fun palette(context: Context, widgetId: Int, snapshot: JSONObject?): Palette {
@@ -60,8 +50,14 @@ object WidgetV2Style {
         }
         return Palette(background, if (wallpaper) context.getColor(
             if (dark) android.R.color.system_neutral1_50 else android.R.color.system_neutral1_900
-        ) else appText, appMuted, accent)
+        ) else appText, if (wallpaper) context.getColor(
+            if (dark) android.R.color.system_neutral1_300 else android.R.color.system_neutral1_700
+        ) else appMuted, accent)
     }
+
+    /** The saved background choice: solid, tinted or transparent. */
+    fun backgroundMode(context: Context, widgetId: Int, snapshot: JSONObject?): String =
+        savedStyle(context, widgetId, snapshot?.optString("profileID").orEmpty()).optString("background", "solid")
 
     private fun themeColor(context: Context, theme: JSONObject?, key: String, fallback: Int): Int =
         theme?.optLong(key)?.takeIf { it != 0L }?.toInt() ?: context.getColor(fallback)
@@ -94,7 +90,7 @@ object WidgetV2Style {
                 if (dark) android.R.color.system_accent1_200 else android.R.color.system_accent1_700
             ) else appAccent
             else -> appAccent
-        }.let { noRed(it) }
+        }.let { normalAccent(it, dark) }
     }
 
     fun apply(context: Context, views: RemoteViews, widgetId: Int, snapshot: JSONObject? = null) {
@@ -108,11 +104,13 @@ object WidgetV2Style {
         }
     }
 
-    private fun noRed(color: Int): Int {
+    private fun normalAccent(color: Int, dark: Boolean): Int {
         val hsv = FloatArray(HSV_COMPONENT_COUNT)
         Color.colorToHSV(color, hsv)
-        return if (hsv[1] > RED_SATURATION_THRESHOLD && (hsv[0] < RED_HUE_LOW || hsv[0] > RED_HUE_HIGH))
-            RUNNING_LIGHT else color
+        // Wallpaper and saved accents retain their style, while semantic red
+        // and amber colours are mapped to the readable running role.
+        return if (WidgetUsageStyle.reservedStatusHue(hsv[0], hsv[1]))
+            if (dark) RUNNING_DARK else RUNNING_LIGHT else color
     }
 
     private fun blend(a: Int, b: Int, fraction: Float): Int = Color.rgb(

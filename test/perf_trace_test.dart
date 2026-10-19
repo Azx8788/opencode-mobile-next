@@ -236,6 +236,8 @@ void main() {
         final transport = Api2Transport(
           baseUrl: 'http://host:4097',
           password: 'secret',
+          // This fixture represents a server whose HTTP warning was approved.
+          cleartextConfirmedOrigin: 'http://host:4097',
         );
         addTearDown(transport.close);
         final adapter = _SizedAdapter(bytes: 4096);

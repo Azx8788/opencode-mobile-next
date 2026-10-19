@@ -3,6 +3,7 @@
 // never the danger colour).
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../support/no_red.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/ui/app_theme.dart';
 import 'package:opencode_mobile/ui/kit/kit.dart';
@@ -103,6 +104,6 @@ void main() {
         text.style?.color ??
         DefaultTextStyle.of(tester.element(failure)).style.color;
     expect(color, roles.text1);
-    expect(color, isNot(roles.danger));
+    expect(color, isNotRed);
   });
 }

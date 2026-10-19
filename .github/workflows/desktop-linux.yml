@@ -86,7 +86,7 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.pub-cache
-          key: pub-linux-${{ env.FLUTTER_VERSION }}-${{ hashFiles('pubspec.lock', 'packages/opencode_sdk/pubspec.lock') }}
+          key: pub-linux-${{ env.FLUTTER_VERSION }}-${{ hashFiles('pubspec.lock') }}
           restore-keys: |
             pub-linux-${{ env.FLUTTER_VERSION }}-
 
@@ -95,9 +95,6 @@ jobs:
 
       - name: Resolve dependencies
         run: flutter pub get
-
-      - name: Resolve generated SDK dependencies
-        run: dart pub get --directory packages/opencode_sdk --enforce-lockfile
 
       - name: Resolve the Widgetbook catalog
         run: flutter pub get --directory widgetbook

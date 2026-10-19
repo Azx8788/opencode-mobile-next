@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -68,11 +68,24 @@ CatalogSnapshot _catalog() => const CatalogSnapshot(
 /// Opens a conversation with no history (the capture API has no pages).
 class _Api extends CaptureApi {
   @override
+  Future<List<AgentInfo>> agents() async => [
+    for (final agent in _catalog().agents)
+      AgentInfo(name: agent.id, mode: agent.mode),
+  ];
+
+  @override
   Future<ServerPage<MessageWithParts>> messagePage(
     String id, {
     String? cursor,
     int limit = 100,
   }) async => const ServerPage(items: []);
+}
+
+// Opening the picker refreshes through ensureCatalog. Return the same models
+// and agents as the seeded scene, including its thinking variants.
+class _Repository extends CaptureRepository {
+  @override
+  Future<CatalogSnapshot> loadCatalog() async => _catalog();
 }
 
 final _opus = ModelRef(providerID: 'anthropic', modelID: 'claude-opus-5-5');
@@ -82,6 +95,7 @@ Future<CaptureController> _captured() async {
   final controller = await captureController(
     prefs: prefs,
     api: _Api()..busy = {},
+    repository: _Repository(),
   );
   addTearDown(controller.dispose);
   return controller

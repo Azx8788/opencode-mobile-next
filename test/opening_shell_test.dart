@@ -1,3 +1,4 @@
+import 'support/fake_server_operations.dart';
 // Cached opening shell (slice-speed-ui; docs/qa/codex-speed-2026-09-28
 // contract item 1). Pumps the real AppBootstrapGate, app root, profile store
 // and ConnectionController with fake transports, and records what the first
@@ -13,10 +14,9 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/diagnostics/app_diagnostics.dart';
 import 'package:opencode_mobile/diagnostics/perf_trace.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
@@ -31,7 +31,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 const _url = 'https://100.64.0.1:4096';
 
-class _Api extends OpenCodeApi {
+class _Api extends FakeServerGateway {
   _Api() : super(baseUrl: _url);
 
   final healthResult = Completer<Health>();
@@ -81,8 +81,8 @@ class _Api extends OpenCodeApi {
       Future.error(ApiException('V2 unavailable', statusCode: 404));
 }
 
-class _Operations extends SdkProductRepository {
-  _Operations(OpenCodeApi api) : super(api.sdkClient);
+class _Operations extends FakeServerOperations {
+  _Operations(super.api);
 
   @override
   Future<ChatDefaults> loadChatDefaults() async => const ChatDefaults();
@@ -95,7 +95,7 @@ class _Operations extends SdkProductRepository {
   Future<List<IntegrationInfo>> listIntegrations() async => const [];
 }
 
-class _Events extends EventStream {
+class _Events extends FakeEventChannel {
   _Events({
     required super.api,
     required super.onEvent,
@@ -134,7 +134,13 @@ Future<void> _seed({bool cache = true, String? directory}) async {
   addTearDown(() => messenger.setMockMethodCallHandler(secure, null));
   SharedPreferences.setMockInitialValues({
     'oc.profiles': jsonEncode([
-      {'id': 'perf', 'name': 'Laptop', 'baseUrl': _url, 'username': ''},
+      {
+        'id': 'perf',
+        'name': 'Laptop',
+        'flavor': 'v2',
+        'baseUrl': _url,
+        'username': '',
+      },
     ]),
     'oc.activeProfile': 'perf',
   });

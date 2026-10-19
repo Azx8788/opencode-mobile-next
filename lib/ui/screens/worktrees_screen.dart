@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../api/models.dart';
-import '../../api/product_repository.dart';
+import '../../domain/models.dart';
+import '../../domain/product_repository.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state/connection.dart';
 import '../app_theme.dart';

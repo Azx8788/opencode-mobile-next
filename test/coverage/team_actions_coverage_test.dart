@@ -284,8 +284,8 @@ void main() {
             'capabilities': {
               'execution': true,
               'boundary': true,
-              'oc1Verified': true,
-              'oc2': false,
+              'oc2Verified': true,
+              'oc2': true,
             },
             'commandActions': [
               for (final a in TeamProjectAction.values) a.name,

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' show ProviderScope;
 
-import '../../api/product_repository.dart';
+import '../../domain/product_repository.dart';
 import '../../builtin/builtin_server.dart' show looksLikeInAppServer;
 import '../../builtin/thermal_guard_teams.dart' show thermalGuardSlotProvider;
 import '../../domain/settings_search.dart';
@@ -28,6 +28,12 @@ import '../screens/global_sessions_screen.dart';
 import '../screens/guide_screen.dart';
 import '../screens/keep_running_screen.dart';
 import '../screens/library_screen.dart';
+import '../screens/linux_manager/linux_manager_screen.dart'
+    show openLinuxManager;
+import '../screens/linux_manager/linux_packages_page.dart';
+import '../screens/linux_manager/linux_ports_page.dart';
+import '../screens/linux_manager/linux_processes_page.dart';
+import '../screens/linux_manager/linux_storage_page.dart';
 import '../screens/local_agent_screen.dart';
 import '../screens/project_hub_screen.dart';
 import '../screens/saved_permissions_screen.dart';
@@ -340,6 +346,11 @@ bool _catalog(SearchScope scope) => scope.capabilities.serverCatalog;
 bool _phoneSetUp(SearchScope scope) => scope.controller.store.profiles.any(
   (p) => looksLikeInAppServer(p) || TermuxBridge.managesServerUrl(p.baseUrl),
 );
+
+/// The app's own Linux is saved on this phone (what the Linux manager manages).
+bool _inAppLinux(SearchScope scope) =>
+    scope.platform.supportsTermux &&
+    scope.controller.store.profiles.any(looksLikeInAppServer);
 
 bool _account(SearchScope scope) =>
     scope.controller.isConnected && scope.capabilities.agentAccount;

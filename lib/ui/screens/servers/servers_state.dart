@@ -270,6 +270,11 @@ class _ServersScreenState extends ConsumerState<ServersScreen> {
                               else
                                 _ServerRow(
                                   profile: p,
+                                  name: serverDisplayName(
+                                    p,
+                                    copy,
+                                    among: store.profiles,
+                                  ),
                                   connected:
                                       accountConnection.api != null &&
                                       accountConnection.profile?.id == p.id,

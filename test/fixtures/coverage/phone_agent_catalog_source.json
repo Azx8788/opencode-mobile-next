@@ -43,51 +43,6 @@
       }
     },
     {
-      "id": "opencode",
-      "name": "Older OpenCode",
-      "iconKey": "opencode",
-      "route": "opencode1",
-      "providerId": "opencode",
-      "signInMethod": "apiKeyHost",
-      "availability": "limited",
-      "limitation": "Needs a check on your phone before use.",
-      "resumeReason": "Can't reopen old chats",
-      "capabilities": {
-        "resumeVerified": false,
-        "modelList": false,
-        "permissions": false,
-        "images": false,
-        "cancel": false
-      },
-      "recipe": {
-        "version": "1.19.0",
-        "executable": "opencode",
-        "launchArgs": [
-          "serve",
-          "--hostname",
-          "127.0.0.1"
-        ],
-        "signInArgs": [
-          "auth",
-          "login"
-        ],
-        "artifacts": {
-          "arm64": {
-            "url": "https://github.com/anomalyco/opencode/releases/download/v1.19.0/opencode-linux-arm64.tar.gz",
-            "sha256": "e9841d43d3e1a8f36ed2691592d3b8b4fb097e606c8b559a277a1b845840e26b",
-            "format": "tarGz",
-            "archiveMember": "opencode"
-          },
-          "x64": {
-            "url": "https://github.com/anomalyco/opencode/releases/download/v1.19.0/opencode-linux-x64-baseline.tar.gz",
-            "sha256": "6334d70db3990721ea454357e9cf2573c8685524ad7769af9d52cbffb7008438",
-            "format": "tarGz",
-            "archiveMember": "opencode"
-          }
-        }
-      }
-    },
-    {
       "id": "claude",
       "name": "Claude Code",
       "iconKey": "claude",
@@ -262,6 +217,99 @@
             "archiveMember": "package/cli-entry.js",
             "downloadBytes": 33195960,
             "installedBytes": 116286799
+          }
+        }
+      }
+    },
+    {
+      "id": "kilo",
+      "name": "Kilo",
+      "iconKey": "kilo",
+      "route": "acpPaseo",
+      "providerId": "kilo",
+      "signInMethod": "browserOAuthHost",
+      "availability": "limited",
+      "limitation": "Sign in or add a provider key, then check it on your phone. Large download.",
+      "resumeReason": "Can't reopen old chats",
+      "capabilities": {
+        "resumeVerified": false,
+        "modelList": false,
+        "permissions": false,
+        "images": false,
+        "cancel": false
+      },
+      "recipe": {
+        "version": "7.8.3",
+        "executable": "kilo",
+        "launchArgs": [
+          "acp"
+        ],
+        "signInArgs": [
+          "auth",
+          "login"
+        ],
+        "artifacts": {
+          "arm64": {
+            "url": "https://registry.npmjs.org/@kilocode/cli-linux-arm64/-/cli-linux-arm64-7.8.3.tgz",
+            "sha256": "bd61f03eb14053fdcaf5245eb1740455b0447fe9d6d48b4adaeea6bb4ae53a90",
+            "format": "tarGz",
+            "archiveMember": "package/bin/kilo",
+            "downloadBytes": 63881791,
+            "installedBytes": 169322640
+          },
+          "x64": {
+            "url": "https://registry.npmjs.org/@kilocode/cli-linux-x64/-/cli-linux-x64-7.8.3.tgz",
+            "sha256": "03b963726d8002ea6bee21d8db6121201e6ed8230a0e1fce8857f4c8d091333c",
+            "format": "tarGz",
+            "archiveMember": "package/bin/kilo",
+            "downloadBytes": 64190979,
+            "installedBytes": 170363008
+          }
+        }
+      }
+    },
+    {
+      "id": "cline",
+      "name": "Cline",
+      "iconKey": "cline",
+      "route": "acpPaseo",
+      "providerId": "cline",
+      "signInMethod": "browserOAuthHost",
+      "availability": "limited",
+      "limitation": "Sign in on this phone, then check it. Large download.",
+      "resumeReason": "Can't reopen old chats",
+      "capabilities": {
+        "resumeVerified": false,
+        "modelList": false,
+        "permissions": false,
+        "images": false,
+        "cancel": false
+      },
+      "recipe": {
+        "version": "3.0.68",
+        "executable": "cline",
+        "launchArgs": [
+          "--acp"
+        ],
+        "signInArgs": [
+          "auth"
+        ],
+        "artifacts": {
+          "arm64": {
+            "url": "https://registry.npmjs.org/@cline/cli-linux-arm64/-/cli-linux-arm64-3.0.68.tgz",
+            "sha256": "5e0ad56ba4c494c437f6dcdc2557c165478e05e1800e1fe6f7d476e4fd4c84f2",
+            "format": "tarGz",
+            "archiveMember": "package/bin/cline",
+            "downloadBytes": 49689972,
+            "installedBytes": 130861352
+          },
+          "x64": {
+            "url": "https://registry.npmjs.org/@cline/cli-linux-x64/-/cli-linux-x64-3.0.68.tgz",
+            "sha256": "a979929090eb9a934b3907e2cf519368964d6a35e96079d6db4fc89caad98ab1",
+            "format": "tarGz",
+            "archiveMember": "package/bin/cline",
+            "downloadBytes": 49918778,
+            "installedBytes": 130434528
           }
         }
       }

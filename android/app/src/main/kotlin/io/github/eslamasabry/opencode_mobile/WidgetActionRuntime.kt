@@ -16,6 +16,7 @@ internal class WidgetActionRuntime(
     private val payload: Map<String, Any?>,
     private val snapshot: JSONObject,
     private val deadlineEpochMs: Long,
+    private val operation: String = "execute",
     private val complete: (Map<*, *>?) -> Unit,
 ) {
     private var engine: FlutterEngine? = null
@@ -41,7 +42,7 @@ internal class WidgetActionRuntime(
                             result.success(null)
                             if (!executed && !destroyed) {
                                 executed = true
-                                bridge.invokeMethod("execute", mapOf(
+                                bridge.invokeMethod(operation, mapOf(
                                     "action" to payload,
                                     "snapshot" to jsonMap(snapshot),
                                     "deadlineEpochMs" to deadlineEpochMs,

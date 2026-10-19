@@ -4,8 +4,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/mcp_oauth.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/mcp_oauth.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/state/pending_auth.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -499,15 +499,11 @@ final j2LibraryArea = CensusArea(
       );
       kit.expectText('Remove Primary key?');
     }),
-    CensusShot(
-      'integrations-remove-mcp-sheet',
-      (kit) async {
-        await _integrationsHost(kit);
-        await kit.tap(find.widgetWithText(TextButton, 'Remove'));
-        kit.expectVisible(find.widgetWithText(FilledButton, 'Remove'));
-      },
-      note: 'Removes the first MCP server (docs).',
-    ),
+    CensusShot('integrations-remove-mcp-sheet', (kit) async {
+      await _integrationsHost(kit);
+      await kit.tap(find.widgetWithText(TextButton, 'Remove'));
+      kit.expectVisible(find.widgetWithText(FilledButton, 'Remove'));
+    }, note: 'Removes the first MCP server (docs).'),
 
     // ---- MCP OAuth -------------------------------------------------------
     CensusShot('integrations-mcp-oauth-code-dialog', (kit) async {

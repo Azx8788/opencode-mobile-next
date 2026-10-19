@@ -47,23 +47,39 @@ String _requestIfIgnored(BuildContext context, int others) {
 /// Keeps a request card to [KitTokens.requestMaxHeightShare] of the window,
 /// so the transcript and the composer keep their room in a short window
 /// (landscape, the keyboard up); past that the card scrolls in its slot.
+///
+/// Inside a [_RequestScrollHost] the host already bounds and scrolls the
+/// card, so the slot steps aside: two nested scrollers clipped the card (the
+/// outer one, anchored at its bottom, cut the question off the top).
 class _RequestSlot extends StatelessWidget {
   const _RequestSlot({required this.child});
 
   final Widget child;
 
   @override
-  Widget build(BuildContext context) => ConstrainedBox(
-    constraints: BoxConstraints(
-      maxHeight:
-          MediaQuery.sizeOf(context).height * KitTokens.requestMaxHeightShare,
-    ),
-    child: ListView(
-      shrinkWrap: true,
-      padding: EdgeInsets.zero,
-      children: [child],
-    ),
-  );
+  Widget build(BuildContext context) =>
+      context.getInheritedWidgetOfExactType<_RequestScrollHost>() != null
+      ? child
+      : ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight:
+                MediaQuery.sizeOf(context).height *
+                KitTokens.requestMaxHeightShare,
+          ),
+          child: ListView(
+            shrinkWrap: true,
+            padding: EdgeInsets.zero,
+            children: [child],
+          ),
+        );
+}
+
+/// Marks the one scroller that already holds the request cards.
+class _RequestScrollHost extends InheritedWidget {
+  const _RequestScrollHost({required super.child});
+
+  @override
+  bool updateShouldNotify(_RequestScrollHost oldWidget) => false;
 }
 
 /// A permission request: Allow once and Reject in place (one tap for the
@@ -74,10 +90,16 @@ class _PermissionAttentionCard extends StatefulWidget {
     super.key,
     required this.permission,
     required this.onReview,
+    this.toolName,
+    this.target,
     this.autoApprovalFailed = false,
   });
 
   final PermissionRequest permission;
+
+  /// The tool whose call asks, and the path or command it will touch.
+  final String? toolName;
+  final String? target;
 
   /// Details: the request sheet.
   final VoidCallback onReview;
@@ -111,6 +133,8 @@ class _PermissionAttentionCardState extends State<_PermissionAttentionCard> {
         who: _requestWho(context),
         since: _seen,
         detail: detail,
+        toolName: widget.toolName,
+        target: widget.target,
         onAllow: null,
         onReject: null,
         disabledReason: l10n.chatRequestNoConnection,
@@ -134,6 +158,8 @@ class _PermissionAttentionCardState extends State<_PermissionAttentionCard> {
           who: _requestWho(context),
           since: _seen,
           detail: detail,
+          toolName: widget.toolName,
+          target: widget.target,
           ifIgnored: _requestIfIgnored(
             context,
             conn.permissionsForSession(permission.sessionID).length - 1,

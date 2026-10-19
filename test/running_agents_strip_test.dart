@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/ui/widgets/running_agents_strip.dart';
 
 Session _session(String id, {String? parentID, int created = 0}) => Session(

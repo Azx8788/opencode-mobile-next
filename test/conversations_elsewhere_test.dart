@@ -1,12 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class _Api extends OpenCodeApi {
+class _Api extends FakeServerGateway {
   _Api(this.statuses) : super(baseUrl: 'http://localhost');
   final Map<String, String> statuses;
 

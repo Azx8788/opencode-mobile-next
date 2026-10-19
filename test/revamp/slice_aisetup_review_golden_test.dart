@@ -13,8 +13,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import '../support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/domain/setup_assistant.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
@@ -141,12 +141,17 @@ Future<void> _shot(
   debugDefaultTargetPlatformOverride = TargetPlatform.android;
   SharedPreferences.setMockInitialValues({
     'oc.profiles': jsonEncode([
-      {'id': 'laptop', 'name': 'Laptop', 'baseUrl': 'http://192.168.1.20:4096'},
+      {
+        'id': 'laptop',
+        'name': 'Laptop',
+        'flavor': 'v2',
+        'baseUrl': 'http://192.168.1.20:4096',
+      },
     ]),
   });
   final connection =
       ConnectionController(_Store(prefs: await SharedPreferences.getInstance()))
-        ..api = OpenCodeApi(baseUrl: 'http://192.168.1.20:4096')
+        ..api = FakeServerGateway(baseUrl: 'http://192.168.1.20:4096')
         ..status = StreamStatus.connected;
   final session = SetupSession(connection, gatewayFor: (_) => gateway);
   final boundary = GlobalKey();

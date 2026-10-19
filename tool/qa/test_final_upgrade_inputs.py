@@ -160,41 +160,16 @@ class NextUpgradeTests(unittest.TestCase):
         self.assertTrue(result["manualChecksPending"])
         self.assertFalse(result["deviceQualified"])
 
-    def test_nondurable_receipt_stops_before_posting_marker(self):
-        import os
-        import types
-        from tool.qa.fq9 import fixture
+    def test_retired_seed_request_stops_before_device_access(self):
+        import argparse
 
-        calls = []
-        port = types.SimpleNamespace(
-            run_id="fq9-test",
-            history=None,
-            require_idle_setup=lambda: None,
-            _connect=lambda engine: None,
-            prepare_fixture_project=lambda: "/root/projects/fq9-test",
+        args = argparse.Namespace(
+            case="upgrade", seed_history_receipt=self.root / "private.json"
         )
-
-        def protocol(method, path, **kwargs):
-            calls.append(path)
-            if path == "/session/status":
-                return {}
-            return {
-                "id": "ses_test",
-                "title": "fq9-test-retained",
-                "directory": "/root/projects/fq9-test",
-            }
-
-        port.protocol = protocol
-        with patch.object(os, "fsync", side_effect=OSError("disk failure")):
-            with self.assertRaises(common.DriverFailure):
-                fixture.seed_history_fixture(
-                    port,
-                    lambda value: driver.write_private_receipt(
-                        self.root / "private.json", value
-                    ),
-                )
-        self.assertNotIn("/session/ses_test/message", calls)
-        self.assertIsNone(port.history)
+        with patch.object(driver.ports, "AndroidPorts") as device:
+            with self.assertRaisesRegex(common.DriverFailure, "legacy_fixture_retired"):
+                driver.run_locked(args, {}, None, self.root / "result.json")
+            device.assert_not_called()
 
     def test_next_build_does_not_enable_other_rows(self):
         with patch.object(driver, "main") as main:

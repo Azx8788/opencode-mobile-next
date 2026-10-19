@@ -123,10 +123,6 @@
       "ar address \"127.0.0.1\"": 1,
       "en address \"127.0.0.1\"": 1
     },
-    "e7SetupProbeV1": {
-      "ar version \"{version}\"": 1,
-      "en version \"{version}\"": 1
-    },
     "e7SetupProbeV2": {
       "ar version \"{version}\"": 1,
       "en version \"{version}\"": 1

@@ -5,10 +5,9 @@
 #
 # Copies this worktree as it is now (uncommitted edits included; build/,
 # .dart_tool/ and .git/ left out) to ~/wt/<worktree name> on OC_VPS_HOST, runs
-# `flutter test` there and prints the result. Golden (screenshot) files are
-# refused: the server's CPU rasterizes glyph edges ~0.2% differently, so
-# goldens only compare on the machine that wrote them; run those here under
-# tool/qa/machine_lock.sh. Needs key-only SSH to OC_VPS_HOST, whose
+# `flutter test` there and prints the result. Golden (screenshot) files run
+# there too: they compare exactly, except the few images listed in
+# test/goldens/tolerances.json. Needs key-only SSH to OC_VPS_HOST, whose
 # ~/.profile puts the pinned Flutter on PATH.
 set -euo pipefail
 # The worktree is the one you run it from, so any checkout can use one copy.
@@ -32,14 +31,10 @@ done
 cd "$root"
 for f in "${files[@]}"; do
   [[ -f "$f" ]] || { echo "vps_test: no such file: $f" >&2; exit 64; }
-  if grep -qIi golden "$f"; then
-    echo "vps_test: $f compares goldens; run it here under machine_lock" >&2
-    exit 65
-  fi
 done
 name="$(basename "$root")"
 ssh -o BatchMode=yes "$host" "mkdir -p ~/wt"
-rsync -a --delete --exclude build/ --exclude .dart_tool/ --exclude .git/ \
+rsync -a --delete --exclude build/ --exclude .dart_tool/ --exclude .git --exclude tool/qa/build-server.env \
   --exclude 'test/**/failures/' --exclude android/key.properties \
   "$root/" "$host:wt/$name/"
 quoted=$(printf '%q ' "${files[@]}" ${extra[@]+"${extra[@]}"})

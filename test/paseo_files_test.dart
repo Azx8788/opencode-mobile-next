@@ -6,8 +6,9 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:opencode_mobile/ui/widgets/product_states.dart'
     show productErrorDetails, productErrorText;
+import 'package:opencode_mobile/domain/product_failure.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart'
-    show VcsDiffMode, VersionControlSetupState;
+    show ProductException, VcsDiffMode, VersionControlSetupState;
 import 'package:opencode_mobile/paseo/gateway.dart';
 import 'package:opencode_mobile/paseo/transport.dart';
 
@@ -768,6 +769,59 @@ void main() {
           reason: kind.name,
         );
       }
+    });
+
+    test('a Git failure in the project says the history cannot be read', () {
+      final failure = PaseoFailure(
+        PaseoFailureKind.unavailable,
+        reason:
+            'Git command failed: git status --porcelain (exit code: 128, '
+            'signal: none) fatal: bad object HEAD',
+      );
+      final words = productErrorText(failure);
+      expect(words, contains("Git history can't be read"));
+      // No terminal steps: the way forward is a copy or a fresh clone (and,
+      // on this phone, the Repair action on New conversation).
+      expect(words, isNot(contains('git fsck')));
+      expect(words, contains('clone it again'));
+      expect(words, isNot(contains('bad object')));
+      final details = productErrorDetails(failure)!;
+      expect(details, contains('bad object HEAD'));
+      // The label is its own words, never glued onto the kind.
+      expect(details, contains('Paseo unavailable'));
+      expect(details, isNot(contains('Paseounavailable')));
+    });
+
+    test('a wrapped start whose cause is Git keeps the Git failure', () {
+      // PaseoChatFeedSource wraps every start failure in "Could not start
+      // this chat. Refresh…" with the daemon's failure as its cause.
+      final wrapped = ProductException(
+        'Could not start this chat. Refresh before trying again.',
+        cause: PaseoFailure(
+          PaseoFailureKind.unavailable,
+          reason:
+              'Git command failed: git status --porcelain fatal: bad object HEAD',
+        ),
+      );
+      expect(
+        ProductFailure.from(wrapped).category,
+        ProductFailureCategory.projectGit,
+      );
+      expect(productErrorText(wrapped), contains("Git history can't be read"));
+      // Any other cause keeps the app's own sentence.
+      const other = ProductException(
+        'Could not start this chat. Refresh before trying again.',
+        cause: 'worker crashed',
+      );
+      expect(ProductFailure.from(other).category, ProductFailureCategory.words);
+    });
+
+    test('an unrelated daemon reason keeps the computer words', () {
+      final failure = PaseoFailure(
+        PaseoFailureKind.unavailable,
+        reason: 'worker crashed',
+      );
+      expect(productErrorText(failure), contains('reach your computer'));
     });
 
     test('a real clash still says it changed meanwhile', () {

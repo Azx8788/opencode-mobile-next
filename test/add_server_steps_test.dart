@@ -9,8 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/server_probe.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/server_probe.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -54,7 +54,7 @@ class _Connection extends ConnectionController {
     bool redetectOnFailure = true,
   }) async {
     connected.add(profile);
-    api = OpenCodeApi(baseUrl: profile.baseUrl);
+    api = FakeServerGateway(baseUrl: profile.baseUrl);
   }
 }
 
@@ -328,26 +328,61 @@ void main() {
     expect(_readyStep, findsOneWidget);
   });
 
-  testWidgets('a public http:// address explains itself and offers '
-      'Tailscale', (tester) async {
+  testWidgets('public HTTP sends the password only after explicit consent', (
+    tester,
+  ) async {
+    const address = 'http://192.0.2.20:4096';
+    const password = 'fixture-not-a-live-password';
     var probes = 0;
+    String? sentPassword;
     serverProbe = ({required baseUrl, username, password}) async {
       probes++;
-      return const ServerProbeResult.success('2.0.10');
+      expect(baseUrl, address);
+      sentPassword = password;
+      return const ServerProbeResult.success('2.0.10', flavor: ServerFlavor.v2);
     };
-    await _openAddServer(tester);
+    final (store, connection) = await _openAddServer(tester);
     await chooseServerKind(tester);
-    await _typeAddress(tester, 'http://192.0.2.20:4096');
-    await tester.tap(find.byKey(const ValueKey('save-server-profile')));
-    await tester.pumpAndSettle();
+    await _typeAddress(tester, address);
+    await tester.enterText(
+      find.byKey(const ValueKey('server-password-field')),
+      password,
+    );
+    await _tapKey(tester, 'save-server-profile');
 
     expect(probes, 0);
-    final advice = find.byKey(const ValueKey('server-remote-http-advice'));
-    expect(advice, findsOneWidget);
-    expect(find.textContaining('public'), findsNothing);
-    expect(find.textContaining('relay'), findsNothing);
-    await _tapKey(tester, 'server-remote-http-tailscale');
-    expect(_tailscaleStep, findsOneWidget);
+    expect(sentPassword, isNull);
+    expect(connection.connected, isEmpty);
+    expect(store.saved, [_laptop]);
+    expect(
+      find.byKey(const ValueKey('server-cleartext-warning')),
+      findsOneWidget,
+    );
+    expect(find.textContaining('public Wi-Fi'), findsOneWidget);
+
+    await _tapKey(tester, 'server-cleartext-confirm');
+    expect(find.byKey(const ValueKey('server-trust-sheet')), findsOneWidget);
+    expect(probes, 0);
+    expect(sentPassword, isNull);
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    await _tapKey(tester, 'save-server-profile');
+    expect(probes, 0);
+    expect(sentPassword, isNull);
+    expect(store.saved, [_laptop]);
+    expect(connection.connected, isEmpty);
+
+    await _tapKey(tester, 'server-cleartext-confirm');
+    await _tapKey(tester, 'server-trust-accept');
+    expect(probes, 1);
+    expect(sentPassword, password);
+    await _tapKey(tester, 'save-server-profile');
+    final added = store.saved.singleWhere((p) => p.id != 'laptop');
+    expect(added.baseUrl, address);
+    expect(added.cleartextConfirmedOrigin, address);
+    expect(added.password, password);
+    expect(connection.connected.single.id, added.id);
+    expect(_readyStep, findsOneWidget);
   });
 
   testWidgets('a password typed before stepping back is held, never shown', (

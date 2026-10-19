@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/domain/agent_tools/browser_claude_launch.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/paseo/gateway.dart';

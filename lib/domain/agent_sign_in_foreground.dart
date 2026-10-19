@@ -9,8 +9,13 @@ enum AgentSignInForegroundFailure {
 }
 
 final class AgentSignInForegroundException implements Exception {
-  const AgentSignInForegroundException(this.reason);
+  const AgentSignInForegroundException(this.reason, {this.code});
   final AgentSignInForegroundFailure reason;
+
+  /// Where it failed, from a fixed vocabulary (never platform or CLI text):
+  /// shown under Details so a failure on a phone without logs says which
+  /// step to look at.
+  final String? code;
   @override
   String toString() => 'AgentSignInForegroundException(${reason.name})';
 }
@@ -21,9 +26,14 @@ abstract interface class AgentSignInForegroundPort {
 }
 
 abstract interface class AgentSignInForegroundLease {
+  /// Completes once Android runs the service; fails with the coded reason
+  /// when it is refused.
   Future<void> get ready;
   bool get active;
-  Stream<void> get lost;
+
+  /// After [ready]: the service stopped, with what stopped it. Before
+  /// admission a failure goes to [ready] only.
+  Stream<AgentSignInForegroundException> get lost;
   Future<void> release();
 }
 
@@ -137,9 +147,11 @@ final class _BoundForegroundLease implements AgentSignInForegroundLease {
   }
   final AgentSignInForegroundBinding _binding;
   final _ready = Completer<void>();
-  final _lost = StreamController<void>.broadcast(sync: true);
+  final _lost = StreamController<AgentSignInForegroundException>.broadcast(
+    sync: true,
+  );
   AgentSignInForegroundLease? _delegate;
-  StreamSubscription<void>? _subscription;
+  StreamSubscription<AgentSignInForegroundException>? _subscription;
   bool _invalid = false;
   Future<void>? _releasing;
 
@@ -149,7 +161,7 @@ final class _BoundForegroundLease implements AgentSignInForegroundLease {
   bool get active =>
       !_invalid && _binding.current && (_delegate?.active ?? false);
   @override
-  Stream<void> get lost => _lost.stream;
+  Stream<AgentSignInForegroundException> get lost => _lost.stream;
 
   Future<void> _start() async {
     try {
@@ -157,10 +169,17 @@ final class _BoundForegroundLease implements AgentSignInForegroundLease {
       if (_invalid || !_binding.current) return _invalidate();
       final delegate = _binding._port.reserveAgentSignInForeground();
       _delegate = delegate;
-      _subscription = delegate.lost.listen((_) => _invalidate());
+      _subscription = delegate.lost.listen(_invalidate);
       await delegate.ready;
       if (_invalid || !_binding.current || !delegate.active) {
-        _invalidate();
+        _invalidate(
+          _binding.current && !delegate.active
+              ? const AgentSignInForegroundException(
+                  AgentSignInForegroundFailure.unavailable,
+                  code: 'service-inactive',
+                )
+              : null,
+        );
         await delegate.release();
         return;
       }
@@ -172,6 +191,7 @@ final class _BoundForegroundLease implements AgentSignInForegroundLease {
               ? error
               : const AgentSignInForegroundException(
                   AgentSignInForegroundFailure.unavailable,
+                  code: 'admission-error',
                 ),
         );
       }
@@ -185,17 +205,23 @@ final class _BoundForegroundLease implements AgentSignInForegroundLease {
     }
   }
 
-  void _invalidate() {
+  /// [cause] is the service's own loss; without one the owner closed.
+  /// Before admission it fails [ready] only, so the coded refusal is what the
+  /// terminal reports.
+  void _invalidate([AgentSignInForegroundException? cause]) {
     if (_invalid) return;
     _invalid = true;
-    if (!_ready.isCompleted) {
-      _ready.completeError(
+    final failure =
+        cause ??
         const AgentSignInForegroundException(
           AgentSignInForegroundFailure.cancelled,
-        ),
-      );
+          code: 'owner-closed',
+        );
+    if (!_ready.isCompleted) {
+      _ready.completeError(failure);
+      return;
     }
-    if (!_lost.isClosed) _lost.add(null);
+    if (!_lost.isClosed) _lost.add(failure);
   }
 
   @override

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:opencode_mobile/api/provider_presentation.dart';
+import 'package:opencode_mobile/domain/provider_presentation.dart';
 import 'package:opencode_mobile/ui/kit/kit_tokens.dart';
 import 'package:opencode_mobile/ui/app_theme.dart';
 import 'package:opencode_mobile/ui/widgets/provider_logo.dart';

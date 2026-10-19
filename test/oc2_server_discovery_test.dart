@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/server_probe.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/server_probe.dart';
 import 'package:opencode_mobile/builtin/setup/phone_setup.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
@@ -42,7 +42,7 @@ class _Connection extends ConnectionController {
     bool redetectOnFailure = true,
   }) async {
     connectCalls++;
-    api = OpenCodeApi(baseUrl: profile.baseUrl);
+    api = FakeServerGateway(baseUrl: profile.baseUrl);
   }
 }
 
@@ -106,56 +106,55 @@ void main() {
         .setMockMethodCallHandler(secure, null);
   });
 
-  testWidgets(
-    'saved labels distinguish confirmed generation from legacy default',
-    (tester) async {
-      final (store, conn) = await _state([
-        ServerProfile(
-          id: 'unknown',
-          name: 'Unprobed',
-          baseUrl: 'https://legacy.example',
-        ),
-        ServerProfile(
-          id: 'v1',
-          name: 'Computer',
-          baseUrl: 'https://one.example',
-          serverVersion: '1.18.25',
-        ),
-        ServerProfile(
-          id: 'v2',
-          name: 'Next',
-          baseUrl: 'https://two.example',
-          flavor: ServerFlavor.v2,
-        ),
-        ServerProfile(
-          id: 'codex',
-          name: 'Codex computer',
-          baseUrl: 'wss://codex.example',
-          backend: ServerBackend.codex,
-          serverVersion: '1.0',
-        ),
-      ]);
-      addTearDown(conn.dispose);
-      await tester.pumpWidget(_app(store, conn));
-      await tester.pumpAndSettle();
-      for (final entry in {
-        'unknown': 'Not connected · OpenCode',
-        'v1': 'Not connected · OpenCode 1',
-        'v2': 'Not connected · OpenCode 2',
-      }.entries) {
-        // The generation leads the row's supporting line (standard §6).
-        final finder = find.byKey(ValueKey('server-row-${entry.key}'));
-        await _reveal(tester, finder);
-        // The kind, never the address (that is in the row menu's Details).
-        expect(_supporting(tester, entry.key), entry.value);
-      }
-      expect(_supporting(tester, 'codex'), isNot(contains('OpenCode')));
-      expect(store.saved.first.flavor, ServerFlavor.v1);
-    },
-  );
+  testWidgets('saved OpenCode rows consistently name the supported server', (
+    tester,
+  ) async {
+    final (store, conn) = await _state([
+      ServerProfile(
+        id: 'unknown',
+        name: 'Unprobed',
+        baseUrl: 'https://legacy.example',
+      ),
+      ServerProfile(
+        id: 'v1',
+        name: 'Computer',
+        baseUrl: 'https://one.example',
+        serverVersion: '1.18.25',
+      ),
+      ServerProfile(
+        id: 'v2',
+        name: 'Next',
+        baseUrl: 'https://two.example',
+        flavor: ServerFlavor.v2,
+      ),
+      ServerProfile(
+        id: 'codex',
+        name: 'Codex computer',
+        baseUrl: 'wss://codex.example',
+        backend: ServerBackend.codex,
+        serverVersion: '1.0',
+      ),
+    ]);
+    addTearDown(conn.dispose);
+    await tester.pumpWidget(_app(store, conn));
+    await tester.pumpAndSettle();
+    for (final entry in {
+      'unknown': 'Not connected · OpenCode 2',
+      'v1': 'Not connected · OpenCode 2',
+      'v2': 'Not connected · OpenCode 2',
+    }.entries) {
+      // The generation leads the row's supporting line (standard §6).
+      final finder = find.byKey(ValueKey('server-row-${entry.key}'));
+      await _reveal(tester, finder);
+      // The kind, never the address (that is in the row menu's Details).
+      expect(_supporting(tester, entry.key), entry.value);
+    }
+    expect(_supporting(tester, 'codex'), isNot(contains('OpenCode')));
+    expect(store.saved.first.flavor, ServerFlavor.v2);
+  });
 
-  for (final flavor in [ServerFlavor.v1, ServerFlavor.v2]) {
-    testWidgets('OpenCode 2 entry preserves actual $flavor autodetection', (
+  for (final flavor in [ServerFlavor.v2]) {
+    testWidgets('OpenCode 2 entry persists supported detection', (
       tester,
     ) async {
       serverProbe = ({required baseUrl, username, password}) async =>
@@ -205,58 +204,6 @@ void main() {
     });
   }
 
-  for (final mode in ['mixed-local', 'single-local', 'mixed-remote']) {
-    testWidgets('$mode connection routes runtime choices only when needed', (
-      tester,
-    ) async {
-      final url = mode == 'mixed-remote'
-          ? 'https://work.example'
-          : 'http://127.0.0.1:4096';
-      final (store, conn) = await _state([
-        ServerProfile(
-          id: 'one',
-          name: 'OpenCode one',
-          baseUrl: url,
-          serverVersion: '1.18.25',
-        ),
-        if (mode != 'single-local')
-          ServerProfile(
-            id: 'two',
-            name: 'OpenCode two',
-            baseUrl: url,
-            flavor: ServerFlavor.v2,
-          ),
-      ]);
-      await tester.pumpWidget(_app(store, conn));
-      await tester.pumpAndSettle();
-      // The phone's own server is the one "Termux" row; a remote one
-      // keeps its saved name.
-      await tester.tap(
-        find.text(mode == 'mixed-remote' ? 'OpenCode one' : 'Termux'),
-      );
-      await tester.pumpAndSettle();
-      // A row opens the server's page; its Connect row starts the connection.
-      final connect = find.byKey(const ValueKey('server-row-connect'));
-      await tester.ensureVisible(connect);
-      await tester.pumpAndSettle();
-      await tester.tap(connect);
-      await tester.pumpAndSettle();
-      expect(conn.connectCalls, mode == 'mixed-local' ? 0 : 1);
-      expect(
-        find.text('Termux route: PhoneHostKind.termux'),
-        mode == 'mixed-local' ? findsOneWidget : findsNothing,
-      );
-      expect(store.saved.first.flavor, ServerFlavor.v1);
-      if (mode != 'single-local') {
-        expect(store.saved.last.flavor, ServerFlavor.v2);
-      }
-      // The connection's server monitor keeps a refresh timer; the tree goes
-      // first, then the connection, before the test's timer check.
-      await tester.pumpWidget(const SizedBox());
-      conn.dispose();
-    });
-  }
-
   for (final changed in [true, false]) {
     testWidgets(
       'editing endpoint ${changed ? "clears" : "retains"} cached generation evidence',
@@ -287,19 +234,16 @@ void main() {
         await tester.tap(find.byKey(const ValueKey('save-server-profile')));
         await tester.pumpAndSettle();
         final saved = store.saved.single;
-        expect(saved.flavor, changed ? ServerFlavor.v1 : ServerFlavor.v2);
+        expect(saved.flavor, ServerFlavor.v2);
         expect(saved.serverVersion, changed ? isNull : '0.0.0-beta');
         // The row says what the server is, never where: its address moved
         // to the menu's Details.
-        expect(
-          _supporting(tester, 'server'),
-          changed ? 'Not connected · OpenCode' : 'Not connected · OpenCode 2',
-        );
+        expect(_supporting(tester, 'server'), 'Not connected · OpenCode 2');
       },
     );
   }
 
-  testWidgets('known OC1 user reaches phone setup with no runtime forced', (
+  testWidgets('saved legacy metadata does not prevent supported phone setup', (
     tester,
   ) async {
     // Phone setup's pre-flight reads the device when its screen opens.
@@ -347,7 +291,7 @@ void main() {
     // Termux is a host of phone setup: installing is the v2 job with Termux
     // as its host (P1.2, 935945d6), its progress, not a wizard.
     expect(find.byType(PhoneSetupTermuxJobScreen), findsOneWidget);
-    expect(store.saved.single.flavor, ServerFlavor.v1);
+    expect(store.saved.single.flavor, ServerFlavor.v2);
     expect(tester.takeException(), isNull);
   });
 }

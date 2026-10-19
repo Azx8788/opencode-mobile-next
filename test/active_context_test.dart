@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart' show Session, SessionRevert;
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/models.dart' show Session, SessionRevert;
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/api2/active_context_mapper.dart';
 import 'package:opencode_mobile/api2/gateway_operations.dart';
 import 'package:opencode_mobile/api2/models.dart';
@@ -155,49 +155,45 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  testWidgets(
-    'phone context preview',
-    (tester) async {
-      final (c, repo) = await _setup();
-      repo.rows = const [
-        ActiveContextMessage(
-          id: 'msg_01',
-          type: 'compaction',
-          content: [
-            ContextContent(
-              ContextContentKind.text,
-              'The conversation so far: improve the composer, keep drafts recoverable, and verify the Android build.',
-            ),
-          ],
-        ),
-        ActiveContextMessage(
-          id: 'msg_02',
-          type: 'user',
-          content: [
-            ContextContent(
-              ContextContentKind.text,
-              'Review the composer and explain what changed.',
-            ),
-          ],
-        ),
-        ActiveContextMessage(
-          id: 'msg_03',
-          type: 'assistant',
-          content: [
-            ContextContent(
-              ContextContentKind.toolOutput,
-              'Read chat_screen.dart and checked the draft recovery flow.',
-              name: 'read',
-            ),
-          ],
-        ),
-      ];
-      await _open(tester, c);
-      await _capture(tester, 'phone');
-      await tester.pumpWidget(const SizedBox());
-    },
-    skip: Platform.environment['OC_CONTEXT_PREVIEW'] == null,
-  );
+  testWidgets('phone context preview', (tester) async {
+    final (c, repo) = await _setup();
+    repo.rows = const [
+      ActiveContextMessage(
+        id: 'msg_01',
+        type: 'compaction',
+        content: [
+          ContextContent(
+            ContextContentKind.text,
+            'The conversation so far: improve the composer, keep drafts recoverable, and verify the Android build.',
+          ),
+        ],
+      ),
+      ActiveContextMessage(
+        id: 'msg_02',
+        type: 'user',
+        content: [
+          ContextContent(
+            ContextContentKind.text,
+            'Review the composer and explain what changed.',
+          ),
+        ],
+      ),
+      ActiveContextMessage(
+        id: 'msg_03',
+        type: 'assistant',
+        content: [
+          ContextContent(
+            ContextContentKind.toolOutput,
+            'Read chat_screen.dart and checked the draft recovery flow.',
+            name: 'read',
+          ),
+        ],
+      ),
+    ];
+    await _open(tester, c);
+    await _capture(tester, 'phone');
+    await tester.pumpWidget(const SizedBox());
+  }, skip: Platform.environment['OC_CONTEXT_PREVIEW'] == null);
 
   test(
     'context GET uses session identity and authentication, retaining more than 5000 messages',

@@ -17,18 +17,34 @@ extension _ChatCommands on _ChatScreenState {
       _conn.isAgentBackend ? (_agentName ?? 'OpenCode') : 'OpenCode';
 
   /// "Reconnecting" naming this conversation's own backend: an agent on
-  /// this phone (Claude Code) is not OpenCode.
+  /// this phone (Claude Code) is not OpenCode. When the connection line says
+  /// the agent's helper isn't answering, the chat says the same, never
+  /// "reconnecting" beside it.
   String _reconnectingWords(BuildContext context) => _conn.isAgentBackend
-      ? _chatL10n(
-          context,
-        ).chatUiAgentIsReconnecting(KitBidi.auto(_agentName ?? ''))
+      ? _agentNotAnswering(context) ??
+            _chatL10n(
+              context,
+            ).chatUiAgentIsReconnecting(KitBidi.auto(_agentName ?? ''))
       : _chatL10n(context).chatUiOpenCodeIsReconnecting;
 
   String _reconnectingShortlyWords(BuildContext context) => _conn.isAgentBackend
-      ? _chatL10n(context).chatUiAgentIsReconnectingTryAgainShortly(
-          KitBidi.auto(_agentName ?? ''),
-        )
+      ? _agentNotAnswering(context) ??
+            _chatL10n(context).chatUiAgentIsReconnectingTryAgainShortly(
+              KitBidi.auto(_agentName ?? ''),
+            )
       : _chatL10n(context).chatUiOpenCodeIsReconnectingTryAgainShortly;
+
+  /// The connection line's own words while it says the agent's helper
+  /// isn't answering; null otherwise.
+  String? _agentNotAnswering(BuildContext context) {
+    final status = _conn.connectionStatus;
+    if (!status.visible || status.phase != ConnectionStatusPhase.notAnswering) {
+      return null;
+    }
+    return _chatL10n(
+      context,
+    ).agentNotAnsweringPhone(KitBidi.auto(_agentName ?? ''));
+  }
 
   List<CatalogAgent> get _subagents {
     final agents = (_conn.catalog?.agents ?? const <CatalogAgent>[])

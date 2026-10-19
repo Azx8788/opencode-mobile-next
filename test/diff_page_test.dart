@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/rendering.dart';
 import 'package:opencode_mobile/ui/app_theme.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/ui/kit/kit_top_bar.dart';
 import 'package:opencode_mobile/ui/screens/review_workspace.dart';
 

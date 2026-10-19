@@ -22,12 +22,15 @@ import 'package:flutter/material.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../app_iconography.dart';
 import '../kit_diff_view.dart';
+import '../kit_effects.dart';
+import '../kit_motion.dart';
 import '../kit_surface.dart';
 import '../kit_tappable.dart';
 import '../kit_text.dart';
 import '../kit_tokens.dart';
 import '../motion/kit_motion_parts.dart';
 
+part 'kit_step_light.dart';
 part 'kit_step_node.dart';
 
 /// A few lines of what a file write or edit changed, for the timeline's
@@ -165,6 +168,35 @@ class KitStepPreview {
   static final _hunkHeader = RegExp(r'^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@');
 }
 
+/// How a step's node looks (KitStepTimeline.md "Node states").
+enum KitStepNodeState {
+  /// A plain node: the glyph in its tile.
+  none,
+
+  /// Not started: a dim neutral outline, no light.
+  queued,
+
+  /// In progress: the glyph in accent and one light round the node and down
+  /// the rail.
+  running,
+
+  /// A long-running background process: the same light, calmer.
+  background,
+
+  /// Waiting on the person: the outline holds filled in the attention role
+  /// and breathes; nothing travels.
+  waiting,
+
+  /// Finished: a tick flash when it was in progress, then the glyph.
+  done,
+
+  /// Failed: the outline flashes once (neutral, never red), then [mark].
+  failed,
+
+  /// Stopped by the person: the light fades out, the glyph stays, no tick.
+  stopped,
+}
+
 /// A turn's work as one quiet line that opens in place to a timeline.
 ///
 /// The line is [icon], [label] and a chevron (or the live [mark] in the
@@ -184,10 +216,12 @@ class KitStepTimeline extends StatefulWidget {
     required this.steps,
     this.spoken,
     this.mark,
+    this.live = false,
     this.head,
     this.fade,
     this.lineKey,
     this.stepsKey,
+    this.stalled = false,
   });
 
   /// The line's words ("Read 3 files · ran 8 commands").
@@ -213,6 +247,10 @@ class KitStepTimeline extends StatefulWidget {
   /// [spoken].
   final Widget? mark;
 
+  /// A step is running and the line is shut: the line's [icon] carries the
+  /// step light instead of a ring.
+  final bool live;
+
   /// A row above the first step, outside the steps ("Show 12 earlier steps").
   final Widget? head;
 
@@ -225,6 +263,10 @@ class KitStepTimeline extends StatefulWidget {
   /// On the opened steps (today's `Key('work-group-steps')`).
   final Key? stepsKey;
 
+  /// The connection is down while steps run: their lights hold where they
+  /// are, dimmed, and go on when it is back.
+  final bool stalled;
+
   /// Whether [context] sits inside a timeline's rail.
   static bool inside(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<_RailScope>() != null;
@@ -236,8 +278,8 @@ class KitStepTimeline extends StatefulWidget {
   ///
   /// [lineHeight] is the height of the first line of [child] at 1.0 text
   /// scale and [top] is where that line starts inside [child]; the node
-  /// centres on it. [dim] draws the glyph of a step not started yet in the
-  /// quietest role. [boxHeight], when given, is the first line's height as it
+  /// centres on it. [state] says how the step stands (see [KitStepNodeState]); a
+  /// running step keeps its glyph and gets the light. [boxHeight], when given, is the first line's height as it
   /// is (already at the person's text size) and replaces [lineHeight].
   static Widget node(
     BuildContext context, {
@@ -246,7 +288,7 @@ class KitStepTimeline extends StatefulWidget {
     double top = 0,
     IconData? icon,
     Widget? mark,
-    bool dim = false,
+    KitStepNodeState state = KitStepNodeState.none,
     double? boxHeight,
   }) {
     if (!inside(context)) return child;
@@ -256,8 +298,43 @@ class KitStepTimeline extends StatefulWidget {
       top: top,
       icon: icon,
       mark: mark,
-      dim: dim,
+      state: state,
       scope: context.dependOnInheritedWidgetOfExactType<_RailScope>()!,
+      child: child,
+    );
+  }
+
+  /// A step's node outside a timeline (a row that stands alone): the glyph in
+  /// its tile with the same light round it, and no rail.
+  static Widget alone(
+    BuildContext context, {
+    required IconData icon,
+    required KitStepNodeState state,
+  }) {
+    final rail = _Rail(context);
+    return _StepLight(
+      icon: icon,
+      size: rail.glyph,
+      state: state,
+      mark: null,
+      registry: _RailRegistry(),
+      index: 0,
+      last: true,
+      stalled: false,
+      lone: true,
+    );
+  }
+
+  /// [child] (a running step's name) with a soft light sweeping over it while
+  /// [active]; still when the light does not move.
+  static Widget sweep(
+    BuildContext context, {
+    required bool active,
+    required Widget child,
+  }) {
+    final scope = context.dependOnInheritedWidgetOfExactType<_RailScope>();
+    return _StepSweep(
+      active: active && !(scope?.stalled ?? false),
       child: child,
     );
   }
@@ -336,11 +413,13 @@ class _KitStepTimelineState extends State<KitStepTimeline> {
   @override
   Widget build(BuildContext context) {
     final hasSteps = widget.steps.isNotEmpty || widget.head != null;
-    final registry = _registry;
+    final registry = _registry..nodes.clear();
     final line = _StepLine(
+      registry: registry,
       label: widget.label,
       icon: widget.icon,
       mark: widget.mark,
+      live: widget.live,
       expanded: widget.expanded,
       railBelow: widget.expanded && hasSteps,
       onPressed: widget.onPressed,
@@ -349,6 +428,7 @@ class _KitStepTimelineState extends State<KitStepTimeline> {
     );
     final open = widget.expanded && hasSteps;
     final count = widget.steps.length + (widget.head == null ? 0 : 1);
+    registry.count = open ? count : 0;
     // One shape open or shut: the line never remounts, so keyboard focus
     // stays on it when it toggles.
     Widget? rail = open
@@ -358,15 +438,19 @@ class _KitStepTimelineState extends State<KitStepTimeline> {
             children: [
               if (widget.head != null)
                 _RailSlot(
+                  key: registry.keyFor(0),
                   index: 0,
                   registry: registry,
+                  stalled: widget.stalled,
                   last: count == 1,
                   child: widget.head!,
                 ),
               for (var i = 0; i < widget.steps.length; i++)
                 _RailSlot(
+                  key: registry.keyFor(i + (widget.head == null ? 0 : 1)),
                   index: i + (widget.head == null ? 0 : 1),
                   registry: registry,
+                  stalled: widget.stalled,
                   last: i == widget.steps.length - 1,
                   child: widget.steps[i],
                 ),
@@ -474,6 +558,7 @@ class _RailScope extends InheritedWidget {
     required this.last,
     required this.index,
     required this.registry,
+    required this.stalled,
     required super.child,
   });
 
@@ -483,16 +568,43 @@ class _RailScope extends InheritedWidget {
   /// The step's place in the timeline, and the timeline's geometry book.
   final int index;
   final _RailRegistry registry;
+  final bool stalled;
 
   @override
   bool updateShouldNotify(_RailScope old) =>
-      old.last != last || old.index != index || old.registry != registry;
+      old.last != last ||
+      old.index != index ||
+      old.registry != registry ||
+      old.stalled != stalled;
 }
 
 /// Where each step's node centre sits in its slot, written as the nodes
 /// build, so the last slot's rail can end on its node.
 class _RailRegistry {
   final Map<int, double> centres = {};
+  final List<GlobalKey> _slotKeys = [];
+
+  /// Each node's top and bottom in its slot, for the lights.
+  final Map<int, ({double top, double bottom})> nodes = {};
+  final GlobalKey headerKey = GlobalKey();
+
+  /// Where the header's rail stub starts, in the header's own box.
+  double headerStart = 0;
+  int count = 0;
+
+  GlobalKey keyFor(int index) {
+    while (_slotKeys.length <= index) {
+      _slotKeys.add(GlobalKey());
+    }
+    return _slotKeys[index];
+  }
+
+  RenderBox? box(GlobalKey key) {
+    final object = key.currentContext?.findRenderObject();
+    return object is RenderBox && object.attached && object.hasSize
+        ? object
+        : null;
+  }
 }
 
 /// One step's place on the rail: the rail's stroke behind it and the node
@@ -500,14 +612,17 @@ class _RailRegistry {
 /// so the strokes join; the last ends at its node's centre.
 class _RailSlot extends StatelessWidget {
   const _RailSlot({
+    super.key,
     required this.index,
     required this.registry,
+    required this.stalled,
     required this.last,
     required this.child,
   });
 
   final int index;
   final _RailRegistry registry;
+  final bool stalled;
   final bool last;
   final Widget child;
 
@@ -520,6 +635,7 @@ class _RailSlot extends StatelessWidget {
       last: last,
       index: index,
       registry: registry,
+      stalled: stalled,
       child: CustomPaint(
         painter: _RailPainter(
           color: rail.color,
@@ -542,9 +658,11 @@ class _RailSlot extends StatelessWidget {
 
 class _StepLine extends StatelessWidget {
   const _StepLine({
+    required this.registry,
     required this.label,
     required this.icon,
     required this.mark,
+    required this.live,
     required this.expanded,
     required this.railBelow,
     required this.onPressed,
@@ -552,9 +670,11 @@ class _StepLine extends StatelessWidget {
     required this.lineKey,
   });
 
+  final _RailRegistry registry;
   final String label;
   final IconData icon;
   final Widget? mark;
+  final bool live;
   final bool expanded;
 
   /// The rail starts under the glyph (the steps are shown).
@@ -579,7 +699,15 @@ class _StepLine extends StatelessWidget {
       width: rail.glyph,
       height: first,
       child: Center(
-        child: mark ?? Icon(icon, size: rail.glyph, color: roles.text2),
+        child:
+            mark ??
+            (live
+                ? KitStepTimeline.alone(
+                    context,
+                    icon: icon,
+                    state: KitStepNodeState.running,
+                  )
+                : Icon(icon, size: rail.glyph, color: roles.text2)),
       ),
     );
 
@@ -641,7 +769,9 @@ class _StepLine extends StatelessWidget {
     // Always wrapped, so opening never remounts the line (keyboard focus
     // stays on it); the rail's stub is drawn only while the steps show.
     final startY = pad + first / 2 + rail.glyph / 2 + tokens.space1;
+    registry.headerStart = startY;
     return CustomPaint(
+      key: registry.headerKey,
       painter: railBelow
           ? _RailPainter(
               color: rail.color,
@@ -769,7 +899,10 @@ class _PreviewRow extends StatelessWidget {
     final roles = tokens.roles;
     final (Color? tint, KitTextTone numberTone) = switch (line.kind) {
       KitDiffLineKind.added => (roles.codeAddedSurface, KitTextTone.success),
-      KitDiffLineKind.removed => (roles.codeRemovedSurface, KitTextTone.danger),
+      KitDiffLineKind.removed => (
+        roles.codeRemovedSurface,
+        KitTextTone.secondary,
+      ),
       _ => (null, KitTextTone.tertiary),
     };
     final row = Padding(

@@ -1,13 +1,12 @@
-// The shell while this phone switches its own server from OpenCode 2 to
-// OpenCode 1: shared by test/runtime_switch_status_test.dart and its golden.
+// The shell while this phone moves its own server to OpenCode 2: shared by test/runtime_switch_status_test.dart and its golden.
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'fake_event_channel.dart';
 import 'package:opencode_mobile/builtin/builtin_linux.dart';
 import 'package:opencode_mobile/builtin/builtin_server.dart';
 import 'package:opencode_mobile/domain/connection_status.dart';
@@ -45,7 +44,7 @@ class SlowLinux extends BuiltinLinux {
   }) => _written.future;
 }
 
-class _ShellApi extends OpenCodeApi {
+class _ShellApi extends FakeServerGateway {
   _ShellApi() : super(baseUrl: 'http://localhost');
 
   @override
@@ -87,13 +86,13 @@ ServerProfile _phone(String id, ServerFlavor flavor) =>
       ..password = 'secret-$id';
 
 final phoneTwo = _phone('oc2', ServerFlavor.v2);
-final phoneOne = _phone('oc1', ServerFlavor.v1);
+final phoneOne = _phone('oc1', ServerFlavor.v2)..openCode2HistoryPending = true;
 
 class _Store extends ProfileStore {
   _Store({required super.prefs});
 
   @override
-  List<ServerProfile> get profiles => [phoneTwo, phoneOne];
+  List<ServerProfile> get profiles => [phoneTwo];
 
   @override
   String? get activeId => phoneTwo.id;

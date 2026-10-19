@@ -161,12 +161,13 @@ void main() {
     () {
       final catalog = AgentCatalog.builtIn;
       expect(catalog.agents.map((entry) => entry.id).toSet(), {
-        'opencode',
         'opencode2',
         'claude',
         'codex',
         'gemini',
         'qwen',
+        'kilo',
+        'cline',
         'goose',
         'omp-acp',
         'fx',
@@ -193,7 +194,57 @@ void main() {
     },
   );
 
-  test('new catalog installs prefer OC2 without repurposing the legacy ID', () {
+  test('Kilo and Cline are pinned ACP agents with exact launch args', () {
+    final catalog = AgentCatalog.builtIn;
+    const pins = {
+      'kilo': (
+        version: '7.8.3',
+        member: 'package/bin/kilo',
+        args: ['acp'],
+        signIn: ['auth', 'login'],
+        arm64:
+            'bd61f03eb14053fdcaf5245eb1740455b0447fe9d6d48b4adaeea6bb4ae53a90',
+        x64: '03b963726d8002ea6bee21d8db6121201e6ed8230a0e1fce8857f4c8d091333c',
+        path: '@kilocode/cli-linux-',
+      ),
+      'cline': (
+        version: '3.0.68',
+        member: 'package/bin/cline',
+        args: ['--acp'],
+        signIn: ['auth'],
+        arm64:
+            '5e0ad56ba4c494c437f6dcdc2557c165478e05e1800e1fe6f7d476e4fd4c84f2',
+        x64: 'a979929090eb9a934b3907e2cf519368964d6a35e96079d6db4fc89caad98ab1',
+        path: '@cline/cli-linux-',
+      ),
+    };
+    for (final MapEntry(key: id, value: pin) in pins.entries) {
+      final entry = catalog.byId(id)!;
+      expect(entry.route, AgentRoute.acpPaseo, reason: id);
+      expect(entry.providerId, id);
+      expect(entry.recipe!.executable, id);
+      expect(entry.recipe!.version, pin.version);
+      expect(entry.recipe!.launchArgs, pin.args);
+      expect(entry.recipe!.signInArgs, pin.signIn);
+      final arm = entry.artifactFor(AgentArchitecture.arm64)!;
+      final x64 = entry.artifactFor(AgentArchitecture.x64)!;
+      expect(arm.sha256, pin.arm64);
+      expect(x64.sha256, pin.x64);
+      for (final a in [arm, x64]) {
+        expect(a.format, AgentArtifactFormat.tarGz);
+        expect(a.archiveMember, pin.member);
+        expect(a.url.host, 'registry.npmjs.org');
+        expect(a.url.path, contains(pin.path));
+        expect(a.url.path, endsWith('-${pin.version}.tgz'));
+        expect(a.downloadBytes, isPositive);
+        expect(a.installedBytes, greaterThan(a.downloadBytes!));
+      }
+      expect(arm.url.path, contains('linux-arm64'));
+      expect(x64.url.path, contains('linux-x64'));
+    }
+  });
+
+  test('catalog installs only supported OpenCode 2', () {
     final catalog = AgentCatalog.builtIn;
     final preferred = catalog.agents.first;
     expect(preferred.id, 'opencode2');
@@ -205,12 +256,7 @@ void main() {
         endsWith('-2.0.29.tgz'),
       );
     }
-    // Persisted selections still resolve to their original runtime and pin.
-    final older = catalog.byId('opencode')!;
-    expect(older.name, 'Older OpenCode');
-    expect(older.route, AgentRoute.opencode1);
-    expect(older.recipe!.version, '1.19.0');
-    expect(older.recipe!.signInArgs, ['auth', 'login']);
+    expect(catalog.byId('opencode'), isNull);
   });
 
   test('unproven resume and visible limits require plain explanations', () {

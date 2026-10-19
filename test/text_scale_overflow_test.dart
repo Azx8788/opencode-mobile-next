@@ -22,10 +22,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/api2/models.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -56,7 +56,7 @@ const _textScale = AppTheme.maxTextScale;
 /// A 360x740 logical phone, the narrowest shape the product supports.
 const _phone = Size(360, 740);
 
-class _Api extends OpenCodeApi with CompleteMessageHistory {
+class _Api extends FakeServerGateway with CompleteMessageHistory {
   _Api() : super(baseUrl: 'http://localhost');
 
   @override
@@ -109,6 +109,7 @@ Future<ConnectionController> _controller({
         {
           'id': 'profile-1',
           'name': 'Workstation on the LAN',
+          'flavor': 'v2',
           'baseUrl': 'http://localhost:4096',
           'username': '',
         },
@@ -185,6 +186,7 @@ const _nonWidgetClasses = {
   // A route lays out its caller's page, not a kit part.
   'KitPageRoute': 'PageRoute',
   'KitZoomController': 'ChangeNotifier',
+  'KitWebPreviewController': 'ChangeNotifier',
   // Input, scrolling and log models have no layout of their own.
   'KitNumberFormatter': 'TextInputFormatter',
   'KitScrollBehavior': 'MaterialScrollBehavior',

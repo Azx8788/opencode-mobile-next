@@ -2704,9 +2704,6 @@ class AppLocalizationsJa extends AppLocalizations {
       '以前の送信は確認できていません。すでに会話に入っている可能性があります。';
 
   @override
-  String get setupRuntimeOne => 'Older OpenCode';
-
-  @override
   String get setupRuntimeTwo => 'OpenCode 2';
 
   @override
@@ -2871,15 +2868,15 @@ class AppLocalizationsJa extends AppLocalizations {
   String get tailscaleAddressStep => '2. Review your server address';
 
   @override
-  String get tailscaleAddressLabel => 'Private HTTPS server address';
+  String get tailscaleAddressLabel => 'Private server address';
 
   @override
   String get tailscaleAddressDetail =>
-      'Use the full HTTPS origin printed by Tailscale Serve, such as https://computer.tailnet-name.ts.net. Keep any HTTPS port it prints. A short device name or a raw HTTP port may not provide a valid certificate.';
+      'Paste the full HTTPS address from Tailscale Serve, or the HTTP address and port of your server on Tailscale. HTTP asks for your permission before connecting.';
 
   @override
   String get tailscaleAddressError =>
-      'That address won\'t work here. Copy the https:// address Tailscale Serve shows on your computer and paste it as it is, with nothing added after it.';
+      'Enter a complete HTTP or HTTPS server address with its port if needed, and no path after it.';
 
   @override
   String get tailscaleReviewDetail =>
@@ -2903,7 +2900,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get tailscaleRecovery =>
-      'If the server is unreachable, check Tailscale on both devices, the full HTTPS name and port, Serve on the server, and your network’s access rules. A VPN or DNS conflict may also prevent access. Keep HTTPS enabled. Correct the server password if authentication is rejected, then retry Test connection.';
+      'If the server is unreachable, check Tailscale on both devices, the address and port, and your network access rules. For a Serve address, check Serve on the server too. Correct the password if authentication is rejected, then retry Test connection.';
 
   @override
   String get tailscaleEditorDetail =>
@@ -3444,45 +3441,8 @@ class AppLocalizationsJa extends AppLocalizations {
   String get oc2DiscoveryEditorTitle => 'OpenCode 2';
 
   @override
-  String setupSwitchConfirmTitle(String runtime) {
-    return 'Switch to $runtime?';
-  }
-
-  @override
-  String get setupSwitchConfirmDetail =>
-      'Stops this phone’s server and running tasks. Conversations, provider settings and credentials stay separate; project files and configuration are shared. You can switch back.';
-
-  @override
-  String get setupSwitchToTwoDetail =>
-      'Stops this phone’s server and running tasks, then starts OpenCode 2. Your conversations come with you and AI Team keeps working. You can switch back.';
-
-  @override
-  String get moveToOpenCode2Title => 'Move to OpenCode 2';
-
-  @override
-  String get moveToOpenCode2Detail =>
-      'Your conversations come with you. AI Team keeps working.';
-
-  @override
-  String get moveToOpenCode2NotNow => 'Not now';
-
-  @override
-  String get moveToOpenCode2NotNowSemantics =>
-      'Not now: stay on the older OpenCode';
-
-  @override
-  String setupSwitchConfirm(String runtime) {
-    return 'Switch to $runtime';
-  }
-
-  @override
   String get setupSwitchPending =>
-      'The runtime switch has not finished. Retry the selected runtime or return to the previous one. Your saved runtime data is retained.';
-
-  @override
-  String setupSwitchReturn(String runtime) {
-    return 'Return to $runtime';
-  }
+      'The update to OpenCode 2 has not finished. Your saved conversations are kept. Try again.';
 
   @override
   String setupSwitchRetry(String runtime) {
@@ -3491,11 +3451,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get setupSwitchFailed =>
-      'Could not finish switching runtimes. Check the setup output, then retry or return to the previous runtime.';
-
-  @override
-  String get setupSwitchLegacyTwo =>
-      'This OpenCode 2 installation keeps its existing data. Switching it to OpenCode 1 is not available.';
+      'Could not finish updating to OpenCode 2. Your saved conversations are kept. Try again.';
 
   @override
   String setupSwitchProfileName(String runtime) {
@@ -3504,7 +3460,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get setupSwitchMissingCredential =>
-      'The saved credential for the previous runtime is unavailable. Its data is retained; restore the saved server before returning.';
+      'The saved server password could not be read. Your conversations and files are kept. Restore access to the saved password, then try again.';
 
   @override
   String setupSwitchProgressTitle(String runtime) {
@@ -3588,7 +3544,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get e7ConnectionFailure23 =>
-      'For a self-signed certificate, install it on this device first.';
+      'For a self-signed certificate, edit this server and check its fingerprint before trusting it.';
 
   @override
   String get e7ConnectionFailure24 => 'Nothing answered on this phone';
@@ -3732,6 +3688,16 @@ class AppLocalizationsJa extends AppLocalizations {
       'What you see may be stale until OpenCode is reachable again.';
 
   @override
+  String e7BannerCheckingExplanationAgent(String agent) {
+    return 'What you see stays available while $agent is checked. Live updates resume on their own.';
+  }
+
+  @override
+  String e7BannerStaleExplanationAgent(String agent) {
+    return 'What you see may be stale until $agent is reachable again.';
+  }
+
+  @override
   String get e7SharedThreeStepsToYourFirstSession =>
       'Three steps to your first conversation';
 
@@ -3782,7 +3748,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get e7SharedPairingWorksWhenTheAddressTheServer =>
-      'Pairing works when the address the server prints is one this device can reach. If it is not, expose the server through an HTTPS reverse proxy or an encrypted tunnel and add the resulting https:// URL by hand. Remote HTTP is intentionally blocked.';
+      'Pairing works when this device can reach the server address. A remote HTTP address asks for your permission before sending the password. Prefer HTTPS or a private Tailscale connection.';
 
   @override
   String get e7SharedOlderServersWithoutPairing =>
@@ -3790,7 +3756,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get e7SharedServersStartedWithOpencodeServeDoNot =>
-      'Servers started with “opencode serve” do not print a pairing code. Start them on loopback with a password:';
+      'For a local connection, start OpenCode 2 on this computer. Use the password it prints:';
 
   @override
   String get e7SharedThenAddTheServerManuallyWithUsername =>
@@ -4442,7 +4408,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get e7SettingsUi62 => 'No server password saved';
 
   @override
-  String get e7SettingsUi65 => 'Run as a Linux service';
+  String get e7SettingsUi65 => 'Set up OpenCode 2';
 
   @override
   String get e7SettingsUi66 =>
@@ -7205,7 +7171,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get e7SetupHttpsHint =>
-      'https:// for other computers; http:// only on this device or a private network.';
+      'Prefer HTTPS. Remote HTTP needs your permission for each server.';
 
   @override
   String get e7SetupObservedVersionSaveFailed =>
@@ -7427,10 +7393,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get e7SetupUpKey => 'Up arrow key';
 
   @override
-  String get e7SetupV1Limited =>
-      'This app targets OpenCode 2; some features are unavailable on v1 servers.';
-
-  @override
   String get e7SetupConnect => '接続';
 
   @override
@@ -7495,7 +7457,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get e7SetupSaving => 'Saving…';
 
   @override
-  String get e7SetupLinuxService => 'Run as a Linux service';
+  String get e7SetupLinuxService => 'Set up OpenCode 2';
 
   @override
   String get e7SetupPairingDesktopHint =>
@@ -7766,11 +7728,6 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String e7SetupProbeV1(String version) {
-    return 'OpenCode 1 · $version — limited feature set';
-  }
-
-  @override
   String get e7SetupPairNone =>
       'There is no pairing code here. Run “opencode2 pair” on the server and scan or copy what it prints.';
 
@@ -7850,15 +7807,14 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get e7SetupIncludeScheme =>
-      'Include https://. Plain http:// works only on this device or a private network address.';
+      'Include https:// or http://. Remote HTTP needs your permission.';
 
   @override
   String get e7SetupCompleteUrl =>
       'Enter a complete server URL, such as https://server.example:4096.';
 
   @override
-  String get e7SetupUrlScheme =>
-      'Server URLs must use https://, or http:// for a local server.';
+  String get e7SetupUrlScheme => 'Server URLs must use https:// or http://.';
 
   @override
   String get e7SetupTermuxUrlScheme =>
@@ -7898,7 +7854,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get e7SetupCertificate =>
-      'The server’s TLS certificate was rejected. Use a certificate this phone trusts.';
+      'The certificate is not trusted. Check its fingerprint before choosing whether to trust it.';
 
   @override
   String get e7SetupUnhealthy =>
@@ -8011,10 +7967,6 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get e7SetupPortBusy =>
       'The local server port is still in use; no replacement was started';
-
-  @override
-  String get e7SetupNoReturnData =>
-      'This OpenCode 2 installation has no separate OpenCode 1 data to return to';
 
   @override
   String get e7SetupCredentialMismatch =>
@@ -11577,14 +11529,14 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get agentErrorConnectionDroppedHint =>
-      'Usually brief, and OpenCode retries by itself. If it keeps happening, check the internet on the computer running OpenCode.';
+      'Check the internet on the device running OpenCode. If the reply has stopped, check the conversation before sending again.';
 
   @override
   String get agentErrorTimedOut => 'The model took too long to answer.';
 
   @override
   String get agentErrorTimedOutHint =>
-      'OpenCode retries by itself. A smaller request or another model may be faster.';
+      'If the reply has stopped, try a smaller request or another model.';
 
   @override
   String get agentErrorProviderUnreachable =>
@@ -11608,7 +11560,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get agentErrorRateLimitedHint =>
-      'It retries by itself after a short wait.';
+      'Wait a little. If the reply has stopped, try again or choose another model.';
 
   @override
   String get agentErrorProviderBusy =>
@@ -11616,7 +11568,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get agentErrorProviderBusyHint =>
-      'It retries by itself. Another model may answer sooner.';
+      'If the reply has stopped, try again later or choose another model.';
 
   @override
   String get agentErrorOutOfCredit =>
@@ -11937,6 +11889,14 @@ class AppLocalizationsJa extends AppLocalizations {
       'ステップ 1/3: インストール。このあとプロジェクトに名前を付けて、会話を始めます。アプリを離れても大丈夫です。準備ができたらお知らせします。';
 
   @override
+  String get phoneSetupProgressLeaveHintQuiet =>
+      'You can leave the app. Setup keeps going. Open OpenCode again to see how far it got.';
+
+  @override
+  String get phoneSetupProgressFirstSetupNoteQuiet =>
+      'Step 1 of 3: install. Then name a project and start a conversation. You can leave the app. Setup keeps going. Open OpenCode again to see how far it got.';
+
+  @override
   String get phoneSetupProgressStopTitle => 'セットアップを停止しますか？';
 
   @override
@@ -12067,7 +12027,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String phoneSetupErrorNoSpace(String name) {
-    return 'Not enough free space to install $name';
+    return 'Not enough free space to install $name. Free some storage, then continue setup.';
   }
 
   @override
@@ -12077,7 +12037,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get phoneSetupErrorCannotStart =>
-      'OpenCode is installed, but the app could not start it here.';
+      'OpenCode is installed but is not answering. Continue setup to try again. Details show what stopped it.';
 
   @override
   String get builtinServerLogTitle => 'Server log';
@@ -13922,9 +13882,8 @@ class AppLocalizationsJa extends AppLocalizations {
       'What to allow so your phone doesn\'t close the app';
 
   @override
-  String keepRunningIntro(String maker) {
-    return 'Your phone\'s OpenCode and the AI Team run inside this app, so they stop when Android closes it. On this $maker, allow these:';
-  }
+  String get keepRunningIntro =>
+      'Your phone\'s OpenCode and the AI Team run inside this app, so they stop when Android closes it. On this phone, allow these:';
 
   @override
   String get keepRunningSwipeWarning =>
@@ -15473,6 +15432,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get kitToolFailed => 'Failed';
 
   @override
+  String get kitToolDeclined => 'You declined this';
+
+  @override
   String get kitToolStopped => 'Stopped';
 
   @override
@@ -15622,21 +15584,13 @@ class AppLocalizationsJa extends AppLocalizations {
       'Add a server to start working with an agent.';
 
   @override
-  String get kitCapServerOc1Title => 'OpenCode 1 server';
-
-  @override
-  String get kitCapServerOc1Why =>
-      'Needs this phone\'s own server or a computer running OpenCode 1.';
-
-  @override
   String get kitCapServerOc2Title => 'OpenCode 2 server';
 
   @override
-  String get kitCapServerOc2Why =>
-      'Needs a server running OpenCode 2. This phone\'s server can switch to it.';
+  String get kitCapServerOc2Why => 'Needs a server running OpenCode 2.';
 
   @override
-  String get kitCapServerOc2Enable => 'Switch to OpenCode 2';
+  String get kitCapServerOc2Enable => 'Connect OpenCode 2';
 
   @override
   String get kitCapServerOc2Offer =>
@@ -15979,9 +15933,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get kitHostTermux => 'Termux';
-
-  @override
-  String get kitHostOpenCode1 => 'computers with OpenCode 1';
 
   @override
   String get kitHostOpenCode2 => 'computers with OpenCode 2';
@@ -16595,7 +16546,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get serverSettingsRestartCommandLabel =>
-      'Set up with the Linux service script?';
+      'Start OpenCode 2 on this computer';
 
   @override
   String get serverSettingsRestartedIt => 'I restarted it';
@@ -20338,7 +20289,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get addServerRemoteHttpAdvice =>
-      'A computer on your network needs an https:// address. Tailscale gives it a private one that only your devices can reach.';
+      'Remote HTTP needs your explicit permission. Prefer HTTPS or a private Tailscale connection.';
 
   @override
   String get addServerUseTailscale => 'Use Tailscale';
@@ -21774,7 +21725,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String hostServiceTitle(String server) {
-    return 'Linux service for $server';
+    return 'OpenCode on $server';
   }
 
   @override
@@ -23270,7 +23221,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get thisPhoneHistoryFailed =>
-      'Your earlier conversations could not be brought across. They are still safe in OpenCode 1.';
+      'Your earlier conversations could not be brought across. Their original data is still on this phone, untouched.';
 
   @override
   String get addServerCheckFailedPlain =>
@@ -23565,6 +23516,14 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get migrationUnsupportedFilesFix =>
       'Links, sockets and Git worktrees can\'t be copied. Remove them in Termux and try again, or copy that project by hand.';
+
+  @override
+  String get migrationLinkedFileUnreadable =>
+      'Some of this project\'s Git history can\'t be read in Termux, so it can\'t be moved safely.';
+
+  @override
+  String get migrationLinkedFileUnreadableFix =>
+      'Open Termux, run git fsck in that project to see what is missing, then try again. Nothing was changed on your phone.';
 
   @override
   String get migrationTooLarge =>
@@ -26540,7 +26499,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get addServerCleartextWarning =>
-      'This address uses plain HTTP. On this network, others could read your password and conversations. Use Tailscale or HTTPS if you can.';
+      'This private network or Tailscale address uses plain HTTP. Your password and code travel unencrypted at the HTTP layer. Use it only on a private network you trust or through Tailscale; it is risky on public Wi-Fi.';
 
   @override
   String get addServerCleartextConfirm => 'Use it anyway';
@@ -27076,6 +27035,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get chatsNewFailed => '会話を始められませんでした。メッセージはここに残っています。';
 
   @override
+  String get chatsNewFailedTitle => 'The conversation didn\'t start';
+
+  @override
+  String get chatsNewFailedReportHint =>
+      'Report a problem includes these details.';
+
+  @override
   String get shellTabChats => '会話';
 
   @override
@@ -27218,7 +27184,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get agentsStepReady => '準備完了';
 
   @override
-  String get agentsFailUnavailable => 'This phone can\'t run this agent yet.';
+  String get agentsFailUnavailable =>
+      'This phone can\'t run this agent yet. Check again, or open Details to see why.';
+
+  @override
+  String agentsResumeFailed(String agent) {
+    return '$agent didn\'t start again. Tap Resume to try once more. If it still won\'t start, run its phone check.';
+  }
 
   @override
   String get agentsFailStorage =>
@@ -27240,7 +27212,8 @@ class AppLocalizationsJa extends AppLocalizations {
   String get agentsFailDaemon => 'The agent connection didn\'t start.';
 
   @override
-  String get agentsFailHello => 'The agent started but didn\'t answer.';
+  String get agentsFailHello =>
+      'Paseo did not confirm the connection. Retry to restart it and check again.';
 
   @override
   String get agentsFailArchitecture =>
@@ -28158,6 +28131,10 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get backgroundPauseInterrupted =>
       'Background connection stopped for an unknown reason.';
+
+  @override
+  String get backgroundPauseDeviceRestarted =>
+      'Background connection stopped when the phone restarted.';
 
   @override
   String get backgroundPauseResume => 'Resume background connection';
@@ -29234,6 +29211,10 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get productErrorComputer =>
       'Couldn\'t reach your computer. Check it\'s on and connected, then try again.';
+
+  @override
+  String get productErrorProjectGit =>
+      'This project\'s Git history can\'t be read, so the conversation couldn\'t start. Restore the project from a copy, or clone it again.';
 
   @override
   String kitGalleryPosition(int current, int total) {
@@ -32568,7 +32549,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get chatRequestAskRead => 'Read this file?';
 
   @override
-  String get chatRequestAskDirectory => 'Open this folder?';
+  String get chatRequestAskDirectory => 'Work outside this project?';
 
   @override
   String get chatRequestAskFetch => 'Open this web page?';
@@ -33493,13 +33474,1752 @@ class AppLocalizationsJa extends AppLocalizations {
       'Some Linux packages need repair. Continue setup to try again. Details show what stopped it.';
 
   @override
-  String get setupSwitchSeparateHistoryDetail =>
-      'OpenCode 2 already has its own conversations. Older OpenCode conversations stay in Older OpenCode. Switching is unavailable while both have conversations. Stay on Older OpenCode to keep using these conversations.';
+  String get agentsFailNeedsSignIn =>
+      'Claude Code is installed. Sign in to your Claude account to use it.';
 
   @override
-  String get setupSwitchHistoryUnavailableDetail =>
-      'Could not check your conversations safely. Stay on Older OpenCode and try again.';
+  String get agentsFailHelperVersion =>
+      'Paseo needs an update before this agent can connect. Update it and try again.';
 
   @override
-  String get setupSwitchStay => 'Stay on Older OpenCode';
+  String get agentsFailTimeout =>
+      'The phone took too long to finish the check. Retry when it is less busy.';
+
+  @override
+  String get agentsCheckRetry => 'Try again';
+
+  @override
+  String get agentsCheckUpdateHelper => 'Update Paseo and try again';
+
+  @override
+  String get agentsCheckPrevious => 'Use the previous version';
+
+  @override
+  String agentsCheckPreviousNote(String version) {
+    return 'Version $version is still on this phone. It will be checked before you use it. Your sign-in and conversations stay.';
+  }
+
+  @override
+  String get agentsCheckAgentChanged =>
+      'The required agent version changed. Check this phone again.';
+
+  @override
+  String get agentsCheckHelperChanged =>
+      'The required Paseo version changed. Check the connection again.';
+
+  @override
+  String get agentsCheckInstallChanged =>
+      'The phone setup changed. Check it again.';
+
+  @override
+  String agentsCheckDownload(
+    String component,
+    String downloaded,
+    String total,
+  ) {
+    return 'Downloading $component · $downloaded of $total';
+  }
+
+  @override
+  String agentsCheckDownloadUnknown(String component, String downloaded) {
+    return 'Downloading $component · $downloaded';
+  }
+
+  @override
+  String agentsCheckDownloading(String component) {
+    return 'Downloading $component';
+  }
+
+  @override
+  String agentsCheckPreparing(String component) {
+    return 'Preparing $component';
+  }
+
+  @override
+  String get agentsCheckPhoneTools => 'Phone tools';
+
+  @override
+  String get phoneSetupErrorInterrupted =>
+      'Setup stopped before it finished. Continue setup to try again. Completed steps will be kept.';
+
+  @override
+  String get agentErrorProviderAuth =>
+      'The model provider needs a valid sign-in.';
+
+  @override
+  String get agentErrorProviderAuthHint =>
+      'Open provider settings to sign in or replace the API key, then try again.';
+
+  @override
+  String get agentErrorUnknown => 'The request could not finish.';
+
+  @override
+  String get agentErrorUnknownHint =>
+      'Check the conversation before sending again. Details may help explain what happened.';
+
+  @override
+  String get serverTrustHttpTitle => 'Use unencrypted HTTP?';
+
+  @override
+  String get serverTrustHttpPublicBody =>
+      'At this public HTTP address, your password and code travel unencrypted and others on the network can read or change them. This is risky on public Wi-Fi; prefer HTTPS or a private Tailscale connection.';
+
+  @override
+  String get serverTrustHttpAccept => 'Allow HTTP for this server';
+
+  @override
+  String get serverTrustCertificateTitle => 'Trust this certificate?';
+
+  @override
+  String get serverTrustCertificateBody =>
+      'This connection is encrypted, but this device cannot verify the certificate’s issuer or server name. Compare this SHA-256 fingerprint with your server through a separate trusted channel and trust it only if they match; future connections will require this exact certificate.';
+
+  @override
+  String get serverTrustCertificateChangedTitle =>
+      'The server\'s certificate changed';
+
+  @override
+  String get serverTrustCertificateChangedBody =>
+      'The certificate no longer matches the one you trusted, so the app blocked the connection before sending your password. This may be a renewal or an intercepted connection; re-check the fingerprint with the server owner before trusting a replacement.';
+
+  @override
+  String get serverTrustCertificateInspect => 'Check certificate';
+
+  @override
+  String get serverTrustCertificateRecheck => 'Re-check certificate';
+
+  @override
+  String get serverTrustCertificateAccept => 'Trust this fingerprint';
+
+  @override
+  String get serverTrustCertificateReplace => 'Trust replacement certificate';
+
+  @override
+  String get serverTrustCertificatePinned =>
+      'This server uses the certificate fingerprint you trusted. A different certificate will block the connection.';
+
+  @override
+  String get serverTrustCertificateFailed =>
+      'The certificate could not be checked. Check the address and network, then try again. Nothing was trusted.';
+
+  @override
+  String get serverTrustFingerprint => 'SHA-256 fingerprint';
+
+  @override
+  String get serverTrustInvalidPort =>
+      'Enter a server port between 1 and 65535.';
+
+  @override
+  String get serverTrustHttpUnconfirmed =>
+      'This server uses plain HTTP, and you have not confirmed that yet. Edit the server to review and approve the HTTP warning, or use HTTPS.';
+
+  @override
+  String get serverTrustProbeFailed =>
+      'The server could not be checked. Check the address and try again.';
+
+  @override
+  String get serverTrustPasswordRejected =>
+      'Password rejected. Check the server password and try again.';
+
+  @override
+  String serverTrustCertificateValidity(String from, String to) {
+    return 'Valid from $from to $to';
+  }
+
+  @override
+  String get serverTrustCertificateValidityError =>
+      'The server certificate is expired or not yet valid. Ask the server owner to renew it or check the device clock before reconnecting.';
+
+  @override
+  String get devPreviewTitle => 'Preview';
+
+  @override
+  String get devPreviewReload => 'Refresh page';
+
+  @override
+  String get devPreviewOpenInBrowser => 'Open in browser';
+
+  @override
+  String get devPreviewCopyAddress => 'Copy address';
+
+  @override
+  String get devPreviewLoading => 'Loading the preview';
+
+  @override
+  String get devPreviewFailedTitle => 'Nothing is answering yet';
+
+  @override
+  String devPreviewFailedBody(String port) {
+    return 'Port $port is not responding. The app may still be starting.';
+  }
+
+  @override
+  String get devPreviewRetry => 'Try again';
+
+  @override
+  String devPreviewRemoteNote(String port, String host) {
+    return 'Showing port $port on $host. The dev server has to listen on 0.0.0.0 (all addresses) to be reachable from this phone.';
+  }
+
+  @override
+  String get devPreviewNoServerTitle => 'Connect a server first';
+
+  @override
+  String get devPreviewNoServerBody =>
+      'A link to this machine only means something on the machine running the app. Connect a server, or open the link in a browser.';
+
+  @override
+  String get devPreviewNoHostTitle => 'Can\'t find that server';
+
+  @override
+  String get devPreviewNoHostBody =>
+      'This server\'s address is incomplete, so the link can\'t be pointed at it. Open it in a browser instead.';
+
+  @override
+  String get devPreviewUnsupportedTitle => 'Preview isn\'t available here';
+
+  @override
+  String get devPreviewUnsupportedBody =>
+      'This device cannot show the page inside the app. Open it in a browser instead.';
+
+  @override
+  String get devPreviewMenu => 'Preview a running app';
+
+  @override
+  String get devPreviewMenuHint =>
+      'Open a dev server this conversation mentioned';
+
+  @override
+  String get devPreviewSheetSubtitle => 'Servers this conversation mentioned';
+
+  @override
+  String devPreviewPortTitle(String port) {
+    return 'Port $port';
+  }
+
+  @override
+  String get devPreviewOnPhone => 'On this phone';
+
+  @override
+  String devPreviewOnServer(String host) {
+    return 'On $host';
+  }
+
+  @override
+  String get openCode1UnsupportedTitle => 'Update this server';
+
+  @override
+  String get openCode1Unsupported =>
+      'This server runs OpenCode 1, which this app no longer supports. Update it to OpenCode 2.';
+
+  @override
+  String get openCode2UpgradeTitle => 'Updating to OpenCode 2';
+
+  @override
+  String get openCode2UpgradeProgress =>
+      'Updating this phone’s server and bringing your conversations with you. Keep the app open.';
+
+  @override
+  String get openCode2UpgradeFailed =>
+      'The update could not finish safely. Your OpenCode 1 conversations and files are still on this phone, untouched. Try again when the server is idle and there is enough free space.';
+
+  @override
+  String get openCode2HostInstall => 'Install and start OpenCode 2';
+
+  @override
+  String get openCode2HostInstallDetail =>
+      'Requires Node.js and npm. Starts on this computer only and prints its password. Keep this terminal open.';
+
+  @override
+  String get schedulePhoneBusy =>
+      'A scheduled prompt is using the phone server. Try again when it finishes.';
+
+  @override
+  String get schedulePhoneCheckFailed =>
+      'The phone server could not be checked. Try again.';
+
+  @override
+  String get scheduleTitle => 'Scheduled prompts';
+
+  @override
+  String get scheduleCreate => 'Schedule a prompt';
+
+  @override
+  String get scheduleEdit => 'Edit schedule';
+
+  @override
+  String get schedulePrompt => 'Prompt';
+
+  @override
+  String get scheduleTarget => 'Conversation';
+
+  @override
+  String get scheduleThisConversation => 'This conversation';
+
+  @override
+  String get scheduleNewConversation => 'New conversation each run';
+
+  @override
+  String get scheduleAgent => 'Agent';
+
+  @override
+  String get scheduleWeekdays => 'Every weekday';
+
+  @override
+  String get scheduleEveryHours => 'Every N hours';
+
+  @override
+  String get scheduleOnce => 'Once';
+
+  @override
+  String get scheduleRepeat => 'When';
+
+  @override
+  String get scheduleTime => 'Time';
+
+  @override
+  String get scheduleHours => 'Hours between runs';
+
+  @override
+  String scheduleNextRun(String time) {
+    return 'Next: $time';
+  }
+
+  @override
+  String get scheduleSave => 'Save schedule';
+
+  @override
+  String get schedulePause => 'Pause';
+
+  @override
+  String get scheduleResume => 'Resume';
+
+  @override
+  String get scheduleDelete => 'Delete schedule';
+
+  @override
+  String get scheduleHistory => 'Run history';
+
+  @override
+  String get scheduleStarted => 'Started';
+
+  @override
+  String get scheduleRunning => 'Running';
+
+  @override
+  String get scheduleFailed => 'Failed';
+
+  @override
+  String get scheduleSkipped => 'Skipped';
+
+  @override
+  String get scheduleLate => 'Late';
+
+  @override
+  String get schedulePaused => 'Paused';
+
+  @override
+  String get scheduleFinished => 'No more runs';
+
+  @override
+  String get scheduleMissedRuns => 'If a run is missed';
+
+  @override
+  String get scheduleCatchUp => 'Run once when available';
+
+  @override
+  String get scheduleSkipMissed => 'Skip the missed run';
+
+  @override
+  String get scheduleTimingNotice =>
+      'Android may delay runs. Exact alarm access improves timing; a network connection is still needed. Force-stopping the app pauses schedules until you open it again.';
+
+  @override
+  String get scheduleExactAccess => 'Allow exact alarms';
+
+  @override
+  String get scheduleBatteryNotice =>
+      'Battery restrictions may delay schedules. Each run has a time limit; you don\'t need to keep the app open.';
+
+  @override
+  String get scheduleDigest => 'Morning summary';
+
+  @override
+  String get scheduleDigestDescription =>
+      'A notification each morning with counts of scheduled runs since the last summary.';
+
+  @override
+  String get scheduleEmpty => 'No scheduled prompts yet';
+
+  @override
+  String get scheduleNoHistory => 'No runs yet';
+
+  @override
+  String get scheduleUnsupported =>
+      'Scheduled prompts are unavailable for this connection.';
+
+  @override
+  String get scheduleSaveFailed => 'Could not save this change. Try again.';
+
+  @override
+  String get scheduleNeedsYou => 'Open the conversation to answer a request.';
+
+  @override
+  String get scheduleBusy => 'The conversation was already working.';
+
+  @override
+  String get scheduleUnavailable =>
+      'The server could not be reached. Check that it is running and this phone can reach it.';
+
+  @override
+  String get scheduleSignInAgain =>
+      'The server needs its password again. Open the server and sign in before the next run.';
+
+  @override
+  String get scheduleAllowHttp =>
+      'This server uses plain HTTP and is not allowed yet. Open the server and allow HTTP before the next run.';
+
+  @override
+  String get scheduleAgentFailed =>
+      'The agent stopped with an error. Open the conversation to see what happened.';
+
+  @override
+  String get scheduleCertificateChanged =>
+      'The server\'s certificate changed. Open the server to check it before the next run.';
+
+  @override
+  String get scheduleCertificateInvalid =>
+      'The server\'s certificate is expired or not yet valid. Open the server to check it before the next run.';
+
+  @override
+  String get scheduleTargetChanged =>
+      'The saved connection or target changed. Edit this schedule.';
+
+  @override
+  String get scheduleInterrupted =>
+      'The run was interrupted. It was not sent again.';
+
+  @override
+  String get scheduleTimeout =>
+      'The run reached its time limit. Check the conversation.';
+
+  @override
+  String get scheduleUncertain =>
+      'Delivery could not be confirmed. Check the conversation before sending again.';
+
+  @override
+  String get scheduleMissed => 'Skipped according to your missed-run choice.';
+
+  @override
+  String get scheduleInvalid =>
+      'Enter a prompt and a future time, or an interval from 1 to 168 hours.';
+
+  @override
+  String get scheduleOptions => 'Timing and delivery';
+
+  @override
+  String get scheduleNotificationsOff =>
+      'Notifications are off. Results remain in run history.';
+
+  @override
+  String get scheduleDeleteBody =>
+      'Future runs and this schedule’s history will be removed. Prompts already sent stay in their conversations.';
+
+  @override
+  String get scheduleNotificationTitle => 'Scheduled prompt started';
+
+  @override
+  String get scheduleNotificationBody => 'Tap to open the conversation';
+
+  @override
+  String get scheduleDigestTitle => 'Your scheduled runs';
+
+  @override
+  String scheduleDigestBody(int started, int failed, int skipped) {
+    return '$started started · $failed failed · $skipped skipped';
+  }
+
+  @override
+  String get scheduleDefaultAgent => 'Saved agent';
+
+  @override
+  String get scheduleProject => 'Project';
+
+  @override
+  String get scheduleDeleteTitle => 'Delete this schedule?';
+
+  @override
+  String scheduleToday(String time) {
+    return 'Today, $time';
+  }
+
+  @override
+  String scheduleTomorrow(String time) {
+    return 'Tomorrow, $time';
+  }
+
+  @override
+  String scheduleInMinutes(String minutes) {
+    return 'in $minutes min';
+  }
+
+  @override
+  String scheduleEveryNHours(String hours) {
+    return 'Every $hours h';
+  }
+
+  @override
+  String scheduleDeleteNamedTitle(String name) {
+    return 'Delete “$name”?';
+  }
+
+  @override
+  String get openCode2MoveProgress =>
+      'Moving your conversations to OpenCode 2…';
+
+  @override
+  String openCode2MoveRetrying(int retry, int total) {
+    return 'The phone is still getting ready. Trying again shortly (attempt $retry of $total).';
+  }
+
+  @override
+  String get openCode2MoveFailedNotReady =>
+      'The server on this phone was not ready. Your OpenCode 1 conversations and files are still on this phone, untouched. Try again in a minute.';
+
+  @override
+  String get openCode2MoveFailedSeparateHistory =>
+      'OpenCode 2 on this phone already has its own conversations, so the move stopped to protect both. Nothing was changed.';
+
+  @override
+  String get openCode2MoveFailedStopped =>
+      'The move stopped before it finished, often because the phone is low on free space or the server is busy. Your OpenCode 1 conversations and files are still on this phone, untouched.';
+
+  @override
+  String get openCode2MoveFailedNotConfirmed =>
+      'OpenCode 2 did not confirm that your conversations arrived. Your OpenCode 1 conversations and files are still on this phone, untouched.';
+
+  @override
+  String get terminalLinkTitle => 'Link in the terminal';
+
+  @override
+  String get terminalLinkOpen => 'Open link';
+
+  @override
+  String get terminalLinkCopy => 'Copy link';
+
+  @override
+  String get terminalCopiedToClipboard => 'Copied to clipboard';
+
+  @override
+  String get chatRequestAskOutsideWrite => 'Write outside this project?';
+
+  @override
+  String get chatRequestAskOutsideRead => 'Read outside this project?';
+
+  @override
+  String get chatRequestAskOutsideRun => 'Run a command outside this project?';
+
+  @override
+  String get phoneSetupStageRetrying => 'Interrupted. Trying again';
+
+  @override
+  String get linuxMgrRow => 'Linux';
+
+  @override
+  String get linuxMgrRowDetail =>
+      'What runs, ports, storage and packages of the Ubuntu inside this app';
+
+  @override
+  String get linuxMgrTitle => 'Linux on this phone';
+
+  @override
+  String get linuxMgrRunning => 'Running';
+
+  @override
+  String get linuxMgrRunningDetail => 'What runs inside Linux, and stopping it';
+
+  @override
+  String get linuxMgrPorts => 'Ports';
+
+  @override
+  String get linuxMgrPortsDetail => 'What is listening, and previewing it';
+
+  @override
+  String get linuxMgrStorage => 'Storage';
+
+  @override
+  String get linuxMgrStorageDetail =>
+      'Where the space goes, and clearing caches';
+
+  @override
+  String get linuxMgrPackages => 'Packages';
+
+  @override
+  String get linuxMgrPackagesDetail =>
+      'Installed software: install, remove and update';
+
+  @override
+  String get linuxMgrRepair => 'Repair Linux';
+
+  @override
+  String get linuxMgrRepairDetail =>
+      'Checks Linux, OpenCode and your tools and fixes what is broken. Your projects are not touched.';
+
+  @override
+  String get linuxMgrRepairTitle => 'Repair Linux?';
+
+  @override
+  String get linuxMgrRepairBody =>
+      'Checks Linux, OpenCode and the tools you added, and installs again anything that is missing or broken. It needs a connection and can take several minutes.';
+
+  @override
+  String get linuxMgrRepairKept => 'Your projects and sign-ins are not touched';
+
+  @override
+  String get linuxMgrReset => 'Reset Linux';
+
+  @override
+  String get linuxMgrResetDetail =>
+      'Start again from a fresh Ubuntu. Your projects stay.';
+
+  @override
+  String get linuxMgrResetTitle => 'Reset Linux?';
+
+  @override
+  String get linuxMgrResetBody =>
+      'Linux is erased and set up again from scratch. This cannot be undone.';
+
+  @override
+  String get linuxMgrResetLostTools =>
+      'Installed packages and tools: OpenCode, Python, AI Team, voice typing';
+
+  @override
+  String get linuxMgrResetLostSignIns => 'Agent sign-ins and their settings';
+
+  @override
+  String get linuxMgrResetLostChats =>
+      'Conversations kept by the server on this phone';
+
+  @override
+  String get linuxMgrResetKept => 'Your projects stay on the phone';
+
+  @override
+  String get linuxMgrResetWord => 'Reset';
+
+  @override
+  String get linuxMgrProblemBusy =>
+      'Another task is using Linux right now. Wait a moment and try again.';
+
+  @override
+  String get linuxMgrProblemSetup =>
+      'Setup is running. Wait until it finishes.';
+
+  @override
+  String get linuxMgrProblemJob =>
+      'A package task is running. Wait until it finishes.';
+
+  @override
+  String get linuxMgrProblemUnavailable =>
+      'Linux is not set up or is not answering. Open This phone to set it up.';
+
+  @override
+  String get linuxMgrProblemFailed => 'That did not finish. Try again.';
+
+  @override
+  String get linuxMgrLoadFailedTitle => 'Could not read Linux';
+
+  @override
+  String get linuxMgrProcTitle => 'Running in Linux';
+
+  @override
+  String linuxMgrProcSummary(int count, String memory) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count programs',
+      one: '1 program',
+    );
+    return '$_temp0 · $memory';
+  }
+
+  @override
+  String get linuxMgrKindServer => 'OpenCode server';
+
+  @override
+  String get linuxMgrKindPaseo => 'Paseo';
+
+  @override
+  String get linuxMgrKindAgent => 'Agent';
+
+  @override
+  String get linuxMgrKindDev => 'Dev server';
+
+  @override
+  String get linuxMgrKindOther => 'Other';
+
+  @override
+  String get linuxMgrAboutServer =>
+      'The OpenCode server this app talks to. Stop it from This phone, not from here.';
+
+  @override
+  String get linuxMgrAboutPaseo =>
+      'Paseo runs coding agents on this phone. Stopping it ends the agents it started.';
+
+  @override
+  String get linuxMgrAboutAgent =>
+      'A coding agent or part of AI Team. Stopping it ends its work in progress.';
+
+  @override
+  String get linuxMgrAboutDev =>
+      'A program that serves your project while you build it. Start it again from the project when you need it.';
+
+  @override
+  String get linuxMgrAboutOther =>
+      'A program running inside Linux. Stopping it ends it; nothing restarts it.';
+
+  @override
+  String get linuxMgrProtected => 'Managed from This phone';
+
+  @override
+  String linuxMgrStopTitle(String name) {
+    return 'Stop $name?';
+  }
+
+  @override
+  String get linuxMgrStopBody =>
+      'It ends now and nothing restarts it. Unsaved work in it is lost.';
+
+  @override
+  String linuxMgrStopHelpers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count programs it started stop with it',
+      one: '1 program it started stops with it',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String linuxMgrStopLabel(String name) {
+    return 'Stop $name';
+  }
+
+  @override
+  String get linuxMgrStopping => 'Stopping…';
+
+  @override
+  String linuxMgrStopped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Stopped $count programs',
+      one: 'Stopped 1 program',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String linuxMgrStopForced(int count) {
+    return '$count had to be forced';
+  }
+
+  @override
+  String linuxMgrStopRemaining(int count) {
+    return '$count would not stop';
+  }
+
+  @override
+  String linuxMgrStopChanged(int count) {
+    return '$count had already changed and was left alone';
+  }
+
+  @override
+  String get linuxMgrNotStoppedTitle => 'Not everything stopped';
+
+  @override
+  String get linuxMgrProcEmpty => 'Nothing is running in Linux';
+
+  @override
+  String get linuxMgrProcEmptyBody =>
+      'OpenCode and your tools start when you use them.';
+
+  @override
+  String get linuxMgrCopyCommand => 'Copy command';
+
+  @override
+  String get linuxMgrPortsTitle => 'Ports in Linux';
+
+  @override
+  String linuxMgrPortRow(int port) {
+    return 'Port $port';
+  }
+
+  @override
+  String linuxMgrPortUsedBy(String name) {
+    return 'Used by $name';
+  }
+
+  @override
+  String get linuxMgrPortUnknown => 'Program not known';
+
+  @override
+  String get linuxMgrPortLocal => 'Only on this phone';
+
+  @override
+  String get linuxMgrPortAll => 'Open to other devices on your network';
+
+  @override
+  String get linuxMgrPortNotPage => 'Not a web page';
+
+  @override
+  String get linuxMgrPortPreview => 'Open preview';
+
+  @override
+  String linuxMgrPortPreviewNamed(int port) {
+    return 'Open preview of port $port';
+  }
+
+  @override
+  String get linuxMgrPortCopy => 'Copy address';
+
+  @override
+  String get linuxMgrPortsNote => 'Only ports this phone can open are listed.';
+
+  @override
+  String get linuxMgrPortsEmpty => 'Nothing is listening';
+
+  @override
+  String get linuxMgrPortsEmptyBody =>
+      'When a dev server starts, its port shows up here.';
+
+  @override
+  String get linuxMgrStorageTitle => 'Linux storage';
+
+  @override
+  String linuxMgrStorageTotal(String size) {
+    return '$size used inside Linux';
+  }
+
+  @override
+  String get linuxMgrCatBase => 'Linux itself';
+
+  @override
+  String get linuxMgrCatBaseDetail => 'Ubuntu and its system files';
+
+  @override
+  String get linuxMgrCatPackages => 'Package downloads';
+
+  @override
+  String get linuxMgrCatPackagesDetail =>
+      'Downloaded packages and package lists';
+
+  @override
+  String get linuxMgrCatTools => 'Node and caches';
+
+  @override
+  String get linuxMgrCatToolsDetail => 'Node, npm and setup downloads';
+
+  @override
+  String get linuxMgrCatAgents => 'Agents and OpenCode';
+
+  @override
+  String get linuxMgrCatAgentsDetail =>
+      'OpenCode, Paseo, Claude Code, AI Team and their saved settings';
+
+  @override
+  String get linuxMgrCatProjects => 'Projects';
+
+  @override
+  String get linuxMgrCatProjectsDetail => 'Your work. Never cleared from here.';
+
+  @override
+  String get linuxMgrCatTemp => 'Temporary files and logs';
+
+  @override
+  String get linuxMgrCatTempDetail => 'Scratch files and program logs';
+
+  @override
+  String get linuxMgrFreeUp => 'Free up space';
+
+  @override
+  String get linuxMgrCleanApt => 'Clear package downloads';
+
+  @override
+  String get linuxMgrCleanAptDetail =>
+      'Linux downloads them again if it needs them';
+
+  @override
+  String get linuxMgrCleanTools => 'Clear Node and download caches';
+
+  @override
+  String get linuxMgrCleanToolsDetail =>
+      'npm and setup downloads, fetched again when needed';
+
+  @override
+  String get linuxMgrCleanTemp => 'Clear old temporary files and logs';
+
+  @override
+  String get linuxMgrCleanTempDetail =>
+      'Files untouched for a day and logs older than a week';
+
+  @override
+  String get linuxMgrCleanAgents => 'Remove old agent versions';
+
+  @override
+  String get linuxMgrCleanAgentsDetail =>
+      'Paseo versions that are no longer in use';
+
+  @override
+  String linuxMgrCleanBody(String size) {
+    return 'About $size comes back. This cannot be undone, and nothing you made is touched.';
+  }
+
+  @override
+  String get linuxMgrCleanKept => 'Projects, sign-ins and settings stay';
+
+  @override
+  String linuxMgrCleanDone(String size) {
+    return 'Freed $size';
+  }
+
+  @override
+  String get linuxMgrCleanNothing => 'There was nothing to clear';
+
+  @override
+  String get linuxMgrCleanNone => 'Nothing to clear right now';
+
+  @override
+  String get linuxMgrMeasuring => 'Measuring…';
+
+  @override
+  String get linuxMgrPkgTitle => 'Packages';
+
+  @override
+  String linuxMgrPkgCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count packages installed',
+      one: '1 package installed',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get linuxMgrPkgSearch => 'Search installed packages';
+
+  @override
+  String get linuxMgrPkgNoMatch => 'No installed package matches that';
+
+  @override
+  String linuxMgrPkgShowAll(int count) {
+    return 'Show all $count packages';
+  }
+
+  @override
+  String get linuxMgrPkgUpdate => 'Update system';
+
+  @override
+  String get linuxMgrPkgUpdateDetail =>
+      'Refreshes the package lists and installs available updates';
+
+  @override
+  String get linuxMgrPkgUpdateTitle => 'Update Linux packages?';
+
+  @override
+  String get linuxMgrPkgUpdateBody =>
+      'Downloads the latest updates and installs them. It uses your connection, can take several minutes, and stops by itself after 45 minutes.';
+
+  @override
+  String get linuxMgrPkgInstall => 'Install a package';
+
+  @override
+  String get linuxMgrPkgInstallDetail => 'By name, for example htop';
+
+  @override
+  String get linuxMgrPkgName => 'Package name';
+
+  @override
+  String get linuxMgrPkgNameHelper =>
+      'Ubuntu package names, separated by spaces';
+
+  @override
+  String get linuxMgrPkgNameInvalid =>
+      'Use only lower case letters, digits and + - . in each name';
+
+  @override
+  String get linuxMgrPkgCheck => 'Check';
+
+  @override
+  String linuxMgrPkgAlready(String name) {
+    return '$name is already installed';
+  }
+
+  @override
+  String linuxMgrPkgUnknown(String name) {
+    return 'No package named $name. Update system refreshes the list of packages.';
+  }
+
+  @override
+  String linuxMgrPkgInstallTitle(String names) {
+    return 'Install $names?';
+  }
+
+  @override
+  String get linuxMgrPkgInstallBody =>
+      'Downloads from Ubuntu and installs. It uses your connection.';
+
+  @override
+  String linuxMgrPkgInstallLabel(String names) {
+    return 'Install $names';
+  }
+
+  @override
+  String linuxMgrPkgRemove(String name) {
+    return 'Remove $name';
+  }
+
+  @override
+  String linuxMgrPkgRemoveTitle(String name) {
+    return 'Remove $name?';
+  }
+
+  @override
+  String get linuxMgrPkgRemoveBody =>
+      'It is removed from Linux. Your projects are not touched.';
+
+  @override
+  String linuxMgrPkgAlsoRemoved(String list) {
+    return 'Also removed: $list';
+  }
+
+  @override
+  String get linuxMgrPkgLocked =>
+      'Linux or your tools need it. Tools are removed from This phone.';
+
+  @override
+  String linuxMgrPkgBlockedPlan(String list) {
+    return 'Removing it would also remove $list, which Linux needs.';
+  }
+
+  @override
+  String get linuxMgrPkgChecking => 'Checking what it would remove…';
+
+  @override
+  String linuxMgrJobInstalling(String names) {
+    return 'Installing $names';
+  }
+
+  @override
+  String linuxMgrJobRemoving(String names) {
+    return 'Removing $names';
+  }
+
+  @override
+  String get linuxMgrJobUpdating => 'Updating Linux packages';
+
+  @override
+  String get linuxMgrJobKeepsGoing => 'It keeps going if you leave this page.';
+
+  @override
+  String linuxMgrJobStopInstall(String names) {
+    return 'Stop installing $names';
+  }
+
+  @override
+  String linuxMgrJobStopRemove(String names) {
+    return 'Stop removing $names';
+  }
+
+  @override
+  String get linuxMgrJobStopUpdate => 'Stop updating';
+
+  @override
+  String get linuxMgrJobStopBody =>
+      'It stops now. A half-finished package is repaired the next time you run a package task.';
+
+  @override
+  String linuxMgrJobDoneInstall(String names) {
+    return 'Installed $names';
+  }
+
+  @override
+  String linuxMgrJobDoneRemove(String names) {
+    return 'Removed $names';
+  }
+
+  @override
+  String get linuxMgrJobDoneUpdate => 'Linux packages are up to date';
+
+  @override
+  String get linuxMgrJobFailed =>
+      'That did not finish. Nothing you made was touched. Try again; it carries on where it stopped.';
+
+  @override
+  String get linuxMgrJobTimedOut =>
+      'It took longer than 45 minutes and stopped itself. Run it again to continue.';
+
+  @override
+  String get linuxMgrJobInterrupted =>
+      'It stopped before it finished, for example when the app was closed. Run it again to continue.';
+
+  @override
+  String get linuxMgrJobNoticeInstall => 'Installing Linux packages';
+
+  @override
+  String get linuxMgrJobNoticeRemove => 'Removing Linux packages';
+
+  @override
+  String get linuxMgrJobNoticeUpdate => 'Updating Linux packages';
+
+  @override
+  String get linuxMgrJobDismiss => 'Done';
+
+  @override
+  String linuxMgrJobStopInstallTitle(String names) {
+    return 'Stop installing $names?';
+  }
+
+  @override
+  String linuxMgrJobStopRemoveTitle(String names) {
+    return 'Stop removing $names?';
+  }
+
+  @override
+  String get linuxMgrJobStopUpdateTitle => 'Stop updating Linux packages?';
+
+  @override
+  String get linuxMgrCleanAptAsk => 'Clear package downloads?';
+
+  @override
+  String get linuxMgrCleanToolsAsk => 'Clear Node and download caches?';
+
+  @override
+  String get linuxMgrCleanTempAsk => 'Clear old temporary files and logs?';
+
+  @override
+  String get linuxMgrCleanAgentsAsk => 'Remove old agent versions?';
+
+  @override
+  String get kitLogSearch => 'Search this output';
+
+  @override
+  String get kitLogPause => 'Pause following';
+
+  @override
+  String get kitLogFollow => 'Follow new output';
+
+  @override
+  String get kitLogPreviousMatch => 'Previous match';
+
+  @override
+  String get kitLogNextMatch => 'Next match';
+
+  @override
+  String get servicesAlsoRunning => 'Also running';
+
+  @override
+  String get servicesAlsoPhoneHint =>
+      'Found by the ports they listen on, however they were started.';
+
+  @override
+  String get servicesAlsoServerHint =>
+      'This server lists the commands it is running. A server started in a terminal on it is not found here.';
+
+  @override
+  String servicesPorts(int count, String ports) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Ports $ports',
+      one: 'Port $ports',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get servicesNoPortYet => 'No port found yet';
+
+  @override
+  String get servicesOpenPreview => 'Open preview';
+
+  @override
+  String servicesOpenPreviewNamed(String name) {
+    return 'Preview $name';
+  }
+
+  @override
+  String servicesPreviewPort(String port) {
+    return 'Preview port $port';
+  }
+
+  @override
+  String get servicesSaveCommand => 'Save as command';
+
+  @override
+  String servicesStopFoundTitle(String name) {
+    return 'Stop $name?';
+  }
+
+  @override
+  String get servicesStopFoundHint =>
+      'This ends the program on the machine it runs on. Anything it has not saved is lost.';
+
+  @override
+  String get servicesLogsUnavailable =>
+      'This program was not started from this app, so its output is not kept where the app can read it. Choose Save as command on its row, stop this one, then start the saved command here to see its logs.';
+
+  @override
+  String get servicesStopFailed =>
+      'It did not stop. Try again, or stop it from the Terminal.';
+
+  @override
+  String devPreviewRunningNow(String name) {
+    return 'Running now: $name';
+  }
+
+  @override
+  String get devPreviewNoneFound => 'No running apps found';
+
+  @override
+  String get linuxMgrResetNotErasedTitle => 'Linux was not reset';
+
+  @override
+  String get linuxMgrResetNotErasedBody =>
+      'Nothing was erased. Close the terminals and stop what runs in Linux, then try again.';
+
+  @override
+  String get linuxMgrResetDetailsLabel => 'Error code';
+
+  @override
+  String get linuxMgrResetCleanupTitle => 'Setting Linux up again';
+
+  @override
+  String linuxMgrResetForgetFailed(String name) {
+    return '“$name” from before the reset could not be forgotten and is still saved.';
+  }
+
+  @override
+  String linuxMgrResetLeft(String name, String what) {
+    return 'From before the reset, “$name” still has saved: $what.';
+  }
+
+  @override
+  String get linuxMgrResetLeftConnection => 'its saved connection';
+
+  @override
+  String get servicesAlsoPhoneFailed =>
+      'Could not check what else runs in Linux right now. It is checked again in a few seconds.';
+
+  @override
+  String linuxMgrProcGroupCount(int count) {
+    return '$count processes';
+  }
+
+  @override
+  String get gitRepairFailureWords => 'Git history can\'t be read.';
+
+  @override
+  String get gitRepairAction => 'Repair';
+
+  @override
+  String get gitRepairTitle => 'Repair Git history';
+
+  @override
+  String gitRepairWorking(String project) {
+    return 'Repairing $project…';
+  }
+
+  @override
+  String get gitRepairLooking => 'Looking for missing Git files…';
+
+  @override
+  String gitRepairRestoring(int done, int total) {
+    return 'Putting back $done of $total Git files…';
+  }
+
+  @override
+  String gitRepairAskingTermux(int done, int total) {
+    return 'Copying $done of $total Git files from Termux…';
+  }
+
+  @override
+  String get gitRepairChecking => 'Checking the project with Git…';
+
+  @override
+  String gitRepairDoneTitle(String project) {
+    return '$project is repaired';
+  }
+
+  @override
+  String gitRepairDoneBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Git files are back, and Git can read the project again.',
+      one: '1 Git file is back, and Git can read the project again.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get gitRepairHealthyTitle => 'Nothing was missing';
+
+  @override
+  String gitRepairHealthyBody(String project) {
+    return 'Git can read $project now.';
+  }
+
+  @override
+  String get gitRepairStart => 'Start the conversation';
+
+  @override
+  String get gitRepairTermuxNotAllowedTitle => 'Files are in Termux';
+
+  @override
+  String get gitRepairTermuxNotAllowedBody =>
+      'Allow the app to run commands in Termux, and it copies them back.';
+
+  @override
+  String get gitRepairAllow => 'Allow and repair';
+
+  @override
+  String get gitRepairTermuxNoAnswerTitle => 'Termux didn\'t answer';
+
+  @override
+  String get gitRepairTermuxNoAnswerBody =>
+      'Open Termux once so it starts, come back here, and repair again.';
+
+  @override
+  String get gitRepairAgain => 'Repair again';
+
+  @override
+  String get gitRepairOpenTermux => 'Open Termux';
+
+  @override
+  String gitRepairCannotTitle(String project) {
+    return 'Can\'t repair $project';
+  }
+
+  @override
+  String gitRepairMissingBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count Git files aren\'t on this phone any more. Clone the project again from where it\'s hosted, or restore a copy.',
+      one:
+          '1 Git file isn\'t on this phone any more. Clone the project again from where it\'s hosted, or restore a copy.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get gitRepairStillBrokenBody =>
+      'Git still can\'t read it. Clone the project again from where it\'s hosted, or restore a copy.';
+
+  @override
+  String get gitRepairNotRepositoryTitle => 'Can\'t repair this folder';
+
+  @override
+  String get gitRepairNotRepositoryBody =>
+      'Only Git projects in the in-app Linux\'s projects folder can be repaired here.';
+
+  @override
+  String get gitRepairClose => 'Close';
+
+  @override
+  String get gitProblemNotARepository => 'This folder isn’t a Git repository.';
+
+  @override
+  String get gitProblemGitMissing =>
+      'Git isn’t installed where this project lives. Install it there, then try again.';
+
+  @override
+  String get gitProblemFolderMissing =>
+      'The project folder wasn’t found. It may have been moved or deleted.';
+
+  @override
+  String get gitProblemEnvironmentUnavailable =>
+      'Couldn’t reach the place this project lives. Check that it’s running, then try again.';
+
+  @override
+  String get gitProblemServerCannotRunCommands =>
+      'This server can’t run Git commands for the app.';
+
+  @override
+  String get gitProblemOutputTooLarge =>
+      'There are too many changes to read here. Commit or clean up some files, then try again.';
+
+  @override
+  String get gitProblemTimedOut => 'Git took too long to answer. Try again.';
+
+  @override
+  String get gitProblemUnsafeRepository =>
+      'Git won’t work in this folder because another user owns it. Fix the folder’s owner on that device.';
+
+  @override
+  String get gitProblemRepositoryLocked =>
+      'Another Git command is using this repository. Wait for it to finish, then try again.';
+
+  @override
+  String get gitProblemNoUpstream =>
+      'This branch isn’t linked to a branch on the remote yet. Push it first.';
+
+  @override
+  String get gitProblemNoRemote =>
+      'This repository has no remote to push to. Add one on that device first.';
+
+  @override
+  String get gitProblemDetachedHead =>
+      'You’re not on a branch. Switch to a branch first.';
+
+  @override
+  String get gitProblemCannotFastForward =>
+      'The remote and this branch both have new commits, so they can’t be combined automatically. Merge or rebase on that device.';
+
+  @override
+  String get gitProblemPushRejected =>
+      'The remote has commits this branch doesn’t have. Pull first, then push again.';
+
+  @override
+  String get gitProblemLocalChangesBlock =>
+      'Your uncommitted changes would be overwritten. Commit or discard them first.';
+
+  @override
+  String get gitProblemAuthRequired =>
+      'The remote needs you to sign in. Set up Git sign-in where this project lives, then try again.';
+
+  @override
+  String get gitProblemAuthRequiredSignIn =>
+      'The remote needs you to sign in. Sign in to GitHub, then try again.';
+
+  @override
+  String get gitProblemGitHubTokenRejected =>
+      'GitHub didn’t accept your sign-in. Sign in to GitHub again.';
+
+  @override
+  String get gitProblemNoPermission =>
+      'Your account can’t push to this repository. Ask its owner for access.';
+
+  @override
+  String get gitProblemNetwork =>
+      'Couldn’t reach the remote. Check the internet connection, then try again.';
+
+  @override
+  String get gitProblemRemoteNotFound =>
+      'The remote repository wasn’t found, or your account can’t see it.';
+
+  @override
+  String get gitProblemNothingSelected => 'Choose at least one file to commit.';
+
+  @override
+  String get gitProblemEmptyMessage =>
+      'Write a message that describes the commit.';
+
+  @override
+  String get gitProblemNothingToCommit =>
+      'There’s nothing to commit in the files you chose.';
+
+  @override
+  String get gitProblemIdentityMissing =>
+      'Git needs your name and email to make a commit. Add them, then try again.';
+
+  @override
+  String get gitProblemSigningFailed =>
+      'Git couldn’t sign the commit. Check commit signing on that device.';
+
+  @override
+  String get gitProblemHookRejected =>
+      'A check in this repository stopped the action. Details shows what it said.';
+
+  @override
+  String get gitProblemInvalidBranchName =>
+      'That isn’t a valid branch name. Avoid spaces and characters like ~ ^ : ? * [';
+
+  @override
+  String get gitProblemBranchExists =>
+      'A branch with that name already exists.';
+
+  @override
+  String get gitProblemBranchNotFound => 'That branch wasn’t found.';
+
+  @override
+  String get gitProblemConflicts =>
+      'Some files have conflicts. Resolve them on that device first.';
+
+  @override
+  String get gitProblemOperationInProgress =>
+      'A merge or rebase isn’t finished. Finish or cancel it on that device first.';
+
+  @override
+  String get gitProblemCannotDiscardConflict =>
+      'Files with conflicts can’t be discarded here.';
+
+  @override
+  String get gitProblemUnknown =>
+      'Git couldn’t finish. Details shows what it said.';
+
+  @override
+  String get gitUnavailableNotConnected =>
+      'Connect to a server to see its Git changes.';
+
+  @override
+  String get gitUnavailableNoProject =>
+      'Open a project to see its Git changes.';
+
+  @override
+  String get gitUnavailableServerCannotRun =>
+      'This server can’t run Git for the app. Use Git on that computer instead.';
+
+  @override
+  String get gitNotRepositoryTitle => 'Not a Git repository';
+
+  @override
+  String get gitNotRepositoryBody => 'This project folder doesn’t use Git yet.';
+
+  @override
+  String get gitCleanTitle => 'No changes';
+
+  @override
+  String get gitCleanBody => 'Everything is committed.';
+
+  @override
+  String get gitDetachedHead => 'Not on a branch';
+
+  @override
+  String get gitNotPushedYet => 'Not pushed yet';
+
+  @override
+  String get gitNoCommitsYet => 'No commits yet';
+
+  @override
+  String gitAhead(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count commits to push',
+      one: '1 commit to push',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String gitBehind(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count commits to pull',
+      one: '1 commit to pull',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get gitOperationMerge => 'Merge not finished';
+
+  @override
+  String get gitOperationRebase => 'Rebase not finished';
+
+  @override
+  String get gitOperationCherryPick => 'Cherry-pick not finished';
+
+  @override
+  String get gitOperationRevert => 'Revert not finished';
+
+  @override
+  String get gitUsesOwnSignIn =>
+      'Push and pull use the Git sign-in already set up where this project lives.';
+
+  @override
+  String get gitChangeAdded => 'Added';
+
+  @override
+  String get gitChangeModified => 'Modified';
+
+  @override
+  String get gitChangeDeleted => 'Deleted';
+
+  @override
+  String get gitChangeRenamed => 'Renamed';
+
+  @override
+  String get gitChangeCopied => 'Copied';
+
+  @override
+  String get gitChangeTypeChanged => 'Type changed';
+
+  @override
+  String get gitChangeUntracked => 'New';
+
+  @override
+  String get gitChangeConflicted => 'Conflict';
+
+  @override
+  String get gitActionPull => 'Pull';
+
+  @override
+  String get gitActionPush => 'Push';
+
+  @override
+  String get gitActionCommit => 'Commit';
+
+  @override
+  String get gitActionSwitchBranch => 'Switch branch';
+
+  @override
+  String get gitActionCreateBranch => 'New branch';
+
+  @override
+  String get gitActionDiscard => 'Discard changes';
+
+  @override
+  String get gitActionRefresh => 'Refresh';
+
+  @override
+  String get gitActionSaveIdentity => 'Save name and email';
+
+  @override
+  String get gitBusyPull => 'Pulling…';
+
+  @override
+  String get gitBusyPush => 'Pushing…';
+
+  @override
+  String get gitBusyCommit => 'Committing…';
+
+  @override
+  String get gitBusySwitchBranch => 'Switching branch…';
+
+  @override
+  String get gitBusyCreateBranch => 'Creating the branch…';
+
+  @override
+  String get gitBusyDiscard => 'Discarding changes…';
+
+  @override
+  String get gitBusyRefresh => 'Checking for changes…';
+
+  @override
+  String get gitBusySaveIdentity => 'Saving…';
+
+  @override
+  String get gitDoneUpToDate => 'Already up to date.';
+
+  @override
+  String get gitDonePulled => 'Pulled the latest commits.';
+
+  @override
+  String get gitDonePushed => 'Pushed.';
+
+  @override
+  String get gitDonePushedTracking =>
+      'Pushed. This branch now follows the one on the remote.';
+
+  @override
+  String gitDoneCommitted(String commit) {
+    return 'Committed $commit.';
+  }
+
+  @override
+  String get gitDoneSwitched => 'Switched branch.';
+
+  @override
+  String get gitDoneCreated => 'Created the branch and switched to it.';
+
+  @override
+  String get gitDoneDiscarded => 'Changes discarded.';
+
+  @override
+  String get gitDoneIdentitySaved =>
+      'Saved your name and email for this repository.';
+
+  @override
+  String gitDiscardConfirmTitle(String file) {
+    return 'Discard changes to $file?';
+  }
+
+  @override
+  String get gitDiscardConfirmBody =>
+      'Its changes are deleted from this device. This can’t be undone.';
+
+  @override
+  String get gitCommitMessageHint => 'Describe what changed';
+
+  @override
+  String get gitBranchNameHint => 'Branch name';
+
+  @override
+  String get gitIdentityName => 'Name';
+
+  @override
+  String get gitIdentityEmail => 'Email';
+
+  @override
+  String get gitHubSignIn => 'Sign in to GitHub';
+
+  @override
+  String get gitHubSignOut => 'Sign out of GitHub';
+
+  @override
+  String gitHubSignedInAs(String login) {
+    return 'Signed in to GitHub as $login';
+  }
+
+  @override
+  String get gitHubRequestingCode => 'Getting a sign-in code…';
+
+  @override
+  String get gitHubEnterCode =>
+      'Enter this code on GitHub to finish signing in.';
+
+  @override
+  String get gitHubOpenGitHub => 'Open GitHub';
+
+  @override
+  String get gitHubCopyCode => 'Copy code';
+
+  @override
+  String get gitHubWaiting => 'Waiting for you to finish on GitHub…';
+
+  @override
+  String get gitHubFinishing => 'Finishing sign-in…';
+
+  @override
+  String get gitHubCancel => 'Cancel';
+
+  @override
+  String get gitHubSignOutBody =>
+      'The app forgets your GitHub sign-in on this device. To remove its access completely, revoke it on GitHub too.';
+
+  @override
+  String get gitHubManageAccess => 'Manage access on GitHub';
+
+  @override
+  String get gitHubPushOverHttps =>
+      'Pushes to GitHub use this sign-in over HTTPS. Your SSH settings don’t change.';
+
+  @override
+  String get gitHubProblemExpired =>
+      'The code expired before it was entered. Sign in again to get a new one.';
+
+  @override
+  String get gitHubProblemDenied => 'Sign-in was cancelled on GitHub.';
+
+  @override
+  String get gitHubProblemDisabled =>
+      'GitHub sign-in isn’t switched on for this app yet.';
+
+  @override
+  String get gitHubProblemNetwork =>
+      'Couldn’t reach GitHub. Check the internet connection, then try again.';
+
+  @override
+  String get gitHubProblemTokenRejected =>
+      'Your GitHub sign-in ended. Sign in again.';
+
+  @override
+  String get gitHubProblemUnexpected =>
+      'GitHub sent an answer the app didn’t understand. Try again.';
 }

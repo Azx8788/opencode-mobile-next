@@ -1,19 +1,20 @@
+import 'support/fake_server_operations.dart';
 import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/services.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class _RealHttpOverrides extends HttpOverrides {}
 
-class _ControlledApi extends OpenCodeApi {
+class _ControlledApi extends FakeServerGateway {
   _ControlledApi(this.script) : super(baseUrl: 'http://127.0.0.1:1');
 
   final _ServerScript script;
@@ -70,7 +71,7 @@ class _ControlledApi extends OpenCodeApi {
       Future.error(ApiException('V2 unavailable', statusCode: 404));
 }
 
-class _FakeEventStream extends EventStream {
+class _FakeEventStream extends FakeEventChannel {
   _FakeEventStream({
     required super.api,
     required super.onEvent,
@@ -112,8 +113,8 @@ class _ServerScript {
   List<WorkspaceInfo> workspaces = const [];
 }
 
-class _LocationRepository extends SdkProductRepository {
-  _LocationRepository(OpenCodeApi api, this.script) : super(api.sdkClient);
+class _LocationRepository extends FakeServerOperations {
+  _LocationRepository(super.api, this.script);
 
   final _ServerScript script;
   String? selectedDirectory;
@@ -448,6 +449,9 @@ void main() {
       messenger.setMockMethodCallHandler(secure, (_) async => null);
       const background = MethodChannel('oc/background');
       messenger.setMockMethodCallHandler(background, (_) async => null);
+      const schedules = MethodChannel('oc/scheduled_prompts');
+      messenger.setMockMethodCallHandler(schedules, (_) async => null);
+      addTearDown(() => messenger.setMockMethodCallHandler(schedules, null));
       addTearDown(() => messenger.setMockMethodCallHandler(secure, null));
       addTearDown(() => messenger.setMockMethodCallHandler(background, null));
       final original = await _store();

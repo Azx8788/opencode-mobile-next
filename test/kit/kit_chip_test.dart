@@ -172,7 +172,8 @@ void main() {
         expect(contrastRatio(ink, fill), greaterThanOrEqualTo(4.5));
         colors.add(ink);
       }
-      expect(colors.toSet(), hasLength(3));
+      // Neutral and attention: there is no red danger tone.
+      expect(colors.toSet(), hasLength(2));
     }
   });
 

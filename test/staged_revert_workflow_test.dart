@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/api2/events.dart';
 import 'package:opencode_mobile/api2/gateway_events.dart';
 import 'package:opencode_mobile/api2/gateway_mappers.dart';
@@ -24,7 +24,7 @@ SessionRevert stage(String id, {String snapshot = 'original'}) => SessionRevert(
   files: [FileDiff(file: 'lib/main.dart', before: 'new', after: 'old')],
 );
 
-class RevertApi extends OpenCodeApi {
+class RevertApi extends FakeServerGateway {
   RevertApi() : super(baseUrl: 'http://localhost');
   Session value = Session(id: 'a', title: 'Keep my title', cost: 7);
   Future<Session> Function()? read;
@@ -47,7 +47,8 @@ class RevertController extends ConnectionController {
   ServerProfile get profile =>
       ServerProfile(id: 'p', name: 'Fixture', baseUrl: 'http://localhost');
   @override
-  Future<OpenCodeApi?> prepareActionTransport() async => api as OpenCodeApi?;
+  Future<FakeServerGateway?> prepareActionTransport() async =>
+      api as FakeServerGateway?;
 }
 
 class RevertOperations extends ProductRepository

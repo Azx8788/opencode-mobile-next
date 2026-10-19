@@ -82,7 +82,7 @@ class KitIconButton extends StatefulWidget {
   /// The glyph size: 20, 22 or 24 (LOOK-33). It keeps today's default of 24.
   final double size;
 
-  /// Tints the glyph `danger`. Use it only for an act that loses data or
+  /// Marks the act (the glyph stays neutral, never red). Use it only for an act that loses data or
   /// ends running work (LOOK-5); the act itself confirms or offers Undo
   /// (DATA-11).
   final bool destructive;
@@ -189,8 +189,6 @@ class _KitIconButtonState extends State<KitIconButton> {
     final Color glyphColor;
     if (!active && !_isCopy) {
       glyphColor = roles.text3;
-    } else if (widget.destructive) {
-      glyphColor = roles.danger;
     } else if (widget.selected == true) {
       glyphColor = roles.accent;
     } else {

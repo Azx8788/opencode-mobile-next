@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 
-import '../api/models.dart' show ProvidersResponse;
+import '../domain/models.dart' show ProvidersResponse;
 import '../domain/agent_account.dart';
 import '../domain/provider_quota.dart';
 import '../domain/provider_usage.dart';

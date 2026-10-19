@@ -38,6 +38,7 @@ extension _PhoneAgentStartup on _ConnectionControllerPhoneAgents {
       payloadPresent: runtime.payloadPresent,
       hostAvailable: true,
       architectureQualified: runtime.architectureQualified,
+      checkRequiredReason: runtime.checkRequiredReason,
       capabilities: runtime.capabilities,
       signInPhase: runtime.signInPhase,
       resetAt: runtime.resetAt,

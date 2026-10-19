@@ -7,6 +7,8 @@ Or follow and steer the agents running on your computer, from your pocket.
 [![Latest release](https://img.shields.io/github/v/release/Eslamasabry/opencode-mobile-next?label=release&color=55D187)](https://github.com/Eslamasabry/opencode-mobile-next/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/Eslamasabry/opencode-mobile-next/total?color=55D187)](https://github.com/Eslamasabry/opencode-mobile-next/releases)
 [![Android quality gate](https://github.com/Eslamasabry/opencode-mobile-next/actions/workflows/android-quality.yml/badge.svg?branch=master)](https://github.com/Eslamasabry/opencode-mobile-next/actions/workflows/android-quality.yml)
+[![Get it on Obtainium](https://img.shields.io/badge/Get_it_on-Obtainium-55D187)](https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/Eslamasabry/opencode-mobile-next)
+[![Website](https://img.shields.io/badge/Website-eslamasabry.github.io-55D187)](https://eslamasabry.github.io/opencode-mobile-next/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-55D187.svg)](LICENSE)
 
 | Pick where it runs | Set up on the phone | Watch it work | Approve first | Pick a model | AI Team |
@@ -19,8 +21,24 @@ review the result. The app installs its own Ubuntu and runs
 OpenCode on your computer. Codex, Gemini CLI, Qwen Code, Goose and Pi use the
 same on-phone path; they are newer and not yet checked on a physical phone.
 
+### New in 1.4.0
+
+- **Home-screen widgets.** Allow, reject, stop or steer a reply, or start one by
+  voice, without opening the app.
+- **Continue with…** hands a conversation to another agent, such as Codex to
+  Claude Code.
+- **AI Team on OpenCode 2**: a planner, workers and a checker build a project and
+  merge to `dev` with receipts. New phones start on OpenCode 2.
+- **A live background in 20 looks**, an app-only **Text size** setting, and a
+  one-line chat header.
+
+Full notes:
+[docs/releases/v1.4.0+54.md](docs/releases/v1.4.0+54.md).
+
 **[Download 1.4.0 for Android](https://github.com/Eslamasabry/opencode-mobile-next/releases/download/v1.4.0%2B54/opencode-mobile-1.4.0%2B54.apk)**
 · [What's new](docs/releases/v1.4.0+54.md)
+· [Get it on Obtainium](https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/Eslamasabry/opencode-mobile-next)
+· [Website](https://eslamasabry.github.io/opencode-mobile-next/)
 · [Get started](#get-started)
 · [Get help](SUPPORT.md)
 
@@ -52,7 +70,7 @@ Screenshots are real captures from Android emulators during QA.
   Nothing reaches `main` until you confirm. Budgets, resume after interruptions,
   and a **Since you were away** digest are built in.
 - **Talk instead of type.** Voice is transcribed on the phone; audio never leaves it.
-- **Several kinds of server.** OpenCode 1 and 2, plus Claude Code, Pi and Codex
+- **Several kinds of server.** OpenCode 2, plus Claude Code, Pi and Codex
   through a [Paseo](https://github.com/getpaseo/paseo) helper, all behind the same screens.
 - **English and Arabic**, light and dark, large text up to 200%.
 
@@ -79,7 +97,7 @@ phone itself needs a 64-bit phone.
      Ubuntu and the tools, so Wi-Fi is best. Phones with about 2 GB of memory
      work, slowly.
    - **On my computer** — with OpenCode 2, run `opencode2 pair` and scan the
-     QR code. For OpenCode 1 or an address, follow the steps in the app.
+     QR code. To enter an address, follow the steps in the app.
    - **Just show me** — a simulated conversation, no server needed.
 3. **Add a provider key** in Settings → Providers if you want models beyond the
    free one. Then start a conversation.
@@ -103,11 +121,11 @@ this phone**, and pick a model for each role.
 | | Status |
 |---|---|
 | Android 8+ | Supported — 1.4.0 |
-| OpenCode 1 (1.19.x, "Older OpenCode") | Supported for now; being retired |
-| OpenCode 2 (stable 2.0.29; the default for new phones) | Supported |
+| OpenCode 1 | No longer supported; upgrade the server to OpenCode 2 |
+| OpenCode 2 (stable 2.0.29) | Supported; the managed OpenCode runtime |
 | Claude Code (via Paseo) | Supported |
 | Codex, Gemini CLI, Qwen Code, Goose, Pi (via Paseo) | Early; not yet checked on a physical phone |
-| AI Team | Proven on OpenCode 1 and 2 on Android 14/15 emulators |
+| AI Team | OpenCode 2 on Android; native changes require a new release |
 | Linux and Windows desktop | Experimental CI builds |
 | Web | In development |
 | iOS / macOS | Not available |

@@ -456,12 +456,7 @@ void main() {
       final roles = AppTheme.rolesOf(
         light ? AppTheme.light() : AppTheme.dark(),
       );
-      final forbidden = {
-        _argb(roles.danger),
-        _argb(roles.dangerFill),
-        _argb(roles.attention),
-        _argb(roles.attentionFill),
-      };
+      final forbidden = {_argb(roles.attention), _argb(roles.attentionFill)};
       Future<Set<int>> shot(
         Widget scanner, {
         Duration wait = Duration.zero,

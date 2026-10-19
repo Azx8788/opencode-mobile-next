@@ -71,6 +71,9 @@ enum KitToolStatus {
   /// Stopped by the person or the server.
   stopped,
 
+  /// The person said no to this call: their choice, not a failure.
+  declined,
+
   /// Started and handed to the background (a background sub-agent).
   background,
 }
@@ -287,6 +290,7 @@ class KitToolRow extends StatefulWidget {
       KitToolStatus.done => l10n.kitToolDone,
       KitToolStatus.failed => l10n.kitToolFailed,
       KitToolStatus.stopped => l10n.kitToolStopped,
+      KitToolStatus.declined => l10n.kitToolDeclined,
       KitToolStatus.background => l10n.kitToolBackground,
     };
   }
@@ -323,7 +327,8 @@ String? _durationWords(AppLocalizations l10n, Duration? duration) {
 bool _finished(KitToolStatus status) =>
     status == KitToolStatus.done ||
     status == KitToolStatus.failed ||
-    status == KitToolStatus.stopped;
+    status == KitToolStatus.stopped ||
+    status == KitToolStatus.declined;
 
 class _KitToolRowState extends State<KitToolRow>
     with SingleTickerProviderStateMixin {
@@ -447,23 +452,31 @@ class _KitToolRowState extends State<KitToolRow>
         : null;
     final Widget sentence;
     if (shellLine) {
-      sentence = KitText.mono(
-        path,
-        cut: wide ? KitMonoCut.wrap : row.pathCut,
-        tone: tone,
-        maxLines: wide ? 3 : 1,
+      sentence = KitStepTimeline.sweep(
+        context,
+        active: live,
+        child: KitText.mono(
+          path,
+          cut: wide ? KitMonoCut.wrap : row.pathCut,
+          tone: tone,
+          maxLines: wide ? 3 : 1,
+        ),
       );
     } else if (wide) {
       sentence = Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          KitText(
-            row.title,
-            role: KitTextRole.secondary,
-            tone: tone,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
+          KitStepTimeline.sweep(
+            context,
+            active: live,
+            child: KitText(
+              row.title,
+              role: KitTextRole.secondary,
+              tone: tone,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
           ?secondText,
           ?counts,
@@ -472,12 +485,16 @@ class _KitToolRowState extends State<KitToolRow>
     } else {
       sentence = LayoutBuilder(
         builder: (context, constraints) {
-          final titleText = KitText(
-            row.title,
-            role: KitTextRole.secondary,
-            tone: tone,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          final titleText = KitStepTimeline.sweep(
+            context,
+            active: live,
+            child: KitText(
+              row.title,
+              role: KitTextRole.secondary,
+              tone: tone,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           );
           return Row(
             children: [
@@ -657,24 +674,24 @@ class _KitToolRowState extends State<KitToolRow>
       ],
     );
 
-    // The node: the step's glyph in its tile; the kit's spinner while it
-    // runs; the waiting ring; the failed mark. Nothing moves around a tile.
-    final Widget? nodeMark = switch (status) {
-      KitToolStatus.running || KitToolStatus.background => const KitStatusMark(
-        state: KitMarkState.working,
-      ),
-      KitToolStatus.waitingForYou => const KitStatusMark(
-        state: KitMarkState.waiting,
-      ),
-      KitToolStatus.failed => _stepMark(status),
-      _ => null,
+    // Every state keeps the glyph; the running step carries the one light
+    // (kit_step_light.dart). Only a failure settles on its mark.
+    final nodeState = switch (status) {
+      KitToolStatus.running => KitStepNodeState.running,
+      KitToolStatus.background => KitStepNodeState.background,
+      KitToolStatus.waitingForYou => KitStepNodeState.waiting,
+      KitToolStatus.pending || KitToolStatus.notRun => KitStepNodeState.queued,
+      KitToolStatus.done => KitStepNodeState.done,
+      KitToolStatus.failed => KitStepNodeState.failed,
+      KitToolStatus.stopped => KitStepNodeState.stopped,
+      KitToolStatus.declined => KitStepNodeState.none,
     };
     return KitStepTimeline.node(
       context,
       boxHeight: stepHeight,
-      icon: nodeMark == null ? _glyphFor(row.kind) : null,
-      mark: nodeMark,
-      dim: status == KitToolStatus.pending || status == KitToolStatus.notRun,
+      icon: _glyphFor(row.kind),
+      mark: status == KitToolStatus.failed ? _stepMark(status) : null,
+      state: nodeState,
       child: column,
     );
   }
@@ -815,7 +832,19 @@ class _KitToolRowState extends State<KitToolRow>
       );
     }
 
-    final glyph = _Glyph(_glyphFor(row.kind));
+    final liveRow =
+        status == KitToolStatus.running || status == KitToolStatus.background;
+    final glyph = liveRow
+        ? _FirstLine(
+            child: KitStepTimeline.alone(
+              context,
+              icon: _glyphFor(row.kind),
+              state: status == KitToolStatus.background
+                  ? KitStepNodeState.background
+                  : KitStepNodeState.running,
+            ),
+          )
+        : _Glyph(_glyphFor(row.kind));
 
     final Widget? chevron = _opens
         ? SizedBox.square(
@@ -981,6 +1010,10 @@ class _KitToolRowState extends State<KitToolRow>
       final lineText = elapsed == null
           ? '${row.title}$separator$word'
           : '${row.title}$separator$word $elapsed';
+      final agentLive =
+          row.liveMark &&
+          (row.status == KitToolStatus.running ||
+              row.status == KitToolStatus.background);
       final mark =
           !row.liveMark &&
               (row.status == KitToolStatus.running ||
@@ -988,6 +1021,11 @@ class _KitToolRowState extends State<KitToolRow>
                   row.status == KitToolStatus.pending)
           ? null
           : _stepMark(row.status);
+      final agentState = agentLive
+          ? (row.status == KitToolStatus.background
+                ? KitStepNodeState.background
+                : KitStepNodeState.running)
+          : KitStepNodeState.none;
       final Widget line;
       if (inTimeline) {
         // On a timeline the agent is a step like the others: its node on the
@@ -1007,10 +1045,14 @@ class _KitToolRowState extends State<KitToolRow>
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        KitText(
-                          lineText,
-                          role: KitTextRole.rowTitle,
-                          tone: KitTextTone.primary,
+                        KitStepTimeline.sweep(
+                          context,
+                          active: agentLive,
+                          child: KitText(
+                            lineText,
+                            role: KitTextRole.rowTitle,
+                            tone: KitTextTone.primary,
+                          ),
                         ),
                         if (task != null && task.isNotEmpty)
                           KitText(
@@ -1042,7 +1084,15 @@ class _KitToolRowState extends State<KitToolRow>
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const _Glyph(AppIconography.agent),
+                  agentLive
+                      ? _FirstLine(
+                          child: KitStepTimeline.alone(
+                            context,
+                            icon: AppIconography.agent,
+                            state: agentState,
+                          ),
+                        )
+                      : const _Glyph(AppIconography.agent),
                   SizedBox(width: tokens.space2),
                   Expanded(
                     child: Column(
@@ -1087,6 +1137,7 @@ class _KitToolRowState extends State<KitToolRow>
               top: tokens.space1,
               icon: mark == null ? AppIconography.agent : null,
               mark: mark,
+              state: agentState,
               child: child,
             );
       final onOpen = row.onOpen;
@@ -1131,13 +1182,14 @@ class _KitToolRowState extends State<KitToolRow>
 /// A step's status mark (KitToolRow.md "Status marks"); none for done and
 /// notRun.
 Widget? _stepMark(KitToolStatus status) => switch (status) {
-  KitToolStatus.running ||
-  KitToolStatus.background => const KitStatusMark(state: KitMarkState.working),
+  // A running step has no ring: its glyph carries the step light.
+  KitToolStatus.running || KitToolStatus.background => null,
   KitToolStatus.pending || KitToolStatus.waitingForYou => const KitStatusMark(
     state: KitMarkState.waiting,
   ),
   KitToolStatus.failed => const KitStatusMark(state: KitMarkState.failed),
-  KitToolStatus.stopped => const KitTaskMark(state: KitTaskState.stopped),
+  KitToolStatus.stopped ||
+  KitToolStatus.declined => const KitTaskMark(state: KitTaskState.stopped),
   KitToolStatus.done || KitToolStatus.notRun => null,
 };
 
@@ -1170,6 +1222,7 @@ Widget? _stepWords(
     KitToolStatus.pending ||
     KitToolStatus.waitingForYou ||
     KitToolStatus.stopped ||
+    KitToolStatus.declined ||
     KitToolStatus.notRun => text(word, KitTextTone.secondary),
   };
 }

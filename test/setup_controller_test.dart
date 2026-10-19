@@ -1,3 +1,4 @@
+import 'support/fake_server_capabilities.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -481,6 +482,6 @@ void main() {
     expect(capabilities.setupConfigWrite, isFalse);
     expect(capabilities.setupAssistantSession, isFalse);
     expect(capabilities.setupConfigRead, isFalse);
-    expect(ServerCapabilities.allV1.setupConfigRead, isTrue);
+    expect(testServerCapabilities.setupConfigRead, isTrue);
   });
 }

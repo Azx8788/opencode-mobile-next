@@ -3,7 +3,7 @@
 // ProjectFolderActions.openFolder, whose result the callers keep using.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/builtin/builtin_folders.dart';
 import 'package:opencode_mobile/builtin/builtin_linux.dart';
 import 'package:opencode_mobile/domain/workspace_paths.dart';

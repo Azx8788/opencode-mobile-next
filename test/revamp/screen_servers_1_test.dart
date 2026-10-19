@@ -18,8 +18,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/server_probe.dart';
+import '../support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/server_probe.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:opencode_mobile/ui/screens/servers_screen.dart';
@@ -68,7 +68,7 @@ class _ConnectingController extends CaptureController {
     ServerProfile profile, {
     bool redetectOnFailure = true,
   }) async {
-    api = OpenCodeApi(baseUrl: profile.baseUrl);
+    api = FakeServerGateway(baseUrl: profile.baseUrl);
   }
 }
 
@@ -85,7 +85,7 @@ List<ServerProfile> _seed() => [
     id: 'studio',
     name: 'Studio Mac',
     baseUrl: 'https://studio.example.net:4096',
-    flavor: ServerFlavor.v1,
+    flavor: ServerFlavor.v2,
     serverVersion: '1.18.29',
   ),
   ServerProfile(

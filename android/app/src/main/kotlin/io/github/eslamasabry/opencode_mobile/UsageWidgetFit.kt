@@ -17,7 +17,8 @@ internal data class PickedPlan(val index: Int, val showDetail: Boolean)
 /**
  * Chooses which plans fit the widget without clipping a row. The widget
  * cannot measure itself, so heights are estimates in dp that err on the safe
- * side. The most urgent plans (a fix first, then the least left) are kept;
+ * side. Available measured limits come first, then rows that need setup;
+ * within those groups, the tightest limit is kept first.
  * the result is back in the original order.
  */
 internal object UsageWidgetFit {
@@ -45,7 +46,7 @@ internal object UsageWidgetFit {
         val height = if (heightDp > 0) heightDp else DEFAULT_HEIGHT_DP
         var budget = height - FRAME_DP - SLACK_DP
         val urgent = plans.indices.sortedWith(
-            compareBy<Int>({ if (plans[it].needsFix) 0 else 1 }, { plans[it].minLeft }, { it })
+            compareBy<Int>({ if (plans[it].hasNumbers) 0 else 1 }, { plans[it].minLeft }, { it })
         )
         val chosen = mutableListOf<Int>()
         for (i in urgent) {

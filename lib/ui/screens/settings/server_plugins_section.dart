@@ -270,7 +270,7 @@ class _ServerPluginsSectionState extends State<ServerPluginsSection> {
                           style: KitText.styleOf(
                             context,
                             KitTextRole.secondary,
-                            tone: KitTextTone.danger,
+                            tone: KitTextTone.primary,
                           ),
                         ),
                     ],
@@ -314,7 +314,7 @@ class _ServerPluginsSectionState extends State<ServerPluginsSection> {
             ? KitText.styleOf(
                 context,
                 KitTextRole.secondary,
-                tone: KitTextTone.danger,
+                tone: KitTextTone.primary,
               )
             : null,
       ),
@@ -357,7 +357,7 @@ class _ServerPluginsSectionState extends State<ServerPluginsSection> {
             KitText(
               _statusWord(plugin, l10n),
               role: KitTextRole.secondary,
-              tone: failed ? KitTextTone.danger : KitTextTone.secondary,
+              tone: failed ? KitTextTone.primary : KitTextTone.secondary,
             ),
             if (failed) ...[
               SizedBox(height: tokens.space1),

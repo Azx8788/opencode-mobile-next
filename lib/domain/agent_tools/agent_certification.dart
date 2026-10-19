@@ -21,7 +21,7 @@ final class AgentCertificationMatrix {
     if (rows is! List) return AgentCertificationMatrix._(const {});
     for (final row in rows) {
       if (row is! Map || row['id'] is! String) continue;
-      final id = _canonicalId(row['id'] as String);
+      final id = row['id'] as String;
       if (AgentCatalog.builtIn.byId(id) == null) continue;
       if (!seen.add(id)) duplicated.add(id);
       final record = _CertificationRecord.parse(row);
@@ -40,7 +40,7 @@ final class AgentCertificationMatrix {
     required AgentArchitecture? architecture,
     required String? helperVersion,
   }) {
-    final record = _records[_canonicalId(descriptor.id)];
+    final record = _records[descriptor.id];
     if (record == null ||
         helperVersion == null ||
         !_sameAgentVersion(
@@ -70,7 +70,7 @@ final class AgentCertificationMatrix {
   /// The matrix's full rule (every cell pass) is stricter and no agent meets
   /// it yet, so it would hide the one working agent.
   bool certifiedForChat(String agentId) {
-    final id = _canonicalId(agentId);
+    final id = agentId;
     final record = _records[id];
     final pinned = AgentCatalog.builtIn.byId(id)?.recipe?.version;
     return record != null &&
@@ -90,12 +90,9 @@ final class AgentCertificationMatrix {
 
   static bool _sameAgentVersion(String id, String recorded, String? current) =>
       recorded == current ||
-      (_canonicalId(id) == 'claude' &&
+      (id == 'claude' &&
           claudeCodeSupports(recorded) &&
           claudeCodeSupports(current));
-
-  // FQ1 names the OpenCode 1 catalog entry `opencode`; allow only this alias.
-  static String _canonicalId(String id) => id == 'opencode1' ? 'opencode' : id;
 }
 
 final class _CertificationRecord {

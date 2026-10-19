@@ -684,7 +684,6 @@
   "setupMissingCredential": "لا يملك التطبيق بيانات اعتماد محفوظة لهذا التثبيت. اتصل بعنوان خادمه، أو شغّل الإعداد لضبطه.",
   "setupUbuntuOption": "تثبيت Ubuntu يديره التطبيق",
   "setupOwnOption": "استخدام إعدادك الخاص",
-  "setupOwnDescription": "اتصل بخادم OpenCode 1 أو OpenCode 2 موجود باستخدام عنوانه. يحتاج تثبيت musl الأصلي إلى بيئة Linux متوافقة، ولا يديره هذا التطبيق.",
   "setupScreenTitle": "على هذا الهاتف",
   "setupInstallStart": "تثبيت وتشغيل",
   "setupCheckAgain": "إعادة المحاولة",
@@ -840,7 +839,6 @@
   "setupChooseServerTitle": "اختر إعداد خادمك",
   "setupChooseServerDescription": "اتصل بخادم موجود، أو استخدم Termux لتشغيل OpenCode على هذا الهاتف.",
   "setupUncheckedTitle": "المتابعة دون فحص التثبيت؟",
-  "setupUncheckedDescription": "تعذّر فحص التثبيت الحالي. قد تؤدي المتابعة إلى تثبيت OpenCode 1 أو تحديثه في بيئة Ubuntu التي يديرها التطبيق. ستبقى ملفات Ubuntu الحالية. يمكنك الفحص مجددًا أو الاتصال باستخدام العنوان.",
   "setupUncheckedContinue": "المتابعة مع Ubuntu",
   "webSearchDisclosure": "يرسل البحث استعلامك إلى مزوّد البحث المحدد على هذا الخادم. راجع النتائج قبل إضافتها إلى مسودتك القابلة للتعديل. لا يُرسل شيء إلى النموذج هنا.",
   "webSearchManual": "أو الصق مصدرًا",
@@ -934,10 +932,7 @@
   "queuedKeepForReview": "الاحتفاظ للمراجعة",
   "queuedDiscardUnconfirmedMessage": "لم يُؤكَّد إرسالها السابق؛ ربما توجد في المحادثة بالفعل.",
   "setupRuntimeTitle": "أي إصدار من OpenCode تريد استخدامه؟",
-  "setupRuntimeOne": "الإصدار الأقدم من OpenCode",
-  "setupRuntimeOneDetail": "موصى به للحصول على أوسع دعم لميزات هذا التطبيق.",
   "setupRuntimeTwo": "OpenCode 2",
-  "setupRuntimeTwoDetail": "الخادم الأحدث. بعض ميزات OpenCode 1 غير متاحة فيه بعد.",
   "setupRuntimeInstallDetail": "تثبيت {runtime} ({version}) في بيئة Ubuntu يديرها التطبيق. يُعاد استخدام ملفات Ubuntu الحالية.",
   "queuedBannerReview": "{count, plural, zero{لا مسودات بإرسال غير مؤكد تحتاج إلى مراجعة.} one{مسودة واحدة بإرسال غير مؤكد تحتاج إلى مراجعة.} two{مسودتان بإرسال غير مؤكد تحتاجان إلى مراجعة.} few{{count} مسودات بإرسال غير مؤكد تحتاج إلى مراجعة.} many{{count} مسودة بإرسال غير مؤكد تحتاج إلى مراجعة.} other{{count} مسودة بإرسال غير مؤكد تحتاج إلى مراجعة.}}",
   "isolatedTaskRetryOpen": "إعادة المحاولة",
@@ -972,16 +967,16 @@
   "tailscaleInstall": "الحصول على تطبيق Android الرسمي",
   "tailscaleCheckAgain": "فحص التطبيق مجددًا",
   "tailscaleAddressStep": "2. راجع عنوان خادمك",
-  "tailscaleAddressLabel": "عنوان خادم HTTPS الخاص",
-  "tailscaleAddressDetail": "استخدم أصل HTTPS الكامل الذي يعرضه Tailscale Serve، مثل https://computer.tailnet-name.ts.net. احتفظ بأي منفذ HTTPS يعرضه. قد لا يوفّر اسم جهاز مختصر أو منفذ HTTP مباشر شهادة صالحة.",
-  "tailscaleAddressError": "أدخل أصل HTTPS بمنفذ صالح (1–65535). أزل المسارات وبيانات الاعتماد ونص الاستعلام والأجزاء الملحقة. استخدم العنوان الكامل من Serve؛ ولا تستبدل https بـ http.",
+  "tailscaleAddressLabel": "عنوان الخادم الخاص",
+  "tailscaleAddressDetail": "الصق عنوان HTTPS الكامل من Tailscale Serve، أو عنوان HTTP ومنفذ خادمك على Tailscale. يتطلب HTTP إذنك قبل الاتصال.",
+  "tailscaleAddressError": "أدخل عنوان خادم HTTP أو HTTPS كاملًا مع المنفذ عند الحاجة، دون إضافة مسار بعده.",
   "tailscaleReviewDetail": "تابع فقط بعنوان تعرفه. تراجع الشاشة التالية بيانات اعتماد خادمك قبل أن تختبره أو تحفظه صراحةً. لا يستطيع التطبيق تأكيد خصوصية عنوان من اسمه وحده.",
   "tailscaleContinue": "المتابعة إلى المصادقة",
   "tailscaleHelp": "إعداد Tailscale واستعادة الاتصال",
   "tailscaleServeHelp": "على كمبيوتر الخادم، يستطيع Tailscale Serve توفير HTTPS خاص لمنفذ OpenCode محلي. استخدم Serve، وليس Funnel العام. تظل قواعد الوصول إلى شبكة tailnet سارية. ينشر تفعيل HTTPS اسمي الجهاز وشبكة tailnet في سجل شهادات عام، مع بقاء الوصول خاصًا. راجع الدليل الرسمي قبل تغيير خادمك.",
   "tailscaleServeDocs": "قراءة دليل Serve الرسمي",
   "tailscaleAndroidDocs": "قراءة دليل Android الرسمي",
-  "tailscaleRecovery": "إذا تعذّر الوصول إلى الخادم، فتحقّق من Tailscale على الجهازين، واسم HTTPS الكامل ومنفذه، وServe على الخادم، وقواعد وصول شبكتك. قد يمنع تعارض VPN أو DNS الوصول أيضًا. أبقِ HTTPS مفعّلًا. صحّح كلمة مرور الخادم إذا رُفضت المصادقة، ثم أعد «اختبار الاتصال».",
+  "tailscaleRecovery": "إذا تعذّر الوصول إلى الخادم، فتحقق من Tailscale على الجهازين والعنوان والمنفذ وقواعد الوصول للشبكة. لعنوان Serve، تحقق أيضًا من Serve على الخادم. صحّح كلمة المرور إذا رُفض تسجيل الدخول، ثم أعد اختبار الاتصال.",
   "tailscaleEditorDetail": "تُدار شبكة اتصالك في Tailscale. يفحص «اختبار الاتصال» خادم OpenCode هذا، لا شبكة VPN. أدخل هنا اسم مستخدم الخادم وكلمة مروره، لا بيانات دخول Tailscale. تحافظ مساعدة الإعداد على هذه الحقول.",
   "a2aDraftSaveError": "تعذّر حفظ تعديلات المسودة. أبقِ هذه الشاشة مفتوحة وأعد المحاولة قبل المغادرة.",
   "a2aRetryDraftSave": "إعادة محاولة حفظ المسودة",
@@ -1227,30 +1222,17 @@
   "workBackgroundAutomatic": "اطلب من وكيلك تفويض العمل في الخلفية. تعود النتائج إلى هذه المحادثة تلقائيًا.",
   "oc2DiscoveryEditorTitle": "OpenCode 2",
   "oc2DiscoveryExisting": "استخدم خادمًا يعمل بالفعل.",
-  "oc2DiscoveryTypes": "OpenCode 1 أو 2",
-  "oc2DiscoveryPhone": "إعداد OpenCode 1 أو 2 هنا عبر Termux.",
   "setupSwitchUse": "تجربة {runtime}",
-  "setupSwitchConfirmTitle": "التبديل إلى {runtime}؟",
-  "setupSwitchConfirmDetail": "يوقف خادم هذا الهاتف والمهام الجارية. تبقى المحادثات وإعدادات مزوّدي الخدمة وبيانات الاعتماد منفصلة؛ بينما تُشارك ملفات المشروع وإعداداته. يمكنك العودة إلى الإصدار السابق.",
-  "setupSwitchToTwoDetail": "يوقف خادم هذا الهاتف والمهام الجارية، ثم يشغّل OpenCode 2. تنتقل محادثاتك معك ويواصل فريق الذكاء الاصطناعي عمله. يمكنك العودة إلى الإصدار السابق.",
-  "moveToOpenCode2Title": "الانتقال إلى OpenCode 2",
-  "moveToOpenCode2Detail": "تنتقل محادثاتك معك. ويواصل فريق الذكاء الاصطناعي عمله.",
-  "moveToOpenCode2NotNow": "ليس الآن",
-  "moveToOpenCode2NotNowSemantics": "ليس الآن: البقاء على الإصدار الأقدم من OpenCode",
-  "setupSwitchConfirm": "التبديل إلى {runtime}",
   "setupSwitchInstalled": "على هذا الهاتف: {runtime}",
-  "setupSwitchPending": "لم يكتمل تبديل بيئة التشغيل. أعد محاولة تشغيل البيئة المحددة أو ارجع إلى السابقة. تُحفظ بيانات بيئات التشغيل لديك.",
-  "setupSwitchReturn": "العودة إلى {runtime}",
+  "setupSwitchPending": "لم يكتمل التحديث إلى OpenCode 2. محادثاتك المحفوظة باقية. حاول مجددًا.",
   "setupSwitchRetry": "إعادة محاولة {runtime}",
   "setupSwitchInProgressHint": "يمكنك مغادرة هذه الشاشة والعودة للتحقق من التقدم.",
   "setupSwitchPreparing": "جارٍ تجهيز تبديل بيئة التشغيل…",
-  "setupSwitchFailed": "تعذّر إكمال تبديل بيئة التشغيل. افحص مخرجات الإعداد، ثم أعد المحاولة أو ارجع إلى بيئة التشغيل السابقة.",
+  "setupSwitchFailed": "تعذّر إكمال التحديث إلى OpenCode 2. محادثاتك المحفوظة باقية. حاول مجددًا.",
   "setupSwitchConnect": "الاتصال بـ {runtime}",
-  "setupSwitchLegacyTwo": "يحتفظ تثبيت OpenCode 2 هذا ببياناته الحالية. لا يتاح تبديله إلى OpenCode 1.",
   "setupSwitchProfileName": "هذا الهاتف · {runtime}",
   "setupSwitchReady": "بيئة التشغيل المحلية جاهزة. اتصالك البعيد الحالي لم يتغيّر.",
-  "setupSwitchMissingCredential": "بيانات الاعتماد المحفوظة لبيئة التشغيل السابقة غير متاحة. تبقى بياناتها محفوظة؛ استعد الخادم المحفوظ قبل العودة.",
-  "setupSwitchOwnDescription": "اتصل بخادم OpenCode 1 أو OpenCode 2 موجود باستخدام عنوانه.",
+  "setupSwitchMissingCredential": "تعذّرت قراءة كلمة مرور الخادم المحفوظة. محادثاتك وملفاتك باقية. استعد الوصول إلى كلمة المرور المحفوظة ثم حاول مجددًا.",
   "setupSwitchProgressTitle": "جارٍ التبديل إلى {runtime}",
   "setupSwitchDataNotice": "يحتفظ كل إصدار بمحادثاته وإعدادات مزوّدي الخدمة الخاصة به. تُشارك ملفات المشروع وإعدادات المشروع.",
   "setupSwitchHelp": "مساعدة الإعداد",
@@ -1278,7 +1260,7 @@
   "e7ConnectionFailure20": "الشهادة غير موثوقة",
   "e7ConnectionFailure21": "الخادم موجود، لكن هذا الجهاز لا يثق بشهادة HTTPS الخاصة به، لذلك رفض التطبيق إرسال كلمة المرور.",
   "e7ConnectionFailure22": "استخدم شهادة من جهة موثوقة، أو عنوان Tailscale Serve.",
-  "e7ConnectionFailure23": "إذا كانت الشهادة موقّعة ذاتيًا، فثبّتها على هذا الجهاز أولًا.",
+  "e7ConnectionFailure23": "للشهادة الموقّعة ذاتيًا، عدّل هذا الخادم وتحقق من بصمتها قبل الوثوق بها.",
   "e7ConnectionFailure24": "لا خدمة تستقبل الاتصالات على هذا الجهاز",
   "e7ConnectionFailure26": "هل تشغّل OpenCode في Termux؟ افتح Termux وتأكّد من أن الخادم ما زال قيد التشغيل.",
   "e7ConnectionFailure27": "هل تستخدم adb reverse أو إعادة توجيه SSH؟ تأكّد من أن النفق ما زال متصلًا، ثم أعد المحاولة.",
@@ -1320,6 +1302,8 @@
   "e7BannerReconnectingServerSemantic": "جارٍ إعادة الاتصال بـ {server}",
   "e7BannerCheckingExplanation": "يبقى المحتوى المعروض متاحًا أثناء فحص OpenCode. تُستأنف التحديثات المباشرة تلقائيًا.",
   "e7BannerStaleExplanation": "قد يكون المحتوى المعروض قديمًا حتى يصبح OpenCode متاحًا مجددًا.",
+  "e7BannerCheckingExplanationAgent": "يبقى المحتوى المعروض متاحًا أثناء فحص {agent}. تُستأنف التحديثات المباشرة تلقائيًا.",
+  "e7BannerStaleExplanationAgent": "قد يكون المحتوى المعروض قديمًا حتى يصبح {agent} متاحًا مجددًا.",
   "e7SharedThreeStepsToYourFirstSession": "ثلاث خطوات لبدء أول محادثة",
   "e7SharedOpenCodeRunsOnYourComputerThisApp": "يعمل OpenCode على حاسوبك، وهذا التطبيق هو جهاز التحكم عن بُعد. الاقتران يربط بينهما بأمر واحد، دون كتابة عناوين أو كلمات مرور.",
   "e7SharedOnYourComputerRunOneCommand": "على حاسوبك، شغّل أمرًا واحدًا",
@@ -1335,9 +1319,9 @@
   "e7SharedHTTPSSSHTunnelsOlderServersTermuxInternals": "HTTPS وأنفاق SSH والخوادم الأقدم وتفاصيل Termux",
   "e7SharedHTTPSSSHTunnelsOlderServers": "HTTPS وأنفاق SSH والخوادم الأقدم",
   "e7SharedReachAServerOverHTTPSOrA": "الوصول إلى خادم عبر HTTPS أو نفق",
-  "e7SharedPairingWorksWhenTheAddressTheServer": "يعمل الاقتران عندما يكون العنوان الذي يطبعه الخادم قابلًا للوصول من هذا الجهاز. وإن لم يكن كذلك، فاعرض الخادم عبر وكيل عكسي HTTPS أو نفق مشفّر، ثم أضف عنوان https:// الناتج يدويًا. HTTP البعيد محظور عمدًا.",
+  "e7SharedPairingWorksWhenTheAddressTheServer": "يعمل الاقتران عندما يستطيع هذا الجهاز الوصول إلى عنوان الخادم. يطلب عنوان HTTP البعيد إذنك قبل إرسال كلمة المرور. يُفضّل HTTPS أو اتصال Tailscale خاص.",
   "e7SharedOlderServersWithoutPairing": "الخوادم الأقدم بدون اقتران",
-  "e7SharedServersStartedWithOpencodeServeDoNot": "الخوادم التي تُشغَّل بالأمر «opencode serve» لا تطبع رمز اقتران. شغّلها على loopback مع كلمة مرور:",
+  "e7SharedServersStartedWithOpencodeServeDoNot": "للاتصال محليًا، شغّل OpenCode 2 على هذا الكمبيوتر واستخدم كلمة المرور التي يعرضها:",
   "e7SharedThenAddTheServerManuallyWithUsername": "ثم أضف الخادم يدويًا باسم المستخدم opencode وكلمة المرور تلك.",
   "e7SharedOnDeviceViaTermuxAutomated": "على الجهاز عبر Termux (آلي)",
   "e7SharedUseTheOnDeviceTermuxCardOn": "استخدم بطاقة «على الجهاز (Termux)» في شاشة الخوادم. يثبّت التطبيق Termux، ويفتح الجسر، ويجهّز opencode، ويشغّل الخادم ويتصل، كل ذلك بإرشاد خطوة بخطوة.",
@@ -1555,7 +1539,7 @@
   "e7SettingsUi61": "المصادقة",
   "e7SettingsUi62": "لم تُحفظ كلمة مرور للخادم",
   "e7SettingsUi64": "إضافة خوادم OpenCode أو تعديلها أو التبديل بينها",
-  "e7SettingsUi65": "التشغيل كخدمة Linux",
+  "e7SettingsUi65": "إعداد OpenCode 2",
   "e7SettingsUi66": "أبقِ OpenCode قيد التشغيل على حاسوبك بعد إغلاق الطرفية؛ انسخ أوامر الإعداد والحالة وإعادة التشغيل والسجلات والتحديث",
   "e7SettingsUi67": "تحديثات الخادم",
   "e7SettingsUi68": "رقِّ من الجهاز الذي يشغّل الخادم",
@@ -2634,7 +2618,7 @@
   "e7SetupEdit": "تعديل",
   "e7SetupUpdate": "تحديث",
   "e7SetupServerPassword": "كلمة مرور الخادم",
-  "e7SetupHttpsHint": "‏https://‏ للأجهزة الأخرى، و‏http://‏ على هذا الجهاز أو شبكة خاصة فقط.",
+  "e7SetupHttpsHint": "يُفضّل HTTPS. يتطلب HTTP البعيد إذنك لكل خادم.",
   "e7SetupObservedVersionSaveFailed": "الخادم المحلي جاهز، لكن تعذّر حفظ الإصدار الذي رصده التطبيق. حدّث الإعداد للمحاولة مجددًا.",
   "e7SetupPasteInstead": "لصق الرمز بدلًا من مسحه",
   "e7SetupConfirmUpdate": "تحديث OpenCode الذي يديره التطبيق؟",
@@ -2708,7 +2692,6 @@
   "e7SetupDiscard": "تجاهل",
   "e7SetupConnectionClosed": "أُغلق الاتصال",
   "e7SetupUpKey": "مفتاح السهم لأعلى",
-  "e7SetupV1Limited": "صُمّم هذا التطبيق لـ OpenCode 2؛ بعض الميزات غير متاحة على خوادم الإصدار الأول.",
   "e7SetupConnect": "اتصال",
   "e7SetupRemoveTerminalDetail": "ستتم إزالة سجل هذه الطرفية.",
   "e7SetupAuthentication": "المصادقة",
@@ -2732,7 +2715,7 @@
   "e7SetupDefaultServer": "خادم OpenCode",
   "e7SetupSaving": "جارٍ الحفظ…",
   "e7SetupNotYet": "ليس بعد",
-  "e7SetupLinuxService": "التشغيل كخدمة في Linux",
+  "e7SetupLinuxService": "إعداد OpenCode 2",
   "e7SetupPairingDesktopHint": "تحقّق من تشغيل الخادم وإمكانية وصول هذا الجهاز إلى العنوان الذي عرضه.",
   "e7SetupAboutNotices": "حول التطبيق وإشعارات المصدر المفتوح",
   "e7SetupSetupLost": "تعذّرت متابعة الإعداد الجاري في Termux",
@@ -2823,7 +2806,6 @@
   "e7SetupDeleteDisclosure": "يحذف هذا كل ما حفظه الجهاز لهذا الخادم: كلمة المرور، والنموذج والوكيل المحددين، والمشروع المختار، والمحادثات المعروضة في أداة الشاشة الرئيسية.\n\n{queued, plural, =0{} =1{سيُحذف طلب واحد من قائمة الانتظار.} =2{سيُحذف طلبان من قائمة الانتظار.} few{ستُحذف {queued} طلبات من قائمة الانتظار.} many{سيُحذف {queued} طلبًا من قائمة الانتظار.} other{سيُحذف {queued} طلب من قائمة الانتظار.}} {drafts, plural, =0{} =1{ستُحذف مسودة واحدة غير مرسلة.} =2{ستُحذف مسودتان غير مرسلتين.} few{ستُحذف {drafts} مسودات غير مرسلة.} many{ستُحذف {drafts} مسودة غير مرسلة.} other{ستُحذف {drafts} مسودة غير مرسلة.}}\n\nلن يُحذف أي شيء على الخادم نفسه أو لدى مزوّدي الذكاء الاصطناعي.",
   "e7SetupPairingFailed": "لم يستجب أي عنوان في رمز الاقتران:\n{detail}\n{hint}",
   "e7SetupProbeV2": "OpenCode 2 · {version}",
-  "e7SetupProbeV1": "OpenCode 1 · {version} — ميزات محدودة",
   "e7SetupPairNone": "لا يوجد رمز اقتران هنا. شغّل «opencode2 pair» على الخادم وامسح الرمز الذي يعرضه أو انسخه.",
   "e7SetupPairLong": "هذا النص أطول من رمز اقتران. انسخ فقط السطر الذي يعرضه «opencode2 pair» أو امسح رمز QR الخاص به.",
   "e7SetupPairInvalid": "هذا ليس رمز اقتران. شغّل «opencode2 pair» على الخادم وامسح الرمز الذي يعرضه أو انسخه.",
@@ -2845,9 +2827,9 @@
   "e7SetupNoAnswer": "لم يستجب.",
   "e7SetupInvalidAddress": "<عنوان غير صالح>",
   "e7SetupEnterUrl": "أدخل عنوان URL للخادم.",
-  "e7SetupIncludeScheme": "أضف https://. يعمل http:// العادي فقط على هذا الجهاز أو على عنوان شبكة خاصة.",
+  "e7SetupIncludeScheme": "أضف https:// أو http://. يتطلب HTTP البعيد إذنك.",
   "e7SetupCompleteUrl": "أدخل عنوان URL كاملًا للخادم، مثل https://server.example:4096.",
-  "e7SetupUrlScheme": "يجب أن تستخدم عناوين الخوادم https://، أو http:// للخادم المحلي.",
+  "e7SetupUrlScheme": "يجب أن تبدأ عناوين الخادم بـ https:// أو http://.",
   "e7SetupTermuxUrlScheme": "يجب أن تستخدم عناوين الخوادم https://، أو http:// لـ Termux المحلي.",
   "e7SetupUrlCredentials": "لا تضع بيانات الدخول في عنوان URL. استخدم الحقول أدناه.",
   "e7SetupUrlQuery": "أزل معاملات الاستعلام والجزء الذي يبدأ بـ # من عنوان URL للخادم.",
@@ -2857,7 +2839,7 @@
   "e7SetupRefused": "رُفض الاتصال. هل يعمل opencode serve على ذلك المضيف والمنفذ؟",
   "e7SetupTimeout": "انتهت مهلة الاتصال. تحقّق من العنوان وإمكانية الوصول إلى الخادم من هذا الهاتف.",
   "e7SetupDns": "تعذّر العثور على اسم المضيف. تحقّق من كتابة العنوان.",
-  "e7SetupCertificate": "رُفضت شهادة TLS للخادم. استخدم شهادة يثق بها هذا الهاتف.",
+  "e7SetupCertificate": "الشهادة غير موثوقة. تحقق من بصمتها قبل أن تقرر الوثوق بها.",
   "e7SetupUnhealthy": "استجاب الخادم لكنه أبلغ عن مشكلة في حالته. راجع سجلاته ثم حاول مجددًا.",
   "e7SetupServerStarting": "الخادم قيد التشغيل. حاول مجددًا بعد قليل.",
   "e7SetupPasswordNeeded": "يتطلب هذا الخادم كلمة مرور التشغيل.",
@@ -2891,7 +2873,6 @@
   "e7SetupRecoveryDisabled": "الاستعادة التلقائية معطّلة",
   "e7SetupRecoveryWasDisabled": "عُطّلت الاستعادة التلقائية",
   "e7SetupPortBusy": "منفذ الخادم المحلي ما زال مستخدمًا؛ لم يُشغّل خادم بديل",
-  "e7SetupNoReturnData": "لا يحتوي تثبيت OpenCode 2 هذا على بيانات منفصلة لـ OpenCode 1 للعودة إليها",
   "e7SetupCredentialMismatch": "تختلف بيانات الدخول المحفوظة عن بيانات هذا الإصدار؛ استعد بياناته الأصلية المحفوظة قبل العودة",
   "e7SetupUbuntuUnavailable": "تثبيت Ubuntu الذي يديره التطبيق غير متاح",
   "e7SetupRuntimeUnavailable": "أمر OpenCode المحدد غير متاح",
@@ -2946,7 +2927,6 @@
   "e7SetupAuthenticationFailed": "فشلت المصادقة",
   "e7SetupRuntimeInstallDetail": "ثبّت {runtime} ({version}) على هذا الهاتف باستخدام Ubuntu. يدير التطبيق هذا التثبيت ويعيد استخدام ملفات Ubuntu الموجودة.",
   "e7SetupReplaceDetail": "استبدل OpenCode {installedVersion} بالإصدار {targetVersion} وأعد تشغيل الخادم المحلي الذي يديره التطبيق. ستبقى ملفات Ubuntu الموجودة محفوظة.",
-  "e7SetupUncheckedDetail": "تعذّر التحقق من التثبيت الحالي. قد تؤدي المتابعة إلى تثبيت OpenCode 1 على هذا الهاتف أو تحديثه. ستبقى ملفات Ubuntu الموجودة محفوظة. يمكنك التحقق مجددًا أو الاتصال باستخدام العنوان بدلًا من ذلك.",
   "e7SetupUnknownVersion": "إصدار غير معروف",
   "e7ModelUiClose": "إغلاق اختيار النموذج",
   "e7ModelUiClearSearch": "مسح البحث عن النماذج",
@@ -4054,17 +4034,17 @@
   "approvalsUiEverythingActive": "تتبع إعداد «الموافقة على كل شيء في هذا الخادم»",
   "approvalsUiServerRulesNoteEverything": "تبقى قواعد الرفض في الخادم سارية، وتتوقف الموافقة التلقائية عند انقطاع اتصال التطبيق.",
   "agentErrorConnectionDropped": "انقطع الاتصال بالنموذج.",
-  "agentErrorConnectionDroppedHint": "غالبًا ما يكون ذلك مؤقتًا، ويعيد OpenCode المحاولة تلقائيًا. إذا تكرر، فتحقق من الإنترنت على الجهاز الذي يشغّل OpenCode.",
+  "agentErrorConnectionDroppedHint": "تحقّق من اتصال الإنترنت على الجهاز الذي يشغّل OpenCode. إذا توقف الرد، فتحقّق من المحادثة قبل الإرسال مجددًا.",
   "agentErrorTimedOut": "استغرق النموذج وقتًا طويلًا للرد.",
-  "agentErrorTimedOutHint": "يعيد OpenCode المحاولة تلقائيًا. قد يكون طلب أصغر أو نموذج آخر أسرع.",
+  "agentErrorTimedOutHint": "إذا توقف الرد، فجرّب طلبًا أصغر أو نموذجًا آخر.",
   "agentErrorProviderUnreachable": "تعذّر على الخادم الوصول إلى مزوّد النموذج.",
   "agentErrorProviderUnreachableHint": "تحقق من اتصال الإنترنت على الجهاز الذي يشغّل OpenCode ثم حاول مجددًا.",
   "agentErrorRequestTooLarge": "كان هذا الطلب أكبر من أن يُرسل إلى النموذج.",
   "agentErrorRequestTooLargeHint": "أرسل مرفقات أقل أو أصغر، أو اضغط المحادثة، ثم حاول مجددًا.",
   "agentErrorRateLimited": "يحدّ مزوّد النموذج من سرعة الإرسال.",
-  "agentErrorRateLimitedHint": "تُعاد المحاولة تلقائيًا بعد انتظار قصير.",
+  "agentErrorRateLimitedHint": "انتظر قليلًا. إذا توقف الرد، فحاول مجددًا أو اختر نموذجًا آخر.",
   "agentErrorProviderBusy": "مزوّد النموذج مثقل بالطلبات الآن.",
-  "agentErrorProviderBusyHint": "تُعاد المحاولة تلقائيًا. قد يرد نموذج آخر أسرع.",
+  "agentErrorProviderBusyHint": "إذا توقف الرد، فحاول مجددًا لاحقًا أو اختر نموذجًا آخر.",
   "agentErrorOutOfCredit": "نفد رصيد حساب المزوّد أو حصته.",
   "agentErrorOutOfCreditHint": "اشحن الحساب، أو انتقل إلى مزوّد أو نموذج آخر.",
   "agentErrorServerDiskFull": "نفدت مساحة القرص على الجهاز الذي يشغّل OpenCode.",
@@ -4159,6 +4139,8 @@
   "phoneSetupProgressTitle": "جارٍ إعداد OpenCode على هذا الهاتف",
   "phoneSetupProgressLeaveHint": "يمكنك مغادرة التطبيق. سنُعلمك عندما يصبح جاهزًا.",
   "phoneSetupProgressFirstSetupNote": "الخطوة 1 من 3: التثبيت. بعدها سمِّ مشروعًا وتحدّث. يمكنك مغادرة التطبيق. سنُعلمك عندما يصبح جاهزًا.",
+  "phoneSetupProgressLeaveHintQuiet": "يمكنك مغادرة التطبيق. يستمر الإعداد. افتح OpenCode مرة أخرى لترى مدى تقدّمه.",
+  "phoneSetupProgressFirstSetupNoteQuiet": "الخطوة 1 من 3: التثبيت. بعدها سمِّ مشروعًا وتحدّث. يمكنك مغادرة التطبيق. يستمر الإعداد. افتح OpenCode مرة أخرى لترى مدى تقدّمه.",
   "phoneSetupProgressStopTitle": "إيقاف الإعداد؟",
   "phoneSetupProgressStopMessage": "ما اكتمل يبقى مثبّتًا.",
   "phoneSetupProgressStopConfirm": "إيقاف الإعداد",
@@ -4221,9 +4203,9 @@
   "phoneSetupErrorOffline": "تعذّر تنزيل {name}: لا يوجد اتصال بالإنترنت",
   "phoneSetupErrorInstall": "تعذّر تثبيت {name}",
   "phoneSetupErrorChecksum": "تلف تنزيل {name}. تابع لتنزيله من جديد.",
-  "phoneSetupErrorNoSpace": "لا توجد مساحة كافية لتثبيت {name}",
+  "phoneSetupErrorNoSpace": "لا توجد مساحة كافية لتثبيت {name}. أفرغ بعض مساحة التخزين، ثم تابع الإعداد.",
   "phoneSetupErrorStart": "تعذّر تشغيل OpenCode: {reason}",
-  "phoneSetupErrorCannotStart": "تم تثبيت OpenCode، لكن التطبيق لم يتمكن من تشغيله هنا.",
+  "phoneSetupErrorCannotStart": "تم تثبيت OpenCode لكنه لا يستجيب. تابع الإعداد للمحاولة مجددًا. تعرض التفاصيل سبب التوقف.",
   "builtinServerBytesUsed": "يستخدم {size} من التخزين",
   "builtinServerShowLog": "عرض السجل",
   "builtinServerLogTitle": "سجل الخادم",
@@ -4767,7 +4749,7 @@
   "appExitKeepRunning": "أبقِه يعمل",
   "keepRunningTitle": "الاستمرار في العمل في الخلفية",
   "keepRunningRowSubtitle": "ما يجب السماح به كي لا يغلق هاتفك التطبيق",
-  "keepRunningIntro": "يعمل OpenCode وفريق الذكاء الاصطناعي على هاتفك داخل هذا التطبيق، لذا يتوقفان عندما يغلقه أندرويد. على هاتف {maker} هذا، اسمح بما يلي:",
+  "keepRunningIntro": "يعمل OpenCode وفريق الذكاء الاصطناعي على هاتفك داخل هذا التطبيق، لذا يتوقفان عندما يغلقه أندرويد. على هذا الهاتف، اسمح بما يلي:",
   "keepRunningSwipeWarning": "يغلق هذا الهاتف التطبيق الذي تسحبه بعيدًا من التطبيقات الحديثة حتى وهو يعمل. اقفله هناك بدلًا من سحبه.",
   "keepRunningBatteryTitle": "عدم تحسين البطارية",
   "keepRunningBatteryDetail": "يتيح للتطبيق الاستمرار في العمل أثناء استخدامك تطبيقات أخرى.",
@@ -4968,7 +4950,7 @@
   "teamProjectResumeUnavailable": "هذا الإصدار من فريق الذكاء الاصطناعي لا يستطيع استئناف العمل المتوقف بعد. يمكنك إيقاف المشروع وبدءه من جديد.",
   "teamProjectInterrupted": "توقف العمل، جاهز للاستئناف",
   "teamProjectEditorContextFilesHelpReal": "اختياري. مسار واحد في كل سطر. يقرأ الفريق هذه الملفات قبل أن يخطط.",
-  "addServerCleartextWarning": "هذا العنوان يستخدم HTTP عادي. على هذه الشبكة قد يتمكن آخرون من قراءة كلمة المرور ومحادثاتك. استخدم Tailscale أو HTTPS إن أمكن.",
+  "addServerCleartextWarning": "يستخدم عنوان الشبكة الخاصة أو Tailscale هذا HTTP غير المشفّر. تنتقل كلمة المرور والشيفرة دون تشفير في طبقة HTTP. استخدمه فقط على شبكة خاصة تثق بها أو عبر Tailscale؛ فهو خطر على شبكات Wi-Fi العامة.",
   "addServerCleartextConfirm": "استخدمه على أي حال",
   "addServerCleartextConfirmed": "تم تفعيل HTTP العادي لهذا العنوان. يمكن لأي شخص على هذه الشبكة قراءة ما ترسله.",
   "storageAccessTitle": "السماح بالوصول إلى الملفات؟",
@@ -5121,6 +5103,8 @@
   "chatsNewChooseProject": "اختر مشروعًا",
   "chatsNewNeedProject": "اختر مشروعًا لبدء محادثة.",
   "chatsNewFailed": "لم تبدأ المحادثة. رسالتك ما زالت هنا.",
+  "chatsNewFailedTitle": "لم تبدأ المحادثة",
+  "chatsNewFailedReportHint": "يتضمّن «الإبلاغ عن مشكلة» هذه التفاصيل.",
   "shellTabChats": "المحادثات",
   "shellTabFiles": "الملفات",
   "discoverChatsAliases": "chats conversations sessions work home recent pinned inbox activity needs you approvals permissions questions forms المحادثات العمل الرئيسية الأخيرة المثبتة محادثة جديدة الوارد النشاط بانتظارك موافقات أذونات أسئلة نماذج قيد التشغيل منتهية",
@@ -5158,13 +5142,14 @@
   "agentsStepVersion": "الإصدار",
   "agentsStepConnection": "الاتصال",
   "agentsStepReady": "جاهز",
-  "agentsFailUnavailable": "لا يستطيع هذا الهاتف تشغيل هذا الوكيل بعد.",
+  "agentsFailUnavailable": "لا يستطيع هذا الهاتف تشغيل هذا الوكيل بعد. أعد الفحص، أو افتح التفاصيل لمعرفة السبب.",
+  "agentsResumeFailed": "لم يبدأ {agent} من جديد. اضغط استئناف للمحاولة مرة أخرى. إن لم يبدأ بعدها، شغّل فحص الهاتف له.",
   "agentsFailStorage": "تعذر حفظ هذا الإعداد. حرّر بعض المساحة وشغّله مرة أخرى.",
   "agentsFailInstall": "لم يُثبّت الوكيل. ثبّته مرة أخرى.",
   "agentsFailInterrupted": "توقف الإعداد قبل أن ينتهي. ثبّته مرة أخرى.",
   "agentsFailVersion": "لم يجتز الوكيل المثبّت فحص الإصدار.",
   "agentsFailDaemon": "لم يبدأ اتصال الوكيل.",
-  "agentsFailHello": "بدأ الوكيل لكنه لم يجب.",
+  "agentsFailHello": "لم يؤكد Paseo الاتصال. أعد المحاولة لإعادة تشغيله والتحقق مجددًا.",
   "agentsFailArchitecture": "هذا الوكيل لا يطابق معالج هذا الهاتف.",
   "agentsFailStale": "هذا الفحص قديم. شغّله مرة أخرى.",
   "agentsFailBusy": "إعداد آخر قيد التشغيل. انتظر حتى ينتهي.",
@@ -5374,7 +5359,7 @@
   "addServerConnectedHost": "متصل بـ {host}",
   "addServerCheckSlow": "لم يردّ {host} بعد. قد يستغرق الأمر بعض الوقت على شبكة بطيئة.",
   "addServerCheckCancel": "إيقاف التحقّق",
-  "addServerRemoteHttpAdvice": "يحتاج الحاسوب على شبكتك إلى عنوان https://. يمنحه Tailscale عنوانًا خاصًا لا تصل إليه إلا أجهزتك.",
+  "addServerRemoteHttpAdvice": "يتطلب HTTP البعيد إذنك الصريح. يُفضّل HTTPS أو اتصال Tailscale خاص.",
   "addServerUseTailscale": "استخدام Tailscale",
   "addServerStepsLabel": "تقدّم إضافة الخادم",
   "addServerStepKind": "ما الذي يعمل هناك",
@@ -6851,7 +6836,7 @@
   "serversRemoveDrafts": "{count, plural, =1{ستُحذف مسودة واحدة لم تُرسل} other{ستُحذف المسودات غير المرسلة وعددها {count}}}",
   "serversRemoveActiveNext": "أنت متصل به: يقطع التطبيق الاتصال ويعرض خوادمك",
   "serversRemoveServerKeeps": "لا يُحذف شيء على الخادم أو لدى مزوّدي الذكاء الاصطناعي",
-  "serverSettingsRestartCommandLabel": "هل أُعدّ باستخدام برنامج خدمة Linux؟",
+  "serverSettingsRestartCommandLabel": "تشغيل OpenCode 2 على هذا الكمبيوتر",
   "serverSettingsRestartedIt": "أعدت تشغيله",
   "serverSettingsUpgradeBody": "يثبّت OpenCode {target} على {server} (الإصدار الحالي {current}) باستخدام برنامج التثبيت الخاص بالخادم.",
   "serverSettingsUpgradeKeepsRunning": "يواصل الخادم تشغيل {current} أثناء التثبيت",
@@ -7321,6 +7306,7 @@
   "kitToolWaitingForYou": "بانتظارك",
   "kitToolDone": "مكتمل",
   "kitToolFailed": "فشل",
+  "kitToolDeclined": "رفضتَ هذا",
   "kitToolStopped": "متوقف",
   "kitToolBackground": "بدأ في الخلفية",
   "kitToolTookSeconds": "{count, plural, =1{ثانية واحدة} other{{count} من الثواني}}",
@@ -7349,11 +7335,9 @@
   "kitCapServerAnyWhy": "لا يوجد خادم بعد. أعدّ خادمًا على هذا الهاتف أو اتصل بحاسوب.",
   "kitCapServerAnyEnable": "إضافة خادم",
   "kitCapServerAnyOffer": "أضف خادمًا لبدء العمل مع وكيل.",
-  "kitCapServerOc1Title": "خادم OpenCode 1",
-  "kitCapServerOc1Why": "يحتاج إلى خادم هذا الهاتف أو حاسوب يشغّل OpenCode 1.",
   "kitCapServerOc2Title": "خادم OpenCode 2",
-  "kitCapServerOc2Why": "يحتاج إلى خادم يشغّل OpenCode 2. يمكن تحويل خادم هذا الهاتف إليه.",
-  "kitCapServerOc2Enable": "التبديل إلى OpenCode 2",
+  "kitCapServerOc2Why": "يحتاج إلى خادم يشغّل OpenCode 2.",
+  "kitCapServerOc2Enable": "الاتصال بـ OpenCode 2",
   "kitCapServerOc2Offer": "يحتاج هذا إلى OpenCode 2. هل تريد تحويل خادم هذا الهاتف إليه؟",
   "kitCapServerCodexTitle": "خادم Codex",
   "kitCapServerCodexWhy": "يحتاج إلى حاسوب يشغّل Codex.",
@@ -7455,7 +7439,6 @@
   "kitCapFlagPromptAttachmentsWhy": "لا يستطيع هذا الخادم قبول صور أو ملفات مع الطلب.",
   "kitHostThisPhone": "هذا الهاتف",
   "kitHostTermux": "Termux",
-  "kitHostOpenCode1": "الحواسيب التي تشغّل OpenCode 1",
   "kitHostOpenCode2": "الحواسيب التي تشغّل OpenCode 2",
   "kitHostCodex": "Codex",
   "kitHostPaseo": "Paseo",
@@ -7973,6 +7956,8 @@
   "migrationSourceBusy": "ينهي Termux الخطوة السابقة. حاول مجددًا بعد قليل.",
   "migrationUnsupportedFiles": "يحتوي هذا العنصر على ملفات لا يمكن نسخها بأمان.",
   "migrationUnsupportedFilesFix": "لا يمكن نسخ الروابط والمقابس وأشجار العمل في Git. أزلها في Termux وحاول مجددًا، أو انسخ ذلك المشروع يدويًا.",
+  "migrationLinkedFileUnreadableFix": "افتح Termux ونفّذ git fsck داخل ذلك المشروع لترى ما ينقص، ثم حاول مجددًا. لم يتغير شيء على هاتفك.",
+  "migrationLinkedFileUnreadable": "تعذّرت قراءة جزء من سجل Git لهذا المشروع في Termux، لذا لا يمكن نقله بأمان.",
   "migrationTooLarge": "يتجاوز هذا العنصر حد الحجم أو عدد الملفات المسموح به للنقل.",
   "migrationTooLargeFix": "يمكن أن يحتوي كل عنصر على ما يصل إلى 512 ميغابايت و20,000 ملف. احذف مجلدات البناء مثل node_modules في Termux، ثم حاول مجددًا.",
   "migrationVerificationFailed": "تعذّر التحقّق من النسخة. لم تتغيّر ملفاتك في Termux.",
@@ -8127,6 +8112,7 @@
   "productErrorUnexpected": "تعذّر على التطبيق فهم رد الخادم. حاول مجددًا، أو أبلغ عن المشكلة.",
   "productErrorDevice": "تعطّل شيء على هذا الجهاز. حاول مجددًا.",
   "productErrorStorage": "تعذّر على التطبيق قراءة ملف على هذا الجهاز أو حفظه.",
+  "productErrorProjectGit": "تعذّرت قراءة سجل Git لهذا المشروع، لذا لم تبدأ المحادثة. استعد المشروع من نسخة، أو انسخه من جديد.",
   "productErrorTermux": "لم يُكمل Termux هذا الإجراء. تحقّق من أن Termux مثبّت ومفتوح، ثم حاول مجددًا.",
   "productErrorDetailsLabel": "تفاصيل الخطأ",
   "productErrorServer": "واجه الخادم مشكلة (الخطأ {code}). حاول مجددًا بعد قليل.",
@@ -8302,7 +8288,7 @@
   "shareConnectionChanged": "تغيّر الخادم أو المشروع أثناء الفتح. حاول مجددًا.",
   "servicesStopConfirm": "إيقاف الخدمة",
   "servicesRestartConfirm": "إعادة تشغيل الخدمة",
-  "hostServiceTitle": "خدمة Linux لـ {server}",
+  "hostServiceTitle": "OpenCode على {server}",
   "hostServiceIntro": "تُشغّل هذه الأوامر على كمبيوتر {server}؛ انسخ كل أمر إلى طرفية هناك.",
   "lastKnownUpdatedJustNow": "حُدّثت الآن",
   "lastKnownUpdatedAgo": "حُدّثت منذ {ago}",
@@ -8422,6 +8408,7 @@
   "backgroundPauseUserStopped": "توقف الاتصال في الخلفية لأن التطبيق أُغلق {at}.",
   "backgroundPauseAppUpdated": "توقف الاتصال في الخلفية لأن التطبيق حُدِّث {at}.",
   "backgroundPauseInterrupted": "توقف الاتصال في الخلفية لسبب غير معروف.",
+  "backgroundPauseDeviceRestarted": "توقف الاتصال في الخلفية عند إعادة تشغيل الهاتف.",
   "backgroundPauseResume": "استئناف الاتصال في الخلفية",
   "backgroundPauseResumeShort": "استئناف",
   "backgroundPauseResuming": "جارٍ استئناف الاتصال في الخلفية…",
@@ -9592,7 +9579,7 @@
   "chatRequestAskCommand": "تشغيل هذا الأمر؟",
   "chatRequestAskEdit": "تعديل هذا الملف؟",
   "chatRequestAskRead": "قراءة هذا الملف؟",
-  "chatRequestAskDirectory": "فتح هذا المجلد؟",
+  "chatRequestAskDirectory": "العمل خارج هذا المشروع؟",
   "chatRequestAskFetch": "فتح صفحة الويب هذه؟",
   "usageBackAt": "تعود في {time}",
   "usageAlertsOnWord": "مفعّلة",
@@ -9668,7 +9655,7 @@
   "mentionProjectFolder": "مجلد المشروع",
   "thisPhoneHistoryMoving": "جارٍ نقل محادثاتك السابقة…",
   "thisPhoneHistoryMovingCount": "جارٍ نقل محادثاتك السابقة ({done} من {total})…",
-  "thisPhoneHistoryFailed": "تعذّر نقل محادثاتك السابقة. ما زالت محفوظة في OpenCode 1.",
+  "thisPhoneHistoryFailed": "تعذّر نقل محادثاتك السابقة. لا تزال بياناتها الأصلية على هذا الهاتف دون تغيير.",
   "inAppServerOwnershipRecoveryBody": "تعذّر إعادة تشغيل الخادم على هذا الهاتف بأمان. افتح إعدادات التطبيق، واضغط «فرض الإيقاف»، ثم افتح التطبيق مجددًا دون مسح التخزين؛ ستبقى محادثاتك.",
   "@inAppServerOwnershipRecoveryBody": {
     "description": "Process ownership could not be verified: safely stop the app through Android, preserving saved data."
@@ -10072,7 +10059,771 @@
   "widgetV2DictationUnavailable": "الإملاء غير متاح الآن. يمكنك الكتابة بدلاً من ذلك.",
   "widgetV2RestartUnavailable": "لا يمكن تغيير هذه المحادثة إلا من داخل التطبيق.",
   "phoneSetupErrorPackageRepair": "تحتاج بعض حزم Linux إلى إصلاح. تابع الإعداد للمحاولة مرة أخرى. توضح «التفاصيل» سبب التوقف.",
-  "setupSwitchSeparateHistoryDetail": "لدى OpenCode 2 محادثاته الخاصة بالفعل. تبقى محادثات OpenCode الأقدم فيه. لا يمكن التبديل عندما تكون هناك محادثات في كليهما. ابقَ على OpenCode الأقدم لمتابعة استخدام هذه المحادثات.",
-  "setupSwitchHistoryUnavailableDetail": "تعذّر التحقق من محادثاتك بأمان. ابقَ على OpenCode الأقدم وحاول مرة أخرى.",
-  "setupSwitchStay": "البقاء على OpenCode الأقدم"
+  "agentsFailNeedsSignIn": "تم تثبيت Claude Code. سجّل الدخول إلى حساب Claude لاستخدامه.",
+  "agentsFailHelperVersion": "يحتاج Paseo إلى تحديث قبل أن يتمكن هذا الوكيل من الاتصال. حدّثه وحاول مجددًا.",
+  "agentsFailTimeout": "استغرق الهاتف وقتًا طويلًا لإكمال الفحص. أعد المحاولة عندما ينخفض الضغط عليه.",
+  "agentsCheckRetry": "إعادة المحاولة",
+  "agentsCheckUpdateHelper": "تحديث Paseo وإعادة المحاولة",
+  "agentsCheckPrevious": "استخدام الإصدار السابق",
+  "agentsCheckPreviousNote": "لا يزال الإصدار {version} على هذا الهاتف. سنفحصه قبل استخدامه. يبقى تسجيل دخولك ومحادثاتك كما هي.",
+  "agentsCheckAgentChanged": "تغيّر إصدار الوكيل المطلوب. افحص هذا الهاتف مجددًا.",
+  "agentsCheckHelperChanged": "تغيّر إصدار Paseo المطلوب. افحص الاتصال مجددًا.",
+  "agentsCheckInstallChanged": "تغيّر إعداد الهاتف. افحصه مجددًا.",
+  "agentsCheckDownload": "جارٍ تنزيل {component} · {downloaded} من {total}",
+  "agentsCheckDownloadUnknown": "جارٍ تنزيل {component} · {downloaded}",
+  "agentsCheckDownloading": "جارٍ تنزيل {component}",
+  "agentsCheckPreparing": "جارٍ تجهيز {component}",
+  "agentsCheckPhoneTools": "أدوات الهاتف",
+  "phoneSetupErrorInterrupted": "توقف الإعداد قبل اكتماله. تابع الإعداد للمحاولة مجددًا. ستُحفظ الخطوات المكتملة.",
+  "agentErrorProviderAuth": "يحتاج مزوّد النموذج إلى تسجيل دخول صالح.",
+  "agentErrorProviderAuthHint": "افتح إعدادات المزوّد لتسجيل الدخول أو استبدال مفتاح API، ثم حاول مجددًا.",
+  "agentErrorUnknown": "تعذّر إكمال الطلب.",
+  "agentErrorUnknownHint": "تحقّق من المحادثة قبل الإرسال مجددًا. قد تساعد التفاصيل في توضيح ما حدث.",
+  "serverTrustHttpTitle": "هل تريد استخدام HTTP غير المشفّر؟",
+  "serverTrustHttpPublicBody": "عند استخدام عنوان HTTP العام هذا، تنتقل كلمة المرور والشيفرة دون تشفير ويمكن للآخرين على الشبكة قراءتها أو تغييرها. هذا خطر على شبكات Wi-Fi العامة؛ يُفضّل استخدام HTTPS أو اتصال Tailscale خاص.",
+  "serverTrustHttpAccept": "السماح باتصال HTTP لهذا الخادم",
+  "serverTrustCertificateTitle": "هل تثق بهذه الشهادة؟",
+  "serverTrustCertificateBody": "هذا الاتصال مشفّر، لكن هذا الجهاز لا يستطيع التحقق من جهة إصدار الشهادة أو اسم الخادم فيها. قارن بصمة SHA-256 هذه ببصمة خادمك عبر قناة منفصلة موثوقة ولا تثق بها إلا إذا تطابقتا؛ ستتطلب الاتصالات اللاحقة هذه الشهادة نفسها.",
+  "serverTrustCertificateChangedTitle": "تغيّرت شهادة الخادم",
+  "serverTrustCertificateChangedBody": "لم تعد الشهادة تطابق الشهادة التي وثقت بها، لذا حظر التطبيق الاتصال قبل إرسال كلمة المرور. قد يكون السبب تجديد الشهادة أو اعتراض الاتصال؛ أعد التحقق من البصمة مع مالك الخادم قبل الوثوق بالشهادة البديلة.",
+  "serverTrustCertificateInspect": "التحقق من الشهادة",
+  "serverTrustCertificateRecheck": "إعادة التحقق من الشهادة",
+  "serverTrustCertificateAccept": "الوثوق بهذه البصمة",
+  "serverTrustCertificateReplace": "الوثوق بالشهادة البديلة",
+  "serverTrustCertificatePinned": "يستخدم هذا الخادم بصمة الشهادة التي وثقت بها. سيُحظر الاتصال إذا تغيّرت الشهادة.",
+  "serverTrustCertificateFailed": "تعذّر التحقق من الشهادة. تحقق من العنوان والشبكة ثم حاول مجددًا. لم يتم الوثوق بأي شهادة.",
+  "serverTrustFingerprint": "بصمة SHA-256",
+  "serverTrustInvalidPort": "أدخل منفذ خادم بين 1 و65535.",
+  "serverTrustHttpUnconfirmed": "يستخدم هذا الخادم HTTP غير المشفّر ولم توافق على ذلك بعد. عدّل الخادم لمراجعة تحذير HTTP والموافقة عليه، أو استخدم HTTPS.",
+  "serverTrustProbeFailed": "تعذّر التحقق من الخادم. تحقق من العنوان وحاول مجددًا.",
+  "serverTrustPasswordRejected": "رُفضت كلمة المرور. تحقق من كلمة مرور الخادم وحاول مجددًا.",
+  "serverTrustCertificateValidity": "صالحة من {from} إلى {to}",
+  "@serverTrustCertificateValidity": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "serverTrustCertificateValidityError": "انتهت صلاحية شهادة الخادم أو لم تبدأ بعد. اطلب من مالك الخادم تجديدها أو تحقق من ساعة الجهاز قبل إعادة الاتصال.",
+  "devPreviewTitle": "المعاينة",
+  "devPreviewReload": "تحديث الصفحة",
+  "devPreviewOpenInBrowser": "فتح في المتصفح",
+  "devPreviewCopyAddress": "نسخ العنوان",
+  "devPreviewLoading": "جارٍ تحميل المعاينة",
+  "devPreviewFailedTitle": "لا شيء يردّ بعد",
+  "devPreviewFailedBody": "المنفذ {port} لا يستجيب. قد يكون التطبيق لا يزال يبدأ.",
+  "devPreviewRetry": "حاول مرة أخرى",
+  "devPreviewRemoteNote": "تُعرض المنفذ {port} على {host}. يجب أن يستمع خادم التطوير على 0.0.0.0 (كل العناوين) ليمكن الوصول إليه من هذا الهاتف.",
+  "devPreviewNoServerTitle": "اتصل بخادم أولاً",
+  "devPreviewNoServerBody": "الرابط إلى هذا الجهاز لا معنى له إلا على الجهاز الذي يشغّل التطبيق. اتصل بخادم أو افتح الرابط في المتصفح.",
+  "devPreviewNoHostTitle": "تعذّر العثور على هذا الخادم",
+  "devPreviewNoHostBody": "عنوان هذا الخادم غير مكتمل، لذا لا يمكن توجيه الرابط إليه. افتحه في المتصفح بدلاً من ذلك.",
+  "devPreviewUnsupportedTitle": "المعاينة غير متاحة هنا",
+  "devPreviewUnsupportedBody": "لا يستطيع هذا الجهاز عرض الصفحة داخل التطبيق. افتحها في المتصفح بدلاً من ذلك.",
+  "devPreviewMenu": "معاينة تطبيق قيد التشغيل",
+  "devPreviewMenuHint": "افتح خادم تطوير ذُكر في هذه المحادثة",
+  "devPreviewSheetSubtitle": "الخوادم المذكورة في هذه المحادثة",
+  "devPreviewPortTitle": "المنفذ {port}",
+  "devPreviewOnPhone": "على هذا الهاتف",
+  "devPreviewOnServer": "على {host}",
+  "openCode1UnsupportedTitle": "حدّث هذا الخادم",
+  "openCode1Unsupported": "يعمل هذا الخادم بإصدار OpenCode 1 الذي لم يعد هذا التطبيق يدعمه. حدّثه إلى OpenCode 2.",
+  "openCode2UpgradeTitle": "التحديث إلى OpenCode 2",
+  "openCode2UpgradeProgress": "جارٍ تحديث خادم هذا الهاتف ونقل محادثاتك معه. أبقِ التطبيق مفتوحًا.",
+  "openCode2UpgradeFailed": "تعذّر إكمال التحديث بأمان. لا تزال محادثات OpenCode 1 وملفاتك على هذا الهاتف دون تغيير. حاول مجددًا عندما يكون الخادم خاملًا وتتوفر مساحة كافية.",
+  "openCode2HostInstall": "تثبيت OpenCode 2 وتشغيله",
+  "openCode2HostInstallDetail": "يتطلب Node.js وnpm. يعمل على هذا الكمبيوتر فقط ويعرض كلمة المرور. أبقِ هذه الطرفية مفتوحة.",
+  "schedulePhoneBusy": "تستخدم مطالبة مجدولة خادم الهاتف. حاول مرة أخرى بعد انتهائها.",
+  "schedulePhoneCheckFailed": "تعذر التحقق من خادم الهاتف. حاول مرة أخرى.",
+  "scheduleTitle": "المطالبات المجدولة",
+  "scheduleCreate": "جدولة مطالبة",
+  "scheduleEdit": "تعديل الجدول",
+  "schedulePrompt": "المطالبة",
+  "scheduleTarget": "المحادثة",
+  "scheduleThisConversation": "هذه المحادثة",
+  "scheduleNewConversation": "محادثة جديدة في كل تشغيل",
+  "scheduleAgent": "الوكيل",
+  "scheduleWeekdays": "كل يوم عمل",
+  "scheduleEveryHours": "كل عدد من الساعات",
+  "scheduleOnce": "مرة واحدة",
+  "scheduleRepeat": "الموعد",
+  "scheduleTime": "الوقت",
+  "scheduleHours": "الساعات بين مرات التشغيل",
+  "scheduleNextRun": "التالي: {time}",
+  "@scheduleNextRun": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "scheduleSave": "حفظ الجدول",
+  "schedulePause": "إيقاف مؤقت",
+  "scheduleResume": "استئناف",
+  "scheduleDelete": "حذف الجدول",
+  "scheduleHistory": "سجل التشغيل",
+  "scheduleStarted": "بدأ",
+  "scheduleRunning": "قيد التشغيل",
+  "scheduleFailed": "فشل",
+  "scheduleSkipped": "تم التخطي",
+  "scheduleLate": "متأخر",
+  "schedulePaused": "متوقف مؤقتًا",
+  "scheduleFinished": "لا توجد مرات تشغيل أخرى",
+  "scheduleMissedRuns": "عند فوات موعد تشغيل",
+  "scheduleCatchUp": "تشغيل مرة واحدة عند التوفر",
+  "scheduleSkipMissed": "تخطي التشغيل الفائت",
+  "scheduleTimingNotice": "قد يؤخر Android التشغيل. يحسن إذن المنبهات الدقيقة التوقيت، مع بقاء الحاجة إلى اتصال بالشبكة. يؤدي إيقاف التطبيق إجباريًا إلى تعليق الجداول حتى تفتحه مجددًا.",
+  "scheduleExactAccess": "السماح بالمنبهات الدقيقة",
+  "scheduleBatteryNotice": "قد تؤخر قيود البطارية الجداول. لكل تشغيل حد زمني، ولا حاجة إلى إبقاء التطبيق مفتوحًا.",
+  "scheduleDigest": "الملخص الصباحي",
+  "scheduleDigestDescription": "إشعار بأعداد مرات التشغيل المجدولة منذ آخر ملخص.",
+  "scheduleEmpty": "لا توجد مطالبات مجدولة بعد",
+  "scheduleNoHistory": "لا توجد مرات تشغيل بعد",
+  "scheduleUnsupported": "المطالبات المجدولة غير متاحة لهذا الاتصال.",
+  "scheduleSaveFailed": "تعذر حفظ هذا التغيير. حاول مجددًا.",
+  "scheduleNeedsYou": "افتح المحادثة للرد على طلب.",
+  "scheduleBusy": "كانت المحادثة تعمل بالفعل.",
+  "scheduleUnavailable": "تعذر الوصول إلى الخادم. تأكد من أنه يعمل وأن هذا الهاتف يستطيع الوصول إليه.",
+  "scheduleSignInAgain": "يحتاج الخادم إلى كلمة المرور مجددًا. افتح الخادم وسجّل الدخول قبل التشغيل التالي.",
+  "scheduleAllowHttp": "يستخدم هذا الخادم HTTP غير المشفر ولم يُسمح به بعد. افتح الخادم واسمح بـ HTTP قبل التشغيل التالي.",
+  "scheduleAgentFailed": "توقف الوكيل بسبب خطأ. افتح المحادثة لمعرفة ما حدث.",
+  "scheduleCertificateChanged": "تغيرت شهادة الخادم. افتح الخادم وتحقق منها قبل التشغيل التالي.",
+  "scheduleCertificateInvalid": "شهادة الخادم منتهية الصلاحية أو لم تصبح صالحة بعد. افتح الخادم وتحقق منها قبل التشغيل التالي.",
+  "scheduleTargetChanged": "تغير الاتصال أو الهدف المحفوظ. عدّل هذا الجدول.",
+  "scheduleInterrupted": "انقطع التشغيل ولم تُرسل المطالبة مجددًا.",
+  "scheduleTimeout": "بلغ التشغيل حده الزمني. تحقق من المحادثة.",
+  "scheduleUncertain": "تعذر تأكيد التسليم. تحقق من المحادثة قبل الإرسال مجددًا.",
+  "scheduleMissed": "تم التخطي وفق اختيارك للمواعيد الفائتة.",
+  "scheduleInvalid": "أدخل مطالبة وموعدًا مستقبليًا، أو فترة من ساعة إلى 168 ساعة.",
+  "scheduleOptions": "التوقيت والتسليم",
+  "scheduleNotificationsOff": "الإشعارات معطلة. تبقى النتائج في سجل التشغيل.",
+  "scheduleDeleteBody": "ستُحذف مرات التشغيل المستقبلية وسجل هذا الجدول. تبقى المطالبات المرسلة في محادثاتها.",
+  "scheduleNotificationTitle": "بدأت مطالبة مجدولة",
+  "scheduleNotificationBody": "اضغط لفتح المحادثة",
+  "scheduleDigestTitle": "مرات التشغيل المجدولة",
+  "scheduleDigestBody": "بدأت {started} · فشلت {failed} · تم تخطي {skipped}",
+  "@scheduleDigestBody": {
+    "placeholders": {
+      "started": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "scheduleDefaultAgent": "الوكيل المحفوظ",
+  "scheduleProject": "المشروع",
+  "scheduleDeleteTitle": "هل تريد حذف هذا الجدول؟",
+  "scheduleToday": "اليوم، {time}",
+  "@scheduleToday": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "scheduleTomorrow": "غدًا، {time}",
+  "@scheduleTomorrow": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "scheduleInMinutes": "خلال {minutes} د",
+  "@scheduleInMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "scheduleEveryNHours": "كل {hours} ساعة",
+  "@scheduleEveryNHours": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "scheduleDeleteNamedTitle": "حذف «{name}»؟",
+  "@scheduleDeleteNamedTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "openCode2MoveProgress": "جارٍ نقل محادثاتك إلى OpenCode 2…",
+  "openCode2MoveRetrying": "الهاتف لا يزال يستعد. سنعيد المحاولة بعد قليل (المحاولة {retry} من {total}).",
+  "openCode2MoveFailedNotReady": "لم يكن الخادم على هذا الهاتف جاهزًا. محادثات OpenCode 1 وملفاتك لا تزال على هذا الهاتف دون أي تغيير. أعد المحاولة بعد دقيقة.",
+  "openCode2MoveFailedSeparateHistory": "يحتوي OpenCode 2 على هذا الهاتف على محادثات خاصة به، لذا توقف النقل لحماية الاثنين. لم يتغير أي شيء.",
+  "openCode2MoveFailedStopped": "توقف النقل قبل اكتماله، وغالبًا لأن مساحة الهاتف الفارغة قليلة أو الخادم مشغول. محادثات OpenCode 1 وملفاتك لا تزال على هذا الهاتف دون أي تغيير.",
+  "openCode2MoveFailedNotConfirmed": "لم يؤكد OpenCode 2 وصول محادثاتك. محادثات OpenCode 1 وملفاتك لا تزال على هذا الهاتف دون أي تغيير.",
+  "terminalLinkTitle": "رابط في الطرفية",
+  "terminalLinkOpen": "فتح الرابط",
+  "terminalLinkCopy": "نسخ الرابط",
+  "terminalCopiedToClipboard": "تم النسخ إلى الحافظة",
+  "chatRequestAskOutsideWrite": "الكتابة خارج هذا المشروع؟",
+  "chatRequestAskOutsideRead": "القراءة خارج هذا المشروع؟",
+  "chatRequestAskOutsideRun": "تشغيل أمر خارج هذا المشروع؟",
+  "phoneSetupStageRetrying": "توقف مؤقتًا. جارٍ المحاولة مجددًا",
+  "linuxMgrRow": "لينكس",
+  "linuxMgrRowDetail": "ما يعمل والمنافذ والمساحة والحزم في أوبونتو داخل هذا التطبيق",
+  "linuxMgrTitle": "لينكس على هذا الهاتف",
+  "linuxMgrRunning": "ما يعمل الآن",
+  "linuxMgrRunningDetail": "ما يعمل داخل لينكس وإيقافه",
+  "linuxMgrPorts": "المنافذ",
+  "linuxMgrPortsDetail": "ما يستمع على منفذ ومعاينته",
+  "linuxMgrStorage": "المساحة",
+  "linuxMgrStorageDetail": "أين تذهب المساحة ومسح الذاكرة المؤقتة",
+  "linuxMgrPackages": "الحزم",
+  "linuxMgrPackagesDetail": "البرامج المثبتة: تثبيت وإزالة وتحديث",
+  "linuxMgrRepair": "إصلاح لينكس",
+  "linuxMgrRepairDetail": "يفحص لينكس وOpenCode وأدواتك ويصلح ما تعطل. مشاريعك لا تُمس.",
+  "linuxMgrRepairTitle": "إصلاح لينكس؟",
+  "linuxMgrRepairBody": "يفحص لينكس وOpenCode والأدوات التي أضفتها ويعيد تثبيت ما هو مفقود أو معطل. يحتاج إلى اتصال وقد يستغرق عدة دقائق.",
+  "linuxMgrRepairKept": "مشاريعك وتسجيلات الدخول لا تُمس",
+  "linuxMgrReset": "إعادة ضبط لينكس",
+  "linuxMgrResetDetail": "ابدأ من جديد بنسخة أوبونتو نظيفة. مشاريعك تبقى.",
+  "linuxMgrResetTitle": "إعادة ضبط لينكس؟",
+  "linuxMgrResetBody": "يُمسح لينكس ويُعاد إعداده من الصفر. لا يمكن التراجع عن هذا.",
+  "linuxMgrResetLostTools": "الحزم والأدوات المثبتة: OpenCode وPython وAI Team والكتابة الصوتية",
+  "linuxMgrResetLostSignIns": "تسجيلات دخول الوكلاء وإعداداتها",
+  "linuxMgrResetLostChats": "المحادثات التي يحفظها الخادم على هذا الهاتف",
+  "linuxMgrResetKept": "مشاريعك تبقى على الهاتف",
+  "linuxMgrResetWord": "إعادة",
+  "linuxMgrProblemBusy": "مهمة أخرى تستخدم لينكس الآن. انتظر قليلا ثم حاول مرة أخرى.",
+  "linuxMgrProblemSetup": "الإعداد قيد التنفيذ. انتظر حتى ينتهي.",
+  "linuxMgrProblemJob": "مهمة حزم قيد التنفيذ. انتظر حتى تنتهي.",
+  "linuxMgrProblemUnavailable": "لينكس غير مُعد أو لا يستجيب. افتح هذا الهاتف لإعداده.",
+  "linuxMgrProblemFailed": "لم تكتمل العملية. حاول مرة أخرى.",
+  "linuxMgrLoadFailedTitle": "تعذرت قراءة لينكس",
+  "linuxMgrProcTitle": "ما يعمل في لينكس",
+  "linuxMgrProcSummary": "{count, plural, =1{برنامج واحد} two{برنامجان} few{{count} برامج} many{{count} برنامجا} other{{count} برنامج}} · {memory}",
+  "@linuxMgrProcSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "memory": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrKindServer": "خادم OpenCode",
+  "linuxMgrKindPaseo": "Paseo",
+  "linuxMgrKindAgent": "وكيل",
+  "linuxMgrKindDev": "خادم تطوير",
+  "linuxMgrKindOther": "أخرى",
+  "linuxMgrAboutServer": "خادم OpenCode الذي يتحدث إليه التطبيق. أوقفه من هذا الهاتف وليس من هنا.",
+  "linuxMgrAboutPaseo": "يشغل Paseo وكلاء البرمجة على هذا الهاتف. إيقافه ينهي الوكلاء الذين بدأهم.",
+  "linuxMgrAboutAgent": "وكيل برمجة أو جزء من AI Team. إيقافه ينهي عمله الجاري.",
+  "linuxMgrAboutDev": "برنامج يعرض مشروعك أثناء بنائه. شغله من المشروع مرة أخرى عند الحاجة.",
+  "linuxMgrAboutOther": "برنامج يعمل داخل لينكس. إيقافه ينهيه ولا شيء يعيد تشغيله.",
+  "linuxMgrProtected": "يُدار من هذا الهاتف",
+  "linuxMgrStopTitle": "إيقاف {name}؟",
+  "@linuxMgrStopTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrStopBody": "ينتهي الآن ولا شيء يعيد تشغيله. أي عمل غير محفوظ فيه يضيع.",
+  "linuxMgrStopHelpers": "{count, plural, =1{برنامج واحد بدأه يتوقف معه} two{برنامجان بدأهما يتوقفان معه} few{{count} برامج بدأها تتوقف معه} many{{count} برنامجا بدأها يتوقف معه} other{{count} برنامج بدأها يتوقف معه}}",
+  "@linuxMgrStopHelpers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linuxMgrStopLabel": "إيقاف {name}",
+  "@linuxMgrStopLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrStopping": "جارٍ الإيقاف…",
+  "linuxMgrStopped": "{count, plural, =1{تم إيقاف برنامج واحد} two{تم إيقاف برنامجين} few{تم إيقاف {count} برامج} many{تم إيقاف {count} برنامجا} other{تم إيقاف {count} برنامج}}",
+  "@linuxMgrStopped": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linuxMgrStopForced": "تطلب إيقاف {count} بالقوة",
+  "@linuxMgrStopForced": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linuxMgrStopRemaining": "تعذر إيقاف {count}",
+  "@linuxMgrStopRemaining": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linuxMgrStopChanged": "تغير {count} بالفعل فتُرك",
+  "@linuxMgrStopChanged": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linuxMgrNotStoppedTitle": "لم يتوقف كل شيء",
+  "linuxMgrProcEmpty": "لا شيء يعمل في لينكس",
+  "linuxMgrProcEmptyBody": "يبدأ OpenCode وأدواتك عند استخدامها.",
+  "linuxMgrCopyCommand": "نسخ الأمر",
+  "linuxMgrPortsTitle": "المنافذ في لينكس",
+  "linuxMgrPortRow": "المنفذ {port}",
+  "@linuxMgrPortRow": {
+    "placeholders": {
+      "port": {
+        "type": "int"
+      }
+    }
+  },
+  "linuxMgrPortUsedBy": "يستخدمه {name}",
+  "@linuxMgrPortUsedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrPortUnknown": "البرنامج غير معروف",
+  "linuxMgrPortLocal": "على هذا الهاتف فقط",
+  "linuxMgrPortAll": "مفتوح للأجهزة الأخرى على شبكتك",
+  "linuxMgrPortNotPage": "ليس صفحة ويب",
+  "linuxMgrPortPreview": "فتح المعاينة",
+  "linuxMgrPortPreviewNamed": "فتح معاينة المنفذ {port}",
+  "@linuxMgrPortPreviewNamed": {
+    "placeholders": {
+      "port": {
+        "type": "int"
+      }
+    }
+  },
+  "linuxMgrPortCopy": "نسخ العنوان",
+  "linuxMgrPortsNote": "تُعرض فقط المنافذ التي يستطيع هذا الهاتف فتحها.",
+  "linuxMgrPortsEmpty": "لا شيء يستمع على منفذ",
+  "linuxMgrPortsEmptyBody": "عندما يبدأ خادم تطوير يظهر منفذه هنا.",
+  "linuxMgrStorageTitle": "مساحة لينكس",
+  "linuxMgrStorageTotal": "مستخدم داخل لينكس: {size}",
+  "@linuxMgrStorageTotal": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrCatBase": "لينكس نفسه",
+  "linuxMgrCatBaseDetail": "أوبونتو وملفات النظام",
+  "linuxMgrCatPackages": "تنزيلات الحزم",
+  "linuxMgrCatPackagesDetail": "الحزم المنزلة وقوائم الحزم",
+  "linuxMgrCatTools": "Node والذاكرة المؤقتة",
+  "linuxMgrCatToolsDetail": "Node وnpm وتنزيلات الإعداد",
+  "linuxMgrCatAgents": "الوكلاء وOpenCode",
+  "linuxMgrCatAgentsDetail": "OpenCode وPaseo وClaude Code وAI Team وإعداداتها المحفوظة",
+  "linuxMgrCatProjects": "المشاريع",
+  "linuxMgrCatProjectsDetail": "عملك. لا يُمسح من هنا أبدا.",
+  "linuxMgrCatTemp": "الملفات المؤقتة والسجلات",
+  "linuxMgrCatTempDetail": "ملفات مؤقتة وسجلات البرامج",
+  "linuxMgrFreeUp": "تحرير مساحة",
+  "linuxMgrCleanApt": "مسح تنزيلات الحزم",
+  "linuxMgrCleanAptDetail": "ينزلها لينكس مرة أخرى إذا احتاج إليها",
+  "linuxMgrCleanTools": "مسح ذاكرة Node والتنزيلات المؤقتة",
+  "linuxMgrCleanToolsDetail": "تنزيلات npm والإعداد، تُجلب مرة أخرى عند الحاجة",
+  "linuxMgrCleanTemp": "مسح الملفات المؤقتة والسجلات القديمة",
+  "linuxMgrCleanTempDetail": "ملفات لم تُمس منذ يوم وسجلات أقدم من أسبوع",
+  "linuxMgrCleanAgents": "إزالة إصدارات الوكلاء القديمة",
+  "linuxMgrCleanAgentsDetail": "إصدارات Paseo التي لم تعد مستخدمة",
+  "linuxMgrCleanBody": "تعود مساحة نحو {size}. لا يمكن التراجع، ولا يُمس شيء من عملك.",
+  "@linuxMgrCleanBody": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrCleanKept": "المشاريع وتسجيلات الدخول والإعدادات تبقى",
+  "linuxMgrCleanDone": "تم تحرير {size}",
+  "@linuxMgrCleanDone": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrCleanNothing": "لم يكن هناك ما يُمسح",
+  "linuxMgrCleanNone": "لا شيء لمسحه الآن",
+  "linuxMgrMeasuring": "جارٍ القياس…",
+  "linuxMgrPkgTitle": "الحزم",
+  "linuxMgrPkgCount": "{count, plural, =1{حزمة واحدة مثبتة} two{حزمتان مثبتتان} few{{count} حزم مثبتة} many{{count} حزمة مثبتة} other{{count} حزمة مثبتة}}",
+  "@linuxMgrPkgCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linuxMgrPkgSearch": "ابحث في الحزم المثبتة",
+  "linuxMgrPkgNoMatch": "لا توجد حزمة مثبتة مطابقة",
+  "linuxMgrPkgShowAll": "عرض كل الحزم ({count})",
+  "@linuxMgrPkgShowAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linuxMgrPkgUpdate": "تحديث النظام",
+  "linuxMgrPkgUpdateDetail": "يحدث قوائم الحزم ويثبت التحديثات المتاحة",
+  "linuxMgrPkgUpdateTitle": "تحديث حزم لينكس؟",
+  "linuxMgrPkgUpdateBody": "ينزل أحدث التحديثات ويثبتها. يستخدم اتصالك وقد يستغرق عدة دقائق ويتوقف من تلقاء نفسه بعد 45 دقيقة.",
+  "linuxMgrPkgInstall": "تثبيت حزمة",
+  "linuxMgrPkgInstallDetail": "بالاسم، مثل htop",
+  "linuxMgrPkgName": "اسم الحزمة",
+  "linuxMgrPkgNameHelper": "أسماء حزم أوبونتو مفصولة بمسافات",
+  "linuxMgrPkgNameInvalid": "استخدم أحرفا صغيرة وأرقاما والرموز + - . فقط في كل اسم",
+  "linuxMgrPkgCheck": "تحقق",
+  "linuxMgrPkgAlready": "{name} مثبتة بالفعل",
+  "@linuxMgrPkgAlready": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrPkgUnknown": "لا توجد حزمة باسم {name}. تحديث النظام يحدث قائمة الحزم.",
+  "@linuxMgrPkgUnknown": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrPkgInstallTitle": "تثبيت {names}؟",
+  "@linuxMgrPkgInstallTitle": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrPkgInstallBody": "ينزل من أوبونتو ويثبت. يستخدم اتصالك.",
+  "linuxMgrPkgInstallLabel": "تثبيت {names}",
+  "@linuxMgrPkgInstallLabel": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrPkgRemove": "إزالة {name}",
+  "@linuxMgrPkgRemove": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrPkgRemoveTitle": "إزالة {name}؟",
+  "@linuxMgrPkgRemoveTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrPkgRemoveBody": "تُزال من لينكس. مشاريعك لا تُمس.",
+  "linuxMgrPkgAlsoRemoved": "تُزال أيضا: {list}",
+  "@linuxMgrPkgAlsoRemoved": {
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrPkgLocked": "يحتاج إليها لينكس أو أدواتك. تُزال الأدوات من هذا الهاتف.",
+  "linuxMgrPkgBlockedPlan": "إزالتها ستزيل أيضا {list} التي يحتاج إليها لينكس.",
+  "@linuxMgrPkgBlockedPlan": {
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrPkgChecking": "جارٍ فحص ما ستزيله…",
+  "linuxMgrJobInstalling": "جارٍ تثبيت {names}",
+  "@linuxMgrJobInstalling": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrJobRemoving": "جارٍ إزالة {names}",
+  "@linuxMgrJobRemoving": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrJobUpdating": "جارٍ تحديث حزم لينكس",
+  "linuxMgrJobKeepsGoing": "يستمر إذا غادرت هذه الصفحة.",
+  "linuxMgrJobStopInstall": "إيقاف تثبيت {names}",
+  "@linuxMgrJobStopInstall": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrJobStopRemove": "إيقاف إزالة {names}",
+  "@linuxMgrJobStopRemove": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrJobStopUpdate": "إيقاف التحديث",
+  "linuxMgrJobStopBody": "يتوقف الآن. تُصلح أي حزمة نصف مكتملة عند تشغيل مهمة حزم في المرة القادمة.",
+  "linuxMgrJobDoneInstall": "تم تثبيت {names}",
+  "@linuxMgrJobDoneInstall": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrJobDoneRemove": "تمت إزالة {names}",
+  "@linuxMgrJobDoneRemove": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrJobDoneUpdate": "حزم لينكس محدثة",
+  "linuxMgrJobFailed": "لم تكتمل العملية. لم يُمس شيء من عملك. حاول مرة أخرى وسيتابع من حيث توقف.",
+  "linuxMgrJobTimedOut": "استغرق أكثر من 45 دقيقة فتوقف من تلقاء نفسه. شغله مرة أخرى للمتابعة.",
+  "linuxMgrJobInterrupted": "توقف قبل أن ينتهي، مثلا عند إغلاق التطبيق. شغله مرة أخرى للمتابعة.",
+  "linuxMgrJobNoticeInstall": "جارٍ تثبيت حزم لينكس",
+  "linuxMgrJobNoticeRemove": "جارٍ إزالة حزم لينكس",
+  "linuxMgrJobNoticeUpdate": "جارٍ تحديث حزم لينكس",
+  "linuxMgrJobDismiss": "تم",
+  "linuxMgrJobStopInstallTitle": "إيقاف تثبيت {names}؟",
+  "@linuxMgrJobStopInstallTitle": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrJobStopRemoveTitle": "إيقاف إزالة {names}؟",
+  "@linuxMgrJobStopRemoveTitle": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrJobStopUpdateTitle": "إيقاف تحديث حزم لينكس؟",
+  "linuxMgrCleanAptAsk": "مسح تنزيلات الحزم؟",
+  "linuxMgrCleanToolsAsk": "مسح ذاكرة Node والتنزيلات المؤقتة؟",
+  "linuxMgrCleanTempAsk": "مسح الملفات المؤقتة والسجلات القديمة؟",
+  "linuxMgrCleanAgentsAsk": "إزالة إصدارات الوكلاء القديمة؟",
+  "kitLogSearch": "البحث في هذا الإخراج",
+  "kitLogPause": "إيقاف المتابعة مؤقتًا",
+  "kitLogFollow": "متابعة الإخراج الجديد",
+  "kitLogPreviousMatch": "النتيجة السابقة",
+  "kitLogNextMatch": "النتيجة التالية",
+  "servicesAlsoRunning": "قيد التشغيل أيضًا",
+  "servicesAlsoPhoneHint": "تم العثور عليها من المنافذ التي تستمع إليها، أيًا كانت طريقة تشغيلها.",
+  "servicesAlsoServerHint": "يعرض هذا الخادم الأوامر التي يشغّلها. لا يظهر هنا خادم بدأ من الطرفية.",
+  "servicesPorts": "{count, plural, =1{المنفذ {ports}} other{المنافذ {ports}}}",
+  "servicesNoPortYet": "لم يُعثر على منفذ بعد",
+  "servicesOpenPreview": "فتح المعاينة",
+  "servicesOpenPreviewNamed": "معاينة {name}",
+  "servicesPreviewPort": "معاينة المنفذ {port}",
+  "servicesSaveCommand": "حفظ كأمر",
+  "servicesStopFoundTitle": "إيقاف {name}؟",
+  "servicesStopFoundHint": "سيُنهي هذا البرنامج على الجهاز الذي يعمل عليه. وأي شيء لم يحفظه سيضيع.",
+  "servicesLogsUnavailable": "لم يبدأ هذا البرنامج من هذا التطبيق، لذلك لا يُحفظ إخراجه حيث يستطيع التطبيق قراءته. اختر «حفظ كأمر» في صفه، ثم أوقف هذا البرنامج وابدأ الأمر المحفوظ من هنا لرؤية سجلاته.",
+  "servicesStopFailed": "لم يتوقف. حاول مرة أخرى أو أوقفه من الطرفية.",
+  "devPreviewRunningNow": "قيد التشغيل الآن: {name}",
+  "devPreviewNoneFound": "لم يُعثر على تطبيقات قيد التشغيل",
+  "linuxMgrResetNotErasedTitle": "لم تتم إعادة ضبط لينكس",
+  "linuxMgrResetNotErasedBody": "لم يُمسح شيء. أغلق الطرفيات وأوقف ما يعمل في لينكس، ثم حاول مرة أخرى.",
+  "linuxMgrResetDetailsLabel": "رمز الخطأ",
+  "linuxMgrResetCleanupTitle": "إعادة إعداد لينكس",
+  "linuxMgrResetForgetFailed": "الاتصال المحفوظ «{name}» من قبل إعادة الضبط ما زال على هذا الهاتف.",
+  "linuxMgrResetLeft": "من قبل إعادة الضبط، ما زال لدى «{name}» محفوظًا: {what}.",
+  "linuxMgrResetLeftConnection": "اتصاله المحفوظ",
+  "servicesAlsoPhoneFailed": "تعذّر التحقق مما يعمل أيضًا في لينكس الآن. يُعاد التحقق خلال ثوانٍ.",
+  "linuxMgrProcGroupCount": "{count, plural, two{عمليتان} few{{count} عمليات} many{{count} عملية} other{{count} عملية}}",
+  "@linuxMgrProcGroupCount": {
+    "description": "Linux manager: one program row stands for several helper processes.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "gitRepairFailureWords": "تعذّرت قراءة سجل Git.",
+  "gitRepairAction": "إصلاح",
+  "gitRepairTitle": "إصلاح سجل Git",
+  "gitRepairWorking": "جارٍ إصلاح {project}…",
+  "gitRepairLooking": "جارٍ البحث عن ملفات Git المفقودة…",
+  "gitRepairRestoring": "جارٍ إرجاع {done} من {total} من ملفات Git…",
+  "gitRepairAskingTermux": "جارٍ نسخ {done} من {total} من ملفات Git من Termux…",
+  "gitRepairChecking": "جارٍ فحص المشروع باستخدام Git…",
+  "gitRepairDoneTitle": "تم إصلاح {project}",
+  "gitRepairDoneBody": "{count, plural, =1{عاد ملف Git واحد، ويمكن لـ Git قراءة المشروع من جديد.} other{عادت {count} من ملفات Git، ويمكن لـ Git قراءة المشروع من جديد.}}",
+  "gitRepairHealthyTitle": "لم يكن هناك شيء مفقود",
+  "gitRepairHealthyBody": "يمكن لـ Git قراءة {project} الآن.",
+  "gitRepairStart": "ابدأ المحادثة",
+  "gitRepairTermuxNotAllowedTitle": "الملفات في Termux",
+  "gitRepairTermuxNotAllowedBody": "اسمح للتطبيق بتشغيل الأوامر في Termux، وسيعيد نسخها.",
+  "gitRepairAllow": "اسمح وأصلح",
+  "gitRepairTermuxNoAnswerTitle": "لم يستجب Termux",
+  "gitRepairTermuxNoAnswerBody": "افتح Termux مرة ليبدأ، ثم عد إلى هنا وأصلح من جديد.",
+  "gitRepairAgain": "أصلح من جديد",
+  "gitRepairOpenTermux": "افتح Termux",
+  "gitRepairCannotTitle": "تعذّر إصلاح {project}",
+  "gitRepairMissingBody": "{count, plural, =1{لم يعد ملف Git واحد موجودًا على هذا الهاتف. انسخ المشروع من جديد من مكان استضافته، أو استعد نسخة منه.} other{لم تعد {count} من ملفات Git موجودة على هذا الهاتف. انسخ المشروع من جديد من مكان استضافته، أو استعد نسخة منه.}}",
+  "gitRepairStillBrokenBody": "ما زال Git لا يستطيع قراءته. انسخ المشروع من جديد من مكان استضافته، أو استعد نسخة منه.",
+  "gitRepairNotRepositoryTitle": "تعذّر إصلاح هذا المجلد",
+  "gitRepairNotRepositoryBody": "يمكن هنا إصلاح مشاريع Git الموجودة في مجلد المشاريع في Linux المدمج فقط.",
+  "gitRepairClose": "إغلاق",
+  "gitProblemNotARepository": "هذا المجلد ليس مستودع Git.",
+  "gitProblemGitMissing": "Git غير مثبّت حيث يوجد هذا المشروع. ثبّته هناك ثم حاول مجددًا.",
+  "gitProblemFolderMissing": "لم يُعثر على مجلد المشروع. ربما نُقل أو حُذف.",
+  "gitProblemEnvironmentUnavailable": "تعذّر الوصول إلى المكان الذي يوجد فيه هذا المشروع. تحقّق من أنه يعمل ثم حاول مجددًا.",
+  "gitProblemServerCannotRunCommands": "لا يستطيع هذا الخادم تشغيل أوامر Git للتطبيق.",
+  "gitProblemOutputTooLarge": "التغييرات أكثر من أن تُقرأ هنا. أودِع بعض الملفات أو نظّفها ثم حاول مجددًا.",
+  "gitProblemTimedOut": "استغرق Git وقتًا طويلًا للرد. حاول مجددًا.",
+  "gitProblemUnsafeRepository": "يرفض Git العمل في هذا المجلد لأن مستخدمًا آخر يملكه. أصلح مالك المجلد على ذلك الجهاز.",
+  "gitProblemRepositoryLocked": "أمر Git آخر يستخدم هذا المستودع. انتظر حتى ينتهي ثم حاول مجددًا.",
+  "gitProblemNoUpstream": "هذا الفرع غير مرتبط بفرع على المستودع البعيد بعد. ادفعه أولًا.",
+  "gitProblemNoRemote": "لا يوجد لهذا المستودع مستودع بعيد للدفع إليه. أضف واحدًا على ذلك الجهاز أولًا.",
+  "gitProblemDetachedHead": "أنت لست على أي فرع. انتقل إلى فرع أولًا.",
+  "gitProblemCannotFastForward": "في المستودع البعيد وفي هذا الفرع إيداعات جديدة، فلا يمكن جمعهما تلقائيًا. نفّذ merge أو rebase على ذلك الجهاز.",
+  "gitProblemPushRejected": "في المستودع البعيد إيداعات ليست في هذا الفرع. اسحب أولًا ثم ادفع مجددًا.",
+  "gitProblemLocalChangesBlock": "ستُستبدل تغييراتك غير المودَعة. أودِعها أو تجاهلها أولًا.",
+  "gitProblemAuthRequired": "يطلب المستودع البعيد تسجيل الدخول. اضبط تسجيل الدخول إلى Git حيث يوجد هذا المشروع ثم حاول مجددًا.",
+  "gitProblemAuthRequiredSignIn": "يطلب المستودع البعيد تسجيل الدخول. سجّل الدخول إلى GitHub ثم حاول مجددًا.",
+  "gitProblemGitHubTokenRejected": "لم يقبل GitHub تسجيل دخولك. سجّل الدخول إلى GitHub مجددًا.",
+  "gitProblemNoPermission": "لا يستطيع حسابك الدفع إلى هذا المستودع. اطلب الوصول من مالكه.",
+  "gitProblemNetwork": "تعذّر الوصول إلى المستودع البعيد. تحقّق من اتصال الإنترنت ثم حاول مجددًا.",
+  "gitProblemRemoteNotFound": "لم يُعثر على المستودع البعيد، أو أن حسابك لا يستطيع رؤيته.",
+  "gitProblemNothingSelected": "اختر ملفًا واحدًا على الأقل لإيداعه.",
+  "gitProblemEmptyMessage": "اكتب رسالة تصف الإيداع.",
+  "gitProblemNothingToCommit": "لا يوجد ما يُودَع في الملفات التي اخترتها.",
+  "gitProblemIdentityMissing": "يحتاج Git إلى اسمك وبريدك الإلكتروني لإنشاء إيداع. أضفهما ثم حاول مجددًا.",
+  "gitProblemSigningFailed": "تعذّر على Git توقيع الإيداع. تحقّق من إعداد توقيع الإيداعات على ذلك الجهاز.",
+  "gitProblemHookRejected": "أوقف فحص في هذا المستودع الإجراء. تعرض التفاصيل ما قاله.",
+  "gitProblemInvalidBranchName": "هذا ليس اسم فرع صالحًا. تجنّب المسافات والرموز مثل ~ ^ : ? * [",
+  "gitProblemBranchExists": "يوجد فرع بهذا الاسم بالفعل.",
+  "gitProblemBranchNotFound": "لم يُعثر على هذا الفرع.",
+  "gitProblemConflicts": "في بعض الملفات تعارضات. احلّها على ذلك الجهاز أولًا.",
+  "gitProblemOperationInProgress": "عملية merge أو rebase لم تكتمل. أكملها أو ألغها على ذلك الجهاز أولًا.",
+  "gitProblemCannotDiscardConflict": "لا يمكن تجاهل الملفات التي فيها تعارضات من هنا.",
+  "gitProblemUnknown": "تعذّر على Git الإكمال. تعرض التفاصيل ما قاله.",
+  "gitUnavailableNotConnected": "اتصل بخادم لرؤية تغييرات Git فيه.",
+  "gitUnavailableNoProject": "افتح مشروعًا لرؤية تغييرات Git فيه.",
+  "gitUnavailableServerCannotRun": "لا يستطيع هذا الخادم تشغيل Git للتطبيق. استخدم Git على ذلك الحاسوب بدلًا من ذلك.",
+  "gitNotRepositoryTitle": "ليس مستودع Git",
+  "gitNotRepositoryBody": "مجلد المشروع هذا لا يستخدم Git بعد.",
+  "gitCleanTitle": "لا توجد تغييرات",
+  "gitCleanBody": "كل شيء مودَع.",
+  "gitDetachedHead": "ليس على أي فرع",
+  "gitNotPushedYet": "لم يُدفع بعد",
+  "gitNoCommitsYet": "لا توجد إيداعات بعد",
+  "gitAhead": "{count, plural, =0{لا توجد إيداعات للدفع} =1{إيداع واحد للدفع} two{إيداعان للدفع} few{{count} إيداعات للدفع} many{{count} إيداعًا للدفع} other{{count} إيداع للدفع}}",
+  "gitBehind": "{count, plural, =0{لا توجد إيداعات للسحب} =1{إيداع واحد للسحب} two{إيداعان للسحب} few{{count} إيداعات للسحب} many{{count} إيداعًا للسحب} other{{count} إيداع للسحب}}",
+  "gitOperationMerge": "عملية merge لم تكتمل",
+  "gitOperationRebase": "عملية rebase لم تكتمل",
+  "gitOperationCherryPick": "عملية cherry-pick لم تكتمل",
+  "gitOperationRevert": "عملية revert لم تكتمل",
+  "gitUsesOwnSignIn": "يستخدم الدفع والسحب تسجيل الدخول إلى Git المضبوط مسبقًا حيث يوجد هذا المشروع.",
+  "gitChangeAdded": "مُضاف",
+  "gitChangeModified": "معدَّل",
+  "gitChangeDeleted": "محذوف",
+  "gitChangeRenamed": "معاد تسميته",
+  "gitChangeCopied": "منسوخ",
+  "gitChangeTypeChanged": "تغيّر نوعه",
+  "gitChangeUntracked": "جديد",
+  "gitChangeConflicted": "تعارض",
+  "gitActionPull": "سحب",
+  "gitActionPush": "دفع",
+  "gitActionCommit": "إيداع",
+  "gitActionSwitchBranch": "تبديل الفرع",
+  "gitActionCreateBranch": "فرع جديد",
+  "gitActionDiscard": "تجاهل التغييرات",
+  "gitActionRefresh": "تحديث",
+  "gitActionSaveIdentity": "حفظ الاسم والبريد",
+  "gitBusyPull": "جارٍ السحب…",
+  "gitBusyPush": "جارٍ الدفع…",
+  "gitBusyCommit": "جارٍ الإيداع…",
+  "gitBusySwitchBranch": "جارٍ تبديل الفرع…",
+  "gitBusyCreateBranch": "جارٍ إنشاء الفرع…",
+  "gitBusyDiscard": "جارٍ تجاهل التغييرات…",
+  "gitBusyRefresh": "جارٍ التحقق من التغييرات…",
+  "gitBusySaveIdentity": "جارٍ الحفظ…",
+  "gitDoneUpToDate": "محدَّث بالفعل.",
+  "gitDonePulled": "تم سحب أحدث الإيداعات.",
+  "gitDonePushed": "تم الدفع.",
+  "gitDonePushedTracking": "تم الدفع. أصبح هذا الفرع يتبع الفرع الموجود على المستودع البعيد.",
+  "gitDoneCommitted": "تم الإيداع {commit}.",
+  "gitDoneSwitched": "تم تبديل الفرع.",
+  "gitDoneCreated": "تم إنشاء الفرع والانتقال إليه.",
+  "gitDoneDiscarded": "تم تجاهل التغييرات.",
+  "gitDoneIdentitySaved": "تم حفظ اسمك وبريدك الإلكتروني لهذا المستودع.",
+  "gitDiscardConfirmTitle": "هل تريد تجاهل التغييرات في {file}؟",
+  "gitDiscardConfirmBody": "ستُحذف تغييراته من هذا الجهاز. لا يمكن التراجع عن ذلك.",
+  "gitCommitMessageHint": "صف ما الذي تغيّر",
+  "gitBranchNameHint": "اسم الفرع",
+  "gitIdentityName": "الاسم",
+  "gitIdentityEmail": "البريد الإلكتروني",
+  "gitHubSignIn": "تسجيل الدخول إلى GitHub",
+  "gitHubSignOut": "تسجيل الخروج من GitHub",
+  "gitHubSignedInAs": "تم تسجيل الدخول إلى GitHub باسم {login}",
+  "gitHubRequestingCode": "جارٍ الحصول على رمز تسجيل الدخول…",
+  "gitHubEnterCode": "أدخل هذا الرمز على GitHub لإكمال تسجيل الدخول.",
+  "gitHubOpenGitHub": "فتح GitHub",
+  "gitHubCopyCode": "نسخ الرمز",
+  "gitHubWaiting": "في انتظار إكمالك على GitHub…",
+  "gitHubFinishing": "جارٍ إكمال تسجيل الدخول…",
+  "gitHubCancel": "إلغاء",
+  "gitHubSignOutBody": "سينسى التطبيق تسجيل دخولك إلى GitHub على هذا الجهاز. لإزالة وصوله بالكامل، ألغِه على GitHub أيضًا.",
+  "gitHubManageAccess": "إدارة الوصول على GitHub",
+  "gitHubPushOverHttps": "يستخدم الدفع إلى GitHub تسجيل الدخول هذا عبر HTTPS. لا تتغيّر إعدادات SSH لديك.",
+  "gitHubProblemExpired": "انتهت صلاحية الرمز قبل إدخاله. سجّل الدخول مجددًا للحصول على رمز جديد.",
+  "gitHubProblemDenied": "أُلغي تسجيل الدخول على GitHub.",
+  "gitHubProblemDisabled": "تسجيل الدخول إلى GitHub غير مفعّل لهذا التطبيق بعد.",
+  "gitHubProblemNetwork": "تعذّر الوصول إلى GitHub. تحقّق من اتصال الإنترنت ثم حاول مجددًا.",
+  "gitHubProblemTokenRejected": "انتهى تسجيل دخولك إلى GitHub. سجّل الدخول مجددًا.",
+  "gitHubProblemUnexpected": "أرسل GitHub ردًا لم يفهمه التطبيق. حاول مجددًا."
 }

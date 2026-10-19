@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
+import androidx.annotation.RequiresApi
 import android.util.SizeF
 import android.widget.RemoteViews
 
@@ -18,7 +19,7 @@ import android.widget.RemoteViews
  * older than [UsageWidgetPlans.STALE_AFTER_MS] (or past a reset) are labelled "Updated 2h ago"
  * instead of being shown as current. A tap opens Usage -> Remaining.
  */
-class UsageWidgetProvider : AppWidgetProvider() {
+open class UsageWidgetProvider : AppWidgetProvider() {
 
     override fun onUpdate(
         context: Context,
@@ -57,9 +58,10 @@ class UsageWidgetProvider : AppWidgetProvider() {
         /** Redraws every placed widget; called after a snapshot write. */
         fun refreshAll(context: Context) {
             val manager = AppWidgetManager.getInstance(context)
-            val ids = manager.getAppWidgetIds(
-                ComponentName(context, UsageWidgetProvider::class.java)
-            )
+            // Every picker entry (2x2 and wide) is its own receiver: redraw all of them.
+            val ids = WidgetProviders.usage.flatMap {
+                manager.getAppWidgetIds(ComponentName(context, it)).toList()
+            }
             if (ids.isEmpty()) return
             for (id in ids) {
                 manager.updateAppWidget(
@@ -79,17 +81,38 @@ class UsageWidgetProvider : AppWidgetProvider() {
             return options.getInt(key, 0)
         }
 
-        private fun responsiveViews(context: Context, widgetId: Int, options: Bundle): RemoteViews {
+        private fun responsiveViews(context: Context, widgetId: Int, options: Bundle): RemoteViews =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                val variants = linkedMapOf<SizeF, RemoteViews>()
-                for (width in listOf(UsageWidgetFit.MIN_WIDTH_DP, UsageWidgetFit.TWO_COLUMNS_WIDTH_DP)) {
-                    for (height in listOf(COMPACT_HEIGHT_DP, SHORT_HEIGHT_DP, MEDIUM_HEIGHT_DP, TALL_HEIGHT_DP)) {
-                        variants[SizeF(width.toFloat(), height.toFloat())] =
-                            buildViews(context, widgetId, width, height)
-                    }
-                }
-                return RemoteViews(variants)
+                sizedViews(context, widgetId, options)
+            } else {
+                legacyViews(context, widgetId, options)
             }
+
+        @RequiresApi(Build.VERSION_CODES.S)
+        private fun sizedViews(context: Context, widgetId: Int, options: Bundle): RemoteViews {
+            @Suppress("DEPRECATION")
+            val launcherSizes = options.getParcelableArrayList<SizeF>(AppWidgetManager.OPTION_APPWIDGET_SIZES)
+            val now = WidgetSizePolicy.currentSize(
+                WidgetSizePolicy.launcherSizes(launcherSizes.orEmpty().map { it.width to it.height }),
+                context.resources.configuration.orientation != Configuration.ORIENTATION_LANDSCAPE,
+                WidgetSizePolicy.Bounds(
+                    options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 0),
+                    options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, 0),
+                    options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 0),
+                    options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 0)))
+            // One render for the size it has now (see SessionsWidgetProvider.buildViews).
+            if (now != null) return buildViews(context, widgetId, now.first, now.second)
+            val variants = linkedMapOf<SizeF, RemoteViews>()
+            for (width in listOf(UsageWidgetFit.MIN_WIDTH_DP, UsageWidgetFit.TWO_COLUMNS_WIDTH_DP)) {
+                for (height in listOf(COMPACT_HEIGHT_DP, SHORT_HEIGHT_DP, MEDIUM_HEIGHT_DP, TALL_HEIGHT_DP)) {
+                    variants[SizeF(width.toFloat(), height.toFloat())] =
+                        buildViews(context, widgetId, width, height)
+                }
+            }
+            return RemoteViews(variants)
+        }
+
+        private fun legacyViews(context: Context, widgetId: Int, options: Bundle): RemoteViews {
             val portrait = context.resources.configuration.orientation != Configuration.ORIENTATION_LANDSCAPE
             val widthKey = if (portrait) AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH
             else AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH

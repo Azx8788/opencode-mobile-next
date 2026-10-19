@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/server_probe.dart';
+import 'package:opencode_mobile/domain/server_probe.dart';
 import 'package:opencode_mobile/builtin/app_exit_recovery.dart';
 import 'package:opencode_mobile/builtin/builtin_linux.dart';
 import 'package:opencode_mobile/builtin/builtin_server.dart';
@@ -436,6 +436,21 @@ void main() {
       expect(restartActs, hasLength(1));
     });
 
+    test('a stop of an idle app is not a problem; a crash or a stop that '
+        'took the server still is', () async {
+      final idle = AppDiagnosticsController();
+      await run(_report(_ownerRecord, const []), diagnostics: idle);
+      expect(idle.entries, isEmpty);
+
+      final crashed = AppDiagnosticsController();
+      await run(_report(_record(4), const []), diagnostics: crashed);
+      expect(crashed.entries.single.source, 'android.exit');
+
+      final took = AppDiagnosticsController();
+      await run(_report(_ownerRecord, ['server']), diagnostics: took);
+      expect(took.entries.single.source, 'android.exit');
+    });
+
     test('nothing was running: no notice and nothing started', () async {
       final recovery = await run(_report(_ownerRecord, const []));
       expect(recovery.notice, isNull);
@@ -864,10 +879,7 @@ void main() {
     ) async {
       final opened = await mountScreen(tester, manufacturer: 'nubia');
       final l10n = lookupAppLocalizations(const Locale('en'));
-      expect(
-        find.text(l10n.keepRunningIntro(KitBidi.auto('nubia'))),
-        findsOneWidget,
-      );
+      expect(find.text(l10n.keepRunningIntro), findsOneWidget);
       expect(find.text(l10n.keepRunningSwipeWarning), findsOneWidget);
       expect(find.text(l10n.keepRunningLockNubia), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('keep-running-autostart')));
@@ -938,12 +950,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       final l10n = lookupAppLocalizations(const Locale('en'));
-      expect(
-        find.text(
-          l10n.keepRunningIntro(KitBidi.auto(l10n.keepRunningThisPhone)),
-        ),
-        findsOneWidget,
-      );
+      expect(find.text(l10n.keepRunningIntro), findsOneWidget);
       expect(find.text(l10n.keepRunningBatteryTitle), findsOneWidget);
     });
   });

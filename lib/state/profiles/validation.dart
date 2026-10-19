@@ -47,12 +47,10 @@ String plainServerName(String name) {
   return (host: host, authority: raw);
 }
 
-/// Validates the transport boundary used by both profile editing and connect.
-/// Android only permits cleartext traffic to the Termux loopback names in
-/// [isLoopbackHost]. Expands a pasted bare address into a full server URL so
-/// setup does not require knowing URL syntax. `host[:port]` and bare IPs
-/// (v4 and v6) gain a scheme: loopback becomes `http://` (the only place
-/// HTTP is allowed) and everything else becomes `https://`. Values that
+/// Expands a pasted bare address into a full server URL so setup does not
+/// require knowing URL syntax. `host[:port]` and bare IPs (v4 and v6) gain a
+/// scheme: loopback becomes `http://` and everything else becomes `https://`.
+/// An explicit HTTP choice is never inferred for a remote server. Values that
 /// already carry a scheme, and values that are not a plausible single
 /// address, come back unchanged for the validator to explain.
 String normalizeServerProfileUrl(String value) {
@@ -74,64 +72,73 @@ String? validateServerProfileUrl(
   final raw = value.trim();
   if (raw.isEmpty) return 'Enter a server URL.';
   if (!raw.contains('://')) {
-    return 'Include https://. Plain http:// works only on this device or a '
-        'private network address.';
+    return 'Include https:// or http:// in the server address.';
   }
   final uri = Uri.tryParse(raw);
   if (uri == null || !uri.hasScheme || uri.host.isEmpty) {
     return 'Enter a complete server URL, such as https://server.example:4096.';
   }
   if (uri.scheme != 'https' && uri.scheme != 'http') {
-    // Both builds allow http only on loopback; only one of them reaches that
-    // loopback through Termux, so only one says so.
-    return platformCapabilities.supportsTermux
-        ? 'Server URLs must use https://, or http:// for local Termux.'
-        : 'Server URLs must use https://, or http:// for a local server.';
+    return 'Server URLs must use https:// or http://.';
   }
-  if (uri.userInfo.isNotEmpty) {
+  // Uri normalizes away empty user-info and empty ports. Inspect the input
+  // authority too, so those forms cannot bypass the form's strict policy.
+  final authority = raw
+      .substring(raw.indexOf('://') + 3)
+      .split(RegExp(r'[/?#]'))
+      .first;
+  final int port;
+  try {
+    port = uri.port;
+  } on FormatException {
+    return 'Enter a server port between 1 and 65535.';
+  }
+  if (port < 1 || port > 65535 || authority.endsWith(':')) {
+    return 'Enter a server port between 1 and 65535.';
+  }
+  if (RegExp(r'\s').hasMatch(uri.host) ||
+      uri.host.contains('%') ||
+      raw.contains(r'\') ||
+      _containsControlCharacter(raw)) {
+    return 'Enter a complete server URL, such as https://server.example:4096.';
+  }
+  if (uri.userInfo.isNotEmpty || authority.contains('@')) {
     return 'Do not put credentials in the URL. Use the fields below.';
   }
-  if (uri.query.isNotEmpty || uri.fragment.isNotEmpty) {
+  if (uri.hasQuery || uri.hasFragment) {
     return 'Remove query parameters and fragments from the server URL.';
   }
   if (uri.path.isNotEmpty && uri.path != '/') {
     return 'Remove the path from the server URL. Enter only its origin.';
-  }
-  if (uri.scheme == 'http' &&
-      !isLoopbackHost(uri.host) &&
-      !isPrivateNetworkHost(uri.host)) {
-    if (username.trim().isNotEmpty || password.isNotEmpty) {
-      return 'HTTPS is required outside this device. Basic credentials must never be sent over HTTP.';
-    }
-    return 'HTTP is allowed only for localhost, 127.0.0.1, [::1], or a '
-        'private network address. Use HTTPS or Tailscale for other servers.';
   }
   return null;
 }
 
 /// What a connect says when a saved plain-HTTP server was never confirmed.
 const cleartextUnconfirmedMessage =
-    'This server uses plain HTTP on your network, and you have not confirmed '
+    'This server uses plain HTTP, and you have not confirmed '
     'that yet. Edit the server and choose Use it anyway, or use HTTPS.';
 
-/// True when [url] is plain HTTP to a private network address: accepted by
-/// [validateServerProfileUrl], but only after the person has confirmed that
-/// the password and conversation travel unencrypted there. Loopback, and
-/// everything over HTTPS, never need it.
+/// Every non-loopback HTTP origin requires the person's explicit choice
+/// before a probe or an authenticated request. URL validity is separate from
+/// transport consent; a public host is never implicitly trusted.
 bool serverUrlNeedsCleartextConfirmation(String url) {
   final uri = Uri.tryParse(url.trim());
   return uri != null &&
       uri.scheme.toLowerCase() == 'http' &&
       uri.host.isNotEmpty &&
-      !isLoopbackHost(uri.host) &&
-      isPrivateNetworkHost(uri.host);
+      !isLoopbackHost(uri.host);
 }
 
 /// The origin a cleartext confirmation is recorded against, so a changed
 /// address asks again. Null when [url] is not a usable URL.
 String? cleartextOriginOf(String url) {
   final uri = Uri.tryParse(url.trim());
-  if (uri == null || uri.host.isEmpty) return null;
+  if (uri == null ||
+      uri.host.isEmpty ||
+      validateServerProfileUrl(url) != null) {
+    return null;
+  }
   final host = uri.host.contains(':') ? '[${uri.host}]' : uri.host;
   return '${uri.scheme.toLowerCase()}://${host.toLowerCase()}:${uri.port}';
 }

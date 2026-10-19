@@ -1,9 +1,9 @@
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/automation_policy.dart';
 import 'package:opencode_mobile/domain/while_away.dart';
@@ -14,7 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Records every permission reply on both protocol paths. [hold] keeps a
 /// reply on the wire so the in-flight state can be observed; [fail] makes
 /// the server refuse it.
-class _FakeApi extends OpenCodeApi {
+class _FakeApi extends FakeServerGateway {
   _FakeApi() : super(baseUrl: 'http://localhost');
 
   final legacyReplies = <({String requestID, String reply, String? session})>[];

@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
 import 'package:opencode_mobile/api2/events.dart';
 import 'package:opencode_mobile/api2/gateway_events.dart';
 import 'package:opencode_mobile/api2/gateway_mappers.dart';
@@ -35,7 +35,8 @@ Session _session(
   ),
 );
 
-class SelectionApi extends OpenCodeApi implements SessionSelectionGateway {
+class SelectionApi extends FakeServerGateway
+    implements SessionSelectionGateway {
   // Selection-only fake has no durable client-ID prompt endpoint.
   @override
   ServerCapabilities get capabilities => const ServerCapabilities();

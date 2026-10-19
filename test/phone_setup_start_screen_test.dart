@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,6 +22,7 @@ import 'package:opencode_mobile/voice/device.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/fake_setup_engine.dart';
+import 'support/voice_setup_fakes.dart' show FakeSetupApp;
 
 /// Saved profiles without the real secure-storage channel.
 class _SeededStore extends ProfileStore {
@@ -749,6 +752,184 @@ void main() {
       await tester.pumpAndSettle();
       expect(result, {'linux', 'essentials', 'node', 'opencode'});
     });
+
+    testWidgets(
+      'Add tools refreshes installed rows after install and removal',
+      (tester) async {
+        final harness = _Harness();
+        final controller = await _controller();
+        addTearDown(controller.dispose);
+        await tester.pumpWidget(
+          _app(controller, home: launcher(addMode: true, onResult: (_) {})),
+        );
+        await tester.tap(find.text('open'));
+        await tester.pumpAndSettle();
+        final python = find.byKey(
+          const ValueKey('phone-setup-customize-python'),
+        );
+        await tester.tap(python);
+        await tester.pumpAndSettle();
+        expect(tester.widget<KitSwitchRow>(python).value, isTrue);
+
+        harness.engine.optionalInstalled = {'python'};
+        setupToolsChanged.value++;
+        await tester.pumpAndSettle();
+        expect(
+          find.descendant(of: python, matching: find.text('Installed')),
+          findsOneWidget,
+        );
+
+        harness.engine.optionalInstalled = {};
+        setupToolsChanged.value++;
+        await tester.pumpAndSettle();
+        expect(
+          find.descendant(of: python, matching: find.text('Installed')),
+          findsNothing,
+        );
+        expect(tester.widget<KitSwitchRow>(python).value, isFalse);
+        expect(tester.widget<KitSwitchRow>(python).onChanged, isNotNull);
+        await tester.pumpWidget(const SizedBox.shrink());
+      },
+    );
+
+    testWidgets('removing voice in Add tools refreshes its shared inventory', (
+      tester,
+    ) async {
+      final voice = FakeSetupApp(installed: true);
+      final controller = await _controller();
+      addTearDown(controller.dispose);
+      var reads = 0;
+      await tester.pumpWidget(
+        _app(
+          controller,
+          home: Scaffold(
+            body: SetupCustomizeSheet(
+              registry: [
+                SetupComponent(
+                  id: 'voice',
+                  title: 'Voice typing',
+                  shortTitle: 'Voice typing',
+                  checkScript: '',
+                  installScript: '',
+                  app: voice,
+                ),
+              ],
+              addMode: true,
+              loadInstalledOptional: () async {
+                reads++;
+                return {if (voice.installed) 'voice'};
+              },
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final row = find.byKey(const ValueKey('phone-setup-customize-voice'));
+      expect(
+        find.descendant(of: row, matching: find.text('Installed')),
+        findsOneWidget,
+      );
+      final before = setupToolsChanged.value;
+      await tester.tap(
+        find.byKey(const ValueKey('phone-setup-customize-remove-voice')),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.byKey(
+          const ValueKey('phone-setup-customize-remove-voice-confirm'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(voice.removes, 1);
+      expect(setupToolsChanged.value, before + 1);
+      expect(reads, 2);
+      expect(
+        find.descendant(of: row, matching: find.text('Installed')),
+        findsNothing,
+      );
+      expect(tester.widget<KitSwitchRow>(row).onChanged, isNotNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+
+    testWidgets('Add tools retries an unknown inventory without enabling Add', (
+      tester,
+    ) async {
+      final harness = _Harness();
+      final first = Completer<void>();
+      harness.engine.optionalGate = first.future;
+      final controller = await _controller();
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(
+        _app(controller, home: launcher(addMode: true, onResult: (_) {})),
+      );
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      first.completeError(StateError('inventory unavailable'));
+      await tester.pumpAndSettle();
+      expect(
+        find.text('Could not check the installed environment.'),
+        findsOneWidget,
+      );
+      final python = find.byKey(const ValueKey('phone-setup-customize-python'));
+      expect(tester.widget<KitSwitchRow>(python).onChanged, isNull);
+      final add = find.descendant(
+        of: find.byKey(const ValueKey('phone-setup-customize-done')),
+        matching: find.byType(FilledButton),
+      );
+      expect(tester.widget<FilledButton>(add).onPressed, isNull);
+
+      harness.engine
+        ..optionalInstalled = {'python'}
+        ..optionalGate = null;
+      await tester.tap(find.text('Try again'));
+      await tester.pumpAndSettle();
+      expect(
+        find.descendant(of: python, matching: find.text('Installed')),
+        findsOneWidget,
+      );
+      expect(
+        find.text('Could not check the installed environment.'),
+        findsNothing,
+      );
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+
+    testWidgets(
+      'Add tools ignores a late read and keeps inventory on failure',
+      (tester) async {
+        final harness = _Harness();
+        final beforeInstall = Completer<void>();
+        harness.engine.optionalGate = beforeInstall.future;
+        final controller = await _controller();
+        addTearDown(controller.dispose);
+        await tester.pumpWidget(
+          _app(controller, home: launcher(addMode: true, onResult: (_) {})),
+        );
+        await tester.tap(find.text('open'));
+        await tester.pumpAndSettle();
+
+        harness.engine
+          ..optionalInstalled = {'python'}
+          ..optionalGate = null;
+        setupToolsChanged.value++;
+        await tester.pumpAndSettle();
+        beforeInstall.complete();
+        await tester.pumpAndSettle();
+        final installed = find.descendant(
+          of: find.byKey(const ValueKey('phone-setup-customize-python')),
+          matching: find.text('Installed'),
+        );
+        expect(installed, findsOneWidget);
+
+        final failed = Completer<void>();
+        harness.engine.optionalGate = failed.future;
+        setupToolsChanged.value++;
+        failed.completeError(StateError('inventory unavailable'));
+        await tester.pumpAndSettle();
+        expect(installed, findsOneWidget);
+        await tester.pumpWidget(const SizedBox.shrink());
+      },
+    );
 
     testWidgets(
       'add mode offers only optional tools and returns the new ones',

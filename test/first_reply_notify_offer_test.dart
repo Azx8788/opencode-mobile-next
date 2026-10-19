@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/background/live_background.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -50,7 +50,7 @@ Future<(ConnectionController, _Native)> _controller(
             invoke: native.call,
           ),
         )
-        ..api = OpenCodeApi(baseUrl: 'http://localhost')
+        ..api = FakeServerGateway(baseUrl: 'http://localhost')
         ..status = StreamStatus.connected;
   addTearDown(controller.dispose);
   return (controller, native);

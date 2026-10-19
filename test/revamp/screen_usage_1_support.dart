@@ -7,7 +7,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import '../support/fake_server_gateway.dart';
 import 'package:opencode_mobile/demo/demo_store.dart';
 import 'package:opencode_mobile/domain/agent_account.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
@@ -132,7 +132,7 @@ class AccountStore extends ProfileStore {
   String? get activeId => saved.id;
 }
 
-class AccountGateway extends OpenCodeApi implements AgentAccountGateway {
+class AccountGateway extends FakeServerGateway implements AgentAccountGateway {
   AccountGateway({this.accountEnabled = true, this.prepare})
     : super(baseUrl: 'https://fixture.invalid');
   final bool accountEnabled;

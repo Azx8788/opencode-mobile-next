@@ -1,8 +1,9 @@
 part of 'kit_composer.dart';
 
 /// A failed send, in the composer's top row: neutral words after the neutral
-/// error glyph, Retry, and Details when there is technical text (LOOK-5, B2:
-/// a failure is never red). The words are a live region.
+/// error glyph, Retry (or the failure's own fix in its place), and Details
+/// when there is technical text (LOOK-5, B2: a failure is never red). The
+/// words are a live region.
 class _FailureRow extends StatelessWidget {
   const _FailureRow({required this.failure});
 
@@ -40,16 +41,20 @@ class _FailureRow extends StatelessWidget {
             ),
           ),
           KitTappable(
-            tappableKey: failure.retryKey,
-            label: l10n.kitComposerRailRetry,
+            tappableKey: failure.onAction != null
+                ? failure.actionKey
+                : failure.retryKey,
+            label: failure.actionLabel ?? l10n.kitComposerRailRetry,
             shape: KitShape.button,
-            onTap: failure.onRetry,
+            onTap: failure.onAction ?? failure.onRetry,
             child: SizedBox(
               height: tokens.minTarget - 8,
               child: Center(
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: tokens.space2),
-                  child: text('· ${l10n.kitComposerRailRetry}'),
+                  child: text(
+                    '· ${failure.actionLabel ?? l10n.kitComposerRailRetry}',
+                  ),
                 ),
               ),
             ),

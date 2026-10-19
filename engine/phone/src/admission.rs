@@ -258,8 +258,8 @@ mod tests {
             guest_worker_root: "/root/aiteam/work/test".into(),
             port: 4100,
             auth_token_file: root.join("unused-token"),
-            oc1_credential_file: root.join("unused-credential"),
-            oc1_base_url: "http://127.0.0.1:4097".into(),
+            server_credential_file: root.join("unused-credential"),
+            server_base_url: "http://127.0.0.1:4097".into(),
             source_roots: vec![],
             boundary: crate::config::Boundary {
                 verified: false,

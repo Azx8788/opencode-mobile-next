@@ -1,4 +1,4 @@
-import '../../api/models.dart';
+import '../../domain/models.dart';
 import '../chat_feed.dart';
 import 'gen_ui_answers.dart';
 import 'gen_ui_status.dart';

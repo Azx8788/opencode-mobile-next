@@ -1,4 +1,4 @@
-import '../api/models.dart';
+import '../domain/models.dart';
 import 'server_gateway.dart';
 
 /// A point-in-time count for the exact reviewed staged boundary.

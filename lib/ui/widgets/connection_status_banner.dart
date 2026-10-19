@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 
 import '../../domain/connection_status.dart';
+import '../../domain/server_probe.dart' show openCode2UpgradeCommand;
 import '../../state/connection.dart';
 import '../../state/profiles.dart' show ServerProfile;
 import '../../l10n/app_localizations.dart';
@@ -21,6 +22,7 @@ KitStatus? connectionKitStatus(
   bool showChangeServer = true,
   String? note,
   bool serverOnThisPhone = false,
+  bool phoneSetupRunning = false,
   Future<void> Function()? onRestartServer,
   VoidCallback? onRecoverOwnership,
   BuildContext? Function()? actionContext,
@@ -44,6 +46,31 @@ KitStatus? connectionKitStatus(
     );
   }
   if (!snapshot.visible) return null;
+  // A changed certificate is its own state: the connection screen and the
+  // server editor say so and offer Re-check and trust. "Isn't answering"
+  // on top of that would contradict them, so no connection line is shown.
+  if ([
+    controller.connectionError,
+    controller.lastError,
+    controller.lastFailure?.toString(),
+  ].any(
+    (text) => text?.toLowerCase().contains('certificate changed') == true,
+  )) {
+    return null;
+  }
+  // Setting this phone's Linux up again (a reset): the server is not meant
+  // to answer yet, so "isn't answering" and Restart would be untrue.
+  if (serverOnThisPhone && phoneSetupRunning) {
+    return KitStatus(
+      kind: KitStatusKind.connection,
+      id: 'connection:${snapshot.profileId}',
+      key: const ValueKey('connection-status-banner'),
+      icon: AppIconography.sync,
+      tone: AppStatusTone.progress,
+      message: l10n.phoneSetupProgressTitle,
+      supporting: note,
+    );
+  }
   if (onRecoverOwnership != null) {
     return KitStatus(
       kind: KitStatusKind.connection,
@@ -156,6 +183,21 @@ KitStatus? connectionKitStatus(
             ? l10n.updateConnectionToken
             : l10n.e7BannerUpdatePassword,
         onPressed: editServer,
+      ),
+    );
+  }
+  if (controller.connectionError?.contains('This server runs OpenCode 1') ==
+      true) {
+    return KitStatus(
+      kind: KitStatusKind.connection,
+      id: 'connection:${snapshot.profileId}',
+      tone: AppStatusTone.failure,
+      icon: AppIconography.warning,
+      message: l10n.openCode1Unsupported,
+      action: KitAction(
+        label: l10n.handoffCopyCommand,
+        onPressed: () =>
+            unawaited(KitCopy.copy(context, openCode2UpgradeCommand)),
       ),
     );
   }
@@ -343,8 +385,17 @@ Future<void> showConnectionDetailsSheet(
   final manualRetry = snapshot.retrying;
   final reconnecting = snapshot.waiting;
   final error = controller.connectionError?.trim();
+  // A conversation with an agent on this phone (Claude Code) runs on that
+  // agent's own link: the words name it, and Details says whether its
+  // helper answers and why the link last failed, not only OpenCode's error.
+  final agent = controller.isAgentBackend ? controller.profile?.name : null;
+  final helperAnswers = agent == null ? null : controller.agentDaemonAnswers;
+  final linkFailure = agent == null ? null : controller.agentLinkFailureDetails;
   final details = [
     if (error != null && error.isNotEmpty) error,
+    if (helperAnswers != null)
+      'helper.health: ${helperAnswers ? "answers" : "not answering"}',
+    if (linkFailure != null) 'link.lastFailure: $linkFailure',
     if (helper?.lastExitAt != null) ...[
       'helper.lastExitAt: ${helper!.lastExitAt!.toUtc().toIso8601String()}',
       'helper.lastExitCode: ${helper.lastExitCode ?? "unknown"}',
@@ -354,7 +405,10 @@ Future<void> showConnectionDetailsSheet(
   final l10n = lookupAppLocalizations(Localizations.localeOf(context));
   final navigator = Navigator.of(context);
   final profile = controller.profile;
-  final failure = reconnecting || error == null || error.isEmpty
+  // The OpenCode server diagnosis (addresses, Termux, tunnels) is not an
+  // agent link's: its reason stays in Details.
+  final failure =
+      reconnecting || error == null || error.isEmpty || agent != null
       ? null
       : ConnectionFailure.diagnose(
           l10n: l10n,
@@ -399,8 +453,13 @@ Future<void> showConnectionDetailsSheet(
         children: [
           KitText(
             reconnecting
-                ? l10n.e7BannerCheckingExplanation
-                : failure?.explanation ?? l10n.e7BannerStaleExplanation,
+                ? (agent != null
+                      ? l10n.e7BannerCheckingExplanationAgent(agent)
+                      : l10n.e7BannerCheckingExplanation)
+                : failure?.explanation ??
+                      (agent != null
+                          ? l10n.e7BannerStaleExplanationAgent(agent)
+                          : l10n.e7BannerStaleExplanation),
             key: const ValueKey('connection-details-explanation'),
             tone: KitTextTone.secondary,
           ),

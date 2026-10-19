@@ -16,7 +16,7 @@ import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/domain/orchestration_gateway.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/l10n/app_localizations_en.dart';
@@ -543,6 +543,56 @@ void main() {
       await pumpChat3(tester, conn);
       await tester.pumpAndSettle();
       expect(_key('chat-default-model-notice'), findsNothing);
+    });
+  });
+
+  group('the default-model notice agrees with the composer chip (E1)', () {
+    CatalogModel model(String id, String name) => CatalogModel(
+      id: id,
+      providerID: 'free',
+      name: name,
+      enabled: true,
+      status: 'active',
+      contextLimit: 200000,
+      outputLimit: 8000,
+      reasoning: true,
+      attachments: true,
+      tools: true,
+      variants: const [],
+    );
+
+    testWidgets('choosing another model for this chat retires the notice', (
+      tester,
+    ) async {
+      chat3MockSecureStorage();
+      final conn = await chat3Controller();
+      addTearDown(conn.dispose);
+      conn
+        ..catalog = CatalogSnapshot(
+          providers: const [],
+          models: [
+            model('nemotron', 'Nemotron 3.5 Super VL Free'),
+            model('catjam', 'Cat Jam Free'),
+          ],
+          agents: const [],
+        )
+        ..selectedModel = ModelRef(providerID: 'free', modelID: 'nemotron');
+      await pumpChat3(tester, conn);
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Nemotron 3.5 Super VL Free'), findsWidgets);
+      expect(_key('chat-default-model-notice'), findsOneWidget);
+
+      await conn.selectModelForSession(
+        'session-1',
+        ModelRef(providerID: 'free', modelID: 'catjam'),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Cat Jam Free'), findsWidgets);
+      expect(_key('chat-default-model-notice'), findsNothing);
+      expect(
+        find.textContaining('Nemotron 3.5 Super VL Free, this server'),
+        findsNothing,
+      );
     });
   });
 

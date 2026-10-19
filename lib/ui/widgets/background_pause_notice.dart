@@ -26,6 +26,8 @@ String backgroundPauseMessage(
     BackgroundPauseReason.timeLimit => l10n.backgroundPauseTimeLimit(at()),
     BackgroundPauseReason.batteryRestricted => l10n.backgroundPauseRestricted,
     BackgroundPauseReason.userStopped => l10n.backgroundPauseUserStopped(at()),
+    BackgroundPauseReason.deviceRestarted =>
+      l10n.backgroundPauseDeviceRestarted,
     BackgroundPauseReason.appUpdated => l10n.backgroundPauseAppUpdated(at()),
     BackgroundPauseReason.interrupted ||
     BackgroundPauseReason.none => l10n.backgroundPauseInterrupted,

@@ -165,7 +165,7 @@ abstract final class AppTheme {
       AppStatusTone.progress => roles.accent,
       AppStatusTone.ok => successOf(theme),
       AppStatusTone.attention => roles.attention,
-      AppStatusTone.failure => roles.danger,
+      AppStatusTone.failure => roles.text1,
     };
   }
 
@@ -375,8 +375,8 @@ abstract final class AppTheme {
         enabledBorder: _field(r.hairline),
         disabledBorder: _field(r.hairline),
         focusedBorder: _field(r.accent, width: 1.5),
-        errorBorder: _field(r.danger),
-        focusedErrorBorder: _field(r.danger, width: 1.5),
+        errorBorder: _field(r.text1),
+        focusedErrorBorder: _field(r.text1, width: 1.5),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(

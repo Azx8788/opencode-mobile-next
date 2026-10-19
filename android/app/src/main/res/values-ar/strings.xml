@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="widget_new_session">+ جديد</string>
-    <string name="widget_empty">افتح التطبيق للاتصال. ستظهر المحادثات هنا.</string>
     <string name="widget_label">المحادثات</string>
     <string name="widget_preview_title_1">ملاحظات الإصدار</string>
     <string name="widget_preview_step_1">يعمل · 2 د</string>
@@ -102,7 +101,7 @@
     <!-- أداة الاستخدام على الشاشة الرئيسية -->
     <string name="usage_widget_title">الاستخدام</string>
     <string name="usage_widget_description">ما تبقّى من كل حدّ في خططك، ومتى يتجدّد.</string>
-    <string name="usage_widget_empty">اختر ما يُعرض في OpenCode ← الإعدادات ← أداة الاستخدام</string>
+    <string name="usage_widget_empty">لا توجد قراءات للحدود بعد. افتح الاستخدام لربط مصدر.</string>
     <string name="usage_widget_row_title">%1$s · %2$s</string>
     <string name="usage_widget_left">تبقّى %1$d%%</string>
     <string name="usage_widget_resets">يتجدّد خلال %1$s</string>
@@ -180,4 +179,12 @@
     <string name="native_coding_requests_quiet_channel">طلبات البرمجة (ساعات الهدوء)</string>
     <string name="native_coding_requests_quiet_description">طلبات تصل في ساعات الهدوء بلا صوت</string>
     <string name="native_alert_permission_command_title">تشغيل هذا الأمر؟</string>
+    <string name="widget_label_wide">محادثة، عريضة</string>
+    <string name="widget_label_list">قائمة المحادثات</string>
+    <string name="widget_label_strip">شريط المحادثة</string>
+    <string name="widget_description_wide">محادثة واحدة مع آخر ردّ، بطاقة عريضة.</string>
+    <string name="widget_description_list">محادثاتك في قائمة، وما يحتاجك أولًا.</string>
+    <string name="widget_description_strip">محادثة واحدة في سطر واحد مع ميكروفون.</string>
+    <string name="usage_widget_title_wide">الاستخدام، عريض</string>
+    <string name="usage_widget_description_wide">ما تبقّى من كل حدّ في خططك، بعمودين.</string>
 </resources>

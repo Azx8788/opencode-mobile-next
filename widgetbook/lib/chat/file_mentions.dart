@@ -17,7 +17,7 @@ const _files = [
 ];
 
 const _long = [
-  'packages/opencode_sdk/lib/src/model/session_prompt_async_request_model.dart',
+  'lib/domain/server_gateway/value_types.dart',
   'lib/ui/screens/settings/connections/connection_details_and_recovery.dart',
   'مستندات/دليل-المستخدم.md',
 ];

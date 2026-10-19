@@ -1,6 +1,7 @@
 package io.github.eslamasabry.opencode_mobile
 
 import java.math.BigInteger
+import java.nio.file.Files
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -13,7 +14,7 @@ class NativeServerRecipeTest {
 
     @Test
     fun requestAndStoredRecipeRoundTripWithoutLaunchInput() {
-        for (runtime in listOf("openCode1", "openCode2")) {
+        for (runtime in listOf("openCode2")) {
             val recipe = request(value = requested("runtime" to runtime))
             assertEquals(mapOf(
                 "version" to 1,
@@ -27,16 +28,10 @@ class NativeServerRecipeTest {
     }
 
     @Test
-    fun freshOc2SelectionPersistsWithoutChangingAnExistingOc1Recipe() {
-        val existing = request().map()
-        val fresh = request(value = requested("runtime" to "openCode2"))
-        val restored = NativeServerRecipe.read(fresh.map())
-        assertEquals("openCode2", restored.runtime)
-        assertTrue(restored.restorationScript().contains("exec opencode2 serve "))
-        val older = NativeServerRecipe.read(existing)
-        assertEquals("openCode1", older.runtime)
-        assertTrue(older.restorationScript().contains("exec opencode serve "))
-        assertFalse(older.restorationScript().contains(".oc-opencode2"))
+    fun retiredRuntimeRecipesCannotRestartTheLegacyServer() {
+        rejects { request(value = requested("runtime" to "openCode1")) }
+        rejects { NativeServerRecipe.read(stored("runtime" to "openCode1")) }
+        assertEquals("openCode2", NativeServerRecipe.read(request().map()).runtime)
     }
 
     @Test
@@ -65,7 +60,7 @@ class NativeServerRecipeTest {
 
     @Test
     fun onlyKnownRuntimeNamesAreAccepted() {
-        for (runtime in listOf<Any?>(null, "", "OpenCode1", "opencode", "openCode3",
+        for (runtime in listOf<Any?>(null, "", "openCode1", "OpenCode1", "opencode", "openCode3",
             "openCode2;echo secret", 1, true)) {
             rejects { request(value = requested("runtime" to runtime)) }
             rejects { NativeServerRecipe.read(stored("runtime" to runtime)) }
@@ -167,12 +162,6 @@ class NativeServerRecipeTest {
     }
 
     @Test
-    fun coldOpenCodeOneUsesOnlyPrivatePasswordReferenceAndFixedLoopbackPort() {
-        assertEquals(commonScriptPrefix() + commonScriptSuffix("opencode"),
-            request().restorationScript())
-    }
-
-    @Test
     fun coldOpenCodeTwoKeepsIsolatedPathsAndDoesNotRewriteContext() {
         val script = request(value = requested("runtime" to "openCode2")).restorationScript()
         assertEquals(commonScriptPrefix() +
@@ -185,12 +174,55 @@ class NativeServerRecipeTest {
             "export XDG_CONFIG_HOME=/root/.oc-opencode2/config\n" +
             "export OPENCODE_CONFIG_DIR=/root/.oc-opencode2/config/opencode\n" +
             "export OPENCODE_DB=/root/.oc-opencode2/data/opencode/opencode.db\n" +
-            commonScriptSuffix("opencode2"), script)
+            historyGuard() + commonScriptSuffix("opencode2"), script)
         assertFalse(script.contains("AGENTS.md"))
         assertFalse(script.contains("PhoneAgentContext"))
         assertFalse(script.contains("phone_1-A"))
         assertFalse(script.contains(generation))
     }
+
+    @Test
+    fun interruptedHistoryMoveNeverStartsWithAnEmptyDatabase() {
+        val root = Files.createTempDirectory("oc2-recipe-test").toFile()
+        try {
+            val password = root.resolve(".oc-builtin/server.password")
+            password.parentFile.mkdirs()
+            password.writeText("fixture-only")
+            val source = root.resolve(".local/share/opencode/opencode.db")
+            source.parentFile.mkdirs()
+            source.writeText("preserved-history")
+            val bin = root.resolve("bin").apply { mkdirs() }
+            bin.resolve("opencode2").apply {
+                writeText("#!/bin/sh\necho started\n")
+                setExecutable(true)
+            }
+            val script = request().restorationScript().replace("/root", root.absolutePath)
+            fun run(): Pair<Int, String> {
+                val builder = ProcessBuilder("/bin/sh", "-c", script).redirectErrorStream(true)
+                builder.environment()["PATH"] = bin.absolutePath + ":" + System.getenv("PATH")
+                val process = builder.start()
+                val output = process.inputStream.bufferedReader().readText()
+                return process.waitFor() to output
+            }
+            val blocked = run()
+            assertEquals(74, blocked.first)
+            assertTrue(blocked.second.contains("Open the app to finish moving your conversations."))
+            assertFalse(blocked.second.contains("started"))
+            assertEquals("preserved-history", source.readText())
+            val target = root.resolve(".oc-opencode2/data/opencode/opencode.db")
+            assertFalse(target.exists())
+            target.writeText("copied-history")
+            assertEquals(0 to "started\n", run())
+            assertEquals("preserved-history", source.readText())
+        } finally {
+            root.deleteRecursively()
+        }
+    }
+
+    private fun historyGuard(): String =
+        "if [ -e /root/.local/share/opencode/opencode.db ] && " +
+            "[ ! -f /root/.oc-opencode2/data/opencode/opencode.db ]; then " +
+            "echo 'Open the app to finish moving your conversations.' >&2; exit 74; fi\n"
 
     private fun commonScriptPrefix(): String =
         "set -eu\nmkdir -p /root/projects\ncd /root/projects\n" +
@@ -215,7 +247,7 @@ class NativeServerRecipeTest {
         NativeServerRecipe.fromRequest(value, bound, packageVersion, rootfsGeneration)
 
     private fun requested(vararg changes: Pair<String, Any?>): Map<String, Any?> =
-        mapOf<String, Any?>("version" to 1, "profileId" to "phone_1-A", "runtime" to "openCode1") + changes
+        mapOf<String, Any?>("version" to 1, "profileId" to "phone_1-A", "runtime" to "openCode2") + changes
 
     private fun stored(vararg changes: Pair<String, Any?>): Map<String, Any?> =
         requested() + mapOf("packageVersion" to 2201L, "rootfsGeneration" to generation) + changes

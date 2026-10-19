@@ -3,11 +3,10 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/server_probe.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'package:opencode_mobile/domain/server_probe.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/background/live_background.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/offline_queue.dart';
@@ -41,14 +40,6 @@ class _RecoveryDisk extends InMemorySharedPreferencesStore {
     }
     return super.setValue(type, key, value);
   }
-}
-
-class _WrongRuntimeV1 extends OpenCodeApi {
-  _WrongRuntimeV1() : super(baseUrl: TermuxBridge.managedServerUrl);
-
-  @override
-  Future<Health> health() async =>
-      throw ApiException('Wrong runtime', statusCode: 401);
 }
 
 class _WrongRuntimeV2 extends MonitorTestGateway {
@@ -234,7 +225,7 @@ void main() {
     expect(recoveryEnabled(remote.id), isTrue);
   });
 
-  for (final url in ['http://127.0.0.1:4097', 'http://localhost:4096']) {
+  for (final url in ['http://127.0.0.1:4999', 'http://localhost:4096']) {
     test('does not disconnect unmanaged endpoint $url', () async {
       local.baseUrl = url;
       controller.busySessions.add('other-server');
@@ -243,6 +234,20 @@ void main() {
       expect(controller.busySessions, contains('other-server'));
     });
   }
+
+  test(
+    'in-app managed server also blocks a move while work is running',
+    () async {
+      local.baseUrl = 'http://127.0.0.1:4097';
+      controller.busySessions.add('in-app-work');
+      await expectLater(
+        controller.prepareManagedRuntimeSwitch(),
+        throwsStateError,
+      );
+      expect(controller.status, StreamStatus.connected);
+      expect(controller.busySessions, contains('in-app-work'));
+    },
+  );
 
   test(
     'does not treat another backend at local URL as managed OpenCode',
@@ -430,85 +435,55 @@ void main() {
     expect(store.profiles, contains(local));
   });
 
-  for (final savedFlavor in [ServerFlavor.v1, ServerFlavor.v2]) {
-    test(
-      'managed $savedFlavor profile never adopts the other running runtime',
-      () async {
-        controller.dispose();
-        final detected = savedFlavor == ServerFlavor.v1
-            ? ServerFlavor.v2
-            : ServerFlavor.v1;
-        local.flavor = savedFlavor;
-        local.serverVersion = savedFlavor == ServerFlavor.v1
-            ? '1.18.29'
-            : '0.0.0-beta-18600';
-        await store.upsert(local);
-        final before = jsonEncode(local.toJson());
-        var v1Builds = 0;
-        var v2Builds = 0;
-        var probeCalls = 0;
-        serverProbe = ({required baseUrl, username, password}) async {
-          probeCalls++;
-          return ServerProbeResult.success(
-            detected == ServerFlavor.v1 ? '1.18.29' : '0.0.0-beta-18600',
-            flavor: detected,
-          );
-        };
-        controller = ConnectionController(
-          store,
-          apiFactory: (_) {
-            v1Builds++;
-            return _WrongRuntimeV1();
-          },
-          repositoryFactory: (_) => _UnusedRepository(),
-          v2GatewayFactory: (_) {
-            v2Builds++;
-            return (
-              gateway: _WrongRuntimeV2(),
-              operations: _UnusedRepository(),
-            );
-          },
-          localWakeLockEnsurer: () async {},
-          backgroundLive: BackgroundLiveController(
-            preferences: store.prefs,
-            invoke: (method, [arguments]) async {
-              if (method == 'getBackgroundPause') {
-                return const {
-                  'supported': true,
-                  'active': false,
-                  'paused': false,
-                  'reason': 'none',
-                  'at': null,
-                  'canResume': false,
-                };
-              }
-              return const {};
-            },
-          ),
-        );
-        await controller.connect(local);
-        expect(probeCalls, 1);
-        expect(
-          v1Builds + v2Builds,
-          1,
-          reason: 'Never retry as another runtime',
-        );
-        expect(controller.status, StreamStatus.disconnected);
-        expect(controller.api, isNull);
-        expect(controller.managedRuntimeMismatch, isTrue);
-        expect(
-          controller.lastError,
-          ConnectionController.managedRuntimeMismatchMessage,
-        );
-        expect(jsonEncode(local.toJson()), before);
-        expect(local.password, 'fixture-local-password');
-        final reloaded = ProfileStore(prefs: store.prefs);
-        await reloaded.load();
-        final persisted = reloaded.profiles.firstWhere(
-          (value) => value.id == local.id,
-        );
-        expect(jsonEncode(persisted.toJson()), before);
+  test('managed legacy reply requires safe migration without retry', () async {
+    controller.dispose();
+    var builds = 0;
+    var probeCalls = 0;
+    serverProbe = ({required baseUrl, username, password}) async {
+      probeCalls++;
+      return const ServerProbeResult.failure(
+        unsupportedOpenCode1Message,
+        unsupportedLegacy: true,
+      );
+    };
+    controller = ConnectionController(
+      store,
+      v2GatewayFactory: (_) {
+        builds++;
+        return (gateway: _WrongRuntimeV2(), operations: _UnusedRepository());
       },
+      localWakeLockEnsurer: () async {},
     );
-  }
+    await controller.connect(local);
+    expect(probeCalls, 1);
+    expect(builds, 1, reason: 'Never retry as a legacy runtime');
+    expect(controller.status, StreamStatus.disconnected);
+    expect(controller.api, isNull);
+    expect(controller.managedOpenCode2MigrationRequired, isTrue);
+    expect(local.requiresOpenCode2Migration, isTrue);
+    expect(local.password, 'fixture-local-password');
+    final reloaded = ProfileStore(prefs: store.prefs);
+    await reloaded.load();
+    final persisted = reloaded.profiles.firstWhere((p) => p.id == local.id);
+    expect(persisted.requiresOpenCode2Migration, isTrue);
+  });
+
+  test(
+    'persisted legacy metadata blocks transport creation before moving',
+    () async {
+      controller.dispose();
+      local.requiresOpenCode2Migration = true;
+      await store.upsert(local);
+      controller = ConnectionController(
+        store,
+        v2GatewayFactory: (_) =>
+            throw StateError('Legacy profile must not construct a transport'),
+      );
+      await controller.connect(local);
+      expect(controller.managedOpenCode2MigrationRequired, isTrue);
+      expect(controller.api, isNull);
+      expect(controller.status, StreamStatus.disconnected);
+      expect(local.password, 'fixture-local-password');
+    },
+  );
 }

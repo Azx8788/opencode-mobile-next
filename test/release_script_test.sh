@@ -38,6 +38,16 @@ new_fixture() {
   # Release notes are checked for both layers before any build (FG4).
   mkdir -p "$FIXTURE/tool/release" "$FIXTURE/docs/releases"
   cp "$REPO_ROOT/tool/release/release_notes.py" "$FIXTURE/tool/release/release_notes.py"
+  # The git mock cannot answer the real classifier (tool/qa/test_classify_change.py
+  # covers it); this stub answers like it, from MOCK_CLASSIFY_CLASS.
+  cat >"$FIXTURE/tool/qa/classify_change.py" <<'STUB'
+import os, sys
+proposed = os.environ.get("MOCK_CLASSIFY_CLASS", "hotfix")
+print("change class: " + proposed)
+if "--require" in sys.argv and proposed != "hotfix":
+    print("classify_change: required hotfix but the range is " + proposed, file=sys.stderr)
+    sys.exit(1)
+STUB
   printf '# OpenCode Mobile 1.0.12+13\n\nA fixture release.\n\n## What changed for you\n\n- **Chats** open faster after a restart.\n- **Photos** you send show as pictures.\n\n## Technical changes\n\n### Fixed\n- Fixture change.\n' \
     >"$FIXTURE/docs/releases/v1.0.12+13.md"
   printf 'void main() {}\n' >"$FIXTURE/test/nested/release_gate_test.dart"
@@ -272,6 +282,7 @@ run_release() {
       MOCK_REMOTE_TAG_EXISTS="${MOCK_REMOTE_TAG_EXISTS:-true}" \
       MOCK_REMOTE_TAG_COMMIT="${MOCK_REMOTE_TAG_COMMIT:-base-commit}" \
       MOCK_DIFF_FILES="${MOCK_DIFF_FILES:-}" \
+      MOCK_CLASSIFY_CLASS="${MOCK_CLASSIFY_CLASS:-hotfix}" \
       MOCK_FLUTTER_VERSION="${MOCK_FLUTTER_VERSION:-3.47.1}" \
       MOCK_FLUTTER_FAIL="${MOCK_FLUTTER_FAIL:-}" \
       MOCK_SHOREBIRD_FAIL="${MOCK_SHOREBIRD_FAIL:-false}" \
@@ -508,7 +519,7 @@ test_release_is_dry_run_by_default_and_builds_aab() {
   assert_output_contains 'nothing was uploaded'
   assert_log_contains 'flutter analyze'
   assert_log_contains 'flutter test --no-pub --concurrency=1 test/nested/release_gate_test.dart'
-  assert_log_contains 'shorebird release android --build-name 1.0.12 --build-number 13 --flutter-version 3.47.1 --artifact aab --dry-run'
+  assert_log_contains 'shorebird release android --build-name 1.0.12 --build-number 13 --flutter-version 3.47.1 --artifact aab --split-debug-info=build/symbols --dry-run'
   assert_log_line_count 1 'shorebird '
   assert_log_not_contains '--artifact apk'
 
@@ -536,7 +547,7 @@ test_sideload_requires_public_lineage_and_verifies_apk() {
   assert_output_contains 'Publish explicitly with: ./scripts/release.sh sideload --publish'
   assert_log_contains 'flutter analyze'
   assert_log_contains 'flutter test --no-pub --concurrency=1 test/nested/release_gate_test.dart'
-  assert_log_contains 'shorebird release android --build-name 1.0.12 --build-number 13 --flutter-version 3.47.1 --artifact apk --dry-run'
+  assert_log_contains 'shorebird release android --build-name 1.0.12 --build-number 13 --flutter-version 3.47.1 --artifact apk --split-debug-info=build/symbols --dry-run'
   assert_log_contains 'apksigner verify --print-certs build/app/outputs/flutter-apk/app-release.apk'
   assert_log_contains 'aapt dump badging build/app/outputs/flutter-apk/app-release.apk'
   assert_log_not_contains '--artifact aab'
@@ -648,6 +659,15 @@ test_patch_targets_exact_version_and_requires_baseline() {
   assert_log_not_contains 'shorebird '
 }
 
+test_patch_requires_a_hotfix_class() {
+  new_fixture
+  MOCK_CLASSIFY_CLASS=feature MOCK_DIFF_FILES=$'lib/main.dart\n' run_release patch --publish
+  assert_status 1
+  assert_output_contains 'is not a hotfix'
+  assert_log_not_contains 'flutter analyze'
+  assert_log_not_contains 'shorebird '
+}
+
 test_patch_rejects_native_and_asset_inputs() {
   new_fixture
   MOCK_DIFF_FILES=$'lib/main.dart\nandroid/app/src/main/kotlin/MainActivity.kt\npackages/plugin/android/build.gradle\npubspec.lock\n' run_release patch --publish
@@ -744,7 +764,7 @@ for group in test_strict_arguments test_patch_plan_never_executes_release_comman
   test_sideload_requires_public_lineage_and_verifies_apk \
   test_quality_gate_failure_prevents_shorebird \
   test_patch_targets_exact_version_and_requires_baseline \
-  test_patch_rejects_native_and_asset_inputs test_invalid_version_is_rejected \
+  test_patch_rejects_native_and_asset_inputs test_patch_requires_a_hotfix_class test_invalid_version_is_rejected \
   test_alpha_notes_body_is_validated_before_publish \
   test_alpha_publish_verifies_the_body_github_stored; do
   group_index=$((group_index + 1))

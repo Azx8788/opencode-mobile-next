@@ -1,4 +1,4 @@
-import '../../api/models.dart';
+import '../../domain/models.dart';
 
 /// Connection lifecycle surfaced to the UI.
 enum StreamStatus { connecting, connected, reconnecting, disconnected }

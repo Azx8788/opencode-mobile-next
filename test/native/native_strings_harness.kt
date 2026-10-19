@@ -60,7 +60,15 @@ fun main(args: Array<String>) {
                             NativeStrings.quantity(context, id, it, it)
                         }
                     } else {
-                        listOf(NativeStrings.get(context, id, if (id in ResourceNames.numericStringIds) 3 else "Claude Code", "3"))
+                        listOf(
+                            // A string with a number takes numbers for every
+                            // slot (usage_widget_column is "%1$s ... %2$d%%").
+                            if (id in ResourceNames.numericStringIds) {
+                                NativeStrings.get(context, id, 3, 3)
+                            } else {
+                                NativeStrings.get(context, id, "Claude Code", "3")
+                            },
+                        )
                     }
                     check(formatted.all { it.isNotBlank() && !it.contains(Regex("%[0-9]+\\$[sd]")) }) {
                         "Unformatted resource $name/$language"

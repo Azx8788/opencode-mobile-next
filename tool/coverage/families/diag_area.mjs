@@ -46,7 +46,7 @@ export function diagFamilies() {
     schema: exitSchema, excluded: {}, source: 'android AppLifecycle.exitHistory (oc/lifecycle) read by lib/platform/app_exit.dart',
     cases: [
       exitCase('exit_problems', { supported: true },
-        [ex(4, 100, 3600000, 'MARKER-EXIT-TEXT-1'), ex(3, 400, 7200000, 'MARKER-EXIT-TEXT-2'), ex(10, 100, 10800000, 'MARKER-EXIT-TEXT-3')],
+        [ex(4, 100, 60000, 'MARKER-EXIT-TEXT-1'), ex(3, 400, 7200000, 'MARKER-EXIT-TEXT-2'), ex(10, 100, 10800000, 'MARKER-EXIT-TEXT-3')],
         {},
         [
           { reason: ['Reason code 4'], importance: ['Importance 100'], timestamp: ['Today'] },

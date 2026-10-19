@@ -13,7 +13,6 @@ import 'package:opencode_mobile/ui/kit/kit_capability_explainer.dart';
 const _hostColumns = <String, KitHost>{
   'builtin': KitHost.thisPhone,
   'termux': KitHost.termux,
-  'oc1Computer': KitHost.openCode1,
   'oc2Computer': KitHost.openCode2,
   'codex': KitHost.codex,
   'paseo': KitHost.paseo,
@@ -88,7 +87,7 @@ void main() {
       expect(
         KitCapabilityExplainer.hostsLineOf(_context, 'flag:terminal'),
         'Works on \u2068this phone\u2069 and '
-        '\u2068computers with OpenCode\u2069',
+        '\u2068computers with OpenCode 2\u2069',
       );
       final onPaseo = KitCapabilityExplainer.whyOf(
         _context,
@@ -128,7 +127,7 @@ void main() {
       expect(entry, isNotNull);
       expect(entry!.supported, _hostsWith(row, 'supported'));
       expect(entry.partly, _hostsWith(row, 'partly'));
-      expect(entry.supported, {KitHost.openCode1});
+      expect(entry.supported, isEmpty);
       expect(entry.enableFlow, isNull);
     });
 
@@ -152,7 +151,8 @@ void main() {
         host: KitHost.openCode2,
       );
       expect(onOc2, contains("isn't available"));
-      expect(onOc2, contains('OpenCode 1'));
+      expect(onOc2, isNot(contains('OpenCode 1')));
+      expect(onOc2, isNot(contains('Works on')));
     });
   });
 

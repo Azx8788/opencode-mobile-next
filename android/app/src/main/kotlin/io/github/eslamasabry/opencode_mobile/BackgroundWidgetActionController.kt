@@ -133,7 +133,10 @@ internal class BackgroundWidgetActionController(
             }
             if (result["status"] == "accepted") {
                 runCatching {
-                    WidgetActionBridge.applyActionSnapshot(service, payload, response?.get("snapshot") as? Map<*, *>)
+                    val snapshot = response?.get("snapshot") as? Map<*, *>
+                    if (WidgetActionBridge.applyActionSnapshot(service, payload, snapshot)) {
+                        WidgetStatusScheduler.afterAction(service, payload)
+                    }
                 }
             }
             // Dart closes its transport before replying. Destroy also closes the

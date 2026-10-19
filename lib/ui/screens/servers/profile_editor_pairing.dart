@@ -228,7 +228,9 @@ extension _EditorPairingAndSave on _ProfileEditorScreenState {
         _user.text != (baseline?.username ?? '') ||
         _password != (baseline?.password ?? '') ||
         _codexDirectory.text != (baseline?.codexDirectory ?? '') ||
-        _token != (baseline?.codexToken ?? '');
+        _token != (baseline?.codexToken ?? '') ||
+        _cleartextConfirmed != baseline?.cleartextConfirmedOrigin ||
+        _certificatePin != baseline?.certificatePinSha256;
   }
 
   Future<void> _close() async {
@@ -458,7 +460,7 @@ extension _EditorPairingAndSave on _ProfileEditorScreenState {
     url = uri.replace(scheme: uri.scheme.toLowerCase()).toString();
     // Cache what Test connection detected; the connection layer re-verifies
     // on every cold connect and a failed connect re-probes, so a save without
-    // a test (default v1) still self-corrects.
+    // a test (default v2) still self-corrects.
     final probed = _testResult;
     final normalizedUrl = url.endsWith('/')
         ? url.substring(0, url.length - 1)
@@ -475,8 +477,8 @@ extension _EditorPairingAndSave on _ProfileEditorScreenState {
     final detected = probed != null && probed.flavor != ServerFlavor.unknown
         ? probed.flavor
         : endpointChanged
-        ? ServerFlavor.v1
-        : widget.existing?.flavor ?? ServerFlavor.v1;
+        ? ServerFlavor.v2
+        : widget.existing?.flavor ?? ServerFlavor.v2;
     final profile = ServerProfile(
       id:
           _savedProfile?.id ??
@@ -497,6 +499,10 @@ extension _EditorPairingAndSave on _ProfileEditorScreenState {
     if (serverUrlNeedsCleartextConfirmation(normalizedUrl)) {
       profile.cleartextConfirmedOrigin = _cleartextConfirmed;
     }
+    profile.certificatePinSha256 = _pinFor(normalizedUrl);
+    profile.certificatePinOrigin = profile.certificatePinSha256 == null
+        ? null
+        : cleartextOriginOf(normalizedUrl);
     FocusScope.of(context).unfocus();
     _set(() {
       _invalidateProbe();

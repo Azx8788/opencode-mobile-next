@@ -83,7 +83,7 @@ mixin _ConnectionControllerGenUi on ChangeNotifier implements GenUiController {
   List<GenUiAgent> get _genUiConnectionAgents {
     final owner = _self._connectedProfile ?? _self.profile;
     final runtime = owner?.backend == ServerBackend.openCode
-        ? AgentToolAdapters.forOpenCode(v2: owner!.flavor == ServerFlavor.v2)
+        ? AgentToolAdapters.forOpenCode()
         : null;
     return [
       for (final agent in AgentToolAdapters.withTools)
@@ -432,7 +432,7 @@ extension _ConnectionGenUiImpl on ConnectionController {
     final generation = _generation, endpoint = owner.baseUrl;
     final agent = isAgentBackend
         ? AgentToolAdapter.claude
-        : AgentToolAdapters.forOpenCode(v2: owner.flavor == ServerFlavor.v2);
+        : AgentToolAdapters.forOpenCode();
     _genUiState.register(
       scope,
       gateway,
@@ -449,6 +449,7 @@ extension _ConnectionGenUiImpl on ConnectionController {
           genUiEnabled &&
           !_deletingReadProfiles.contains(scope.profileID),
       ready: genUiStatus.agents.contains(agent),
+      beforeSend: () => _ensureScheduledPhoneSendAllowed(owner),
     );
   }
 
@@ -607,9 +608,7 @@ extension _ConnectionGenUiImpl on ConnectionController {
         _genUiLocationGateways.remove(evicted)?.close();
       }
       if (owner.backend != ServerBackend.openCode) return null;
-      gateway = owner.flavor == ServerFlavor.v2
-          ? _v2GatewayFactory(owner).gateway
-          : _apiFactory(owner);
+      gateway = _buildTransportPair(owner).gateway;
       gateway.setLocation(directory: folder, workspace: ws);
       _genUiLocationGateways[scope] = gateway;
     }
@@ -625,9 +624,8 @@ extension _ConnectionGenUiImpl on ConnectionController {
           (_connectedProfile ?? profile)?.baseUrl == endpoint &&
           genUiEnabled &&
           !_deletingReadProfiles.contains(scope.profileID),
-      ready: genUiStatus.agents.contains(
-        AgentToolAdapters.forOpenCode(v2: owner.flavor == ServerFlavor.v2),
-      ),
+      ready: genUiStatus.agents.contains(AgentToolAdapters.forOpenCode()),
+      beforeSend: () => _ensureScheduledPhoneSendAllowed(owner),
     );
     return scope;
   }

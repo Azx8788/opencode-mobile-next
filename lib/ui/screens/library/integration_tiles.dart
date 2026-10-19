@@ -154,7 +154,7 @@ class _McpServerRow extends StatelessWidget {
                 : _needsYou
                 ? KitTextTone.primary
                 : _failed
-                ? KitTextTone.danger
+                ? KitTextTone.primary
                 : KitTextTone.secondary,
           ),
           if (authGated) TextSpan(text: l10n.integrationsMcpSignInOnServer),

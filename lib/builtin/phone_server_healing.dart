@@ -4,7 +4,7 @@ import 'package:clock/clock.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../api/server_probe.dart';
+import '../domain/server_probe.dart';
 import '../domain/server_gateway.dart' show StreamStatus;
 import '../domain/while_away.dart';
 import '../state/automation_policy.dart';

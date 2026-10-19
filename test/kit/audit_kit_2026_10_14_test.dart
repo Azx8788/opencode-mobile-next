@@ -5,6 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../support/no_red.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/ui/app_theme.dart';
 import 'package:opencode_mobile/ui/kit/kit.dart';
@@ -59,9 +60,9 @@ void main() {
       find.descendant(of: failed, matching: find.byType(RichText)),
     );
     for (final t in texts) {
-      expect(t.text.style?.color, isNot(roles.danger));
+      expect(t.text.style?.color, isNotRed);
     }
-    expect(icon.color, isNot(roles.danger));
+    expect(icon.color, isNotRed);
   });
 
   testWidgets('P2-12: a top bar subtitle on a failure is not red', (
@@ -90,7 +91,7 @@ void main() {
     for (final r in rich) {
       r.text.visitChildren((span) {
         if (span is TextSpan && span.text == 'Offline') {
-          expect(span.style?.color, isNot(roles.danger));
+          expect(span.style?.color, isNotRed);
         }
         return true;
       });

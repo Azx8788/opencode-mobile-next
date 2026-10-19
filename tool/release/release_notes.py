@@ -18,6 +18,7 @@ here publishes, tags or talks to GitHub.
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import subprocess
 import sys
@@ -32,6 +33,9 @@ STORE_LIMIT = 500
 MIN_BULLETS = 2
 MAX_BULLETS = 5
 VERSION_RE = re.compile(r"^\d+\.\d+\.\d+\+[1-9]\d*$")
+CHANGE_CLASSES = ("hotfix", "fix", "feature", "breaking")
+CHANGE_CLASS_RE = re.compile(r"^Change class:[ \t]*(\S*)[ \t]*$", re.M | re.I)
+CLASSIFIER = ROOT / "tool" / "qa" / "classify_change.py"
 
 # Words that belong in the technical list, not in what a user reads first.
 INTERNAL_WORDS = (
@@ -66,6 +70,7 @@ class Notes:
     user_index: int = -1
     tech_index: int = -1
     text: str = ""
+    change_class: str | None = None  # optional "Change class:" line above the first heading
 
 
 def _strip_comments(text: str) -> str:
@@ -76,6 +81,10 @@ def parse(text: str) -> Notes:
     clean = _strip_comments(text)
     lines = clean.splitlines()
     notes = Notes(title=lines[0].strip() if lines else "", text=clean)
+    header = clean.split("\n## ", 1)[0]
+    declared = CHANGE_CLASS_RE.search(header)
+    if declared:
+        notes.change_class = declared.group(1).lower()
     section = None
     for index, line in enumerate(lines):
         stripped = line.strip()
@@ -146,6 +155,11 @@ def check(path: Path) -> list[str]:
                 f"changelog; keep it under {STORE_LIMIT}"
             )
     # "…" alone is the template's empty bullet; inside a sentence it is text.
+    if notes.change_class is not None and notes.change_class not in CHANGE_CLASSES:
+        problems.append(
+            f"'Change class:' must be one of {', '.join(CHANGE_CLASSES)}, "
+            f"found '{notes.change_class}'"
+        )
     if "X.Y.Z" in notes.text:
         problems.append("template placeholder 'X.Y.Z' left in")
     if re.search(r"^\s*- (\*\*)?…(\*\*)?\s*$", notes.text, flags=re.M):
@@ -166,6 +180,49 @@ def last_tag() -> str | None:
         return _git("describe", "--tags", "--abbrev=0", "--match", "v*").strip()
     except subprocess.CalledProcessError:
         return None
+
+
+def previous_tag(own_tag: str) -> str | None:
+    """The newest release tag reachable from HEAD other than [own_tag]."""
+    try:
+        tags = _git(
+            "tag", "--merged", "HEAD", "--list", "v*+*", "--sort=-v:refname"
+        ).split()
+    except subprocess.CalledProcessError:
+        return None
+    return next((tag for tag in tags if tag != own_tag), None)
+
+
+def class_warnings(path: Path) -> list[str]:
+    """Warnings when the notes' "Change class:" disagrees with the classifier.
+
+    Informational: never an error, and silent when the notes carry no class,
+    the tag cannot be found or the classifier cannot run.
+    """
+    notes = parse(path.read_text(encoding="utf-8"))
+    if notes.change_class not in CHANGE_CLASSES:
+        return []
+    match = re.fullmatch(r"(v.+)\.md", path.name)
+    base = previous_tag(match.group(1) if match else "")
+    if base is None or not CLASSIFIER.is_file():
+        return []
+    run = subprocess.run(
+        [sys.executable, str(CLASSIFIER), base, "HEAD", "--json"],
+        cwd=ROOT, capture_output=True, text=True,
+    )
+    if run.returncode != 0:
+        return []
+    try:
+        proposed = json.loads(run.stdout)["class"]
+    except (ValueError, KeyError):
+        return []
+    if proposed != notes.change_class:
+        return [
+            f"notes say 'Change class: {notes.change_class}' but "
+            f"tool/qa/classify_change.py proposes '{proposed}' for {base}..HEAD; "
+            "check the notes or explain the difference in the technical list"
+        ]
+    return []
 
 
 def draft_technical(subjects: list[str]) -> dict[str, list[str]]:
@@ -224,6 +281,8 @@ def command_check(args: argparse.Namespace) -> int:
     problems = check(path)
     for problem in problems:
         print(f"{path}: {problem}", file=sys.stderr)
+    for warning in class_warnings(path) if not problems else []:
+        print(f"{path}: warning: {warning}", file=sys.stderr)
     if not problems:
         print(f"{path}: two-layer release notes OK")
     return 1 if problems else 0

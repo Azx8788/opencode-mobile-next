@@ -10,13 +10,8 @@ abstract final class SetupCommands {
   /// Starts OpenCode 2 and prints a pairing code.
   static const pair = 'opencode2 pair';
 
-  /// Older servers that do not print a pairing code.
-  static const legacyServe =
-      'bash -c \'IFS= read -rsp "Choose a server password > " '
-      'OPENCODE_SERVER_PASSWORD &&\n'
-      '  printf "\\n" && test -n "\$OPENCODE_SERVER_PASSWORD" &&\n'
-      '  export OPENCODE_SERVER_PASSWORD &&\n'
-      '  exec opencode serve --hostname 127.0.0.1 --port 4096\'';
+  /// Starts OpenCode 2 on loopback with the password it generates.
+  static const serve = 'opencode2 serve --hostname 127.0.0.1 --port 4096';
 
   /// The Paseo daemon, kept off the relay. This app never uses the relay.
   static const paseoStart = 'paseo start --no-relay';
@@ -99,11 +94,6 @@ final class HostScript {
 /// The guides in `docs/ubuntu-host.md` and `docs/ai-team-host.md` show the
 /// same commands and are checked by the same test.
 ///
-/// Pin update pending push (2026-09-28): `scripts/host/ubuntu-opencode.sh`
-/// now installs a pinned, checksummed OpenCode, but no published commit
-/// holds it yet, so [commit] still names release 1.0.44. The exact change to
-/// make after the push is listed at `_pendingPinUpdate` and in
-/// `docs/qa/slice-script-pins-2026-09-28/README.md`.
 abstract final class HostScripts {
   static const repository = 'Eslamasabry/opencode-mobile-next';
 
@@ -113,13 +103,6 @@ abstract final class HostScripts {
 
   /// The app release [commit] belongs to, as the page names it.
   static const release = '1.0.44';
-
-  /// Installs and manages OpenCode as a systemd user service on Linux.
-  static const ubuntu = HostScript(
-    path: 'scripts/host/ubuntu-opencode.sh',
-    sha256: '1f42642fe92c9a8a46e26f27dfa200ffd2274e9cdf9dfafc08e6a9bc7511d721',
-    saveAs: 'ubuntu-opencode.sh',
-  );
 
   /// The AI Team front: lets allowlisted Tailscale identities reach a Gas
   /// City supervisor (docs/ai-team-host.md §5).
@@ -138,8 +121,8 @@ abstract final class HostScripts {
 
   /// First-time install on the host, listening on [port].
   static String install(int port) =>
-      '${ubuntu.verifiedDownload} &&\n'
-      'OPENCODE_PORT=$port bash ${ubuntu.saveAs} install';
+      'npm install -g @opencode/cli@2.0.29 &&\n'
+      'opencode2 serve --hostname 127.0.0.1 --port $port';
 
   /// Gas City's three tools are on PATH (docs/ai-team-host.md §1).
   static const teamCheckTools = 'command -v gc bd dolt';

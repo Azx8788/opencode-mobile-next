@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 4x1: dot, title and one status line, the mic (or Allow) on the right. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/background" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="horizontal" android:gravity="center_vertical" android:layoutDirection="locale"
+    android:background="@drawable/widget_card_bg" android:paddingStart="16dp" android:paddingEnd="12dp">
+    <ImageView android:id="@+id/wc_dot" android:layout_width="8dp" android:layout_height="8dp"
+        android:layout_marginEnd="12dp" android:src="@drawable/widget_dot" android:importantForAccessibility="no" />
+    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView android:id="@+id/wc_title" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textSize="15sp" android:textStyle="bold" android:maxLines="1" android:ellipsize="end"
+            android:textDirection="firstStrong" android:gravity="start" android:textColor="@color/widgetText" />
+        <TextView android:id="@+id/wc_sub" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textSize="12sp" android:maxLines="1" android:ellipsize="end" android:textDirection="firstStrong"
+            android:gravity="start" android:textColor="@color/widgetHint" />
+        <Chronometer android:id="@+id/wc_live" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textSize="12sp" android:maxLines="1" android:ellipsize="end" android:textDirection="firstStrong"
+            android:gravity="start" android:textColor="@color/widgetHint" android:visibility="gone" />
+    </LinearLayout>
+    <FrameLayout android:id="@+id/wc_mic" android:layout_width="36dp" android:layout_height="36dp"
+        android:layout_marginStart="10dp" android:background="@drawable/widget_pill">
+        <ImageView android:layout_width="16dp" android:layout_height="16dp" android:layout_gravity="center"
+            android:id="@+id/wc_mic_icon" android:src="@drawable/ic_widget_mic" android:importantForAccessibility="no" />
+    </FrameLayout>
+    <TextView android:id="@+id/wc_btn1" android:layout_width="84dp" android:layout_height="36dp"
+        android:layout_marginStart="10dp" android:gravity="center" android:textSize="13sp" android:textStyle="bold"
+        android:maxLines="1" android:background="@drawable/widget_pill" android:visibility="gone" />
+</LinearLayout>

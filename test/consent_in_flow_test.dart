@@ -1,3 +1,4 @@
+import 'package:opencode_mobile/domain/server_gateway.dart';
 // P6.7 Consent once, in flow: each consent is asked at the moment it
 // matters, at most once per server, remembered, and a declined one explains
 // itself on its row on What runs by itself (automation-settings).
@@ -8,9 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/background/live_background.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
@@ -64,7 +65,7 @@ class _Native {
   }
 }
 
-class _Api extends OpenCodeApi with CompleteMessageHistory {
+class _Api extends FakeServerGateway with CompleteMessageHistory {
   _Api() : super(baseUrl: 'http://localhost');
 
   final replies = <({String requestID, String reply})>[];
@@ -99,19 +100,21 @@ late Map<String, Object> _keepAlive;
 
 Future<ConnectionController> _controller({
   Map<String, Object> values = const {},
-  OpenCodeApi? api,
+  FakeServerGateway? api,
 }) async {
   SharedPreferences.setMockInitialValues({
     'oc.profiles': jsonEncode([
       {
         'id': 'phone',
         'name': 'Pixel',
+        'flavor': 'v2',
         'baseUrl': 'http://192.168.1.20:4096',
         'username': '',
       },
       {
         'id': 'studio',
         'name': 'Studio',
+        'flavor': 'v2',
         'baseUrl': 'http://192.168.1.30:4096',
         'username': '',
       },
@@ -200,10 +203,10 @@ final _scope = PermissionConsentScope(
   alwaysPatterns: const ['git *'],
 );
 
-/// The background service and home-screen widget channel, and the
-/// launcher shortcuts' one.
+/// Native surfaces whose pending writes profile deletion waits for.
 const _background = MethodChannel('oc/background');
 const _shortcut = MethodChannel('oc/shortcut');
+const _schedules = MethodChannel('oc/scheduled_prompts');
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -228,6 +231,7 @@ void main() {
     // unanswered, their channels would hang inside testWidgets.
     messenger.setMockMethodCallHandler(_background, (_) async => null);
     messenger.setMockMethodCallHandler(_shortcut, (_) async => null);
+    messenger.setMockMethodCallHandler(_schedules, (_) async => null);
     messenger.setMockMethodCallHandler(
       const MethodChannel(AppLifecycleBridge.channelName),
       (call) async {
@@ -251,6 +255,7 @@ void main() {
     );
     messenger.setMockMethodCallHandler(_background, null);
     messenger.setMockMethodCallHandler(_shortcut, null);
+    messenger.setMockMethodCallHandler(_schedules, null);
     messenger.setMockMethodCallHandler(
       const MethodChannel(AppLifecycleBridge.channelName),
       null,

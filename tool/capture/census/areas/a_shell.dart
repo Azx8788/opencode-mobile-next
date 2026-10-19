@@ -9,7 +9,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/diagnostics/app_diagnostics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart'
@@ -230,16 +230,11 @@ final aShellArea = CensusArea(
       );
       kit.expectVisible(find.byKey(const ValueKey('retry-app-bootstrap')));
     }),
-    CensusShot(
-      'root-connecting',
-      state: 'connecting',
-      (kit) async {
-        final controller = await kit.connected();
-        controller.status = StreamStatus.connecting;
-        await kit.pumpApp(_card(), controller: controller);
-      },
-      note: 'SavedServerConnectionCard as _Root shows it (main.dart)',
-    ),
+    CensusShot('root-connecting', state: 'connecting', (kit) async {
+      final controller = await kit.connected();
+      controller.status = StreamStatus.connecting;
+      await kit.pumpApp(_card(), controller: controller);
+    }, note: 'SavedServerConnectionCard as _Root shows it (main.dart)'),
     CensusShot('root-connecting', state: 'not-answering', (kit) async {
       final controller = await kit.connected();
       controller.status = StreamStatus.connecting;
@@ -280,60 +275,36 @@ final aShellArea = CensusArea(
     CensusShot('home-shell', state: 'needs-you', (kit) async {
       await _home(kit, needsYou: true);
     }),
-    CensusShot(
-      'home-shell',
-      state: 'reconnecting',
-      (kit) async {
-        await _home(kit, status: StreamStatus.reconnecting);
-        // Work says it in its own status line once reconnecting has taken a
-        // while.
-        await kit.settle(const Duration(seconds: 15));
-      },
-      note: 'Work tab after 15 s of reconnecting',
-    ),
-    CensusShot(
-      'embedded-connection-status-banner',
-      state: 'inbox',
-      (kit) async {
-        await _home(kit, status: StreamStatus.reconnecting, tab: 1);
-        kit.expectVisible(
-          find.byKey(const ValueKey('connection-status-banner')),
-        );
-      },
-      note: 'the shell banner over the Inbox tab (Work uses its own line)',
-    ),
-    CensusShot(
-      'embedded-connection-status-banner',
-      state: 'lost',
-      (kit) async {
-        await _home(kit, status: StreamStatus.disconnected, tab: 1);
-        kit.expectVisible(
-          find.byKey(const ValueKey('connection-status-banner')),
-        );
-      },
-      note: 'the shell banner over the Inbox tab once the connection is lost',
-    ),
-    CensusShot(
-      'embedded-connection-status-banner',
-      state: 'chat',
-      (kit) async {
-        final api = CaptureApi()
-          ..messagesHandler = (_) async => sampleTranscript();
-        final controller = await kit.connected(api: api);
-        controller
-          ..status = StreamStatus.disconnected
-          ..lastError =
-              'Cannot reach http://192.168.1.20:4096: Connection refused';
-        await kit.pumpApp(
-          const ChatScreen(sessionID: checkoutSessionID),
-          controller: controller,
-        );
-        kit.expectVisible(
-          find.byKey(const ValueKey('connection-status-banner')),
-        );
-      },
-      note: "the conversation's own connection line (chat_states.dart)",
-    ),
+    CensusShot('home-shell', state: 'reconnecting', (kit) async {
+      await _home(kit, status: StreamStatus.reconnecting);
+      // Work says it in its own status line once reconnecting has taken a
+      // while.
+      await kit.settle(const Duration(seconds: 15));
+    }, note: 'Work tab after 15 s of reconnecting'),
+    CensusShot('embedded-connection-status-banner', state: 'inbox', (
+      kit,
+    ) async {
+      await _home(kit, status: StreamStatus.reconnecting, tab: 1);
+      kit.expectVisible(find.byKey(const ValueKey('connection-status-banner')));
+    }, note: 'the shell banner over the Inbox tab (Work uses its own line)'),
+    CensusShot('embedded-connection-status-banner', state: 'lost', (kit) async {
+      await _home(kit, status: StreamStatus.disconnected, tab: 1);
+      kit.expectVisible(find.byKey(const ValueKey('connection-status-banner')));
+    }, note: 'the shell banner over the Inbox tab once the connection is lost'),
+    CensusShot('embedded-connection-status-banner', state: 'chat', (kit) async {
+      final api = CaptureApi()
+        ..messagesHandler = (_) async => sampleTranscript();
+      final controller = await kit.connected(api: api);
+      controller
+        ..status = StreamStatus.disconnected
+        ..lastError =
+            'Cannot reach http://192.168.1.20:4096: Connection refused';
+      await kit.pumpApp(
+        const ChatScreen(sessionID: checkoutSessionID),
+        controller: controller,
+      );
+      kit.expectVisible(find.byKey(const ValueKey('connection-status-banner')));
+    }, note: "the conversation's own connection line (chat_states.dart)"),
     CensusShot('connection-status-details-sheet', (kit) async {
       await _home(kit, status: StreamStatus.reconnecting, tab: 1);
       await kit.tapKey('kit-status-more');
@@ -368,23 +339,19 @@ final aShellArea = CensusArea(
     }),
 
     // -- generic sheets and dialogs -------------------------------------------
-    CensusShot(
-      'confirm-sheet',
-      (kit) async {
-        await _home(kit);
-        await kit.present(
-          (context) => showKitConfirm(
-            context,
-            title: 'Delete this conversation?',
-            body: 'It is removed from the server for everyone.',
-            confirmLabel: 'Delete',
-            kind: KitConfirmKind.destructive,
-          ),
-        );
-        kit.expectText('Delete this conversation?');
-      },
-      note: 'the generic confirm sheet, with sample destructive copy',
-    ),
+    CensusShot('confirm-sheet', (kit) async {
+      await _home(kit);
+      await kit.present(
+        (context) => showKitConfirm(
+          context,
+          title: 'Delete this conversation?',
+          body: 'It is removed from the server for everyone.',
+          confirmLabel: 'Delete',
+          kind: KitConfirmKind.destructive,
+        ),
+      );
+      kit.expectText('Delete this conversation?');
+    }, note: 'the generic confirm sheet, with sample destructive copy'),
     CensusShot('external-link-dialog', state: 'https', (kit) async {
       await _home(kit);
       await kit.present(
@@ -409,39 +376,31 @@ final aShellArea = CensusArea(
     }),
 
     // -- notices from main.dart ---------------------------------------------
-    CensusShot(
-      'share-session-failed-banner',
-      (kit) async {
-        final controller = await kit.connected(api: _NoSessionApi());
-        final share = ShareIntent(
-          channel: const MethodChannel('oc/share-census'),
-        );
-        kit.onDispose(share.dispose);
-        await _pumpOcApp(kit, controller, share: share);
-        share.pending.value = 'Crash log from the checkout page: TypeError…';
-        await kit.settle(const Duration(seconds: 2));
-        kit.expectVisible(find.byType(MaterialBanner));
-      },
-      note: 'the real OcApp; creating the session for shared text fails',
-    ),
-    CensusShot(
-      'session-link-server-missing-banner',
-      (kit) async {
-        final controller = await kit.connected();
-        final link = SessionLinkIntent(
-          channel: const MethodChannel('oc/link-census'),
-        );
-        kit.onDispose(link.dispose);
-        await _pumpOcApp(kit, controller, link: link);
-        link.pending.value = const SessionLink(
-          profileID: 'someone-elses-phone',
-          sessionID: 'ses_link',
-        );
-        await kit.settle(const Duration(seconds: 2));
-        kit.expectVisible(find.byKey(const Key('session-link-server-missing')));
-      },
-      note: 'the real OcApp; a scanned link names a server not saved here',
-    ),
+    CensusShot('share-session-failed-banner', (kit) async {
+      final controller = await kit.connected(api: _NoSessionApi());
+      final share = ShareIntent(
+        channel: const MethodChannel('oc/share-census'),
+      );
+      kit.onDispose(share.dispose);
+      await _pumpOcApp(kit, controller, share: share);
+      share.pending.value = 'Crash log from the checkout page: TypeError…';
+      await kit.settle(const Duration(seconds: 2));
+      kit.expectVisible(find.byType(MaterialBanner));
+    }, note: 'the real OcApp; creating the session for shared text fails'),
+    CensusShot('session-link-server-missing-banner', (kit) async {
+      final controller = await kit.connected();
+      final link = SessionLinkIntent(
+        channel: const MethodChannel('oc/link-census'),
+      );
+      kit.onDispose(link.dispose);
+      await _pumpOcApp(kit, controller, link: link);
+      link.pending.value = const SessionLink(
+        profileID: 'someone-elses-phone',
+        sessionID: 'ses_link',
+      );
+      await kit.settle(const Duration(seconds: 2));
+      kit.expectVisible(find.byKey(const Key('session-link-server-missing')));
+    }, note: 'the real OcApp; a scanned link names a server not saved here'),
     CensusShot('shorebird-update-notice', state: 'receiving', (kit) async {
       final controller = await kit.connected();
       final service = _UpdateService(AppUpdateState.available);
@@ -471,137 +430,111 @@ final aShellArea = CensusArea(
       );
       kit.expectText('App update ready');
     }),
-    CensusShot(
-      'desktop-release-notice',
-      (kit) async {
-        final controller = await kit.connected();
-        await _pumpWithMessenger(
-          kit,
-          controller,
-          (messenger) => DesktopReleaseNotice(
-            messengerKey: messenger,
-            enabledOverride: true,
-            checker: _ReleaseChecker(),
-            currentBuildNumberLoader: () async => 52,
-            launcher: (_) async {},
-            child: const HomeScreen(),
-          ),
-        );
-        kit.expectTextContaining('is available');
-      },
-      note: 'desktop builds only; shown here at phone size',
-    ),
+    CensusShot('desktop-release-notice', (kit) async {
+      final controller = await kit.connected();
+      await _pumpWithMessenger(
+        kit,
+        controller,
+        (messenger) => DesktopReleaseNotice(
+          messengerKey: messenger,
+          enabledOverride: true,
+          checker: _ReleaseChecker(),
+          currentBuildNumberLoader: () async => 52,
+          launcher: (_) async {},
+          child: const HomeScreen(),
+        ),
+      );
+      kit.expectTextContaining('is available');
+    }, note: 'desktop builds only; shown here at phone size'),
 
     // -- desktop surfaces that are ordinary Flutter overlays -------------------
-    CensusShot(
-      'shortcuts-help-dialog',
-      (kit) async {
-        await _home(kit);
-        await kit.present(showShortcutsHelp);
-        kit.expectVisible(find.byType(Dialog));
-      },
-      note: 'desktop keyboard help; shown here at phone size',
-    ),
-    CensusShot(
-      'command-palette-dialog',
-      (kit) async {
-        await _home(kit);
-        await kit.present(
-          (context) => showCommandPalette(context, [
-            DesktopCommand(
-              label: 'New conversation',
-              icon: AppIconography.add,
-              onInvoke: () {},
-              keys: 'Ctrl+N',
-              hint: 'Start a conversation in shopfront',
-            ),
-            DesktopCommand(
-              label: 'Open settings',
-              icon: AppIconography.settings,
-              onInvoke: () {},
-              keys: 'Ctrl+,',
-            ),
-            DesktopCommand(
-              label: 'Keyboard shortcuts',
-              icon: AppIconography.info,
-              onInvoke: () {},
-              keys: 'Ctrl+/',
-            ),
-          ]),
-        );
-        kit.expectText('Open settings');
-      },
-      note: 'desktop command palette (Ctrl+K) with sample commands',
-    ),
-    CensusShot(
-      'embedded-context-menu-region',
-      (kit) async {
-        await _home(kit);
-        final row = find.text('Add dark mode to settings');
-        kit.expectVisible(row);
-        final at = kit.tester.getCenter(row);
-        await kit.present(
-          (context) => showContextMenu(context, at, [
-            ContextMenuAction(
-              label: 'Rename',
-              icon: AppIconography.edit,
-              onSelected: () {},
-            ),
-            ContextMenuAction(
-              label: 'Share',
-              icon: AppIconography.upload,
-              onSelected: () {},
-            ),
-            ContextMenuAction(
-              label: 'Delete',
-              icon: AppIconography.delete,
-              onSelected: () {},
-              destructive: true,
-            ),
-          ]),
-        );
-        kit.expectText('Rename');
-      },
-      note: 'desktop right-click menu over a Work row, sample entries',
-    ),
+    CensusShot('shortcuts-help-dialog', (kit) async {
+      await _home(kit);
+      await kit.present(showShortcutsHelp);
+      kit.expectVisible(find.byType(Dialog));
+    }, note: 'desktop keyboard help; shown here at phone size'),
+    CensusShot('command-palette-dialog', (kit) async {
+      await _home(kit);
+      await kit.present(
+        (context) => showCommandPalette(context, [
+          DesktopCommand(
+            label: 'New conversation',
+            icon: AppIconography.add,
+            onInvoke: () {},
+            keys: 'Ctrl+N',
+            hint: 'Start a conversation in shopfront',
+          ),
+          DesktopCommand(
+            label: 'Open settings',
+            icon: AppIconography.settings,
+            onInvoke: () {},
+            keys: 'Ctrl+,',
+          ),
+          DesktopCommand(
+            label: 'Keyboard shortcuts',
+            icon: AppIconography.info,
+            onInvoke: () {},
+            keys: 'Ctrl+/',
+          ),
+        ]),
+      );
+      kit.expectText('Open settings');
+    }, note: 'desktop command palette (Ctrl+K) with sample commands'),
+    CensusShot('embedded-context-menu-region', (kit) async {
+      await _home(kit);
+      final row = find.text('Add dark mode to settings');
+      kit.expectVisible(row);
+      final at = kit.tester.getCenter(row);
+      await kit.present(
+        (context) => showContextMenu(context, at, [
+          ContextMenuAction(
+            label: 'Rename',
+            icon: AppIconography.edit,
+            onSelected: () {},
+          ),
+          ContextMenuAction(
+            label: 'Share',
+            icon: AppIconography.upload,
+            onSelected: () {},
+          ),
+          ContextMenuAction(
+            label: 'Delete',
+            icon: AppIconography.delete,
+            onSelected: () {},
+            destructive: true,
+          ),
+        ]),
+      );
+      kit.expectText('Rename');
+    }, note: 'desktop right-click menu over a Work row, sample entries'),
 
     // -- other screens -------------------------------------------------------
-    CensusShot(
-      'embedded-product-states',
-      state: 'error',
-      (kit) async {
-        await kit.pumpApp(
-          Scaffold(
-            appBar: AppBar(title: const Text('Commands')),
-            body: KitStateView.error(
-              title: "Couldn't load commands",
-              details: 'Cannot reach http://192.168.1.20:4096: timed out',
-              retry: KitAction(label: 'Try again', onPressed: () {}),
-            ),
+    CensusShot('embedded-product-states', state: 'error', (kit) async {
+      await kit.pumpApp(
+        Scaffold(
+          appBar: AppBar(title: const Text('Commands')),
+          body: KitStateView.error(
+            title: "Couldn't load commands",
+            details: 'Cannot reach http://192.168.1.20:4096: timed out',
+            retry: KitAction(label: 'Try again', onPressed: () {}),
           ),
-        );
-        kit.expectText('Try again');
-      },
-      note: 'the kit error state in a plain host screen',
-    ),
-    CensusShot(
-      'embedded-product-states',
-      state: 'empty',
-      (kit) async {
-        await kit.pumpApp(
-          Scaffold(
-            appBar: AppBar(title: const Text('Commands')),
-            body: const KitStateView(
-              icon: AppIconography.info,
-              title: 'No commands yet',
-              body: 'Commands this server offers appear here.',
-            ),
+        ),
+      );
+      kit.expectText('Try again');
+    }, note: 'the kit error state in a plain host screen'),
+    CensusShot('embedded-product-states', state: 'empty', (kit) async {
+      await kit.pumpApp(
+        Scaffold(
+          appBar: AppBar(title: const Text('Commands')),
+          body: const KitStateView(
+            icon: AppIconography.info,
+            title: 'No commands yet',
+            body: 'Commands this server offers appear here.',
           ),
-        );
-        kit.expectText('No commands yet');
-      },
-      note: 'the kit empty state in a plain host screen',
-    ),
+        ),
+      );
+      kit.expectText('No commands yet');
+    }, note: 'the kit empty state in a plain host screen'),
     CensusShot('demo', (kit) async {
       final controller = await kit.disconnected();
       await kit.pumpApp(const DemoScreen(), controller: controller);

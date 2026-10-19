@@ -8,7 +8,7 @@ import 'dart:math';
 
 import 'package:crypto/crypto.dart';
 
-import '../api/models.dart';
+import '../domain/models.dart';
 import '../state/profiles.dart' show isLoopbackHost, validateServerProfileUrl;
 
 enum CodexFailureKind {

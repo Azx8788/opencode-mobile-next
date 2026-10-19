@@ -2,17 +2,17 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:opencode_mobile/ui/screens/files_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class _FilesApi extends OpenCodeApi {
+class _FilesApi extends FakeServerGateway {
   _FilesApi(this.read, {this.list}) : super(baseUrl: 'http://localhost');
 
   final Future<FileContent> Function(String path) read;
@@ -54,7 +54,10 @@ class _StatusRepository implements ProductRepository {
 class _SignalController extends ConnectionController {
   _SignalController(super.store);
 
-  void signalScope(OpenCodeApi nextApi, ProductRepository nextRepository) {
+  void signalScope(
+    FakeServerGateway nextApi,
+    ProductRepository nextRepository,
+  ) {
     api = nextApi;
     repository = nextRepository;
     locationRevision++;
@@ -68,7 +71,7 @@ Future<ProfileStore> _store() async {
   return ProfileStore(prefs: prefs);
 }
 
-Future<ConnectionController> _controller(OpenCodeApi api) async {
+Future<ConnectionController> _controller(ServerGateway api) async {
   return ConnectionController(await _store())
     ..api = api
     ..status = StreamStatus.connected;

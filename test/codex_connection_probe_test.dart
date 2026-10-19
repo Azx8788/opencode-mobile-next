@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/codex/gateway.dart';
 import 'package:opencode_mobile/codex/transport.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';

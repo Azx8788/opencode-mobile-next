@@ -12,7 +12,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/domain/mobile_tool_view.dart';
 import 'package:opencode_mobile/domain/transcript_search.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';

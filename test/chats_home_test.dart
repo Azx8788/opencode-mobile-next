@@ -126,6 +126,55 @@ void main() {
     expect(find.text('Git'), findsNothing);
   });
 
+  clocked('a reply that finished since it was opened shows Done in the state '
+      'slot; needs-you wins; opened clears it', (tester) async {
+    final items = [
+      chat(
+        'a',
+        'Fix the login bug',
+        status: ChatStatus.needsYou,
+        finishedUnseen: true,
+        at: _now.subtract(const Duration(minutes: 2)),
+      ),
+      chat(
+        'c',
+        'Explain the build',
+        finishedUnseen: true,
+        at: _now.subtract(const Duration(hours: 3)),
+      ),
+      chat('d', 'Old idea', at: _now.subtract(const Duration(hours: 4))),
+    ];
+    await _pump(
+      tester,
+      FakeChatsHost(
+        FakeChatFeedSource(
+          items: items,
+          projects: [project('alpha', chats: 3, needs: 1)],
+        ),
+      ),
+    );
+    expect(find.textContaining('Done', findRichText: true), findsOneWidget);
+    expect(
+      find.textContaining('Done \u00b7', findRichText: true),
+      findsOneWidget,
+    );
+    expect(find.textContaining('Needs you', findRichText: true), findsWidgets);
+    // Same rows once opened: no Done anywhere.
+    await _pump(
+      tester,
+      FakeChatsHost(
+        FakeChatFeedSource(
+          items: [
+            for (final i in items)
+              chat(i.sessionID, i.title, status: i.status, at: i.lastActivity),
+          ],
+          projects: [project('alpha', chats: 3, needs: 1)],
+        ),
+      ),
+    );
+    expect(find.textContaining('Done', findRichText: true), findsNothing);
+  });
+
   clocked('a chat that needs you sorts first inside its time group, not in a '
       'group of its own', (tester) async {
     await _pump(
@@ -229,7 +278,7 @@ void main() {
     expect(find.text(KitBidi.auto('New conversation')), findsWidgets);
   });
 
-  clocked('only a running row names a state; a finished one has none', (
+  clocked('only a running row names a state; a finished one says Done', (
     tester,
   ) async {
     final at = DateTime(2026, 9, 26, 10);
@@ -251,8 +300,8 @@ void main() {
         ),
       ),
     );
-    // A finished conversation has no state word; a running one says Working.
-    expect(find.textContaining('Done', findRichText: true), findsNothing);
+    // An unseen finish says Done, a running one Working (it wins over Done).
+    expect(find.textContaining('Done', findRichText: true), findsOneWidget);
     expect(find.textContaining('Working', findRichText: true), findsOneWidget);
   });
 

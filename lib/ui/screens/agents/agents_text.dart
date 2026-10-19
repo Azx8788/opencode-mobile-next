@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import '../../../domain/agent_auth_probe.dart';
 import '../../../domain/agent_catalog.dart';
 import '../../../domain/agent_sign_in.dart';
+import '../../../domain/mark_catalog.dart';
 import '../../../domain/agent_tools/agent_certification.dart';
 import '../../../domain/phone_agent_host.dart';
 import '../../../domain/product_failure.dart';
@@ -20,9 +21,13 @@ import '../../kit/kit_time.dart';
 
 /// A glyph for an agent's icon key; a generic one when unknown.
 IconData agentIcon(String iconKey) => switch (iconKey) {
-  'opencode' => AppIconography.code,
+  'opencode' || 'opencode2' => AppIconography.code,
   _ => AppIconography.terminal,
 };
+
+/// The bundled brand mark of an agent's icon key (drawn in [agentIcon]'s
+/// place), or null for an agent with no logo of its own.
+String? agentMark(String iconKey) => agentMarkSlug(iconKey);
 
 /// The agent's own download size ("98 MB", "1.2 GB") from the catalog, or
 /// null when the recipe does not say. Only the agent payload, never the
@@ -41,6 +46,13 @@ String? agentPayloadSize(String agentId) {
 /// What removing an agent freed ("98 MB", "412 kB"), as the host measured it,
 /// in the same left-to-right isolate as [agentPayloadSize].
 String agentFreedSize(int bytes) => _sizeText(bytes);
+
+/// The install bar's fraction from measured bytes only; null (an
+/// indeterminate bar) until a total is known.
+double? agentInstallBarFraction({int? done, int? total}) =>
+    total != null && total > 0 && done != null
+    ? (done / total).clamp(0.0, 1.0).toDouble()
+    : null;
 
 String _sizeText(int bytes) => KitBidi.ltr(
   bytes >= 1000000000
@@ -82,7 +94,12 @@ String agentRowLine(
     case PhoneAgentStatus.signedOut:
       return l10n.agentsStateSignInNeeded;
     case PhoneAgentStatus.needsQualification:
-      return l10n.agentsStatePhoneCheck;
+      return switch (row.checkRequiredReason) {
+        'agentVersion' => l10n.agentsCheckAgentChanged,
+        'helperVersion' => l10n.agentsCheckHelperChanged,
+        'installationChanged' => l10n.agentsCheckInstallChanged,
+        _ => l10n.agentsStatePhoneCheck,
+      };
     case PhoneAgentStatus.stoppedInBackground:
       return l10n.agentsStateStopped;
     case PhoneAgentStatus.limitReached:
@@ -139,6 +156,28 @@ AgentFailure agentFailure(AppLocalizations l10n, Object error) {
       technical,
     ),
     _ => AgentFailure(l10n.agentsActionFailed, technical),
+  };
+}
+
+/// Words for a Resume that did not start [agent] again. It ran on this phone
+/// before, so "this phone can't run this agent" would be wrong; typed
+/// refusals (busy, out of date, a helper update, storage) keep their words.
+AgentFailure agentResumeFailure(
+  AppLocalizations l10n,
+  Object error,
+  String agent,
+) {
+  final failure = agentFailure(l10n, error);
+  return switch (error) {
+    AgentHostException(
+      reason: AgentHostFailure.unavailable ||
+          AgentHostFailure.daemon ||
+          AgentHostFailure.hello ||
+          AgentHostFailure.timeout,
+    ) =>
+      AgentFailure(l10n.agentsResumeFailed(agent), failure.technical),
+    AgentHostException() || AgentSignInException() => failure,
+    _ => AgentFailure(l10n.agentsResumeFailed(agent), failure.technical),
   };
 }
 
@@ -233,6 +272,9 @@ String agentHostFailureText(AppLocalizations l10n, AgentHostFailure? failure) =>
       AgentHostFailure.version => l10n.agentsFailVersion,
       AgentHostFailure.daemon => l10n.agentsFailDaemon,
       AgentHostFailure.hello => l10n.agentsFailHello,
+      AgentHostFailure.needsSignIn => l10n.agentsFailNeedsSignIn,
+      AgentHostFailure.helperVersion => l10n.agentsFailHelperVersion,
+      AgentHostFailure.timeout => l10n.agentsFailTimeout,
       AgentHostFailure.wrongArchitecture => l10n.agentsFailArchitecture,
       AgentHostFailure.stale => l10n.agentsFailStale,
       AgentHostFailure.busy => l10n.agentsFailBusy,

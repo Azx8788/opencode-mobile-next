@@ -15,7 +15,7 @@ enum KitConsequenceMark {
   /// A fact: `text2` info glyph.
   info,
 
-  /// Goes with the act (loses data or ends work): danger glyph (LOOK-5).
+  /// Goes with the act (loses data or ends work): strong neutral glyph (never red).
   lost,
 
   /// Survives the act (DATA-8): `text2` check.
@@ -88,7 +88,7 @@ class KitConsequences extends StatelessWidget {
     return Icon(
       item.icon ?? _iconFor(item.mark),
       size: size,
-      color: item.mark == KitConsequenceMark.lost ? roles.danger : roles.text2,
+      color: item.mark == KitConsequenceMark.lost ? roles.text1 : roles.text2,
     );
   }
 

@@ -9,28 +9,14 @@ import '../kit/kit_code_block.dart';
 import '../kit/kit_row.dart';
 import '../kit/kit_screen.dart';
 import '../kit/kit_text.dart';
-import '../kit/kit_technical_value.dart';
 import '../kit/kit_tokens.dart';
 import '../kit/kit_top_bar.dart';
 import '../setup_commands.dart';
 import '../widgets/external_link.dart';
 
-/// Host-side management for a remote OpenCode server.
-///
-/// The app cannot execute commands on the host, so this surface is truthful
-/// by construction: the title names the server, one line under the bar says
-/// where the commands run, and the rest are exact, copyable commands for
-/// the documented Ubuntu helper script. The server's address and version
-/// live on its own page, so they are not repeated here. It never claims the
-/// app performed a host action.
-///
-/// The install command downloads the script from one published commit and
-/// checks its SHA-256 before anything runs ([HostScripts], slice-close-
-/// security); "What this does" under it says what the script changes and
-/// that it needs Linux with systemd.
-// revamp: redesign (no owner) — the map's sheet from Server settings with
-// daily commands folded waits for a programme slice; the pinned, checksummed
-// install, "What this does" and Linux-only landed in slice-close-security.
+/// Copyable OpenCode 2 setup commands for a remote computer. The app does
+/// not execute these commands: installation uses the pinned official npm
+/// package, and the foreground server prints its own password.
 class HostManagementScreen extends StatelessWidget {
   const HostManagementScreen({super.key, required this.controller});
 
@@ -84,37 +70,9 @@ class HostManagementScreen extends StatelessWidget {
           children: [
             _HostCommand(
               key: const ValueKey('host-command-install'),
-              label: l10n.e7SetupInstallService,
-              detail: l10n.hostServiceInstallChecked(HostScripts.release),
+              label: l10n.openCode2HostInstall,
+              detail: l10n.openCode2HostInstallDetail,
               command: HostScripts.install(port),
-              fold: KitDetailsFold(
-                label: l10n.hostServiceWhatThisDoes,
-                foldKey: const ValueKey('host-install-what'),
-                notes: [
-                  l10n.hostServiceWhatLinux,
-                  l10n.hostServiceWhatInstall,
-                  l10n.hostServiceWhatService,
-                  l10n.hostServiceWhatPassword,
-                ],
-                values: [
-                  KitTechnicalValue(
-                    l10n.hostServicePinnedCommit,
-                    HostScripts.commit,
-                  ),
-                  KitTechnicalValue(
-                    l10n.hostServiceChecksum,
-                    HostScripts.ubuntu.sha256,
-                  ),
-                ],
-              ),
-            ),
-            _HostCommand(
-              label: l10n.e7SetupKeepAfterLogout,
-              command: 'loginctl enable-linger "\$USER"',
-            ),
-            _HostCommand(
-              label: l10n.e7SetupReadPassword,
-              command: 'bash ubuntu-opencode.sh password',
             ),
             // `adb reverse` forwards a port to an attached *Android* device.
             // On desktop the app and the server share a machine, so the tile
@@ -125,30 +83,6 @@ class HostManagementScreen extends StatelessWidget {
                 label: l10n.e7SetupUsbAccess,
                 command: 'adb reverse tcp:$port tcp:$port',
               ),
-          ],
-        ),
-        SizedBox(height: tokens.sectionGap),
-        KitRowGroup(
-          label: l10n.e7SetupHostDaily,
-          leadingIcons: false,
-          children: [
-            _HostCommand(
-              label: l10n.e7SetupServiceStatus,
-              command: 'bash ubuntu-opencode.sh status',
-            ),
-            _HostCommand(
-              label: l10n.e7SetupRestartServer,
-              command: 'bash ubuntu-opencode.sh restart',
-            ),
-            _HostCommand(
-              label: l10n.e7SetupFollowLog,
-              command: 'bash ubuntu-opencode.sh logs',
-            ),
-            _HostCommand(
-              label: l10n.e7SetupUpdateHost,
-              detail: l10n.e7SetupUpdateHostDetail,
-              command: 'bash ubuntu-opencode.sh update',
-            ),
           ],
         ),
         Padding(
@@ -174,21 +108,18 @@ class HostManagementScreen extends StatelessWidget {
 }
 
 /// One host command: what it does, why (optional), and the command itself
-/// in the kit's code block with its own copy button; [fold], when given,
-/// sits under the command.
+/// in the kit's code block with its own copy button.
 class _HostCommand extends StatelessWidget {
   const _HostCommand({
     super.key,
     required this.label,
     required this.command,
     this.detail,
-    this.fold,
   });
 
   final String label;
   final String? detail;
   final String command;
-  final Widget? fold;
 
   @override
   Widget build(BuildContext context) {
@@ -215,7 +146,6 @@ class _HostCommand extends StatelessWidget {
                   : l10n.e7SetupCopyCommandLabel(label),
               copyKey: ValueKey('copy-host-command-$label'),
             ),
-            ?fold,
           ],
         ),
       ),

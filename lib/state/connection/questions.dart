@@ -320,14 +320,6 @@ extension _ConnectionControllerQuestionsImpl on ConnectionController {
     if (error is ProductException && error.cause != null) {
       return _isQuestionNotFound(error.cause!, requestID);
     }
-    if (error is sdk.OpenCodeApiException && error.statusCode == 404) {
-      final decoded = error.payloadAs<sdk.QuestionNotFoundError>();
-      if (decoded != null) return decoded.requestID == requestID;
-      final raw = error.rawPayload;
-      return raw is Map &&
-          raw['_tag']?.toString() == 'QuestionNotFoundError' &&
-          raw['requestID']?.toString() == requestID;
-    }
     return false;
   }
 }

@@ -17,7 +17,7 @@ final _l10n = lookupAppLocalizations(const Locale('en'));
 
 TermuxSetupStatus _status(
   String phase, {
-  TermuxRuntime runtime = TermuxRuntime.openCode1,
+  TermuxRuntime runtime = TermuxRuntime.openCode2,
   String version = '',
   String message = 'OpenCode is ready',
 }) => TermuxSetupStatus(
@@ -93,7 +93,7 @@ void main() {
 
   const fresh = SetupFinishRequest(
     host: SetupHostKind.termux,
-    runtime: TermuxRuntime.openCode1,
+    runtime: TermuxRuntime.openCode2,
     openCodeChanged: true,
     version: '1.18.32',
   );
@@ -109,7 +109,7 @@ void main() {
       expect(profile.password, isNotEmpty);
       expect(profile.serverVersion, '1.18.32');
       expect(server.staged.single.password, profile.password);
-      expect(server.staged.single.runtime, TermuxRuntime.openCode1);
+      expect(server.staged.single.runtime, TermuxRuntime.openCode2);
       expect(server.restarts, 1);
       expect(connects.single.id, profile.id);
     },
@@ -151,7 +151,7 @@ void main() {
       await finisher().call(
         const SetupFinishRequest(
           host: SetupHostKind.termux,
-          runtime: TermuxRuntime.openCode1,
+          runtime: TermuxRuntime.openCode2,
           openCodeChanged: false,
         ),
       ),
@@ -209,7 +209,7 @@ void main() {
     expect(
       await finisher().call(
         const SetupFinishRequest(
-          runtime: TermuxRuntime.openCode1,
+          runtime: TermuxRuntime.openCode2,
           openCodeChanged: true,
         ),
       ),
@@ -233,7 +233,7 @@ void main() {
     expect(script, isNot(contains('echo "\$password')));
     expect(
       () => TermuxBridgeServerControl.stageScript(
-        runtime: TermuxRuntime.openCode1,
+        runtime: TermuxRuntime.openCode2,
         password: '',
       ),
       throwsArgumentError,

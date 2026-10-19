@@ -61,6 +61,9 @@ printf 'apt %s\n' "$*" >> "$TEST_LOG"
 case " $* " in
   *" --reinstall "*)
     [ "$TEST_MODE" != reinstall-failed ] || exit 100
+    case "$TEST_MODE $*" in
+      "reinstall-version-gone "*=6.9.9-1build1*) exit 100 ;;
+    esac
     touch "$TEST_LOG.reinstalled" ;;
   *" -f "*)
     [ "$TEST_MODE" != broken ] || exit 100
@@ -120,6 +123,26 @@ esac
         expect(result.stdout, contains('FINISHED'));
       },
     );
+
+    test('$shell reinstalls at the offered version when the recorded one '
+        'is gone from the archive', () async {
+      // An upgrade killed mid-unpack (perl-base 0.6 over 0.4 on a fresh
+      // phone) records 0.4, which the archive no longer has.
+      final result = await install('reinstall-version-gone', shell);
+      expect(result.exitCode, 0, reason: '${result.stdout}\n${result.stderr}');
+      final calls = File(environment['TEST_LOG']!)
+          .readAsLinesSync()
+          .where((line) => line.contains(' --reinstall '))
+          .toList();
+      expect(calls, [
+        'apt -o APT::Status-Fd=3 --reinstall --no-remove install -y '
+            '--no-install-recommends -o Acquire::Retries=5 '
+            'libonig5:amd64=6.9.9-1build1',
+        'apt -o APT::Status-Fd=3 --reinstall --no-remove install -y '
+            '--no-install-recommends -o Acquire::Retries=5 libonig5:amd64',
+      ]);
+      expect(result.stdout, contains('FINISHED'));
+    });
 
     for (final mode in ['reinstall-failed', 'reinstall-still-broken']) {
       test('$shell refuses installation after an unsuccessful $mode', () async {

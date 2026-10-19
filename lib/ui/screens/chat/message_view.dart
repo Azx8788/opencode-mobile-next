@@ -414,7 +414,18 @@ class _MessageView extends StatelessWidget {
         if (meta.turnCost case final cost?) _fmtCost(cost),
       ],
     ];
-    final raw = m.info.errorText;
+    // The server ends a step the person declined as "aborted"; that is their
+    // answer to a request, not a Stop and not a failure, so the turn carries
+    // no error line unless they also pressed Stop here.
+    final lastTool = visibleParts
+        .where((part) => part.type == 'tool')
+        .lastOrNull;
+    final declinedEnd =
+        !stoppedHere &&
+        m.info.errorKind == MessageErrorKind.aborted &&
+        lastTool != null &&
+        lastTool.toolState.declined;
+    final raw = declinedEnd ? null : m.info.errorText;
     // A message whose parts are all non-renderable bookkeeping (`step-finish`,
     // `patch`, `snapshot`) has nothing to say.
     if (visibleParts.isEmpty &&

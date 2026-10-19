@@ -86,3 +86,22 @@ No adb, ffmpeg or recording was run during this slice. The source screenshot
 set and redacted image were visually reviewed. Browser rendering was deferred
 because the shared host had under 500 MB available memory and full swap.
 The full application test pass and final device capture belong to integration.
+
+## Publishing and search (2026-10-15)
+
+The page uses only relative paths, so it works under
+`https://eslamasabry.github.io/opencode-mobile-next/` when this folder is the
+published root. GitHub Pages can serve only `/` or `/docs`, so publishing needs
+a Pages workflow that uploads `docs/site` (not set up here; repository settings
+are the owner's). `robots.txt` and `sitemap.xml` are in this folder; search
+engines read `robots.txt` only at a host root, so submit `sitemap.xml` in Search
+Console instead.
+
+Additional images:
+
+- `assets/og-image.jpg` (1200x630 social card) is composed from the logo and
+  `1_welcome.jpg`.
+
+The page also carries JSON-LD (`SoftwareApplication`, data only, no script
+execution) and light and dark colour schemes. `tool/qa/test_site.py` allows the
+JSON-LD block.

@@ -40,6 +40,5 @@
   "device file save": "reachable: Export conversation > Save (the system file picker); proof: test/session_export_test.dart :: a file the device cannot write says so and allows retry",
   "device share sheet": "reachable: Report a problem > Review report > Share; proof: test/app_diagnostics_screen_test.dart :: Share hands the preview to the share sheet",
   "github issue link": "reachable: Report a problem > Review report > Open on GitHub (through the link check); proof: test/app_diagnostics_screen_test.dart :: describe, review exactly what is sent, then open the",
-  "oc1 GET /session/{sessionID}/export": "not offered: OpenCode 1 has no complete-copy export; its conversations are saved as the readable transcript from the loaded messages",
   "oc2 GET /api/session/{sessionID}/export": "reachable: Export conversation > Save complete conversation; proof: test/session_export_test.dart :: exports complete response bytes with default redaction and no location"
 }

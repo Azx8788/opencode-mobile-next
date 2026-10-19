@@ -10,6 +10,7 @@ String termuxRestartScript({
   TermuxRuntime? switchTarget,
   String? switchPassword,
 }) {
+  switchTarget?.requireSupported();
   if (port < 1024 || port > 65535) {
     throw ArgumentError.value(port, 'port', 'Must be between 1024 and 65535.');
   }

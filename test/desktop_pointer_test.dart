@@ -1,11 +1,12 @@
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:opencode_mobile/ui/desktop/desktop_interaction.dart';
@@ -14,7 +15,7 @@ import 'package:opencode_mobile/ui/screens/files_screen.dart';
 import 'package:opencode_mobile/ui/widgets/markdown.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class _FilesApi extends OpenCodeApi {
+class _FilesApi extends FakeServerGateway {
   _FilesApi() : super(baseUrl: 'http://localhost');
 
   @override

@@ -6,6 +6,8 @@ extension _PhoneAgentRoutes on _ConnectionControllerPhoneAgents {
     'codex',
     'gemini',
     'qwen',
+    'kilo',
+    'cline',
     'goose',
     'omp-acp',
     'fx',

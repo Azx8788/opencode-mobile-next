@@ -5,7 +5,7 @@ import 'dart:async';
 
 import 'package:clock/clock.dart';
 
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/orchestration.dart';

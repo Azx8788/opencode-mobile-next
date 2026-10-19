@@ -107,15 +107,15 @@ internal class PhoneAgentAuthProcessTree(
         observe(entry, entries)
         val known = privateIdentities()
         val outside = entry.outside.entries.map { it.key to it.value }.toSet()
-        val unknown = entries.any { running(it) && (it.pid to it.start) !in checkNotNull(entry.before) &&
-            (it.pid to it.start) !in known && (it.pid to it.start) !in outside }
+        val before = checkNotNull(entry.before)
+        val unknown = entries.any { running(it) && (it.pid to it.start) !in before &&
+            (it.pid to it.start) !in known && (it.pid to it.start) !in outside &&
+            !startedByEarlierTask(it, entries, before, known) }
         return live(entry.tokens, entries).isEmpty() && !unknown
     }
 
     private fun live(tokens: Map<Int, String>, entries: List<PhoneAgentAuthProcessIdentity>) =
         entries.filter { tokens[it.pid] == it.start && running(it) }
-
-    private fun running(entry: PhoneAgentAuthProcessIdentity): Boolean = entry.state != 'Z' && entry.state != 'X'
 
     private companion object {
         const val STOP = 19
@@ -123,3 +123,35 @@ internal class PhoneAgentAuthProcessTree(
         const val POLL_MILLIS = 20L
     }
 }
+
+/**
+ * A task started during the probe by a task that already ran before it (the
+ * app itself, the in-app server, a terminal) belongs to that task, not to
+ * this probe. Only a new task with no such ancestor is unattributed: an auth
+ * child that escaped its tree is reparented to init, outside this census.
+ * Counting every new same-UID task kept a probe from ever draining while
+ * the app started its server, so a signed-in agent read as "sign in needed".
+ */
+private fun startedByEarlierTask(
+    task: PhoneAgentAuthProcessIdentity,
+    entries: List<PhoneAgentAuthProcessIdentity>,
+    before: Set<Pair<Int, String>>,
+    owned: Set<Pair<Int, String>>,
+): Boolean {
+    val byPid = entries.associateBy { it.pid }
+    val seen = mutableSetOf(task.pid)
+    var cursor = byPid[task.parent]
+    var verdict: Boolean? = null
+    while (verdict == null && cursor != null && seen.add(cursor.pid)) {
+        val identity = cursor.pid to cursor.start
+        verdict = when {
+            identity in owned -> false
+            identity in before -> true
+            else -> null
+        }
+        cursor = byPid[cursor.parent]
+    }
+    return verdict ?: false
+}
+
+private fun running(entry: PhoneAgentAuthProcessIdentity): Boolean = entry.state != 'Z' && entry.state != 'X'

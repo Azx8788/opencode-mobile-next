@@ -124,24 +124,28 @@ class _PendingSendsStrip extends StatelessWidget {
       // The server's words never show as copy: its plain headline only
       // (agentErrorWords), the same words the transcript uses.
       checkedAt: bound ? checkedAt(entry) : null,
-      details: bound && receipt != null
-          ? [
-              KitTechnicalValue(
-                strings.queuedReceiptDetailSentAt,
-                DateTime.fromMillisecondsSinceEpoch(
-                  receipt.createdAt,
-                ).toIso8601String(),
-              ),
-              KitTechnicalValue(
-                strings.queuedReceiptDetailCommand,
-                receipt.commandID,
-              ),
-              KitTechnicalValue(
-                strings.queuedReceiptDetailReceipt,
-                receipt.receiptID,
-              ),
-            ]
-          : const [],
+      details: [
+        if (bound && receipt != null) ...[
+          KitTechnicalValue(
+            strings.queuedReceiptDetailSentAt,
+            DateTime.fromMillisecondsSinceEpoch(
+              receipt.createdAt,
+            ).toIso8601String(),
+          ),
+          KitTechnicalValue(
+            strings.queuedReceiptDetailCommand,
+            receipt.commandID,
+          ),
+          KitTechnicalValue(
+            strings.queuedReceiptDetailReceipt,
+            receipt.receiptID,
+          ),
+        ],
+        if (entry.error case final raw?
+            when state == KitQueuedState.failed ||
+                state == KitQueuedState.notConfirmed)
+          KitTechnicalValue(strings.chatUiErrorDetails, KitRedact.text(raw)),
+      ],
       detailNotes: bound ? [strings.queuedReceiptDetailNote] : const [],
       reason: switch (entry.error) {
         final raw?

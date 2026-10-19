@@ -1,4 +1,4 @@
-import '../api/models.dart';
+import '../domain/models.dart';
 
 /// What the server said about how a run ended. Only assistant-message facts
 /// (`finish`, `error`, `time.completed`) decide this; session idleness and

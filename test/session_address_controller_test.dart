@@ -1,3 +1,4 @@
+import 'support/fake_server_capabilities.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -100,7 +101,13 @@ void main() {
     );
     SharedPreferences.setMockInitialValues({
       'oc.profiles': jsonEncode([
-        {'id': 'profile', 'name': 'Saved', 'baseUrl': origin, 'username': ''},
+        {
+          'id': 'profile',
+          'name': 'Saved',
+          'flavor': 'v2',
+          'baseUrl': origin,
+          'username': '',
+        },
       ]),
     });
     disk = _BindingDisk(await SharedPreferencesStorePlatform.instance.getAll());
@@ -138,7 +145,7 @@ void main() {
 
   test('production capability and coordinator remain unavailable', () async {
     expect(const ServerCapabilities().sessionAddressHandoff, isFalse);
-    expect(ServerCapabilities.allV1.sessionAddressHandoff, isFalse);
+    expect(testServerCapabilities.sessionAddressHandoff, isFalse);
     final production = SessionAddressController(
       store: store,
       descriptors: reader,

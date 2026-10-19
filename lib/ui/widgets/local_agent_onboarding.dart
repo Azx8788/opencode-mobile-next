@@ -1042,7 +1042,7 @@ class _LocalAgentOnboardingBlockState extends State<LocalAgentOnboardingBlock>
         KitText(
           l10n.localAgentFailedTitle,
           role: KitTextRole.rowTitle,
-          tone: KitTextTone.danger,
+          tone: KitTextTone.primary,
         ),
         _gap(context, (t) => t.space2),
         KitText(

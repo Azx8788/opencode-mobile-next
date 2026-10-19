@@ -3,7 +3,7 @@ library;
 
 import 'dart:async';
 
-import '../api/models.dart';
+import '../domain/models.dart';
 import '../domain/server_gateway.dart';
 import '../domain/agent_handoff_history.dart';
 import '../domain/agent_account.dart';
@@ -14,6 +14,7 @@ import 'transport.dart';
 import '../diagnostics/perf_trace.dart';
 
 const codexServerCapabilities = ServerCapabilities(
+  scheduledPrompts: true,
   agentAccount: true,
   // 0.153.4 has fs/writeFile, but no qualified exclusive/scoped handoff
   // writer is implemented. Filesystem RPC availability alone is insufficient.

@@ -1,12 +1,13 @@
 //! Pinned OC2 stable driver. Mutations are never retried, even after uncertainty.
-use crate::opencode1::{
-    known_directories, model_selection, prompt_body, validate_directory, validate_session_id,
+use crate::opencode::{
+    known_directories, model_selection, validate_directory, validate_prompt, validate_session_id,
     validate_team_ids, GlobalStatusObservation, ProtocolError,
 };
 use reqwest::{Client, Method, StatusCode, Url};
 use serde_json::{json, Value};
 use std::{
     collections::{BTreeMap, BTreeSet},
+    net::IpAddr,
     sync::Mutex,
     time::{Duration, Instant},
 };
@@ -36,7 +37,23 @@ pub(crate) fn validate_info(info: &Value) -> Result<(), ProtocolError> {
 }
 impl OpenCode2Client {
     pub fn new(url: &str, username: &str, password: &str) -> Result<Self, ProtocolError> {
-        // The facade has already applied OC1's strict loopback/credential checks.
+        let base = Url::parse(url).map_err(|_| ProtocolError("invalid_server"))?;
+        let loopback = base
+            .host_str()
+            .and_then(|s| s.trim_matches(['[', ']']).parse::<IpAddr>().ok())
+            .is_some_and(|ip| ip.is_loopback());
+        if base.scheme() != "http"
+            || !loopback
+            || !base.username().is_empty()
+            || base.password().is_some()
+            || base.query().is_some()
+            || base.fragment().is_some()
+            || base.path() != "/"
+            || username != "opencode"
+            || password.is_empty()
+        {
+            return Err(ProtocolError("invalid_server"));
+        }
         let client = |timeout| {
             let mut b = Client::builder()
                 .no_proxy()
@@ -51,7 +68,7 @@ impl OpenCode2Client {
         Ok(Self {
             http: client(true)?,
             stream: client(false)?,
-            base: Url::parse(url).map_err(|_| ProtocolError("invalid_server"))?,
+            base,
             username: username.into(),
             password: password.into(),
             schema: OnceCell::new(),
@@ -233,7 +250,7 @@ impl OpenCode2Client {
         readonly: bool,
     ) -> Result<Value, ProtocolError> {
         validate_session_id(id)?;
-        prompt_body(role, model, instructions, text, readonly)?;
+        validate_prompt(role, model, instructions, text, readonly)?;
         let instruction = json!(format!("AI Team role: {role}.\n{instructions}"));
         if serde_json::to_vec(&instruction)
             .map_err(|_| ProtocolError("invalid_role"))?
@@ -779,17 +796,7 @@ fn observation(
         state = "blocked";
     }
     // Usage fields are optional; never synthesize zero for missing accounting.
-    let normalized: Vec<Value> = messages
-        .iter()
-        .filter(|m| m["type"] == "assistant")
-        .map(|m| {
-            let mut info = m.clone();
-            info["role"] = json!("assistant");
-            json!({"info":info})
-        })
-        .collect();
-    let mut result =
-        json!({"state":state,"text":text,"usage":crate::opencode1::usage(&normalized)});
+    let mut result = json!({"state":state,"text":text,"usage":usage(messages)});
     if state == "failed" {
         if let Some(reason) = failure_reason {
             result["reason"] = json!(reason);
@@ -797,6 +804,50 @@ fn observation(
     }
     Ok(result)
 }
+fn usage(messages: &[Value]) -> Value {
+    let assistants: Vec<&Value> = messages
+        .iter()
+        .filter(|m| m["type"] == "assistant")
+        .collect();
+    let mut usage = serde_json::Map::new();
+    if assistants.is_empty() {
+        return Value::Object(usage);
+    }
+    let sum = |path: &str| -> Option<Value> {
+        let mut total = 0.0;
+        for info in &assistants {
+            let n = info.pointer(path)?.as_f64()?;
+            if !n.is_finite() || n < 0.0 {
+                return None;
+            }
+            total += n;
+        }
+        serde_json::Number::from_f64(total).map(Value::Number)
+    };
+    if let Some(cost) = sum("/cost") {
+        usage.insert("cost".into(), cost);
+    }
+    let mut tokens = serde_json::Map::new();
+    for field in ["total", "input", "output", "reasoning"] {
+        if let Some(value) = sum(&format!("/tokens/{field}")) {
+            tokens.insert(field.into(), value);
+        }
+    }
+    let mut cache = serde_json::Map::new();
+    for field in ["read", "write"] {
+        if let Some(value) = sum(&format!("/tokens/cache/{field}")) {
+            cache.insert(field.into(), value);
+        }
+    }
+    if !cache.is_empty() {
+        tokens.insert("cache".into(), Value::Object(cache));
+    }
+    if !tokens.is_empty() {
+        usage.insert("tokens".into(), Value::Object(tokens));
+    }
+    Value::Object(usage)
+}
+
 const OPERATIONS: &[(&str, &str, &str)] = &[
     ("/api/info", "get", "server.info"),
     ("/api/event", "get", "event.subscribe"),
@@ -1070,6 +1121,20 @@ mod tests {
     fn info() -> Value {
         json!({"version":"2.0.29","pid":1,"urls":[],"paths":{"tmp":"/tmp"}})
     }
+    #[test]
+    fn usage_omits_missing_fields_and_preserves_known_zero() {
+        let mut messages = vec![json!({"type":"assistant", "cost":0.2,
+            "tokens":{"input":10,"output":20}})];
+        assert_eq!(usage(&messages)["cost"], 0.2);
+        assert!(usage(&messages)["tokens"].get("total").is_none());
+        messages[0]["cost"] = json!(0);
+        assert_eq!(usage(&messages)["cost"], 0.0);
+        messages.push(json!({"type":"assistant"}));
+        assert!(usage(&messages).get("cost").is_none());
+        assert!(usage(&messages).get("tokens").is_none());
+        assert_eq!(usage(&[json!({"type":"user", "cost":10})]), json!({}));
+    }
+
     #[test]
     fn only_proven_version_and_complete_schema_are_accepted() {
         assert!(validate_info(&info()).is_ok());

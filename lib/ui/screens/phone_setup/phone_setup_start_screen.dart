@@ -387,9 +387,7 @@ class _PhoneSetupStartScreenState extends ConsumerState<PhoneSetupStartScreen> {
     } else if (profile != null) {
       request = ServersRouteRequest.connect(profile.id, detectedRunning: true);
     } else {
-      request = ServersRouteRequest.enterPhoneCredentials(
-        openCode2: server.flavor == ServerFlavor.v2,
-      );
+      request = ServersRouteRequest.enterPhoneCredentials(openCode2: true);
     }
     unawaited(
       Navigator.of(

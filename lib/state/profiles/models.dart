@@ -234,10 +234,16 @@ class ServerProfile {
   /// Runtime-only signal that the saved Codex token could not be restored.
   bool requiresCodexTokenReentry;
 
-  /// Protocol generation detected at Test/connect time. Additive: profiles
-  /// saved before flavor detection default to [ServerFlavor.v1]. Cached so a
-  /// reconnect skips re-detection; a failed connect re-probes and corrects it.
+  /// Supported protocol detected at Test/connect time.
   ServerFlavor flavor;
+
+  /// Old metadata is retained until managed history import has completed.
+  /// This is a migration marker, never permission to start a legacy server.
+  bool requiresOpenCode2Migration;
+
+  /// The original history has been copied, but OC2 has not yet confirmed its
+  /// import. Survives process death and never permits another copy attempt.
+  bool openCode2HistoryPending;
 
   /// Server version reported by the last successful probe/connect, cached
   /// alongside [flavor] for the servers list.
@@ -251,7 +257,13 @@ class ServerProfile {
   /// the profile JSON.
   String? cleartextConfirmedOrigin;
 
-  /// True when this profile speaks plain HTTP to a private network address
+  /// A person-approved HTTPS certificate fingerprint and its exact origin.
+  /// Stored separately at `oc.certificatePin.<profileId>`, never in profile
+  /// JSON or shared with another server. Null means use normal system trust.
+  String? certificatePinSha256;
+  String? certificatePinOrigin;
+
+  /// True when this profile speaks plain HTTP to a non-loopback address
   /// and the person has not confirmed that for this exact address.
   bool get cleartextUnconfirmed =>
       !usesAgentSocket &&
@@ -271,7 +283,9 @@ class ServerProfile {
     this.teamEngineAuth = '',
     this.codexDirectory = '',
     this.requiresCodexTokenReentry = false,
-    this.flavor = ServerFlavor.v1,
+    this.flavor = ServerFlavor.v2,
+    this.requiresOpenCode2Migration = false,
+    this.openCode2HistoryPending = false,
     this.serverVersion,
     this.orchestration,
   });
@@ -292,6 +306,8 @@ class ServerProfile {
     'username': username,
     if (usesAgentSocket) 'codexDirectory': codexDirectory,
     'flavor': flavor.name,
+    'requiresOpenCode2Migration': requiresOpenCode2Migration,
+    'openCode2HistoryPending': openCode2HistoryPending,
     if (serverVersion != null) 'serverVersion': serverVersion,
     if (orchestration != null) 'orchestration': orchestration!.toJson(),
   };
@@ -307,9 +323,13 @@ class ServerProfile {
     },
     username: (j['username'] ?? '').toString(),
     codexDirectory: (j['codexDirectory'] ?? '').toString(),
-    flavor: j['flavor'] == ServerFlavor.v2.name
-        ? ServerFlavor.v2
-        : ServerFlavor.v1,
+    flavor: ServerFlavor.v2,
+    requiresOpenCode2Migration:
+        j['requiresOpenCode2Migration'] == true ||
+        (j['backend'] != 'codex' &&
+            j['backend'] != 'paseo' &&
+            j['flavor'] != ServerFlavor.v2.name),
+    openCode2HistoryPending: j['openCode2HistoryPending'] == true,
     serverVersion: j['serverVersion']?.toString(),
     orchestration: OrchestrationConfig.fromJson(j['orchestration']),
   );

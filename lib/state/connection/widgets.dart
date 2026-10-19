@@ -1,5 +1,25 @@
 part of '../connection.dart';
 
+extension ConnectionControllerWidgetRouting on ConnectionController {
+  /// A widget row tap. Returns true when the chat can be pushed: the session
+  /// belongs to this controller, or its feed row was opened first (switching
+  /// to its project and connection, as the Conversations list does). False
+  /// when nothing opens it; the caller shows the Conversations screen.
+  Future<bool> openWidgetConversation(String sessionID) async {
+    if (sessionsById.containsKey(sessionID)) return true;
+    final item = chatFeed().items
+        .where((row) => row.sessionID == sessionID)
+        .firstOrNull;
+    if (item == null) return false;
+    try {
+      await openChatFeedItem(item);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+}
+
 extension _ConnectionControllerWidgets on ConnectionController {
   String get _currentWidgetScope {
     if (_lifecycleSuspended && _widgetScope.isNotEmpty) return _widgetScope;
@@ -89,9 +109,116 @@ extension _ConnectionControllerWidgets on ConnectionController {
     ];
   }
 
+  /// What the home-screen card says about a request: the question, the file
+  /// or command it concerns, and the folder. The tool call is known only when
+  /// its event was seen on the way; otherwise the request's own pattern says
+  /// what it touches.
+  Map<String, Object?> _widgetAsk(PermissionRequest request) {
+    final call = permissionToolCall(request);
+    return widgetAskFor(
+      permission: request.permission,
+      patterns: request.patterns,
+      tool: call?.tool,
+      target: call?.target,
+      strings: _shellStrings(),
+    );
+  }
+
+  String _widgetPreview(String sessionID) {
+    final step = _runningToolDetail[sessionID];
+    if (busySessions.contains(sessionID) && step != null && step.isNotEmpty) {
+      return step;
+    }
+    final reply = _widgetReplyPreviews[sessionID];
+    if (reply != null) return reply;
+    for (final message
+        in cachedSessionTail(sessionID)?.messages.reversed ??
+            const <SessionTailText>[]) {
+      if (message.role == 'assistant' && message.text.trim().isNotEmpty) {
+        return safeWidgetPreview(message.text);
+      }
+    }
+    return '';
+  }
+
+  // Observe full text parts, not deltas: a split credential is never published
+  // before KitRedact can recognize it. Unknown roles and synthetic parts fail
+  // closed. Text from a previous message cannot replace the current reply.
+  bool _observeWidgetReply(Map part, String sessionID) {
+    if (part['type'] != 'text' ||
+        part['synthetic'] == true ||
+        part['text'] is! String ||
+        part['messageID'] != _widgetAssistantMessages[sessionID] ||
+        !_widgetAssistantMessages.containsKey(sessionID)) {
+      return false;
+    }
+    final preview = safeWidgetPreview(part['text'] as String);
+    if (preview.isEmpty || _widgetReplyPreviews[sessionID] == preview) {
+      return false;
+    }
+    if (_widgetReplyPreviews.length >= 64 &&
+        !_widgetReplyPreviews.containsKey(sessionID)) {
+      _widgetReplyPreviews.remove(_widgetReplyPreviews.keys.first);
+    }
+    _widgetReplyPreviews[sessionID] = preview;
+    return true;
+  }
+
+  /// The model this conversation uses, by the display name the app shows
+  /// elsewhere ("LL Alpha Free"). Empty when no name is known yet: a raw id
+  /// such as "ll-alpha-free" is never put on the home screen.
+  String _widgetModelLabel(String sessionID) {
+    final model = sessionModels[sessionID]?.model ?? selectedModel;
+    if (model == null) return '';
+    String? name;
+    for (final candidate in catalog?.models ?? const <CatalogModel>[]) {
+      if (candidate.id == model.modelID &&
+          candidate.providerID == model.providerID &&
+          candidate.name.trim().isNotEmpty) {
+        name = candidate.name.trim();
+        break;
+      }
+    }
+    name ??=
+        knownModelName(model.providerID, model.modelID) ??
+        knownModelName(model.providerID, model.normalized.modelID);
+    return name == null ? '' : safeWidgetTitle(name);
+  }
+
+  /// The Conversations screen's default view (all projects and connections,
+  /// subagents excluded) minus what this controller already shows with full
+  /// details: the widget lists them as plain rows.
+  List<WidgetOtherConversation> _widgetOtherConversations() {
+    final List<ChatFeedItem> items;
+    try {
+      // Not chatFeed(): that starts the list's hold clocks and timers, and
+      // this runs on every change.
+      items = _paQuietFeedRows();
+    } catch (_) {
+      return const [];
+    }
+    return [
+      for (final item in items)
+        if (!item.isSubagent && !sessionsById.containsKey(item.sessionID))
+          WidgetOtherConversation(
+            id: item.sessionID,
+            title: item.title,
+            project: safeWidgetProject(item.projectName),
+            updatedAt: item.lastActivity.millisecondsSinceEpoch,
+            busy: item.status == ChatStatus.running,
+            needsYou: item.status == ChatStatus.needsYou,
+          ),
+    ].take(WidgetSessionSnapshot.maxSessions).toList();
+  }
+
   Map<String, Map<String, Object?>> _widgetSessionDetails() => {
     for (final session in sessionsById.values)
       session.id: {
+        'project': safeWidgetProject(session.directory ?? directory ?? ''),
+        'preview': _widgetPreview(session.id),
+        if (_widgetModelLabel(session.id) case final model
+            when model.isNotEmpty)
+          'model': model,
         'startedAt': busySessions.contains(session.id)
             ? _widgetStartedAt(session.id)
             : 0,
@@ -101,8 +228,10 @@ extension _ConnectionControllerWidgets on ConnectionController {
         'steerMode': _widgetSteerMode(session.id),
         'onDemandActions': _widgetOnDemandActions(session.id),
         'runMarker': ?_widgetRunMarkers[session.id],
-        if (permissionForSession(session.id) case final request?)
+        if (permissionForSession(session.id) case final request?) ...{
           'requestID': request.id,
+          'ask': _widgetAsk(request),
+        },
         'todos': [
           for (final (index, task)
               in (_widgetTasks[session.id] ?? const <MobileTaskItem>[])

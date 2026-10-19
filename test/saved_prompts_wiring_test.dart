@@ -44,8 +44,18 @@ void main() {
   }) async {
     SharedPreferences.setMockInitialValues({
       'oc.profiles': jsonEncode([
-        {'id': 'laptop', 'name': 'Laptop', 'baseUrl': 'http://localhost'},
-        {'id': 'phone', 'name': 'Phone', 'baseUrl': 'http://phone'},
+        {
+          'id': 'laptop',
+          'name': 'Laptop',
+          'flavor': 'v2',
+          'baseUrl': 'http://localhost',
+        },
+        {
+          'id': 'phone',
+          'name': 'Phone',
+          'flavor': 'v2',
+          'baseUrl': 'http://phone',
+        },
       ]),
       'oc.activeProfile': 'laptop',
       ...extra,

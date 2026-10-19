@@ -6,16 +6,15 @@ library;
 
 import 'dart:io' show InternetAddress, InternetAddressType;
 
-/// The hosts this app will speak cleartext HTTP to: this device, by every
-/// name it has.
+/// The hosts that represent this device and need no remote HTTP consent.
 ///
 /// Kept as one predicate on purpose. The app used to have three loopback
 /// checks that disagreed — the URL normalizer split on `:` and so read the
 /// host of `[::1]:4096` as `[`, the validator's allowlist had no IPv6 entry
 /// at all, and the connection controller's did. `::1` reached different
-/// verdicts depending on which one you hit. Anything added here must also be
-/// added to `android/app/src/main/res/xml/network_security_config.xml`, or
-/// Android blocks the request after this code has allowed it.
+/// verdicts depending on which one you hit. Remote OpenCode HTTP origins need
+/// explicit per-profile consent; Android's static network policy allows those
+/// runtime-chosen hosts and Dart enforces that consent.
 bool isLoopbackHost(String host) {
   final normalized = host.toLowerCase();
   return normalized == 'localhost' ||
@@ -31,9 +30,10 @@ bool isLoopbackHost(String host) {
 /// This is deliberately not [isLoopbackHost] and not a Tailscale test:
 /// plain HTTP to one of these is allowed only after the person confirms
 /// that the password and conversation travel unencrypted on that network.
-/// Public addresses and every other host name are `false`, so they stay
-/// HTTPS-only. Brackets, a trailing dot and an IPv6 zone are ignored; an
-/// IPv4-mapped IPv6 address is judged by the IPv4 inside it.
+/// Public addresses and every other host name are `false`, so the HTTP
+/// warning uses the stronger public-network wording. Brackets, a trailing dot
+/// and an IPv6 zone are ignored; an IPv4-mapped IPv6 address is judged by the
+/// IPv4 inside it.
 bool isPrivateNetworkHost(String host) {
   var h = host.trim().toLowerCase();
   if (h.startsWith('[') && h.endsWith(']')) h = h.substring(1, h.length - 1);

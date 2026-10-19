@@ -7,6 +7,7 @@
 // Regenerate deliberately:
 //   flutter test --update-goldens test/revamp/p67_consent_golden_test.dart
 // and look at every changed image before committing it.
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -14,9 +15,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import '../support/fake_server_gateway.dart';
+import '../support/fake_event_channel.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/in_flow_consent.dart';
@@ -39,7 +40,7 @@ String _name(String shot, Size size, bool light) => [
   light ? 'light' : 'dark',
 ].join('_');
 
-class _Api extends OpenCodeApi with CompleteMessageHistory {
+class _Api extends FakeServerGateway with CompleteMessageHistory {
   _Api() : super(baseUrl: 'http://localhost');
 
   @override
@@ -59,6 +60,7 @@ Future<ConnectionController> _controller({bool answers = true}) async {
       {
         'id': 'phone',
         'name': 'This phone',
+        'flavor': 'v2',
         'baseUrl': 'http://192.168.1.20:4096',
         'username': '',
       },

@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../builtin/app_exit_recovery.dart';
 import '../../builtin/builtin_server.dart';
+import '../../builtin/setup/phone_setup.dart';
+import '../../builtin/setup/setup_contract.dart';
 import '../../builtin/thermal_guard.dart';
 import '../../builtin/thermal_guard_teams.dart';
 import '../../state/background_pause_notice.dart';
@@ -69,6 +71,9 @@ class AppConnectionStatusScope extends ConsumerWidget {
                 context,
                 controller,
                 serverOnThisPhone: phone.onThisPhone,
+                phoneSetupRunning:
+                    PhoneSetup.engineIfCreated?.progress.value.state ==
+                    SetupState.running,
                 onRecoverOwnership:
                     builtin.failureFor(controller.profile)?.problem ==
                         BuiltinStartProblem.componentRecovery

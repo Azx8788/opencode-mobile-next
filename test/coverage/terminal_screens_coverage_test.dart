@@ -5,7 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import '../support/fake_server_gateway.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/ui/screens/terminal_screen.dart';
 import 'package:opencode_mobile/ui/screens/termux_processes_screen.dart';
@@ -16,7 +16,7 @@ import 'paseo_coverage_support.dart';
 import 'servers_support.dart';
 import 'tools_support.dart';
 
-class _NoTerminalApi extends OpenCodeApi {
+class _NoTerminalApi extends FakeServerGateway {
   _NoTerminalApi() : super(baseUrl: 'ws://build.example.net:6767');
 
   @override
@@ -45,7 +45,7 @@ void main() {
   Future<String> scene(
     WidgetTester tester,
     String name, {
-    OpenCodeApi? api,
+    FakeServerGateway? api,
     Widget Function(dynamic controller)? home,
   }) async {
     tester.view.physicalSize = const Size(412, 915);

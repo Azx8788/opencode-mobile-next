@@ -1,80 +1,34 @@
 # Running OpenCode on an Ubuntu host for this app
 
-The phone app talks to any reachable OpenCode server. This guide sets one up
-on Ubuntu (or any systemd Linux) as a per-user service, so it keeps running
-after you close the terminal and comes back after reboots — no root required.
-
-The app cannot run commands on your computer. Settings → **Ubuntu host
-management** shows these same commands with copy buttons, filled in with your
-server's actual port.
-
-## One-time setup (on the Ubuntu machine)
+The app supports OpenCode 2. On a computer with Node.js and npm installed,
+install the pinned official CLI and start a loopback-only server:
 
 ```sh
-curl -fsSLo ubuntu-opencode.sh.part \
-  https://raw.githubusercontent.com/Eslamasabry/opencode-mobile-next/c62f159ae3c1741cb4ec0ef92b4941c0ddfc0a18/scripts/host/ubuntu-opencode.sh &&
-echo '1f42642fe92c9a8a46e26f27dfa200ffd2274e9cdf9dfafc08e6a9bc7511d721  ubuntu-opencode.sh.part' | sha256sum -c - &&
-mv ubuntu-opencode.sh.part ubuntu-opencode.sh &&
-OPENCODE_PORT=4096 bash ubuntu-opencode.sh install
+npm install -g @opencode/cli@2.0.29 &&
+opencode2 serve --hostname 127.0.0.1 --port 4096
 ```
 
-The script comes from one published commit (release 1.0.44), not from a
-branch that can change under you, and `sha256sum -c` checks it before it is
-given its real name. If the check fails, nothing runs and no unchecked copy
-is left behind. The app shows the same command, and the pin and checksum
-live in one place: `HostScripts` in `lib/ui/setup_commands.dart`, which
-`test/host_script_pin_test.dart` checks against the script in the
-repository.
+The app's Ubuntu host setup shows this same command with the chosen port.
+Keep this terminal open while using the server. The server prints a per-run
+password; pairing below transfers it to the app. This command does not install
+a background service.
 
-This installs OpenCode if it is missing, writes a `systemd --user` unit that
-runs `opencode serve --hostname 127.0.0.1 --port 4096`, enables it, and
-starts it. Re-running `install` is safe; it refreshes the unit in place.
+For a different port, change `--port 4096` in the command. Keep
+`--hostname 127.0.0.1` and use a tunnel; the server can run commands as your
+computer account.
 
-How OpenCode itself is installed depends on the script the pin points at.
-The release 1.0.44 script above still runs OpenCode's own installer
-(`opencode.ai/install`). The script in the repository now installs one
-pinned OpenCode release instead (1.19.0, the version the app pins): it
-downloads the archive for your CPU from OpenCode's GitHub releases, checks
-it against the SHA-256 recorded in the script, and installs it to
-`~/.opencode/bin` only if it matches. The app and this guide move to that
-script once a commit holding it is published; see
-`docs/qa/slice-script-pins-2026-09-28/README.md`.
+## Existing OpenCode 1 installations
 
-Want a different port or bind address?
+OpenCode 1 is no longer supported. Preserve your existing data before upgrading
+with the official OpenCode 2 CLI. The repository's Ubuntu setup script refuses
+to modify an existing OpenCode 1 installation. Its OpenCode 2 service installer
+has not been published as a reviewed downloadable script, so the app does not
+link to a historical installer.
 
-```sh
-OPENCODE_PORT=5000 OPENCODE_HOSTNAME=127.0.0.1 bash ubuntu-opencode.sh install
-```
+## Updating OpenCode 2
 
-### Keep it running after logout
-
-```sh
-loginctl enable-linger "$USER"
-```
-
-Without linger, systemd stops user services when your last session ends.
-
-### Firewall
-
-Leave it closed. The service listens on `127.0.0.1` only, so opening a
-port does nothing for you and everything for anyone else on the network:
-an OpenCode server runs shell commands as your user.
-
-## Day-to-day
-
-```sh
-bash ubuntu-opencode.sh status    # service state + listening check
-bash ubuntu-opencode.sh restart   # restart the server process
-bash ubuntu-opencode.sh logs      # follow the server log (Ctrl-C to stop)
-bash ubuntu-opencode.sh update    # move OpenCode to the pinned release, refresh unit, restart
-```
-
-The app's Settings screen remains the primary upgrade path when the server
-itself reports an available update; `update` here is the host-side
-equivalent for servers that don't. With the pinned script it installs the
-release the script pins (checked the same way as `install`) and never
-downgrades an OpenCode that is already newer; the release 1.0.44 script
-runs `opencode upgrade` instead.
+Stop your server, install the pinned version with the npm command above, and
+start it again. Pair again if its password changed.
 
 ## Connecting the phone
 
@@ -134,20 +88,8 @@ also carry a plain-HTTP LAN address; the app lists that one as skipped and
 says why, because sending the serve password across a network in the clear
 is not something it will do. Put TLS in front of it instead.
 
-### Pairing by hand (OpenCode 1 servers)
+## Existing systemd services
 
-OpenCode 1 has no `pair` command, so read the password and type the address:
-
-```sh
-bash ubuntu-opencode.sh password
-```
-
-Then enter `http://127.0.0.1:4096` and that password in the app.
-
-## Uninstall
-
-```sh
-systemctl --user disable --now opencode-serve
-rm ~/.config/systemd/user/opencode-serve.service
-systemctl --user daemon-reload
-```
+If you already manage OpenCode 2 through a systemd user service, keep using
+that service. The CLI setup above does not change its files or data. To stop
+that service, use `systemctl --user stop opencode-serve`.

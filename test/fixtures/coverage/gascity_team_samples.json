@@ -1289,7 +1289,7 @@
             "input_tokens": 120000,
             "output_tokens": 8000,
             "cache_read_tokens": 50000,
-            "cache_creation_tokens": 4321,
+            "cache_creation_tokens": 4000,
             "wall_seconds": 900,
             "cost_usd_estimate": 1.25,
             "unpriced": 2
@@ -3295,7 +3295,7 @@
           "path": "today.cache_creation_tokens",
           "kind": "number",
           "probes": [
-            "4321"
+            "4000"
           ],
           "primary": false
         },

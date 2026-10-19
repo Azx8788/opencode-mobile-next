@@ -11,7 +11,7 @@
 /// synthetic messages or a retained job history. Unused control events are ignored.
 library;
 
-import '../api/models.dart';
+import '../domain/models.dart';
 import '../domain/server_gateway.dart';
 import 'events.dart';
 import 'models.dart';

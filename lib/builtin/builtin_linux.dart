@@ -1,12 +1,14 @@
 import 'package:flutter/services.dart';
 
-import '../api/server_probe.dart' show ServerFlavor;
+import '../domain/server_probe.dart' show ServerFlavor;
 import '../diagnostics/perf_trace.dart';
 import '../domain/opencode_history_copy.dart';
 import '../domain/phone_agent_context.dart';
 import '../platform/platform_capabilities.dart';
+import '../state/profiles.dart' show ServerProfile;
 import '../termux/bridge.dart' show TermuxBridge, TermuxRuntime;
 import '../termux/opencode_ubuntu_setup.dart';
+import 'setup/setup_contract.dart' show setupToolsChanged;
 
 /// Where the built-in Ubuntu is in its life, as the Android side reports it.
 enum BuiltinLinuxPhase {
@@ -1094,10 +1096,14 @@ class BuiltinLinux {
     }
     // A distinct method fails closed on an older APK whose uninstall ignores
     // preservation arguments. Never fall back to that destructive method.
-    await _invokeProjectStorage<void>('removeRuntime', {
-      'alsoDeleteProjects': alsoDeleteProjects,
-      if (alsoDeleteProjects) 'confirmationName': deletionConfirmationName,
-    });
+    try {
+      await _invokeProjectStorage<void>('removeRuntime', {
+        'alsoDeleteProjects': alsoDeleteProjects,
+        if (alsoDeleteProjects) 'confirmationName': deletionConfirmationName,
+      });
+    } finally {
+      setupToolsChanged.value++;
+    }
   }
 
   // Keep native filesystem paths/errors and user-entered text out of messages
@@ -1242,18 +1248,16 @@ class BuiltinLinux {
 
   /// The runtime a saved in-app profile was set up with.
   static TermuxRuntime runtimeFor(ServerFlavor flavor) =>
-      flavor == ServerFlavor.v2
-      ? TermuxRuntime.openCode2
-      : TermuxRuntime.openCode1;
+      TermuxRuntime.openCode2;
 
-  /// The runtime for a profile whose generation is known, or null when it is
-  /// not (so callers can refuse instead of guessing one).
+  /// Legacy identity is retained only for automatic history migration.
+  static TermuxRuntime runtimeForProfile(ServerProfile profile) =>
+      profile.requiresOpenCode2Migration
+      ? TermuxRuntime.openCode1
+      : TermuxRuntime.openCode2;
+
   static TermuxRuntime? knownRuntimeFor(ServerFlavor flavor) =>
-      switch (flavor) {
-        ServerFlavor.v1 => TermuxRuntime.openCode1,
-        ServerFlavor.v2 => TermuxRuntime.openCode2,
-        ServerFlavor.unknown => null,
-      };
+      flavor == ServerFlavor.unknown ? null : TermuxRuntime.openCode2;
 
   static final _versionPattern = RegExp(r'^[A-Za-z0-9._+-]+$');
 
@@ -1261,23 +1265,15 @@ class BuiltinLinux {
   /// runs ([openCodeUbuntuSetupScript]), at the same pinned version unless a
   /// caller asks for another on purpose.
   ///
-  /// OpenCode 1 then refreshes its model catalog, as the Termux setup does.
-  /// Unlike Termux a failed refresh does not fail the install: the server
-  /// fetches the catalog itself later, and a flaky network at this moment
-  /// should not throw away a finished install.
   static String installOpenCodeScript({
     TermuxRuntime runtime = TermuxRuntime.defaultForNewInstall,
     String? version,
   }) {
+    runtime.requireSupported();
     final selected = version ?? runtime.pinnedVersion;
     if (!_versionPattern.hasMatch(selected)) {
       throw ArgumentError.value(version, 'version', 'Invalid package version.');
     }
-    final refresh = runtime == TermuxRuntime.openCode1
-        ? "opencode models --refresh >/dev/null 2>&1 || "
-              "echo '[oc] The model list could not be refreshed now; "
-              "OpenCode will fetch it later.'\n"
-        : '';
     // Interpolated verbatim: the shared text is a raw string, so nothing in
     // it is re-read as Dart here.
     return 'set -eu\n'
@@ -1285,8 +1281,7 @@ class BuiltinLinux {
         'export OC_REQUESTED_VERSION=${_quote(selected)}\n'
         'export OC_RUNTIME=${_quote(runtime.wireName)}\n'
         "bash -s <<'OC_PROOT_SETUP'\n"
-        '${openCodeUbuntuSetupScript}OC_PROOT_SETUP\n'
-        '$refresh';
+        '${openCodeUbuntuSetupScript}OC_PROOT_SETUP\n';
   }
 
   /// Node from its official pinned download instead of Ubuntu's `npm`
@@ -1448,21 +1443,20 @@ fi
         'Must be between 1024 and 65535.',
       );
     }
-    final opencode2 = runtime == TermuxRuntime.openCode2;
-    final binary = opencode2 ? 'opencode2' : 'opencode';
-    final isolated = opencode2
-        ? 'mkdir -p /root/.oc-opencode2/data/opencode /root/.oc-opencode2/cache '
-              '/root/.oc-opencode2/state /root/.oc-opencode2/config/opencode\n'
-              'unset OPENCODE_CONFIG OPENCODE_CONFIG_CONTENT\n'
-              'export XDG_DATA_HOME=/root/.oc-opencode2/data\n'
-              'export XDG_CACHE_HOME=/root/.oc-opencode2/cache\n'
-              'export XDG_STATE_HOME=/root/.oc-opencode2/state\n'
-              'export XDG_CONFIG_HOME=/root/.oc-opencode2/config\n'
-              'export OPENCODE_CONFIG_DIR=/root/.oc-opencode2/config/opencode\n'
-              'export OPENCODE_DB=/root/.oc-opencode2/data/opencode/opencode.db\n'
-              // OpenCode 1 chats come along before the first start.
-              '(\n$openCode1HistoryCopyScript) || exit 74\n'
-        : '';
+    runtime.requireSupported();
+    const binary = 'opencode2';
+    const isolated =
+        'mkdir -p /root/.oc-opencode2/data/opencode /root/.oc-opencode2/cache '
+        '/root/.oc-opencode2/state /root/.oc-opencode2/config/opencode\n'
+        'unset OPENCODE_CONFIG OPENCODE_CONFIG_CONTENT\n'
+        'export XDG_DATA_HOME=/root/.oc-opencode2/data\n'
+        'export XDG_CACHE_HOME=/root/.oc-opencode2/cache\n'
+        'export XDG_STATE_HOME=/root/.oc-opencode2/state\n'
+        'export XDG_CONFIG_HOME=/root/.oc-opencode2/config\n'
+        'export OPENCODE_CONFIG_DIR=/root/.oc-opencode2/config/opencode\n'
+        'export OPENCODE_DB=/root/.oc-opencode2/data/opencode/opencode.db\n'
+        // OpenCode 1 chats come along before the first start.
+        '(\n$openCode1HistoryCopyScript) || exit 74\n';
     return 'set -eu\n'
         'mkdir -p $projectsDir\n'
         'cd $projectsDir\n'

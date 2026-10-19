@@ -1,0 +1,1096 @@
+{
+  "candidate": "3a4965918307c29cfaa96ca1c0b1368e4db3311b",
+  "startedAt": "2026-10-15T19:53:10.052815+00:00",
+  "runner": "tool/qa/vps_test.sh",
+  "remoteConcurrency": 3,
+  "manifestFileCount": 1451,
+  "aggregateFileCount": 1045,
+  "aggregateEntrypoints": 12,
+  "standaloneFileCount": 406,
+  "plannedEntrypoints": 418,
+  "everyManifestFileExactlyOnce": true,
+  "uncommittedCoordinatorOnly": "tool/qa/vps_build_apk.sh",
+  "initialExitCode": 1,
+  "initial": {
+    "observedEntrypoints": 418,
+    "counts": {
+      "success": 20377,
+      "skipped": 229,
+      "error": 54,
+      "failure": 10
+    },
+    "done": {
+      "success": false,
+      "type": "done",
+      "time": 7160928
+    },
+    "failures": [
+      {
+        "entrypoint": "test/coverage/gascity_team_coverage_test.dart",
+        "name": "gas city team · city_at_work",
+        "files": [
+          "test/coverage/gascity_team_coverage_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/coverage/servers_wire_coverage_test.dart",
+        "name": "server check · oc2_beta_health",
+        "files": [
+          "test/coverage/servers_wire_coverage_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/coverage/servers_wire_coverage_test.dart",
+        "name": "server check · oc2_stable_info",
+        "files": [
+          "test/coverage/servers_wire_coverage_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/goldens/phone_server_screens_golden_test.dart",
+        "name": "phone_running · dark",
+        "files": [
+          "test/goldens/phone_server_screens_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/goldens/phone_server_screens_golden_test.dart",
+        "name": "phone_stopped · dark",
+        "files": [
+          "test/goldens/phone_server_screens_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/goldens/phone_server_screens_golden_test.dart",
+        "name": "phone_running · light",
+        "files": [
+          "test/goldens/phone_server_screens_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/goldens/phone_server_screens_golden_test.dart",
+        "name": "phone_stopped · light",
+        "files": [
+          "test/goldens/phone_server_screens_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/goldens/servers_motion_golden_test.dart",
+        "name": "add_server_manual · dark",
+        "files": [
+          "test/goldens/servers_motion_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/goldens/servers_motion_golden_test.dart",
+        "name": "add_server_testing · dark",
+        "files": [
+          "test/goldens/servers_motion_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/goldens/settings_golden_test.dart",
+        "name": "servers_add_failed · dark",
+        "files": [
+          "test/goldens/settings_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/goldens/servers_motion_golden_test.dart",
+        "name": "add_server_failed · dark",
+        "files": [
+          "test/goldens/servers_motion_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/goldens/servers_motion_golden_test.dart",
+        "name": "add_server_manual · light",
+        "files": [
+          "test/goldens/servers_motion_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/goldens/settings_golden_test.dart",
+        "name": "servers_add_failed · light",
+        "files": [
+          "test/goldens/settings_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/goldens/servers_motion_golden_test.dart",
+        "name": "add_server_testing · light",
+        "files": [
+          "test/goldens/servers_motion_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/goldens/servers_motion_golden_test.dart",
+        "name": "add_server_failed · light",
+        "files": [
+          "test/goldens/servers_motion_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/goldens/team_discover_golden_test.dart",
+        "name": "intro · OpenCode inside the app · dark",
+        "files": [
+          "test/goldens/team_discover_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/goldens/team_discover_golden_test.dart",
+        "name": "intro · OpenCode inside the app · light",
+        "files": [
+          "test/goldens/team_discover_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/repository_hygiene_test.dart",
+        "name": "G25 repository hygiene MOT-10: flutter_animate is never a dependency or an import",
+        "files": [
+          "test/repository_hygiene_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/repository_hygiene_test.dart",
+        "name": "G25 repository hygiene SEC-6, SEC-7: no skill packs, keystores or signing secrets and no screen recordings in docs/qa are tracked",
+        "files": [
+          "test/repository_hygiene_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/repository_hygiene_test.dart",
+        "name": "G25 repository hygiene TEST-12: golden-failure artefacts are never committed (ratchet)",
+        "files": [
+          "test/repository_hygiene_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/repository_hygiene_test.dart",
+        "name": "G25 repository hygiene PROC-1: the Android build targets compileSdk 37 and Java 17",
+        "files": [
+          "test/repository_hygiene_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/repository_hygiene_test.dart",
+        "name": "G25 repository hygiene PROC-1: every CI workflow pins the same Flutter version, and CI runs it",
+        "files": [
+          "test/repository_hygiene_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/screen_servers_1_test.dart",
+        "name": "goldens editor, saved password · dark",
+        "files": [
+          "test/revamp/screen_servers_1_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/screen_servers_1_test.dart",
+        "name": "goldens add server, refused · dark",
+        "files": [
+          "test/revamp/screen_servers_1_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/screen_servers_1_test.dart",
+        "name": "goldens add server, refused _1280x800· dark",
+        "files": [
+          "test/revamp/screen_servers_1_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/screen_servers_1_test.dart",
+        "name": "goldens add server, slow check · dark",
+        "files": [
+          "test/revamp/screen_servers_1_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/screen_servers_1_test.dart",
+        "name": "goldens discard sheet · dark",
+        "files": [
+          "test/revamp/screen_servers_1_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/screen_servers_1_test.dart",
+        "name": "goldens editor, saved password · light",
+        "files": [
+          "test/revamp/screen_servers_1_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/screen_servers_1_test.dart",
+        "name": "goldens add server, refused · light",
+        "files": [
+          "test/revamp/screen_servers_1_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/screen_servers_1_test.dart",
+        "name": "goldens add server, refused _1280x800· light",
+        "files": [
+          "test/revamp/screen_servers_1_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/screen_servers_1_test.dart",
+        "name": "goldens add server, slow check · light",
+        "files": [
+          "test/revamp/screen_servers_1_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/screen_servers_1_test.dart",
+        "name": "goldens discard sheet · light",
+        "files": [
+          "test/revamp/screen_servers_1_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/screen_team_1_golden_test.dart",
+        "name": "intro · OpenCode inside the app · dark · phone",
+        "files": [
+          "test/revamp/screen_team_1_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/screen_team_1_golden_test.dart",
+        "name": "intro · OpenCode inside the app · dark · wide",
+        "files": [
+          "test/revamp/screen_team_1_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/screen_team_1_golden_test.dart",
+        "name": "intro · OpenCode inside the app · light · phone",
+        "files": [
+          "test/revamp/screen_team_1_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/screen_team_1_golden_test.dart",
+        "name": "intro · OpenCode inside the app · light · wide",
+        "files": [
+          "test/revamp/screen_team_1_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/slice_close_servers_phone_golden_test.dart",
+        "name": "start failed (Size(412.0, 915.0))",
+        "files": [
+          "test/revamp/slice_close_servers_phone_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/slice_close_servers_phone_golden_test.dart",
+        "name": "start failed (Size(1280.0, 800.0))",
+        "files": [
+          "test/revamp/slice_close_servers_phone_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/slice_close_servers_phone_golden_test.dart",
+        "name": "install failed",
+        "files": [
+          "test/revamp/slice_close_servers_phone_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/slice_close_servers_phone_golden_test.dart",
+        "name": "switch stopped half way",
+        "files": [
+          "test/revamp/slice_close_servers_phone_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/slice_close_servers_phone_golden_test.dart",
+        "name": "up to date (Size(412.0, 915.0))",
+        "files": [
+          "test/revamp/slice_close_servers_phone_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/slice_close_servers_phone_golden_test.dart",
+        "name": "up to date (Size(1280.0, 800.0))",
+        "files": [
+          "test/revamp/slice_close_servers_phone_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/termux_v2_host_golden_test.dart",
+        "name": "This phone in Termux: Add tools, and Claude Code beside it",
+        "files": [
+          "test/revamp/termux_v2_host_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/text_scale_overflow_test.dart",
+        "name": "G6 kit overflow matrix every exported kit part has a scene, and every scene a part",
+        "files": [
+          "test/text_scale_overflow_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "tool/httptrust_aggregate_generated/shard_2_test.dart",
+        "name": "test/kit/kit_code_block_test.dart 4. wrap: code scrolls on every window, output wraps on compact; command never wraps; toggle",
+        "files": [
+          "test/kit/kit_code_block_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "tool/httptrust_aggregate_generated/shard_1_test.dart",
+        "name": "test/team_runtime_test.dart GasCityGateway on the phone loopback + phone host turns controls on without a front and posts with X-GC-Request only",
+        "files": [
+          "test/team_runtime_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "tool/httptrust_aggregate_generated/shard_1_test.dart",
+        "name": "test/termux_migration_transport_test.dart authenticated stream resumes flushed chunks after bridge loss",
+        "files": [
+          "test/termux_migration_transport_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "tool/httptrust_aggregate_generated/shard_5_test.dart",
+        "name": "test/kit_motion_test.dart manifest every kit.dart part has reduced-motion samples (G8x)",
+        "files": [
+          "test/kit_motion_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "tool/httptrust_aggregate_generated/shard_3_test.dart",
+        "name": "test/tailscale_setup_test.dart failed launch gives recovery and review never probes or saves",
+        "files": [
+          "test/tailscale_setup_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "tool/httptrust_aggregate_generated/shard_4_test.dart",
+        "name": "test/session_address_link_native_test.dart Android executes the same ASCII byte ceiling before Dart delivery",
+        "files": [
+          "test/session_address_link_native_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "tool/httptrust_aggregate_generated/shard_5_test.dart",
+        "name": "test/team_control_mutations_test.dart merge mutations (TEAM-205) GasCityControl routes: readiness GET, approve and merge POST through the front",
+        "files": [
+          "test/team_control_mutations_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "tool/httptrust_aggregate_generated/shard_5_test.dart",
+        "name": "test/team_control_mutations_test.dart probe and discovery finds a front and yields gascityFront",
+        "files": [
+          "test/team_control_mutations_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "tool/httptrust_aggregate_generated/shard_5_test.dart",
+        "name": "test/team_control_mutations_test.dart probe and discovery a front that does not allow this device is read-only",
+        "files": [
+          "test/team_control_mutations_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "tool/httptrust_aggregate_generated/shard_5_test.dart",
+        "name": "test/team_control_mutations_test.dart probe and discovery no well-known document: the bare supervisor probe decides",
+        "files": [
+          "test/team_control_mutations_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "tool/httptrust_aggregate_generated/shard_7_test.dart",
+        "name": "test/analyzer_suppressions_test.dart G26: no new analyzer suppression comments (PROC-3)",
+        "files": [
+          "test/analyzer_suppressions_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "tool/httptrust_aggregate_generated/shard_8_test.dart",
+        "name": "test/perf_trace_test.dart http every request is a span: method, path template, status, bytes",
+        "files": [
+          "test/perf_trace_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "tool/httptrust_aggregate_generated/shard_8_test.dart",
+        "name": "test/this_phone_screen_test.dart the first Start asks once to keep the server running (P6.7)",
+        "files": [
+          "test/this_phone_screen_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "tool/httptrust_aggregate_generated/shard_9_test.dart",
+        "name": "test/first_run_welcome_test.dart an invalid url never reaches the probe",
+        "files": [
+          "test/first_run_welcome_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "tool/httptrust_aggregate_generated/shard_11_test.dart",
+        "name": "test/release_blockers_test.dart sharing requires privacy consent and exposes stop sharing",
+        "files": [
+          "test/release_blockers_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "tool/httptrust_aggregate_generated/shard_11_test.dart",
+        "name": "test/release_blockers_test.dart session menu Stop sharing waits for the confirm sheet",
+        "files": [
+          "test/release_blockers_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "tool/httptrust_aggregate_generated/shard_11_test.dart",
+        "name": "test/release_blockers_test.dart /unshare waits for the confirm sheet",
+        "files": [
+          "test/release_blockers_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "tool/httptrust_aggregate_generated/shard_11_test.dart",
+        "name": "test/release_blockers_test.dart chat composer remains reachable at 640x320 with 2x text",
+        "files": [
+          "test/release_blockers_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "tool/httptrust_aggregate_generated/shard_11_test.dart",
+        "name": "test/release_blockers_test.dart compact composer shows one slash result when height allows",
+        "files": [
+          "test/release_blockers_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "tool/httptrust_aggregate_generated/shard_11_test.dart",
+        "name": "test/release_blockers_test.dart full-screen prompt editor fits a 320dp phone at 2x text",
+        "files": [
+          "test/release_blockers_test.dart"
+        ]
+      }
+    ],
+    "skippedTests": [
+      "evidence · 412",
+      "evidence · 1280",
+      "evidence · 412",
+      "evidence · 1280",
+      "kit_dialog input_invalid · dark",
+      "kit_dialog input_invalid · light",
+      "evidence · 412",
+      "evidence · 1280",
+      "test/appearance_preview_capture_test.dart captures appearance en 1.0x",
+      "test/appearance_preview_capture_test.dart captures appearance en 2.5x",
+      "test/appearance_preview_capture_test.dart captures appearance ar 1.0x",
+      "test/appearance_preview_capture_test.dart captures appearance ar 2.5x",
+      "test/setup_runner_native_test.dart native setup persistence: interrupted-installer-retry",
+      "test/setup_runner_native_test.dart native setup persistence: ordered-terminal",
+      "test/setup_runner_native_test.dart native setup persistence: installer-routed",
+      "test/setup_runner_native_test.dart native setup persistence: setup-work-owned",
+      "test/setup_runner_native_test.dart native setup persistence: setup-work-revoked-before-worker",
+      "test/setup_runner_native_test.dart native setup persistence: typed-write-failure",
+      "test/setup_runner_native_test.dart native setup persistence: failed-start-status",
+      "test/setup_runner_native_test.dart native setup persistence: service-start-denied",
+      "test/setup_runner_native_test.dart native setup persistence: service-finish-denied",
+      "test/setup_runner_native_test.dart native setup persistence: service-update-denied",
+      "test/setup_runner_native_test.dart native setup persistence: agent-output-private",
+      "test/setup_runner_native_test.dart native setup persistence: low-space-first",
+      "test/setup_runner_native_test.dart native setup persistence: low-space-next",
+      "test/setup_runner_native_test.dart native setup persistence: paseo-checksum-failed",
+      "test/setup_runner_native_test.dart native setup persistence: paseo-launch-failed",
+      "test/phone_agent_run_native_test.dart native agent setup run: receipts",
+      "test/phone_agent_run_native_test.dart native agent setup run: reader-failure",
+      "test/phone_agent_run_native_test.dart native agent setup run: stdin-failure",
+      "test/phone_agent_run_native_test.dart native agent setup run: wait-failure",
+      "test/phone_agent_run_native_test.dart native agent setup run: log-failure",
+      "test/phone_agent_run_native_test.dart native agent setup run: timeout",
+      "test/app_exit_history_test.dart native exit history policy query-bounds",
+      "test/app_exit_history_test.dart native exit history policy main-process-history",
+      "test/app_exit_history_test.dart native exit history policy safe-summaries",
+      "test/app_exit_history_test.dart native exit history policy read-failure",
+      "test/builtin_project_storage_native_test.dart native project storage: fresh",
+      "test/builtin_project_storage_native_test.dart native project storage: migration",
+      "test/builtin_project_storage_native_test.dart native project storage: empty-destination",
+      "test/builtin_project_storage_native_test.dart native project storage: retry-after-rename",
+      "test/builtin_project_storage_native_test.dart native project storage: retain-reinstall-delete",
+      "test/builtin_project_storage_native_test.dart native project storage: reset-rootfs",
+      "test/builtin_project_storage_native_test.dart native project storage: collision",
+      "test/builtin_project_storage_native_test.dart native project storage: symlink-ancestors",
+      "test/builtin_project_storage_native_test.dart native project storage: symlink-contents",
+      "test/builtin_project_storage_native_test.dart native project storage: measurement",
+      "test/builtin_project_storage_native_test.dart native project storage: inspection-failure",
+      "test/builtin_project_storage_native_test.dart native project storage: deletion-failure",
+      "test/builtin_project_storage_native_test.dart native project storage: read-only-directories",
+      "test/builtin_project_storage_native_test.dart native project storage: invalid-size",
+      "test/chat_background_result_test.dart capture canonical result at normal, narrow and large RTL scales",
+      "test/native_strings_test.dart native resource locale: arabic-override",
+      "test/native_strings_test.dart native resource locale: english-override",
+      "test/native_strings_test.dart native resource locale: system-ar",
+      "test/native_strings_test.dart native resource locale: system-list",
+      "test/native_strings_test.dart native resource locale: untranslated-app",
+      "test/native_strings_test.dart native resource locale: unsupported-system",
+      "test/native_strings_test.dart native resource locale: invalid-choice",
+      "test/native_strings_test.dart native resource locale: read-refused",
+      "test/native_strings_test.dart native resource locale: choice-changes",
+      "test/native_strings_test.dart native resource locale: resource-formatting",
+      "test/phone_agent_auth_other_owners_test.dart native other-agent ownership: registered-helper",
+      "test/phone_agent_auth_other_owners_test.dart native other-agent ownership: private-excluded",
+      "test/phone_agent_auth_other_owners_test.dart native other-agent ownership: unknown-at-launch",
+      "test/phone_agent_auth_other_owners_test.dart native other-agent ownership: dead-pruned",
+      "test/phone_agent_auth_other_owners_test.dart native other-agent ownership: reused-pruned",
+      "test/phone_agent_auth_other_owners_test.dart native other-agent ownership: unreadable-excluded",
+      "test/phone_agent_auth_other_owners_test.dart native other-agent ownership: unreadable-launch",
+      "test/phone_agent_auth_other_owners_test.dart native other-agent ownership: invalid-birth",
+      "test/phone_crash_native_test.dart native channel/crash: reply-once",
+      "test/phone_crash_native_test.dart native channel/crash: reply-detached",
+      "test/phone_crash_native_test.dart native channel/crash: crash-redaction",
+      "test/phone_crash_native_test.dart native channel/crash: crash-chain-and-storage-failure",
+      "test/phone_crash_native_test.dart native channel/crash: crash-symlinks",
+      "test/bb8_main_callback_native_test.dart native BB8 main callback: callback-success",
+      "test/bb8_main_callback_native_test.dart native BB8 main callback: callback-failure",
+      "test/chat_header_declutter_shots_test.dart shots",
+      "test/native_locale_refresh_test.dart native locale refresh: status-row-owns-phone",
+      "test/native_locale_refresh_test.dart native locale refresh: channel-policy",
+      "test/native_locale_refresh_test.dart native locale refresh: empty-surfaces",
+      "test/host_script_pin_test.dart ubuntu: the checksum matches the pinned commit's bytes",
+      "test/host_script_pin_test.dart front: the checksum matches the pinned commit's bytes",
+      "test/installer_admission_native_test.dart native installer admission: check-cached-dead",
+      "test/installer_admission_native_test.dart native installer admission: check-durable-dead",
+      "test/installer_admission_native_test.dart native installer admission: install-cached-dead",
+      "test/installer_admission_native_test.dart native installer admission: install-durable-dead",
+      "test/installer_admission_native_test.dart native installer admission: check-living-owner",
+      "test/installer_admission_native_test.dart native installer admission: install-living-owner",
+      "test/installer_admission_native_test.dart native installer admission: check-orphan",
+      "test/installer_admission_native_test.dart native installer admission: install-orphan",
+      "test/installer_admission_native_test.dart native installer admission: check-unknown",
+      "test/installer_admission_native_test.dart native installer admission: install-unknown",
+      "test/installer_admission_native_test.dart native installer admission: check-uncertain-absence",
+      "test/installer_admission_native_test.dart native installer admission: install-uncertain-absence",
+      "test/installer_admission_native_test.dart native installer admission: install-prepared-dead",
+      "test/installer_admission_native_test.dart native installer admission: install-clear-failed",
+      "test/installer_admission_native_test.dart native installer admission: install-cached-clear-failed",
+      "test/installer_admission_native_test.dart native installer admission: cold-durable-dead",
+      "test/installer_admission_native_test.dart native installer admission: cold-install-durable-dead",
+      "test/installer_admission_native_test.dart native installer admission: normal-check",
+      "test/installer_admission_native_test.dart native installer admission: normal-install",
+      "test/local_agent_runtime_test.dart the embedded script: structure shellcheck passes when it is installed",
+      "test/opencode_native_install_test.dart the pinned native install real pinned OpenCode on this PC (smoke)",
+      "test/phrase_chips_chat_test.dart captures the stopped-partway moment",
+      "test/phrase_chips_chat_test.dart captures the working moment",
+      "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu status before any install is idle and not installed",
+      "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu install downloads the upstream archives, checks them, and installs the packages and the programs inside Ubuntu",
+      "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu a second install downloads and installs nothing",
+      "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu a package status query that succeeds but reports an unpacked package stops before the programs are unpacked",
+      "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu a checksum mismatch stops before anything reaches Ubuntu",
+      "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu a refused download names the host and HTTP status; Try again fetches only what is missing",
+      "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu a download cut off mid-file resumes where it stopped",
+      "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu a program Android stops (SIGSYS) fails in plain words, and Try again downloads nothing",
+      "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu install without Ubuntu, or on a 32-bit phone, says so",
+      "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu init makes the tuned store and adds the project with its phone-side origin and hook",
+      "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu merged work reaches /root/projects/<project> through the hook",
+      "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu init refuses what it cannot use, in plain words",
+      "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu init takes a Termux-side path and fixes an origin by that path (the earlier native layout)",
+      "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu start runs the supervisor in its own Ubuntu login, registers and waits; stop takes it all down",
+      "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu a supervisor that vanished while ready reads as killed by Android, and start brings it back",
+      "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu start without a team, or a supervisor that dies, fails",
+      "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu remove deletes the programs and the team; the project and its origin stay",
+      "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu remove never deletes a foreign opencode in $PREFIX/bin",
+      "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu a verb that dies mid-way reads as failed, not busy forever",
+      "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu every verb appends to aiteam.log and the OpenCode install log",
+      "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu the bridge dispatch writes the script, the pins and the project's script, queues, detaches and refuses while busy",
+      "test/termux_aiteam_script_test.dart TermuxTeamRuntime over the oc/termux channel Set up takes the team from idle to running and gives the Termux profile its loopback config",
+      "test/active_context_test.dart phone context preview",
+      "test/background_pause_native_test.dart native background receipt: timeout-reopen",
+      "test/background_pause_native_test.dart native background receipt: task-removal",
+      "test/background_pause_native_test.dart native background receipt: current-restriction",
+      "test/background_pause_native_test.dart native background receipt: user-stop",
+      "test/background_pause_native_test.dart native background receipt: old-exit-interruption",
+      "test/background_pause_native_test.dart native background receipt: intentional-clear",
+      "test/background_pause_native_test.dart native background receipt: failed-commit",
+      "test/background_pause_native_test.dart native background receipt: confirmed-start",
+      "test/background_pause_native_test.dart native background receipt: reason-eleven",
+      "test/background_pause_native_test.dart native background receipt: app-update",
+      "test/installer_monitor_native_test.dart native installer monitor: monitor-failure-zero-exit",
+      "test/installer_monitor_native_test.dart native installer monitor: retry-same-runtime",
+      "test/installer_monitor_native_test.dart native installer monitor: stale-monitor-new-launch",
+      "test/phone_agent_auth_native_test.dart native private agent auth: request-admission",
+      "test/phone_agent_auth_native_test.dart native private agent auth: request-rejection",
+      "test/phone_agent_auth_native_test.dart native private agent auth: projection-valid",
+      "test/phone_agent_auth_native_test.dart native private agent auth: projection-rejection",
+      "test/phone_agent_auth_native_test.dart native private agent auth: private-success",
+      "test/phone_agent_auth_native_test.dart native private agent auth: invalid-no-launch",
+      "test/phone_agent_auth_native_test.dart native private agent auth: prepare-denied",
+      "test/phone_agent_auth_native_test.dart native private agent auth: start-failure",
+      "test/phone_agent_auth_native_test.dart native private agent auth: timeout",
+      "test/phone_agent_auth_native_test.dart native private agent auth: logout-timeout",
+      "test/phone_agent_auth_native_test.dart native private agent auth: wait-failure",
+      "test/phone_agent_auth_native_test.dart native private agent auth: reader-failure",
+      "test/phone_agent_auth_native_test.dart native private agent auth: output-overflow",
+      "test/phone_agent_auth_native_test.dart native private agent auth: output-overflow-timeout",
+      "test/phone_agent_auth_native_test.dart native private agent auth: blocked-profile",
+      "test/phone_agent_auth_native_test.dart native private agent auth: retained-dead-root",
+      "test/phone_agent_auth_native_test.dart native private agent auth: deletion-during-run",
+      "test/phone_agent_auth_native_test.dart native private agent auth: tree-dead-root",
+      "test/phone_agent_auth_native_test.dart native private agent auth: tree-pid-reuse",
+      "test/phone_agent_auth_native_test.dart native private agent auth: tree-zombie",
+      "test/phone_agent_auth_native_test.dart native private agent auth: tree-unconfirmed-drain",
+      "test/phone_agent_auth_native_test.dart native private agent auth: tree-missing-identity",
+      "test/phone_agent_auth_native_test.dart native private agent auth: tree-inventory-failure",
+      "test/phone_agent_auth_native_test.dart native private agent auth: tree-root-only-then-orphan",
+      "test/phone_agent_auth_native_test.dart native private agent auth: tree-signal-reuse",
+      "test/phone_agent_auth_native_test.dart native private agent auth: tree-failed-start-unknown",
+      "test/phone_agent_auth_native_test.dart native private agent auth: outside-helper-after-baseline",
+      "test/phone_agent_auth_native_test.dart native private agent auth: outside-unknown-orphan",
+      "test/phone_agent_auth_native_test.dart native private agent auth: outside-wrong-root-cookie",
+      "test/phone_agent_auth_native_test.dart native private agent auth: outside-reused-root-cookie",
+      "test/phone_agent_auth_native_test.dart native private agent auth: outside-private-identities-win",
+      "test/phone_agent_auth_native_test.dart native private agent auth: outside-retained-helper-child",
+      "test/phone_agent_auth_native_test.dart native private agent auth: outside-reused-helper-child",
+      "test/phone_agent_auth_native_test.dart native private agent auth: outside-registry-failure",
+      "test/phone_agent_auth_native_test.dart native private agent auth: private-success-helper-concurrent",
+      "test/phone_agent_auth_native_test.dart native private agent auth: cold-registered-owner",
+      "test/phone_agent_auth_native_test.dart native private agent auth: cold-unknown-owner",
+      "test/phone_agent_auth_native_test.dart native private agent auth: deadline-absolute-probe",
+      "test/phone_agent_auth_native_test.dart native private agent auth: deadline-absolute-logout",
+      "test/phone_agent_auth_native_test.dart native private agent auth: inventory-valid",
+      "test/phone_agent_auth_native_test.dart native private agent auth: inventory-unreadable",
+      "test/phone_agent_auth_native_test.dart native private agent auth: inventory-malformed",
+      "test/phone_agent_auth_native_test.dart native private agent auth: inventory-vanished",
+      "test/phone_agent_auth_native_test.dart native private agent auth: inventory-cross-uid",
+      "test/phone_agent_auth_native_test.dart native private agent auth: lock-empty-exact",
+      "test/phone_agent_auth_native_test.dart native private agent auth: lock-nonempty-retained",
+      "test/phone_agent_auth_native_test.dart native private agent auth: lock-foreign-symlink",
+      "test/phone_agent_service_native_test.dart native agent service callback: event-foreground-before-restore",
+      "test/phone_agent_service_native_test.dart native agent service callback: event-dispatch-denied",
+      "test/phone_agent_service_native_test.dart native agent service callback: event-stale-settles",
+      "test/phone_agent_service_native_test.dart native agent service callback: event-foreground-denied",
+      "test/phone_agent_service_native_test.dart native agent service callback: event-stop-cancels",
+      "test/phone_agent_service_native_test.dart native agent service callback: event-untrusted-ignored",
+      "test/phone_agent_service_native_test.dart native agent service callback: setup-main-denied",
+      "test/phone_agent_service_native_test.dart native agent service callback: daemon-main-denied",
+      "test/phone_agent_service_native_test.dart native agent service callback: setup-channel-denied",
+      "test/phone_agent_service_native_test.dart native agent service callback: daemon-timeout-denied",
+      "test/phone_agent_service_native_test.dart native agent service callback: daemon-stop-denied",
+      "test/phone_agent_service_native_test.dart native agent service callback: result-notification-denied",
+      "test/phone_agent_service_native_test.dart native agent service callback: dispatch-denied",
+      "test/phone_agent_service_native_test.dart native agent service callback: armed-null-sticky",
+      "test/phone_agent_service_native_test.dart native agent service callback: unarmed-null-rejected",
+      "test/phone_agent_service_native_test.dart native agent service callback: restoration-disarmed-not-sticky",
+      "test/phone_agent_service_native_test.dart native agent service callback: explicit-unarmed-not-sticky",
+      "test/phone_agent_service_native_test.dart native agent service callback: daemon-timeout-async-revocation",
+      "test/phone_agent_service_native_test.dart native agent service callback: daemon-stop-async-revocation",
+      "test/phone_agent_service_native_test.dart native agent service callback: daemon-request-threw-after-revocation",
+      "test/phone_agent_service_native_test.dart native agent service callback: setup-timeout-async-revocation",
+      "test/phone_agent_service_native_test.dart native agent service callback: destroy-revokes-kind",
+      "test/phone_agent_service_native_test.dart native agent service callback: localized-copy-ar",
+      "test/phone_agent_service_native_test.dart native agent service callback: localized-copy-en",
+      "test/phone_agent_host_native_test.dart native phone host: low-space-launch",
+      "test/phone_agent_host_native_test.dart native phone host: healthy-launch",
+      "test/phone_agent_host_native_test.dart native phone host: exited-at-once",
+      "test/phone_agent_host_native_test.dart native phone host: concurrent-start",
+      "test/phone_agent_host_native_test.dart native phone host: partial-inventory",
+      "test/termux_setup_native_test.dart Termux durable shell: progress-and-finish",
+      "test/termux_setup_native_test.dart Termux durable shell: cancel-and-resume",
+      "test/termux_setup_native_test.dart Termux durable shell: interrupted-launch",
+      "test/voice_reply_pipeline_test.dart capture production voice states dark",
+      "test/voice_reply_pipeline_test.dart capture production voice states light",
+      "test/voice_reply_pipeline_test.dart capture production voice states large",
+      "test/phone_agent_paths_native_test.dart native agent launch directory: anchor-alias",
+      "test/phone_agent_paths_native_test.dart native agent launch directory: managed-symlink",
+      "test/phone_agent_paths_native_test.dart native agent launch directory: managed-ancestor-symlink",
+      "test/phone_agent_paths_native_test.dart native agent launch directory: projects-symlink",
+      "test/phone_agent_paths_native_test.dart native agent launch directory: repeat"
+    ]
+  },
+  "standaloneReruns": {
+    "files": [
+      "test/analyzer_suppressions_test.dart",
+      "test/coverage/gascity_team_coverage_test.dart",
+      "test/coverage/servers_wire_coverage_test.dart",
+      "test/first_run_welcome_test.dart",
+      "test/goldens/phone_server_screens_golden_test.dart",
+      "test/goldens/servers_motion_golden_test.dart",
+      "test/goldens/settings_golden_test.dart",
+      "test/goldens/team_discover_golden_test.dart",
+      "test/kit/kit_code_block_test.dart",
+      "test/kit_motion_test.dart",
+      "test/perf_trace_test.dart",
+      "test/release_blockers_test.dart",
+      "test/repository_hygiene_test.dart",
+      "test/revamp/screen_servers_1_test.dart",
+      "test/revamp/screen_team_1_golden_test.dart",
+      "test/revamp/slice_close_servers_phone_golden_test.dart",
+      "test/revamp/termux_v2_host_golden_test.dart",
+      "test/session_address_link_native_test.dart",
+      "test/tailscale_setup_test.dart",
+      "test/team_control_mutations_test.dart",
+      "test/team_runtime_test.dart",
+      "test/termux_migration_transport_test.dart",
+      "test/text_scale_overflow_test.dart",
+      "test/this_phone_screen_test.dart"
+    ],
+    "exitCode": 1,
+    "observedEntrypoints": 24,
+    "counts": {
+      "success": 460,
+      "failure": 8,
+      "error": 41
+    },
+    "done": {
+      "success": false,
+      "type": "done",
+      "time": 225204
+    },
+    "failures": [
+      {
+        "entrypoint": "test/analyzer_suppressions_test.dart",
+        "name": "G26: no new analyzer suppression comments (PROC-3)",
+        "files": [
+          "test/analyzer_suppressions_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/coverage/servers_wire_coverage_test.dart",
+        "name": "server check · oc2_beta_health",
+        "files": [
+          "test/coverage/servers_wire_coverage_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/coverage/servers_wire_coverage_test.dart",
+        "name": "server check · oc2_stable_info",
+        "files": [
+          "test/coverage/servers_wire_coverage_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/goldens/phone_server_screens_golden_test.dart",
+        "name": "phone_running · dark",
+        "files": [
+          "test/goldens/phone_server_screens_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/goldens/phone_server_screens_golden_test.dart",
+        "name": "phone_stopped · dark",
+        "files": [
+          "test/goldens/phone_server_screens_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/goldens/phone_server_screens_golden_test.dart",
+        "name": "phone_running · light",
+        "files": [
+          "test/goldens/phone_server_screens_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/goldens/phone_server_screens_golden_test.dart",
+        "name": "phone_stopped · light",
+        "files": [
+          "test/goldens/phone_server_screens_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/goldens/servers_motion_golden_test.dart",
+        "name": "add_server_manual · dark",
+        "files": [
+          "test/goldens/servers_motion_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/first_run_welcome_test.dart",
+        "name": "an invalid url never reaches the probe",
+        "files": [
+          "test/first_run_welcome_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/goldens/servers_motion_golden_test.dart",
+        "name": "add_server_testing · dark",
+        "files": [
+          "test/goldens/servers_motion_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/goldens/servers_motion_golden_test.dart",
+        "name": "add_server_failed · dark",
+        "files": [
+          "test/goldens/servers_motion_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/goldens/team_discover_golden_test.dart",
+        "name": "intro · OpenCode inside the app · dark",
+        "files": [
+          "test/goldens/team_discover_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/goldens/team_discover_golden_test.dart",
+        "name": "intro · OpenCode inside the app · light",
+        "files": [
+          "test/goldens/team_discover_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/goldens/servers_motion_golden_test.dart",
+        "name": "add_server_manual · light",
+        "files": [
+          "test/goldens/servers_motion_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/goldens/servers_motion_golden_test.dart",
+        "name": "add_server_testing · light",
+        "files": [
+          "test/goldens/servers_motion_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/goldens/settings_golden_test.dart",
+        "name": "servers_add_failed · dark",
+        "files": [
+          "test/goldens/settings_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/goldens/servers_motion_golden_test.dart",
+        "name": "add_server_failed · light",
+        "files": [
+          "test/goldens/servers_motion_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/goldens/settings_golden_test.dart",
+        "name": "servers_add_failed · light",
+        "files": [
+          "test/goldens/settings_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/perf_trace_test.dart",
+        "name": "http every request is a span: method, path template, status, bytes",
+        "files": [
+          "test/perf_trace_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/kit_motion_test.dart",
+        "name": "manifest every kit.dart part has reduced-motion samples (G8x)",
+        "files": [
+          "test/kit_motion_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/repository_hygiene_test.dart",
+        "name": "G25 repository hygiene MOT-10: flutter_animate is never a dependency or an import",
+        "files": [
+          "test/repository_hygiene_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/repository_hygiene_test.dart",
+        "name": "G25 repository hygiene SEC-6, SEC-7: no skill packs, keystores or signing secrets and no screen recordings in docs/qa are tracked",
+        "files": [
+          "test/repository_hygiene_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/repository_hygiene_test.dart",
+        "name": "G25 repository hygiene TEST-12: golden-failure artefacts are never committed (ratchet)",
+        "files": [
+          "test/repository_hygiene_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/repository_hygiene_test.dart",
+        "name": "G25 repository hygiene PROC-1: the Android build targets compileSdk 37 and Java 17",
+        "files": [
+          "test/repository_hygiene_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/repository_hygiene_test.dart",
+        "name": "G25 repository hygiene PROC-1: every CI workflow pins the same Flutter version, and CI runs it",
+        "files": [
+          "test/repository_hygiene_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/screen_servers_1_test.dart",
+        "name": "goldens editor, saved password · dark",
+        "files": [
+          "test/revamp/screen_servers_1_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/screen_team_1_golden_test.dart",
+        "name": "intro · OpenCode inside the app · dark · phone",
+        "files": [
+          "test/revamp/screen_team_1_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/screen_team_1_golden_test.dart",
+        "name": "intro · OpenCode inside the app · dark · wide",
+        "files": [
+          "test/revamp/screen_team_1_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/screen_team_1_golden_test.dart",
+        "name": "intro · OpenCode inside the app · light · phone",
+        "files": [
+          "test/revamp/screen_team_1_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/screen_team_1_golden_test.dart",
+        "name": "intro · OpenCode inside the app · light · wide",
+        "files": [
+          "test/revamp/screen_team_1_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/screen_servers_1_test.dart",
+        "name": "goldens add server, refused · dark",
+        "files": [
+          "test/revamp/screen_servers_1_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/slice_close_servers_phone_golden_test.dart",
+        "name": "start failed (Size(412.0, 915.0))",
+        "files": [
+          "test/revamp/slice_close_servers_phone_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/slice_close_servers_phone_golden_test.dart",
+        "name": "start failed (Size(1280.0, 800.0))",
+        "files": [
+          "test/revamp/slice_close_servers_phone_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/screen_servers_1_test.dart",
+        "name": "goldens add server, refused _1280x800· dark",
+        "files": [
+          "test/revamp/screen_servers_1_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/slice_close_servers_phone_golden_test.dart",
+        "name": "install failed",
+        "files": [
+          "test/revamp/slice_close_servers_phone_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/slice_close_servers_phone_golden_test.dart",
+        "name": "switch stopped half way",
+        "files": [
+          "test/revamp/slice_close_servers_phone_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/screen_servers_1_test.dart",
+        "name": "goldens add server, slow check · dark",
+        "files": [
+          "test/revamp/screen_servers_1_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/slice_close_servers_phone_golden_test.dart",
+        "name": "up to date (Size(412.0, 915.0))",
+        "files": [
+          "test/revamp/slice_close_servers_phone_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/screen_servers_1_test.dart",
+        "name": "goldens discard sheet · dark",
+        "files": [
+          "test/revamp/screen_servers_1_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/slice_close_servers_phone_golden_test.dart",
+        "name": "up to date (Size(1280.0, 800.0))",
+        "files": [
+          "test/revamp/slice_close_servers_phone_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/termux_v2_host_golden_test.dart",
+        "name": "This phone in Termux: Add tools, and Claude Code beside it",
+        "files": [
+          "test/revamp/termux_v2_host_golden_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/screen_servers_1_test.dart",
+        "name": "goldens editor, saved password · light",
+        "files": [
+          "test/revamp/screen_servers_1_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/session_address_link_native_test.dart",
+        "name": "Android executes the same ASCII byte ceiling before Dart delivery",
+        "files": [
+          "test/session_address_link_native_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/screen_servers_1_test.dart",
+        "name": "goldens add server, refused · light",
+        "files": [
+          "test/revamp/screen_servers_1_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/screen_servers_1_test.dart",
+        "name": "goldens add server, refused _1280x800· light",
+        "files": [
+          "test/revamp/screen_servers_1_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/tailscale_setup_test.dart",
+        "name": "failed launch gives recovery and review never probes or saves",
+        "files": [
+          "test/tailscale_setup_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/screen_servers_1_test.dart",
+        "name": "goldens add server, slow check · light",
+        "files": [
+          "test/revamp/screen_servers_1_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/revamp/screen_servers_1_test.dart",
+        "name": "goldens discard sheet · light",
+        "files": [
+          "test/revamp/screen_servers_1_test.dart"
+        ]
+      },
+      {
+        "entrypoint": "test/text_scale_overflow_test.dart",
+        "name": "G6 kit overflow matrix every exported kit part has a scene, and every scene a part",
+        "files": [
+          "test/text_scale_overflow_test.dart"
+        ]
+      }
+    ]
+  },
+  "finishedAt": "2026-10-15T21:57:43.386821+00:00",
+  "passed": false
+}

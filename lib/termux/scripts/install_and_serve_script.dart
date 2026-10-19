@@ -8,6 +8,7 @@ String termuxInstallAndServeScript({
   String? version,
   TermuxRuntime runtime = TermuxRuntime.defaultForNewInstall,
 }) {
+  runtime.requireSupported();
   final selectedVersion = version ?? runtime.pinnedVersion;
   if (port < 1024 || port > 65535) {
     throw ArgumentError.value(port, 'port', 'Must be between 1024 and 65535.');

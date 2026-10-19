@@ -23,6 +23,8 @@ class MainActivity : FlutterFragmentActivity() {
     private val background by lazy { MainActivityBackground(this, handler) }
     private val media by lazy { MainActivityMedia(this) { readAloud?.beforeMicrophoneCapture() == true } }
 
+    private var scheduledPrompts: ScheduledPromptChannel? = null
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         background.cancelBackgroundRequests()
@@ -45,6 +47,10 @@ class MainActivity : FlutterFragmentActivity() {
         projectExport = ProjectExportBridge(this, flutterEngine.dartExecutor.binaryMessenger)
         val messenger = flutterEngine.dartExecutor.binaryMessenger
         launches.configure(messenger, intent)
+        ScheduledPromptChannel.captureOpen(intent)
+        scheduledPrompts?.close()
+        scheduledPrompts = ScheduledPromptChannel(this).also { it.register(messenger) }
+        ScheduledPromptScheduler(applicationContext).restore()
         MethodChannel(messenger, "oc/termux").setMethodCallHandler { call, rawResult ->
             val result = replies.wrap(rawResult)
             result.guarded("termux_unavailable") { termux.handle(call, result) }
@@ -61,6 +67,8 @@ class MainActivity : FlutterFragmentActivity() {
     }
 
     override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
+        scheduledPrompts?.close()
+        scheduledPrompts = null
         background.cancelBackgroundRequests()
         nativeReplies?.detach()
         nativeReplies = null
@@ -125,10 +133,13 @@ class MainActivity : FlutterFragmentActivity() {
                     val value = work()
                     main.post { result.success(value) }
                 } catch (error: Throwable) {
+                    val agentHostCode = PhoneAgentHost.failureCode(error)
                     main.post {
                         if (NativeRuntimeOwnership.isUnknownFailure(error)) {
                             result.error(NativeRuntimeOwnership.UNKNOWN_CODE,
                                 "Open app settings, force stop OpenCode, then open it again.", null)
+                        } else if (agentHostCode != null) {
+                            result.error(agentHostCode, "Open agent setup and try again.", null)
                         } else if (error is PhoneEngineNative.Failure) {
                             result.error(error.code, "The phone engine is unavailable.", null)
                         } else if (call.method in setOf("startPhoneEngine", "phoneEngineStatus",
@@ -136,7 +147,7 @@ class MainActivity : FlutterFragmentActivity() {
                             "startProtectedPhoneServer", "runPhoneEngineBoundaryProbe")) {
                             result.error("engine_unavailable", "The phone engine is unavailable.", null)
                         } else if (call.method in setOf(
-                            "startAgentHost", "agentHostStatus", "stopAgentHost", "deleteAgentHost",
+                            "startAgentHost", "agentHostStatus", "stopAgentHost", "deleteAgentHost", "agentHostPrepareUpdate",
                             "agentHostVersion", "agentHostWorkspace", "startAgentSignIn", "readAgentSignInChallenge",
                             "submitAgentSignInCode", "cancelAgentSignIn", "agentSignInStatus"
                         )) {
@@ -181,22 +192,30 @@ class MainActivity : FlutterFragmentActivity() {
                     "The agents could not reconnect. Open agent setup and try again.", null)
                 else inBackground {
                     linux.withAgentHostStart(ticket) {
-                        linux.agentHost.start(profile,
+                        linux.agentHost.start(PhoneAgentHost.StartRequest(
+                            profile,
                             call.argument<String>("password") ?: error("Agent unavailable"),
                             call.argument<Int>("port") ?: 4099,
-                            call.argument<String>("config") ?: error("Agent unavailable"))
+                            call.argument<String>("config") ?: error("Agent unavailable"),
+                            PhoneAgentHost.HelperPolicy(
+                                call.argument<String>("expectedHelperVersion"),
+                                call.argument<Boolean>("restartIfVersionChanged") == true,
+                                call.argument<Boolean>("forceRestart") == true,
+                            )))
                     }
                 }
             }
-            "agentHostStatus", "stopAgentHost", "deleteAgentHost", "agentHostVersion",
+            "agentHostStatus", "stopAgentHost", "deleteAgentHost", "agentHostVersion", "agentHostPrepareUpdate",
             "agentHostWorkspace" -> inBackground {
                 val profile = call.argument<String>("profileId") ?: error("Agent unavailable")
                 when (call.method) {
-                    "agentHostWorkspace" -> linux.agentHost.workspace(profile)
+                    "agentHostPrepareUpdate" -> linux.agentHost.prepareUpdate(profile)
+                    "agentHostWorkspace" -> linux.agentHost.checks.workspace(profile)
                     "agentHostStatus" -> linux.agentHost.status(profile)
-                    "stopAgentHost" -> linux.agentHost.stop(profile)
+                    "stopAgentHost" -> linux.agentHost.stop(profile,
+                        call.argument<Boolean>("guardedForUpdate") == true)
                     "deleteAgentHost" -> { linux.agentHost.delete(profile); null }
-                    else -> linux.agentHost.version(profile,
+                    else -> linux.agentHost.checks.version(profile,
                         call.argument<String>("executable") ?: error("Agent unavailable"),
                         call.argument<String>("version") ?: error("Agent unavailable"))
                 }
@@ -517,6 +536,8 @@ class MainActivity : FlutterFragmentActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         launches.onNewIntent(intent)
+        ScheduledPromptChannel.captureOpen(intent)
+        scheduledPrompts?.notifyOpen()
     }
 
     override fun onRequestPermissionsResult(

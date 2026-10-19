@@ -61,6 +61,7 @@ void main() {
             {
               'id': 'local',
               'name': 'Phone server',
+              'flavor': 'v2',
               'baseUrl': 'http://127.0.0.1:4096',
               'username': '',
             },
@@ -175,6 +176,7 @@ void main() {
             {
               'id': 'local',
               'name': 'Phone server',
+              'flavor': 'v2',
               'baseUrl': 'http://127.0.0.1:4096',
               'username': '',
             },
@@ -182,6 +184,7 @@ void main() {
               {
                 'id': 'keeper',
                 'name': 'Other local profile',
+                'flavor': 'v2',
                 'baseUrl': 'http://127.0.0.1:4096',
                 'username': '',
               },

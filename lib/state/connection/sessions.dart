@@ -308,6 +308,8 @@ extension _ConnectionControllerSessionsImpl on ConnectionController {
       unawaited(_sessionTailCache.removeSession(tailOwner.id, id));
     }
     sessionsById.remove(id);
+    _widgetReplyPreviews.remove(id);
+    _widgetAssistantMessages.remove(id);
     sessionDetailsErrors.remove(id);
     _sessionInventoryIDs.remove(id);
     _forgetSessionModel(id);

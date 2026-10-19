@@ -60,7 +60,7 @@ fn fixture(aliased: bool) -> Fixture {
         fs::set_permissions(file, fs::Permissions::from_mode(0o600)).unwrap();
     }
     let config = private.join("config.json");
-    fs::write(&config, json!({"schemaVersion":1,"profileId":"phone","privateRoot":private,"workerRoot":app.join("workers"),"guestWorkerRoot":"/root/aiteam/work/phone","port":0,"authTokenFile":auth,"oc1CredentialFile":credentials,"oc1BaseUrl":"http://127.0.0.1:4097","sourceRoots":[],"boundary":{"verified":false,"reason":"fixtureUnverified"}}).to_string()).unwrap();
+    fs::write(&config, json!({"schemaVersion":1,"profileId":"phone","privateRoot":private,"workerRoot":app.join("workers"),"guestWorkerRoot":"/root/aiteam/work/phone","port":0,"authTokenFile":auth,"serverCredentialFile":credentials,"serverBaseUrl":"http://127.0.0.1:4097","sourceRoots":[],"boundary":{"verified":false,"reason":"fixtureUnverified"}}).to_string()).unwrap();
     Fixture {
         _root: root,
         config,

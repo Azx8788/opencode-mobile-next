@@ -1,4 +1,4 @@
-import '../api/models.dart';
+import '../domain/models.dart';
 
 /// How a background command ended, as a reader cares about it.
 enum BackgroundShellOutcome { finished, failed, stopped }

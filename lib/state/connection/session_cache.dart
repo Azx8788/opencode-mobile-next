@@ -135,13 +135,17 @@ extension _ConnectionControllerSessionCacheImpl on ConnectionController {
         // Disk caching is best effort and never delays authoritative hydration.
         if (boundary == null) {
           unawaited(
-            _sessionTailCache.save(
-              owner.id,
-              scope,
-              sessionID,
-              page.items,
-              isCurrent: current,
-            ),
+            _sessionTailCache
+                .save(
+                  owner.id,
+                  scope,
+                  sessionID,
+                  page.items,
+                  isCurrent: current,
+                )
+                .then((_) {
+                  if (current()) _notifyListeners();
+                }),
           );
         }
         return page;

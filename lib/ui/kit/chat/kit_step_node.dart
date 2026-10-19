@@ -1,8 +1,8 @@
 // A step's node on a timeline's rail (docs/ux-system/kit-api/KitStepTimeline.md
 // "Nodes"). Part of kit_step_timeline.dart so it reads the rail's measures.
 // Every node is the same size (the glyph's 20 dp, grown with text) and
-// centred on the one rail; the running step's node is the kit's small
-// spinner, nothing moves around a tile.
+// centred on the one rail; a running step keeps its glyph and one light
+// travels (kit_step_light.dart).
 part of 'kit_step_timeline.dart';
 
 /// Draws a node in the free column at the start of its slot, beside the
@@ -16,7 +16,7 @@ class _StepNode extends StatelessWidget {
     required this.scope,
     this.icon,
     this.mark,
-    this.dim = false,
+    this.state = KitStepNodeState.none,
     this.boxHeight,
   });
 
@@ -31,8 +31,8 @@ class _StepNode extends StatelessWidget {
   final IconData? icon;
   final Widget? mark;
 
-  /// A step not started yet: its glyph in the quietest text role.
-  final bool dim;
+  /// How the step stands: a running step keeps its glyph and gets the light.
+  final KitStepNodeState state;
   final _RailScope scope;
 
   static const double _dot = 6;
@@ -44,10 +44,15 @@ class _StepNode extends StatelessWidget {
     final box = boxHeight ?? rail.line(lineHeight);
     final Widget node;
     if (icon != null) {
-      node = _StepTile(
+      node = _StepLight(
         icon: icon!,
         size: rail.glyph,
-        glyph: dim ? roles.text3 : roles.text2,
+        state: state,
+        mark: mark,
+        registry: scope.registry,
+        index: scope.index,
+        last: scope.last,
+        stalled: scope.stalled,
       );
     } else if (mark != null) {
       node = mark!;
@@ -61,6 +66,11 @@ class _StepNode extends StatelessWidget {
     }
     // Where this node's centre is, so the last slot's rail can end on it.
     scope.registry.centres[scope.index] = top + box / 2;
+    final nodeTop = top + (box - rail.glyph) / 2;
+    scope.registry.nodes[scope.index] = (
+      top: nodeTop,
+      bottom: nodeTop + (icon != null ? rail.glyph : _dot),
+    );
     return Stack(
       clipBehavior: Clip.none,
       fit: StackFit.passthrough,
@@ -74,37 +84,6 @@ class _StepNode extends StatelessWidget {
           child: ExcludeSemantics(child: Center(child: node)),
         ),
       ],
-    );
-  }
-}
-
-/// The step's glyph in a small tile: [size] square, `surface3`, the glyph at
-/// 60 % of it.
-class _StepTile extends StatelessWidget {
-  const _StepTile({
-    required this.icon,
-    required this.size,
-    required this.glyph,
-  });
-
-  final IconData icon;
-  final double size;
-  final Color glyph;
-
-  @override
-  Widget build(BuildContext context) {
-    final roles = KitTokens.of(context).roles;
-    return SizedBox.square(
-      dimension: size,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: roles.surface3,
-          borderRadius: BorderRadius.circular(size * .3),
-        ),
-        child: Center(
-          child: Icon(icon, size: size * .6, color: glyph),
-        ),
-      ),
     );
   }
 }

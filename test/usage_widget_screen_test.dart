@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/background/usage_widget_snapshot.dart';
 import 'package:opencode_mobile/domain/provider_usage.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
@@ -28,6 +28,7 @@ Future<ConnectionController> _controller({
       {
         'id': 'oc',
         'name': 'Workstation',
+        'flavor': 'v2',
         'baseUrl': 'http://localhost:4096',
         'username': '',
       },

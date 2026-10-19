@@ -20,7 +20,7 @@ import 'voice_component.dart';
 /// are.
 ///
 /// [params] are per component id; `opencode` reads `runtime`
-/// (`opencode2`, the new-install default, or `opencode1`) and `version` (the pinned one
+/// (`opencode2`) and `version` (the pinned one
 /// unless a caller asks for another on purpose).
 ///
 /// The estimates start from the emulator (setup.json keeps each component's
@@ -237,11 +237,6 @@ typedef OpenCodeAsset = ({String url, String sha256, String member});
 /// unpacked or run. No npm: its wrapper package and install scripts are what
 /// failed on the owner's ARM64 phone (build 2062, npm 11.19 `allowScripts`).
 ///
-/// - OpenCode 1: the release archives of
-///   https://github.com/anomalyco/opencode/releases/tag/v1.19.0, the same
-///   pins as scripts/host/ubuntu-opencode.sh (GitHub's asset digests, read
-///   and matched against the files 2026-09-28). x64 is the baseline build,
-///   which also runs on CPUs without AVX2.
 /// - OpenCode 2 (`@opencode/cli` 2.0.29) has no GitHub release. Its official
 ///   per-platform npm packages hold only the program and a package.json,
 ///   with no install script; their tarballs' SHA-512 matched the registry's
@@ -251,20 +246,6 @@ typedef OpenCodeAsset = ({String url, String sha256, String member});
 /// Moving to a newer OpenCode means new pins here, next to
 /// [TermuxRuntime.pinnedVersion].
 abstract final class OpenCodePins {
-  static const v1Arm64 = (
-    url:
-        'https://github.com/anomalyco/opencode/releases/download/v1.19.0/'
-        'opencode-linux-arm64.tar.gz',
-    sha256: 'e9841d43d3e1a8f36ed2691592d3b8b4fb097e606c8b559a277a1b845840e26b',
-    member: 'opencode',
-  );
-  static const v1X64 = (
-    url:
-        'https://github.com/anomalyco/opencode/releases/download/v1.19.0/'
-        'opencode-linux-x64-baseline.tar.gz',
-    sha256: '6334d70db3990721ea454357e9cf2573c8685524ad7769af9d52cbffb7008438',
-    member: 'opencode',
-  );
   static const v2Arm64 = (
     url:
         'https://registry.npmjs.org/@opencode/cli-linux-arm64/-/'
@@ -282,16 +263,12 @@ abstract final class OpenCodePins {
 
   /// The pinned downloads of [runtime], by CPU.
   static ({OpenCodeAsset arm64, OpenCodeAsset x64}) of(TermuxRuntime runtime) =>
-      runtime == TermuxRuntime.openCode2
-      ? (arm64: v2Arm64, x64: v2X64)
-      : (arm64: v1Arm64, x64: v1X64);
+      (arm64: v2Arm64, x64: v2X64);
 
   /// Where the program lives in Ubuntu; `/usr/local/bin/<command>` links it.
-  static String dir(TermuxRuntime runtime) =>
-      runtime == TermuxRuntime.openCode2 ? '/opt/opencode2' : '/opt/opencode';
+  static String dir(TermuxRuntime runtime) => '/opt/opencode2';
 
-  static String command(TermuxRuntime runtime) =>
-      runtime == TermuxRuntime.openCode2 ? 'opencode2' : 'opencode';
+  static String command(TermuxRuntime runtime) => 'opencode2';
 }
 
 /// The reasons [SetupScripts.openCodeNativeInstall] ends a failed run with
@@ -431,26 +408,16 @@ oc_version "\$(node --version | sed 's/^v//')"
   /// The shared text the Termux manager also runs
   /// ([openCodeUbuntuSetupScript]); it finds Node, Git and curl in place and
   /// goes straight to `npm install -g --foreground-scripts` (npm crashes
-  /// under proot without it). OpenCode 1 then refreshes its model catalog;
-  /// a failure there does not fail the install, the server fetches it later.
+  /// under proot without it).
   static String openCodeInstall(TermuxRuntime runtime, {String? version}) {
     final selected = _version(runtime, version);
-    final binary = runtime == TermuxRuntime.openCode2
-        ? 'opencode2'
-        : 'opencode';
-    final refresh = runtime == TermuxRuntime.openCode1
-        ? "oc_stage 'Getting the model list'\n"
-              'opencode models --refresh >/dev/null 2>&1 || '
-              "echo '[oc] The model list could not be refreshed now; "
-              "OpenCode will fetch it later.'\n"
-        : '';
+    const binary = 'opencode2';
     return 'set -eu\n'
         "oc_stage 'Installing OpenCode $selected'\n"
         "export OC_REQUESTED_VERSION='$selected'\n"
         "export OC_RUNTIME='${runtime.wireName}'\n"
         "bash -s <<'OC_PROOT_SETUP'\n"
         '${openCodeUbuntuSetupScript}OC_PROOT_SETUP\n'
-        '$refresh'
         'installed=\$($binary --version)\n'
         'oc_version "\${installed##* v}"\n';
   }
@@ -497,9 +464,7 @@ oc_version "\$(node --version | sed 's/^v//')"
   ///    until the start step restarts it).
   ///
   /// A failure ends with one of [OpenCodeInstallFailure]'s lines, after the
-  /// program's own output, so the log ends with the reason. OpenCode 1 then
-  /// refreshes its model list, bounded; a failure there does not fail the
-  /// install (the server fetches it later).
+  /// program's own output, so the log ends with the reason.
   ///
   /// [assets], [root] and [probeSeconds] exist for the script tests only.
   static String openCodeNativeInstall(
@@ -518,21 +483,11 @@ oc_version "\$(node --version | sed 's/^v//')"
     final pins = assets ?? OpenCodePins.of(runtime);
     final command = OpenCodePins.command(runtime);
     final dir = '$root${OpenCodePins.dir(runtime)}';
-    final health = runtime == TermuxRuntime.openCode2
-        ? '/api/info /api/health'
-        : '/global/health';
+    const health = '/api/info /api/health';
     final modules = '$root/usr/local/lib/node_modules';
-    final leftovers = runtime == TermuxRuntime.openCode2
-        ? '"$root/opt/oc2" "$modules/@opencode-ai/cli" '
-              '"$modules/@opencode-ai/"cli-linux-*'
-        : '"$modules/opencode-ai" "$modules/"opencode-linux-*';
-    final refresh = runtime == TermuxRuntime.openCode1
-        ? "oc_stage 'Getting the model list'\n"
-              'timeout 180 "\$oc_dir/bin/$command" models --refresh '
-              '>/dev/null 2>&1 || '
-              "echo '[oc] The model list could not be refreshed now; "
-              "OpenCode will fetch it later.'\n"
-        : '';
+    final leftovers =
+        '"$root/opt/oc2" "$modules/@opencode-ai/cli" '
+        '"$modules/@opencode-ai/"cli-linux-*';
     return '''set -eu
 oc_fail() { echo "\$*" >&2; exit 1; }
 case "\$(uname -m)" in
@@ -651,13 +606,14 @@ oc_update_commit "\$oc_link" || oc_activation_failed
 # What npm installed before, wrapper and all.
 rm -rf $leftovers
 rm -f "\$oc_file"
-$refresh'''
+'''
         'oc_version "\$oc_got"\n';
   }
 
   static final _versionPattern = RegExp(r'^[A-Za-z0-9._+-]+$');
 
   static String _version(TermuxRuntime runtime, String? version) {
+    runtime.requireSupported();
     final selected = version ?? runtime.pinnedVersion;
     if (!_versionPattern.hasMatch(selected)) {
       throw ArgumentError.value(version, 'version', 'Invalid package version.');

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/background/notification_text.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 
@@ -94,6 +94,33 @@ void main() {
           _message('assistant', '\n## Dark theme added to Settings.\nMore'),
         ]),
         'Dark theme added to Settings.',
+      );
+    });
+
+    test('a line that introduces a list is joined with the first item', () {
+      expect(
+        firstReplyLine([
+          _message(
+            'assistant',
+            'Done. The site now follows the system theme by default:\n'
+                '\n- Light and dark both work\n- The toggle stays',
+          ),
+        ]),
+        'Done. The site now follows the system theme by default: '
+        'Light and dark both work',
+      );
+      expect(
+        firstReplyLine([_message('assistant', 'Changes made:')]),
+        'Changes made',
+      );
+      expect(
+        firstReplyLine([
+          _message(
+            'assistant',
+            'Intro that ends with a colon:\n- ${'x' * 200}',
+          ),
+        ], maxLength: 60).length,
+        lessThanOrEqualTo(60),
       );
     });
 

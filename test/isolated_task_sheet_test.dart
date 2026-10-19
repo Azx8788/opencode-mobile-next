@@ -1,9 +1,10 @@
+import 'support/fake_server_capabilities.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -90,7 +91,7 @@ class _Controller extends ConnectionController {
   final locations = <String?>[];
   final createdSessions = <Session>[];
   Object? selectLocationError;
-  ServerCapabilities capabilityOverride = ServerCapabilities.allV1;
+  ServerCapabilities capabilityOverride = testServerCapabilities;
   Future<void> Function()? beforeRepository;
   Future<void> Function()? beforeTransport;
   Future<void> Function()? duringSelection;
@@ -151,7 +152,7 @@ class _Gateway implements ServerGateway {
   Object? promptError;
 
   @override
-  ServerCapabilities get capabilities => ServerCapabilities.allV1;
+  ServerCapabilities get capabilities => testServerCapabilities;
 
   @override
   Future<void> promptAsync(
@@ -991,7 +992,7 @@ void main() {
     expect(find.byKey(const ValueKey('create-worktree')), findsNothing);
     expect(find.byKey(const ValueKey('primary-worktree')), findsOneWidget);
 
-    controller.capabilityOverride = ServerCapabilities.allV1;
+    controller.capabilityOverride = testServerCapabilities;
     await tester.pumpWidget(
       MaterialApp(
         home: WorktreesScreen(controller: controller, project: _project),

@@ -13,7 +13,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/builtin/builtin_linux.dart';
 import 'package:opencode_mobile/builtin/builtin_server.dart';
 import 'package:opencode_mobile/builtin/local_terminal.dart';

@@ -1,3 +1,4 @@
+import '../scheduling/platform.dart';
 import 'dart:async';
 import 'dart:math' show Random;
 import '../background/widget_v2_contract.dart';
@@ -6,7 +7,7 @@ import '../background/widget_action_runner.dart'
 import '../domain/team_project_gateway.dart';
 import '../ui/theme_packs.dart' show effectiveThemePack;
 import '../builtin/agents/gen_ui_search_publish.dart';
-import '../api/server_answer.dart';
+import '../domain/server_answer.dart';
 import '../domain/product_failure.dart';
 import '../domain/mcp_connector_search.dart';
 import 'mcp_connector_search_bridge.dart';
@@ -22,7 +23,7 @@ import 'dart:ui' show Brightness, Locale, PlatformDispatcher;
 import 'package:clock/clock.dart';
 import 'package:crypto/crypto.dart' as receipt_crypto;
 import '../domain/command_receipts.dart';
-import '../api/command_receipt_transport.dart';
+import '../domain/command_receipt_transport.dart';
 import 'pending_command_journal.dart';
 
 import 'app_locale.dart';
@@ -38,10 +39,9 @@ import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:opencode_sdk/opencode_sdk.dart' as sdk;
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../api/models.dart';
+import '../domain/models.dart';
 import '../domain/session_history.dart';
 import '../domain/tool_label.dart';
 import '../domain/session_stop.dart';
@@ -50,11 +50,12 @@ import '../codex/transport.dart' show CodexFailure, CodexFailureKind;
 import '../paseo/gateway.dart';
 import '../paseo/tested_versions.dart';
 import '../paseo/transport.dart' show PaseoFailure, PaseoFailureKind;
-import '../api/opencode_api.dart';
 import '../domain/form_request.dart';
 import '../api2/models.dart' show Api2Delivery, Api2FormInfo, Api2InboxItem;
-import '../api/product_repository.dart';
-import '../api/server_probe.dart';
+import '../domain/product_repository.dart';
+import '../domain/server_gateway.dart';
+import '../domain/server_probe.dart';
+import 'server_trust_probe.dart';
 import '../termux/managed_server_recovery.dart';
 import 'notification_preferences.dart';
 import 'nudges.dart';
@@ -64,7 +65,6 @@ import 'monitor_attention_reader.dart';
 import '../domain/work_row_status.dart';
 import 'provider_quota_monitor.dart';
 import '../quota/provider_quota_client.dart';
-import '../api/sse.dart';
 import '../api2/client.dart';
 import '../api2/gateway.dart';
 import '../api2/gateway_mappers.dart' show api2ServerCapabilities;
@@ -75,7 +75,7 @@ import '../background/live_background.dart';
 import '../background/notification_status.dart';
 import '../background/notification_text.dart';
 import '../background/thermal_pause_signal.dart';
-import '../api/provider_presentation.dart';
+import '../domain/provider_presentation.dart';
 import '../domain/mobile_tool_view.dart';
 import '../background/team_alerts.dart';
 import '../background/pinned_session_shortcuts.dart';
@@ -245,9 +245,10 @@ final connProvider = Provider<ConnectionController>(
   (ref) => throw UnimplementedError('overridden in bootstrap'),
 );
 
-typedef OpenCodeApiFactory = OpenCodeApi Function(ServerProfile profile);
+typedef ServerGatewayFactory = ServerGateway Function(ServerProfile profile);
 
-typedef ProductRepositoryFactory = ProductRepository Function(OpenCodeApi api);
+typedef ProductRepositoryFactory =
+    ServerOperationsGateway Function(ServerGateway api);
 
 /// Builds the OpenCode 2 gateway pair for a profile whose detected flavor is
 /// [ServerFlavor.v2]. Injected by tests; production uses the Api2Transport →
@@ -260,8 +261,8 @@ typedef V2GatewayPairFactory =
 typedef LocalWakeLockEnsurer = Future<void> Function();
 
 typedef EventStreamFactory =
-    EventStream Function({
-      required OpenCodeApi api,
+    LiveEventChannel Function({
+      required ServerGateway api,
       required void Function(EventEnvelope event) onEvent,
       required void Function(StreamStatus status) onStatus,
       void Function(Object error)? onError,
@@ -349,8 +350,8 @@ class ConnectionController extends ChangeNotifier
   final AttentionTileSnapshot _attentionTile;
   final AppDiagnosticsController diagnostics;
   final bool _ownsDiagnostics;
-  final OpenCodeApiFactory _apiFactory;
-  final ProductRepositoryFactory _repositoryFactory;
+  final ServerGatewayFactory? _apiFactory;
+  final ProductRepositoryFactory? _repositoryFactory;
   final V2GatewayPairFactory _v2GatewayFactory;
   final V2GatewayPairFactory _codexGatewayFactory;
   final V2GatewayPairFactory _paseoGatewayFactory;
@@ -458,8 +459,8 @@ class ConnectionController extends ChangeNotifier
       'Create a new folder or open a project folder to continue.';
 
   static const managedRuntimeMismatchMessage =
-      'This phone is running a different OpenCode version. Open This phone '
-      'setup to switch versions or connect with its matching profile.';
+      'This phone needs to move to OpenCode 2 before connecting. '
+      'Your existing conversations are still stored safely on this phone.';
   late final _sessionReadStore = SessionReadStore(store.prefs);
   late final _returnBriefStore = ReturnBriefStore(store.prefs);
 
@@ -567,7 +568,7 @@ class ConnectionController extends ChangeNotifier
     this.isIsolated = false,
     this.isAgentBackend = false,
     this.isSideBackend = false,
-    OpenCodeApiFactory? apiFactory,
+    ServerGatewayFactory? apiFactory,
     MonitorGatewayFactory? monitorGatewayFactory,
     ProductRepositoryFactory? repositoryFactory,
     V2GatewayPairFactory? v2GatewayFactory,
@@ -602,8 +603,8 @@ class ConnectionController extends ChangeNotifier
          store.prefs,
          vault: stashAttachmentVault,
        ),
-       _apiFactory = apiFactory ?? _createApi,
-       _repositoryFactory = repositoryFactory ?? _createRepository,
+       _apiFactory = apiFactory,
+       _repositoryFactory = repositoryFactory,
        _v2GatewayFactory = v2GatewayFactory ?? _createV2GatewayPair,
        _codexGatewayFactory = codexGatewayFactory ?? _createCodexGatewayPair,
        _paseoGatewayFactory = paseoGatewayFactory ?? _createPaseoGatewayPair,
@@ -774,15 +775,9 @@ class ConnectionController extends ChangeNotifier
     return best;
   }
 
-  /// True for connect failures shaped like talking to the wrong server
-  /// generation: a 401 (v1 client meeting v2's Basic-auth gate) or a 404/405
-  /// (v2 client asking a v1 server for `/api/...`). Unreachable addresses and
-  /// unhealthy servers are not flavor problems, so they never trigger a
-  /// re-probe.
-  /// True when a failed health check looks like the other protocol
-  /// generation answered: auth/route mismatches, or a 200 whose body is not
-  /// the JSON health object (an OpenCode 2 host serving its web UI on the
-  /// OpenCode 1 path).
+  /// A missing health route or rejected auth may be an unsupported legacy
+  /// server. Re-probe it for a clear upgrade explanation; never start an old
+  /// client or retry a mutation against a different protocol.
   @visibleForTesting
   static bool suggestsWrongFlavor(Object error) =>
       error is ApiException &&
@@ -821,6 +816,7 @@ class ConnectionController extends ChangeNotifier
         lastProjectID: _widgetProjectID,
         pendingCount: awaitingPermissionCount + questions.length + forms.length,
         details: _widgetSessionDetails(),
+        others: _widgetOtherConversations(),
         teamRows: _widgetTeamRows(),
         actionResult: _widgetActionResult,
         appTheme: _widgetAppTheme,
@@ -914,6 +910,7 @@ class ConnectionController extends ChangeNotifier
     _genUiDispose();
     _resetConnectionStatusClock();
     _syncLocalLiveness(null);
+    _syncAgentDaemonWatch(null);
     _resetQuietReconnect();
     _feedDispose();
     _paShutdown();

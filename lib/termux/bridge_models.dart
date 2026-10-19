@@ -3,7 +3,8 @@ import 'scripts/script_support.dart' show termuxManagedServerPort;
 /// The runtime selected for the one app-managed Ubuntu server. It is separate
 /// from a server's reported version and survives restarts in the manager state.
 enum TermuxRuntime {
-  openCode1('opencode1', '1.19.0'),
+  // Detection only: an old installation must migrate before it can start.
+  openCode1('opencode1', ''),
   openCode2('opencode2', '2.0.29');
 
   const TermuxRuntime(this.wireName, this.pinnedVersion);
@@ -12,6 +13,15 @@ enum TermuxRuntime {
 
   /// Fresh setup only. Missing runtime records still describe older installs.
   static const defaultForNewInstall = openCode2;
+
+  void requireSupported() {
+    if (this != openCode2) {
+      throw const TermuxBridgeException(
+        'OpenCode 1 must move to OpenCode 2 before starting.',
+        code: 'opencode1_migration_required',
+      );
+    }
+  }
 
   static TermuxRuntime parse(String? value) => switch (value?.trim()) {
     null || '' || 'opencode1' => openCode1,

@@ -1,11 +1,13 @@
+import 'dart:async';
+
 import 'support/complete_message_history.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/background/live_background.dart';
 import 'package:opencode_mobile/main.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -33,7 +35,7 @@ class _MemoryProfileStore extends ProfileStore {
   }
 }
 
-class _NavigationApi extends OpenCodeApi with CompleteMessageHistory {
+class _NavigationApi extends FakeServerGateway with CompleteMessageHistory {
   _NavigationApi({required this.question})
     : super(baseUrl: 'http://localhost:4096');
 
@@ -115,6 +117,7 @@ class _NoUpdateService implements AppUpdateService {
 Future<ConnectionController> _controllerFor(
   CodingAlertKind kind, {
   String? tapProfileID,
+  int taps = 1,
 }) async {
   SharedPreferences.setMockInitialValues({
     BackgroundLiveController.preferenceKey: true,
@@ -127,7 +130,7 @@ Future<ConnectionController> _controllerFor(
   );
   final store = _MemoryProfileStore(prefs: preferences, savedProfile: profile);
   await store.setActiveId(profile.id);
-  var consumed = false;
+  var consumed = 0;
   final backgroundLive = BackgroundLiveController(
     preferences: preferences,
     // Fake time never advances past the debounce; send status at once.
@@ -144,8 +147,8 @@ Future<ConnectionController> _controllerFor(
         };
       }
 
-      if (method == 'consumeCodingAlertOpen' && !consumed) {
-        consumed = true;
+      if (method == 'consumeCodingAlertOpen' && consumed < taps) {
+        consumed++;
         return {
           'kind': kind.wireValue,
           'sessionID': 'session-1',
@@ -299,5 +302,100 @@ void main() {
     );
     expect(find.text('Send answers'), findsNothing);
     expect(controller.pendingCodingAlertOpen, isNull);
+  });
+
+  // A chat opened from a notification sits on top of home, so one Back (the
+  // header arrow or the system gesture) lands on the Conversations list.
+  for (final kind in [CodingAlertKind.permission, CodingAlertKind.complete]) {
+    for (final system in [false, true]) {
+      testWidgets(
+        '${kind.name} notification chat: '
+        '${system ? 'system' : 'header'} Back lands on the conversations list',
+        (tester) async {
+          tester.view.physicalSize = const Size(800, 1400);
+          tester.view.devicePixelRatio = 1;
+          addTearDown(tester.view.reset);
+          final controller = await _controllerFor(kind);
+          addTearDown(controller.dispose);
+
+          await tester.pumpWidget(_app(controller));
+          await tester.pump();
+          await tester.pump();
+          await tester.pumpAndSettle();
+          expect(find.byType(ChatScreen), findsOneWidget);
+
+          if (system) {
+            await tester.binding.handlePopRoute();
+          } else {
+            await tester.tap(find.byTooltip('Back'));
+          }
+          await tester.pumpAndSettle();
+
+          expect(find.byType(ChatScreen), findsNothing);
+          expect(find.byType(HomeScreen), findsOneWidget);
+        },
+      );
+    }
+  }
+
+  // The reported dead end: the chat is already open when its notification is
+  // tapped. The tap must not stack a second copy of the same chat, or Back
+  // only reveals the identical chat underneath.
+  for (final kind in [CodingAlertKind.permission, CodingAlertKind.complete]) {
+    testWidgets('${kind.name} notification for the chat already open adds no '
+        'second copy: one Back reaches the list', (tester) async {
+      tester.view.physicalSize = const Size(800, 1400);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final controller = await _controllerFor(kind, taps: 2);
+      addTearDown(controller.dispose);
+
+      await tester.pumpWidget(_app(controller));
+      await tester.pump();
+      await tester.pump();
+      await tester.pumpAndSettle();
+      expect(find.byType(ChatScreen), findsOneWidget);
+
+      await controller.consumeCodingAlertOpen();
+      await tester.pumpAndSettle();
+      expect(find.byType(ChatScreen), findsOneWidget);
+
+      await tester.tap(find.byTooltip('Back'));
+      await tester.pumpAndSettle();
+      expect(find.byType(ChatScreen), findsNothing);
+      expect(find.byType(HomeScreen), findsOneWidget);
+    });
+  }
+
+  // A chat with nothing beneath it has no Back arrow, but the system Back
+  // must still get out rather than do nothing.
+  testWidgets('system Back from a chat with nothing beneath it lands home', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(800, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final controller = await _controllerFor(CodingAlertKind.complete);
+    addTearDown(controller.dispose);
+
+    await tester.pumpWidget(_app(controller));
+    await tester.pump();
+    await tester.pump();
+    await tester.pumpAndSettle();
+    final navigator = tester.state<NavigatorState>(
+      find.byType(Navigator).first,
+    );
+    unawaited(
+      navigator.pushNamedAndRemoveUntil('/chat/session-1', (_) => false),
+    );
+    await tester.pumpAndSettle();
+    expect(navigator.canPop(), isFalse);
+    expect(find.byType(HomeScreen), findsNothing);
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+
+    expect(find.byType(ChatScreen), findsNothing);
+    expect(find.byType(HomeScreen), findsOneWidget);
   });
 }

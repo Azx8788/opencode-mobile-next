@@ -225,6 +225,12 @@ class ChannelSetupEngine implements SetupEngine {
 
   /// The pending [_poll] waits [idlePollInterval], not [pollInterval].
   bool _pollIdle = false;
+
+  /// The last read found no Termux to ask (not installed, or its
+  /// RUN_COMMAND permission not granted) and no job to follow: idle polling
+  /// stops until a page starts watching again or a job starts, instead of
+  /// asking Termux every minute while the app's own setup runs.
+  bool _hostAbsent = false;
   bool _disposed = false;
 
   @override
@@ -250,27 +256,12 @@ class ChannelSetupEngine implements SetupEngine {
         }
       }
       final SetupJobRecord? last;
-      var selectedParams = params;
+      final selectedParams = params;
       try {
         last = await _read();
-        if (host == SetupHostKind.builtin &&
-            last == null &&
-            params[SetupComponentIds.openCode]?['runtime'] == null) {
-          // Pre-job installers left no setup.json. An existing rootfs is
-          // therefore not proof of a fresh phone: preserve legacy OC1 unless
-          // the caller explicitly selected another runtime.
-          final installed = (await _linux.status().timeout(
-            readTimeout,
-          )).installed;
-          if (installed) {
-            selectedParams = {
-              ...params,
-              SetupComponentIds.openCode: {
-                ...?params[SetupComponentIds.openCode],
-                'runtime': TermuxRuntime.openCode1.wireName,
-              },
-            };
-          }
+        if (host == SetupHostKind.builtin && last == null) {
+          // An unreadable host must never be mistaken for a fresh setup.
+          await _linux.status().timeout(readTimeout);
         }
       } catch (error) {
         // Callers rely on published progress, not a thrown start error.
@@ -303,7 +294,11 @@ class ChannelSetupEngine implements SetupEngine {
         // swallowed it, the tools sheet said "OpenCode is unreachable"): the
         // job fails, and the progress screen says so with the text under
         // Details.
-        debugPrint('setup: start failed ${error.runtimeType}: $error\n$stack');
+        debugPrint(
+          KitRedact.text(
+            'setup: start failed ${error.runtimeType}: $error\n$stack',
+          ),
+        );
         _failStart(error);
       }
     } finally {
@@ -336,7 +331,20 @@ class ChannelSetupEngine implements SetupEngine {
     } on SetupReadAbandoned {
       return;
     }
-    if (record == null) return;
+    if (record == null) {
+      // No job on disk: none yet, or Linux was removed with it (Reset,
+      // Remove). A finished or stopped job still held from before is no
+      // longer true, so the screens must not say "ready" from it (N1-5).
+      final held = _progress.value.state;
+      if (!_starting &&
+          _appRun == null &&
+          held != SetupState.idle &&
+          held != SetupState.running) {
+        _record = null;
+        _progress.value = SetupProgress.idle;
+      }
+      return;
+    }
     _show(record);
     if (record.state == 'running') _ensurePolling();
   }
@@ -356,8 +364,35 @@ class ChannelSetupEngine implements SetupEngine {
     }
   }
 
+  Future<Set<String>>? _inventoryRead;
+  int? _inventoryRevision;
+
   @override
-  Future<Set<String>> installedOptional() async {
+  Future<Set<String>> installedOptional() {
+    final revision = setupToolsChanged.value;
+    final pending = _inventoryRead;
+    if (pending != null && _inventoryRevision == revision) return pending;
+    // The screens share one live probe. A completed read is not cached: an
+    // external repair or removal must also be visible the next time they open.
+    _inventoryRevision = revision;
+    late final Future<Set<String>> read;
+    read = _readInstalledOptional()
+        .then(
+          (installed) => revision == setupToolsChanged.value
+              ? Future.value(Set<String>.unmodifiable(installed))
+              : installedOptional(),
+          onError: (Object error, StackTrace stack) {
+            if (revision != setupToolsChanged.value) return installedOptional();
+            Error.throwWithStackTrace(error, stack);
+          },
+        )
+        .whenComplete(() {
+          if (identical(_inventoryRead, read)) _inventoryRead = null;
+        });
+    return _inventoryRead = read;
+  }
+
+  Future<Set<String>> _readInstalledOptional() async {
     final optional = [
       for (final component in registry)
         if (!component.required && !component.jobStep) component,
@@ -373,16 +408,12 @@ class ChannelSetupEngine implements SetupEngine {
         if (component.app == null) component,
     ];
     if (inLinux.isEmpty) return installed;
-    try {
-      final checks = await _check(inLinux);
-      return {
-        ...installed,
-        for (final component in inLinux)
-          if (checks[component.id]?.ok == true) component.id,
-      };
-    } on BuiltinLinuxException {
-      return installed;
-    }
+    final checks = await _check(inLinux, requireComplete: true);
+    return {
+      ...installed,
+      for (final component in inLinux)
+        if (checks[component.id]?.ok == true) component.id,
+    };
   }
 
   // ---- polling -------------------------------------------------------------

@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../builtin/git_link_repair.dart' show GitRepairActions;
 import '../../../domain/chat_feed.dart';
 import '../../../domain/phone_agents_source.dart';
+import '../../../domain/product_failure.dart';
 import '../../../domain/server_gateway.dart' show WorkspaceProject;
 import '../../../l10n/app_localizations.dart';
 import '../../app_iconography.dart';
@@ -16,6 +18,7 @@ import '../agents/agent_sheet.dart';
 import '../agents/agents_text.dart';
 import 'chats_host.dart';
 import 'claude_import_screen.dart';
+import 'git_repair_sheet.dart';
 import 'chats_project_sheet.dart' show chatsProjectIcon;
 
 /// Opens the start screen for a new chat. [directory] is the project to
@@ -69,6 +72,14 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
   bool _resolved = false;
   bool _sending = false;
   String? _failure;
+
+  /// The redacted technical text behind [_failure], for its Details; null
+  /// when the failure has none.
+  String? _failureDetails;
+
+  /// The repair of the project's Git when that is what failed; it takes
+  /// Retry's place on the failure (retrying would fail the same way).
+  GitRepairActions? _gitRepair;
 
   /// The project a separate copy can be made of, for [_copyFor]'s folder;
   /// null hides the option.
@@ -158,6 +169,8 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
     setState(() {
       _directory = directory;
       _failure = null;
+      _failureDetails = null;
+      _gitRepair = null;
     });
   }
 
@@ -169,6 +182,8 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
     setState(() {
       _sending = true;
       _failure = null;
+      _failureDetails = null;
+      _gitRepair = null;
     });
     try {
       final id = await host.startChat(
@@ -189,12 +204,23 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
     } catch (error) {
       if (!mounted) return;
       // Plain words; the draft stays in the field. The redacted technical
-      // text goes to the device log for a report.
-      debugPrint('oc.chat-start failed: ${productErrorDetails(error)}');
-      final words = productErrorText(error, l10n: l10n);
+      // text sits under Details (the host also keeps it for a problem
+      // report) and goes to the device log.
+      final details = productErrorDetails(error);
+      debugPrint('oc.chat-start failed: $details');
+      final repair =
+          ProductFailure.from(error).category ==
+              ProductFailureCategory.projectGit
+          ? host.projectGitRepair(directory)
+          : null;
+      final words = repair != null
+          ? l10n.gitRepairFailureWords
+          : productErrorText(error, l10n: l10n);
       setState(() {
         _sending = false;
         _failure = words.trim().isEmpty ? l10n.chatsNewFailed : words;
+        _failureDetails = details;
+        _gitRepair = repair;
       });
     }
   }
@@ -269,6 +295,7 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
             key: const ValueKey('chats-new-agent'),
             label: KitBidi.auto(agentName),
             icon: agentIcon(agentChoice?.iconKey ?? 'opencode'),
+            mark: agentMark(agentChoice?.iconKey ?? 'opencode'),
             expanded: false,
             onPressed: () => unawaited(showAgentSheet(context)),
           ),
@@ -358,10 +385,50 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                 : KitComposerFailure(
                     words: _failure!,
                     onRetry: () => unawaited(_send(host)),
+                    actionLabel: _gitRepair == null
+                        ? null
+                        : l10n.gitRepairAction,
+                    actionKey: const ValueKey('chats-new-git-repair'),
+                    onAction: _gitRepair == null
+                        ? null
+                        : () => unawaited(_repair(host, name ?? directory!)),
+                    onDetails: _failureDetails == null
+                        ? null
+                        : () => unawaited(_showFailureDetails()),
                   ),
           ),
         ],
       ),
+    );
+  }
+
+  /// Repairs the project's Git in a sheet; once Git can read it, the
+  /// conversation starts with the message still in the field.
+  Future<void> _repair(ChatsHost host, String project) async {
+    final repair = _gitRepair;
+    if (repair == null || _sending) return;
+    final repaired = await showGitRepairSheet(
+      context,
+      project: project,
+      actions: repair,
+    );
+    if (!mounted || !repaired) return;
+    await _send(host);
+  }
+
+  /// The failure in plain words, its technical text folded under Details.
+  Future<void> _showFailureDetails() {
+    final l10n = AppLocalizations.of(context);
+    return showKitAlert(
+      context,
+      title: l10n.chatsNewFailedTitle,
+      body:
+          '${_failure ?? l10n.chatsNewFailed}\n\n${l10n.chatsNewFailedReportHint}',
+      details: [
+        KitTechnicalValue(l10n.productErrorDetailsLabel, _failureDetails ?? ''),
+      ],
+      icon: AppIconography.error,
+      alertKey: const ValueKey('chats-new-failure-details'),
     );
   }
 

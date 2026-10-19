@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/ui/app_theme.dart';
 import 'package:opencode_mobile/ui/widgets/terminal_view.dart';
+import 'support/no_red.dart';
 
 Future<ThemeData> _pump(WidgetTester tester, Widget child) async {
   final theme = AppTheme.dark();
@@ -91,7 +92,7 @@ void main() {
           ?.fontWeight,
       FontWeight.w600,
     );
-    expect(_colorOf(tester, 'Found 0 errors'), isNot(theme.colorScheme.error));
+    expect(_colorOf(tester, 'Found 0 errors'), isNotRed);
     expect(_colorOf(tester, '+6'), AppTheme.successOf(theme));
     expect(_colorOf(tester, ' -1'), roles.text1);
     expect(_colorOf(tester, 'All tests passed!'), AppTheme.successOf(theme));

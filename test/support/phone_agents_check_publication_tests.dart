@@ -2,7 +2,7 @@ part of '../phone_agents_controller_test.dart';
 
 void _phoneCheckPublicationTests() {
   test(
-    'finished phone check publishes fresh qualification before the next agent',
+    'phone check drains prior auth refresh and suppresses refresh during restart',
     () async {
       final w = await _world(null);
       addTearDown(w.controller.dispose);
@@ -12,7 +12,13 @@ void _phoneCheckPublicationTests() {
       final releaseOldScan = Completer<void>();
       final nextCheck = Completer<AgentPhoneCheckResult>();
       var blockOldScan = true;
+      var checkEntered = false;
+      var checking = false;
+      var probesDuringCheck = 0;
+      var probesAfterCheck = 0;
       w.state.probeHandler = (id) async {
+        if (checking) probesDuringCheck++;
+        if (checkEntered && !checking) probesAfterCheck++;
         if (id == 'fx' && blockOldScan) {
           blockOldScan = false;
           oldScanAtFx.complete();
@@ -22,6 +28,8 @@ void _phoneCheckPublicationTests() {
       };
       w.state.selfTestHandler = (id) async {
         if (id == 'fx') return nextCheck.future;
+        checkEntered = true;
+        checking = true;
         w.state.runtimes['claude'] = const PhoneAgentRuntime(
           agentId: 'claude',
           installed: true,
@@ -32,10 +40,14 @@ void _phoneCheckPublicationTests() {
           const AgentSetupProgress(
             agentId: 'claude',
             phase: AgentSetupPhase.done,
+            checkStep: AgentPhoneCheckStep.daemon,
           ),
         );
-        await oldScanAtFx.future;
+        // Cover both the setup listener and independent screen/timer refresh.
+        await w.controller.refreshAgentRows();
+        await Future<void>.delayed(Duration.zero);
         w.state.runtimes['claude'] = _ready('claude');
+        checking = false;
         return AgentPhoneCheckResult(
           agentId: 'claude',
           architecture: AgentArchitecture.arm64,
@@ -43,10 +55,20 @@ void _phoneCheckPublicationTests() {
           completed: AgentPhoneCheckStep.values,
         );
       };
-      final finished = w.controller.runAgentPhoneCheck('claude');
+      final priorRefresh = w.controller.refreshAgentRows();
       await oldScanAtFx.future;
+      final finished = w.controller.runAgentPhoneCheck('claude');
+      await Future<void>.delayed(Duration.zero);
+      expect(
+        checkEntered,
+        isFalse,
+        reason: 'An auth child from the prior refresh must drain first.',
+      );
       releaseOldScan.complete();
+      await priorRefresh;
       expect((await finished).passed, isTrue);
+      expect(probesDuringCheck, 0);
+      expect(probesAfterCheck, greaterThan(0));
       final fxCheck = w.controller.runAgentPhoneCheck('fx');
       expect(w.controller.agentPhoneCheck('claude')!.passed, isTrue);
       expect(
@@ -78,7 +100,7 @@ void _phoneCheckPublicationTests() {
     expect(w.controller.genUiStatus, isA<GenUiSetupPartial>());
     await w.controller.runAgentPhoneCheck('claude');
     expect(installer.calls, 2);
-    expect(w.controller.genUiStatus.agents, contains(GenUiAgent.openCode1));
+    expect(w.controller.genUiStatus.agents, contains(GenUiAgent.openCode2));
   });
 
   test('phone checks leave Cards explicitly off', () async {
@@ -114,6 +136,53 @@ void _phoneCheckPublicationTests() {
       expect(w.controller.agentPhoneCheck('claude'), isNull);
     },
   );
+
+  Future<AgentPhoneCheckResult> unavailableClaudeCheck(
+    _World w,
+    AgentSignInPhase signIn,
+  ) async {
+    w.signIn.phase = signIn;
+    w.state.selfTestHandler = (id) async => AgentPhoneCheckResult(
+      agentId: id,
+      architecture: AgentArchitecture.arm64,
+      passed: false,
+      completed: const [
+        AgentPhoneCheckStep.install,
+        AgentPhoneCheckStep.version,
+        AgentPhoneCheckStep.daemon,
+      ],
+      failure: AgentHostFailure.unavailable,
+      details: 'Check: unavailable.',
+    );
+    return w.controller.runAgentPhoneCheck('claude');
+  }
+
+  test(
+    'Claude unavailable while signed out is a needs-sign-in result',
+    () async {
+      final w = await _world(null);
+      addTearDown(w.controller.dispose);
+      w.state.runtimes['claude'] = _ready('claude');
+      final result = await unavailableClaudeCheck(
+        w,
+        AgentSignInPhase.signedOut,
+      );
+      expect(result.failure, AgentHostFailure.needsSignIn);
+      expect(result.details, 'Check: unavailable.');
+      expect(
+        w.controller.agentPhoneCheck('claude')?.failure,
+        AgentHostFailure.needsSignIn,
+      );
+    },
+  );
+
+  test('Claude unavailable while signed in stays unavailable', () async {
+    final w = await _world(null);
+    addTearDown(w.controller.dispose);
+    w.state.runtimes['claude'] = _ready('claude');
+    final result = await unavailableClaudeCheck(w, AgentSignInPhase.signedIn);
+    expect(result.failure, AgentHostFailure.unavailable);
+  });
 
   test('failed phone recheck never borrows the earlier ready result', () async {
     final w = await _world(null);
@@ -155,9 +224,9 @@ class _RetryCardsInstaller implements GenUiInstaller {
     return calls == 1
         ? GenUiSetupPartial(
             agents: [GenUiAgent.claude],
-            affected: [GenUiAgent.openCode1],
+            affected: [GenUiAgent.openCode2],
             reason: GenUiSetupProblem.verificationFailed,
           )
-        : GenUiSetupOn(agents: [GenUiAgent.claude, GenUiAgent.openCode1]);
+        : GenUiSetupOn(agents: [GenUiAgent.claude, GenUiAgent.openCode2]);
   }
 }

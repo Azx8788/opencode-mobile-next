@@ -6,9 +6,9 @@ import 'package:flutter/services.dart';
 import 'package:clock/clock.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/builtin/agents/gen_ui_install.dart';
 import 'package:opencode_mobile/builtin/agents/gen_ui_search_publish.dart';
 import 'package:opencode_mobile/domain/genui/gen_ui.dart';
@@ -22,6 +22,10 @@ import 'package:opencode_mobile/state/phone_project_engine.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// Synthetic readiness isolates connector/controller behavior. The production
+// installer keeps OpenCode 2 unqualified; see gen_ui_install_test.dart.
+// Search descriptors use the qualified Claude adapter; synthetic OC2 readiness
+// exercises the shared card/controller behavior without qualifying its runtime.
 class _Installer implements GenUiInstaller {
   @override
   Future<GenUiSetupStatus> setEnabled({
@@ -29,7 +33,7 @@ class _Installer implements GenUiInstaller {
     required Set<GenUiAgent> agents,
     required bool enabled,
   }) async => enabled
-      ? GenUiSetupOn(agents: [GenUiAgent.openCode1])
+      ? GenUiSetupOn(agents: [GenUiAgent.claude, GenUiAgent.openCode2])
       : const GenUiSetupOff();
 }
 
@@ -59,7 +63,7 @@ MessageWithParts _message({
   ],
 );
 
-class _Api extends OpenCodeApi {
+class _Api extends FakeServerGateway {
   _Api() : super(baseUrl: 'http://127.0.0.1:4097');
   List<MessageWithParts> history = [_message()];
   Completer<void>? historyReached;
@@ -159,6 +163,7 @@ class _Registry implements HttpClientAdapter {
   bool fail = false;
   bool searchHits = false;
   Duration delay = Duration.zero;
+  Completer<void>? requestStarted, requestHold;
 
   static String _server(String name, String title) => jsonEncode({
     'server': {
@@ -179,6 +184,8 @@ class _Registry implements HttpClientAdapter {
     Future<void>? cancelFuture,
   ) async {
     requests.add(options);
+    if (requestStarted?.isCompleted == false) requestStarted!.complete();
+    await requestHold?.future;
     if (delay > Duration.zero) await Future<void>.delayed(delay);
     if (fail) throw StateError('private upstream diagnostics');
     final search = options.queryParameters['search'];
@@ -206,8 +213,18 @@ Future<({ConnectionController connection, _Api api, _Repository repository})>
 _harness({bool observe = true, GenUiSearchPublisher? searchPublisher}) async {
   SharedPreferences.setMockInitialValues({
     'oc.profiles': jsonEncode([
-      {'id': 'phone', 'name': 'Phone', 'baseUrl': 'http://127.0.0.1:4097'},
-      {'id': 'other', 'name': 'Other', 'baseUrl': 'https://other.invalid'},
+      {
+        'id': 'phone',
+        'name': 'Phone',
+        'baseUrl': 'http://127.0.0.1:4097',
+        'flavor': 'v2',
+      },
+      {
+        'id': 'other',
+        'name': 'Other',
+        'baseUrl': 'https://other.invalid',
+        'flavor': 'v2',
+      },
     ]),
     'oc.activeProfile': 'phone',
   });
@@ -261,7 +278,7 @@ class _SearchPublisher implements GenUiSearchPublisher {
   }) async {
     calls++;
     expect(profileId, 'phone');
-    expect(agent, GenUiAgent.openCode1);
+    expect(agent, GenUiAgent.claude);
     this.endpoint = endpoint;
     this.bearer = bearer;
     if (!ready.isCompleted) ready.complete();
@@ -330,6 +347,8 @@ void main() {
       ..requests.clear()
       ..fail = false
       ..searchHits = false
+      ..requestStarted = null
+      ..requestHold = null
       ..delay = Duration.zero;
     HttpOverrides.global = null;
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -341,7 +360,7 @@ void main() {
   });
 
   test(
-    'agent search uses current cached Tools catalogue and exact inventory',
+    'Claude search uses cached catalogue without borrowing OpenCode inventory',
     () async {
       final publisher = _SearchPublisher();
       final h = await _harness(searchPublisher: publisher);
@@ -353,9 +372,9 @@ void main() {
       expect(result.status, 200);
       final match = (result.body['matches'] as List).single as Map;
       expect(match['catalogId'], 'com.example/design');
-      expect(match['connected'], isTrue);
+      expect(match['connected'], isNull);
       expect(match['needsSignIn'], 'unknown');
-      expect(h.repository.lists, 1);
+      expect(h.repository.lists, 0);
       expect(h.repository.adds, 0);
     },
   );
@@ -503,16 +522,16 @@ void main() {
     expect((saved['entries'] as List), isNotEmpty);
   });
 
-  test('agent search rejects source changes during inventory read', () async {
+  test('agent search rejects source changes during registry read', () async {
     final publisher = _SearchPublisher();
     final h = await _harness(searchPublisher: publisher);
     await _cache(h.connection);
-    h.repository.listStarted = Completer<void>();
-    h.repository.listHold = Completer<void>();
+    _registry.requestStarted = Completer<void>();
+    _registry.requestHold = Completer<void>();
     final request = publisher.search();
-    await h.repository.listStarted!.future.timeout(const Duration(seconds: 5));
+    await _registry.requestStarted!.future.timeout(const Duration(seconds: 5));
     h.connection.directory = '/changed';
-    h.repository.listHold!.complete();
+    _registry.requestHold!.complete();
     expect((await request).status, 403);
   });
 

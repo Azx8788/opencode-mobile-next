@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
 import 'package:opencode_mobile/api2/events.dart';
 import 'package:opencode_mobile/api2/gateway_events.dart';
 import 'package:opencode_mobile/api2/gateway_mappers.dart';
@@ -25,7 +25,7 @@ Future<ProfileStore> _store() async {
   return ProfileStore(prefs: await SharedPreferences.getInstance());
 }
 
-class _StatusApi extends OpenCodeApi {
+class _StatusApi extends FakeServerGateway {
   _StatusApi() : super(baseUrl: 'http://127.0.0.1:1');
 
   List<Session> sessionsResult = const [];
@@ -265,16 +265,6 @@ void main() {
       expect(retry.next, DateTime.fromMillisecondsSinceEpoch(1787961300000));
       expect(SessionRetryState.fromStatusJson({'type': 'busy'}), isNull);
       expect(SessionRetryState.fromStatusJson('retry'), isNull);
-    });
-
-    test('OpenCodeApi.sessionRetryStatesFromJson keeps only retry entries', () {
-      final out = OpenCodeApi.sessionRetryStatesFromJson({
-        'ses_a': {'type': 'idle'},
-        'ses_b': {'type': 'busy'},
-        'ses_c': retryStatus,
-      });
-      expect(out.keys, ['ses_c']);
-      expect(out['ses_c']!.attempt, 3);
     });
 
     test('v2 session.status retry keeps attempt/message/next', () {

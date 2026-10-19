@@ -15,7 +15,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
@@ -52,6 +52,9 @@ class _CatalogConnection extends ConnectionController {
 
   @override
   Future<void> refreshCatalog() async {}
+
+  @override
+  Future<void> ensureCatalog() async {}
 }
 
 MessageWithParts _step(String id, List<Part> parts, {String? error}) =>
@@ -101,6 +104,7 @@ Future<ConnectionController> _connection({
       {
         'id': 'profile-1',
         'name': 'Laptop',
+        'flavor': 'v2',
         'baseUrl': 'http://localhost',
         'username': '',
       },

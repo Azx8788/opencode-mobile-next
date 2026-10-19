@@ -1,3 +1,4 @@
+import 'support/fake_server_capabilities.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -5,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/domain/agent_catalog.dart';
 import 'package:opencode_mobile/domain/agent_sign_in.dart';
 import 'package:opencode_mobile/domain/phone_agent_host.dart';
@@ -29,11 +30,11 @@ import '../tool/capture/fixtures.dart' show loadCaptureFonts;
 const _builtIn = 'http://127.0.0.1:4097';
 const _remote = 'http://workstation.local:4096';
 
-class _Api extends OpenCodeApi {
+class _Api extends FakeServerGateway {
   _Api() : super(baseUrl: 'http://localhost');
 
   @override
-  ServerCapabilities get capabilities => ServerCapabilities.allV1;
+  ServerCapabilities get capabilities => testServerCapabilities;
 
   @override
   Future<Health> health() async => Health(healthy: true, version: '1.18.23');
@@ -97,11 +98,18 @@ Future<ConnectionController> _controller({
 }) async {
   SharedPreferences.setMockInitialValues({
     'oc.profiles': jsonEncode([
-      {'id': 'active', 'name': 'Active', 'baseUrl': activeUrl, 'username': ''},
+      {
+        'id': 'active',
+        'name': 'Active',
+        'flavor': 'v2',
+        'baseUrl': activeUrl,
+        'username': '',
+      },
       if (savedBuiltIn)
         {
           'id': 'phone',
           'name': 'This phone',
+          'flavor': 'v2',
           'baseUrl': _builtIn,
           'username': '',
         },

@@ -5,7 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import '../support/fake_server_gateway.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/ui/screens/web_sources_screen.dart';
 
@@ -15,7 +15,7 @@ import 'paseo_coverage_support.dart';
 import 'servers_support.dart';
 import 'tools_support.dart';
 
-class _SearchApi extends OpenCodeApi implements WebSearchGateway {
+class _SearchApi extends FakeServerGateway implements WebSearchGateway {
   _SearchApi(this.found, this.response)
     : super(baseUrl: 'https://studio.example.net:4096');
 

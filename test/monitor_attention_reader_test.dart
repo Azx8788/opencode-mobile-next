@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:opencode_mobile/orchestration/adapters/fixture/project_fixture_gateway.dart';
 import 'package:opencode_mobile/state/team_project_persistence.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/domain/attention_feed.dart';
 import 'package:opencode_mobile/domain/orchestration_gateway.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';

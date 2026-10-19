@@ -5,7 +5,6 @@ pub mod chat;
 pub mod config;
 pub mod daemon;
 pub mod opencode;
-mod opencode1;
 mod opencode2;
 pub mod repository;
 pub mod scheduler;

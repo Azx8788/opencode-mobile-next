@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-/// A loopback-only, read-only OpenCode fixture. No model or provider credentials.
+/// A loopback-only, read-only OpenCode 2 fixture. No model or provider credentials.
 class Bd9DeviceSmokeFixture {
   Bd9DeviceSmokeFixture._(this._server);
 
@@ -28,11 +28,8 @@ class Bd9DeviceSmokeFixture {
 
   static Map<String, Object?> get _session => {
     'id': sessionID,
-    'slug': 'bd9-release-smoke',
-    'projectID': 'bd9-project',
-    'directory': directory,
+    'location': {'directory': directory, 'projectID': 'bd9-project'},
     'title': title,
-    'version': '1.0.0',
     'time': {'created': 1791324000000, 'updated': 1791324000000},
   };
 
@@ -46,7 +43,7 @@ class Bd9DeviceSmokeFixture {
       return;
     }
     reads.add(path);
-    if (path == '/event' || path == '/global/event') {
+    if (path == '/api/event') {
       request.response.headers.contentType = ContentType(
         'text',
         'event-stream',
@@ -54,60 +51,51 @@ class Bd9DeviceSmokeFixture {
       request.response.headers.set(HttpHeaders.cacheControlHeader, 'no-cache');
       final event = {
         'type': 'server.connected',
-        'properties': <String, Object>{},
+        'data': <String, Object>{},
+        'durable': false,
       };
-      final data = path == '/global/event'
-          ? {'directory': directory, 'payload': event}
-          : event;
-      request.response.write('data: ${jsonEncode(data)}\n\n');
+      request.response.write('data: ${jsonEncode(event)}\n\n');
       await request.response.flush();
       // Deliberately keep the real SSE connection open until close(force:true).
       return;
     }
 
     final Object? data = switch (path) {
-      '/global/health' => {'healthy': true, 'version': '1.0.0'},
-      // Only the global inventory supplies the visible conversation.
-      '/session' => <Object>[],
-      '/experimental/session' => [
-        {
-          ..._session,
-          'project': {
+      '/api/health' => {'healthy': true, 'version': '0.0.0-beta-18600'},
+      // The global inventory's root filter distinguishes it from scoped reads.
+      '/api/session' => {
+        'data': request.uri.queryParameters['parentID'] == 'null'
+            ? [_session]
+            : <Object>[],
+        'cursor': <String, Object>{},
+      },
+      '/api/session/active' => {'data': <String, Object>{}},
+      '/api/project' => {
+        'data': [
+          {
             'id': 'bd9-project',
+            'directory': directory,
             'name': 'BD9 project',
-            'worktree': directory,
+            'time': {'created': 1791324000000, 'updated': 1791324000000},
           },
-        },
-      ],
-      '/session/status' => {
-        sessionID: {'type': 'idle'},
+        ],
       },
-      '/project' => [
-        {
-          'id': 'bd9-project',
-          'worktree': directory,
-          'name': 'BD9 project',
-          'sandboxes': <String>[],
-          'time': {'created': 1791324000000, 'updated': 1791324000000},
-        },
-      ],
-      '/path' => {
-        'home': '/home/bd9',
-        'state': '/tmp/bd9',
-        'config': '/tmp/bd9',
-        'worktree': directory,
-        'directory': directory,
-      },
-      '/provider' ||
-      '/config/providers' => {'all': [], 'default': {}, 'connected': []},
       '/api/provider' ||
       '/api/model' ||
       '/api/agent' ||
-      '/api/integration' => {'data': []},
-      '/agent' || '/permission' || '/question' || '/command' => <Object>[],
-      '/provider/auth' || '/config' || '/mcp' => <String, Object>{},
-      '/experimental/capabilities' => {'backgroundSubagents': false},
-      '/vcs' => {'branch': 'bd9'},
+      '/api/integration' ||
+      '/api/permission/request' ||
+      '/api/form/request' ||
+      '/api/command' ||
+      '/api/skill' ||
+      '/api/reference' ||
+      '/api/config' ||
+      '/api/mcp' => {'data': []},
+      '/api/vcs' => {
+        'data': {
+          'branch': {'current': 'bd9'},
+        },
+      },
       _ => null,
     };
     request.response.headers.contentType = ContentType.json;

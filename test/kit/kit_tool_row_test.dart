@@ -7,6 +7,7 @@ import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../support/no_red.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/ui/app_theme.dart';
 import 'package:opencode_mobile/ui/kit/chat/kit_markdown.dart';
@@ -184,12 +185,12 @@ void main() {
     final expectations = <KitToolStatus, (String?, Type?)>{
       KitToolStatus.notRun: ('Not run', null),
       KitToolStatus.pending: ('Waiting', KitStatusMark),
-      KitToolStatus.running: (null, KitStatusMark),
+      KitToolStatus.running: (null, null),
       KitToolStatus.waitingForYou: ('Waiting for you', KitStatusMark),
       KitToolStatus.done: (null, null),
       KitToolStatus.failed: ('Failed', KitStatusMark),
       KitToolStatus.stopped: ('Stopped', KitTaskMark),
-      KitToolStatus.background: ('Started in the background', KitStatusMark),
+      KitToolStatus.background: ('Started in the background', null),
     };
     for (final entry in expectations.entries) {
       testWidgets('${entry.key.name} shows its mark and word', (tester) async {
@@ -205,12 +206,18 @@ void main() {
       });
     }
 
+    testWidgets('a running row shows the step light and no ring', (
+      tester,
+    ) async {
+      for (final status in [KitToolStatus.running, KitToolStatus.background]) {
+        await _pump(tester, _row(status: status));
+        expect(find.byKey(const ValueKey('kit-step-light')), findsOneWidget);
+        expect(find.byType(KitStatusMark), findsNothing);
+        expect(find.byType(CircularProgressIndicator), findsNothing);
+      }
+    });
+
     testWidgets('marks carry the right state', (tester) async {
-      await _pump(tester, _row(status: KitToolStatus.running));
-      expect(
-        tester.widget<KitStatusMark>(find.byType(KitStatusMark)).state,
-        KitMarkState.working,
-      );
       await _pump(tester, _row(status: KitToolStatus.waitingForYou));
       expect(
         tester.widget<KitStatusMark>(find.byType(KitStatusMark)).state,
@@ -251,8 +258,8 @@ void main() {
       await _pump(tester, _row(status: KitToolStatus.failed));
       final roles = _roles(tester);
       expect(
-        _paintedColors(tester, find.byType(KitToolRow)),
-        isNot(contains(roles.danger)),
+        _paintedColors(tester, find.byType(KitToolRow)).where(isRedHue),
+        isEmpty,
       );
       expect(_colorOf(tester, 'Failed'), roles.text1);
     });

@@ -306,6 +306,141 @@ void main() {
     },
   );
 
+  group('link2symlink links', () {
+    late Directory directory;
+    late String prefix;
+    late String home;
+    late Directory project;
+    late Directory store;
+
+    Future<TermuxCommandResult> run(
+      String script, {
+      required Duration timeout,
+    }) async {
+      final process = await Process.start(
+        'bash',
+        ['-s'],
+        environment: {'HOME': home, 'PREFIX': prefix},
+      );
+      final output = process.stdout.transform(utf8.decoder).join();
+      final errors = process.stderr.drain<void>();
+      process.stdin.write(script);
+      await process.stdin.close();
+      final exit = await process.exitCode.timeout(timeout);
+      await errors;
+      return TermuxCommandResult(
+        stdout: await output,
+        stderr: '',
+        exitCode: exit,
+        errorCode: -1,
+        errorMessage: '',
+      );
+    }
+
+    setUp(() async {
+      directory = await Directory.systemTemp.createTemp('migration l2s-');
+      addTearDown(() => directory.delete(recursive: true));
+      prefix = '${directory.path}/usr';
+      home = '${directory.path}/home';
+      final rootfs =
+          '$prefix/var/lib/proot-distro/containers/opencode-ubuntu/rootfs';
+      project = Directory('$rootfs/root/projects/example');
+      store = Directory('$rootfs/.l2s');
+      await project.create(recursive: true);
+      await store.create(recursive: true);
+      await Directory(home).create();
+      await File('${project.path}/README.md').writeAsString('readme\n');
+      await Directory(
+        '${project.path}/.git/objects/ab',
+      ).create(recursive: true);
+      await File('${store.path}/.l2s.tmp_obj_00010001').writeAsString('OBJECT');
+      await Link(
+        '${project.path}/.git/objects/ab/cdef',
+      ).create('${store.path}/.l2s.tmp_obj_00010001');
+    });
+
+    Future<Map<String, (String, String)>> packedEntries() async {
+      final transport = BridgeTermuxMigrationTransport(run: run);
+      await transport.pack(
+        _job,
+        TermuxMigrationItem.projects,
+        maxBytes: 1024 * 1024,
+      );
+      final listing = await Process.run('tar', [
+        '-tvf',
+        '$home/.oc/migration/$_job/projects.tar',
+      ]);
+      final entries = <String, (String, String)>{};
+      for (final line in (listing.stdout as String).trim().split('\n')) {
+        final name = line.split(RegExp(r'\s+')).last;
+        entries[name] = (line.substring(0, 1), line);
+      }
+      return entries;
+    }
+
+    test('are archived as their target contents, not as links', () async {
+      final entries = await packedEntries();
+      expect(entries['./example/.git/objects/ab/cdef']?.$1, '-');
+      expect(entries['./example/README.md']?.$1, '-');
+      final out = await Directory('${directory.path}/out').create();
+      await Process.run('tar', [
+        '-xf',
+        '$home/.oc/migration/$_job/projects.tar',
+        '-C',
+        out.path,
+      ]);
+      final restored = File('${out.path}/example/.git/objects/ab/cdef');
+      expect(FileSystemEntity.isLinkSync(restored.path), isFalse);
+      expect(await restored.readAsString(), 'OBJECT');
+    });
+
+    test('inspect counts the target bytes and accepts the project', () async {
+      final inventory = await BridgeTermuxMigrationTransport(
+        run: run,
+      ).inspect();
+      final projects = inventory.items.singleWhere(
+        (item) => item.item == TermuxMigrationItem.projects,
+      );
+      expect(projects.problem, isNull);
+      expect(projects.bytes, 'readme\n'.length + 'OBJECT'.length);
+    });
+
+    test('an unreadable target is named, not migrated half-broken', () async {
+      await File('${store.path}/.l2s.tmp_obj_00010001').delete();
+      final inventory = await BridgeTermuxMigrationTransport(
+        run: run,
+      ).inspect();
+      final projects = inventory.items.singleWhere(
+        (item) => item.item == TermuxMigrationItem.projects,
+      );
+      expect(projects.problem, TermuxMigrationFailure.linkedFileUnreadable);
+      await expectLater(
+        BridgeTermuxMigrationTransport(
+          run: run,
+        ).pack(_job, TermuxMigrationItem.projects, maxBytes: 1024 * 1024),
+        throwsA(_failure(TermuxMigrationFailure.linkedFileUnreadable)),
+      );
+    });
+
+    for (final absolute in [false, true]) {
+      test(
+        'an ordinary ${absolute ? 'absolute' : 'relative'} symlink is still refused',
+        () async {
+          await Link(
+            '${project.path}/link',
+          ).create(absolute ? '/usr/bin/env' : 'README.md');
+          final inventory = await BridgeTermuxMigrationTransport(
+            run: run,
+          ).inspect();
+          final projects = inventory.items.singleWhere(
+            (item) => item.item == TermuxMigrationItem.projects,
+          );
+          expect(projects.problem, TermuxMigrationFailure.unsupportedEntry);
+        },
+      );
+    }
+  });
+
   for (final suffix in ['', '.offset', '.offset.tmp']) {
     test(
       'copy refuses a staging link $suffix without changing its target',

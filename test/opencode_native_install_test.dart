@@ -187,7 +187,7 @@ void main() {
   group('the pinned native install', () {
     test('the production script picks the pinned archive for each CPU, '
         'checks it before unpacking, and uses no npm', () {
-      for (final runtime in TermuxRuntime.values) {
+      for (final runtime in [TermuxRuntime.openCode2]) {
         final script = SetupScripts.openCodeNativeInstall(runtime);
         final pins = OpenCodePins.of(runtime);
         final arm = script
@@ -213,21 +213,24 @@ void main() {
       }
       // The pins scripts/host/ubuntu-opencode.sh carries, and baseline x64.
       expect(
-        OpenCodePins.v1Arm64.sha256,
-        'e9841d43d3e1a8f36ed2691592d3b8b4fb097e606c8b559a277a1b845840e26b',
+        OpenCodePins.v2Arm64.sha256,
+        '0af39e75dbdfacc20f8f531ef35fb4dcc0b44c08084203518614272f232283ae',
       );
       expect(
-        OpenCodePins.v1X64.sha256,
-        '6334d70db3990721ea454357e9cf2573c8685524ad7769af9d52cbffb7008438',
+        OpenCodePins.v2X64.sha256,
+        '152c42ff57b15728f39e1d7b68a9c13b0635fe1c5e6dcccdc8b710955e4cef0b',
       );
-      expect(OpenCodePins.v1X64.url, endsWith('linux-x64-baseline.tar.gz'));
-      expect(OpenCodePins.v1Arm64.url, contains('/releases/download/v1.19.0/'));
+      expect(
+        OpenCodePins.v2X64.url,
+        contains('cli-linux-x64-baseline-2.0.29.tgz'),
+      );
+      expect(OpenCodePins.v2Arm64.url, contains('cli-linux-arm64-2.0.29.tgz'));
       expect(OpenCodePins.v2X64.url, contains('cli-linux-x64-baseline-2.0.29'));
       expect(OpenCodePins.v2Arm64.url, contains('cli-linux-arm64-2.0.29'));
       // Another version is not installed from an unpinned file.
       expect(
         SetupScripts.openCodeNativeInstall(
-          TermuxRuntime.openCode1,
+          TermuxRuntime.openCode2,
           version: '1.18.30',
         ),
         allOf(contains(OpenCodeInstallFailure.unpinned), contains('exit 64')),
@@ -249,12 +252,12 @@ void main() {
       final older = setupComponents(
         en,
         params: const {
-          'opencode': {'runtime': 'opencode1'},
+          'opencode': {'runtime': 'opencode2'},
         },
       ).singleWhere((c) => c.id == SetupComponentIds.openCode);
       expect(
         older.installScript,
-        SetupScripts.openCodeNativeInstall(TermuxRuntime.openCode1),
+        SetupScripts.openCodeNativeInstall(TermuxRuntime.openCode2),
       );
       final termux = setupComponents(
         en,
@@ -269,69 +272,72 @@ void main() {
         openCodeUbuntuSetupScript,
         contains('--allow-scripts="\$main_package"'),
       );
-      expect(openCodeUbuntuSetupScript, contains('main_package=opencode-ai'));
+      expect(
+        openCodeUbuntuSetupScript,
+        isNot(contains('main_package=opencode-ai')),
+      );
       expect(openCodeUbuntuSetupScript, contains('main_package=@opencode/cli'));
     });
 
     test('ARM64 gets the arm64 archive: installed, proven, linked; the old '
         'npm wrapper is replaced and the check passes afterwards', () async {
-      final sha = archive('arm.tgz', 'opencode', _fakeProgram('1.19.0'));
+      final sha = archive('arm.tgz', 'opencode', _fakeProgram('2.0.29'));
       // What an older build left: npm's wrapper, reporting the right version.
       final npm = Directory('${root.path}/usr/local/lib/node_modules')
         ..createSync(recursive: true);
-      final wrapper = File('${npm.path}/opencode-ai/bin/opencode')
+      final wrapper = File('${npm.path}/opencode-ai/bin/opencode2')
         ..createSync(recursive: true)
-        ..writeAsStringSync('#!/bin/sh\necho 1.19.0\n');
+        ..writeAsStringSync('#!/bin/sh\necho 2.0.29\n');
       Process.runSync('chmod', ['+x', wrapper.path]);
       Directory('${npm.path}/opencode-linux-arm64').createSync();
       Directory('${root.path}/usr/local/bin').createSync(recursive: true);
-      Link('${root.path}/usr/local/bin/opencode').createSync(wrapper.path);
+      Link('${root.path}/usr/local/bin/opencode2').createSync(wrapper.path);
 
       expect(
-        (await check(TermuxRuntime.openCode1)).exitCode,
+        (await check(TermuxRuntime.openCode2)).exitCode,
         isNot(0),
         reason: 'the npm wrapper is not the pinned program: Continue redoes it',
       );
 
-      final result = await install(TermuxRuntime.openCode1, (
+      final result = await install(TermuxRuntime.openCode2, (
         arm64: asset('arm.tgz', sha, 'opencode'),
         x64: asset('missing-x64.tgz', '0' * 64, 'opencode'),
       ));
       expect(result.exitCode, 0, reason: '${result.stdout}${result.stderr}');
       final out = result.stdout as String;
       expect(out, contains('::oc stage Checking that OpenCode starts'));
-      expect(out, contains('::oc version 1.19.0'));
+      expect(out, contains('::oc version 2.0.29'));
       expect(
-        Link('${root.path}/usr/local/bin/opencode').targetSync(),
-        '${root.path}/opt/opencode/bin/opencode',
+        Link('${root.path}/usr/local/bin/opencode2').targetSync(),
+        '${root.path}/opt/opencode2/bin/opencode2',
       );
-      expect(Directory('${npm.path}/opencode-ai').existsSync(), isFalse);
+      expect(Directory('${npm.path}/opencode-ai').existsSync(), isTrue);
       expect(
         Directory('${npm.path}/opencode-linux-arm64').existsSync(),
-        isFalse,
+        isTrue,
       );
-      expect(Directory('${root.path}/opt/opencode.new').existsSync(), isFalse);
+      expect(Directory('${root.path}/opt/opencode2.new').existsSync(), isFalse);
       expect(
         Directory('${root.path}/var/cache/oc-setup').listSync(),
         isEmpty,
         reason: 'the archive is deleted once installed',
       );
 
-      final after = await check(TermuxRuntime.openCode1);
+      final after = await check(TermuxRuntime.openCode2);
       expect(after.exitCode, 0, reason: '${after.stderr}');
-      expect((after.stdout as String).trim(), '1.19.0');
+      expect((after.stdout as String).trim(), '2.0.29');
     }, skip: skip);
 
     test('x86_64 gets the x64 archive; OpenCode 2 unpacks the npm '
         'platform package\'s program as opencode2', () async {
       final sha = archive(
         'x64.tgz',
-        'package/bin/opencode',
+        'package/bin/opencode2',
         _fakeProgram('opencode v2.0.29'),
       );
       final result = await install(TermuxRuntime.openCode2, (
-        arm64: asset('missing-arm.tgz', '0' * 64, 'package/bin/opencode'),
-        x64: asset('x64.tgz', sha, 'package/bin/opencode'),
+        arm64: asset('missing-arm.tgz', '0' * 64, 'package/bin/opencode2'),
+        x64: asset('x64.tgz', sha, 'package/bin/opencode2'),
       ), machine: 'x86_64');
       expect(result.exitCode, 0, reason: '${result.stdout}${result.stderr}');
       expect(result.stdout, contains('::oc version 2.0.29'));
@@ -349,15 +355,18 @@ void main() {
     }, skip: skip);
 
     test('a checksum mismatch stops before anything is unpacked', () async {
-      archive('arm.tgz', 'opencode', _fakeProgram('1.19.0'));
-      final result = await install(TermuxRuntime.openCode1, (
+      archive('arm.tgz', 'opencode', _fakeProgram('2.0.29'));
+      final result = await install(TermuxRuntime.openCode2, (
         arm64: asset('arm.tgz', 'f' * 64, 'opencode'),
         x64: asset('arm.tgz', 'f' * 64, 'opencode'),
       ));
       expect(result.exitCode, isNot(0));
       expect(lastLine(result), contains('did not match its checksum'));
       expect(Directory('${root.path}/opt').existsSync(), isFalse);
-      expect(Link('${root.path}/usr/local/bin/opencode').existsSync(), isFalse);
+      expect(
+        Link('${root.path}/usr/local/bin/opencode2').existsSync(),
+        isFalse,
+      );
       final failure = describeSetupFailure(
         SetupJobComponent(
           id: 'opencode',
@@ -375,20 +384,20 @@ void main() {
     test(
       'post-activation failure restores the previous native program and link',
       () async {
-        final previous = File('${root.path}/opt/opencode/bin/opencode')
+        final previous = File('${root.path}/opt/opencode2/bin/opencode2')
           ..createSync(recursive: true)
-          ..writeAsStringSync(_fakeProgram('1.19.0'));
+          ..writeAsStringSync(_fakeProgram('2.0.29'));
         await Process.run('chmod', ['755', previous.path]);
         Directory('${root.path}/usr/local/bin').createSync(recursive: true);
-        final link = Link('${root.path}/usr/local/bin/opencode')
+        final link = Link('${root.path}/usr/local/bin/opencode2')
           ..createSync(previous.path);
         final sha = archive(
           'activation.tgz',
           'opencode',
-          _fakeProgram('1.19.0', activeFails: true),
+          _fakeProgram('2.0.29', activeFails: true),
         );
         final pin = asset('activation.tgz', sha, 'opencode');
-        final result = await install(TermuxRuntime.openCode1, (
+        final result = await install(TermuxRuntime.openCode2, (
           arm64: pin,
           x64: pin,
         ));
@@ -397,11 +406,11 @@ void main() {
           lastLine(result),
           '[oc] OpenCode could not finish updating. Run setup again.',
         );
-        expect(previous.readAsStringSync(), _fakeProgram('1.19.0'));
+        expect(previous.readAsStringSync(), _fakeProgram('2.0.29'));
         expect(link.targetSync(), previous.path);
-        expect((await check(TermuxRuntime.openCode1)).exitCode, 0);
+        expect((await check(TermuxRuntime.openCode2)).exitCode, 0);
         expect(
-          File('${root.path}/opt/opencode.oc-pending').existsSync(),
+          File('${root.path}/opt/opencode2.oc-pending').existsSync(),
           isFalse,
         );
         expect(File('${link.path}.oc-pending').existsSync(), isFalse);
@@ -412,31 +421,31 @@ void main() {
     test('an archive without the program, a program that does not run and '
         'one that does not start each end with their own reason and keep '
         'the previous install', () async {
-      final previous = File('${root.path}/opt/opencode/bin/opencode')
+      final previous = File('${root.path}/opt/opencode2/bin/opencode2')
         ..createSync(recursive: true)
         ..writeAsStringSync('old');
       Future<ProcessResult> run(String? program) async {
         final name = 'a${program.hashCode}.tgz';
         final sha = archive(name, 'opencode', program);
         final pin = asset(name, sha, 'opencode');
-        return install(TermuxRuntime.openCode1, (arm64: pin, x64: pin));
+        return install(TermuxRuntime.openCode2, (arm64: pin, x64: pin));
       }
 
       final empty = await run(null);
       expect(lastLine(empty), OpenCodeInstallFailure.noProgram);
 
-      final broken = await run(_fakeProgram('1.19.0', runs: false));
+      final broken = await run(_fakeProgram('2.0.29', runs: false));
       expect(lastLine(broken), OpenCodeInstallFailure.wontRun);
       expect(broken.stdout, contains('Exec format error'));
 
-      final silent = await run(_fakeProgram('1.19.0', starts: false));
+      final silent = await run(_fakeProgram('2.0.29', starts: false));
       expect(silent.exitCode, isNot(0));
       final said = '${silent.stdout}${silent.stderr}';
       expect(said, contains('database is locked'));
       expect(lastLine(silent), OpenCodeInstallFailure.noStart);
 
       expect(previous.readAsStringSync(), 'old');
-      expect(Directory('${root.path}/opt/opencode.new').existsSync(), isFalse);
+      expect(Directory('${root.path}/opt/opencode2.new').existsSync(), isFalse);
 
       for (final (result, words) in [
         (empty, en.phoneSetupErrorOpenCodeNoProgram),
@@ -464,7 +473,7 @@ void main() {
       'real pinned OpenCode on this PC (smoke)',
       () async {
         fakeUname('x86_64');
-        for (final runtime in TermuxRuntime.values) {
+        for (final runtime in [TermuxRuntime.openCode2]) {
           final script = SetupScripts.openCodeNativeInstall(
             runtime,
             root: root.path,

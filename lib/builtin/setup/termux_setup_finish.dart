@@ -87,6 +87,7 @@ class TermuxBridgeServerControl implements TermuxServerControl {
     required TermuxRuntime runtime,
     required String password,
   }) {
+    runtime.requireSupported();
     if (password.isEmpty) {
       throw ArgumentError.value('', 'password', 'Must not be empty.');
     }

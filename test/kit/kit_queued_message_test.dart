@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../support/no_red.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
 import 'package:opencode_mobile/ui/app_theme.dart';
@@ -191,7 +192,7 @@ void main() {
       });
       colors.add(text.text.style?.color);
     }
-    expect(colors, isNot(contains(roles.danger)));
+    expect(colors.whereType<Color>().where(isRedHue), isEmpty);
   });
 
   testWidgets('3. each state shows its words; sending escalates after 8 s; '

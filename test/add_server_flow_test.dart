@@ -10,8 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/server_probe.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/server_probe.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
 import 'package:opencode_mobile/state/codex_connection_probe.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -58,7 +58,7 @@ class _Connection extends ConnectionController {
     bool redetectOnFailure = true,
   }) async {
     connected.add(profile);
-    api = OpenCodeApi(baseUrl: profile.baseUrl);
+    api = FakeServerGateway(baseUrl: profile.baseUrl);
   }
 }
 

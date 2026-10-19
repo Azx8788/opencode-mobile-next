@@ -51,16 +51,12 @@ extension _ChatComposerRegion on _ChatScreenState {
         ? _conn.autoApprovalFor(widget.sessionID)
         : null;
     // Always there in a conversation whose runtime asks before it acts
-    // (not an isolated one, not a runtime that never asks). A request
-    // waiting for a person has its own card, the main thing on screen; the
-    // chip stays beside it unchanged, since it is how the person switches
-    // to approving automatically. Only a window too short for a strip
-    // (under 420 dp: a phone on its side with the keyboard up) shows it just
-    // while an automatic mode is on; the sheet is still one command away.
-    final shortWindow =
-        bodyConstraints.hasBoundedHeight && bodyConstraints.maxHeight < 420;
-    final showApproval =
-        approval != null && (approval.automatic || !shortWindow);
+    // (not an isolated one, not a runtime that never asks), in every window:
+    // a phone on its side shows it as it does upright. A request waiting for
+    // a person has its own card, the main thing on screen; the chip stays
+    // beside it unchanged, since it is how the person switches to approving
+    // automatically.
+    final showApproval = approval != null;
     // While the move is in flight the chip steps aside (a chip that cannot
     // act is not shown); the composer note then says how it went.
     final showBackground = _canBackgroundWork;
@@ -120,6 +116,10 @@ extension _ChatComposerRegion on _ChatScreenState {
         ),
     ];
   }
+
+  /// Under this height the request's viewport cannot hold its question and
+  /// its answers together; it then shows the answers (the bottom) first.
+  static const double _requestSliverMin = 140;
 
   /// The height the composer leaves free over itself while a request waits,
   /// so a tall composer (large text, keyboard up) never squeezes the
@@ -198,12 +198,20 @@ extension _ChatComposerRegion on _ChatScreenState {
         // ([_aboveComposerFloor]).
         if (bodyConstraints.hasBoundedHeight &&
             _attentionPending(pendingPermissions))
+          // Anchored at the top: the question is read first and the answers
+          // are a scroll away. A sliver too short for the question and the
+          // answers together (large text with the keyboard up) anchors at
+          // the bottom instead, so Allow once is what is under the finger.
           Flexible(
-            child: ListView(
-              shrinkWrap: true,
-              reverse: true,
-              padding: EdgeInsets.zero,
-              children: [_attentionRegion(pendingPermissions)],
+            child: LayoutBuilder(
+              builder: (context, box) => _RequestScrollHost(
+                child: ListView(
+                  shrinkWrap: true,
+                  reverse: box.maxHeight < _requestSliverMin,
+                  padding: EdgeInsets.zero,
+                  children: [_attentionRegion(pendingPermissions)],
+                ),
+              ),
             ),
           )
         else
@@ -243,7 +251,7 @@ extension _ChatComposerRegion on _ChatScreenState {
         // one folds away (design standard §10).
         _PendingSendsStrip(
           key: const ValueKey('pending-sends-strip'),
-          drafts: _conn.queuedPromptsFor(widget.sessionID),
+          drafts: _waitingDrafts(),
           inboxItems: _conn.capabilities.inbox
               // What you sent and is waiting. The server's own pending
               // context updates are a standing fact and live in the chip
@@ -328,7 +336,7 @@ extension _ChatComposerRegion on _ChatScreenState {
                                 ? l10n.draftUnsaved
                                 : _draftFailureText(failure),
                             role: KitTextRole.secondary,
-                            tone: KitTextTone.danger,
+                            tone: KitTextTone.primary,
                           ),
                         ),
                       ),

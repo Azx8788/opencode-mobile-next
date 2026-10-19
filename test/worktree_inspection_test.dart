@@ -1,3 +1,4 @@
+import 'support/fake_server_capabilities.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/domain/worktree_inspection.dart';
@@ -72,7 +73,7 @@ void main() {
         ];
       final inspection = WorktreeInspection(
         gateway: host,
-        capabilities: ServerCapabilities.allV1,
+        capabilities: testServerCapabilities,
       );
       final files = await inspection.loadChanges('/copy');
       expect(host.requestedDirectory, '/copy');
@@ -104,7 +105,7 @@ void main() {
         );
       final inspection = WorktreeInspection(
         gateway: host,
-        capabilities: ServerCapabilities.allV1,
+        capabilities: testServerCapabilities,
       );
       final page = await inspection.conversationPage(
         directory: '/copy',
@@ -138,7 +139,7 @@ void main() {
         );
       final inspection = WorktreeInspection(
         gateway: host,
-        capabilities: ServerCapabilities.allV1,
+        capabilities: testServerCapabilities,
       );
       final page = await inspection.conversationPage(
         directory: '/copy',
@@ -177,7 +178,7 @@ void main() {
     );
     final enabled = WorktreeInspection(
       gateway: host,
-      capabilities: ServerCapabilities.allV1,
+      capabilities: testServerCapabilities,
     );
     await expectLater(enabled.loadChanges(' '), throwsArgumentError);
     await expectLater(

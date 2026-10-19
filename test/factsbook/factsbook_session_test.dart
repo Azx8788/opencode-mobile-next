@@ -469,12 +469,14 @@ void main() {
             {
               'id': 'doomed',
               'name': 'Old',
+              'flavor': 'v2',
               'baseUrl': 'https://old.example:4096',
               'username': '',
             },
             {
               'id': 'keeper',
               'name': 'Laptop',
+              'flavor': 'v2',
               'baseUrl': 'https://keep.example:4096',
               'username': '',
             },

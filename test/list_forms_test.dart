@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart' show PermissionRequest;
+import 'package:opencode_mobile/domain/models.dart' show PermissionRequest;
 import 'package:opencode_mobile/domain/chat_feed.dart';
 import 'package:opencode_mobile/domain/form_request.dart';
 import 'package:opencode_mobile/domain/genui/gen_ui.dart';

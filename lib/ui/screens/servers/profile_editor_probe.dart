@@ -14,7 +14,7 @@ extension _EditorProbe on _ProfileEditorScreenState {
   /// The token a check or a save uses.
   String get _token => _heldToken ?? _codexToken.text;
 
-  /// True when [url] is plain HTTP to a private network address the person
+  /// True when [url] is plain HTTP to a remote address the person
   /// has not confirmed yet. Nothing is sent to it, and nothing is saved,
   /// until they do.
   bool _cleartextPending(String url) =>
@@ -178,7 +178,14 @@ extension _EditorProbe on _ProfileEditorScreenState {
   }
 
   void _applyUrlChange(String value) {
-    _set(_invalidateProbe);
+    _set(() {
+      _invalidateProbe();
+      if (cleartextOriginOf(normalizeServerProfileUrl(value)) !=
+          _certificateOrigin) {
+        _certificatePin = null;
+        _certificateOrigin = null;
+      }
+    });
     if (_isCodex) {
       final pasted = value.length - _urlLength >= 4;
       _urlLength = value.length;
@@ -283,6 +290,7 @@ extension _EditorProbe on _ProfileEditorScreenState {
     _submitDetails = null;
     _pairing = false;
     _error = null;
+    _certificateInspectionFailure = null;
     _testResult = null;
     _codexTestResult = null;
     _pairingNotice = null;
@@ -357,10 +365,12 @@ extension _EditorProbe on _ProfileEditorScreenState {
       FocusScope.of(context).unfocus();
       _revealStatus();
     }
-    final result = await serverProbe(
+    final result = await probeTrustedServerConnection(
       baseUrl: url,
       username: _user.text.trim(),
       password: _password,
+      cleartextConfirmedOrigin: _cleartextConfirmed,
+      certificatePinSha256: _pinFor(url),
     );
     if (!mounted || generation != _probeGeneration) return false;
     _set(() {

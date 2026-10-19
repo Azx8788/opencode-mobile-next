@@ -168,67 +168,7 @@ class RunTests(unittest.TestCase):
             fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
         return result
 
-    def test_seed_receipt_uses_exact_baseline_and_is_saved_privately_under_lock(self):
-        device, calls = self.fake()
-        self.args.seed_history_receipt = self.root / "private-receipt.json"
-        previous = self.artifacts["previous"]
-        device.installed_identity = lambda: dict(
-            build=previous.build,
-            version=previous.version,
-            sha256=previous.sha256,
-            signer=previous.signer,
-        )
-        receipt = dict(
-            engine="opencode",
-            directory="/root/projects/fq9-fixture",
-            sessions=[dict(id="ses_1", title="fq9-fixture-retained")],
-        )
 
-        def seed(port, save):
-            self.assertTrue(port.locked)
-            calls.append("seed")
-            save(receipt)
-            port.history = receipt
-
-        transaction = types.SimpleNamespace(
-            begin=lambda: calls.append("runtime-begin"),
-            restore=lambda: calls.append("runtime-restore"),
-            facts=lambda: {
-                "prior": "opencode2",
-                "selected": "opencode",
-                "restored": True,
-            },
-        )
-        with (
-            patch.object(run.fixture, "seed_history_fixture", side_effect=seed),
-            patch.object(run, "RuntimeTransaction", return_value=transaction),
-        ):
-            result = self.locked(device)
-        self.assertTrue(result["historySeeded"])
-        self.assertTrue(result["fixtureUsesAppProjectBacking"])
-        self.assertEqual(
-            json.loads(self.args.seed_history_receipt.read_text()), receipt
-        )
-        self.assertEqual(self.args.seed_history_receipt.stat().st_mode & 0o777, 0o600)
-        self.assertEqual(
-            calls,
-            ["ready", "runtime-begin", "seed", "close", "restore", "runtime-restore"],
-        )
-
-    def test_seed_never_manufactures_a_previous_baseline(self):
-        device, calls = self.fake()
-        self.args.seed_history_receipt = self.root / "private-receipt.json"
-        device.installed_identity = lambda: dict(
-            build=CANDIDATE_BUILD, version="1.2.0", sha256="a" * 64, signer=LOCAL_SIGNER
-        )
-        with patch.object(
-            run.fixture,
-            "seed_history_fixture",
-            side_effect=AssertionError("seeded modern baseline"),
-        ):
-            result = self.locked(device)
-        self.assertEqual(result["code"], "upgrade_previous_mismatch")
-        self.assertFalse(self.args.seed_history_receipt.exists())
 
     def test_invalid_seed_arguments_refuse_before_device_or_apk_tools(self):
         variants = [
@@ -284,29 +224,6 @@ class RunTests(unittest.TestCase):
         self.assertTrue(result["normalRestored"])
         self.assertEqual(calls[-1], "restore")
 
-    def test_returned_background_failure_does_not_become_success(self):
-        device, calls = self.fake()
-        self.args.case = "background"
-        device.installed_identity = lambda: dict(
-            build=CANDIDATE_BUILD,
-            version="1.2.0",
-            sha256="a" * 64,
-            signer=LOCAL_SIGNER,
-            uid=10217,
-        )
-        device.monotonic = lambda: 0
-        device.diagnostic_epoch_ms = lambda: 1000000
-        device.home = lambda: None
-        device.sleep = lambda seconds: None
-        with patch.object(
-            run.background,
-            "run_background",
-            return_value=dict(state="fail", code="background_turn_finished_early"),
-        ) as driver:
-            result = self.locked(device)
-        self.assertTrue(callable(driver.call_args.kwargs["before_cleanup"]))
-        self.assertFalse(result["deviceQualified"])
-        self.assertEqual(result["driver"]["code"], "background_turn_finished_early")
 
     def test_preflight_refusal_never_restores_unmutated_device(self):
         device, calls = self.fake()
@@ -336,40 +253,6 @@ class RunTests(unittest.TestCase):
             run.failure_code(ValueError("sensitive")), "driver_unexpected_failure"
         )
 
-    def test_discovery_uses_same_lock_and_is_never_survival_qualification(self):
-        device, calls = self.fake()
-        device.mutated = False
-        self.args.case = "background"
-        self.args.discover_turn_receipt = self.root / "receipt.json"
-        self.args.directory = "/root/projects/fq9-fixture"
-        value = {
-            "engine": "opencode",
-            "directory": self.args.directory,
-            "sessions": [
-                {"id": "ses_1", "title": "fq9-fixture-background", "promptID": "msg_1"}
-            ],
-        }
-        device.installed_identity = lambda: dict(
-            build=CANDIDATE_BUILD,
-            version="1.2.0",
-            sha256="a" * 64,
-            signer=LOCAL_SIGNER,
-            uid=10217,
-        )
-
-        def find(directory):
-            self.assertTrue(device.locked)
-            self.assertEqual(directory, self.args.directory)
-            return value
-
-        device.find_live_receipt = find
-        result = self.locked(device)
-        self.assertTrue(result["readinessOnly"])
-        self.assertEqual(result["state"], "ready")
-        self.assertFalse(result["deviceQualified"])
-        self.assertFalse(result["automatedChecksPassed"])
-        self.assertEqual(json.loads(self.args.discover_turn_receipt.read_text()), value)
-        self.assertNotIn("restore", calls)
 
     def test_discovery_plan_requires_scope_and_never_touches_device(self):
         with (

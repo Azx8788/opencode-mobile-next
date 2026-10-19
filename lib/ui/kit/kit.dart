@@ -25,6 +25,8 @@
 /// | [KitLiveStylePreview] | one look full screen behind a mock chat, with a reply-running switch and Use this |
 /// | [KitFloatingPanel] | a small card that floats over a transparent window (the home screen) on a dimmed ground, above the keyboard; tapping the ground closes it |
 /// | [KitSteerBox], [KitSteerBoxPhase] | the small composer a home-screen widget opens: what sending does, one field, a microphone and Send |
+/// | [KitWebPreview], [KitWebPreviewController] | a dev server's page inside the app: one origin only, no bridge to the app, cookies cleared, other addresses leave through the external-link gate |
+/// | [KitLinkScope] | lets a conversation take a tapped local dev-server link before it goes to the browser |
 /// | [KitWidgetPreview], [KitWidgetPreviewSize], [KitWidgetPreviewBackground] | a drawing of a home-screen widget in the style being chosen (ground, accent, layout) |
 /// | [KitWidgetStyleForm] | the choices that style one home-screen widget: a drawing of it, the ground, the accent |
 /// | [KitTokens] | kit v2 the colours (the theme's [ThemeRoles]), radii, heights, scrim, type and spacing every part reads (a ThemeExtension) |
@@ -33,6 +35,7 @@
 /// | [KitTaskChip], [showKitTaskSheet] | the agent's task list as one small chip with a progress ring beside the other chips above the field, and the list it opens |
 /// | [KitProjectFileList], [showKitProjectFileSheet] | a search field and the project files it finds (folders too), and the sheet that returns the chosen path |
 /// | [KitOneTimeCode] | kit v2 a one-time device code shown large and monospaced, with Copy |
+/// | [KitServerTrustBody], [showKitServerTrust] | explicit per-server HTTP consent and certificate fingerprint review |
 /// | [KitTechnicalValue] | kit v2 §1.8 a technical value shown under Details, left to right |
 /// | [KitButton], [KitActionBlock], [KitAction] | §2 one button hierarchy |
 /// | [KitActionStack] | §2 the same hierarchy with each rare path on its own line |
@@ -82,6 +85,7 @@
 /// | [KitContextSheet] | the context details: big ring, tokens, model, window, one paragraph and the chart |
 /// | [KitFactRow], [KitProvenance] | one remembered fact or search hit: its text, a provenance border and word (You told it, From a source, It guessed), and its source and date line |
 /// | [KitTerminalView] | kit v2 §9.2 the terminal: a live xterm session or a transcript, in the theme's colours |
+/// | [showKitTerminalLinkSheet] | a link tapped in the terminal: its whole address, Open link (through `openExternalLink`) or Copy link |
 /// | [KitPageRoute] | §10 a pushed page with the kit's one transition |
 /// | [KitSwap], [KitSpin], [KitAnimatedBox], [KitDim], [KitAnimatedValue], [KitPace] | §10 the small motion parts: cross-fade, spin, surface change, dim, eased number |
 /// | [KitFindMark] | chat-2 the find-in-conversation mark: an accent wash behind a hit (passive .18, active .38, as [KitCodeBlock] marks), never a text colour |
@@ -159,6 +163,8 @@ export 'kit_live_look_preview.dart';
 export 'kit_live_style_picker.dart';
 export 'kit_floating_panel.dart';
 export 'kit_steer_box.dart';
+export 'kit_link_scope.dart';
+export 'kit_web_preview.dart';
 export 'kit_widget_preview.dart';
 export 'kit_widget_style_form.dart';
 export 'kit_live_style_preview.dart';
@@ -220,6 +226,7 @@ export 'kit_time.dart';
 export 'kit_surface.dart';
 export 'kit_swatch.dart';
 export 'kit_term.dart';
+export 'kit_terminal_links.dart';
 export 'kit_terminal_view.dart';
 export 'kit_undo.dart';
 export 'kit_group_note.dart';
@@ -294,3 +301,5 @@ export 'team/kit_server_lane.dart';
 export 'team/kit_spec_block.dart';
 export 'team/kit_team_data.dart';
 export 'team/kit_timeline_day.dart';
+
+export 'kit_server_trust.dart';

@@ -12,13 +12,15 @@ internal class PhoneAgentAuthRequest(
 ) {
     companion object {
         private val executables = mapOf("claude" to "claude", "codex" to "codex",
-            "gemini" to "gemini", "qwen" to "qwen", "goose" to "goose",
+            "gemini" to "gemini", "qwen" to "qwen", "kilo" to "kilo",
+            "cline" to "cline", "goose" to "goose",
             "omp-acp" to "omp", "fx" to "fx")
-        private const val SCRIPT_DIGEST = "86cca4026935daaf28c67c6f424e14c272f62a8f69b456d07a34a8c8a80d7c1c"
+        private const val SCRIPT_DIGEST = "9f59cfbd265f57e7f9705fad09ef054a304873def739d21c69812bd89cb39652"
         private val fields = setOf("profileId", "agentId", "action", "script", "timeoutSeconds")
 
         private const val MAX_SCRIPT_CHARS = 16384
         private const val PROBE_SECONDS = 10L
+        private const val CLAUDE_PROBE_SECONDS = 65L
         private const val LOGOUT_SECONDS = 20L
 
         fun parse(arguments: Map<*, *>): PhoneAgentAuthRequest? = try {
@@ -38,7 +40,7 @@ internal class PhoneAgentAuthRequest(
         } catch (_: Exception) { null }
 
         private fun deadline(action: String, agent: String): Long = when (action) {
-            "probe" -> PROBE_SECONDS
+            "probe" -> if (agent == "claude") CLAUDE_PROBE_SECONDS else PROBE_SECONDS
             "logout" -> {
                 check(agent in setOf("claude", "fx"))
                 LOGOUT_SECONDS

@@ -1,3 +1,4 @@
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'support/complete_message_history.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -5,9 +6,8 @@ import 'package:flutter/gestures.dart' show kSecondaryMouseButton;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -59,7 +59,7 @@ Future<void> _rightClick(WidgetTester tester, Finder target) async {
   await tester.pumpAndSettle();
 }
 
-class _MenuApi extends OpenCodeApi with CompleteMessageHistory {
+class _MenuApi extends FakeServerGateway with CompleteMessageHistory {
   _MenuApi({this.messageList = const []}) : super(baseUrl: 'http://localhost');
 
   final List<MessageWithParts> messageList;

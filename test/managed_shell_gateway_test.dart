@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/api2/client.dart';
 import 'package:opencode_mobile/api2/gateway_operations.dart';
 import 'package:opencode_mobile/api2/events.dart';
@@ -20,18 +19,6 @@ Map<String, dynamic> shellJson() => {
 };
 
 void main() {
-  test('v1 never probes the unrelated shell API', () async {
-    final api = OpenCodeApi(baseUrl: 'http://localhost:1');
-    addTearDown(api.close);
-    final repo = SdkProductRepository(api.sdkClient);
-    expect((await repo.loadRunningShells()).supported, isFalse);
-    expect(await repo.managedShellServerIdentity(), isNull);
-    expect(
-      () => repo.stopManagedShell('sh_a'),
-      throwsA(isA<ProductException>()),
-    );
-  });
-
   test(
     'v2 shell reads, byte cursors, timeout and delete retain workspace scope',
     () async {

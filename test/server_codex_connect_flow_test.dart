@@ -4,8 +4,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/server_probe.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/server_probe.dart';
 import 'package:opencode_mobile/codex/gateway.dart';
 import 'package:opencode_mobile/codex/transport.dart';
 import 'package:opencode_mobile/state/codex_connection_probe.dart';
@@ -61,7 +61,7 @@ class _RecordingConnection extends ConnectionController {
       lastError = 'The Codex server could not be reached.';
       return;
     }
-    api = OpenCodeApi(baseUrl: profile.baseUrl);
+    api = FakeServerGateway(baseUrl: profile.baseUrl);
   }
 }
 

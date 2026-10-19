@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/domain/attention_feed.dart';
 import 'package:opencode_mobile/domain/work_row_status.dart';
 import 'package:opencode_mobile/state/elsewhere_attention.dart';

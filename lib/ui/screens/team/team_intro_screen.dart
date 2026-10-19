@@ -99,7 +99,9 @@ class _TeamIntroScreenState extends State<TeamIntroScreen> {
   /// This phone: AI Team's programs are on the phone already (the same
   /// check This phone and Add tools read), so the page offers Turn on, not
   /// a download. Read again when a setup job ends.
-  bool _teamInstalled = false;
+  bool? _teamInstalled;
+  int _inventoryRead = 0;
+  bool _inventoryFailed = false;
 
   /// A computer: the search for Gas City on the server's host.
   TeamDiscovery? _discovery;
@@ -125,15 +127,22 @@ class _TeamIntroScreenState extends State<TeamIntroScreen> {
   Future<void> _readInstalled() async {
     final profile = _profile;
     if (profile == null) return;
-    var installed = false;
+    final read = ++_inventoryRead;
+    if (_inventoryFailed) setState(() => _inventoryFailed = false);
+    bool installed;
     try {
       installed = (await PhoneSetup.of(
         teamPhoneHostOf(profile),
       ).installedOptional()).contains(SetupComponentIds.aiTeam);
     } catch (_) {
-      // Unknown: the page offers the set-up, which reads it again.
+      // A failed probe says nothing about what is installed. Keep the last
+      // known inventory, or offer a retry for the initial unknown state.
+      if (mounted && read == _inventoryRead) {
+        setState(() => _inventoryFailed = true);
+      }
+      return;
     }
-    if (mounted && installed != _teamInstalled) {
+    if (mounted && read == _inventoryRead && installed != _teamInstalled) {
       setState(() => _teamInstalled = installed);
     }
   }
@@ -269,11 +278,13 @@ class _TeamIntroScreenState extends State<TeamIntroScreen> {
         if (_preflight?.supported ?? false) {
           primary = KitAction(
             key: const ValueKey('team-intro-set-up'),
-            label: _teamInstalled
-                ? l10n.teamIntroTurnOnPhone
-                : l10n.teamIntroSetUpPhone,
+            label: switch (_teamInstalled) {
+              true => l10n.teamIntroTurnOnPhone,
+              false => l10n.teamIntroSetUpPhone,
+              null => l10n.e7SetupCheckingInstall,
+            },
             working: _busy,
-            onPressed: _busy ? null : _setUpOnPhone,
+            onPressed: _busy || _teamInstalled == null ? null : _setUpOnPhone,
           );
         }
       case TeamServerKind.computer:
@@ -468,7 +479,29 @@ class _TeamIntroScreenState extends State<TeamIntroScreen> {
             ),
           ];
         }
-        if (_teamInstalled) {
+        if (_teamInstalled == null) {
+          if (_inventoryFailed) {
+            return [
+              Padding(
+                padding: inset,
+                child: KitNotice(
+                  message: l10n.e7SetupCheckInstallFailed,
+                  icon: AppIconography.warning,
+                  actions: [
+                    KitAction(
+                      label: l10n.commonRetry,
+                      onPressed: _readInstalled,
+                    ),
+                  ],
+                ),
+              ),
+            ];
+          }
+          return [
+            group(const [KitSkeletonRows(count: 2)]),
+          ];
+        }
+        if (_teamInstalled == true) {
           // Nothing to download: said once, instead of the download line
           // and its cost.
           return [

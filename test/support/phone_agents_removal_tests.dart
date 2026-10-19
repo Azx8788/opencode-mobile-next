@@ -51,7 +51,7 @@ class _ReplacementForegroundLease implements AgentSignInForegroundLease {
   @override
   bool get active => !released;
   @override
-  Stream<void> get lost => const Stream.empty();
+  Stream<AgentSignInForegroundException> get lost => const Stream.empty();
   @override
   Future<void> release() async => released = true;
 }
@@ -415,7 +415,16 @@ void _phoneRemovalTests() {
   test('removal is available for all installed supported agents', () async {
     final w = await _world(null, removalSupported: true);
     addTearDown(w.controller.dispose);
-    const ids = ['codex', 'gemini', 'qwen', 'goose', 'omp-acp', 'fx'];
+    const ids = [
+      'codex',
+      'gemini',
+      'qwen',
+      'kilo',
+      'cline',
+      'goose',
+      'omp-acp',
+      'fx',
+    ];
     w.state.runtimes = {for (final id in ids) id: _ready(id)};
     await w.controller.refreshAgentRows();
     for (final id in ids) {
@@ -459,6 +468,8 @@ void _phoneRemovalTests() {
           'codex',
           'gemini',
           'qwen',
+          'kilo',
+          'cline',
           'goose',
           'omp-acp',
           'fx',

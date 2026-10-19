@@ -533,12 +533,46 @@ class _PickerBody extends StatefulWidget {
   State<_PickerBody> createState() => _PickerBodyState();
 }
 
-class _PickerBodyState extends State<_PickerBody> {
+class _PickerBodyState extends State<_PickerBody> with WidgetsBindingObserver {
   _PickerDraft get draft => widget.draft;
+  final _timeKey = GlobalKey();
+
+  /// With the keyboard open the sheet's body is short; the time entry
+  /// (Hour, Minute and AM/PM) is brought wholly into view, so AM/PM is never
+  /// left clipped under the pinned button.
+  Timer? _showTimer;
+
+  void _showTime() {
+    if (!draft.hasTime) return;
+    // After the field's own scroll-to-caret and the keyboard's slide, which
+    // would otherwise move the view again.
+    _showTimer?.cancel();
+    _showTimer = Timer(const Duration(milliseconds: 260), () {
+      final target = _timeKey.currentContext;
+      if (!mounted || target == null) return;
+      if (!(draft.hourNode.hasFocus || draft.minuteNode.hasFocus)) return;
+      unawaited(
+        Scrollable.ensureVisible(
+          target,
+          duration: KitMotion.reduced(context)
+              ? Duration.zero
+              : const Duration(milliseconds: 200),
+          curve: KitMotion.stepOut,
+          alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+        ),
+      );
+    });
+  }
+
+  @override
+  void didChangeMetrics() => _showTime();
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    draft.hourNode.addListener(_showTime);
+    draft.minuteNode.addListener(_showTime);
     // Focus starts on the Hour field for a time (the calendar takes it for
     // a date). Asked after the first frame: the sheet frame autofocuses
     // itself first, and a field's own autofocus would lose to it.
@@ -551,6 +585,10 @@ class _PickerBodyState extends State<_PickerBody> {
 
   @override
   void dispose() {
+    _showTimer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    draft.hourNode.removeListener(_showTime);
+    draft.minuteNode.removeListener(_showTime);
     draft.dispose();
     super.dispose();
   }
@@ -580,7 +618,7 @@ class _PickerBodyState extends State<_PickerBody> {
             ),
           ],
           if (draft.hasDate && draft.hasTime) SizedBox(height: tokens.space3),
-          if (draft.hasTime) _TimeEntry(draft: draft),
+          if (draft.hasTime) _TimeEntry(key: _timeKey, draft: draft),
         ],
       ),
     );
@@ -1033,7 +1071,7 @@ class _TypedDate extends StatelessWidget {
 /// Hour and minute as typed numbers, left to right as clocks are written,
 /// and AM/PM on a 12-hour clock.
 class _TimeEntry extends StatelessWidget {
-  const _TimeEntry({required this.draft});
+  const _TimeEntry({super.key, required this.draft});
 
   final _PickerDraft draft;
 

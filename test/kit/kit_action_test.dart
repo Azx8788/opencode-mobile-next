@@ -770,7 +770,7 @@ void main() {
         expect(wordsColour(tester, 'Edit name'), roles.text1);
         expect(wordsColour(tester, 'Rename'), roles.text3);
         expect(wordsColour(tester, 'Edit name'), isNot(roles.text3));
-        expect(wordsColour(tester, 'Delete'), roles.danger);
+        expect(wordsColour(tester, 'Delete'), roles.text1);
       },
     );
   });

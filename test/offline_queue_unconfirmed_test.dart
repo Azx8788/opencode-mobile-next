@@ -4,9 +4,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/state/offline_queue.dart';
 import 'package:opencode_mobile/ui/kit/kit.dart' show KitUndo;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -420,7 +420,7 @@ void main() {
       );
     });
 
-    testWidgets('an unconfirmed send with a failure shows the failure', (
+    testWidgets('an unconfirmed failure keeps raw text under Details', (
       tester,
     ) async {
       final api = FakeApi();
@@ -437,10 +437,16 @@ void main() {
       await pumpChat(tester, controller);
 
       expect(
-        find.textContaining(RegExp(r'^Not confirmed yet: .*socket closed')),
+        find.textContaining(
+          RegExp(r'^Not confirmed yet: .*The request could not finish\.'),
+        ),
         findsOneWidget,
       );
       expect(find.textContaining('Failed:'), findsNothing);
+      expect(find.textContaining('socket closed'), findsNothing);
+      await tester.tap(find.text('Details'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('socket closed'), findsOneWidget);
     });
 
     testWidgets('resending asks first and only sends on confirmation', (

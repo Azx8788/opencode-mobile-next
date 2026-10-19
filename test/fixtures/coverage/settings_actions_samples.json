@@ -1,30 +1,9 @@
 {
   "sources": [
-    "contracts/opencode-openapi-f12e14cf.json",
     "contracts/opencode2-openapi-beta-18600.json",
     "/home/eslam/node_modules/@getpaseo/protocol/dist/messages.js"
   ],
   "operations": [
-    {
-      "key": "OC1 PATCH /global/config",
-      "operationId": "global.config.update"
-    },
-    {
-      "key": "OC1 POST /global/dispose",
-      "operationId": "global.dispose"
-    },
-    {
-      "key": "OC1 PATCH /config",
-      "operationId": "config.update"
-    },
-    {
-      "key": "OC1 POST /instance/dispose",
-      "operationId": "instance.dispose"
-    },
-    {
-      "key": "OC1 DELETE /api/permission/saved/{id}",
-      "operationId": "v2.permission.saved.remove"
-    },
     {
       "key": "OC2 DELETE /api/permission/saved/{id}",
       "operationId": "v2.permission.saved.remove"

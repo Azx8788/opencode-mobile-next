@@ -67,7 +67,9 @@ Future<_Harness> _pump(
   Locale locale = const Locale('en'),
   bool pushReady = true,
   bool firstSetup = true,
+  Future<bool> Function()? askNotifications,
 }) async {
+  PhoneSetupProgressScreen.resetNotificationAnswer();
   final h = _Harness();
   if (initial != null) h.engine.emit(initial);
   await tester.pumpWidget(
@@ -97,6 +99,7 @@ Future<_Harness> _pump(
       builder: (_) => PhoneSetupProgressScreen(
         engine: h.engine,
         firstSetup: firstSetup,
+        askNotifications: askNotifications ?? () async => true,
         openReady: (context) async {
           h.readyOpened++;
           if (!pushReady) return;
@@ -568,6 +571,40 @@ void main() {
         ),
         findsOneWidget,
       );
+    });
+
+    testWidgets('asks Android for notifications when setup starts, once', (
+      tester,
+    ) async {
+      var asked = 0;
+      await _pump(
+        tester,
+        initial: _job(current: _nodeDownloading),
+        askNotifications: () async {
+          asked++;
+          return true;
+        },
+      );
+      expect(asked, 1);
+    });
+
+    testWidgets('declined notifications: setup stays and promises no '
+        'notification', (tester) async {
+      await _pump(
+        tester,
+        initial: _job(current: _nodeDownloading),
+        askNotifications: () async => false,
+      );
+      expect(find.textContaining("We'll notify you"), findsNothing);
+      expect(
+        find.text(
+          'Step 1 of 3: install. Then name a project and start a conversation. '
+          'You can leave the app. Setup keeps going. Open OpenCode again to '
+          'see how far it got.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('setup-progress-checklist')), findsOneWidget);
     });
 
     testWidgets('an update or added tools keep the plain leave note', (

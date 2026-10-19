@@ -708,12 +708,15 @@ class BackgroundLiveController extends ChangeNotifier
   @visibleForTesting
   void handleNativeTimeout([Object? arguments]) {
     if (_foregroundDisposed) return;
-    _signInForeground.serviceStopped(AgentSignInForegroundFailure.paused);
-    ++_pauseRevision;
     // The same push carries the "Pause background" notification action
     // (reason `userPause`): the user asked, so nothing is owed a warning.
     final rawReason = arguments is Map ? arguments['reason'] : null;
     final reason = rawReason is String ? rawReason : null;
+    _signInForeground.serviceStopped(
+      AgentSignInForegroundFailure.paused,
+      code: reason == pauseReason ? 'paused-by-you' : 'android-time-limit',
+    );
+    ++_pauseRevision;
     stoppedByAndroidTimeout = reason != pauseReason;
     final nativePause = arguments is Map ? arguments['backgroundPause'] : null;
     _backgroundPause = nativePause is Map
@@ -854,7 +857,10 @@ class BackgroundLiveController extends ChangeNotifier
   void dispose() {
     if (_foregroundDisposed) return;
     _foregroundDisposed = true;
-    _signInForeground.invalidate(AgentSignInForegroundFailure.cancelled);
+    _signInForeground.invalidate(
+      AgentSignInForegroundFailure.cancelled,
+      code: 'app-closed',
+    );
     _cancelPendingLiveStatus();
     super.dispose();
   }
@@ -954,8 +960,10 @@ class BackgroundLiveController extends ChangeNotifier
     final wasActive = active;
     active = value;
     if (!active && wasActive) {
+      // A status read found the service gone (Android stopped it).
       _signInForeground.serviceStopped(
         AgentSignInForegroundFailure.unavailable,
+        code: 'service-gone',
       );
     }
     if (active != wasActive) {
@@ -978,6 +986,9 @@ class BackgroundLiveController extends ChangeNotifier
         state.supported
             ? AgentSignInForegroundFailure.paused
             : AgentSignInForegroundFailure.unsupported,
+        code: state.supported
+            ? 'paused-${state.reason.name}'
+            : 'pause-unreadable',
       );
       enabled = false;
       _cancelPendingLiveStatus();

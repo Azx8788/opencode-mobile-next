@@ -1,40 +1,6 @@
 {
-  "source": "contracts/opencode-openapi-f12e14cf.json, contracts/opencode2-openapi-beta-18600.json, docs/opencode2-protocol-notes.md, @getpaseo/protocol messages.js",
+  "source": "contracts/opencode2-openapi-beta-18600.json, docs/opencode2-protocol-notes.md, @getpaseo/protocol messages.js",
   "schema": {
-    "oc1.health": [
-      {
-        "path": "version",
-        "kind": "string"
-      }
-    ],
-    "oc1.path": [
-      {
-        "path": "home",
-        "kind": "string"
-      },
-      {
-        "path": "state",
-        "kind": "string"
-      },
-      {
-        "path": "config",
-        "kind": "string"
-      },
-      {
-        "path": "worktree",
-        "kind": "string"
-      },
-      {
-        "path": "directory",
-        "kind": "string"
-      }
-    ],
-    "oc1.experimental_capabilities": [
-      {
-        "path": "backgroundSubagents",
-        "kind": "boolean"
-      }
-    ],
     "oc2.health": [
       {
         "path": "version",
@@ -793,12 +759,6 @@
     ]
   },
   "excluded": {
-    "oc1.path.home": "ignored: the app never asks for the server paths; the folder a person works in comes from the project they pick",
-    "oc1.path.state": "ignored: the app never asks for the server paths; the folder a person works in comes from the project they pick",
-    "oc1.path.config": "ignored: the app never asks for the server paths; the folder a person works in comes from the project they pick",
-    "oc1.path.worktree": "ignored: the app never asks for the server paths; the folder a person works in comes from the project they pick",
-    "oc1.path.directory": "ignored: the app never asks for the server paths; the folder a person works in comes from the project they pick",
-    "oc1.experimental_capabilities.backgroundSubagents": "ignored: read for the Tools page, not a server page; that page says in words when background helpers are missing",
     "paseo.daemon_status.serverId": "ignored: the app never asks the server for this message, so no page shows it",
     "paseo.daemon_status.version": "ignored: the app never asks the server for this message, so no page shows it",
     "paseo.daemon_status.pid": "ignored: the app never asks the server for this message, so no page shows it",
@@ -860,32 +820,12 @@
     "paseo.available_providers.providers[].error": "ignored: the app never asks the server for this message, so no page shows it",
     "paseo.available_providers.error": "ignored: the app never asks the server for this message, so no page shows it",
     "paseo.available_providers.fetchedAt": "ignored: the app never asks the server for this message, so no page shows it",
-    "paseo.daemon_update.success": "ignored: arrives only while the Update agents row runs and is read there (test/settings_host_update_test.dart); the server check never asks for it",
-    "paseo.daemon_update.error": "ignored: arrives only while the Update agents row runs and is read there (test/settings_host_update_test.dart); the server check never asks for it",
-    "paseo.daemon_update.previousVersion": "ignored: arrives only while the Update agents row runs and is read there (test/settings_host_update_test.dart); the server check never asks for it",
-    "paseo.daemon_update.newVersion": "ignored: arrives only while the Update agents row runs and is read there (test/settings_host_update_test.dart); the server check never asks for it"
+    "paseo.daemon_update.success": "ignored: the app never asks the server for this message, so no page shows it",
+    "paseo.daemon_update.error": "ignored: the app never asks the server for this message, so no page shows it",
+    "paseo.daemon_update.previousVersion": "ignored: the app never asks the server for this message, so no page shows it",
+    "paseo.daemon_update.newVersion": "ignored: the app never asks the server for this message, so no page shows it"
   },
   "cases": [
-    {
-      "id": "oc1_health",
-      "kind": "probe",
-      "flavor": "oc1",
-      "payload": {
-        "healthy": true,
-        "version": "1.14.52"
-      },
-      "fields": [
-        {
-          "key": "oc1.health.version",
-          "path": "version",
-          "kind": "string",
-          "probes": [
-            "1.14.52"
-          ],
-          "primary": false
-        }
-      ]
-    },
     {
       "id": "oc2_beta_health",
       "kind": "probe",

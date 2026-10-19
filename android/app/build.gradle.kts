@@ -84,6 +84,8 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("release")
+            proguardFiles("widget-status-release.pro")
+            proguardFiles("scheduled-prompts.pro")
             // Release instrumentation shares the target's Kotlin/native ABI.
             // R8 prototype rewrites otherwise break test-APK calls into it.
             if (listOf(ocPreview, ocStableEngineQa, ocBd9Smoke, ocBuiltinRuntimeQa).any { it })
@@ -146,7 +148,9 @@ androidComponents.onVariants(androidComponents.selector().withBuildType("release
 }
 
 dependencies {
+    implementation("androidx.work:work-runtime:2.10.5")
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.json:json:20180813")
     // Flutter 3.47 excludes dev plugins from release configurations. The
     // explicit AOT smoke needs the native result bridge in this test build.
     // Runtime QA also retains the generated integration-test plugin registrant.

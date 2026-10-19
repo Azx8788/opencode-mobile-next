@@ -1,0 +1,428 @@
+{
+  "standalone-rerun": {
+    "files": [
+      "test/chat_states_standard_test.dart",
+      "test/coverage/oc1_parts_coverage_test.dart",
+      "test/gen_ui_install_test.dart",
+      "test/goldens/chat_states_golden_test.dart",
+      "test/goldens/phone_server_screens_golden_test.dart",
+      "test/goldens/team_discover_golden_test.dart",
+      "test/kit/kit_image_test.dart",
+      "test/local_agent_onboarding_test.dart",
+      "test/repository_hygiene_test.dart",
+      "test/revamp/screen_team_1_golden_test.dart",
+      "test/revamp/slice_close_chat_golden_test.dart",
+      "test/revamp/slice_close_servers_phone_golden_test.dart",
+      "test/revamp/termux_v2_host_golden_test.dart",
+      "test/session_address_link_native_test.dart",
+      "test/team_on_work_test.dart",
+      "test/team_runtime_test.dart",
+      "test/termux_migration_transport_test.dart",
+      "test/voice_downloader_test.dart"
+    ],
+    "counts": {
+      "success": 270,
+      "error": 24
+    },
+    "done": {
+      "success": false,
+      "type": "done",
+      "time": 297343
+    },
+    "failures": [
+      {
+        "file": "test/chat_states_standard_test.dart",
+        "name": "a message that was not sent stays on the status line, with its text back in the box, until dismissed or sent again",
+        "result": "error"
+      },
+      {
+        "file": "test/coverage/oc1_parts_coverage_test.dart",
+        "name": "opencode 1 message \u00b7 error_api",
+        "result": "error"
+      },
+      {
+        "file": "test/goldens/chat_states_golden_test.dart",
+        "name": "chat \u00b7 send error \u00b7 dark",
+        "result": "error"
+      },
+      {
+        "file": "test/goldens/chat_states_golden_test.dart",
+        "name": "chat \u00b7 send error \u00b7 light",
+        "result": "error"
+      },
+      {
+        "file": "test/goldens/phone_server_screens_golden_test.dart",
+        "name": "phone_running \u00b7 dark",
+        "result": "error"
+      },
+      {
+        "file": "test/goldens/phone_server_screens_golden_test.dart",
+        "name": "phone_stopped \u00b7 dark",
+        "result": "error"
+      },
+      {
+        "file": "test/goldens/phone_server_screens_golden_test.dart",
+        "name": "phone_running \u00b7 light",
+        "result": "error"
+      },
+      {
+        "file": "test/goldens/phone_server_screens_golden_test.dart",
+        "name": "phone_stopped \u00b7 light",
+        "result": "error"
+      },
+      {
+        "file": "test/goldens/team_discover_golden_test.dart",
+        "name": "intro \u00b7 OpenCode inside the app \u00b7 dark",
+        "result": "error"
+      },
+      {
+        "file": "test/goldens/team_discover_golden_test.dart",
+        "name": "intro \u00b7 OpenCode inside the app \u00b7 light",
+        "result": "error"
+      },
+      {
+        "file": "test/revamp/screen_team_1_golden_test.dart",
+        "name": "intro \u00b7 OpenCode inside the app \u00b7 dark \u00b7 phone",
+        "result": "error"
+      },
+      {
+        "file": "test/revamp/screen_team_1_golden_test.dart",
+        "name": "intro \u00b7 OpenCode inside the app \u00b7 dark \u00b7 wide",
+        "result": "error"
+      },
+      {
+        "file": "test/revamp/screen_team_1_golden_test.dart",
+        "name": "intro \u00b7 OpenCode inside the app \u00b7 light \u00b7 phone",
+        "result": "error"
+      },
+      {
+        "file": "test/revamp/screen_team_1_golden_test.dart",
+        "name": "intro \u00b7 OpenCode inside the app \u00b7 light \u00b7 wide",
+        "result": "error"
+      },
+      {
+        "file": "test/revamp/slice_close_chat_golden_test.dart",
+        "name": "close_chat_queued_refused_dark",
+        "result": "error"
+      },
+      {
+        "file": "test/revamp/slice_close_chat_golden_test.dart",
+        "name": "close_chat_queued_refused_1280x800_dark",
+        "result": "error"
+      },
+      {
+        "file": "test/revamp/slice_close_servers_phone_golden_test.dart",
+        "name": "start failed (Size(412.0, 915.0))",
+        "result": "error"
+      },
+      {
+        "file": "test/revamp/slice_close_servers_phone_golden_test.dart",
+        "name": "start failed (Size(1280.0, 800.0))",
+        "result": "error"
+      },
+      {
+        "file": "test/revamp/slice_close_servers_phone_golden_test.dart",
+        "name": "install failed",
+        "result": "error"
+      },
+      {
+        "file": "test/revamp/slice_close_servers_phone_golden_test.dart",
+        "name": "switch stopped half way",
+        "result": "error"
+      },
+      {
+        "file": "test/revamp/slice_close_servers_phone_golden_test.dart",
+        "name": "up to date (Size(412.0, 915.0))",
+        "result": "error"
+      },
+      {
+        "file": "test/revamp/slice_close_servers_phone_golden_test.dart",
+        "name": "up to date (Size(1280.0, 800.0))",
+        "result": "error"
+      },
+      {
+        "file": "test/revamp/termux_v2_host_golden_test.dart",
+        "name": "This phone in Termux: Add tools, and Claude Code beside it",
+        "result": "error"
+      },
+      {
+        "file": "test/session_address_link_native_test.dart",
+        "name": "Android executes the same ASCII byte ceiling before Dart delivery",
+        "result": "error"
+      }
+    ]
+  },
+  "baseline-goldens": {
+    "files": [
+      "test/goldens/phone_server_screens_golden_test.dart",
+      "test/goldens/team_discover_golden_test.dart",
+      "test/revamp/screen_team_1_golden_test.dart",
+      "test/revamp/slice_close_servers_phone_golden_test.dart",
+      "test/revamp/termux_v2_host_golden_test.dart",
+      "test/coverage/oc1_parts_coverage_test.dart"
+    ],
+    "counts": {
+      "success": 49,
+      "error": 17
+    },
+    "done": {
+      "success": false,
+      "type": "done",
+      "time": 145687
+    },
+    "failures": [
+      {
+        "file": "test/goldens/phone_server_screens_golden_test.dart",
+        "name": "phone_running \u00b7 dark",
+        "result": "error"
+      },
+      {
+        "file": "test/goldens/phone_server_screens_golden_test.dart",
+        "name": "phone_stopped \u00b7 dark",
+        "result": "error"
+      },
+      {
+        "file": "test/goldens/phone_server_screens_golden_test.dart",
+        "name": "phone_running \u00b7 light",
+        "result": "error"
+      },
+      {
+        "file": "test/goldens/phone_server_screens_golden_test.dart",
+        "name": "phone_stopped \u00b7 light",
+        "result": "error"
+      },
+      {
+        "file": "test/goldens/team_discover_golden_test.dart",
+        "name": "intro \u00b7 OpenCode inside the app \u00b7 dark",
+        "result": "error"
+      },
+      {
+        "file": "test/goldens/team_discover_golden_test.dart",
+        "name": "intro \u00b7 OpenCode inside the app \u00b7 light",
+        "result": "error"
+      },
+      {
+        "file": "test/revamp/screen_team_1_golden_test.dart",
+        "name": "intro \u00b7 OpenCode inside the app \u00b7 dark \u00b7 phone",
+        "result": "error"
+      },
+      {
+        "file": "test/revamp/screen_team_1_golden_test.dart",
+        "name": "intro \u00b7 OpenCode inside the app \u00b7 dark \u00b7 wide",
+        "result": "error"
+      },
+      {
+        "file": "test/revamp/screen_team_1_golden_test.dart",
+        "name": "intro \u00b7 OpenCode inside the app \u00b7 light \u00b7 phone",
+        "result": "error"
+      },
+      {
+        "file": "test/revamp/screen_team_1_golden_test.dart",
+        "name": "intro \u00b7 OpenCode inside the app \u00b7 light \u00b7 wide",
+        "result": "error"
+      },
+      {
+        "file": "test/revamp/slice_close_servers_phone_golden_test.dart",
+        "name": "start failed (Size(412.0, 915.0))",
+        "result": "error"
+      },
+      {
+        "file": "test/revamp/slice_close_servers_phone_golden_test.dart",
+        "name": "start failed (Size(1280.0, 800.0))",
+        "result": "error"
+      },
+      {
+        "file": "test/revamp/slice_close_servers_phone_golden_test.dart",
+        "name": "install failed",
+        "result": "error"
+      },
+      {
+        "file": "test/revamp/slice_close_servers_phone_golden_test.dart",
+        "name": "switch stopped half way",
+        "result": "error"
+      },
+      {
+        "file": "test/revamp/slice_close_servers_phone_golden_test.dart",
+        "name": "up to date (Size(412.0, 915.0))",
+        "result": "error"
+      },
+      {
+        "file": "test/revamp/slice_close_servers_phone_golden_test.dart",
+        "name": "up to date (Size(1280.0, 800.0))",
+        "result": "error"
+      },
+      {
+        "file": "test/revamp/termux_v2_host_golden_test.dart",
+        "name": "This phone in Termux: Add tools, and Claude Code beside it",
+        "result": "error"
+      }
+    ]
+  },
+  "chat-final": {
+    "files": [
+      "test/chat_states_standard_test.dart",
+      "test/goldens/chat_states_golden_test.dart",
+      "test/revamp/slice_close_chat_golden_test.dart",
+      "tool/edge_sweep_widgetbook_test.dart"
+    ],
+    "counts": {
+      "success": 42,
+      "error": 1,
+      "failure": 1
+    },
+    "done": {
+      "success": false,
+      "type": "done",
+      "time": 225216
+    },
+    "failures": [
+      {
+        "file": "test/chat_states_standard_test.dart",
+        "name": "an uncertain send stays in review until an explicit resend",
+        "result": "error"
+      },
+      {
+        "file": "tool/edge_sweep_widgetbook_test.dart",
+        "name": "build-server catalog recovery standards",
+        "result": "failure"
+      }
+    ]
+  },
+  "closing-focused": {
+    "files": [
+      "test/chat_states_standard_test.dart",
+      "tool/edge_sweep_widgetbook_test.dart"
+    ],
+    "counts": {
+      "error": 1,
+      "success": 1
+    },
+    "done": {
+      "success": false,
+      "type": "done",
+      "time": 72214
+    },
+    "failures": [
+      {
+        "file": "test/chat_states_standard_test.dart",
+        "name": "an uncertain send stays in review until an explicit resend",
+        "result": "error"
+      }
+    ]
+  },
+  "resend-final": {
+    "files": [
+      "test/chat_states_standard_test.dart"
+    ],
+    "counts": {
+      "success": 6,
+      "error": 1
+    },
+    "done": {
+      "success": false,
+      "type": "done",
+      "time": 35021
+    },
+    "failures": [
+      {
+        "file": "test/chat_states_standard_test.dart",
+        "name": "an uncertain send stays in review until an explicit resend",
+        "result": "error"
+      }
+    ]
+  },
+  "resend-final-2": {
+    "files": [
+      "test/chat_states_standard_test.dart"
+    ],
+    "counts": {
+      "success": 7
+    },
+    "done": {
+      "success": true,
+      "type": "done",
+      "time": 38002
+    },
+    "failures": []
+  },
+  "standalone-rerun-run": {
+    "files": [
+      "test/chat_states_standard_test.dart",
+      "test/coverage/oc1_parts_coverage_test.dart",
+      "test/gen_ui_install_test.dart",
+      "test/goldens/chat_states_golden_test.dart",
+      "test/goldens/phone_server_screens_golden_test.dart",
+      "test/goldens/team_discover_golden_test.dart",
+      "test/kit/kit_image_test.dart",
+      "test/local_agent_onboarding_test.dart",
+      "test/repository_hygiene_test.dart",
+      "test/revamp/screen_team_1_golden_test.dart",
+      "test/revamp/slice_close_chat_golden_test.dart",
+      "test/revamp/slice_close_servers_phone_golden_test.dart",
+      "test/revamp/termux_v2_host_golden_test.dart",
+      "test/session_address_link_native_test.dart",
+      "test/team_on_work_test.dart",
+      "test/team_runtime_test.dart",
+      "test/termux_migration_transport_test.dart",
+      "test/voice_downloader_test.dart"
+    ],
+    "exit_code": 1,
+    "seconds": 340.3,
+    "revision": "cc9052019e7cffef9429779fa9e1091ad29514e1"
+  },
+  "baseline-probe-run": {
+    "production_revision": "2e98e684f9eecf946ee20479f6f8774dedebfee7",
+    "copied_source_files": [
+      "lib/builtin/setup/setup_engine.dart",
+      "lib/builtin/setup/setup_engine/progress_helpers.dart",
+      "lib/domain/agent_error_text.dart",
+      "lib/l10n/app_ar.arb",
+      "lib/l10n/app_en.arb",
+      "lib/l10n/app_localizations.dart",
+      "lib/l10n/app_localizations_ar.dart",
+      "lib/l10n/app_localizations_en.dart",
+      "lib/l10n/app_localizations_es.dart",
+      "lib/l10n/app_localizations_ja.dart",
+      "lib/l10n/app_localizations_pt.dart",
+      "lib/l10n/app_localizations_ru.dart",
+      "lib/l10n/app_localizations_zh.dart",
+      "lib/state/connection/queue.dart",
+      "lib/ui/agent_error_words.dart",
+      "lib/ui/kit/kit_terminal_view.dart",
+      "lib/ui/screens/chat/chat_send.dart",
+      "lib/ui/screens/chat/pending_sends_strip.dart",
+      "lib/ui/widgets/setup_progress_view.dart",
+      "lib/ui/widgets/setup_ui_messages.dart"
+    ],
+    "exit_code": 1,
+    "restored": true
+  },
+  "catalog_recovery": {
+    "test_file": "widgetbook/test/conversation_recovery_test.dart",
+    "runner": "tool/qa/vps_test.sh through a temporary wrapper running the widgetbook package serially",
+    "passes": [
+      "en 1x light",
+      "en 2x light",
+      "ar 1x light",
+      "en 1x dark"
+    ],
+    "success": true,
+    "log": "build/edge-sweep/closing-focused.log"
+  },
+  "final_gates": {
+    "preflight_command": "tool/qa/preflight.sh HEAD~6",
+    "preflight_candidate": "691399406",
+    "preflight_success": true,
+    "checked_commits": 6,
+    "formatted_dart_files": 36,
+    "python_qa_tests": 809,
+    "python_skips": 2,
+    "repository_flutter_checks": 161,
+    "app_analyzer": "no issues",
+    "widgetbook_analyzer": "no issues",
+    "widgetbook_coverage": "four existing uncatalogued screens; see README",
+    "remote_original_git_pointer_restored": true,
+    "coordinator_build_script_sha256": "13f0d85d83469a93021218f5c121bcdbadad2d69ffa02b52d02e76cc96ab6ef7",
+    "final_amendment": "evidence only; production and test files unchanged"
+  }
+}

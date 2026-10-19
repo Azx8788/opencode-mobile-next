@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/paseo/gateway.dart'
     show paseoServerCapabilities;
-import 'package:opencode_mobile/api/provider_presentation.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/provider_presentation.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:opencode_mobile/ui/app_theme.dart';
@@ -271,7 +271,7 @@ Future<void> _tap(WidgetTester tester, Finder target) async {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  // Provider logos are fetched favicons; tests render the monogram instead.
+  // Provider logos are bundled marks; tests that want initials override the loader.
   setUpAll(() => ProviderLogo.logoLoaderOverride = (_) => null);
   setUp(() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger

@@ -1094,20 +1094,17 @@ const _allowedProductKeys = <String>{
   'firstRunAgentCodex',
   'firstRunAgentOpenCode',
   'builtinServerChooseRuntime',
-  'setupRuntimeOne',
   'setupRuntimeTwo',
   'quotaCodex',
   // A capability that needs one backend (KitCapabilityExplainer): the name
   // is what the person has to connect, switch to or run, and where the
   // part is available ("Available on computers with OpenCode 2").
-  'kitCapServerOc1Title',
   'kitCapServerOc2Title',
   'kitCapServerOc2Enable',
   'kitCapServerCodexTitle',
   'kitCapServerCodexEnable',
   'kitCapServerPaseoEnable',
   'kitHostOpenCode',
-  'kitHostOpenCode1',
   'kitHostOpenCode2',
   'kitHostCodex',
   'kitHostPaseo',
@@ -1118,10 +1115,19 @@ const _allowedProductKeys = <String>{
   'thisPhoneUpdate',
   'thisPhoneRemove',
   'phoneServerCardStartOpenCode',
-  // The offer to leave OpenCode 1 has to say which OpenCode it moves to.
-  'moveToOpenCode2Title',
-  // A blocked move offers to keep the current runtime; it must name it.
-  'setupSwitchStay',
+  // Upgrade and host install destinations name the supported product: the
+  // owner needs to distinguish this mandatory OpenCode 2 upgrade from the
+  // app update and from the separate Codex/Paseo hosts.
+  'openCode2UpgradeTitle',
+  'e7SettingsUi65',
+  'e7SetupLinuxService',
+  'hostServiceTitle',
+  // The Linux manager lists what runs inside the app's Linux by product, as
+  // the person knows it (OpenCode server, Paseo): the name says which
+  // program a row or a Stop acts on.
+  'linuxMgrKindServer',
+  'linuxMgrKindPaseo',
+  'linuxMgrCatAgents',
   // The app's own name, not a backend label.
   'appTitle',
   'aboutBuildVersion',

@@ -27,6 +27,14 @@ extension _SetupEnginePoll on ChannelSetupEngine {
     if (following || _foreground()) {
       try {
         await _refresh(timeout: readTimeout);
+        _hostAbsent = false;
+      } on BuiltinLinuxException catch (error) {
+        if (_termuxAbsent(error)) {
+          // Expected on a phone without Termux: not a failure to report.
+          _hostAbsent = true;
+        } else {
+          debugPrint(KitRedact.text('setup: status poll failed: $error'));
+        }
       } catch (error, stack) {
         // Polling is the only way the screens see the job, and the only way
         // the app's own step gets run: one bad read must never end it.
@@ -39,7 +47,7 @@ extension _SetupEnginePoll on ChannelSetupEngine {
     } else if (_jobRunning || _handoverUncertain) {
       _pollIdle = false;
       _poll = Timer(pollInterval, _tick);
-    } else if (_progress.watched) {
+    } else if (_progress.watched && !_hostAbsent) {
       // Nothing runs: a page merely shows the last job. A job this engine
       // starts brings the next read forward (see [_ensurePolling]).
       _pollIdle = true;
@@ -50,6 +58,14 @@ extension _SetupEnginePoll on ChannelSetupEngine {
       _poll = null;
     }
   }
+
+  /// Termux is not there to ask (not installed, or RUN_COMMAND refused).
+  bool _termuxAbsent(BuiltinLinuxException error) =>
+      host == SetupHostKind.termux &&
+      !_jobRunning &&
+      !_handoverUncertain &&
+      (error.code == 'permission_denied' ||
+          error.code == 'service_unavailable');
 
   Future<void> _refresh({Duration? timeout}) async {
     final record = await _read(timeout: timeout);

@@ -3,14 +3,14 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'support/fake_server_gateway.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:opencode_mobile/state/session_inventory_cache.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class _Api extends OpenCodeApi {
+class _Api extends FakeServerGateway {
   _Api() : super(baseUrl: 'https://fixture.invalid');
   @override
   Future<ServerPage<Session>> sessionPage({
@@ -31,8 +31,18 @@ void main() {
         .setMockMethodCallHandler(secure, (_) async => null);
     SharedPreferences.setMockInitialValues({
       'oc.profiles': jsonEncode([
-        {'id': 'one', 'name': 'One', 'baseUrl': 'https://fixture.invalid'},
-        {'id': 'two', 'name': 'Two', 'baseUrl': 'https://other.invalid'},
+        {
+          'id': 'one',
+          'name': 'One',
+          'flavor': 'v2',
+          'baseUrl': 'https://fixture.invalid',
+        },
+        {
+          'id': 'two',
+          'name': 'Two',
+          'flavor': 'v2',
+          'baseUrl': 'https://other.invalid',
+        },
       ]),
       'oc.activeProfile': 'one',
     });

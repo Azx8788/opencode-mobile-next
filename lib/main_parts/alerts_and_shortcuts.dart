@@ -97,16 +97,52 @@ extension _OcAppAlertsAndShortcuts on _OcAppState {
         final waiting = _controller.questions.values
             .where((question) => question.sessionID == target.sessionID)
             .firstOrNull;
-        navigator.push(
-          chatLandingRoute(
-            sessionID: target.sessionID,
-            landOnRequestID: waiting?.id,
-          ),
+        _pushAlertChat(
+          navigator,
+          target.sessionID,
+          landOnRequestID: waiting?.id,
         );
         return;
       }
-      navigator.push(chatLandingRoute(sessionID: target.sessionID));
+      if (target.kind == CodingAlertKind.complete &&
+          target.profileID.isNotEmpty) {
+        // A home-screen widget row may be a conversation of another project
+        // or connection: open it the way the Conversations list does first.
+        unawaited(
+          _controller.openWidgetConversation(target.sessionID).then((opened) {
+            if (!mounted) return;
+            if (opened) {
+              _pushAlertChat(navigator, target.sessionID);
+            } else {
+              // Not found (deleted, or its connection is gone): the
+              // Conversations screen, never a broken chat.
+              navigator.pushNamedAndRemoveUntil('/home', (_) => false);
+            }
+          }),
+        );
+        return;
+      }
+      _pushAlertChat(navigator, target.sessionID);
     });
+  }
+
+  /// Opens the chat a notification names, unless that chat is already the
+  /// page showing: a second copy would make Back reveal the same chat again
+  /// and read as a dead end. The request it names is a card in that chat.
+  void _pushAlertChat(
+    NavigatorState navigator,
+    String sessionID, {
+    String? landOnRequestID,
+  }) {
+    if (_routeTracker.topName == '/chat/$sessionID') return;
+    unawaited(
+      navigator.push(
+        chatLandingRoute(
+          sessionID: sessionID,
+          landOnRequestID: landOnRequestID,
+        ),
+      ),
+    );
   }
 
   // ------------------------------------------------------------------

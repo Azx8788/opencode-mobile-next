@@ -1,11 +1,10 @@
-import '../api/models.dart';
 import '../domain/agent_error_text.dart';
 import '../l10n/app_localizations.dart';
 
 /// What to show for an agent error: a sentence a person can use, and, when
 /// the cause is recognised, what happens next or what to do. [humanized] is
-/// true when the sentence is the app's and not the server's, in which case
-/// the server's own text belongs behind a Details view.
+/// true when a cause was recognised, so it can override a typed error's
+/// general headline. All copy is app-authored; server text belongs in Details.
 typedef AgentErrorWords = ({String headline, String? hint, bool humanized});
 
 AgentErrorWords agentErrorWords(String raw, AppLocalizations l10n) {
@@ -38,6 +37,10 @@ AgentErrorWords agentErrorWords(String raw, AppLocalizations l10n) {
       l10n.agentErrorOutOfCredit,
       l10n.agentErrorOutOfCreditHint,
     ),
+    AgentErrorCause.providerAuth => (
+      l10n.agentErrorProviderAuth,
+      l10n.agentErrorProviderAuthHint,
+    ),
     AgentErrorCause.serverDiskFull => (
       l10n.agentErrorServerDiskFull,
       l10n.agentErrorServerDiskFullHint,
@@ -47,11 +50,11 @@ AgentErrorWords agentErrorWords(String raw, AppLocalizations l10n) {
   if (words != null) {
     return (headline: words.$1, hint: words.$2, humanized: true);
   }
-  // Not a cause the app knows: the server's own sentence, minus the parts
-  // only its author could use.
+  // Unknown technical text belongs in Details too. Keep humanized false
+  // so callers with a typed error can still choose its more specific words.
   return (
-    headline: cleanAgentErrorText(errorHeadline(raw)),
-    hint: null,
+    headline: l10n.agentErrorUnknown,
+    hint: l10n.agentErrorUnknownHint,
     humanized: false,
   );
 }

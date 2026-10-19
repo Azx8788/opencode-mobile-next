@@ -51,7 +51,7 @@ void main() {
       // fields are listed above.
       'health.execution',
       'health.boundary',
-      'health.oc1Verified',
+      'health.oc2Verified',
       'health.oc2',
     };
     expect(

@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../domain/mark_catalog.dart';
 import '../app_theme.dart';
 import 'kit_text.dart';
 import 'kit_tokens.dart';
@@ -93,7 +94,25 @@ class KitIcon extends StatelessWidget {
     this.tone,
     this.growsWithText = false,
     this.semanticsLabel,
-  }) : _status = null;
+  }) : _status = null,
+       _mark = null;
+
+  /// A bundled brand mark (an agent's or provider's logo,
+  /// `assets/marks/<slug>.svg`) in one flat colour, in the place of a glyph:
+  /// the same designed [size], tone and pixel snapping as any [KitIcon]. The
+  /// artwork fills its 24-unit box edge to edge, so it is inset 8% to weigh
+  /// like the Phosphor glyphs beside it. Decorative: the row or chip that
+  /// shows it already names the agent.
+  const KitIcon.mark(
+    String slug, {
+    super.key,
+    this.size = KitIconSize.small,
+    this.tone,
+    this.growsWithText = false,
+  }) : _icon = null,
+       _status = null,
+       _mark = slug,
+       semanticsLabel = null;
 
   /// An icon that says a status: [KitTokens.glyphFor] in
   /// [KitTokens.toneFor] (README.md decision D12), so each status has its
@@ -109,6 +128,7 @@ class KitIcon extends StatelessWidget {
     this.semanticsLabel,
   }) : _icon = icon,
        tone = null,
+       _mark = null,
        _status = status;
 
   /// Must come from [AppIconography] or [AppIcons] (a debug assert checks
@@ -117,6 +137,9 @@ class KitIcon extends StatelessWidget {
   IconData get icon => _icon ?? KitTokens.glyphFor(_status!);
 
   final IconData? _icon;
+
+  /// The bundled mark's slug on [KitIcon.mark]; null for a glyph.
+  final String? _mark;
 
   final KitIconSize size;
 
@@ -162,6 +185,8 @@ class KitIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mark = _mark;
+    if (mark != null) return _buildMark(context, mark);
     final icon = this.icon;
     assert(
       icon.fontFamily != null && icon.fontFamily!.startsWith('AppPhosphor'),
@@ -209,6 +234,33 @@ class KitIcon extends StatelessWidget {
       child: label == null
           ? glyph
           : Semantics(label: label, image: true, child: glyph),
+    );
+  }
+}
+
+extension on KitIcon {
+  Widget _buildMark(BuildContext context, String slug) {
+    final roles = ThemeRoles.resolve(Theme.of(context));
+    final color = _resolveColor(context, roles);
+    final dimension = _resolveDimension(context);
+    return _KitPixelSnap(
+      child: ExcludeSemantics(
+        child: SizedBox.square(
+          dimension: dimension,
+          child: Center(
+            child: SizedBox.square(
+              dimension: dimension * 0.84,
+              child: SvgPicture.asset(
+                markAssetPath(slug),
+                fit: BoxFit.contain,
+                colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+                errorBuilder: (context, error, stack) =>
+                    const SizedBox.shrink(),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

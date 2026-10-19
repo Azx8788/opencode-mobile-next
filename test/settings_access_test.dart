@@ -19,10 +19,16 @@ Matcher _fails(SettingsFailureReason reason) => throwsA(
 
 Map<String, Object> _data() => {
   'oc.profiles': jsonEncode([
-    {'id': 'phone', 'name': 'Phone', 'baseUrl': 'http://127.0.0.1:4096'},
+    {
+      'id': 'phone',
+      'name': 'Phone',
+      'flavor': 'v2',
+      'baseUrl': 'http://127.0.0.1:4096',
+    },
     {
       'id': 'laptop',
       'name': 'Laptop',
+      'flavor': 'v2',
       'baseUrl': 'https://laptop.example.test',
     },
   ]),

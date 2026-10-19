@@ -29,6 +29,7 @@ class _Rails extends StatelessWidget {
 class _ServerRow extends StatelessWidget {
   const _ServerRow({
     required this.profile,
+    required this.name,
     required this.connected,
     required this.snapshot,
     required this.working,
@@ -45,6 +46,9 @@ class _ServerRow extends StatelessWidget {
   });
 
   final ServerProfile profile;
+
+  /// The shared disambiguated name ([serverDisplayName]), port and all.
+  final String name;
   final bool connected;
 
   /// The monitor's current words about this server; null says nothing.
@@ -73,7 +77,7 @@ class _ServerRow extends StatelessWidget {
   Future<void> _showDetails(BuildContext context, AppLocalizations copy) =>
       showKitTechnicalDetails(
         context,
-        title: copy.serverRowDetailsTitle(profile.name),
+        title: copy.serverRowDetailsTitle(name),
         text: '',
         sheetKey: ValueKey('server-details-sheet-${profile.id}'),
         values: [
@@ -158,7 +162,7 @@ class _ServerRow extends StatelessWidget {
                     : AppIconography.server,
                 current: connected,
               ),
-        title: p.name,
+        title: name,
         supporting: TextSpan(
           children: [
             if (connected) kitCurrentSpan(context, copy.serverRowConnected),
@@ -191,13 +195,13 @@ class _ServerRow extends StatelessWidget {
         // The row opens the server's own page; connecting is a named action
         // there (and in this menu), never what a tap on the name does.
         onTap: onSettings,
-        menuLabel: p.name,
+        menuLabel: name,
         menu: menu,
         // The same visible "More" as the phone's own row, so every row of the
         // list offers its actions the same way.
         trailing: KitRowMenu(
           key: ValueKey('server-row-menu-${p.id}'),
-          menuLabel: p.name,
+          menuLabel: name,
           items: menu,
         ),
       ),
@@ -408,45 +412,7 @@ class _WelcomeView extends StatelessWidget {
   }
 }
 
-/// The phone has one managed listener. Choosing between retained generation
-/// profiles is a runtime decision, not permission to redetect/rewrite either.
-bool _needsManagedRuntimeChoice(
-  ServerProfile profile,
-  List<ServerProfile> profiles,
-) {
-  if (!platformCapabilities.supportsTermux ||
-      profile.backend != ServerBackend.openCode ||
-      !TermuxBridge.managesServerUrl(profile.baseUrl) ||
-      _knownOpenCodeFlavor(profile) == null) {
-    return false;
-  }
-  return profiles.any(
-    (other) =>
-        other.id != profile.id &&
-        other.backend == ServerBackend.openCode &&
-        TermuxBridge.managesServerUrl(other.baseUrl) &&
-        _knownOpenCodeFlavor(other) != null &&
-        _knownOpenCodeFlavor(other) != _knownOpenCodeFlavor(profile),
-  );
-}
-
-ServerFlavor? _knownOpenCodeFlavor(ServerProfile profile) {
-  if (profile.flavor == ServerFlavor.v2) return ServerFlavor.v2;
-  if (profile.flavor == ServerFlavor.v1 &&
-      profile.serverVersion?.trim().isNotEmpty == true) {
-    return ServerFlavor.v1;
-  }
-  return null;
-}
-
-/// Legacy profiles default to v1 without a probe. Only the cached version
-/// proves that this default was confirmed. v2 never comes from that default.
-String _knownOpenCodeGeneration(ServerProfile profile) =>
-    switch (_knownOpenCodeFlavor(profile)) {
-      ServerFlavor.v2 => 'OpenCode 2',
-      ServerFlavor.v1 => 'OpenCode 1',
-      _ => 'OpenCode',
-    };
+String _knownOpenCodeGeneration(ServerProfile profile) => 'OpenCode 2';
 
 /// A phone feature must stay discoverable when the current server is remote.
 /// One entry for every way of running an agent on this phone: it opens phone

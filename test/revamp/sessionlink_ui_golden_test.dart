@@ -101,6 +101,7 @@ void main() {
           {
             'id': 'saved',
             'name': 'Workstation',
+            'flavor': 'v2',
             'baseUrl': _origin,
             'username': '',
           },

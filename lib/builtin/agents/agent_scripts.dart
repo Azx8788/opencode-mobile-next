@@ -63,7 +63,8 @@ def run(args, parse=True):
     output = bytearray()
     selector = selectors.DefaultSelector()
     selector.register(process.stdout, selectors.EVENT_READ)
-    deadline = time.monotonic() + 8
+    # A freshly replaced native binary can take longer to cold-start under PRoot.
+    deadline = time.monotonic() + (60 if agent == 'claude' and action == 'probe' else 8)
     try:
         while selector.get_map():
             remaining = deadline - time.monotonic()
@@ -173,7 +174,7 @@ install -d -o 1000 -g 1000 /home/oc/.local /home/oc/.local/bin /home/oc/.local/s
           : 'x86_64|amd64';
       final artifact = entry.value;
       branches.add(
-        '$patterns) oc_arch=${entry.key.name}; oc_url=${_quote(artifact.url.toString())}; oc_sha=${_quote(artifact.sha256)}; oc_format=${artifact.format.name}; oc_member=${_quote(artifact.archiveMember ?? recipe.executable)} ;;',
+        '$patterns) oc_arch=${entry.key.name}; oc_url=${_quote(artifact.url.toString())}; oc_sha=${_quote(artifact.sha256)}; oc_format=${artifact.format.name}; oc_bytes=${artifact.downloadBytes ?? 0}; oc_member=${_quote(artifact.archiveMember ?? recipe.executable)} ;;',
       );
     }
     return '''
@@ -182,6 +183,11 @@ set -eu
   echo '[oc] Agent setup needs its private Linux user' >&2; exit 1
 }
 umask 077
+# Reject symlinked ancestors before installs, checks or rollback touch a tree.
+for oc_parent in /home /home/oc /home/oc/.local /home/oc/.local/share /home/oc/.local/share/oc-agents /home/oc/.local/share/oc-agents/${agent.id} /home/oc/.local/bin; do
+  [ ! -L "\$oc_parent" ] || exit 1
+  [ ! -e "\$oc_parent" ] || [ -d "\$oc_parent" ] || exit 1
+done
 export PATH=/home/oc/.local/bin:/usr/bin:/bin
 case "\$(uname -m)" in
 ${branches.join('\n')}
@@ -235,8 +241,11 @@ oc_claude_update_failed() {
 }
 ''';
 
-  static String check(AgentDescriptor agent) {
-    final recipe = _recipe(agent);
+  static String check(
+    AgentDescriptor agent, {
+    AgentInstallRecipe? recipeOverride,
+  }) {
+    final recipe = recipeOverride ?? _recipe(agent);
     final recovery = agent.id == 'claude' && recipe.executable == 'claude'
         ? '''$componentUpdatePrelude
 # Checks and installers hold the same lock across recovery and probes.
@@ -261,10 +270,118 @@ $_probe
 [ -f "\$oc_final/.oc-pin" ] && [ ! -L "\$oc_final/.oc-pin" ]
 [ "\$(cat "\$oc_final/.oc-pin")" = "\$oc_pin" ]
 [ "\$(readlink "\$oc_bin")" = "\$oc_final/launch" ]
+if [ "\$oc_format" = executable ]; then
+  [ "\$(sha256sum "\$oc_final/payload/\$oc_member" | cut -d ' ' -f1)" = "\$oc_sha" ]
+fi
 oc_probe_version "\$oc_final"
 printf '%s\\n' ${_quote(recipe.version)}
 ''';
   }
+
+  /// Previous app-authored Claude pin, retained solely for an explicit rollback.
+  /// Provenance: official 2.1.283 manifest, also shipped before 8300145b8.
+  static final previousClaudeRecipe = AgentInstallRecipe(
+    version: '2.1.283',
+    executable: 'claude',
+    artifacts: {
+      AgentArchitecture.arm64: AgentArtifact(
+        url: Uri.parse(
+          'https://downloads.claude.ai/claude-code-releases/2.1.283/linux-arm64/claude',
+        ),
+        sha256:
+            '346d294f0103d6fc0de11ac953579b5c62dfa90698a4cfc486b6f927c615e697',
+        format: AgentArtifactFormat.executable,
+        downloadBytes: 240902136,
+      ),
+      AgentArchitecture.x64: AgentArtifact(
+        url: Uri.parse(
+          'https://downloads.claude.ai/claude-code-releases/2.1.283/linux-x64/claude',
+        ),
+        sha256:
+            '1859583ce32920595c61ef868bee52e1b1594f7486db209935e01f1e5e804ae2',
+        format: AgentArtifactFormat.executable,
+        downloadBytes: 241556664,
+      ),
+    },
+    signInArgs: const ['auth', 'login', '--claudeai'],
+  );
+
+  static String _previousClaude(
+    AgentDescriptor agent, {
+    required bool activate,
+  }) {
+    if (agent.id != 'claude' || agent.recipe?.executable != 'claude') {
+      throw ArgumentError('This agent has no previous pinned version.');
+    }
+    final recipe = previousClaudeRecipe;
+    return '''${_selection(agent, recipe)}
+$componentUpdatePrelude
+oc_check_lock=/home/oc/.local/share/oc-agents/.lock-claude
+mkdir "\$oc_check_lock" 2>/dev/null || exit 1
+oc_link="\$oc_bin.rollback.\$\$"
+trap 'rm -f "\$oc_link"; rmdir "\$oc_check_lock" >/dev/null 2>&1 || true' EXIT
+trap 'exit 129' HUP
+trap 'exit 130' INT
+trap 'exit 143' TERM
+oc_update_recover "\$oc_final"
+oc_update_recover "\$oc_bin"
+[ -f "\$oc_final/.oc-pin" ] && [ ! -L "\$oc_final/.oc-pin" ]
+[ "\$(cat "\$oc_final/.oc-pin")" = "\$oc_pin" ]
+[ -f "\$oc_final/payload/claude" ] && [ ! -L "\$oc_final/payload/claude" ]
+[ "\$(sha256sum "\$oc_final/payload/claude" | cut -d ' ' -f1)" = "\$oc_sha" ]
+oc_version_pattern=${_versionPattern(recipe.version)}
+$_probe
+oc_probe_version "\$oc_final"
+${activate ? r'''
+# Rebuild the launcher from authored paths; never trust an editable old wrapper.
+printf '#!/bin/sh\nexec "%s/payload/claude" "$@"\n' "$oc_final" > "$oc_final/launch.rollback"
+chmod 700 "$oc_final/launch.rollback"
+mv -f "$oc_final/launch.rollback" "$oc_final/launch"
+ln -s "$oc_final/launch" "$oc_link"
+oc_update_activate "$oc_bin" "$oc_link" || exit 1
+oc_update_commit "$oc_bin" || { oc_update_recover "$oc_bin"; exit 1; }
+''' : ''}
+printf '%s\n' ${_quote(recipe.version)}
+''';
+  }
+
+  /// Prints a version only after checking its retained on-disk official pin.
+  static String previousVersion(AgentDescriptor agent) =>
+      _previousClaude(agent, activate: false);
+
+  /// No download and no account/data changes. The host owns stopping/restarting
+  /// its daemon and checking Ready again before it qualifies this version.
+  static String usePreviousVersion(AgentDescriptor agent, String version) {
+    if (version != previousClaudeRecipe.version) {
+      throw ArgumentError('This previous version is not a known pin.');
+    }
+    return _previousClaude(agent, activate: true);
+  }
+
+  /// Lets the person type the agent's name in the Terminal (which is root).
+  /// The agent lives under the `oc` user, so a small launcher in
+  /// /usr/local/bin runs it as `oc` in the folder the person is in. Best
+  /// effort and idempotent: it never replaces a file this setup did not
+  /// write, and a failure never fails the install.
+  static String terminalLauncher(String executable) =>
+      _terminalLauncher.replaceAll('@EXE@', executable);
+
+  static const _terminalLauncher = r'''
+oc_terminal_launcher=/usr/local/bin/@EXE@
+if [ ! -e "$oc_terminal_launcher" ] || grep -q '^# oc-terminal-launcher$' "$oc_terminal_launcher" 2>/dev/null; then
+  {
+    mkdir -p /usr/local/bin &&
+    cat > "$oc_terminal_launcher.new" <<'OC_LAUNCHER' &&
+#!/bin/sh
+# oc-terminal-launcher
+if [ "$(id -un)" = oc ]; then exec /home/oc/.local/bin/@EXE@ "$@"; fi
+exec su -l oc -s /bin/sh -c 'cd "$0" 2>/dev/null || cd; t=$1; shift; exec env TERM="$t" /home/oc/.local/bin/@EXE@ "$@"' "$PWD" "${TERM:-xterm-256color}" "$@"
+OC_LAUNCHER
+    chmod 755 "$oc_terminal_launcher.new" &&
+    mv -f "$oc_terminal_launcher.new" "$oc_terminal_launcher"
+  } 2>/dev/null || rm -f "$oc_terminal_launcher.new"
+fi
+''';
 
   static String install(AgentDescriptor agent) {
     final recipe = _recipe(agent);
@@ -335,11 +452,20 @@ trap '[ -z "\$oc_probe" ] || rm -rf "\$oc_probe"; rm -rf "\$oc_stage"; rm -f "\$
 trap 'exit 129' HUP
 trap 'exit 130' INT
 trap 'exit 143' TERM
+# Keep verified-pin downloads outside the disposable extraction tree.
+oc_download_dir=/home/oc/.local/share/oc-agents/${agent.id}/.downloads
+[ ! -L "\$oc_download_dir" ] || exit 1
+oc_artifact="\$oc_download_dir/${recipe.version}-\$oc_arch-\$oc_sha"
+mkdir -p "\$oc_download_dir"
+[ ! -L "\$oc_artifact" ] || exit 1
 $recoverAfterLock
 [ ! -L "\$oc_final" ] && [ ! -L "\$oc_stage" ] || exit 1
 if [ -f "\$oc_final/.oc-pin" ] && [ ! -L "\$oc_final/.oc-pin" ] &&
-   [ "\$(cat "\$oc_final/.oc-pin")" = "\$oc_pin" ] && oc_probe_version "\$oc_final"; then
+   [ "\$(cat "\$oc_final/.oc-pin")" = "\$oc_pin" ] &&
+   { [ "\$oc_format" != executable ] || [ "\$(sha256sum "\$oc_final/payload/\$oc_member" | cut -d ' ' -f1)" = "\$oc_sha" ]; } &&
+   oc_probe_version "\$oc_final"; then
 $fastLinkUpdate
+  ${terminalLauncher(recipe.executable)}
   oc_version $version
   exit 0
 fi
@@ -347,12 +473,12 @@ fi
 rm -rf "\$oc_stage"
 mkdir -p "\$oc_stage/payload"
 oc_stage 'Downloading agent'
-oc_download "\$oc_url" "\$oc_stage/artifact" "\$oc_sha"
+oc_download "\$oc_url" "\$oc_artifact" "\$oc_sha" "\$oc_bytes"
 # Independently enforce the pin even if the shared downloader changes.
-[ "\$(sha256sum "\$oc_stage/artifact" | cut -d ' ' -f1)" = "\$oc_sha" ] || {
+[ "\$(sha256sum "\$oc_artifact" | cut -d ' ' -f1)" = "\$oc_sha" ] || {
   echo '[oc] The agent download did not match its checksum' >&2; exit 1
 }
-if ! python3 - "\$oc_stage/artifact" "\$oc_stage/payload" "\$oc_format" "\$oc_member" <<'OC_ARCHIVE'
+if ! python3 - "\$oc_artifact" "\$oc_stage/payload" "\$oc_format" "\$oc_member" <<'OC_ARCHIVE'
 $_extract
 OC_ARCHIVE
 then
@@ -362,7 +488,6 @@ if [ "\$oc_format" != npmTarGz ]; then chmod 700 "\$oc_stage/payload/\$oc_member
 if ! oc_probe_version "\$oc_stage"; then
   echo '[oc] The agent did not pass its version check' >&2; exit 1
 fi
-rm -f "\$oc_stage/artifact"
 printf '%s' "\$oc_pin" > "\$oc_stage/.oc-pin"
 if [ "\$oc_format" = npmTarGz ]; then
   printf '#!/bin/sh\\nexec /home/oc/.local/node/bin/node "%s/payload/%s" "\$@"\\n' "\$oc_final" "\$oc_member" > "\$oc_stage/launch"
@@ -371,6 +496,8 @@ else
 fi
 chmod 700 "\$oc_stage/launch"
 $activation
+rm -f "\$oc_artifact"
+${terminalLauncher(recipe.executable)}
 oc_version $version
 ''';
   }

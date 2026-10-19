@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/domain/agent_account.dart';
 import 'package:opencode_mobile/domain/external_agent.dart';
 import 'package:opencode_mobile/domain/profile_monitor.dart';
@@ -577,19 +577,19 @@ final gServersArea = CensusArea(
     // -- host-management -------------------------------------------------
     CensusShot('host-management', (kit) async {
       final controller = await kit.connected(api: _HealthyApi());
-      controller.version = '1.18.25';
+      controller.version = '2.0.29';
       await kit.pumpApp(
         HostManagementScreen(controller: controller),
         controller: controller,
       );
-      kit.expectText('Run as a Linux service');
+      kit.expectText('Install and start OpenCode 2');
     }),
 
     // -- server-settings ---------------------------------------------------
     CensusShot('server-settings', state: 'update-available', (kit) async {
       final controller = await _serverSettingsController(
         kit,
-        available: '1.19.0',
+        available: '2.0.29',
       );
       await kit.pumpApp(
         ServerSettingsScreen(controller: controller),
@@ -601,7 +601,7 @@ final gServersArea = CensusArea(
     CensusShot('server-settings', state: 'pending-restart', (kit) async {
       final controller = await _serverSettingsController(
         kit,
-        installed: '1.19.0',
+        installed: '2.0.29',
       );
       await kit.pumpApp(
         ServerSettingsScreen(controller: controller),
@@ -615,7 +615,7 @@ final gServersArea = CensusArea(
     CensusShot('server-settings-upgrade-sheet', (kit) async {
       final controller = await _serverSettingsController(
         kit,
-        available: '1.19.0',
+        available: '2.0.29',
       );
       await kit.pumpApp(
         ServerSettingsScreen(controller: controller),
@@ -628,7 +628,7 @@ final gServersArea = CensusArea(
     CensusShot('server-settings-restart-dialog', (kit) async {
       final controller = await _serverSettingsController(
         kit,
-        installed: '1.19.0',
+        installed: '2.0.29',
       );
       await kit.pumpApp(
         ServerSettingsScreen(controller: controller),

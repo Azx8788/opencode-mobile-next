@@ -1,5 +1,5 @@
-import '../../api/mcp_oauth.dart';
-import '../../api/models.dart';
+import '../../domain/mcp_oauth.dart';
+import '../../domain/models.dart';
 import '../../api2/models.dart' show Api2FormInfo, Api2FormState, Api2InboxItem;
 import '../managed_shell.dart';
 

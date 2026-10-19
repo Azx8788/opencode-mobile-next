@@ -25,10 +25,13 @@ import 'kit_jump_pill.dart';
 import 'kit_layout.dart';
 import 'kit_motion.dart';
 import 'kit_notice.dart';
+import 'kit_search_field.dart';
 import 'kit_redact.dart';
 import 'kit_since.dart';
 import 'kit_text.dart';
 import 'kit_tokens.dart';
+
+part 'kit_log_panel_tools.dart';
 
 /// What kind of line: drives the look (a neutral gutter glyph and `text1`),
 /// never colour alone.
@@ -218,7 +221,18 @@ class KitLogPanel extends StatefulWidget {
     this.copyAllKey,
     this.wrapKey,
     this.headerAction,
+    this.searchable = false,
+    this.selectable,
   });
+
+  /// Adds a search field above the lines (matches are marked, Next and
+  /// Previous step between them), and a Pause follow toggle. For a page or
+  /// full sheet whose job is the log; a folded panel stays plain.
+  final bool searchable;
+
+  /// Lets the person select lines and copy the selection. Null is on for
+  /// wide windows, and for a [searchable] panel on any window.
+  final bool? selectable;
 
   /// A [KitLogBuffer] or the caller's own listenable.
   final ValueListenable<List<KitLogLine>> lines;
@@ -334,6 +348,15 @@ class _KitLogPanelState extends State<KitLogPanel> with WidgetsBindingObserver {
   bool _routeCurrent = true;
   bool _jumping = false;
 
+  // Search (searchable panels): the settled query, the lines holding it
+  // and which of them is current; Pause stops the automatic scroll.
+  String _query = '';
+  List<int> _matches = const [];
+  int _current = -1;
+  bool _paused = false;
+
+  bool get _follow => widget.follow && !_paused;
+
   /// With wrap off every row has one extent, so the newest end is known
   /// exactly before the list lays out new rows: rows × extent. Null while
   /// wrapped (the list only estimates its extent then).
@@ -405,20 +428,21 @@ class _KitLogPanelState extends State<KitLogPanel> with WidgetsBindingObserver {
     final total = _total(lines);
     final added = math.max(0, total - _seenTotal);
     _seenTotal = total;
+    if (_query.isNotEmpty) _findMatches(keepPosition: true);
     setState(() {
       if (added > 0) {
         _lastLineAt = _latestAt(lines) ?? clock.now();
-        if (!_following || !widget.follow) _unseen += added;
+        if (!_following || !_follow) _unseen += added;
       }
     });
-    if (_following && widget.follow) _scheduleJumpToEnd();
+    if (_following && _follow) _scheduleJumpToEnd();
   }
 
   /// Jumps to the newest line after the next layout. With wrapped lines the
   /// list only estimates its extent until the end is laid out, so it jumps
   /// again (a few frames at most) until it really sits at the end.
   void _scheduleJumpToEnd([int attempts = 3]) {
-    if (!widget.follow) return;
+    if (!_follow) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || !_vertical.hasClients || !_following) return;
       final position = _vertical.position;
@@ -445,9 +469,106 @@ class _KitLogPanelState extends State<KitLogPanel> with WidgetsBindingObserver {
     });
   }
 
+  final GlobalKey _activeKey = GlobalKey(debugLabel: 'KitLogPanel active line');
+
+  /// Brings line [index] into view. Fixed-height rows know their offset;
+  /// wrapped rows are estimated, then corrected once the row is built.
+  void _jumpToLine(int index, [int attempts = 4]) {
+    if (!_vertical.hasClients) return;
+    final count = _shownLines.length;
+    if (index < 0 || index >= count) return;
+    final position = _vertical.position;
+    final extent = _lineExtent(context);
+    final dropped = _dropped(widget.lines.value) > 0 ? 1 : 0;
+    final fixed = (index + dropped) * extent;
+    final target = _fixedContent != null
+        ? fixed
+        : position.maxScrollExtent * (index + dropped) / (count + dropped);
+    if (_following) setState(() => _following = false);
+    _jumping = true;
+    _vertical.jumpTo(
+      (target - position.viewportDimension * .35).clamp(
+        position.minScrollExtent,
+        position.maxScrollExtent,
+      ),
+    );
+    _jumping = false;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final row = _activeKey.currentContext;
+      if (row != null) {
+        _jumping = true;
+        Scrollable.ensureVisible(row, alignment: .35);
+        _jumping = false;
+      } else if (attempts > 1) {
+        _jumpToLine(index, attempts - 1);
+      }
+    });
+  }
+
+  List<KitLogLine> get _shownLines {
+    final all = widget.lines.value;
+    return all.length > widget.maxLines
+        ? all.sublist(all.length - widget.maxLines)
+        : all;
+  }
+
+  void _findMatches({required bool keepPosition}) {
+    if (_query.isEmpty) {
+      _matches = const [];
+      _current = -1;
+      return;
+    }
+    final needle = _query.toLowerCase();
+    final shown = _shownLines;
+    _matches = [
+      for (var i = 0; i < shown.length; i++)
+        if (_safe(shown[i]).toLowerCase().contains(needle)) i,
+    ];
+    if (_matches.isEmpty) {
+      _current = -1;
+    } else if (!keepPosition || _current < 0 || _current >= _matches.length) {
+      _current = _matches.length - 1; // the newest match first
+    }
+  }
+
+  void _search(String query) {
+    setState(() {
+      _query = query.trim();
+      _findMatches(keepPosition: false);
+    });
+    _revealMatch();
+  }
+
+  void _step(int by) {
+    if (_matches.isEmpty) return;
+    setState(() => _current = (_current + by) % _matches.length);
+    _revealMatch();
+  }
+
+  void _revealMatch() {
+    if (_current < 0) return;
+    final line = _matches[_current];
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _jumpToLine(line);
+    });
+  }
+
+  void _togglePause() {
+    if (_paused) {
+      unawaited(_jumpToLatest());
+    } else {
+      setState(() {
+        _paused = true;
+        _following = false;
+      });
+    }
+  }
+
   Future<void> _jumpToLatest() async {
     setState(() {
       _following = true;
+      _paused = false;
       _unseen = 0;
     });
     if (!_vertical.hasClients) return;
@@ -623,7 +744,7 @@ class _KitLogPanelState extends State<KitLogPanel> with WidgetsBindingObserver {
       clearBottomInset: false,
       pill: KitJumpPill(
         label: _l10n(context).kitLogNewLines(_unseen),
-        visible: widget.follow && !_following && _unseen > 0,
+        visible: widget.follow && (!_following || _paused) && _unseen > 0,
         pillKey: const ValueKey('kit-log-jump'),
         onPressed: _jumpToLatest,
       ),
@@ -647,6 +768,15 @@ class _KitLogPanelState extends State<KitLogPanel> with WidgetsBindingObserver {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         header,
+        if (widget.searchable)
+          _LogTools(
+            paused: _paused,
+            query: _query,
+            matchCount: _matches.length,
+            onSearch: _search,
+            onStep: _step,
+            onPause: _togglePause,
+          ),
         if (_readFailed)
           Padding(
             key: const ValueKey('kit-log-read-failed'),
@@ -727,8 +857,11 @@ class _KitLogPanelState extends State<KitLogPanel> with WidgetsBindingObserver {
         );
       }
       final i = index - extra;
+      final active = _current >= 0 && _matches[_current] == i;
       return _LineRow(
-        key: ValueKey('kit-log-line-$i'),
+        key: active ? _activeKey : ValueKey('kit-log-line-$i'),
+        highlight: _query.isEmpty ? null : _query,
+        active: active,
         line: shown[i],
         wrap: wrap,
         glyph: glyph,
@@ -781,7 +914,9 @@ class _KitLogPanelState extends State<KitLogPanel> with WidgetsBindingObserver {
     }
     // Desktop scrollbars come from the app's scroll behaviour
     // (AppScrollBehavior), always visible on a desktop build (KIT-6).
-    if (wide) content = SelectionArea(child: content);
+    if (widget.selectable ?? (wide || widget.searchable)) {
+      content = SelectionArea(child: content);
+    }
 
     return Focus(
       focusNode: _bodyFocus,
@@ -1098,6 +1233,8 @@ class _StateWords extends StatelessWidget {
 class _LineRow extends StatelessWidget {
   const _LineRow({
     super.key,
+    this.highlight,
+    this.active = false,
     required this.line,
     required this.wrap,
     required this.glyph,
@@ -1106,12 +1243,42 @@ class _LineRow extends StatelessWidget {
     required this.style,
   });
 
+  final String? highlight;
+  final bool active;
   final KitLogLine line;
   final bool wrap;
   final double glyph;
   final double gutter;
   final double extent;
   final TextStyle style;
+
+  /// [text] with every case-insensitive occurrence of [highlight] marked
+  /// by a fill (the current match fills more).
+  TextSpan _marked(String text, TextStyle style, KitTokens tokens) {
+    final query = highlight;
+    if (query == null || query.isEmpty) {
+      return TextSpan(text: text, style: style);
+    }
+    final lower = text.toLowerCase();
+    final needle = query.toLowerCase();
+    final mark = style.copyWith(
+      backgroundColor: tokens.roles.accent.withValues(alpha: active ? .5 : .24),
+    );
+    final spans = <TextSpan>[];
+    var from = 0;
+    while (true) {
+      final at = lower.indexOf(needle, from);
+      if (at < 0 || needle.length > lower.length) break;
+      if (at > from) spans.add(TextSpan(text: text.substring(from, at)));
+      spans.add(
+        TextSpan(text: text.substring(at, at + needle.length), style: mark),
+      );
+      from = at + needle.length;
+    }
+    if (from == 0) return TextSpan(text: text, style: style);
+    if (from < text.length) spans.add(TextSpan(text: text.substring(from)));
+    return TextSpan(style: style, children: spans);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1150,14 +1317,22 @@ class _LineRow extends StatelessWidget {
             child: Semantics(
               label: label,
               child: ExcludeSemantics(
-                child: Text(
-                  text,
-                  style: style,
-                  softWrap: wrap,
-                  maxLines: wrap ? null : 1,
-                  overflow: wrap ? null : TextOverflow.clip,
-                  textDirection: TextDirection.ltr,
-                ),
+                child: (highlight ?? '').isEmpty
+                    ? Text(
+                        text,
+                        style: style,
+                        softWrap: wrap,
+                        maxLines: wrap ? null : 1,
+                        overflow: wrap ? null : TextOverflow.clip,
+                        textDirection: TextDirection.ltr,
+                      )
+                    : Text.rich(
+                        _marked(text, style, tokens),
+                        softWrap: wrap,
+                        maxLines: wrap ? null : 1,
+                        overflow: wrap ? null : TextOverflow.clip,
+                        textDirection: TextDirection.ltr,
+                      ),
               ),
             ),
           ),

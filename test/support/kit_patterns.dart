@@ -540,11 +540,10 @@ final kitG21Patterns = <KitPattern>[
   _g21OutsideKit('Gradient(', const [
     'LOOK-9',
   ], r'\b(?:Radial|Linear|Sweep)Gradient\('),
-  _g21OutsideKit(
-    'Image.asset|network|memory|file(',
-    const ['LOOK-35', 'LOOK-37'],
-    r'\bImage\.(?:asset|network|memory|file)\(',
-  ),
+  _g21OutsideKit('Image.asset|network|memory|file(', const [
+    'LOOK-35',
+    'LOOK-37',
+  ], r'\bImage\.(?:asset|network|memory|file)\('),
   KitPattern(
     gate: 'G21',
     name: 'Icon size not 20/22/24',
@@ -569,11 +568,9 @@ final kitG21Patterns = <KitPattern>[
     'MOT-3',
   ], r'\btransitionsBuilder:'),
   _g21OutsideKit('KitEffects.of(', const ['MOT-12'], r'\bKitEffects\.of\('),
-  _g21OutsideKit(
-    'text scale clamp',
-    const ['A11Y-8'],
-    r'\bTextScaler\.linear|\bmaxScaleFactor:|\bTextScaler\.noScaling',
-  ),
+  _g21OutsideKit('text scale clamp', const [
+    'A11Y-8',
+  ], r'\bTextScaler\.linear|\bmaxScaleFactor:|\bTextScaler\.noScaling'),
   _g21OutsideKit('withOpacity(|Opacity(', const [
     'LOOK-14',
   ], r'\bwithOpacity\(|\bOpacity\('),

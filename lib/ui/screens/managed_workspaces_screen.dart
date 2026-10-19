@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
 
-import '../../api/product_repository.dart';
+import '../../domain/product_repository.dart';
 import '../../state/connection.dart';
 import '../app_iconography.dart';
 import '../app_theme.dart' show AppStatusTone;

@@ -9,12 +9,24 @@ class KitComposerFailure {
     required this.onRetry,
     this.onDetails,
     this.retryKey,
-  });
+    this.actionLabel,
+    this.onAction,
+    this.actionKey,
+  }) : assert(
+         (actionLabel == null) == (onAction == null),
+         'KitComposerFailure: an action needs both its label and its callback',
+       );
 
   final String words;
   final VoidCallback onRetry;
   final VoidCallback? onDetails;
   final Key? retryKey;
+
+  /// The one thing that fixes this failure ("Repair"), shown in Retry's
+  /// place: retrying first would fail the same way.
+  final String? actionLabel;
+  final VoidCallback? onAction;
+  final Key? actionKey;
 }
 
 /// What Send does while a reply is being written.

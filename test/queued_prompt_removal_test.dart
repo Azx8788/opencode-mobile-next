@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/state/offline_queue.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:opencode_mobile/state/queued_prompt_removal.dart';

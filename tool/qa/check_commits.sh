@@ -25,6 +25,8 @@
 #     line "Key: value", or a bare "[skip ci]" line) that holds a "Co-Authored-By: Name <email>" trailer;
 #     a "Claude-Session:" trailer, when present, is an https URL. Nothing
 #     follows the trailer block.
+#   - an optional "Change-Class: hotfix|fix|feature|breaking" line (docs/release/change-classes.md),
+#     usual on merge commits, is accepted anywhere in the body; never required.
 # Format rule: every Dart file added or changed in merge-base(<base>,<head>)..<head>
 # (or staged, in the hook) passes
 #   dart format --output=none --set-exit-if-changed --language-version=3.10
@@ -69,6 +71,14 @@ check_message() {
       if (lines[1] ~ /^[ \t]*$/) { print label ": empty subject line"; bad = 1 }
       if (n >= 2 && lines[2] !~ /^[ \t]*$/) {
         print label ": no blank line after the subject"; bad = 1
+      }
+      for (i = 1; i <= n; i++) {
+        if (tolower(lines[i]) ~ /^change-class:/) {
+          v = tolower(lines[i]); sub(/^change-class:[ \t]*/, "", v); sub(/[ \t]+$/, "", v)
+          if (v != "hotfix" && v != "fix" && v != "feature" && v != "breaking") {
+            print label ": Change-Class must be hotfix, fix, feature or breaking (got \"" v "\")"; bad = 1
+          }
+        }
       }
       if (is_merge == 1) exit bad
       if (lines[1] !~ /^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([A-Za-z0-9_.\/-]+\))?!?: [^ ]/) {

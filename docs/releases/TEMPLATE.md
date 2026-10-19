@@ -2,6 +2,12 @@
 
 One sentence a user would repeat to a friend: what this release lets them do.
 
+<!--
+Optional: a line `Change class: hotfix|fix|feature|breaking` here (above the first
+heading) is compared with `tool/qa/classify_change.py` by the notes check, which
+warns on a mismatch. See docs/release/change-classes.md.
+-->
+
 ## What changed for you
 
 <!--

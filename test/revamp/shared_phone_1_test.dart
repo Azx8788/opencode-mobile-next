@@ -8,7 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/server_probe.dart';
+import 'package:opencode_mobile/domain/server_probe.dart';
 import 'package:opencode_mobile/builtin/builtin_server.dart';
 import 'package:opencode_mobile/builtin/setup/phone_setup.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';

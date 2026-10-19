@@ -37,7 +37,7 @@ Widget teamRow(
   final t = KitTokens.of(context);
   final color = switch (state) {
     KitTeamState.needsYou => t.roles.attention,
-    KitTeamState.failed => t.roles.danger,
+    KitTeamState.failed => t.roles.text1,
     _ => t.roles.text2,
   };
   final content = Padding(
@@ -146,7 +146,7 @@ Widget teamCard(
             ExcludeSemantics(
               child: Icon(
                 teamIcon(state),
-                color: attention ? t.roles.attention : t.roles.danger,
+                color: attention ? t.roles.attention : t.roles.text1,
                 size: t.smallIconSize,
               ),
             ),

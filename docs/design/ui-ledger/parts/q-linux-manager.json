@@ -1,0 +1,403 @@
+{
+ "area": "q-linux-manager",
+ "pages": [
+  {
+   "id": "linux-manager",
+   "title": "Linux on this phone",
+   "kind": "screen",
+   "file": "lib/ui/screens/linux_manager/linux_manager_screen.dart",
+   "widget": "LinuxManagerScreen",
+   "presentedBy": [],
+   "line": 41,
+   "purpose": "Hub for managing the app's own Ubuntu: Running, Ports, Storage, Packages, Repair and Reset, with the package job on top while one runs.",
+   "reachedFrom": [
+    {
+     "page": "termux-setup-installed"
+    }
+   ],
+   "gates": [
+    "in-app host only: ThisPhoneScreen shows the row when host.kind == PhoneHostKind.inApp and the host is installed"
+   ],
+   "elements": [
+    {
+     "id": "linux-manager-running",
+     "type": "list-tile",
+     "label": "Running",
+     "key": "linux-row-running",
+     "line": 113,
+     "action": "navigate",
+     "target": "linux-processes",
+     "effect": "Opens Running.",
+     "gates": [],
+     "destructive": false,
+     "file": "lib/ui/screens/linux_manager/linux_manager_screen.dart"
+    },
+    {
+     "id": "linux-manager-ports",
+     "type": "list-tile",
+     "label": "Ports",
+     "key": "linux-row-ports",
+     "line": 123,
+     "action": "navigate",
+     "target": "linux-ports",
+     "effect": "Opens Ports.",
+     "gates": [],
+     "destructive": false,
+     "file": "lib/ui/screens/linux_manager/linux_manager_screen.dart"
+    },
+    {
+     "id": "linux-manager-storage",
+     "type": "list-tile",
+     "label": "Storage",
+     "key": "linux-row-storage",
+     "line": 132,
+     "action": "navigate",
+     "target": "linux-storage",
+     "effect": "Opens Storage.",
+     "gates": [],
+     "destructive": false,
+     "file": "lib/ui/screens/linux_manager/linux_manager_screen.dart"
+    },
+    {
+     "id": "linux-manager-packages",
+     "type": "list-tile",
+     "label": "Packages",
+     "key": "linux-row-packages",
+     "line": 141,
+     "action": "navigate",
+     "target": "linux-packages",
+     "effect": "Opens Packages.",
+     "gates": [],
+     "destructive": false,
+     "file": "lib/ui/screens/linux_manager/linux_manager_screen.dart"
+    },
+    {
+     "id": "linux-manager-repair",
+     "type": "list-tile",
+     "label": "Repair Linux",
+     "key": "linux-row-repair",
+     "line": 150,
+     "action": "open-dialog",
+     "target": null,
+     "effect": "_repair: refused while setup or a package job runs, then a neutral question; confirming calls onRepair, which re-runs setup checks (PhoneServerAction.update).",
+     "gates": [
+      "not while setup or a package job runs"
+     ],
+     "destructive": false,
+     "file": "lib/ui/screens/linux_manager/linux_manager_screen.dart"
+    },
+    {
+     "id": "linux-manager-reset",
+     "type": "list-tile",
+     "label": "Reset Linux",
+     "key": "linux-row-reset",
+     "line": 160,
+     "action": "open-dialog",
+     "target": null,
+     "effect": "resetLinux: typed-word question (Reset), removes Linux keeping projects, forgets saved in-app servers, opens phone setup.",
+     "gates": [
+      "not while setup or a package job runs"
+     ],
+     "destructive": true,
+     "file": "lib/ui/screens/linux_manager/linux_manager_screen.dart"
+    },
+    {
+     "id": "linux-manager-job-stop",
+     "type": "button",
+     "label": "Stop installing / removing / updating",
+     "key": "linux-job-stop",
+     "line": 155,
+     "action": "open-dialog",
+     "target": null,
+     "effect": "Names the running package job and stops it after a question.",
+     "gates": [
+      "a package job is running"
+     ],
+     "destructive": false,
+     "file": "lib/ui/screens/linux_manager/linux_manager_common.dart"
+    }
+   ]
+  },
+  {
+   "id": "linux-processes",
+   "title": "Running in Linux",
+   "kind": "screen",
+   "file": "lib/ui/screens/linux_manager/linux_processes_page.dart",
+   "widget": "LinuxProcessesPage",
+   "presentedBy": [],
+   "line": 29,
+   "purpose": "Programs running inside the app's Linux by kind (OpenCode server, Paseo, agent, dev server, other) with memory and busy or idle, refreshed every 10 seconds; named, confirmed Stop that also stops what the program started.",
+   "reachedFrom": [
+    {
+     "page": "linux-manager",
+     "element": "linux-manager-running"
+    }
+   ],
+   "gates": [
+    "in-app host only: ThisPhoneScreen shows the row when host.kind == PhoneHostKind.inApp and the host is installed"
+   ],
+   "elements": [
+    {
+     "id": "linux-processes-row",
+     "type": "list-tile",
+     "label": "Program row",
+     "key": "linux-proc-<pid>",
+     "line": 359,
+     "action": "open-sheet",
+     "target": null,
+     "effect": "Opens the details sheet (what it is, facts, command and ids under Details).",
+     "gates": [],
+     "destructive": false,
+     "file": "lib/ui/screens/linux_manager/linux_processes_page.dart"
+    },
+    {
+     "id": "linux-processes-stop",
+     "type": "menu-item",
+     "label": "Stop <program>",
+     "key": "linux-proc-stop-<pid>",
+     "line": 383,
+     "action": "open-dialog",
+     "target": null,
+     "effect": "_stopFromList: names the program and the helpers that stop with it, then LinuxManager.stop sends exact pid:start-time identities.",
+     "gates": [
+      "not the OpenCode server",
+      "disabled while stopping"
+     ],
+     "destructive": true,
+     "file": "lib/ui/screens/linux_manager/linux_processes_page.dart"
+    },
+    {
+     "id": "linux-processes-copy",
+     "type": "menu-item",
+     "label": "Copy command",
+     "key": "linux-proc-copy",
+     "line": 380,
+     "action": "copy",
+     "target": null,
+     "effect": "Copies the command line (redacted).",
+     "gates": [],
+     "destructive": false,
+     "file": "lib/ui/screens/linux_manager/linux_processes_page.dart"
+    },
+    {
+     "id": "linux-processes-pull",
+     "type": "gesture",
+     "label": "[pull to refresh]",
+     "key": null,
+     "line": 247,
+     "action": "other",
+     "target": null,
+     "effect": "Reads /proc again.",
+     "gates": [],
+     "destructive": false,
+     "file": "lib/ui/screens/linux_manager/linux_processes_page.dart"
+    }
+   ]
+  },
+  {
+   "id": "linux-ports",
+   "title": "Ports in Linux",
+   "kind": "screen",
+   "file": "lib/ui/screens/linux_manager/linux_ports_page.dart",
+   "widget": "LinuxPortsPage",
+   "presentedBy": [],
+   "line": 30,
+   "purpose": "Ports with something listening inside the app's Linux (each proven by a connection), the program that uses it, and Open preview through openDevPreview on the phone's loopback.",
+   "reachedFrom": [
+    {
+     "page": "linux-manager",
+     "element": "linux-manager-ports"
+    }
+   ],
+   "gates": [
+    "in-app host only: ThisPhoneScreen shows the row when host.kind == PhoneHostKind.inApp and the host is installed"
+   ],
+   "elements": [
+    {
+     "id": "linux-ports-row",
+     "type": "list-tile",
+     "label": "Port <n> · Open preview",
+     "key": "linux-port-<n>",
+     "line": 245,
+     "action": "navigate",
+     "target": null,
+     "effect": "_preview: openDevPreview with DevPreviewLink(port) against the in-app server address; same rules as chat links.",
+     "gates": [
+      "not the OpenCode server or Paseo"
+     ],
+     "destructive": false,
+     "file": "lib/ui/screens/linux_manager/linux_ports_page.dart"
+    },
+    {
+     "id": "linux-ports-stop",
+     "type": "menu-item",
+     "label": "Stop <program>",
+     "key": "linux-port-stop-<n>",
+     "line": 273,
+     "action": "open-dialog",
+     "target": null,
+     "effect": "_stopOwner: confirmed stop of the program whose command names the port.",
+     "gates": [
+      "an owner is known and is not protected"
+     ],
+     "destructive": true,
+     "file": "lib/ui/screens/linux_manager/linux_ports_page.dart"
+    },
+    {
+     "id": "linux-ports-copy",
+     "type": "menu-item",
+     "label": "Copy address",
+     "key": "linux-port-copy",
+     "line": 267,
+     "action": "copy",
+     "target": null,
+     "effect": "Copies http://127.0.0.1:<port>/.",
+     "gates": [],
+     "destructive": false,
+     "file": "lib/ui/screens/linux_manager/linux_ports_page.dart"
+    }
+   ]
+  },
+  {
+   "id": "linux-storage",
+   "title": "Linux storage",
+   "kind": "screen",
+   "file": "lib/ui/screens/linux_manager/linux_storage_page.dart",
+   "widget": "LinuxStoragePage",
+   "presentedBy": [],
+   "line": 27,
+   "purpose": "Where the space of the app's Linux goes in six categories, and the safe cleanups (package downloads, Node and download caches, old temporary files and logs, old agent versions) with the space each frees.",
+   "reachedFrom": [
+    {
+     "page": "linux-manager",
+     "element": "linux-manager-storage"
+    }
+   ],
+   "gates": [
+    "in-app host only: ThisPhoneScreen shows the row when host.kind == PhoneHostKind.inApp and the host is installed"
+   ],
+   "elements": [
+    {
+     "id": "linux-storage-clean",
+     "type": "list-tile",
+     "label": "Clear <what>",
+     "key": "linux-clean-<id>",
+     "line": 294,
+     "action": "open-dialog",
+     "target": null,
+     "effect": "_clean: question naming what it clears and the size; LinuxManager.cleanup takes the installer slot, measures before and after and reports the freed space. Only allow-listed paths; never projects or sign-ins.",
+     "gates": [
+      "only cleanups with at least 1 KB to give back",
+      "refused while setup or a package job runs"
+     ],
+     "destructive": true,
+     "file": "lib/ui/screens/linux_manager/linux_storage_page.dart"
+    }
+   ]
+  },
+  {
+   "id": "linux-packages",
+   "title": "Packages",
+   "kind": "screen",
+   "file": "lib/ui/screens/linux_manager/linux_packages_page.dart",
+   "widget": "LinuxPackagesPage",
+   "presentedBy": [],
+   "line": 28,
+   "purpose": "Installed Ubuntu packages (searchable), install by name, remove with what else would go, and Update system; all long work is the background package job.",
+   "reachedFrom": [
+    {
+     "page": "linux-manager",
+     "element": "linux-manager-packages"
+    }
+   ],
+   "gates": [
+    "in-app host only: ThisPhoneScreen shows the row when host.kind == PhoneHostKind.inApp and the host is installed"
+   ],
+   "elements": [
+    {
+     "id": "linux-packages-install",
+     "type": "list-tile",
+     "label": "Install a package",
+     "key": "linux-pkg-install",
+     "line": 390,
+     "action": "open-dialog",
+     "target": null,
+     "effect": "_install: name dialog (validated, checked with apt), then a question, then the linux-job service.",
+     "gates": [
+      "no package job running"
+     ],
+     "destructive": false,
+     "file": "lib/ui/screens/linux_manager/linux_packages_page.dart"
+    },
+    {
+     "id": "linux-packages-update",
+     "type": "list-tile",
+     "label": "Update system",
+     "key": "linux-pkg-update",
+     "line": 400,
+     "action": "open-dialog",
+     "target": null,
+     "effect": "_update: question, then the linux-job service runs apt update and upgrade (45 minute budget).",
+     "gates": [
+      "no package job running"
+     ],
+     "destructive": false,
+     "file": "lib/ui/screens/linux_manager/linux_packages_page.dart"
+    },
+    {
+     "id": "linux-packages-row",
+     "type": "list-tile",
+     "label": "Package row",
+     "key": "linux-pkg-<name>",
+     "line": 473,
+     "action": "open-sheet",
+     "target": null,
+     "effect": "Details sheet with Remove.",
+     "gates": [],
+     "destructive": false,
+     "file": "lib/ui/screens/linux_manager/linux_packages_page.dart"
+    },
+    {
+     "id": "linux-packages-remove",
+     "type": "menu-item",
+     "label": "Remove <package>",
+     "key": "linux-pkg-remove-<name>",
+     "line": 491,
+     "action": "open-dialog",
+     "target": null,
+     "effect": "_remove: asks apt what else would go, refuses when that includes something Linux needs, confirms, then runs the job.",
+     "gates": [
+      "not essential, required or setup-owned packages",
+      "no package job running"
+     ],
+     "destructive": true,
+     "file": "lib/ui/screens/linux_manager/linux_packages_page.dart"
+    },
+    {
+     "id": "linux-packages-search",
+     "type": "text-field",
+     "label": "Search installed packages",
+     "key": null,
+     "line": 418,
+     "action": "other",
+     "target": null,
+     "effect": "Filters the installed list by name.",
+     "gates": [],
+     "destructive": false,
+     "file": "lib/ui/screens/linux_manager/linux_packages_page.dart"
+    }
+   ]
+  }
+ ],
+ "notPages": [
+  {
+   "file": "lib/ui/screens/linux_manager/linux_manager_common.dart",
+   "reason": "shared helpers and the package job panel (LinuxJobPanel) shown on the hub and Packages; its Stop is listed on the hub page"
+  },
+  {
+   "file": "lib/ui/screens/linux_manager/linux_reset.dart",
+   "reason": "the Reset Linux question and flow, listed as the Reset row on the hub page"
+  }
+ ],
+ "notes": []
+}

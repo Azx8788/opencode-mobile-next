@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../api/server_probe.dart';
+import '../domain/server_probe.dart';
 import '../state/automation_policy.dart';
 import '../state/profiles.dart';
 import 'builtin_linux.dart';

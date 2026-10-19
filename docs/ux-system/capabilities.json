@@ -4,7 +4,6 @@
   "hosts": {
    "builtin": "built-in Ubuntu inside the app on this phone",
    "termux": "Termux on this phone",
-   "oc1Computer": "OpenCode 1 on a computer",
    "oc2Computer": "OpenCode 2 on a computer",
    "codex": "Codex app-server on a computer",
    "paseo": "Paseo daemon (Claude Code, Pi) — on a computer, or on the phone via Termux",
@@ -40,11 +39,6 @@
      "note": "Termux-managed server at 127.0.0.1:4096",
      "evidence": "lib/termux/bridge.dart:54-55"
     },
-    "oc1Computer": {
-     "status": "supported",
-     "note": "address + password, or found on the network",
-     "evidence": "lib/ui/screens/servers_screen.dart:3000-3020"
-    },
     "oc2Computer": {
      "status": "supported",
      "note": "pairing QR/code from `opencode2 pair`, or address",
@@ -68,64 +62,18 @@
    }
   },
   {
-   "capability": "server.oc1",
-   "kind": "taxonomy",
-   "hosts": {
-    "builtin": {
-     "status": "supported",
-     "note": "default runtime of setup v2 (`runtime=opencode1`)",
-     "evidence": "lib/builtin/setup/components.dart:15-31"
-    },
-    "termux": {
-     "status": "supported",
-     "note": "default managed runtime",
-     "evidence": "lib/termux/opencode_ubuntu_setup.dart:37-39"
-    },
-    "oc1Computer": {
-     "status": "supported",
-     "note": "",
-     "evidence": "lib/api/opencode_api.dart:40 (ServerCapabilities.allV1, server_gateway.dart:977)"
-    },
-    "oc2Computer": {
-     "status": "partly",
-     "note": "the same computer can run OpenCode 1 beside it as a second saved server; the app does not install it there",
-     "evidence": "lib/l10n/app_en.arb:17969"
-    },
-    "codex": {
-     "status": "not",
-     "note": "different product; add an OpenCode server as another profile",
-     "evidence": "lib/codex/gateway.dart:14-69"
-    },
-    "paseo": {
-     "status": "not",
-     "note": "Paseo drives Claude Code/Pi/Codex, not OpenCode",
-     "evidence": "lib/paseo/gateway.dart:19-73 (header l.1-7)"
-    },
-    "demo": {
-     "status": "not",
-     "note": "demo gateway is its own narrowed set",
-     "evidence": "lib/demo/demo_gateway.dart:65-92"
-    }
-   }
-  },
-  {
    "capability": "server.oc2",
    "kind": "taxonomy",
    "hosts": {
     "builtin": {
      "status": "supported",
-     "note": "'Switch to OpenCode 2' re-runs the opencode component with runtime=opencode2; both stay installed side by side (/opt/oc2)",
-     "evidence": "lib/ui/widgets/phone_server_card.dart:183-196; lib/termux/opencode_ubuntu_setup.dart:54-64"
+     "note": "The only supported OpenCode runtime. Legacy managed servers upgrade automatically with history preserved.",
+     "evidence": "lib/state/connection/lifecycle.dart; lib/domain/opencode_history_copy.dart"
     },
     "termux": {
      "status": "supported",
-     "note": "switch-runtime sheet on the Termux page",
-     "evidence": "lib/ui/screens/termux_setup_screen.dart (termux-setup-switch-runtime-sheet)"
-    },
-    "oc1Computer": {
-     "status": "partly",
-     "note": "install OpenCode 2 on the computer yourself, then pair it as a second server",
-     "evidence": "lib/api2/gateway_mappers.dart:34-72"
+     "note": "The only supported OpenCode runtime. Legacy managed servers upgrade automatically with history preserved.",
+     "evidence": "lib/state/connection/lifecycle.dart; lib/domain/opencode_history_copy.dart"
     },
     "oc2Computer": {
      "status": "supported",
@@ -163,11 +111,6 @@
      "note": "no Codex path in the Termux manager",
      "evidence": "lib/termux/local_agent_runtime.dart:1-24 (Claude Code only)"
     },
-    "oc1Computer": {
-     "status": "partly",
-     "note": "same computer can also run `codex app-server`; add it as a Codex server",
-     "evidence": "lib/ui/screens/servers_screen.dart:3026-3031"
-    },
     "oc2Computer": {
      "status": "partly",
      "note": "as above",
@@ -203,11 +146,6 @@
      "status": "supported",
      "note": "'Claude Code on this phone' installs Node, Paseo 0.9.1 and Claude Code into Termux's Ubuntu",
      "evidence": "lib/termux/local_agent_runtime.dart:12; lib/termux/bridge.dart:3184-3190"
-    },
-    "oc1Computer": {
-     "status": "partly",
-     "note": "install the Paseo daemon on the same computer, then add it ('They run side by side')",
-     "evidence": "lib/l10n/app_en.arb:17969"
     },
     "oc2Computer": {
      "status": "partly",
@@ -245,11 +183,6 @@
      "note": "both can live on one phone (ports 4096 vs 4097; teams 8372 vs 8472); projects do not move between them",
      "evidence": "lib/builtin/team/builtin_team.dart:52-54; lib/termux/bridge.dart:54"
     },
-    "oc1Computer": {
-     "status": "n/a",
-     "note": "About this phone, not the connected server: present or not whichever server is open. Android only (desktop build: no).",
-     "evidence": "lib/platform/platform_capabilities.dart:59; lib/builtin/builtin_linux.dart:140"
-    },
     "oc2Computer": {
      "status": "n/a",
      "note": "About this phone, not the connected server: present or not whichever server is open. Android only (desktop build: no).",
@@ -285,11 +218,6 @@
      "status": "supported",
      "note": "needs the F-Droid/GitHub Termux build and allow-external-apps",
      "evidence": "lib/l10n/app_en.arb:10546,10778; lib/termux/bridge.dart:444-445"
-    },
-    "oc1Computer": {
-     "status": "n/a",
-     "note": "About this phone, not the connected server: present or not whichever server is open. Android only (desktop build: no).",
-     "evidence": "lib/platform/platform_capabilities.dart:59; lib/builtin/builtin_linux.dart:140"
     },
     "oc2Computer": {
      "status": "n/a",
@@ -327,11 +255,6 @@
      "note": "",
      "evidence": "lib/platform/platform_capabilities.dart:59"
     },
-    "oc1Computer": {
-     "status": "n/a",
-     "note": "About this phone, not the connected server: present or not whichever server is open. Android only (desktop build: no).",
-     "evidence": "lib/platform/platform_capabilities.dart:59; lib/builtin/builtin_linux.dart:140"
-    },
     "oc2Computer": {
      "status": "n/a",
      "note": "About this phone, not the connected server: present or not whichever server is open. Android only (desktop build: no).",
@@ -367,11 +290,6 @@
      "status": "supported",
      "note": "same as builtin",
      "evidence": "lib/ui/screens/library/integrations_screen.dart"
-    },
-    "oc1Computer": {
-     "status": "supported",
-     "note": "provider auth + config fallback",
-     "evidence": "lib/api/opencode_api.dart:40 (ServerCapabilities.allV1, server_gateway.dart:977)"
     },
     "oc2Computer": {
      "status": "supported",
@@ -409,11 +327,6 @@
      "note": "64-bit phone and a build that carries the team manifest; otherwise the Work entry is hidden",
      "evidence": "lib/termux/team_runtime.dart:509-535; lib/ui/widgets/team_discover.dart:152-190"
     },
-    "oc1Computer": {
-     "status": "supported",
-     "note": "Gas City on the computer, found or entered by address",
-     "evidence": "lib/ui/screens/team/team_intro_screen.dart:251-268"
-    },
     "oc2Computer": {
      "status": "supported",
      "note": "same: the team is its own Gas City host attached to the profile",
@@ -449,11 +362,6 @@
      "status": "partly",
      "note": "arm64 (or x86_64 emulator) and a manifest; port 8372",
      "evidence": "lib/termux/team_runtime.dart:509-535"
-    },
-    "oc1Computer": {
-     "status": "not",
-     "note": "a phone team attaches only to this phone's own server",
-     "evidence": "lib/ui/widgets/builtin_team_section.dart:148-150; lib/ui/screens/settings/plugins_screen.dart:49-52"
     },
     "oc2Computer": {
      "status": "not",
@@ -491,11 +399,6 @@
      "note": "loopback supervisor on the phone",
      "evidence": "lib/termux/team_runtime.dart"
     },
-    "oc1Computer": {
-     "status": "partly",
-     "note": "writes only through a host front; without it the board is read-only and gates say 'Answer this on the host'",
-     "evidence": "docs/ux-system/map/all.json#team-board,gate-sheet"
-    },
     "oc2Computer": {
      "status": "partly",
      "note": "as above",
@@ -531,11 +434,6 @@
      "status": "supported",
      "note": "~60 MB download, ~1 GB installed, needs 2 GB free; sign-in in a Termux terminal",
      "evidence": "lib/l10n/app_en.arb:17701,17753"
-    },
-    "oc1Computer": {
-     "status": "n/a",
-     "note": "Claude Code on a computer is a Paseo server (server.paseo)",
-     "evidence": ""
     },
     "oc2Computer": {
      "status": "n/a",
@@ -573,11 +471,6 @@
      "note": "on-device dictation; independent of the server. Packs: Compact ~104 MB (1 GB RAM), Balanced ~160 MB (1.5 GB RAM), High accuracy ~375 MB (3.4 GB RAM); 30 s per recording",
      "evidence": "lib/voice/model_manifest.dart:63-145; lib/voice/model_manager.dart:162-168; lib/voice/audio.dart:11"
     },
-    "oc1Computer": {
-     "status": "supported",
-     "note": "on-device dictation; independent of the server. Packs: Compact ~104 MB (1 GB RAM), Balanced ~160 MB (1.5 GB RAM), High accuracy ~375 MB (3.4 GB RAM); 30 s per recording",
-     "evidence": "lib/voice/model_manifest.dart:63-145; lib/voice/model_manager.dart:162-168; lib/voice/audio.dart:11"
-    },
     "oc2Computer": {
      "status": "supported",
      "note": "on-device dictation; independent of the server. Packs: Compact ~104 MB (1 GB RAM), Balanced ~160 MB (1.5 GB RAM), High accuracy ~375 MB (3.4 GB RAM); 30 s per recording",
@@ -605,24 +498,19 @@
    "kind": "taxonomy",
    "hosts": {
     "builtin": {
-     "status": "supported",
-     "note": "follows the runtime: OpenCode 1 = saved config + OAuth; OpenCode 2 = runtime add/remove only. Local (command) servers run inside the phone's Linux and need Node or Python there",
-     "evidence": "lib/ui/screens/mcp_setup_screen.dart:43-70; lib/builtin/setup/components.dart:57-81"
+     "status": "partly",
+     "note": "OpenCode 2 only; uses the verified OC2 capability contract.",
+     "evidence": "lib/api2/gateway_mappers.dart; docs/qa/oc2-2.0.29-probe-2026-10-14/README.md"
     },
     "termux": {
-     "status": "supported",
-     "note": "same as builtin, inside Termux's Ubuntu",
-     "evidence": "lib/ui/screens/mcp_setup_screen.dart:43-70"
-    },
-    "oc1Computer": {
-     "status": "supported",
-     "note": "mcpConfigWrites + mcpOAuth (defaults)",
-     "evidence": "lib/domain/server_gateway.dart:943-944"
+     "status": "partly",
+     "note": "OpenCode 2 only; uses the verified OC2 capability contract.",
+     "evidence": "lib/api2/gateway_mappers.dart; docs/qa/oc2-2.0.29-probe-2026-10-14/README.md"
     },
     "oc2Computer": {
      "status": "partly",
-     "note": "runtime adds/removals only; not saved to config, no OAuth",
-     "evidence": "lib/api2/gateway_mappers.dart:40-43"
+     "note": "OpenCode 2 only; uses the verified OC2 capability contract.",
+     "evidence": "lib/api2/gateway_mappers.dart; docs/qa/oc2-2.0.29-probe-2026-10-14/README.md"
     },
     "codex": {
      "status": "not",
@@ -655,11 +543,6 @@
      "note": "create or browse via the Termux bridge",
      "evidence": "lib/ui/screens/project_folder_actions.dart"
     },
-    "oc1Computer": {
-     "status": "supported",
-     "note": "choose an existing folder by path; no create on remote servers",
-     "evidence": "docs/ux-system/map/all.json#project-folder-new-dialog"
-    },
     "oc2Computer": {
      "status": "supported",
      "note": "as OpenCode 1",
@@ -688,23 +571,18 @@
    "hosts": {
     "builtin": {
      "status": "supported",
-     "note": "Git is a required component; the team adds a phone-side origin when a project has none",
-     "evidence": "lib/builtin/setup/components.dart:45-56; lib/builtin/team/builtin_team.dart:20-22,57-60"
+     "note": "OpenCode 2 only; uses the verified OC2 capability contract.",
+     "evidence": "lib/api2/gateway_mappers.dart; docs/qa/oc2-2.0.29-probe-2026-10-14/README.md"
     },
     "termux": {
      "status": "supported",
-     "note": "Git installed by the managed setup",
-     "evidence": "lib/termux/opencode_ubuntu_setup.dart:32"
-    },
-    "oc1Computer": {
-     "status": "supported",
-     "note": "gitInit, worktree create/reset",
-     "evidence": "lib/api/opencode_api.dart:40 (ServerCapabilities.allV1, server_gateway.dart:977)"
+     "note": "OpenCode 2 only; uses the verified OC2 capability contract.",
+     "evidence": "lib/api2/gateway_mappers.dart; docs/qa/oc2-2.0.29-probe-2026-10-14/README.md"
     },
     "oc2Computer": {
-     "status": "partly",
-     "note": "gitInit, worktreeCreate, worktreeReset false",
-     "evidence": "lib/api2/gateway_mappers.dart:61-68"
+     "status": "supported",
+     "note": "OpenCode 2 only; uses the verified OC2 capability contract.",
+     "evidence": "lib/api2/gateway_mappers.dart; docs/qa/oc2-2.0.29-probe-2026-10-14/README.md"
     },
     "codex": {
      "status": "not",
@@ -733,11 +611,6 @@
      "evidence": "lib/platform/platform_capabilities.dart:82-86; android/app/src/main/AndroidManifest.xml:117-120"
     },
     "termux": {
-     "status": "supported",
-     "note": "Android permission; same on every host. Background watching of a computer uses the dataSync service (Android 15+: 6 h per 24 h)",
-     "evidence": "lib/platform/platform_capabilities.dart:82-86; android/app/src/main/AndroidManifest.xml:117-120"
-    },
-    "oc1Computer": {
      "status": "supported",
      "note": "Android permission; same on every host. Background watching of a computer uses the dataSync service (Android 15+: 6 h per 24 h)",
      "evidence": "lib/platform/platform_capabilities.dart:82-86; android/app/src/main/AndroidManifest.xml:117-120"
@@ -778,11 +651,6 @@
      "note": "Termux must also be exempted; Android may stop it in the background",
      "evidence": "lib/l10n/app_en.arb:20854"
     },
-    "oc1Computer": {
-     "status": "supported",
-     "note": "only for background watching (dataSync, 6 h/24 h on Android 15+)",
-     "evidence": "lib/l10n/app_en.arb:4512,4524"
-    },
     "oc2Computer": {
      "status": "supported",
      "note": "same",
@@ -819,11 +687,6 @@
      "note": "same",
      "evidence": ""
     },
-    "oc1Computer": {
-     "status": "partly",
-     "note": "photos; no QR pairing (address + password)",
-     "evidence": "lib/ui/screens/servers_screen.dart:3000-3020"
-    },
     "oc2Computer": {
      "status": "supported",
      "note": "QR pairing + photos",
@@ -856,11 +719,6 @@
      "evidence": "lib/platform/platform_capabilities.dart:68,77"
     },
     "termux": {
-     "status": "supported",
-     "note": "voice input is on the phone, whatever the server",
-     "evidence": "lib/platform/platform_capabilities.dart:68,77"
-    },
-    "oc1Computer": {
      "status": "supported",
      "note": "voice input is on the phone, whatever the server",
      "evidence": "lib/platform/platform_capabilities.dart:68,77"
@@ -901,11 +759,6 @@
      "note": "loopback",
      "evidence": "lib/termux/bridge.dart:54"
     },
-    "oc1Computer": {
-     "status": "supported",
-     "note": "optional at home, needed away from it; the app hands off to the Tailscale app and cannot check the tunnel",
-     "evidence": "lib/ui/screens/tailscale_setup_screen.dart:1-13"
-    },
     "oc2Computer": {
      "status": "supported",
      "note": "same",
@@ -942,11 +795,6 @@
      "note": "same",
      "evidence": ""
     },
-    "oc1Computer": {
-     "status": "partly",
-     "note": "'a separately installed, explicitly trusted deployment extension' at the server's origin; the app has no install path or guide",
-     "evidence": "lib/quota/provider_quota_client.dart:1-3"
-    },
     "oc2Computer": {
      "status": "partly",
      "note": "same",
@@ -979,11 +827,6 @@
      "evidence": "lib/a2a; lib/ui/screens/external_agents_screen.dart:41,139"
     },
     "termux": {
-     "status": "supported",
-     "note": "app-side A2A client (lib/a2a); needs only the agent card's URL to be reachable, independent of the connected server",
-     "evidence": "lib/a2a; lib/ui/screens/external_agents_screen.dart:41,139"
-    },
-    "oc1Computer": {
      "status": "supported",
      "note": "app-side A2A client (lib/a2a); needs only the agent card's URL to be reachable, independent of the connected server",
      "evidence": "lib/a2a; lib/ui/screens/external_agents_screen.dart:41,139"
@@ -1024,11 +867,6 @@
      "note": "follows the phone's runtime (OpenCode 1 or 2)",
      "evidence": "lib/builtin/setup/components.dart:15-31"
     },
-    "oc1Computer": {
-     "status": "supported",
-     "note": "",
-     "evidence": "lib/api/opencode_api.dart:40 (ServerCapabilities.allV1, server_gateway.dart:977)"
-    },
     "oc2Computer": {
      "status": "supported",
      "note": "",
@@ -1064,11 +902,6 @@
      "status": "supported",
      "note": "follows the phone's runtime (OpenCode 1 or 2)",
      "evidence": "lib/builtin/setup/components.dart:15-31"
-    },
-    "oc1Computer": {
-     "status": "supported",
-     "note": "",
-     "evidence": "lib/domain/server_gateway.dart:924 (terminal defaults true)"
     },
     "oc2Computer": {
      "status": "supported",
@@ -1106,11 +939,6 @@
      "note": "follows the phone's runtime (OpenCode 1 or 2)",
      "evidence": "lib/builtin/setup/components.dart:15-31"
     },
-    "oc1Computer": {
-     "status": "supported",
-     "note": "",
-     "evidence": "lib/api/opencode_api.dart:40 (ServerCapabilities.allV1, server_gateway.dart:977)"
-    },
     "oc2Computer": {
      "status": "supported",
      "note": "",
@@ -1147,11 +975,6 @@
      "note": "follows the phone's runtime (OpenCode 1 or 2)",
      "evidence": "lib/builtin/setup/components.dart:15-31"
     },
-    "oc1Computer": {
-     "status": "supported",
-     "note": "",
-     "evidence": "lib/api/opencode_api.dart:40 (ServerCapabilities.allV1, server_gateway.dart:977)"
-    },
     "oc2Computer": {
      "status": "supported",
      "note": "",
@@ -1179,24 +1002,19 @@
    "kind": "ServerCapabilities flag (derived, not a taxonomy id): the list of tools the server's agent can use (slice-R10: the Tools page gates on this, not on server.oc1)",
    "hosts": {
     "builtin": {
-     "status": "partly",
-     "note": "only while the phone runs OpenCode 1; OpenCode 2 does not list its tools",
-     "evidence": "lib/builtin/setup/components.dart:15-31; lib/api2/gateway_mappers.dart:56"
+     "status": "not",
+     "note": "OpenCode 2 only; uses the verified OC2 capability contract.",
+     "evidence": "lib/api2/gateway_mappers.dart; docs/qa/oc2-2.0.29-probe-2026-10-14/README.md"
     },
     "termux": {
-     "status": "partly",
-     "note": "same as builtin",
-     "evidence": "lib/api2/gateway_mappers.dart:56"
-    },
-    "oc1Computer": {
-     "status": "supported",
-     "note": "",
-     "evidence": "lib/domain/server_gateway.dart:959 (toolInventory defaults true)"
+     "status": "not",
+     "note": "OpenCode 2 only; uses the verified OC2 capability contract.",
+     "evidence": "lib/api2/gateway_mappers.dart; docs/qa/oc2-2.0.29-probe-2026-10-14/README.md"
     },
     "oc2Computer": {
      "status": "not",
-     "note": "OpenCode 2 has no tool list call",
-     "evidence": "lib/api2/gateway_mappers.dart:56"
+     "note": "OpenCode 2 only; uses the verified OC2 capability contract.",
+     "evidence": "lib/api2/gateway_mappers.dart; docs/qa/oc2-2.0.29-probe-2026-10-14/README.md"
     },
     "codex": {
      "status": "not",
@@ -1220,24 +1038,19 @@
    "kind": "ServerCapabilities flag (derived, not a taxonomy id): Usage › Spent",
    "hosts": {
     "builtin": {
-     "status": "partly",
-     "note": "only on OpenCode 2",
-     "evidence": "lib/ui/screens/usage_hub_screen.dart:44"
+     "status": "supported",
+     "note": "OpenCode 2 only; uses the verified OC2 capability contract.",
+     "evidence": "lib/api2/gateway_mappers.dart; docs/qa/oc2-2.0.29-probe-2026-10-14/README.md"
     },
     "termux": {
-     "status": "partly",
-     "note": "only on OpenCode 2",
-     "evidence": ""
-    },
-    "oc1Computer": {
-     "status": "not",
-     "note": "",
-     "evidence": "lib/ui/screens/usage_hub_screen.dart:44"
+     "status": "supported",
+     "note": "OpenCode 2 only; uses the verified OC2 capability contract.",
+     "evidence": "lib/api2/gateway_mappers.dart; docs/qa/oc2-2.0.29-probe-2026-10-14/README.md"
     },
     "oc2Computer": {
      "status": "supported",
-     "note": "UsageStatisticsGateway is OpenCode 2 only",
-     "evidence": "lib/ui/screens/usage_hub_screen.dart:44"
+     "note": "OpenCode 2 only; uses the verified OC2 capability contract.",
+     "evidence": "lib/api2/gateway_mappers.dart; docs/qa/oc2-2.0.29-probe-2026-10-14/README.md"
     },
     "codex": {
      "status": "partly",
@@ -1261,24 +1074,19 @@
    "kind": "ServerCapabilities flag (derived, not a taxonomy id): Staged revert, notes for the agent, forms, inbox",
    "hosts": {
     "builtin": {
-     "status": "partly",
-     "note": "OpenCode 2 runtime only",
-     "evidence": "lib/api2/gateway_mappers.dart:34-72"
+     "status": "supported",
+     "note": "OpenCode 2 only; uses the verified OC2 capability contract.",
+     "evidence": "lib/api2/gateway_mappers.dart; docs/qa/oc2-2.0.29-probe-2026-10-14/README.md"
     },
     "termux": {
-     "status": "partly",
-     "note": "OpenCode 2 runtime only",
-     "evidence": ""
-    },
-    "oc1Computer": {
-     "status": "not",
-     "note": "OpenCode 1 has plain revert and question dialogs instead",
-     "evidence": "lib/api/opencode_api.dart:40 (ServerCapabilities.allV1, server_gateway.dart:977)"
+     "status": "supported",
+     "note": "OpenCode 2 only; uses the verified OC2 capability contract.",
+     "evidence": "lib/api2/gateway_mappers.dart; docs/qa/oc2-2.0.29-probe-2026-10-14/README.md"
     },
     "oc2Computer": {
      "status": "supported",
-     "note": "",
-     "evidence": "lib/api2/gateway_mappers.dart:70-71"
+     "note": "OpenCode 2 only; uses the verified OC2 capability contract.",
+     "evidence": "lib/api2/gateway_mappers.dart; docs/qa/oc2-2.0.29-probe-2026-10-14/README.md"
     },
     "codex": {
      "status": "not",
@@ -1303,23 +1111,18 @@
    "hosts": {
     "builtin": {
      "status": "partly",
-     "note": "OpenCode 1 runtime only",
-     "evidence": "lib/api/opencode_api.dart:40 (ServerCapabilities.allV1, server_gateway.dart:977)"
+     "note": "OpenCode 2 only; uses the verified OC2 capability contract.",
+     "evidence": "lib/api2/gateway_mappers.dart; docs/qa/oc2-2.0.29-probe-2026-10-14/README.md"
     },
     "termux": {
      "status": "partly",
-     "note": "OpenCode 1 runtime only",
-     "evidence": ""
-    },
-    "oc1Computer": {
-     "status": "supported",
-     "note": "",
-     "evidence": "lib/api/opencode_api.dart:40 (ServerCapabilities.allV1, server_gateway.dart:977)"
+     "note": "OpenCode 2 only; uses the verified OC2 capability contract.",
+     "evidence": "lib/api2/gateway_mappers.dart; docs/qa/oc2-2.0.29-probe-2026-10-14/README.md"
     },
     "oc2Computer": {
-     "status": "not",
-     "note": "",
-     "evidence": "lib/api2/gateway_mappers.dart:35-50,67"
+     "status": "partly",
+     "note": "OpenCode 2 only; uses the verified OC2 capability contract.",
+     "evidence": "lib/api2/gateway_mappers.dart; docs/qa/oc2-2.0.29-probe-2026-10-14/README.md"
     },
     "codex": {
      "status": "not",
@@ -1343,24 +1146,19 @@
    "kind": "ServerCapabilities flag (derived, not a taxonomy id): Development services (start/stop/logs)",
    "hosts": {
     "builtin": {
-     "status": "partly",
-     "note": "OpenCode 2 runtime only",
-     "evidence": "lib/api2/gateway_mappers.dart:34-72"
+     "status": "supported",
+     "note": "OpenCode 2 only; uses the verified OC2 capability contract.",
+     "evidence": "lib/api2/gateway_mappers.dart; docs/qa/oc2-2.0.29-probe-2026-10-14/README.md"
     },
     "termux": {
-     "status": "partly",
-     "note": "OpenCode 2 runtime only",
-     "evidence": ""
-    },
-    "oc1Computer": {
-     "status": "not",
-     "note": "save-only paragraph",
-     "evidence": "lib/ui/screens/development_services_screen.dart:316"
+     "status": "supported",
+     "note": "OpenCode 2 only; uses the verified OC2 capability contract.",
+     "evidence": "lib/api2/gateway_mappers.dart; docs/qa/oc2-2.0.29-probe-2026-10-14/README.md"
     },
     "oc2Computer": {
      "status": "supported",
-     "note": "",
-     "evidence": "lib/api2/gateway_mappers.dart:35"
+     "note": "OpenCode 2 only; uses the verified OC2 capability contract.",
+     "evidence": "lib/api2/gateway_mappers.dart; docs/qa/oc2-2.0.29-probe-2026-10-14/README.md"
     },
     "codex": {
      "status": "not",
@@ -1384,24 +1182,19 @@
    "kind": "ServerCapabilities flag (derived, not a taxonomy id): Update the server from the app",
    "hosts": {
     "builtin": {
-     "status": "partly",
-     "note": "not through the server: 'Update OpenCode' re-runs the setup component",
-     "evidence": "lib/ui/widgets/phone_server_card.dart:196-208"
+     "status": "not",
+     "note": "OpenCode 2 only; uses the verified OC2 capability contract.",
+     "evidence": "lib/api2/gateway_mappers.dart; docs/qa/oc2-2.0.29-probe-2026-10-14/README.md"
     },
     "termux": {
-     "status": "partly",
-     "note": "Termux update sheet",
-     "evidence": ""
-    },
-    "oc1Computer": {
-     "status": "supported",
-     "note": "",
-     "evidence": "lib/api/opencode_api.dart:40 (ServerCapabilities.allV1, server_gateway.dart:977)"
+     "status": "not",
+     "note": "OpenCode 2 only; uses the verified OC2 capability contract.",
+     "evidence": "lib/api2/gateway_mappers.dart; docs/qa/oc2-2.0.29-probe-2026-10-14/README.md"
     },
     "oc2Computer": {
      "status": "not",
-     "note": "'Upgrade from the machine running the server'",
-     "evidence": "lib/ui/screens/settings/server_settings_screen.dart:283"
+     "note": "OpenCode 2 only; uses the verified OC2 capability contract.",
+     "evidence": "lib/api2/gateway_mappers.dart; docs/qa/oc2-2.0.29-probe-2026-10-14/README.md"
     },
     "codex": {
      "status": "not",
@@ -1433,11 +1226,6 @@
      "status": "supported",
      "note": "follows the phone's runtime (OpenCode 1 or 2)",
      "evidence": "lib/builtin/setup/components.dart:15-31"
-    },
-    "oc1Computer": {
-     "status": "supported",
-     "note": "",
-     "evidence": "lib/api/opencode_api.dart:40 (ServerCapabilities.allV1, server_gateway.dart:977)"
     },
     "oc2Computer": {
      "status": "supported",
@@ -1616,7 +1404,7 @@
     "cost": "none"
    },
    "steps": [
-    "Switch → progress screen with only the opencode component → server restarts on the other runtime and reconnects (setup_finish.dart)"
+    "Set up OpenCode 2 on the selected host. Existing managed OpenCode 1 servers move automatically while preserving the original data; a failed move presents recovery."
    ],
    "limitations": [
     "OC2 loses: session share, worktree create/reset, Git init, LSP/formatter status, message delete, todos (gateway_mappers.dart:35-67)",
@@ -2005,7 +1793,7 @@
     "cost": "none"
    },
    "steps": [
-    "OC1: Initialize Git (project-health)",
+    "OpenCode 2: Initialize Git (project-health)",
     "Phone: team turn-on adds an origin"
    ],
    "limitations": [

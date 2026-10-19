@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 
+import 'kit_layout.dart';
 import 'kit_status_line.dart';
 import 'motion/kit_reveal.dart';
 
@@ -134,7 +135,12 @@ class _KitStatusLineSlotState extends State<KitStatusLineSlot> {
       child: ValueListenableBuilder<List<KitStatus>>(
         valueListenable: conditions,
         builder: (context, appWide, _) {
-          final shown = KitStatus.highest([
+          // A phone on its side has no height to give a connection line, its
+          // supporting words and an action row: the condition stays, as one
+          // line with its ways out under More, and what the page waits on
+          // (a request card) keeps the room.
+          final short = KitLayout.isShort(context);
+          final top = KitStatus.highest([
             for (final condition in appWide)
               if (widget.omit.contains(condition.kind))
                 null
@@ -146,6 +152,9 @@ class _KitStatusLineSlotState extends State<KitStatusLineSlot> {
             for (final contribution in _contributions)
               if (contribution.active) contribution.widget.status,
           ]);
+          final shown = short && top?.kind == KitStatusKind.connection
+              ? top?.compact()
+              : top;
           return KitReveal(
             child: shown == null
                 ? null

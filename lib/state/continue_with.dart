@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import '../api/models.dart';
+import '../domain/models.dart';
 import '../domain/agent_handoff.dart';
 import 'agent_handoff_controller.dart';
 import 'agent_handoff_links.dart';

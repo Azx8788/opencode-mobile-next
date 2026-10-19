@@ -88,7 +88,7 @@ ServerProfile _profile({String id = 'builtin', ServerFlavor? flavor}) =>
         id: id,
         name: 'In-app Ubuntu',
         baseUrl: BuiltinLinux.serverUrl,
-        flavor: flavor ?? ServerFlavor.v1,
+        flavor: flavor ?? ServerFlavor.v2,
       )
       ..username = BuiltinLinux.serverUsername
       ..password = 'basic-fixture-password';
@@ -298,20 +298,6 @@ void main() {
       expect(
         script.indexOf('/root/.oc-opencode2/data/opencode/auth.json'),
         lessThan(script.indexOf('/root/.local/share/opencode/auth.json')),
-      );
-    });
-
-    test('an existing OC1 profile keeps its own auth directory first', () {
-      final legacy = _profile(flavor: ServerFlavor.v1);
-      final collector = host();
-      expect(collector.authCandidates(legacy), [
-        InAppQuotaCollector.openCode1AuthPath,
-        InAppQuotaCollector.openCode2AuthPath,
-      ]);
-      final script = collector.serviceScript(legacy);
-      expect(
-        script.indexOf(InAppQuotaCollector.openCode1AuthPath),
-        lessThan(script.indexOf(InAppQuotaCollector.openCode2AuthPath)),
       );
     });
 

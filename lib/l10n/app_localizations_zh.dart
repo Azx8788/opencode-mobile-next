@@ -195,12 +195,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get modelSelectionSaving => '正在保存对话的选择…';
 
   @override
-  String get modelUnavailableSelection =>
-      'The conversation\'s model is unavailable in this catalog. Refresh models or choose another.';
+  String get modelUnavailableSelection => '此对话的模型在该目录中不可用。请刷新模型或选择其他模型。';
 
   @override
-  String get modelScopeChanged =>
-      'The server changed. Reopen the model selector to continue.';
+  String get modelScopeChanged => '服务器已更改。请重新打开模型选择器后继续。';
 
   @override
   String get commonClearSearch => 'Clear search';
@@ -209,7 +207,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get workTitle => 'Tasks';
 
   @override
-  String get workRefresh => 'Refresh';
+  String get workRefresh => '刷新';
 
   @override
   String get workRetry => 'Try again';
@@ -295,8 +293,7 @@ class AppLocalizationsZh extends AppLocalizations {
       'Reconnecting. Output will refresh when the server is available.';
 
   @override
-  String get workContextChanged =>
-      'The server or project changed. Close this view and reopen Running work.';
+  String get workContextChanged => '服务器或项目已更改。请关闭此视图并重新打开“运行中的任务”。';
 
   @override
   String workCount(int count) {
@@ -320,7 +317,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get composerClearTextSubtitle => '保留附件 · 可撤销';
 
   @override
-  String get composerDraftCleared => 'Draft text cleared';
+  String get composerDraftCleared => '草稿文字已清除';
 
   @override
   String get composerReuseTitle => '重用提示词';
@@ -329,10 +326,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get queueSaveFailed => '无法将排队的草稿保存到本设备。你的文字仍在这里。请检查可用存储空间后重试。';
 
   @override
-  String get fileSave => 'Save';
+  String get fileSave => '保存';
 
   @override
-  String get fileReload => 'Refresh';
+  String get fileReload => '刷新';
 
   @override
   String get queueRemoveFailed => '无法从设备存储中移除这份草稿，它仍在排队。请检查可用存储空间后重试。';
@@ -350,50 +347,46 @@ class AppLocalizationsZh extends AppLocalizations {
   String get backgroundWorkTitle => 'Move running work to background';
 
   @override
-  String get backgroundWorkShortcut =>
-      'Continue this work while you use the conversation · Ctrl+B';
+  String get backgroundWorkShortcut => '在使用对话的同时继续此任务 · Ctrl+B';
 
   @override
-  String get backgroundWorkNoop => 'No foreground subagents to background.';
+  String get backgroundWorkNoop => '没有可转入后台的前台子智能体。';
 
   @override
-  String get backgroundWorkPromoted =>
-      'Subagents are continuing in the background.';
+  String get backgroundWorkPromoted => '子智能体正在后台继续运行。';
 
   @override
   String get libraryNoModel => 'No model selected';
 
   @override
   String get chatAttachmentUnsupported =>
-      'Images, PDFs, text files, and Excel or Word files (.xlsx, .docx) can be attached.';
+      '可附加图片、PDF、文本文件以及 Excel 或 Word 文件（.xlsx、.docx）。';
 
   @override
-  String get termuxRestartTitle => 'Restart the local server?';
+  String get termuxRestartTitle => '重启本地服务器？';
 
   @override
-  String get termuxRestartMessage =>
-      'OpenCode will be briefly unavailable. The app will keep your current project and reconnect automatically.';
+  String get termuxRestartMessage => 'OpenCode 会短暂不可用。应用会保留你当前的项目并自动重新连接。';
 
   @override
   String termuxRestartBusyMessage(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          '$count conversations are generating. Restarting will interrupt them.',
-      one: '1 conversation is generating. Restarting will interrupt it.',
+      other: '有 $count 个对话正在生成。重启会中断它们。',
+      one: '有 1 个对话正在生成。重启会中断它。',
     );
     return '$_temp0';
   }
 
   @override
-  String get termuxRestartConfirm => 'Restart';
+  String get termuxRestartConfirm => '重启';
 
   @override
-  String get chatCopyCompleteReply => 'Copy complete reply';
+  String get chatCopyCompleteReply => '复制完整回复';
 
   @override
-  String get chatCopyReplySoFar => 'Copy reply so far';
+  String get chatCopyReplySoFar => '复制目前的回复';
 
   @override
   String commandRunTitle(String command) {
@@ -401,7 +394,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get commandDestination => 'Conversation';
+  String get commandDestination => '对话';
 
   @override
   String get commandNewChat => 'New conversation';
@@ -416,20 +409,20 @@ class AppLocalizationsZh extends AppLocalizations {
   String get commandRun => 'Run';
 
   @override
-  String get commandRunning => 'Starting…';
+  String get commandRunning => '正在启动…';
 
   @override
   String get commandLocationChanged =>
       'The server or project changed. Close this dialog and open the command again.';
 
   @override
-  String get refreshFailed => 'Couldn’t refresh';
+  String get refreshFailed => '无法刷新';
 
   @override
   String get refreshRetry => '重试';
 
   @override
-  String get filesProjectRoot => 'Project root';
+  String get filesProjectRoot => '项目根目录';
 
   @override
   String get globalSessionsLoadMore => 'Load more conversations';
@@ -447,28 +440,25 @@ class AppLocalizationsZh extends AppLocalizations {
   String get workspaceRetryProjects => 'Try again';
 
   @override
-  String get historyLoadOlder => 'Load older messages';
+  String get historyLoadOlder => '加载更早的消息';
 
   @override
-  String get historyReload => 'Refresh recent history';
+  String get historyReload => '刷新最近的历史记录';
 
   @override
-  String get historyCursorExpired =>
-      'Older history changed or expired. Refresh recent history to continue.';
+  String get historyCursorExpired => '较早的历史记录已变更或过期。请刷新最近的历史记录后继续。';
 
   @override
-  String get historyRefreshed =>
-      'History refreshed. Older messages remain available above.';
+  String get historyRefreshed => '历史记录已刷新。更早的消息仍可在上方查看。';
 
   @override
-  String get historyLoadedOnly =>
-      'Only loaded messages are included. Load older history to include more.';
+  String get historyLoadedOnly => '仅包含已加载的消息。加载更早的历史记录可包含更多。';
 
   @override
   String get historyLoadedTotals => 'Usage and loaded history';
 
   @override
-  String get historyCopyLoadedReply => 'Copy loaded reply';
+  String get historyCopyLoadedReply => '复制已加载的回复';
 
   @override
   String get historyLoadedMessages => 'Loaded messages';
@@ -512,7 +502,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get revertReview => '查看';
 
   @override
-  String get revertFromHere => 'Undo from here';
+  String get revertFromHere => '从此处撤销';
 
   @override
   String get revertUndoDescription =>
@@ -533,8 +523,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get revertAttachmentPrompt => 'Attachment-only prompt';
 
   @override
-  String get revertResolveBeforeSending =>
-      'Review the staged revert, then clear it or make it permanent before sending. Your draft is kept.';
+  String get revertResolveBeforeSending => '发送前请查看已暂存的撤销，并将其清除或设为永久。你的草稿会保留。';
 
   @override
   String get sessionNoteTitle => 'Note for the agent';
@@ -554,20 +543,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sessionNoteRemove => 'Delete saved note';
 
   @override
-  String get sessionNoteSaved => 'Note saved';
+  String get sessionNoteSaved => '笔记已保存';
 
   @override
-  String get sessionNoteRemoved => 'Note deleted';
+  String get sessionNoteRemoved => '备注已删除';
 
   @override
-  String get sessionNotePending => 'Applies at the next agent step.';
+  String get sessionNotePending => '将在智能体的下一步生效。';
 
   @override
-  String get sessionInstructionsUpdated => 'Instructions updated';
+  String get sessionInstructionsUpdated => '指令已更新';
 
   @override
-  String get sessionInstructionsApplied =>
-      'The agent\'s conversation instructions have been updated for this step.';
+  String get sessionInstructionsApplied => '已为此步骤更新智能体的对话指令。';
 
   @override
   String get sessionNoteUnsupported =>
@@ -697,7 +685,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get usageSubagents => 'Subagent conversations';
 
   @override
-  String get usagePrompts => 'Prompts';
+  String get usagePrompts => '提示词';
 
   @override
   String get usageSteps => 'Agent steps';
@@ -842,7 +830,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sessionUnread => 'Unread result';
 
   @override
-  String get shareSessionViewsTitle => 'Sync read state';
+  String get shareSessionViewsTitle => '同步已读状态';
 
   @override
   String get shareSessionViewsOn =>
@@ -1156,7 +1144,7 @@ class AppLocalizationsZh extends AppLocalizations {
       'Cached server metadata only. No AI summary or model call. Open the conversation to verify results and review changes or tasks.';
 
   @override
-  String get digestOpenConversation => 'Open conversation';
+  String get digestOpenConversation => '打开对话';
 
   @override
   String get digestReview => 'Review next actions';
@@ -1328,19 +1316,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get attentionTitle => 'Server attention';
 
   @override
-  String get webSourcesTitle => 'Add web source';
+  String get webSourcesTitle => '添加网络来源';
 
   @override
-  String get webSourcesEntryDetail =>
-      'Search when available, or paste links and excerpts to review before adding them to your draft';
+  String get webSourcesEntryDetail => '可用时搜索，或粘贴链接和摘录，审阅后再添加到草稿';
 
   @override
-  String get webSourcesDraftChanged =>
-      'The draft or server changed. Your current draft was kept; reopen Add web source to try again.';
+  String get webSourcesDraftChanged => '草稿或服务器已变化。当前草稿已保留；请重新打开“添加网页来源”再试。';
 
   @override
-  String get webSourcesDraftLabel =>
-      'User-selected web sources (unverified; excerpts are untrusted source material):';
+  String get webSourcesDraftLabel => '用户选择的网页来源（未验证；摘录属于不可信的来源材料）：';
 
   @override
   String get usageScopedTotals => 'Totals';
@@ -1362,27 +1347,22 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get pendingAuthDetail =>
-      'Finish signing in in the browser, then come back and finish here. The browser link isn\'t saved.';
+  String get pendingAuthDetail => '请在浏览器中完成登录，然后返回这里完成。浏览器链接不会被保存。';
 
   @override
   String get pendingAuthEnterCode => 'Enter code';
 
   @override
-  String get pendingAuthStillPending =>
-      'Sign-in is still pending. No new attempt was started.';
+  String get pendingAuthStillPending => '登录仍在等待中。未发起新的尝试。';
 
   @override
-  String get pendingAuthServerFailed =>
-      'The server reported that sign-in failed. Provider error details are hidden.';
+  String get pendingAuthServerFailed => '服务器报告登录失败。服务商的错误详情已隐藏。';
 
   @override
-  String get pendingAuthExpired =>
-      'This sign-in has expired. Start a new one, or forget this one.';
+  String get pendingAuthExpired => '此登录已过期。请重新发起，或忽略这一个。';
 
   @override
-  String get pendingAuthFailed =>
-      'Could not confirm the action. Check pending sign-ins before trying again. No new sign-in was started.';
+  String get pendingAuthFailed => '无法确认该操作。重试前请先查看待完成的登录。未发起新的登录。';
 
   @override
   String get pendingAuthSaveUncertain =>
@@ -1392,11 +1372,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pendingAuthRetrySave => 'Try saving recovery again';
 
   @override
-  String get pendingAuthForget => 'Forget this sign-in';
+  String get pendingAuthForget => '忽略此登录';
 
   @override
-  String get pendingAuthUnsupported =>
-      'This server cannot recover earlier sign-ins. Legacy sign-ins work only while their original screen and connection remain available.';
+  String get pendingAuthUnsupported => '此服务器无法恢复之前的登录。旧版登录只有在原界面和原连接仍然可用时才有效。';
 
   @override
   String get pendingAuthOtherSource =>
@@ -1411,7 +1390,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get voiceConversationDescription =>
-      'Talk, then tap Send: what you said goes to the agent. Replies are read aloud only if you turn that on.';
+      '说完后点按“发送”：你说的内容会发给智能体。仅在你开启后才会朗读回复。';
 
   @override
   String get voiceConversationReplyReviewNeeded =>
@@ -1438,12 +1417,10 @@ class AppLocalizationsZh extends AppLocalizations {
       'Send, save, or clear your current draft before starting voice conversation.';
 
   @override
-  String get voiceConversationCommandsOnly =>
-      'Use the typed composer for slash commands.';
+  String get voiceConversationCommandsOnly => '斜杠命令请使用文字输入框。';
 
   @override
-  String get voiceInputUnavailable =>
-      'Voice input is unavailable. Check the local model and microphone settings.';
+  String get voiceInputUnavailable => '语音输入不可用。请检查本地模型和麦克风设置。';
 
   @override
   String get desktopDropFailedTitle => 'Could not attach dropped files';
@@ -1460,8 +1437,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get commandAuthStart => 'Start server sign-in';
 
   @override
-  String get commandAuthPending =>
-      'Signing in on the server… Finish any steps it asks for there. Closing this doesn\'t stop it.';
+  String get commandAuthPending => '正在服务器上登录…请在那里完成它要求的步骤。关闭此处不会中止登录。';
 
   @override
   String get commandAuthCancel => 'Cancel sign-in';
@@ -1484,13 +1460,13 @@ class AppLocalizationsZh extends AppLocalizations {
       'The server may have started signing in. Check on the server before you try again.';
 
   @override
-  String get readAloudAction => 'Read reply prose';
+  String get readAloudAction => '朗读回复正文';
 
   @override
-  String get readAloudStop => 'Stop reading aloud';
+  String get readAloudStop => '停止朗读';
 
   @override
-  String get readAloudOtherVoice => 'Read with another voice';
+  String get readAloudOtherVoice => '用其他声音朗读';
 
   @override
   String get readAloudChooseVoice => 'Choose a reading voice';
@@ -1530,58 +1506,50 @@ class AppLocalizationsZh extends AppLocalizations {
       'There is no reply prose to read. Code and tool details are not spoken.';
 
   @override
-  String get credentialMetadataOnly => 'Keys stay on your server.';
+  String get credentialMetadataOnly => '密钥仅保留在你的服务器上。';
 
   @override
-  String get credentialActiveUpdated =>
-      'Active account updated from the server.';
+  String get credentialActiveUpdated => '已从服务器更新当前账号。';
 
   @override
-  String get credentialSwitchRequested =>
-      'Switch requested. This request has not yet been confirmed by a server event.';
+  String get credentialSwitchRequested => '已请求切换。服务器事件尚未确认此请求。';
 
   @override
-  String get credentialActive => 'Active';
+  String get credentialActive => '使用中';
 
   @override
-  String get credentialRename => 'Rename account';
+  String get credentialRename => '重命名账号';
 
   @override
-  String get credentialLabel => 'Account label';
+  String get credentialLabel => '账号标签';
 
   @override
-  String get credentialSave => 'Save label';
+  String get credentialSave => '保存标签';
 
   @override
-  String get credentialScopeChanged =>
-      'The server or project changed. Close and reopen account management before making changes.';
+  String get credentialScopeChanged => '服务器或项目已更改。请关闭并重新打开账号管理后再进行更改。';
 
   @override
-  String get credentialProviderMissing =>
-      'This provider is no longer in the server\'s integration list.';
+  String get credentialProviderMissing => '此服务商已不在服务器的集成列表中。';
 
   @override
-  String get credentialLoadFailed =>
-      'Could not refresh saved accounts. Try again.';
+  String get credentialLoadFailed => '无法刷新已保存的账号。请重试。';
 
   @override
-  String get credentialMutationFailed =>
-      'Could not confirm the account change. Refresh before retrying; the server may already have applied it.';
+  String get credentialMutationFailed => '无法确认账号变更。请先刷新再重试；服务器可能已经应用了该变更。';
 
   @override
-  String get credentialRefresh => 'Refresh accounts';
+  String get credentialRefresh => '刷新账号';
 
   @override
-  String get credentialEmpty =>
-      'No saved accounts were reported for this provider.';
+  String get credentialEmpty => '此服务商没有已保存的账号。';
 
   @override
-  String get credentialEnvironment =>
-      'Managed by the server environment. It cannot be removed here.';
+  String get credentialEnvironment => '由服务器环境管理，无法在此移除。';
 
   @override
   String credentialUnnamed(int index) {
-    return 'Saved account $index';
+    return '已保存的账号 $index';
   }
 
   @override
@@ -1598,7 +1566,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get mcpRetryReconnect => 'Try reconnecting again';
 
   @override
-  String get mcpReconnecting => 'Reconnecting';
+  String get mcpReconnecting => '正在重新连接';
 
   @override
   String get mcpStillDisconnected =>
@@ -1645,37 +1613,36 @@ class AppLocalizationsZh extends AppLocalizations {
       'The server or project changed. Close and reopen Saved prompts.';
 
   @override
-  String get transcriptFindHint => 'Search conversation';
+  String get transcriptFindHint => '搜索对话';
 
   @override
-  String get transcriptFindClose => 'Close search';
+  String get transcriptFindClose => '关闭搜索';
 
   @override
-  String get transcriptFindPrevious => 'Previous match';
+  String get transcriptFindPrevious => '上一个匹配项';
 
   @override
-  String get transcriptFindNext => 'Next match';
+  String get transcriptFindNext => '下一个匹配项';
 
   @override
-  String get transcriptFindNone => 'No matches';
+  String get transcriptFindNone => '无匹配项';
 
   @override
   String transcriptFindCount(int current, int total) {
     String _temp0 = intl.Intl.pluralLogic(
       total,
       locale: localeName,
-      other: '$current of $total matches',
-      one: '1 match',
+      other: '第 $current / 共 $total 个匹配项',
+      one: '1 个匹配项',
     );
     return '$_temp0';
   }
 
   @override
-  String get transcriptFindPartial =>
-      'Loaded messages only. Load older messages to search further.';
+  String get transcriptFindPartial => '仅限已加载的消息。加载更早的消息可扩大搜索范围。';
 
   @override
-  String get transcriptFindReasoning => 'Reasoning';
+  String get transcriptFindReasoning => '推理';
 
   @override
   String get transcriptFindTool => 'Tool data';
@@ -1684,7 +1651,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get transcriptFindFile => 'File name';
 
   @override
-  String get transcriptFindAll => 'Search all history';
+  String get transcriptFindAll => '搜索全部历史记录';
 
   @override
   String get skillUse => 'Add to conversation';
@@ -1721,7 +1688,7 @@ class AppLocalizationsZh extends AppLocalizations {
       'The server did not confirm the result. The skill may have been added. Close this sheet and check the conversation before trying again.';
 
   @override
-  String get skillApplied => 'Skill added to this conversation.';
+  String get skillApplied => '已将技能添加到此对话。';
 
   @override
   String get skillAppliedOriginal =>
@@ -1813,22 +1780,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get activeContextTruncated => 'Output truncated by the server';
 
   @override
-  String get draftSaveFailed => 'Draft not saved. Copy your text or retry.';
+  String get draftSaveFailed => '草稿未保存。请复制文字或重试。';
 
   @override
-  String get draftStorageFull =>
-      'Draft storage is full. Copy your text before leaving.';
+  String get draftStorageFull => '草稿存储空间已满。请先复制你的文字再离开。';
 
   @override
-  String get draftProfileRemoved =>
-      'The original server was removed. Copy your draft to keep it.';
+  String get draftProfileRemoved => '原服务器已被移除。请复制你的草稿以保留。';
 
   @override
   String get draftRetrySave => '重试保存草稿';
 
   @override
-  String get draftClearFailed =>
-      'Could not clear the saved draft. Retry before leaving.';
+  String get draftClearFailed => '无法清除已保存的草稿。请先重试再离开。';
 
   @override
   String activeContextTypeCount(String type, int count) {
@@ -1841,17 +1805,16 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get draftLeaveTitle => 'Your draft isn\'t saved';
+  String get draftLeaveTitle => '你的草稿尚未保存';
 
   @override
-  String get draftLeaveMessage =>
-      'Copy your text to keep it, or try saving again. If you leave without saving, your latest changes may be lost.';
+  String get draftLeaveMessage => '复制你的文字以保留，或再次尝试保存。如果不保存就离开，最近的修改可能会丢失。';
 
   @override
-  String get draftLeaveAction => 'Leave without saving';
+  String get draftLeaveAction => '不保存并离开';
 
   @override
-  String get draftKeepEditing => 'Keep editing';
+  String get draftKeepEditing => '继续编辑';
 
   @override
   String get draftUnsaved => '未保存';
@@ -1860,22 +1823,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get draftAttachmentsLocal => '附件会随这份草稿一起保存在本设备上。';
 
   @override
-  String get draftAttachmentsFailed =>
-      'Attachments need recovery or could not be saved. Retry before sending.';
+  String get draftAttachmentsFailed => '附件需要恢复或无法保存。请先重试再发送。';
 
   @override
-  String get draftAttachmentRecoveryTitle => 'Some attachments need attention';
+  String get draftAttachmentRecoveryTitle => '部分附件需要处理';
 
   @override
   String draftAttachmentRecoveryDetail(String names) {
-    return 'These saved attachments are missing, unreadable, or belong to another project: $names. Use the available attachments and remove these from the draft, or keep the saved draft and retry later.';
+    return '这些已保存的附件缺失、无法读取或属于其他项目：$names。你可以使用可用的附件并从草稿中移除这些，或保留已保存的草稿，稍后重试。';
   }
 
   @override
-  String get draftUseAvailableAttachments => 'Use available attachments';
+  String get draftUseAvailableAttachments => '使用可用的附件';
 
   @override
-  String get draftKeepSavedAttachments => 'Keep saved draft';
+  String get draftKeepSavedAttachments => '保留已保存的草稿';
 
   @override
   String get photoLibraryAction => '照片库';
@@ -1887,23 +1849,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get photoCameraAction => '拍照';
 
   @override
-  String get photoTooLarge => 'Choose a photo smaller than 10 MB.';
+  String get photoTooLarge => '请选择小于 10 MB 的照片。';
 
   @override
-  String get photoStorageFailed =>
-      'The photo could not be saved on this device. Free some space and retry.';
+  String get photoStorageFailed => '无法将照片保存到本设备。请释放一些空间后重试。';
 
   @override
-  String get photoPendingOther =>
-      'A photo is still waiting for another conversation. Add or discard it there, then try again.';
+  String get photoPendingOther => '另一个对话中还有一张照片在等待处理。请先在那里添加或丢弃，然后重试。';
 
   @override
-  String get photoUnavailable =>
-      'The photo could not be opened. Try adding it again from Photo library or Take photo.';
+  String get photoUnavailable => '无法打开这张照片。请从“照片库”或“拍照”重新添加。';
 
   @override
-  String get photoPermissionDenied =>
-      'Photo access was denied. Allow camera or photo access in Android app settings, then try again.';
+  String get photoPermissionDenied => '照片访问被拒绝。请在 Android 应用设置中允许访问相机或照片，然后重试。';
 
   @override
   String get photoPendingTitle => '待处理的照片';
@@ -1915,12 +1873,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get photoAddToDraft => '将恢复的照片加入草稿';
 
   @override
-  String get photoOtherLocation =>
-      'Return to the photo\'s original server and project before adding it.';
+  String get photoOtherLocation => '请先回到这张照片所属的服务器和项目，再添加它。';
 
   @override
-  String get photoDraftFull =>
-      'Remove an attachment first. A draft holds up to 5 files and 20 MB in total.';
+  String get photoDraftFull => '请先移除一个附件。一份草稿最多可含 5 个文件，总计 20 MB。';
 
   @override
   String get quotaTitle => 'Remaining usage';
@@ -2063,8 +2019,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get setupOutputWaiting => 'Waiting for Termux output…';
 
   @override
-  String get uncertainAuthDetail =>
-      'The server may have started this sign-in without confirming it. Check on the server before you start again.';
+  String get uncertainAuthDetail => '服务器可能已开始此次登录但未确认。重新开始前请先在服务器上检查。';
 
   @override
   String get uncertainAuthCloseHint =>
@@ -2122,13 +2077,13 @@ class AppLocalizationsZh extends AppLocalizations {
       'Failure details are hidden because they may contain credentials.';
 
   @override
-  String get demoReviewChanges => 'Review changes';
+  String get demoReviewChanges => '查看更改';
 
   @override
-  String get demoSetUpServer => 'Set up your own server';
+  String get demoSetUpServer => '设置你自己的服务器';
 
   @override
-  String get handoffCopyCommand => 'Copy command';
+  String get handoffCopyCommand => '复制命令';
 
   @override
   String get quotaMiniMax => 'MiniMax';
@@ -2142,7 +2097,7 @@ class AppLocalizationsZh extends AppLocalizations {
       'Android may stop either app. Keeping the mobile connection alive does not guarantee the Termux server will keep running overnight.';
 
   @override
-  String get quotaBudgetOff => 'Off';
+  String get quotaBudgetOff => '关闭';
 
   @override
   String quotaBudgetPercent(String percent) {
@@ -2201,39 +2156,36 @@ class AppLocalizationsZh extends AppLocalizations {
   String get usageBudgetClearTitle => 'Clear consumption budgets?';
 
   @override
-  String get monitorScope =>
-      'Counts cover each server’s last selected project, not every project on that server.';
+  String get monitorScope => '计数涵盖每个服务器上次所选的项目，而非该服务器上的所有项目。';
 
   @override
   String get monitorDisclosure =>
-      'Monitoring is off until you enable it for a server. Checks run about once a minute while this app is open. Background checks run no more often than every five minutes, only while Stay connected in the background is on and Android’s service is running. Android can stop that service; no remaining runtime is promised.';
+      '在你为某个服务器启用之前，监控处于关闭状态。应用打开时，大约每分钟检查一次。后台检查的间隔不少于五分钟，且仅在“在后台保持连接”已开启并且 Android 服务正在运行时进行。Android 可能会停止该服务，不保证剩余运行时间。';
 
   @override
-  String get monitorOptIn => 'Monitor this server';
+  String get monitorOptIn => '监控此服务器';
 
   @override
-  String get monitorOptInDetail =>
-      'Check pending permissions, questions and forms in its last selected project.';
+  String get monitorOptInDetail => '检查其上次所选项目中待处理的权限、问题和表单。';
 
   @override
-  String get monitorNotifications => 'Notify when attention is needed';
+  String get monitorNotifications => '需要关注时通知';
 
   @override
   String get monitorWifiDetail =>
-      'Checks pause unless Android reports an active Wi-Fi network. VPN or unavailable network information may pause checks.';
+      '除非 Android 报告有活动的 Wi-Fi 网络，否则检查会暂停。VPN 或无法获取网络信息也可能导致检查暂停。';
 
   @override
-  String get monitorQuiet => 'Quiet hours';
+  String get monitorQuiet => '静默时段';
 
   @override
-  String get monitorQuietStart => 'Quiet hours start';
+  String get monitorQuietStart => '静默时段开始';
 
   @override
-  String get monitorQuietEnd => 'Quiet hours end';
+  String get monitorQuietEnd => '静默时段结束';
 
   @override
-  String get monitorSaveFailed =>
-      'Could not save monitoring settings. Try again.';
+  String get monitorSaveFailed => '无法保存监控设置。请重试。';
 
   @override
   String get monitorOpenFailed =>
@@ -2268,26 +2220,24 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get monitorCheckIn => 'Check in on long runs';
+  String get monitorCheckIn => '查看长时间运行';
 
   @override
-  String get monitorCheckInDetail =>
-      'Remind me when a run has been busy this long.';
+  String get monitorCheckInDetail => '当某次运行忙碌这么久时提醒我。';
 
   @override
-  String get monitorCheckInDetailForeground =>
-      'Show a reminder row when a run has been busy this long.';
+  String get monitorCheckInDetailForeground => '当某次运行忙碌这么久时显示一行提醒。';
 
   @override
-  String get monitorCheckInAfter => 'Check in after';
+  String get monitorCheckInAfter => '查看时间';
 
   @override
   String monitorMinutes(int minutes) {
     String _temp0 = intl.Intl.pluralLogic(
       minutes,
       locale: localeName,
-      other: '$minutes minutes',
-      one: '1 minute',
+      other: '$minutes 分钟',
+      one: '1 分钟',
     );
     return '$_temp0';
   }
@@ -2509,28 +2459,23 @@ class AppLocalizationsZh extends AppLocalizations {
       'Some results were omitted because their links or excerpts exceeded the review limits.';
 
   @override
-  String get queueStorageUnreadable =>
-      'Saved queued prompts could not be read. New prompts cannot be queued until this device data is cleared.';
+  String get queueStorageUnreadable => '无法读取已保存的排队提示词。在清除此设备数据之前，无法将新的提示词加入队列。';
 
   @override
   String get queueStorageDiscardUnreadable =>
-      'This permanently deletes the unreadable queued prompts and their attachments from this device. Their contents and count are unknown. Nothing on the server is affected.';
+      '这将从此设备永久删除无法读取的排队提示词及其附件。其内容和数量均未知。服务器上的内容不受影响。';
 
   @override
-  String get filesViewerScopeChanged =>
-      'Server changed. Close and reopen this file.';
+  String get filesViewerScopeChanged => '服务器已更改。请关闭并重新打开此文件。';
 
   @override
-  String get queueStorageCountUnknown =>
-      'Saved queued data could not be read. The number of queued prompts is unknown.';
+  String get queueStorageCountUnknown => '无法读取已保存的排队数据。排队提示词的数量未知。';
 
   @override
-  String get codexConnectionVerified =>
-      'Connection verified. Save and connect to continue.';
+  String get codexConnectionVerified => '连接已验证。保存并连接以继续。';
 
   @override
-  String get codexApprovalRecoveryNotice =>
-      'After reconnecting, review any pending approvals on your computer.';
+  String get codexApprovalRecoveryNotice => '重新连接后，请在你的电脑上检查待处理的批准。';
 
   @override
   String get connectionTokenRejected =>
@@ -2538,38 +2483,36 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String connectionPasswordUnreadable(String server) {
-    return 'Can\'t read the saved password for $server';
+    return '无法读取已保存的 $server 密码';
   }
 
   @override
   String connectionTokenUnreadable(String server) {
-    return 'Can\'t read the saved token for $server';
+    return '无法读取已保存的 $server 令牌';
   }
 
   @override
-  String get connectionEnterPassword => 'Enter the password';
+  String get connectionEnterPassword => '输入密码';
 
   @override
-  String get connectionEnterToken => 'Enter the token';
+  String get connectionEnterToken => '输入令牌';
 
   @override
   String get connectionPasswordUnreadableDetails =>
-      'This phone\'s secure storage couldn\'t open the password saved for this server. That can happen after the phone is restored from a backup or its screen lock is changed. The password itself was not changed: enter it again to connect.';
+      '此手机的安全存储无法打开为该服务器保存的密码。从备份恢复手机或更改屏幕锁后可能出现这种情况。密码本身没有改变：请重新输入以连接。';
 
   @override
   String get connectionTokenUnreadableDetails =>
-      'This phone\'s secure storage couldn\'t open the token saved for this server. That can happen after the phone is restored from a backup or its screen lock is changed. The token itself was not changed: enter it again to connect.';
+      '此手机的安全存储无法打开为该服务器保存的令牌。从备份恢复手机或更改屏幕锁后可能出现这种情况。令牌本身没有改变：请重新输入以连接。';
 
   @override
-  String get updateConnectionToken => 'Update token';
+  String get updateConnectionToken => '更新令牌';
 
   @override
-  String get codexDraftReconnectNotice =>
-      'Review draft stays here; nothing is sent automatically.';
+  String get codexDraftReconnectNotice => '待审阅的草稿保留在这里；不会自动发送任何内容。';
 
   @override
-  String get codexTextOnlyPrompt =>
-      'This server supports text only. Remove attachments before sending.';
+  String get codexTextOnlyPrompt => '此服务器仅支持文字。发送前请移除附件。';
 
   @override
   String get codexOfflineDraftSaved => '请先重新连接再发送。草稿保存在本设备上。';
@@ -2581,43 +2524,42 @@ class AppLocalizationsZh extends AppLocalizations {
   String get openCodeConnectionLabel => 'OpenCode';
 
   @override
-  String get paseoAddressHint => 'ws://100.64.0.1:6767 or wss://paseo.example';
+  String get paseoAddressHint => 'ws://100.64.0.1:6767 或 wss://paseo.example';
 
   @override
-  String get paseoPasswordLabel => 'Daemon password (optional)';
+  String get paseoPasswordLabel => '守护进程密码（可选）';
 
   @override
   String get paseoPasswordHelp =>
-      'Set one with \"paseo daemon set-password\". Stored in this device\'s secure storage.';
+      '用 \"paseo daemon set-password\" 设置。保存在本设备的安全存储中。';
 
   @override
   String get paseoSetupNotice =>
-      'Run \"paseo start --no-relay\" on the computer that has Claude Code or Pi installed. This app never uses the Paseo relay: connect on this device or over your own private network.';
+      '在安装了 Claude Code 或 Pi 的电脑上运行 \"paseo start --no-relay\"。本应用从不使用 Paseo 中继：请在此设备上连接，或通过你自己的私有网络连接。';
 
   @override
-  String get connectionDisplayName => 'Display name (optional)';
+  String get connectionDisplayName => '显示名称（可选）';
 
   @override
-  String get connectionDisplayNameHint => 'Defaults to the server host';
+  String get connectionDisplayNameHint => '默认为服务器主机';
 
   @override
-  String get connectionServerAddress => 'Server address';
+  String get connectionServerAddress => '服务器地址';
 
   @override
-  String get codexAddressHint => 'wss://codex.example or ws://127.0.0.1:4500';
+  String get codexAddressHint => 'wss://codex.example 或 ws://127.0.0.1:4500';
 
   @override
-  String get codexProjectFolder => 'Project folder on server';
+  String get codexProjectFolder => '服务器上的项目文件夹';
 
   @override
-  String get codexTokenReentry => 'Re-enter connection token';
+  String get codexTokenReentry => '重新输入连接令牌';
 
   @override
-  String get codexTokenLabel => 'Connection token';
+  String get codexTokenLabel => '连接令牌';
 
   @override
-  String get codexTokenStorageHelp =>
-      'Stored securely on this device and sent only to this Codex server.';
+  String get codexTokenStorageHelp => '安全保存在本设备上，仅发送给此 Codex 服务器。';
 
   @override
   String get projectConfiguredFolder => 'Configured folder';
@@ -2627,61 +2569,52 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get termuxGuideOpenFailed =>
-      'The command was copied, but Termux could not open. Open Termux yourself or try Copy & open Termux again.';
+      '命令已复制，但无法打开 Termux。请自行打开 Termux，或再试一次“复制并打开 Termux”。';
 
   @override
-  String get termuxGuideCopyOpenFailed =>
-      'Could not copy the command or open Termux.';
+  String get termuxGuideCopyOpenFailed => '无法复制命令或打开 Termux。';
 
   @override
   String get termuxPermissionDenied => 'Android 不允许本应用在 Termux 中运行命令。';
 
   @override
-  String get launchShortcutWaiting =>
-      'Connecting to the saved server. The new conversation opens when it is ready.';
+  String get launchShortcutWaiting => '正在连接已保存的服务器。就绪后会打开新对话。';
 
   @override
-  String get launchShortcutNoServer =>
-      'Choose a server, then start a new conversation.';
+  String get launchShortcutNoServer => '请选择一个服务器，然后开始新对话。';
 
   @override
-  String get launchShortcutReentry =>
-      'Enter the credentials for the saved server, then start a new conversation.';
+  String get launchShortcutReentry => '请输入已保存服务器的凭据，然后开始新对话。';
 
   @override
   String get launchShortcutConnectionFailed =>
-      'Could not connect to the saved server. Choose or fix a server, then start a new conversation.';
+      '无法连接到已保存的服务器。请选择或修复服务器，然后开始新对话。';
 
   @override
   String get launchUiPinnedUntitled => 'Untitled conversation';
 
   @override
-  String get launchUiSessionWaiting =>
-      'Connecting to the saved server. The conversation opens when it is ready.';
+  String get launchUiSessionWaiting => '正在连接已保存的服务器。就绪后会打开该对话。';
 
   @override
-  String get launchUiSessionNoServer =>
-      'Choose a server, then open the conversation from its list.';
+  String get launchUiSessionNoServer => '请选择一个服务器，然后从其列表中打开该对话。';
 
   @override
-  String get launchUiSessionReentry =>
-      'Enter the credentials for the saved server, then open the conversation from its list.';
+  String get launchUiSessionReentry => '请输入已保存服务器的凭据，然后从其列表中打开该对话。';
 
   @override
   String get launchUiSessionConnectionFailed =>
-      'Could not connect to the saved server. Choose or fix a server, then open the conversation from its list.';
+      '无法连接到已保存的服务器。请选择或修复服务器，然后从其列表中打开该对话。';
 
   @override
   String get launchUiSessionOtherServer =>
-      'That shortcut belongs to another server. Connect to that server, then open the conversation from its list.';
+      '该快捷方式属于另一个服务器。请连接到该服务器，然后从其列表中打开对话。';
 
   @override
-  String get launchUiActivityNoServer =>
-      'Choose a server to see what needs your attention.';
+  String get launchUiActivityNoServer => '选择一个服务器，查看需要你关注的事项。';
 
   @override
-  String get launchUiUsageNoServer =>
-      'Save a server to see what is left on your plans.';
+  String get launchUiUsageNoServer => '保存一个服务器，即可查看你的套餐还剩多少额度。';
 
   @override
   String get queuedResendTitle => '要再次发送这份草稿吗？';
@@ -2699,9 +2632,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get queuedDiscardUnconfirmedMessage => '它之前的发送一直没有得到确认，可能已经在对话里了。';
 
   @override
-  String get setupRuntimeOne => 'Older OpenCode';
-
-  @override
   String get setupRuntimeTwo => 'OpenCode 2';
 
   @override
@@ -2709,8 +2639,8 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count drafts with an unconfirmed send to review.',
-      one: '1 draft with an unconfirmed send to review.',
+      other: '$count 份草稿的发送尚未确认，需要查看。',
+      one: '1 份草稿的发送尚未确认，需要查看。',
     );
     return '$_temp0';
   }
@@ -2791,7 +2721,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get isolatedTaskKeepWaiting => 'Keep waiting';
 
   @override
-  String get isolatedTaskRetryOpen => 'Try again';
+  String get isolatedTaskRetryOpen => '重试';
 
   @override
   String get isolatedTaskClose => 'Close';
@@ -2803,106 +2733,102 @@ class AppLocalizationsZh extends AppLocalizations {
   String get returnBriefReview => 'Review results';
 
   @override
-  String get returnBriefContinue => 'Continue';
+  String get returnBriefContinue => '继续';
 
   @override
   String get capsuleError => 'Error';
 
   @override
-  String get capsuleRemove => 'Remove';
+  String get capsuleRemove => '移除';
 
   @override
-  String get markdownWrapCode => 'Wrap lines';
+  String get markdownWrapCode => '自动换行';
 
   @override
-  String get markdownScrollCode => 'Scroll lines';
+  String get markdownScrollCode => '滚动显示行';
 
   @override
   String get markdownReaderTitle => 'Code reader';
 
   @override
-  String get tailscaleTitle => 'Connect with Tailscale';
+  String get tailscaleTitle => '通过 Tailscale 连接';
 
   @override
-  String get tailscaleIntro =>
-      'Reach OpenCode on another computer through your own Tailscale network.';
+  String get tailscaleIntro => '通过你自己的 Tailscale 网络访问另一台电脑上的 OpenCode。';
 
   @override
-  String get tailscaleAppStep => '1. Open your private network';
+  String get tailscaleAppStep => '1. 打开你的私有网络';
 
   @override
-  String get tailscaleChecking => 'Checking for the Tailscale app…';
+  String get tailscaleChecking => '正在检查 Tailscale 应用…';
 
   @override
-  String get tailscaleInstalled => 'Tailscale is installed.';
+  String get tailscaleInstalled => 'Tailscale 已安装。';
 
   @override
-  String get tailscaleMissing =>
-      'Tailscale is not installed. Install the official app, then return and check again.';
+  String get tailscaleMissing => '未安装 Tailscale。请安装官方应用，然后返回再次检查。';
 
   @override
-  String get tailscaleUnknown =>
-      'Could not check the app. Try again, or open Tailscale from your phone.';
+  String get tailscaleUnknown => '无法检查该应用。请重试，或从手机上打开 Tailscale。';
 
   @override
   String get tailscaleUnsupported =>
-      'This device cannot open the Android app. Set up Tailscale on this device yourself, then review your HTTPS address below.';
+      '此设备无法打开 Android 应用。请自行在此设备上设置 Tailscale，然后检查下方的 HTTPS 地址。';
 
   @override
   String get tailscaleVpnHandoff =>
-      'In Tailscale, sign in to the network that can reach your server, approve Android’s VPN prompt if asked, and turn the connection on. OpenCode cannot see or change that VPN state.';
+      '在 Tailscale 中登录可访问你服务器的网络，如果 Android 弹出 VPN 请求请予以允许，然后开启连接。OpenCode 无法查看或更改该 VPN 的状态。';
 
   @override
-  String get tailscaleReturned =>
-      'Welcome back. App presence was checked again; use Test connection on the next screen to check your server.';
+  String get tailscaleReturned => '欢迎回来。已重新检查应用是否存在；请在下一屏使用“测试连接”来检查你的服务器。';
 
   @override
-  String get tailscaleOpen => 'Open Tailscale';
+  String get tailscaleOpen => '打开 Tailscale';
 
   @override
-  String get tailscaleCheckAgain => 'Check Tailscale again';
+  String get tailscaleCheckAgain => '再次检查 Tailscale';
 
   @override
-  String get tailscaleAddressStep => '2. Review your server address';
+  String get tailscaleAddressStep => '2. 检查服务器地址';
 
   @override
-  String get tailscaleAddressLabel => 'Private HTTPS server address';
+  String get tailscaleAddressLabel => '私有服务器地址';
 
   @override
   String get tailscaleAddressDetail =>
-      'Use the full HTTPS origin printed by Tailscale Serve, such as https://computer.tailnet-name.ts.net. Keep any HTTPS port it prints. A short device name or a raw HTTP port may not provide a valid certificate.';
+      '粘贴 Tailscale Serve 提供的完整 HTTPS 地址，或你的服务器在 Tailscale 上的 HTTP 地址和端口。HTTP 会在连接前征求你的许可。';
 
   @override
   String get tailscaleAddressError =>
-      'That address won\'t work here. Copy the https:// address Tailscale Serve shows on your computer and paste it as it is, with nothing added after it.';
+      '请输入完整的 HTTP 或 HTTPS 服务器地址，必要时带端口，后面不要加路径。';
 
   @override
   String get tailscaleReviewDetail =>
-      'Continue only with an address you recognize. The next screen reviews your server credentials before you explicitly test or save. This app cannot confirm that an address is private from its name alone.';
+      '仅在地址是你认识的情况下继续。下一个页面会在你明确测试或保存之前检查服务器凭据。本应用无法仅凭名称确认某个地址是私有的。';
 
   @override
-  String get tailscaleContinue => 'Continue to sign-in';
+  String get tailscaleContinue => '继续登录';
 
   @override
-  String get tailscaleHelp => 'Tailscale setup and recovery';
+  String get tailscaleHelp => 'Tailscale 设置与恢复';
 
   @override
   String get tailscaleServeHelp =>
-      'On the server computer, Tailscale Serve can provide private HTTPS for a local OpenCode port. Use Serve, not public Funnel. Your tailnet access rules still apply. Enabling HTTPS publishes the certificate’s device and tailnet names in a public certificate log, although access stays private. Review the official guide before changing your server.';
+      '在服务器所在的计算机上，Tailscale Serve 可以为本地 OpenCode 端口提供私有 HTTPS。请使用 Serve，不要使用公开的 Funnel。你的 tailnet 访问规则仍然适用。启用 HTTPS 会把证书中的设备名和 tailnet 名发布到公开的证书日志中，但访问仍是私有的。更改服务器之前，请先阅读官方指南。';
 
   @override
-  String get tailscaleServeDocs => 'Read the official Serve guide';
+  String get tailscaleServeDocs => '阅读 Serve 官方指南';
 
   @override
-  String get tailscaleAndroidDocs => 'Read the official Android guide';
+  String get tailscaleAndroidDocs => '阅读 Android 官方指南';
 
   @override
   String get tailscaleRecovery =>
-      'If the server is unreachable, check Tailscale on both devices, the full HTTPS name and port, Serve on the server, and your network’s access rules. A VPN or DNS conflict may also prevent access. Keep HTTPS enabled. Correct the server password if authentication is rejected, then retry Test connection.';
+      '如果无法访问服务器，请检查两台设备上的 Tailscale、地址和端口，以及网络访问规则。若使用 Serve 地址，还要检查服务器上的 Serve。若认证被拒绝，请更正密码，然后重新测试连接。';
 
   @override
   String get tailscaleEditorDetail =>
-      'Your network connection is managed in Tailscale. Test connection checks this OpenCode server, not the VPN. Enter the server’s own username and password here, not your Tailscale login. Setup help keeps these fields intact.';
+      '你的网络连接由 Tailscale 管理。“测试连接”检查的是此 OpenCode 服务器，而不是 VPN。请在此输入服务器自己的用户名和密码，而不是 Tailscale 登录信息。查看设置帮助时这些字段会保留。';
 
   @override
   String get a2aDraftSaveError =>
@@ -2918,7 +2844,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get a2aSupportedConnection => 'A2A 1.0 · JSON-RPC · Text tasks';
 
   @override
-  String get a2aTitle => 'External agents';
+  String get a2aTitle => '外部智能体';
 
   @override
   String get a2aAdd => 'Add agent';
@@ -3090,7 +3016,7 @@ class AppLocalizationsZh extends AppLocalizations {
       'This PDF page could not be displayed. Retry or save the original file.';
 
   @override
-  String get agentAccountTitle => 'Codex account';
+  String get agentAccountTitle => 'Codex 账号';
 
   @override
   String get agentAccountScopeLost =>
@@ -3190,7 +3116,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get agentAccountCancelling => 'Cancelling sign-in';
 
   @override
-  String get agentAccountCancelled => 'Sign-in cancelled';
+  String get agentAccountCancelled => '已取消登录';
 
   @override
   String get agentAccountLoginFailed =>
@@ -3366,17 +3292,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get onboardingDemoNote => '模拟对话，无需服务器。';
 
   @override
-  String get onboardingPrivateNetwork =>
-      'Reach a server over your private network';
+  String get onboardingPrivateNetwork => '通过私有网络访问服务器';
 
   @override
   String get onboardingSetupGuide => '设置指南';
 
   @override
-  String get onboardingSaveConnect => 'Save & connect';
+  String get onboardingSaveConnect => '保存并连接';
 
   @override
-  String get onboardingSaveChanges => 'Save changes';
+  String get onboardingSaveChanges => '保存更改';
 
   @override
   String get onboardingTermuxSetup => '在这部手机上';
@@ -3398,28 +3323,25 @@ class AppLocalizationsZh extends AppLocalizations {
   String get activitySavedServers => 'Saved servers';
 
   @override
-  String get demoTaskTitle => 'Try a small change';
+  String get demoTaskTitle => '试试一个小改动';
 
   @override
-  String get demoTaskInstruction =>
-      'Send the sample prompt below, then review the proposed edit.';
+  String get demoTaskInstruction => '发送下方的示例提示词，然后查看建议的编辑。';
 
   @override
-  String get reviewTitle => 'Review';
+  String get reviewTitle => '审查';
 
   @override
-  String get modelChoiceReloadProviders => 'Reload providers';
+  String get modelChoiceReloadProviders => '重新加载提供商';
 
   @override
   String get modelChoiceDone => 'Done';
 
   @override
-  String get modelChoicePartialSaveError =>
-      'Model saved. Agent choice was not confirmed. Try again.';
+  String get modelChoicePartialSaveError => '模型已保存，但所选智能体未得到确认。请重试。';
 
   @override
-  String get modelChoiceModelSaveError =>
-      'Could not confirm the model choice. Check your selection and try again.';
+  String get modelChoiceModelSaveError => '无法确认所选模型。请检查你的选择后重试。';
 
   @override
   String get workIdle => 'Idle';
@@ -3431,52 +3353,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get workBackgroundPending => 'Requesting background work…';
 
   @override
-  String get workBackgroundRequested =>
-      'Background work requested. Status will update when the server reports it.';
+  String get workBackgroundRequested => '已请求后台运行。服务器报告后状态将更新。';
 
   @override
   String get oc2DiscoveryEditorTitle => 'OpenCode 2';
 
   @override
-  String setupSwitchConfirmTitle(String runtime) {
-    return 'Switch to $runtime?';
-  }
-
-  @override
-  String get setupSwitchConfirmDetail =>
-      'Stops this phone’s server and running tasks. Conversations, provider settings and credentials stay separate; project files and configuration are shared. You can switch back.';
-
-  @override
-  String get setupSwitchToTwoDetail =>
-      'Stops this phone’s server and running tasks, then starts OpenCode 2. Your conversations come with you and AI Team keeps working. You can switch back.';
-
-  @override
-  String get moveToOpenCode2Title => 'Move to OpenCode 2';
-
-  @override
-  String get moveToOpenCode2Detail =>
-      'Your conversations come with you. AI Team keeps working.';
-
-  @override
-  String get moveToOpenCode2NotNow => 'Not now';
-
-  @override
-  String get moveToOpenCode2NotNowSemantics =>
-      'Not now: stay on the older OpenCode';
-
-  @override
-  String setupSwitchConfirm(String runtime) {
-    return 'Switch to $runtime';
-  }
-
-  @override
-  String get setupSwitchPending =>
-      'The runtime switch has not finished. Retry the selected runtime or return to the previous one. Your saved runtime data is retained.';
-
-  @override
-  String setupSwitchReturn(String runtime) {
-    return 'Return to $runtime';
-  }
+  String get setupSwitchPending => '升级到 OpenCode 2 尚未完成。已保存的对话会保留。请重试。';
 
   @override
   String setupSwitchRetry(String runtime) {
@@ -3484,21 +3367,16 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get setupSwitchFailed =>
-      'Could not finish switching runtimes. Check the setup output, then retry or return to the previous runtime.';
-
-  @override
-  String get setupSwitchLegacyTwo =>
-      'This OpenCode 2 installation keeps its existing data. Switching it to OpenCode 1 is not available.';
+  String get setupSwitchFailed => '无法完成升级到 OpenCode 2。已保存的对话会保留。请重试。';
 
   @override
   String setupSwitchProfileName(String runtime) {
-    return 'This phone · $runtime';
+    return '此手机 · $runtime';
   }
 
   @override
   String get setupSwitchMissingCredential =>
-      'The saved credential for the previous runtime is unavailable. Its data is retained; restore the saved server before returning.';
+      '无法读取已保存的服务器密码。你的对话和文件会保留。请恢复对已保存密码的访问，然后重试。';
 
   @override
   String setupSwitchProgressTitle(String runtime) {
@@ -3507,172 +3385,149 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String e7ConnectionFailure1(int attempts) {
-    return 'Tried $attempts times. Retrying will not start a server that is not running.';
+    return '已尝试 $attempts 次。重试不会启动未运行的服务器。';
   }
 
   @override
-  String get e7ConnectionFailure2 => 'Connection token required';
+  String get e7ConnectionFailure2 => '需要连接令牌';
 
   @override
-  String get e7ConnectionFailure3 =>
-      'This Codex server needs a connection token before the app can connect.';
+  String get e7ConnectionFailure3 => '此 Codex 服务器需要连接令牌，应用才能连接。';
 
   @override
-  String get e7ConnectionFailure4 =>
-      'Open server settings and enter the Codex connection token.';
+  String get e7ConnectionFailure4 => '打开服务器设置，输入 Codex 连接令牌。';
 
   @override
-  String get e7ConnectionFailure5 => 'Connection token rejected';
+  String get e7ConnectionFailure5 => '连接令牌被拒绝';
 
   @override
-  String get e7ConnectionFailure6 =>
-      'The Codex server answered, but it did not accept the saved connection token.';
+  String get e7ConnectionFailure6 => 'Codex 服务器有响应，但不接受已保存的连接令牌。';
 
   @override
-  String get e7ConnectionFailure7 =>
-      'Open server settings and enter a current Codex connection token.';
+  String get e7ConnectionFailure7 => '打开服务器设置，输入有效的 Codex 连接令牌。';
 
   @override
-  String get e7ConnectionFailure8 => 'Codex listener unavailable';
+  String get e7ConnectionFailure8 => 'Codex 监听器不可用';
 
   @override
-  String get e7ConnectionFailure9 => 'Codex endpoint unreachable';
+  String get e7ConnectionFailure9 => '无法访问 Codex 端点';
 
   @override
-  String get e7ConnectionFailure12 =>
-      'Start the Codex listener on this device.';
+  String get e7ConnectionFailure12 => '在此设备上启动 Codex 监听器。';
 
   @override
-  String get e7ConnectionFailure13 =>
-      'If it is behind a tunnel, keep the tunnel running and verify its local endpoint.';
+  String get e7ConnectionFailure13 => '如果它位于隧道之后，请保持隧道运行并检查其本地端点。';
 
   @override
-  String get e7ConnectionFailure14 =>
-      'Use the Codex wss:// endpoint or an active secure tunnel.';
+  String get e7ConnectionFailure14 => '使用 Codex 的 wss:// 端点或可用的安全隧道。';
 
   @override
-  String get e7ConnectionFailure15 =>
-      'Check that the remote Codex listener is reachable from this device.';
+  String get e7ConnectionFailure15 => '检查此设备能否访问远程 Codex 监听器。';
 
   @override
-  String get e7ConnectionFailure16 => 'Password rejected';
+  String get e7ConnectionFailure16 => '密码被拒绝';
 
   @override
-  String get e7ConnectionFailure17 =>
-      'The server answered, but it did not accept the saved password. This happens when the server was restarted with a new password.';
+  String get e7ConnectionFailure17 => '服务器有响应，但不接受已保存的密码。服务器使用新密码重启后会出现这种情况。';
 
   @override
-  String get e7ConnectionFailure18 =>
-      'Run opencode2 pair on the computer and paste the new code.';
+  String get e7ConnectionFailure18 => '在计算机上运行 opencode2 pair，并粘贴新代码。';
 
   @override
   String get e7ConnectionFailure19 =>
-      'If you set OPENCODE_SERVER_PASSWORD by hand, copy it again.';
+      '如果你手动设置了 OPENCODE_SERVER_PASSWORD，请重新复制。';
 
   @override
-  String get e7ConnectionFailure20 => 'Certificate not trusted';
+  String get e7ConnectionFailure20 => '证书不受信任';
 
   @override
-  String get e7ConnectionFailure21 =>
-      'The server is there, but this device does not trust its HTTPS certificate, so the app refused to send the password.';
+  String get e7ConnectionFailure21 => '服务器存在，但此设备不信任其 HTTPS 证书，因此应用拒绝发送密码。';
 
   @override
-  String get e7ConnectionFailure22 =>
-      'Use a certificate from a trusted authority, or a Tailscale Serve address.';
+  String get e7ConnectionFailure22 => '使用受信任机构签发的证书，或 Tailscale Serve 地址。';
 
   @override
-  String get e7ConnectionFailure23 =>
-      'For a self-signed certificate, install it on this device first.';
+  String get e7ConnectionFailure23 => '如果是自签名证书，请编辑此服务器并先核对其指纹再信任。';
 
   @override
-  String get e7ConnectionFailure24 => 'Nothing answered on this phone';
+  String get e7ConnectionFailure24 => '此手机上没有响应';
 
   @override
   String get e7ConnectionFailure26 =>
-      'Running OpenCode in Termux? Open Termux and check that the server is still running.';
+      '在 Termux 中运行 OpenCode？请打开 Termux，检查服务器是否仍在运行。';
 
   @override
   String get e7ConnectionFailure27 =>
-      'Using adb reverse or an SSH forward? Check that the tunnel is still connected, then try again.';
+      '使用了 adb reverse 或 SSH 转发？请检查隧道是否仍然连通，然后重试。';
 
   @override
-  String get e7ConnectionFailure28 =>
-      'Connecting to another computer instead? Change the server to its HTTPS address or pair again.';
+  String get e7ConnectionFailure28 => '要连接另一台计算机？请把服务器改为它的 HTTPS 地址，或重新配对。';
 
   @override
-  String get e7ConnectionFailure29 => 'The server did not answer in time';
+  String get e7ConnectionFailure29 => '服务器未及时响应';
 
   @override
-  String get e7ConnectionFailure31 =>
-      'Are you on the same network or VPN (for example Tailscale) as the computer?';
+  String get e7ConnectionFailure31 => '你与计算机在同一网络或 VPN（例如 Tailscale）中吗？';
 
   @override
   String e7ConnectionFailure32(int port) {
-    return 'Is a firewall or captive portal blocking port $port?';
+    return '防火墙或强制门户是否拦截了端口 $port？';
   }
 
   @override
-  String get e7ConnectionFailure33 => 'Server not reachable';
+  String get e7ConnectionFailure33 => '无法访问服务器';
 
   @override
-  String get e7ConnectionFailure35 =>
-      'Is opencode serve still running on the computer?';
+  String get e7ConnectionFailure35 => '计算机上的 opencode serve 仍在运行吗？';
 
   @override
-  String get e7ConnectionFailure36 =>
-      'Are you on the same network or VPN as the computer?';
+  String get e7ConnectionFailure36 => '你与计算机在同一网络或 VPN 中吗？';
 
   @override
-  String get e7ConnectionFailure37 =>
-      'Did the address change? Pair again to pick up the new one.';
+  String get e7ConnectionFailure37 => '地址变了吗？请重新配对以获取新地址。';
 
   @override
-  String get e7ConnectionFailure38 => 'The server answered with an error';
+  String get e7ConnectionFailure38 => '服务器返回了错误';
 
   @override
-  String get e7ConnectionFailure39 =>
-      'The server is running but reported itself unhealthy. Its own log will say why.';
+  String get e7ConnectionFailure39 => '服务器在运行，但报告自身状态异常。其日志会说明原因。';
 
   @override
-  String get e7ConnectionFailure40 =>
-      'Restart opencode serve and watch its output.';
+  String get e7ConnectionFailure40 => '重启 opencode serve 并查看其输出。';
 
   @override
-  String get e7ConnectionFailure41 =>
-      'Check that the server version is supported by this app.';
+  String get e7ConnectionFailure41 => '检查此应用是否支持该服务器版本。';
 
   @override
-  String get e7ConnectionFailure42 => 'Could not connect';
+  String get e7ConnectionFailure42 => '无法连接';
 
   @override
-  String get e7ConnectionFailure44 =>
-      'Is the agent server running, and is this the right address?';
+  String get e7ConnectionFailure44 => '智能体服务器在运行吗？这个地址对吗？';
 
   @override
-  String get e7ConnectionFailure45 =>
-      'Is opencode serve running, and is this the right address?';
+  String get e7ConnectionFailure45 => 'opencode serve 在运行吗？这个地址对吗？';
 
   @override
-  String get e7PermissionAction1 => 'Run a shell command';
+  String get e7PermissionAction1 => '运行 shell 命令';
 
   @override
-  String get e7PermissionAction2 => 'Edit a file';
+  String get e7PermissionAction2 => '编辑文件';
 
   @override
-  String get e7PermissionAction3 => 'Read a file';
+  String get e7PermissionAction3 => '读取文件';
 
   @override
-  String get e7PermissionAction4 => 'Access an external directory';
+  String get e7PermissionAction4 => '访问外部目录';
 
   @override
-  String get e7PermissionAction5 => 'Continue after repeated failures';
+  String get e7PermissionAction5 => '在多次失败后继续';
 
   @override
-  String get e7PermissionAction6 => 'Permission needed';
+  String get e7PermissionAction6 => '需要权限';
 
   @override
   String e7PermissionAction7(String permission) {
-    return 'Use $permission';
+    return '使用 $permission';
   }
 
   @override
@@ -3691,16 +3546,16 @@ class AppLocalizationsZh extends AppLocalizations {
       'Server password changed — reconnect.';
 
   @override
-  String get e7BannerUpdatePassword => 'Update password';
+  String get e7BannerUpdatePassword => '更新密码';
 
   @override
-  String get e7BannerLost => 'Connection lost';
+  String get e7BannerLost => '连接已断开';
 
   @override
   String get e7BannerRetrying => 'Retrying';
 
   @override
-  String get e7BannerDetails => 'Details';
+  String get e7BannerDetails => '详情';
 
   @override
   String e7BannerReconnectPasswordNote(String note) {
@@ -3709,21 +3564,30 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String e7BannerReconnectingServer(String server) {
-    return 'Reconnecting to $server…';
+    return '正在重新连接到 $server…';
   }
 
   @override
   String e7BannerReconnectingServerSemantic(String server) {
-    return 'Reconnecting to $server';
+    return '正在重新连接 $server';
   }
 
   @override
   String get e7BannerCheckingExplanation =>
-      'What you see stays available while OpenCode is checked. Live updates resume on their own.';
+      '检查 OpenCode 期间，你看到的内容仍可使用。实时更新会自动恢复。';
 
   @override
-  String get e7BannerStaleExplanation =>
-      'What you see may be stale until OpenCode is reachable again.';
+  String get e7BannerStaleExplanation => '在 OpenCode 恢复可访问之前，你看到的内容可能已过时。';
+
+  @override
+  String e7BannerCheckingExplanationAgent(String agent) {
+    return 'What you see stays available while $agent is checked. Live updates resume on their own.';
+  }
+
+  @override
+  String e7BannerStaleExplanationAgent(String agent) {
+    return 'What you see may be stale until $agent is reachable again.';
+  }
 
   @override
   String get e7SharedThreeStepsToYourFirstSession =>
@@ -3776,7 +3640,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get e7SharedPairingWorksWhenTheAddressTheServer =>
-      'Pairing works when the address the server prints is one this device can reach. If it is not, expose the server through an HTTPS reverse proxy or an encrypted tunnel and add the resulting https:// URL by hand. Remote HTTP is intentionally blocked.';
+      'Pairing works when this device can reach the server address. A remote HTTP address asks for your permission before sending the password. Prefer HTTPS or a private Tailscale connection.';
 
   @override
   String get e7SharedOlderServersWithoutPairing =>
@@ -3784,11 +3648,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get e7SharedServersStartedWithOpencodeServeDoNot =>
-      'Servers started with “opencode serve” do not print a pairing code. Start them on loopback with a password:';
+      '如需本地连接，请在这台电脑上启动 OpenCode 2。使用它输出的密码：';
 
   @override
   String get e7SharedThenAddTheServerManuallyWithUsername =>
-      'Then add the server manually with username opencode and that password.';
+      '然后手动添加服务器，用户名填 opencode，密码填上面的密码。';
 
   @override
   String get e7SharedOnDeviceViaTermuxAutomated =>
@@ -3974,23 +3838,23 @@ class AppLocalizationsZh extends AppLocalizations {
       'Delegated work will appear here without mixing subagent conversations into your main list.';
 
   @override
-  String get e7SharedOpenInsecureHTTPLink => 'Open insecure HTTP link?';
+  String get e7SharedOpenInsecureHTTPLink => '打开不安全的 HTTP 链接？';
 
   @override
-  String get e7SharedOpenExternalLink => 'Open external link?';
+  String get e7SharedOpenExternalLink => '打开外部链接？';
 
   @override
   String get e7SharedHTTPIsNotEncryptedOtherDevicesOn =>
-      'HTTP is not encrypted. Other devices on the network may read or change what you send and receive.';
+      'HTTP 未加密。网络上的其他设备可能读取或修改你发送和接收的内容。';
 
   @override
-  String get e7SharedOpenHTTPLink => 'Open HTTP link';
+  String get e7SharedOpenHTTPLink => '打开 HTTP 链接';
 
   @override
-  String get e7SharedOpenLink => 'Open link';
+  String get e7SharedOpenLink => '打开链接';
 
   @override
-  String get e7SharedNoAppCouldOpenThisLink => 'No app could open this link.';
+  String get e7SharedNoAppCouldOpenThisLink => '没有应用可以打开此链接。';
 
   @override
   String get e7SharedRequired => 'Required';
@@ -4224,19 +4088,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get e7LocaleUiContextKeys => 'Right click / Shift + F10 / Menu';
 
   @override
-  String get e7LocaleUiConnectionChanged => 'The server changed.';
+  String get e7LocaleUiConnectionChanged => '服务器已更改。';
 
   @override
-  String get e7AppearanceFollowAndroid => 'Follow Android';
+  String get e7AppearanceFollowAndroid => '跟随 Android';
 
   @override
-  String get e7AppearanceFollowSystem => 'Follow system';
+  String get e7AppearanceFollowSystem => '跟随系统';
 
   @override
-  String get e7AppearanceLight => 'Light';
+  String get e7AppearanceLight => '浅色';
 
   @override
-  String get e7AppearanceDark => 'Dark';
+  String get e7AppearanceDark => '深色';
 
   @override
   String get e7AppearanceFollowPhoneDescription =>
@@ -4253,30 +4117,27 @@ class AppLocalizationsZh extends AppLocalizations {
   String get e7AppearanceDarkDescription => 'Use the focused low-light theme';
 
   @override
-  String get e7AppearanceTitle => 'Appearance';
+  String get e7AppearanceTitle => '外观';
 
   @override
-  String get e7AppearancePreviewHint =>
-      'Preview first. Your appearance changes only when you apply it.';
+  String get e7AppearancePreviewHint => '先预览。只有点击应用后，外观才会改变。';
 
   @override
-  String get e7AppearanceDynamicUnavailable =>
-      'Material You colors are not available on this device.';
+  String get e7AppearanceDynamicUnavailable => '此设备不支持 Material You 配色。';
 
   @override
   String e7AppearanceUsesMode(String mode) {
-    return 'Your light or dark setting stays $mode.';
+    return '你的浅色或深色设置仍为$mode。';
   }
 
   @override
-  String get e7AppearanceSaveFailed =>
-      'Could not save the appearance. Your previous setting is unchanged. Try again.';
+  String get e7AppearanceSaveFailed => '无法保存外观。之前的设置未改变。请重试。';
 
   @override
-  String get e7AppearanceSaving => 'Saving…';
+  String get e7AppearanceSaving => '正在保存…';
 
   @override
-  String get e7AppearanceApply => 'Apply';
+  String get e7AppearanceApply => '应用';
 
   @override
   String get e7AppearanceCurrent => 'Current appearance';
@@ -4305,7 +4166,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get e7SettingsUi1 => 'Server';
 
   @override
-  String get e7SettingsUi8 => 'Disconnect';
+  String get e7SettingsUi8 => '断开连接';
 
   @override
   String get e7SettingsUi9 => 'OpenCode server';
@@ -4314,16 +4175,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get e7SettingsUi11 => 'Checking server health…';
 
   @override
-  String get e7SettingsUi12 => 'Stopped by Android';
+  String get e7SettingsUi12 => '已被 Android 停止';
 
   @override
-  String get e7SettingsUi14 => 'On · running now';
+  String get e7SettingsUi14 => '已开启 · 正在运行';
 
   @override
-  String get e7SettingsUi15 => 'On · starting';
+  String get e7SettingsUi15 => '已开启 · 正在启动';
 
   @override
-  String get e7SettingsUi16 => 'this server';
+  String get e7SettingsUi16 => '此服务器';
 
   @override
   String get e7SettingsUi17 => 'unknown';
@@ -4335,45 +4196,42 @@ class AppLocalizationsZh extends AppLocalizations {
   String get e7SettingsUi19 => 'OpenCode is reconnecting. Try again.';
 
   @override
-  String get e7SettingsUi22 => 'Android did not enable background mode.';
+  String get e7SettingsUi22 => 'Android 未启用后台模式。';
 
   @override
-  String get e7SettingsUi23 => 'Android stopped the live connection';
+  String get e7SettingsUi23 => 'Android 已停止实时连接';
 
   @override
   String get e7SettingsUi24 =>
-      'Its daily limit for background data-sync work is spent, so live mode turned itself off. Turn it back on to reconnect; the limit resets within 24 hours.';
+      '其每日后台数据同步额度已用完，因此实时模式已自动关闭。重新开启即可重新连接；额度将在 24 小时内重置。';
 
   @override
-  String get e7SettingsUi25 => 'Stay connected in the background';
+  String get e7SettingsUi25 => '在后台保持连接';
 
   @override
-  String get e7SettingsUi26 =>
-      'Keeps runs updating when the app is closed and notifies you when one needs you. Uses more battery and shows a persistent notification.';
+  String get e7SettingsUi26 => '应用关闭后仍保持运行状态更新，并在某次运行需要你时通知你。会增加耗电，并显示一条常驻通知。';
 
   @override
-  String get e7SettingsUi27 => 'Unrestricted battery access allowed';
+  String get e7SettingsUi27 => '已允许不受限制的电池使用';
 
   @override
-  String get e7SettingsUi28 => 'Allow unrestricted battery access';
+  String get e7SettingsUi28 => '允许不受限制的电池使用';
 
   @override
-  String get e7SettingsUi29 =>
-      'Android may still apply its foreground-service time limit.';
+  String get e7SettingsUi29 => 'Android 仍可能应用其前台服务时间限制。';
 
   @override
   String get e7SettingsUi30 =>
-      'Optional. Helps preserve the live connection during Doze. Android 15+ limits data-sync background work to six hours per 24 hours.';
+      '可选。有助于在 Doze 期间保持实时连接。Android 15+ 将后台数据同步任务限制为每 24 小时六小时。';
 
   @override
-  String get e7SettingsUi31 => 'Stopped by Android — tap to restart';
+  String get e7SettingsUi31 => '已被 Android 停止，点按以重启';
 
   @override
-  String get e7SettingsUi32 => 'Running now';
+  String get e7SettingsUi32 => '正在运行';
 
   @override
-  String get e7SettingsUi34 =>
-      'Android stops this after 6 hours a day. The app will tell you when it does.';
+  String get e7SettingsUi34 => 'Android 在每天运行 6 小时后会将其停止。停止时应用会通知你。';
 
   @override
   String get e7SettingsUi35 => 'Default shell';
@@ -4434,7 +4292,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get e7SettingsUi62 => 'No server password saved';
 
   @override
-  String get e7SettingsUi65 => 'Run as a Linux service';
+  String get e7SettingsUi65 => 'Set up OpenCode 2';
 
   @override
   String get e7SettingsUi66 =>
@@ -4447,51 +4305,49 @@ class AppLocalizationsZh extends AppLocalizations {
   String get e7SettingsUi68 => 'Upgrade from the machine running the server';
 
   @override
-  String get e7SettingsUi69 => 'Light or dark';
+  String get e7SettingsUi69 => '浅色或深色';
 
   @override
-  String get e7SettingsUi70 => 'Theme';
+  String get e7SettingsUi70 => '主题';
 
   @override
   String get e7SettingsUi74 => 'Always allowed actions';
 
   @override
-  String get e7SettingsUi76 => 'On this device';
+  String get e7SettingsUi76 => '在此设备上';
 
   @override
-  String get e7SettingsUi77 => 'Storage used';
+  String get e7SettingsUi77 => '已用存储空间';
 
   @override
-  String get e7SettingsUi78 => 'Clear queued prompts';
+  String get e7SettingsUi78 => '清除排队的提示词';
 
   @override
-  String get e7SettingsUi79 => 'Nothing is waiting to send';
+  String get e7SettingsUi79 => '没有等待发送的内容';
 
   @override
-  String get e7SettingsUi80 => 'Delete queued prompts?';
+  String get e7SettingsUi80 => '要删除排队的提示词吗？';
 
   @override
-  String get e7SettingsUi81 => 'Queued prompts deleted';
+  String get e7SettingsUi81 => '已删除排队的提示词';
 
   @override
-  String get e7SettingsUi82 =>
-      'Could not delete the queued prompts. Check device storage and try again.';
+  String get e7SettingsUi82 => '无法删除排队的提示词。请检查设备存储空间后重试。';
 
   @override
-  String get e7SettingsUi83 => 'Clear drafts';
+  String get e7SettingsUi83 => '清除草稿';
 
   @override
-  String get e7SettingsUi84 => 'No saved composer text';
+  String get e7SettingsUi84 => '没有已保存的输入框文字';
 
   @override
-  String get e7SettingsUi85 => 'Delete drafts?';
+  String get e7SettingsUi85 => '要删除草稿吗？';
 
   @override
-  String get e7SettingsUi86 => 'Drafts deleted';
+  String get e7SettingsUi86 => '已删除草稿';
 
   @override
-  String get e7SettingsUi87 =>
-      'Could not delete the drafts. Check device storage and try again.';
+  String get e7SettingsUi87 => '无法删除草稿。请检查设备存储空间后重试。';
 
   @override
   String get e7SettingsUi88 => 'App diagnostics';
@@ -4500,8 +4356,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get e7SettingsUi92 => 'Privacy and data use';
 
   @override
-  String get e7SettingsUi93 =>
-      'Servers, providers, voice, files, Termux, and updates';
+  String get e7SettingsUi93 => '服务器、服务商、语音、文件、Termux 和更新';
 
   @override
   String get e7SettingsUi94 => 'Voice licenses and provenance';
@@ -4515,7 +4370,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String e7SettingsDisconnectTitle(String server) {
-    return 'Disconnect from $server?';
+    return '断开与 $server 的连接？';
   }
 
   @override
@@ -4530,7 +4385,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String e7SettingsVersion(String version) {
-    return 'Version $version';
+    return '版本 $version';
   }
 
   @override
@@ -4560,36 +4415,36 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       queued,
       locale: localeName,
-      other: '$queued queued prompts',
-      one: '1 queued prompt',
+      other: '$queued 条排队的提示词',
+      one: '1 条排队的提示词',
     );
     String _temp1 = intl.Intl.pluralLogic(
       drafts,
       locale: localeName,
-      other: '$drafts drafts',
-      one: '1 draft',
+      other: '$drafts 份草稿',
+      one: '1 份草稿',
     );
-    return '$total of unsent work — $_temp0 ($queueBytes) and $_temp1 ($draftBytes). Queued prompts are discarded after $days days.';
+    return '未发送内容共 $total：$_temp0（$queueBytes）和 $_temp1（$draftBytes）。排队的提示词在 $days 天后会被丢弃。';
   }
 
   @override
   String e7SettingsQueueDeleteSummary(int count) {
-    return 'Deletes all $count unsent prompts and their attachments, for every server';
+    return '删除所有服务器上全部 $count 条未发送提示词及其附件';
   }
 
   @override
   String e7SettingsQueueDeleteBody(int count) {
-    return 'This deletes $count unsent prompts and their attachments, for every server. They will never be sent. Nothing on the server is affected.';
+    return '这将删除所有服务器上的 $count 条未发送提示词及其附件。它们将永远不会被发送。服务器上的内容不受影响。';
   }
 
   @override
   String e7SettingsDraftDeleteSummary(int count) {
-    return 'Deletes composer text saved for $count conversations';
+    return '删除为 $count 个对话保存的输入框文字';
   }
 
   @override
   String e7SettingsDraftDeleteBody(int count) {
-    return 'This deletes the composer text saved for $count conversations. Nothing on the server is affected.';
+    return '这将删除为 $count 个对话保存的输入框文字。服务器上的内容不受影响。';
   }
 
   @override
@@ -4729,83 +4584,76 @@ class AppLocalizationsZh extends AppLocalizations {
   String get e7ProjectProjectSave => 'Save';
 
   @override
-  String get e7ProjectMonitorUnsupported =>
-      'Background attention is unavailable for this server. Open the conversation to review current requests.';
+  String get e7ProjectMonitorUnsupported => '此服务器不支持后台关注。请打开对话查看当前请求。';
 
   @override
-  String get readerUiDisconnected => 'The server is not connected.';
+  String get readerUiDisconnected => '服务器未连接。';
 
   @override
-  String get readerUiIndicatorsUnavailable =>
-      'File change indicators are unavailable on this server.';
+  String get readerUiIndicatorsUnavailable => '此服务器不支持文件变更标记。';
 
   @override
-  String get readerUiIndicatorsFailed =>
-      'File change indicators could not refresh.';
+  String get readerUiIndicatorsFailed => '无法刷新文件变更标记。';
 
   @override
-  String get readerUiReconnecting => 'OpenCode is reconnecting.';
+  String get readerUiReconnecting => 'OpenCode 正在重新连接。';
 
   @override
-  String get readerUiCommentAdded =>
-      'Review comment added. Return to the conversation to continue.';
+  String get readerUiCommentAdded => '已添加审查评论。返回对话以继续。';
 
   @override
-  String get readerUiCommentCopied =>
-      'Review comment copied. Paste it into a conversation.';
+  String get readerUiCommentCopied => '已复制审查评论。请粘贴到对话中。';
 
   @override
-  String get readerUiSearchSymbols => 'Search symbols';
+  String get readerUiSearchSymbols => '搜索符号';
 
   @override
-  String get readerUiSearchFiles => 'Search files';
+  String get readerUiSearchFiles => '搜索文件';
 
   @override
-  String get readerUiSelectFile => 'Select a file to preview';
+  String get readerUiSelectFile => '选择文件以预览';
 
   @override
-  String get readerUiEmptyFolder => 'Folder is empty';
+  String get readerUiEmptyFolder => '文件夹为空';
 
   @override
-  String get readerUiNoFiles => 'No files found';
+  String get readerUiNoFiles => '未找到文件';
 
   @override
-  String get readerUiPullRefresh => 'Pull down to refresh this folder.';
+  String get readerUiPullRefresh => '下拉可刷新此文件夹。';
 
   @override
-  String get readerUiTryFileName => 'Try a different file name.';
+  String get readerUiTryFileName => '试试其他文件名。';
 
   @override
-  String get readerUiAttachPrompt => 'Attach to prompt';
+  String get readerUiAttachPrompt => '附加到提示词';
 
   @override
-  String get readerUiAddReference => 'Add as reference';
+  String get readerUiAddReference => '添加为引用';
 
   @override
-  String get readerUiOpenReview => 'Open in Review';
+  String get readerUiOpenReview => '在审查中打开';
 
   @override
-  String get readerUiCopyPath => 'Copy path';
+  String get readerUiCopyPath => '复制路径';
 
   @override
-  String get readerUiWorkspaceSymbols => 'Search project symbols';
+  String get readerUiWorkspaceSymbols => '搜索项目符号';
 
   @override
-  String get readerUiSymbolsHint =>
-      'Find classes, functions, methods, and variables by name.';
+  String get readerUiSymbolsHint => '按名称查找类、函数、方法和变量。';
 
   @override
-  String get readerUiNoSymbols => 'No symbols found';
+  String get readerUiNoSymbols => '未找到符号';
 
   @override
-  String get readerUiSymbolsUnavailable =>
-      'Try a different name. Some language services do not support project-wide symbol search.';
+  String get readerUiSymbolsUnavailable => '试试其他名称。部分语言服务不支持项目范围的符号搜索。';
 
   @override
   String get readerUiFiles => '文件';
 
   @override
-  String get readerUiSymbols => 'Symbols';
+  String get readerUiSymbols => '符号';
 
   @override
   String get readerUiChanges => '更改';
@@ -4843,38 +4691,37 @@ class AppLocalizationsZh extends AppLocalizations {
   String get readerUiRaw => 'Raw';
 
   @override
-  String get readerUiSaveFailed =>
-      'Could not save reader preferences. Try again.';
+  String get readerUiSaveFailed => '无法保存阅读器偏好设置。请重试。';
 
   @override
-  String get readerUiSourceFirst => 'Source first';
+  String get readerUiSourceFirst => '源码优先';
 
   @override
-  String get readerUiServerOrder => 'Default order';
+  String get readerUiServerOrder => '默认顺序';
 
   @override
   String readerUiLine(int number) {
-    return 'line $number';
+    return '第 $number 行';
   }
 
   @override
   String readerUiReferenceAdded(String label) {
-    return 'Added $label to the prompt';
+    return '已将 $label 添加到提示词';
   }
 
   @override
   String readerUiReferenceDuplicate(String label) {
-    return '$label is already on the prompt';
+    return '$label 已在提示词中';
   }
 
   @override
   String readerUiReferenceFull(int count) {
-    return 'The prompt already holds $count references';
+    return '提示词已包含 $count 个引用';
   }
 
   @override
   String readerUiAttached(String name) {
-    return '$name attached.';
+    return '已附加 $name。';
   }
 
   @override
@@ -4882,30 +4729,30 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count changed files',
-      one: '$count changed file',
+      other: '$count 个已更改的文件',
+      one: '$count 个已更改的文件',
     );
     return '$_temp0';
   }
 
   @override
   String readerUiAttachedReturn(String name) {
-    return '$name attached. Return to the conversation to add your comment.';
+    return '已附加 $name。返回对话以添加你的评论。';
   }
 
   @override
   String readerUiSaveNamed(String name) {
-    return 'Save $name';
+    return '保存 $name';
   }
 
   @override
   String readerUiSavedDevice(String name) {
-    return '$name saved to your device.';
+    return '$name 已保存到你的设备。';
   }
 
   @override
   String readerUiPathLine(String path, int line) {
-    return '$path · Line $line';
+    return '$path · 第 $line 行';
   }
 
   @override
@@ -4944,76 +4791,76 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get readerUiSymbolFile => 'File';
+  String get readerUiSymbolFile => '文件';
 
   @override
-  String get readerUiSymbolModule => 'Module';
+  String get readerUiSymbolModule => '模块';
 
   @override
-  String get readerUiSymbolNamespace => 'Namespace';
+  String get readerUiSymbolNamespace => '命名空间';
 
   @override
-  String get readerUiSymbolPackage => 'Package';
+  String get readerUiSymbolPackage => '包';
 
   @override
-  String get readerUiSymbolClass => 'Class';
+  String get readerUiSymbolClass => '类';
 
   @override
-  String get readerUiSymbolMethod => 'Method';
+  String get readerUiSymbolMethod => '方法';
 
   @override
-  String get readerUiSymbolProperty => 'Property';
+  String get readerUiSymbolProperty => '属性';
 
   @override
-  String get readerUiSymbolField => 'Field';
+  String get readerUiSymbolField => '字段';
 
   @override
-  String get readerUiSymbolConstructor => 'Constructor';
+  String get readerUiSymbolConstructor => '构造函数';
 
   @override
-  String get readerUiSymbolEnum => 'Enum';
+  String get readerUiSymbolEnum => '枚举';
 
   @override
-  String get readerUiSymbolInterface => 'Interface';
+  String get readerUiSymbolInterface => '接口';
 
   @override
-  String get readerUiSymbolFunction => 'Function';
+  String get readerUiSymbolFunction => '函数';
 
   @override
-  String get readerUiSymbolVariable => 'Variable';
+  String get readerUiSymbolVariable => '变量';
 
   @override
-  String get readerUiSymbolConstant => 'Constant';
+  String get readerUiSymbolConstant => '常量';
 
   @override
-  String get readerUiSymbolEnummember => 'Enum member';
+  String get readerUiSymbolEnummember => '枚举成员';
 
   @override
-  String get readerUiSymbolStruct => 'Struct';
+  String get readerUiSymbolStruct => '结构体';
 
   @override
-  String get readerUiSymbolEvent => 'Event';
+  String get readerUiSymbolEvent => '事件';
 
   @override
-  String get readerUiSymbolOperator => 'Operator';
+  String get readerUiSymbolOperator => '运算符';
 
   @override
-  String get readerUiSymbolTypeparameter => 'Type parameter';
+  String get readerUiSymbolTypeparameter => '类型参数';
 
   @override
-  String get readerUiSymbolSymbol => 'Symbol';
+  String get readerUiSymbolSymbol => '符号';
 
   @override
-  String get readerUiAdded => 'Added';
+  String get readerUiAdded => '已添加';
 
   @override
-  String get readerUiDeleted => 'Deleted';
+  String get readerUiDeleted => '已删除';
 
   @override
-  String get readerUiModified => 'Modified';
+  String get readerUiModified => '已修改';
 
   @override
-  String get readerUiChanged => 'Changed';
+  String get readerUiChanged => '已更改';
 
   @override
   String get readerUiSession => 'This conversation';
@@ -5103,10 +4950,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get e7WorkspaceCompacting => 'Compacting…';
 
   @override
-  String get e7WorkspaceStopSharing => 'Stop sharing';
+  String get e7WorkspaceStopSharing => '停止分享';
 
   @override
-  String get e7WorkspaceDisconnect => 'Disconnect';
+  String get e7WorkspaceDisconnect => '断开连接';
 
   @override
   String get e7WorkspaceBackExit => '再按一次返回即可退出';
@@ -5249,28 +5096,28 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String e7WorkspaceSessionId(String id) {
-    return 'Conversation $id';
+    return '对话 $id';
   }
 
   @override
   String get e7WorkspaceUnknownProject => 'Unknown project';
 
   @override
-  String get e7WorkspaceJustNow => 'Just now';
+  String get e7WorkspaceJustNow => '刚刚';
 
   @override
   String e7WorkspaceMinutesAgo(int count) {
-    return '$count min ago';
+    return '$count 分钟前';
   }
 
   @override
   String e7WorkspaceHoursAgo(int count) {
-    return '${count}h ago';
+    return '$count 小时前';
   }
 
   @override
   String e7WorkspaceDaysAgo(int count) {
-    return '${count}d ago';
+    return '$count 天前';
   }
 
   @override
@@ -5285,7 +5132,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get chatUiAllMatchingRequests => '(all matching requests)';
+  String get chatUiAllMatchingRequests => '（所有匹配的请求）';
 
   @override
   String get chatUiNoOutput => '(no output)';
@@ -5313,7 +5160,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatUiAlreadyAnsweredElsewhere => 'Already answered elsewhere';
 
   @override
-  String get chatUiAlreadyDelivered => 'Already delivered';
+  String get chatUiAlreadyDelivered => '已送达';
 
   @override
   String get chatUiAlwaysAllow => '始终允许';
@@ -5327,7 +5174,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get chatUiAnyoneWithTheLinkCanViewThis =>
-      'Anyone with the link can view this conversation and its shared context. Do not share conversations containing secrets, credentials, or private files.';
+      '任何拥有链接的人都可以查看此对话及其共享的上下文。请勿分享包含机密、凭据或私有文件的对话。';
 
   @override
   String get chatUiAppDiagnostics => 'App diagnostics';
@@ -5345,7 +5192,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatUiAttachFile => '添加文件';
 
   @override
-  String get chatUiAttachToPrompt => 'Attach to prompt';
+  String get chatUiAttachToPrompt => '附加到提示词';
 
   @override
   String get chatUiAttachment => '附件';
@@ -5354,8 +5201,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatUiAttachmentLimitReached => 'Attachment limit reached';
 
   @override
-  String get chatUiAttachmentsMustTotalNoMoreThan20 =>
-      'Attachments must total no more than 20 MB.';
+  String get chatUiAttachmentsMustTotalNoMoreThan20 => '附件总大小不能超过 20 MB。';
 
   @override
   String get chatUiAvailableWhenTheCurrentRunFinishes => '当前运行结束后可用';
@@ -5400,8 +5246,7 @@ class AppLocalizationsZh extends AppLocalizations {
       'Choose a server model by provider and capability';
 
   @override
-  String get chatUiChooseAnotherModelInThePickerTo =>
-      'Choose another model in the picker to build your recent list.';
+  String get chatUiChooseAnotherModelInThePickerTo => '在选择器中选择其他模型，即可建立最近使用列表。';
 
   @override
   String get chatUiChooseModel => '选择模型';
@@ -5429,7 +5274,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatUiCompactContext => 'Compact context';
 
   @override
-  String get chatUiCompactSession => 'Compact conversation';
+  String get chatUiCompactSession => '压缩对话';
 
   @override
   String get chatUiCompactingConversation => '正在压缩对话…';
@@ -5438,7 +5283,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatUiCompactionFailed => '压缩失败';
 
   @override
-  String get chatUiCompactionStarted => 'Compaction started';
+  String get chatUiCompactionStarted => '已开始压缩';
 
   @override
   String get chatUiCompose => 'Compose';
@@ -5461,10 +5306,10 @@ class AppLocalizationsZh extends AppLocalizations {
       'Copied. Paste it into the composer';
 
   @override
-  String get chatUiCopyMessageText => 'Copy message text';
+  String get chatUiCopyMessageText => '复制消息文字';
 
   @override
-  String get chatUiCopyShareLink => 'Copy share link';
+  String get chatUiCopyShareLink => '复制分享链接';
 
   @override
   String get chatUiCopyTheRenderedConversationAsMarkdown =>
@@ -5494,10 +5339,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatUiDelegatedSession => '已委派的对话';
 
   @override
-  String get chatUiDeleteMessage => 'Delete message';
+  String get chatUiDeleteMessage => '删除消息';
 
   @override
-  String get chatUiDeleteThisMessage => 'Delete this message?';
+  String get chatUiDeleteThisMessage => '删除此消息？';
 
   @override
   String get chatUiDetails => '详情';
@@ -5522,8 +5367,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatUiDismissPromptError => '关闭提示词错误';
 
   @override
-  String get chatUiEachAttachmentMustBe10MBOr =>
-      'Each attachment must be 10 MB or smaller.';
+  String get chatUiEachAttachmentMustBe10MBOr => '每个附件不能超过 10 MB。';
 
   @override
   String get chatUiEdit => 'Edit';
@@ -5536,13 +5380,13 @@ class AppLocalizationsZh extends AppLocalizations {
       'Edit the current prompt in a focused full-screen view';
 
   @override
-  String get chatUiErrorDetails => 'Error details';
+  String get chatUiErrorDetails => '错误详情';
 
   @override
   String get chatUiExpandReasoning => 'Expand reasoning';
 
   @override
-  String get chatUiExportSessionTranscript => 'Export conversation transcript';
+  String get chatUiExportSessionTranscript => '导出对话记录';
 
   @override
   String get chatUiExportTranscript => 'Export transcript';
@@ -5579,19 +5423,19 @@ class AppLocalizationsZh extends AppLocalizations {
       'Follow Android or choose the native light or dark theme';
 
   @override
-  String get chatUiForkFromThisPrompt => 'Fork from this prompt';
+  String get chatUiForkFromThisPrompt => '从此提示词分叉';
 
   @override
   String get chatUiForkSession => 'Fork conversation';
 
   @override
-  String get chatUiGeneratedFile => 'Generated file';
+  String get chatUiGeneratedFile => '生成的文件';
 
   @override
   String get chatUiHideTimestamps => 'Hide timestamps';
 
   @override
-  String get chatUiImageDataIsUnavailable => 'Image data is unavailable.';
+  String get chatUiImageDataIsUnavailable => '图片数据不可用。';
 
   @override
   String get chatUiInputRequested => 'Input requested';
@@ -5635,8 +5479,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatUiLoadingSubagents => 'Loading subagents…';
 
   @override
-  String get chatUiLongReasoningCollapsedInTheTranscript =>
-      'Long reasoning collapsed in the transcript';
+  String get chatUiLongReasoningCollapsedInTheTranscript => '长推理在记录中已折叠';
 
   @override
   String get chatUiMCPServers => 'MCP servers';
@@ -5652,10 +5495,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatUiMessageTimeline => 'Message timeline';
 
   @override
-  String get chatUiMessageTimestampsHidden => 'Message timestamps hidden';
+  String get chatUiMessageTimestampsHidden => '消息时间戳已隐藏';
 
   @override
-  String get chatUiMessageTimestampsShown => 'Message timestamps shown';
+  String get chatUiMessageTimestampsShown => '消息时间戳已显示';
 
   @override
   String get chatUiModel => '模型';
@@ -5677,13 +5520,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatUiNavigate => 'Navigate';
 
   @override
-  String get chatUiNoAnswer => 'No answer';
+  String get chatUiNoAnswer => '无回答';
 
   @override
   String get chatUiNoMatchingMessages => 'No matching messages';
 
   @override
-  String get chatUiNoShareLinkWasReturned => 'No share link was returned';
+  String get chatUiNoShareLinkWasReturned => '未返回分享链接';
 
   @override
   String get chatUiNoSubagentsAvailableFromThisServer =>
@@ -5704,15 +5547,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatUiOpenProviders => '打开服务商';
 
   @override
-  String get chatUiOpenSubagentSession => 'Open subagent conversation';
+  String get chatUiOpenSubagentSession => '打开子智能体对话';
 
   @override
   String get chatUiOpenCodeCommandsAreUnavailableOffline =>
       'OpenCode commands are unavailable offline.';
 
   @override
-  String get chatUiOpenCodeCouldNotCompleteThisPrompt =>
-      'OpenCode could not complete this prompt.';
+  String get chatUiOpenCodeCouldNotCompleteThisPrompt => 'OpenCode 无法完成此提示词。';
 
   @override
   String get chatUiOpenCodeIsReconnecting => 'OpenCode is reconnecting.';
@@ -5736,8 +5578,7 @@ class AppLocalizationsZh extends AppLocalizations {
       'OpenCode 正在重新连接。服务器在线后请重试。';
 
   @override
-  String get chatUiOpenCodeIsReconnectingTryAgain =>
-      'OpenCode is reconnecting. Try again.';
+  String get chatUiOpenCodeIsReconnectingTryAgain => 'OpenCode 正在重新连接。请重试。';
 
   @override
   String get chatUiOpenCodeNeedsInput => 'OpenCode 需要你的输入';
@@ -5752,7 +5593,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatUiPendingChange => '待处理的更改';
 
   @override
-  String get chatUiProjectFiles => 'Project files';
+  String get chatUiProjectFiles => '项目文件';
 
   @override
   String get chatUiProjectHealth => 'Project health';
@@ -5791,19 +5632,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatUiRead => 'Read';
 
   @override
-  String get chatUiReasoningExpandedInTheTranscript =>
-      'Reasoning expanded in the transcript';
+  String get chatUiReasoningExpandedInTheTranscript => '推理在记录中已展开';
 
   @override
   String get chatUiRecordsAndTranscribesOnThisDevice => '在本设备上录音并转写';
 
   @override
   String get chatUiReferenceKeptForYourNextPromptCommands =>
-      'Reference kept for your next prompt — commands do not carry it.';
+      '引用已保留给你的下一条提示词：命令不会携带它。';
 
   @override
   String get chatUiReferencesKeptForYourNextPromptCommands =>
-      'References kept for your next prompt — commands do not carry them.';
+      '引用已保留给你的下一条提示词：命令不会携带它们。';
 
   @override
   String get chatUiReject => 'Reject';
@@ -5812,10 +5652,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatUiReloadMessages => 'Refresh messages';
 
   @override
-  String get chatUiRename => 'Rename';
+  String get chatUiRename => '重命名';
 
   @override
-  String get chatUiRenameSession => 'Rename conversation';
+  String get chatUiRenameSession => '重命名对话';
 
   @override
   String get chatUiRestoreRevertedPrompt => 'Restore reverted prompt';
@@ -5831,8 +5671,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatUiRevertLastPrompt => 'Undo last prompt';
 
   @override
-  String get chatUiReviewCommentAddedToThePrompt =>
-      'Review comment added to the prompt';
+  String get chatUiReviewCommentAddedToThePrompt => '审查评论已添加到提示词';
 
   @override
   String get chatUiReviewHandledAppErrorsAndSendA =>
@@ -5862,7 +5701,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatRunShellEmpty => 'Type a command to run.';
 
   @override
-  String get chatRenameEmpty => 'Type a title.';
+  String get chatRenameEmpty => '请输入标题。';
 
   @override
   String get chatUiSaveTheConversationAsAMarkdownFile =>
@@ -5882,14 +5721,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatUiSearchText => 'Search text';
 
   @override
-  String get chatUiSelectAModelBeforeCompactingThisSession =>
-      'Select a model before compacting this conversation.';
+  String get chatUiSelectAModelBeforeCompactingThisSession => '压缩此对话前请先选择模型。';
 
   @override
   String get chatUiServerCommands => 'Server commands';
 
   @override
-  String get chatUiServerMessage => 'Server message';
+  String get chatUiServerMessage => '服务器消息';
 
   @override
   String get chatUiServerStatus => 'Server status';
@@ -5902,29 +5740,28 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get chatUiSessionSharedCopyTheVisibleLinkManually =>
-      'Conversation shared. Copy the visible link manually.';
+      '对话已分享。请手动复制可见的链接。';
 
   @override
-  String get chatUiShareLinkCopied => 'Share link copied';
+  String get chatUiShareLinkCopied => '分享链接已复制';
 
   @override
-  String get chatUiShareSession => 'Share conversation';
+  String get chatUiShareSession => '分享对话';
 
   @override
-  String get chatUiShareThisSession => 'Share this conversation?';
+  String get chatUiShareThisSession => '分享此对话？';
 
   @override
-  String get chatUiSharedAnyoneWithTheLinkCanView =>
-      'Shared: anyone with the link can view';
+  String get chatUiSharedAnyoneWithTheLinkCanView => '已分享：任何拥有链接的人都可以查看';
 
   @override
-  String get chatUiShowAllSubagentSessions => 'Show all subagent conversations';
+  String get chatUiShowAllSubagentSessions => '显示所有子智能体对话';
 
   @override
   String get chatUiShowTimestamps => 'Show timestamps';
 
   @override
-  String get chatUiSkill => 'Skill ·';
+  String get chatUiSkill => '技能 ·';
 
   @override
   String get chatUiSkills => 'Skills';
@@ -5937,7 +5774,7 @@ class AppLocalizationsZh extends AppLocalizations {
       'Start a clean conversation in this project';
 
   @override
-  String get chatUiStopSharing => 'Stop sharing';
+  String get chatUiStopSharing => '停止分享';
 
   @override
   String get chatUiSubagent => 'Subagent';
@@ -5973,24 +5810,21 @@ class AppLocalizationsZh extends AppLocalizations {
       'That message is no longer in this conversation.';
 
   @override
-  String get chatUiTheFileHasNoContentToAttach =>
-      'The file has no content to attach.';
+  String get chatUiTheFileHasNoContentToAttach => '该文件没有可附加的内容。';
 
   @override
-  String get chatUiTheFileHasNoContentToSave =>
-      'The file has no content to save.';
+  String get chatUiTheFileHasNoContentToSave => '该文件没有可保存的内容。';
 
   @override
   String get chatUiTheFormOrProjectChangedReopenThe =>
       'The form or project changed. Reopen the current request.';
 
   @override
-  String get chatUiTheGeneratedFileIsNotAvailableFrom =>
-      'The generated file is not available from this server.';
+  String get chatUiTheGeneratedFileIsNotAvailableFrom => '此服务器上没有该生成的文件。';
 
   @override
   String get chatUiTheMessageAndAllOfItsParts =>
-      'The message and all of its parts are permanently removed from the conversation, so future replies no longer see them. File changes it made are not reverted.';
+      '该消息及其所有部分将从对话中永久移除，之后的回复将不再看到它们。它所做的文件更改不会被撤销。';
 
   @override
   String get chatUiTheServerReturnedEmptyImageData =>
@@ -6004,12 +5838,10 @@ class AppLocalizationsZh extends AppLocalizations {
       '这份草稿太大，无法排队，或者队列已被更新的草稿占满。请移除一个附件，或在设置中清除排队的提示词。';
 
   @override
-  String get chatUiThisPromptCannotBeRestoredBecauseAn =>
-      'This prompt cannot be restored because an attachment is unavailable.';
+  String get chatUiThisPromptCannotBeRestoredBecauseAn => '无法恢复此提示词，因为有附件不可用。';
 
   @override
-  String get chatUiThisPromptCannotBeRetriedBecauseAn =>
-      'This prompt cannot be retried because an attachment is unavailable.';
+  String get chatUiThisPromptCannotBeRetriedBecauseAn => '无法重试此提示词，因为有附件不可用。';
 
   @override
   String get chatUiTimeline => 'Timeline';
@@ -6018,7 +5850,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatUiTimestampsUsage => 'Timestamps & usage';
 
   @override
-  String get chatUiTitle => 'Title';
+  String get chatUiTitle => '标题';
 
   @override
   String get chatUiTodos => 'Tasks';
@@ -6038,24 +5870,22 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatUiToolsAndCapabilities => 'Tools and capabilities';
 
   @override
-  String get chatUiTranscriptCopiedAsMarkdown =>
-      'Transcript copied as Markdown';
+  String get chatUiTranscriptCopiedAsMarkdown => '记录已复制为 Markdown';
 
   @override
   String get chatUiTranscriptDisplay => 'Transcript display';
 
   @override
-  String get chatUiTranscriptSaved => 'Transcript saved';
+  String get chatUiTranscriptSaved => '记录已保存';
 
   @override
-  String get chatUiVoiceConversationWasInterrupted =>
-      'Voice conversation was interrupted.';
+  String get chatUiVoiceConversationWasInterrupted => '语音对话已中断。';
 
   @override
   String get chatUiVoiceInput => '语音输入';
 
   @override
-  String get chatUiVoiceInputIsUnavailable => 'Voice input is unavailable.';
+  String get chatUiVoiceInputIsUnavailable => '语音输入不可用。';
 
   @override
   String get chatUiLoadTools => 'Load tools';
@@ -6082,7 +5912,7 @@ class AppLocalizationsZh extends AppLocalizations {
       'Your original composer draft and attachments will stay unchanged.';
 
   @override
-  String get chatUiInThisChat => 'in this conversation';
+  String get chatUiInThisChat => '在此对话中';
 
   @override
   String get chatUiNewFile => 'new file';
@@ -6099,7 +5929,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String chatUiAttachmentCountLimit(Object count) {
-    return 'You can attach up to $count files.';
+    return '最多可附加 $count 个文件。';
   }
 
   @override
@@ -6107,8 +5937,8 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Sent $count queued prompts',
-      one: 'Sent 1 queued prompt',
+      other: '已发送 $count 条排队的提示词',
+      one: '已发送 1 条排队的提示词',
     );
     return '$_temp0';
   }
@@ -6118,35 +5948,35 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count drafts waiting for other servers',
-      one: '1 draft waiting for other servers',
+      other: '$count 份草稿正在等待其他服务器',
+      one: '1 份草稿正在等待其他服务器',
     );
     return ' · $_temp0';
   }
 
   @override
   String chatUiNextTurnsModel(Object model) {
-    return 'Next turns in this conversation use $model.';
+    return '此对话接下来的回复将使用 $model。';
   }
 
   @override
   String chatUiReferenceAlreadyAdded(Object name) {
-    return '@$name is already in the prompt';
+    return '@$name 已在提示词中';
   }
 
   @override
   String chatUiFileAttached(Object filename) {
-    return '$filename attached. Add your comment.';
+    return '已附加 $filename。请添加你的评论。';
   }
 
   @override
   String chatUiSaveFile(Object filename) {
-    return 'Save $filename';
+    return '保存 $filename';
   }
 
   @override
   String chatUiFileSaved(Object filename) {
-    return '$filename saved to your device.';
+    return '$filename 已保存到你的设备。';
   }
 
   @override
@@ -6164,8 +5994,8 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count drafts waiting for other servers.',
-      one: '1 draft waiting for other servers.',
+      other: '$count 份草稿正在等待其他服务器。',
+      one: '1 份草稿正在等待其他服务器。',
     );
     return '$_temp0';
   }
@@ -6231,8 +6061,8 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count earlier messages',
-      one: '1 earlier message',
+      other: '$count 条更早的消息',
+      one: '1 条更早的消息',
     );
     return '$_temp0';
   }
@@ -6244,7 +6074,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String chatUiPositionOfTotal(Object position, Object total) {
-    return '$position of $total';
+    return '第 $position / 共 $total';
   }
 
   @override
@@ -6310,8 +6140,8 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count files',
-      one: '1 file',
+      other: '$count 个文件',
+      one: '1 个文件',
     );
     return '$_temp0';
   }
@@ -6359,7 +6189,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String chatUiFileLoadFailed(Object error) {
-    return 'Could not load this file from the OpenCode server: $error';
+    return '无法从 OpenCode 服务器加载此文件：$error';
   }
 
   @override
@@ -6374,17 +6204,17 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String chatUiAnsweredDetail(Object answer) {
-    return 'Answered: $answer';
+    return '已回答：$answer';
   }
 
   @override
   String chatUiLoadingFile(Object filename) {
-    return 'Loading $filename';
+    return '正在加载 $filename';
   }
 
   @override
   String chatUiPreviewGeneratedImage(Object filename) {
-    return 'Preview generated image $filename';
+    return '预览生成的图片 $filename';
   }
 
   @override
@@ -6416,13 +6246,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatUiBackgroundCancelled => '已取消';
 
   @override
-  String get chatUiResultSourceDetails => 'Server message details';
+  String get chatUiResultSourceDetails => '服务器消息详情';
 
   @override
   String get chatUiResultOpenChild => '打开子智能体的对话';
 
   @override
-  String get chatUiNoResultText => 'The server returned no result text.';
+  String get chatUiNoResultText => '服务器未返回结果文本。';
 
   @override
   String get chatUiTimedOut => 'Timed out';
@@ -6437,22 +6267,22 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatUiUpdated => 'Updated';
 
   @override
-  String get chatUiError => 'Error';
+  String get chatUiError => '错误';
 
   @override
-  String get chatUiAssistant => 'Assistant';
+  String get chatUiAssistant => '助手';
 
   @override
-  String get chatUiUser => 'User';
+  String get chatUiUser => '用户';
 
   @override
-  String get chatUiOpenCodeSession => 'OpenCode conversation';
+  String get chatUiOpenCodeSession => 'OpenCode 对话';
 
   @override
-  String get chatUiTool => 'Tool';
+  String get chatUiTool => '工具';
 
   @override
-  String get chatUiFile => 'file';
+  String get chatUiFile => '文件';
 
   @override
   String get e7LibraryReportABug => '报告问题';
@@ -6896,25 +6726,23 @@ class AppLocalizationsZh extends AppLocalizations {
   String get e7LibraryConnect => 'Connect';
 
   @override
-  String get e7LibraryAuthenticationFailed => 'Authentication failed';
+  String get e7LibraryAuthenticationFailed => '认证失败';
 
   @override
-  String get e7LibraryAuthenticationAttemptExpired =>
-      'Authentication attempt expired';
+  String get e7LibraryAuthenticationAttemptExpired => '认证尝试已过期';
 
   @override
-  String get e7LibraryAuthenticationComplete => 'Authentication complete';
+  String get e7LibraryAuthenticationComplete => '认证完成';
 
   @override
-  String get e7LibraryReturnFromTheBrowserAndEnterThe =>
-      'Return from the browser and enter the authorization code.';
+  String get e7LibraryReturnFromTheBrowserAndEnterThe => '从浏览器返回，并输入授权码。';
 
   @override
   String get e7LibraryFinishAuthenticationInTheBrowserThenCheck =>
-      'Finish authentication in the browser, then check its status.';
+      '请在浏览器中完成认证，然后检查状态。';
 
   @override
-  String get e7LibraryAuthorizationCode => 'Authorization code';
+  String get e7LibraryAuthorizationCode => '授权码';
 
   @override
   String get e7LibrarySelectAnOption => 'Select an option';
@@ -6939,7 +6767,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get e7LibraryModelsAndAgents => 'Models and agents';
 
   @override
-  String get e7LibraryUnavailable => 'Unavailable';
+  String get e7LibraryUnavailable => '不可用';
 
   @override
   String get e7LibraryFinishOrCancelTheCurrentMCPAuthorization =>
@@ -7066,11 +6894,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String e7LibraryIsConnected(String detail1) {
-    return '$detail1 is connected';
+    return '$detail1 已连接';
   }
 
   @override
-  String get e7LibraryTheSignInSourceChanged => 'The sign-in source changed.';
+  String get e7LibraryTheSignInSourceChanged => '登录来源已更改。';
 
   @override
   String get e7LibraryCouldNotConfirmAuthenticationReturnToThe =>
@@ -7118,64 +6946,58 @@ class AppLocalizationsZh extends AppLocalizations {
   String get e7LibrarySearchShortcutsAliases => 'hotkeys help desktop';
 
   @override
-  String get e7SetupApiKeyHint => 'Paste an API key';
+  String get e7SetupApiKeyHint => '粘贴 API 密钥';
 
   @override
-  String get e7SetupBrowserHint =>
-      'Opens a browser. If the redirect cannot reach OpenCode, paste the callback URL here.';
+  String get e7SetupBrowserHint => '会打开浏览器。如果重定向无法到达 OpenCode，请在此粘贴回调 URL。';
 
   @override
-  String get e7SetupDeviceCodeHint =>
-      'Uses a one-time code. Works from a phone.';
+  String get e7SetupDeviceCodeHint => '使用一次性代码。可在手机上完成。';
 
   @override
-  String get e7SetupAccountHint => 'Sign in with your account';
+  String get e7SetupAccountHint => '使用你的账号登录';
 
   @override
-  String get e7SetupNewTerminalDetail => 'Start a shell in the active project.';
+  String get e7SetupNewTerminalDetail => '在当前项目中启动一个 shell。';
 
   @override
-  String get e7SetupShowPassword => 'Show server password';
+  String get e7SetupShowPassword => '显示服务器密码';
 
   @override
-  String get e7SetupAuthFailed =>
-      'The server started but authentication failed.';
+  String get e7SetupAuthFailed => '服务器已启动，但身份验证失败。';
 
   @override
-  String get e7SetupScanInstruction =>
-      'Point the camera at the QR code printed by opencode2 pair.';
+  String get e7SetupScanInstruction => '将相机对准 opencode2 pair 输出的二维码。';
 
   @override
-  String get e7SetupRightKey => 'Right arrow key';
+  String get e7SetupRightKey => '向右箭头键';
 
   @override
-  String get e7SetupRestartReconnectFailed =>
-      'The local server restarted, but the app could not reconnect.';
+  String get e7SetupRestartReconnectFailed => '本地服务器已重启，但应用无法重新连接。';
 
   @override
-  String get e7SetupInstallingOpenCode => 'Installing OpenCode';
+  String get e7SetupInstallingOpenCode => '正在安装 OpenCode';
 
   @override
-  String get e7SetupNoOutput => 'No terminal output yet.';
+  String get e7SetupNoOutput => '终端暂无输出。';
 
   @override
-  String get e7SetupFollowLog => 'Follow the server log';
+  String get e7SetupFollowLog => '查看服务器日志';
 
   @override
-  String get e7SetupOpenSetupGuide => 'Open the setup guide';
+  String get e7SetupOpenSetupGuide => '打开设置指南';
 
   @override
-  String get e7SetupDownKey => 'Down arrow key';
+  String get e7SetupDownKey => '向下箭头键';
 
   @override
-  String get e7SetupVerifyContinue => 'Verify & continue';
+  String get e7SetupVerifyContinue => '验证并继续';
 
   @override
-  String get e7SetupAccessibleTerminal => 'Use accessible transcript and input';
+  String get e7SetupAccessibleTerminal => '使用无障碍文本记录与输入';
 
   @override
-  String get e7SetupCameraFailedDetail =>
-      'Another app may be holding the camera. Pasting the pairing code works either way.';
+  String get e7SetupCameraFailedDetail => '可能有其他应用正在占用相机。粘贴配对码同样有效。';
 
   @override
   String get e7SetupTermuxNoAnswer =>
@@ -7185,295 +7007,278 @@ class AppLocalizationsZh extends AppLocalizations {
   String get e7SetupCopyOpenTermux => '复制并打开 Termux';
 
   @override
-  String get e7SetupStopTerminalDetail =>
-      'The running process and its child processes will be terminated.';
+  String get e7SetupStopTerminalDetail => '正在运行的进程及其子进程将被终止。';
 
   @override
   String get e7SetupEdit => '编辑';
 
   @override
-  String get e7SetupServerPassword => 'Server password';
+  String get e7SetupServerPassword => '服务器密码';
 
   @override
-  String get e7SetupHttpsHint =>
-      'https:// for other computers; http:// only on this device or a private network.';
+  String get e7SetupHttpsHint => '优先使用 HTTPS。远程 HTTP 需要你为每台服务器单独授权。';
 
   @override
   String get e7SetupObservedVersionSaveFailed =>
-      'The local server is ready, but its observed version could not be saved. Refresh setup to try again.';
+      '本地服务器已就绪，但无法保存观测到的版本。请刷新设置后重试。';
 
   @override
-  String get e7SetupPasteInstead => 'Paste it instead';
+  String get e7SetupPasteInstead => '改为粘贴';
 
   @override
-  String get e7SetupConfirmUpdate => 'Update managed OpenCode?';
+  String get e7SetupConfirmUpdate => '更新托管的 OpenCode？';
 
   @override
   String get e7SetupInstallServiceDetail =>
-      'Official installer plus a systemd user service that survives closed terminals and reboots.';
+      '官方安装程序加一个 systemd 用户服务，关闭终端或重启后仍可运行。';
 
   @override
-  String get e7SetupUpdateHost => 'Update OpenCode on the host';
+  String get e7SetupUpdateHost => '在主机上更新 OpenCode';
 
   @override
   String get e7SetupServiceStatus => 'Service status';
 
   @override
-  String get e7SetupKeepAfterLogout => 'Keep it running after logout';
+  String get e7SetupKeepAfterLogout => '退出登录后保持运行';
 
   @override
   String get e7SetupGetTermux => '获取 Termux';
 
   @override
-  String get e7SetupRestartServer => 'Restart the server';
+  String get e7SetupRestartServer => '重启服务器';
 
   @override
-  String get e7SetupResumeSetup => 'Retry — resumes where setup left off';
+  String get e7SetupResumeSetup => '重试 — 从设置中断处继续';
 
   @override
-  String get e7SetupHidePassword => 'Hide server password';
+  String get e7SetupHidePassword => '隐藏服务器密码';
 
   @override
-  String get e7SetupControlKeys =>
-      'Terminal control keys. Swipe horizontally for more.';
+  String get e7SetupControlKeys => '终端控制键。左右滑动查看更多。';
 
   @override
-  String get e7SetupEndInputKey => 'End of input, Control D';
+  String get e7SetupEndInputKey => '输入结束，Control D';
 
   @override
-  String get e7SetupGuidanceSaveFailed =>
-      'Could not save connection guidance. Retry saving.';
+  String get e7SetupGuidanceSaveFailed => '无法保存连接指引。请重试保存。';
 
   @override
-  String get e7SetupServerOperation => 'Server operation in progress';
+  String get e7SetupServerOperation => '服务器操作进行中';
 
   @override
-  String get e7SetupNewTerminal => 'New terminal';
+  String get e7SetupNewTerminal => '新建终端';
 
   @override
-  String get e7SetupUnsavedProfile => 'The server has not been saved.';
+  String get e7SetupUnsavedProfile => '服务器尚未保存。';
 
   @override
-  String get e7SetupCheckingInstall => 'Checking installed environment...';
+  String get e7SetupCheckingInstall => '正在检查已安装的环境...';
 
   @override
-  String get e7SetupInspectTermuxFailed => 'Android could not inspect Termux.';
+  String get e7SetupInspectTermuxFailed => 'Android 无法检查 Termux。';
 
   @override
-  String get e7SetupUsername => 'Username (optional)';
+  String get e7SetupUsername => '用户名（可选）';
 
   @override
   String get e7SetupFirstSetupDuration =>
-      'First-time setup can take 10–15 minutes. You can leave this screen and return; setup keeps running.';
+      '首次设置可能需要 10–15 分钟。你可以离开此页面稍后再回来，设置会继续运行。';
 
   @override
-  String get e7SetupNoTerminals => 'No terminal processes';
+  String get e7SetupNoTerminals => '没有终端进程';
 
   @override
-  String get e7SetupEscapeKey => 'Escape key';
+  String get e7SetupEscapeKey => 'Esc 键';
 
   @override
-  String get e7SetupLeftKey => 'Left arrow key';
+  String get e7SetupLeftKey => '向左箭头键';
 
   @override
-  String get e7SetupInstallService =>
-      'Install OpenCode as a background service';
+  String get e7SetupInstallService => '将 OpenCode 安装为后台服务';
 
   @override
-  String get e7SetupSaveToFinish => 'Connected — save to finish.';
+  String get e7SetupSaveToFinish => '已连接：保存即可完成。';
 
   @override
-  String get e7SetupPasswordStartupHint =>
-      'Shown when the server starts. Leave empty if it has none.';
+  String get e7SetupPasswordStartupHint => '服务器启动时会显示。如果没有密码则留空。';
 
   @override
   String get e7SetupInstallTermuxDetail => '安装最新的 F-Droid 版 Termux，然后回到这里。';
 
   @override
-  String get e7SetupStopBeforeUpdate =>
-      'Stop active generation before updating OpenCode.';
+  String get e7SetupStopBeforeUpdate => '更新 OpenCode 前请先停止正在进行的生成。';
 
   @override
-  String get e7SetupRestartingLocal => 'Restarting the local server';
+  String get e7SetupRestartingLocal => '正在重启本地服务器';
 
   @override
   String get e7SetupAddServer => '添加服务器';
 
   @override
-  String get e7SetupInteractiveTerminal => 'Use interactive terminal';
+  String get e7SetupInteractiveTerminal => '使用交互式终端';
 
   @override
-  String get e7SetupInstallingUbuntu => 'Setting up Ubuntu';
+  String get e7SetupInstallingUbuntu => '正在设置 Ubuntu';
 
   @override
-  String get e7SetupInterruptKey => 'Interrupt, Control C';
+  String get e7SetupInterruptKey => '中断，Control C';
 
   @override
-  String get e7SetupServerUrl => 'Server URL';
+  String get e7SetupServerUrl => '服务器 URL';
 
   @override
-  String get e7SetupUsbAccess => 'Reach it from this phone over USB';
+  String get e7SetupUsbAccess => '通过 USB 从这部手机访问';
 
   @override
-  String get e7SetupWaitingTermux =>
-      'Waiting for Termux to respond. This can take a little while.';
+  String get e7SetupWaitingTermux => '正在等待 Termux 响应。这可能需要一些时间。';
 
   @override
-  String get e7SetupDiscardChanges => 'Discard server changes?';
+  String get e7SetupDiscardChanges => '要放弃服务器的更改吗？';
 
   @override
-  String get e7SetupPasswordRequired => 'Can\'t read the saved password';
+  String get e7SetupPasswordRequired => '无法读取已保存的密码';
 
   @override
-  String get e7SetupPairing => 'Pairing…';
+  String get e7SetupPairing => '正在配对…';
 
   @override
-  String get e7SetupCommandInput => 'Terminal command input';
+  String get e7SetupCommandInput => '终端命令输入';
 
   @override
-  String get e7SetupCameraFailed => 'The camera could not be opened';
+  String get e7SetupCameraFailed => '无法打开相机';
 
   @override
-  String get e7SetupPastePassword => 'Paste server password';
+  String get e7SetupPastePassword => '粘贴服务器密码';
 
   @override
-  String get e7SetupSavingLocal => 'Saving local server settings';
+  String get e7SetupSavingLocal => '正在保存本地服务器设置';
 
   @override
-  String get e7SetupCopyFailureReport => 'Copy failure report';
+  String get e7SetupCopyFailureReport => '复制故障报告';
 
   @override
-  String get e7SetupCameraDisabled => 'Camera access is turned off';
+  String get e7SetupCameraDisabled => '相机访问已关闭';
 
   @override
-  String get e7SetupPastePairing => 'Paste pairing code';
+  String get e7SetupPastePairing => '粘贴配对码';
 
   @override
   String get e7SetupServers => 'Servers';
 
   @override
-  String get e7SetupStartingSetup => 'Starting setup in Termux';
+  String get e7SetupStartingSetup => '正在 Termux 中开始设置';
 
   @override
   String get e7SetupSetupNotStarted =>
       'Termux 已打开，但设置没有开始。请重试一次；如果仍然如此，请复制故障报告。';
 
   @override
-  String get e7SetupThisDevice => 'This device (Termux)';
+  String get e7SetupThisDevice => '此设备（Termux）';
 
   @override
-  String get e7SetupTransportReconnecting =>
-      'The server transport is reconnecting.';
+  String get e7SetupTransportReconnecting => '服务器传输正在重新连接。';
 
   @override
-  String get e7SetupStepUnavailable => 'not yet available';
+  String get e7SetupStepUnavailable => '暂不可用';
 
   @override
-  String get e7SetupUpdateHostDetail =>
-      'When the server reports an update, Settings offers the native upgrade first; this is the host-side equivalent.';
+  String get e7SetupUpdateHostDetail => '当服务器报告有更新时，设置会优先提供原生升级；这是主机端的等效操作。';
 
   @override
   String get e7SetupMissingPasswordShort =>
-      'The saved password is unavailable. Enter it again, or leave it empty only if this server no longer requires one.';
+      '已保存的密码不可用。请重新输入；仅当此服务器不再需要密码时才可留空。';
 
   @override
-  String get e7SetupTesting => 'Testing…';
+  String get e7SetupTesting => '正在测试…';
 
   @override
-  String get e7SetupScanPairing => 'Scan pairing code';
+  String get e7SetupScanPairing => '扫描配对码';
 
   @override
-  String get e7SetupRestartUnconfirmed =>
-      'Could not confirm this restart. Refresh its progress before retrying.';
+  String get e7SetupRestartUnconfirmed => '无法确认此次重启。重试前请先刷新其进度。';
 
   @override
   String get e7SetupExistingMissingCredential =>
-      'A local server exists, but its saved credential is unavailable. Run setup again to replace it safely.';
+      '本地服务器已存在，但其保存的凭据不可用。请重新运行设置以安全地替换它。';
 
   @override
-  String get e7SetupPreparingModels => 'Getting models ready';
+  String get e7SetupPreparingModels => '正在准备模型';
 
   @override
   String get e7SetupHostInstructions =>
-      'These commands run on the computer that hosts this server — the app cannot run them for you. Copy each one into a terminal on that machine.';
+      '这些命令需在托管此服务器的电脑上运行，应用无法代你执行。请逐条复制到那台机器的终端中。';
 
   @override
-  String get e7SetupTranscript => 'Terminal transcript';
+  String get e7SetupTranscript => '终端记录';
 
   @override
-  String get e7SetupHostFirstSetup => 'First-time setup — run on your computer';
+  String get e7SetupHostFirstSetup => '首次设置：在你的电脑上运行';
 
   @override
   String get e7SetupNoCameraDetail =>
-      'There is nothing to scan with. Run opencode2 pair on the server, copy the code it prints, and paste it into the server editor.';
+      '没有可用于扫描的相机。请在服务器上运行 opencode2 pair，复制它输出的代码，并粘贴到服务器编辑器中。';
 
   @override
-  String get e7SetupDiscard => 'Discard';
+  String get e7SetupDiscard => '放弃';
 
   @override
-  String get e7SetupConnectionClosed => 'Connection closed';
+  String get e7SetupConnectionClosed => '连接已关闭';
 
   @override
-  String get e7SetupUpKey => 'Up arrow key';
-
-  @override
-  String get e7SetupV1Limited =>
-      'This app targets OpenCode 2; some features are unavailable on v1 servers.';
+  String get e7SetupUpKey => '向上箭头键';
 
   @override
   String get e7SetupConnect => '连接';
 
   @override
-  String get e7SetupRemoveTerminalDetail =>
-      'This terminal record will be removed.';
+  String get e7SetupRemoveTerminalDetail => '此终端记录将被移除。';
 
   @override
-  String get e7SetupInputDisconnected =>
-      'Input is unavailable while disconnected.';
+  String get e7SetupInputDisconnected => '断开连接时无法输入。';
 
   @override
-  String get e7SetupHostCopied => 'Copied. Run it on the server\'s computer.';
+  String get e7SetupHostCopied => '已复制。请在服务器所在的电脑上运行。';
 
   @override
   String get e7SetupCameraPrivacy =>
-      'The camera is used only to read the QR that opencode2 pair prints, and only while this screen is open. You can paste the code instead — it does exactly the same thing.';
+      '相机仅用于读取 opencode2 pair 输出的二维码，且仅在此界面打开时使用。你也可以改为粘贴代码，效果完全相同。';
 
   @override
-  String get e7SetupIsV2 => 'This is an OpenCode 2 server.';
+  String get e7SetupIsV2 => '这是一个 OpenCode 2 服务器。';
 
   @override
-  String get e7SetupResumeLive => 'Resume live view';
+  String get e7SetupResumeLive => '恢复实时视图';
 
   @override
-  String get e7SetupTabKey => 'Tab key';
+  String get e7SetupTabKey => 'Tab 键';
 
   @override
-  String get e7SetupCloseScanner => 'Close the scanner';
+  String get e7SetupCloseScanner => '关闭扫描器';
 
   @override
-  String get e7SetupChooseContinue => 'Choose how to continue';
+  String get e7SetupChooseContinue => '选择继续方式';
 
   @override
   String get e7SetupTermuxOutdated =>
       '这个版本的 Termux 太旧，应用无法使用。请安装最新版，然后点按“继续设置”。';
 
   @override
-  String get e7SetupCameraNeeded => 'Camera access is needed to scan';
+  String get e7SetupCameraNeeded => '扫描需要相机访问权限';
 
   @override
-  String get e7SetupTerminalActions => 'Terminal actions';
+  String get e7SetupTerminalActions => '终端操作';
 
   @override
-  String get e7SetupReadPassword => 'Read the server password for this app';
+  String get e7SetupReadPassword => '为此应用读取服务器密码';
 
   @override
-  String get e7SetupStartInstalled => 'Start installed OpenCode?';
+  String get e7SetupStartInstalled => '启动已安装的 OpenCode？';
 
   @override
-  String get e7SetupTestConnection => 'Test connection';
+  String get e7SetupTestConnection => '测试连接';
 
   @override
-  String get e7SetupCheckingTermux => 'Checking Termux connection';
+  String get e7SetupCheckingTermux => '正在检查 Termux 连接';
 
   @override
   String get e7SetupCheckingTermuxShort => '正在检查 Termux…';
@@ -7482,178 +7287,166 @@ class AppLocalizationsZh extends AppLocalizations {
   String get e7SetupDefaultServer => 'OpenCode server';
 
   @override
-  String get e7SetupSaving => 'Saving…';
+  String get e7SetupSaving => '正在保存…';
 
   @override
-  String get e7SetupLinuxService => 'Run as a Linux service';
+  String get e7SetupLinuxService => '设置 OpenCode 2';
 
   @override
-  String get e7SetupPairingDesktopHint =>
-      'Check that the server is running, and that the address it printed is one this machine can reach.';
+  String get e7SetupPairingDesktopHint => '请确认服务器正在运行，且它输出的地址可从本机访问。';
 
   @override
   String get e7SetupAboutNotices => '关于与开源声明';
 
   @override
-  String get e7SetupSetupLost => 'Lost track of the setup running in Termux';
+  String get e7SetupSetupLost => '丢失了在 Termux 中运行的设置进程';
 
   @override
-  String get e7SetupReportCopied => 'Failure report copied.';
+  String get e7SetupReportCopied => '已复制故障报告。';
 
   @override
   String get e7SetupAppSettings => '在设置中允许该权限';
 
   @override
-  String get e7SetupNoCamera => 'This device has no camera';
+  String get e7SetupNoCamera => '此设备没有相机';
 
   @override
-  String get e7SetupServerDisconnected => 'The server is not connected.';
+  String get e7SetupServerDisconnected => '服务器未连接。';
 
   @override
-  String get e7SetupEmptyPasswordHint =>
-      'Leave empty only if this server no longer uses a password.';
+  String get e7SetupEmptyPasswordHint => '仅当此服务器不再使用密码时才留空。';
 
   @override
-  String get e7SetupAndroidOnly => 'Setup on this phone is Android only';
+  String get e7SetupAndroidOnly => '在此手机上设置仅支持 Android';
 
   @override
-  String get e7SetupEditServer => 'Edit server';
+  String get e7SetupEditServer => '编辑服务器';
 
   @override
-  String get e7SetupReenterPassword => 'Re-enter password';
+  String get e7SetupReenterPassword => '重新输入密码';
 
   @override
-  String get e7SetupMissingCredential =>
-      'The saved credential for this managed server is unavailable. Run setup again to replace it safely.';
+  String get e7SetupMissingCredential => '此托管服务器已保存的凭据不可用。请重新运行设置以安全地替换它。';
 
   @override
-  String get e7SetupReconnect => 'Reconnect';
+  String get e7SetupReconnect => '重新连接';
 
   @override
-  String get e7SetupSwitchNotStarted => 'The runtime switch did not start.';
+  String get e7SetupSwitchNotStarted => '运行时切换未启动。';
 
   @override
-  String get e7SetupNoUbuntu => 'No managed Ubuntu installation found.';
+  String get e7SetupNoUbuntu => '未找到托管的 Ubuntu 安装。';
 
   @override
-  String get e7SetupKeyUnavailable =>
-      'Unavailable while the terminal is disconnected';
+  String get e7SetupKeyUnavailable => '终端断开连接时不可用';
 
   @override
-  String get e7SetupCopyTerminal => 'Copy terminal selection or transcript';
+  String get e7SetupCopyTerminal => '复制终端选区或记录';
 
   @override
   String get e7SetupCommandHint => 'Type a command';
 
   @override
-  String get e7SetupCheckInstallFailed =>
-      'Could not check the installed environment.';
+  String get e7SetupCheckInstallFailed => '无法检查已安装的环境。';
 
   @override
-  String get e7SetupConnectionFailed => 'Connection failed.';
+  String get e7SetupConnectionFailed => '连接失败。';
 
   @override
-  String get e7SetupOpenAppSettings => 'Open app settings';
+  String get e7SetupOpenAppSettings => '打开应用设置';
 
   @override
-  String get e7SetupFullWalkthrough => 'Full walkthrough (opens in browser)';
+  String get e7SetupFullWalkthrough => '完整指南（在浏览器中打开）';
 
   @override
   String get e7SetupPairingPhoneHint =>
-      'A server bound to its own 127.0.0.1 is not reachable from this phone until you bridge it — “adb reverse tcp:PORT tcp:PORT” over USB, or an SSH forward. To reach it over the network instead, put it behind HTTPS.';
+      '绑定在自身 127.0.0.1 上的服务器，在你搭好桥接之前无法从这部手机访问：通过 USB 使用“adb reverse tcp:PORT tcp:PORT”，或使用 SSH 转发。若要改为通过网络访问，请将其置于 HTTPS 之后。';
 
   @override
-  String get e7SetupOutputCopied => 'Setup output copied.';
+  String get e7SetupOutputCopied => '已复制设置输出。';
 
   @override
-  String get e7SetupMissingPasswordLong =>
-      'The saved password is unavailable. Enter it again, or leave it empty only if this server no longer requires a password.';
+  String get e7SetupMissingPasswordLong => '已保存的密码不可用。请重新输入；仅当此服务器不再需要密码时才可留空。';
 
   @override
-  String get e7SetupNoServerGuide =>
-      'No server there yet? The setup guide shows how to start one.';
+  String get e7SetupNoServerGuide => '那里还没有服务器？设置指南会告诉你如何启动一个。';
 
   @override
-  String get e7SetupStartingLocal => 'Starting local server';
+  String get e7SetupStartingLocal => '正在启动本地服务器';
 
   @override
-  String get e7SetupTerminalSemantics =>
-      'Interactive terminal. Use the accessibility button for a readable transcript and labeled input.';
+  String get e7SetupTerminalSemantics => '交互式终端。使用无障碍按钮可查看易读的记录和带标签的输入。';
 
   @override
-  String get e7SetupRestartingLocalStage => 'Restarting local server';
+  String get e7SetupRestartingLocalStage => '正在重启本地服务器';
 
   @override
   String get e7SetupEmptyPairClipboard =>
-      'The clipboard is empty. Run “opencode2 pair” on the server and copy the code it prints.';
+      '剪贴板为空。请在服务器上运行“opencode2 pair”，并复制它输出的代码。';
 
   @override
-  String get e7SetupRestartActiveChanged =>
-      'The local server restarted, but the active server changed. Reconnect when you are ready.';
+  String get e7SetupRestartActiveChanged => '本地服务器已重启，但当前服务器已更改。准备好后请重新连接。';
 
   @override
-  String get e7SetupTokenRequired => 'Can\'t read the saved token';
+  String get e7SetupTokenRequired => '无法读取已保存的令牌';
 
   @override
   String get e7SetupPairingInstructions =>
-      'On your computer run “opencode2 pair”, then paste or scan the code it prints.';
+      '在你的电脑上运行“opencode2 pair”，然后粘贴或扫描它输出的配对码。';
 
   @override
-  String get e7SetupHostDaily => 'Day-to-day — run on your computer';
+  String get e7SetupHostDaily => '日常使用 — 在你的电脑上运行';
 
   @override
-  String get e7SetupStopLocal => 'Stop local server';
+  String get e7SetupStopLocal => '停止本地服务器';
 
   @override
-  String get e7SetupReadingProgress => 'Reading setup progress';
+  String get e7SetupReadingProgress => '正在读取设置进度';
 
   @override
   String get e7SetupCameraSettingsDetail =>
-      'Android will not ask again, so this has to be changed in app settings: turn on Camera, then come back. Pasting the code needs no permission at all and works right now.';
+      'Android 不会再次询问，因此需要在应用设置中更改：开启相机后再返回。粘贴代码无需任何权限，现在就能用。';
 
   @override
-  String get e7SetupVerifyTermuxFailed => 'Termux bridge verification failed.';
+  String get e7SetupVerifyTermuxFailed => 'Termux 桥接验证失败。';
 
   @override
-  String get e7SetupUbuntuOnly =>
-      'Ubuntu is installed. OpenCode is not installed yet.';
+  String get e7SetupUbuntuOnly => 'Ubuntu 已安装，OpenCode 尚未安装。';
 
   @override
-  String get e7SetupRenameTerminal => 'Rename terminal';
+  String get e7SetupRenameTerminal => '重命名终端';
 
   @override
-  String get e7SetupInputUnavailable => 'Terminal input unavailable';
+  String get e7SetupInputUnavailable => '终端输入不可用';
 
   @override
-  String get e7SetupUpdateInterruption =>
-      'The server will be briefly unavailable. Active generation should be stopped first.';
+  String get e7SetupUpdateInterruption => '服务器会短暂不可用。应先停止正在进行的生成。';
 
   @override
-  String get e7SetupRunningOnPhone => 'OpenCode is running on this phone.';
+  String get e7SetupRunningOnPhone => 'OpenCode 正在此手机上运行。';
 
   @override
-  String get e7SetupLocalStopped =>
-      'The local server is stopped. Its installed files are kept.';
+  String get e7SetupLocalStopped => '本地服务器已停止。已安装的文件会保留。';
 
   @override
-  String get e7SetupDidNotConnect => 'The server did not connect.';
+  String get e7SetupDidNotConnect => '服务器未连接。';
 
   @override
-  String get e7SetupSendCommand => 'Send command to terminal';
+  String get e7SetupSendCommand => '向终端发送命令';
 
   @override
   String get e7SetupUnsupportedSetup =>
-      'Setting up on the device itself works only on Android phones. On this computer, start OpenCode yourself and add it as a server.';
+      '在设备本机上设置仅适用于 Android 手机。在这台电脑上，请自行启动 OpenCode 并将其添加为服务器。';
 
   @override
-  String get e7SetupSendKey => 'Sends this key to the terminal';
+  String get e7SetupSendKey => '向终端发送此按键';
 
   @override
-  String get e7SetupRemoveTerminal => 'Remove terminal?';
+  String get e7SetupRemoveTerminal => '移除终端？';
 
   @override
   String e7SetupTerminalNumber(int number) {
-    return 'Terminal $number';
+    return '终端 $number';
   }
 
   @override
@@ -7663,52 +7456,52 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String e7SetupConnectFailedDetail(String name, String detail) {
-    return 'Could not connect to $name. $detail Check the server address and credentials, then try again.';
+    return '无法连接到 $name。$detail 请检查服务器地址和凭据后重试。';
   }
 
   @override
   String e7SetupSavedConnectFailed(String name, String detail) {
-    return '$name was saved, but it could not connect. Check the server address and credentials, then try again. ($detail)';
+    return '$name 已保存，但无法连接。请检查服务器地址和凭据后重试。（$detail）';
   }
 
   @override
   String e7SetupSaveFailed(String name, String detail) {
-    return 'Could not save $name. The existing server was left unchanged. Check device storage and try again. ($detail)';
+    return '无法保存 $name。现有服务器保持不变。请检查设备存储空间后重试。（$detail）';
   }
 
   @override
   String e7SetupRemoveServer(String name) {
-    return 'Remove $name?';
+    return '要移除 $name 吗？';
   }
 
   @override
   String e7SetupRemovedDisconnectFailed(String name, String detail) {
-    return '$name was removed, but its connection could not be closed cleanly. Restart the app before connecting elsewhere. ($detail)';
+    return '$name 已移除，但其连接未能正常关闭。连接其他服务器前，请重启应用。（$detail）';
   }
 
   @override
   String e7SetupRemoveFailed(String name, String detail) {
-    return 'Could not remove $name. The saved server and current connection were kept. Check device storage and try again. ($detail)';
+    return '无法移除 $name。已保留已保存的服务器和当前连接。请检查设备存储空间后重试。（$detail）';
   }
 
   @override
   String e7SetupPairedChoice(String host, int count) {
-    return 'Paired with $host — chosen from $count addresses in the code.';
+    return '已与 $host 配对，选自代码中的 $count 个地址。';
   }
 
   @override
   String e7SetupPaired(String host) {
-    return 'Paired with $host.';
+    return '已与 $host 配对。';
   }
 
   @override
   String e7SetupStartFailed(String detail) {
-    return 'Could not save or start the local setup: $detail';
+    return '无法保存或启动本地设置：$detail';
   }
 
   @override
   String e7SetupRestartFailed(String detail) {
-    return 'Could not restart the local server: $detail';
+    return '无法重启本地服务器：$detail';
   }
 
   @override
@@ -7747,7 +7540,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String e7SetupPairingFailed(String detail, String hint) {
-    return 'No address in that pairing code answered:\n$detail\n$hint';
+    return '该配对码中没有任何地址响应：\n$detail\n$hint';
   }
 
   @override
@@ -7756,448 +7549,379 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String e7SetupProbeV1(String version) {
-    return 'OpenCode 1 · $version — limited feature set';
-  }
-
-  @override
-  String get e7SetupPairNone =>
-      'There is no pairing code here. Run “opencode2 pair” on the server and scan or copy what it prints.';
+  String get e7SetupPairNone => '这里没有配对码。请在服务器上运行“opencode2 pair”，然后扫描或复制其输出。';
 
   @override
   String get e7SetupPairLong =>
-      'That is far too long to be a pairing code. Copy only the line “opencode2 pair” prints, or scan its QR code.';
+      '内容过长，不可能是配对码。请只复制“opencode2 pair”输出的那一行，或扫描其二维码。';
 
   @override
   String get e7SetupPairInvalid =>
-      'That is not a pairing code. Run “opencode2 pair” on the server and scan or copy what it prints.';
+      '这不是配对码。请在服务器上运行“opencode2 pair”，然后扫描或复制其输出。';
 
   @override
   String get e7SetupPairShape =>
-      'That pairing code is the wrong shape — it should be a JSON object with “urls”, “username”, and “password”.';
+      '该配对码格式不正确 — 它应是包含“urls”、“username”和“password”的 JSON 对象。';
 
   @override
-  String get e7SetupPairNoUrls =>
-      'That pairing code has no “urls” field, so there is no address to connect to.';
+  String get e7SetupPairNoUrls => '该配对码没有“urls”字段，因此没有可连接的地址。';
 
   @override
-  String get e7SetupPairUrlsType =>
-      'That pairing code\'s “urls” field is not a list of addresses.';
+  String get e7SetupPairUrlsType => '该配对码的“urls”字段不是地址列表。';
 
   @override
-  String get e7SetupPairTooMany =>
-      'That pairing code lists more addresses than this app will try. Bind the server to one interface and pair again.';
+  String get e7SetupPairTooMany => '该配对码列出的地址超过应用会尝试的数量。请将服务器绑定到单个网络接口，然后重新配对。';
 
   @override
-  String get e7SetupPairAddressType =>
-      'That pairing code lists an address that is not text.';
+  String get e7SetupPairAddressType => '该配对码中的地址不是文本。';
 
   @override
-  String get e7SetupPairAddressLong =>
-      'That pairing code lists an address far too long to be a server URL.';
+  String get e7SetupPairAddressLong => '该配对码中的地址过长，不可能是服务器 URL。';
 
   @override
   String get e7SetupPairAddressMissing =>
-      'That pairing code carries no server address. Check that the server is actually listening, then run “opencode2 pair” again.';
+      '该配对码不含服务器地址。请确认服务器正在监听，然后再次运行“opencode2 pair”。';
 
   @override
-  String get e7SetupPairUsernameType =>
-      'That pairing code\'s “username” field is not text.';
+  String get e7SetupPairUsernameType => '该配对码的“username”字段不是文本。';
 
   @override
   String get e7SetupPairPasswordMissing =>
-      'That pairing code has no “password” field. It may have been truncated — scan or copy the whole code.';
+      '该配对码没有“password”字段，可能被截断了 — 请扫描或复制完整的配对码。';
 
   @override
-  String get e7SetupPairPasswordType =>
-      'That pairing code\'s “password” field is not text.';
+  String get e7SetupPairPasswordType => '该配对码的“password”字段不是文本。';
 
   @override
-  String get e7SetupPairTestFailed =>
-      'The connection test failed before the server could be checked. Try another address.';
+  String get e7SetupPairTestFailed => '连接测试在检查服务器之前就失败了。请尝试其他地址。';
 
   @override
-  String get e7SetupNotOpenCode =>
-      'The address did not answer as an OpenCode server. Check the address and try again.';
+  String get e7SetupNotOpenCode => '该地址的响应不像 OpenCode 服务器。请检查地址后重试。';
 
   @override
-  String get e7SetupNoServerAnswer =>
-      'The server did not answer. Check that it is running and that the address is right.';
+  String get e7SetupNoServerAnswer => '服务器没有响应。请检查它是否正在运行，以及地址是否正确。';
 
   @override
-  String get e7SetupPairPasswordRejected =>
-      'Password rejected. Check the pairing code and try again.';
+  String get e7SetupPairPasswordRejected => '密码被拒绝。请检查配对码后重试。';
 
   @override
-  String get e7SetupPairAddressUnusable =>
-      'That pairing code contains an unusable server address.';
+  String get e7SetupPairAddressUnusable => '该配对码包含无法使用的服务器地址。';
 
   @override
-  String get e7SetupInvalidAddress => '<invalid address>';
+  String get e7SetupInvalidAddress => '<无效地址>';
 
   @override
-  String get e7SetupEnterUrl => 'Enter a server URL.';
+  String get e7SetupEnterUrl => '请输入服务器 URL。';
 
   @override
-  String get e7SetupIncludeScheme =>
-      'Include https://. Plain http:// works only on this device or a private network address.';
+  String get e7SetupIncludeScheme => '请包含 https:// 或 http://。远程 HTTP 需要你的许可。';
 
   @override
   String get e7SetupCompleteUrl =>
-      'Enter a complete server URL, such as https://server.example:4096.';
+      '请输入完整的服务器 URL，例如 https://server.example:4096。';
 
   @override
-  String get e7SetupUrlScheme =>
-      'Server URLs must use https://, or http:// for a local server.';
+  String get e7SetupUrlScheme => '服务器 URL 必须使用 https:// 或 http://。';
 
   @override
   String get e7SetupTermuxUrlScheme =>
-      'Server URLs must use https://, or http:// for local Termux.';
+      '服务器 URL 必须使用 https://，本地 Termux 可用 http://。';
 
   @override
-  String get e7SetupUrlCredentials =>
-      'Do not put credentials in the URL. Use the fields below.';
+  String get e7SetupUrlCredentials => '不要在 URL 中包含凭据。请使用下方的字段。';
 
   @override
-  String get e7SetupUrlQuery =>
-      'Remove query parameters and fragments from the server URL.';
+  String get e7SetupUrlQuery => '请从服务器 URL 中移除查询参数和片段。';
 
   @override
-  String get e7SetupUrlPath =>
-      'Remove the path from the server URL. Enter only its origin.';
+  String get e7SetupUrlPath => '请从服务器 URL 中移除路径，只输入其源地址。';
 
   @override
   String get e7SetupRequireHttps =>
-      'A password is only sent to another computer over https://. Use the computer\'s https:// address, pair with a code, or connect with Tailscale.';
+      '密码只会通过 https:// 发送到其他电脑。请使用该电脑的 https:// 地址、使用配对码，或通过 Tailscale 连接。';
 
   @override
   String get e7SetupLocalHttp =>
-      'An http:// address works only for this phone or a private network address such as 192.168.x.x. For anything else, pair with a code, use its https:// address, or connect with Tailscale.';
+      'http:// 地址仅适用于此手机或 192.168.x.x 这类私有网络地址。其他情况请使用配对码、其 https:// 地址，或通过 Tailscale 连接。';
 
   @override
-  String get e7SetupRefused =>
-      'The computer refused the connection. Check that the server is running there and that the address and port are right.';
+  String get e7SetupRefused => '电脑拒绝了连接。请检查服务器是否在那里运行，以及地址和端口是否正确。';
 
   @override
-  String get e7SetupTimeout =>
-      'The connection timed out. Check the address, and that the server is reachable from this phone.';
+  String get e7SetupTimeout => '连接超时。请检查地址，以及此手机能否访问该服务器。';
 
   @override
-  String get e7SetupDns =>
-      'That host name could not be found. Check the address spelling.';
+  String get e7SetupDns => '找不到该主机名。请检查地址拼写。';
 
   @override
-  String get e7SetupCertificate =>
-      'The server’s TLS certificate was rejected. Use a certificate this phone trusts.';
+  String get e7SetupCertificate => '该证书不受信任。请先核对其指纹，再决定是否信任。';
 
   @override
-  String get e7SetupUnhealthy =>
-      'The server responded but reported itself unhealthy. Check its logs, then try again.';
+  String get e7SetupUnhealthy => '服务器有响应，但报告自身状态不健康。请查看其日志后重试。';
 
   @override
-  String get e7SetupServerStarting =>
-      'The server is starting. Try again in a moment.';
+  String get e7SetupServerStarting => '服务器正在启动。请稍后再试。';
 
   @override
-  String get e7SetupPasswordNeeded =>
-      'This server requires its serve password.';
+  String get e7SetupPasswordNeeded => '此服务器需要其 serve 密码。';
 
   @override
   String get e7SetupPasswordRejected =>
-      'Password rejected. Copy the current \"server password\" line from the server output — it changes on every restart unless OPENCODE_PASSWORD is set.';
+      '密码被拒绝。请从服务器输出中复制当前的“server password”那一行 — 除非设置了 OPENCODE_PASSWORD，否则每次重启都会变化。';
 
   @override
-  String get e7SetupCredentialsRefused =>
-      'The server refused the credentials. Check the username and password.';
+  String get e7SetupCredentialsRefused => '服务器拒绝了凭据。请检查用户名和密码。';
 
   @override
-  String get e7SetupCodexUrl => 'Enter a Codex server URL.';
+  String get e7SetupCodexUrl => '请输入 Codex 服务器 URL。';
 
   @override
-  String get e7SetupCodexCompleteUrl => 'Enter a complete Codex server URL.';
+  String get e7SetupCodexCompleteUrl => '请输入完整的 Codex 服务器 URL。';
 
   @override
-  String get e7SetupCodexScheme =>
-      'Codex server URLs must use wss://, or ws:// for a local server.';
+  String get e7SetupCodexScheme => 'Codex 服务器 URL 必须使用 wss://，本地服务器可用 ws://。';
 
   @override
-  String get e7SetupCodexCredentials =>
-      'Do not put credentials in the Codex URL.';
+  String get e7SetupCodexCredentials => '不要在 Codex URL 中包含凭据。';
 
   @override
-  String get e7SetupCodexQuery =>
-      'Remove query parameters and fragments from the Codex URL.';
+  String get e7SetupCodexQuery => '请从 Codex URL 中移除查询参数和片段。';
 
   @override
-  String get e7SetupCodexPath => 'Remove the path from the Codex server URL.';
+  String get e7SetupCodexPath => '请从 Codex 服务器 URL 中移除路径。';
 
   @override
-  String get e7SetupCodexPlain =>
-      'ws:// works only for a server on this phone. Use a wss:// address for another computer.';
+  String get e7SetupCodexPlain => 'ws:// 仅适用于此手机上的服务器。其他电脑请使用 wss:// 地址。';
 
   @override
-  String get e7SetupCodexDirectory =>
-      'Enter an absolute Codex project directory.';
+  String get e7SetupCodexDirectory => '请输入 Codex 项目的绝对路径。';
 
   @override
-  String get e7SetupCodexToken => 'Enter a valid Codex connection token.';
+  String get e7SetupCodexToken => '请输入有效的 Codex 连接令牌。';
 
   @override
-  String get e7SetupRefreshPackages => 'Refreshing Termux packages';
+  String get e7SetupRefreshPackages => '正在刷新 Termux 软件包';
 
   @override
-  String get e7SetupRepairPackages => 'Repairing the Termux package set';
+  String get e7SetupRepairPackages => '正在修复 Termux 软件包集';
 
   @override
-  String get e7SetupInstallDependencies => 'Installing Termux dependencies';
+  String get e7SetupInstallDependencies => '正在安装 Termux 依赖';
 
   @override
-  String get e7SetupPrepareTermux => 'Preparing Termux';
+  String get e7SetupPrepareTermux => '正在准备 Termux';
 
   @override
-  String get e7SetupInstallUbuntu => 'Installing Ubuntu environment';
+  String get e7SetupInstallUbuntu => '正在安装 Ubuntu 环境';
 
   @override
-  String get e7SetupRefreshModels => 'Refreshing the OpenCode model catalog';
+  String get e7SetupRefreshModels => '正在刷新 OpenCode 模型目录';
 
   @override
-  String get e7SetupStartLocalServer => 'Starting the local server';
+  String get e7SetupStartLocalServer => '正在启动本地服务器';
 
   @override
-  String get e7SetupOpenCodeReady => 'OpenCode is ready';
+  String get e7SetupOpenCodeReady => 'OpenCode 已就绪';
 
   @override
-  String get e7SetupPrepareRuntime => 'Preparing the selected OpenCode runtime';
+  String get e7SetupPrepareRuntime => '正在准备所选的 OpenCode 运行时';
 
   @override
-  String get e7SetupSwitchLocal => 'Switching the managed local server';
+  String get e7SetupSwitchLocal => '正在切换托管的本地服务器';
 
   @override
-  String get e7SetupCheckRestart => 'Checking the local server before restart';
+  String get e7SetupCheckRestart => '重启前正在检查本地服务器';
 
   @override
-  String get e7SetupStoppingLocal => 'Stopping the local server';
+  String get e7SetupStoppingLocal => '正在停止本地服务器';
 
   @override
-  String get e7SetupStoppedLocal => 'Local server stopped';
+  String get e7SetupStoppedLocal => '本地服务器已停止';
 
   @override
-  String get e7SetupUnknownSetup => 'Unknown setup state';
+  String get e7SetupUnknownSetup => '未知的设置状态';
 
   @override
-  String get e7SetupUnexpectedStop =>
-      'The local OpenCode server stopped unexpectedly';
+  String get e7SetupUnexpectedStop => '本地 OpenCode 服务器意外停止';
 
   @override
-  String get e7SetupSetupInterrupted =>
-      'Setup stopped unexpectedly; see live output for details';
+  String get e7SetupSetupInterrupted => '设置意外停止；详情请查看实时输出';
 
   @override
-  String get e7SetupRecoveryDisabled => 'Automatic recovery disabled';
+  String get e7SetupRecoveryDisabled => '自动恢复已关闭';
 
   @override
-  String get e7SetupRecoveryWasDisabled => 'Automatic recovery was disabled';
+  String get e7SetupRecoveryWasDisabled => '自动恢复曾被关闭';
 
   @override
-  String get e7SetupPortBusy =>
-      'The local server port is still in use; no replacement was started';
+  String get e7SetupPortBusy => '本地服务器端口仍被占用；未启动替代进程';
 
   @override
-  String get e7SetupNoReturnData =>
-      'This OpenCode 2 installation has no separate OpenCode 1 data to return to';
+  String get e7SetupCredentialMismatch => '已保存的服务器凭据与此运行时不一致；返回前请先恢复其原始保存的凭据';
 
   @override
-  String get e7SetupCredentialMismatch =>
-      'The saved server credential differs from this runtime; restore its original saved credential before returning';
+  String get e7SetupUbuntuUnavailable => '托管的 Ubuntu 环境不可用';
 
   @override
-  String get e7SetupUbuntuUnavailable =>
-      'The managed Ubuntu environment is unavailable';
+  String get e7SetupRuntimeUnavailable => '所选的 OpenCode 命令不可用';
 
   @override
-  String get e7SetupRuntimeUnavailable =>
-      'The selected OpenCode command is unavailable';
+  String get e7SetupIdentityMismatch => '被跟踪的进程不是托管的 OpenCode 服务器';
 
   @override
-  String get e7SetupIdentityMismatch =>
-      'The tracked process is not the managed OpenCode server';
+  String get e7SetupPasswordMissing => '缺少本地服务器密码';
 
   @override
-  String get e7SetupPasswordMissing => 'The local server password is missing';
+  String get e7SetupVersionMissing => 'OpenCode 已安装，但未报告版本';
 
   @override
-  String get e7SetupVersionMissing =>
-      'OpenCode installed but did not report a version';
+  String get e7SetupModelsRefreshFailed => 'OpenCode 已更新，但无法刷新其模型目录';
 
   @override
-  String get e7SetupModelsRefreshFailed =>
-      'OpenCode updated, but its model catalog could not be refreshed';
+  String get e7SetupStartupExited => 'OpenCode 服务器在启动期间退出';
 
   @override
-  String get e7SetupStartupExited => 'OpenCode server exited during startup';
+  String get e7SetupReadinessTimeout => 'OpenCode 服务器未在 30 秒内完成认证并就绪';
 
   @override
-  String get e7SetupReadinessTimeout =>
-      'OpenCode server did not become authenticated and ready within 30 seconds';
+  String get e7SetupUnreadableData => '无法读取 OpenCode 2 的数据位置记录';
 
   @override
-  String get e7SetupUnreadableData =>
-      'The OpenCode 2 data location record is unreadable';
+  String get e7SetupUnreadablePrevious => '无法读取之前的运行时记录';
 
   @override
-  String get e7SetupUnreadablePrevious =>
-      'The previous runtime record is unreadable';
+  String get e7SetupReadManagerFailed => '无法读取设置管理器状态';
 
   @override
-  String get e7SetupReadManagerFailed => 'Could not read setup manager status';
+  String get e7SetupMissingManager => '找不到设置管理器';
 
   @override
-  String get e7SetupMissingManager => 'Setup manager is missing';
+  String get e7SetupRemoveInterruptedFailed => '无法移除被中断的应用自有 Ubuntu 安装';
 
   @override
-  String get e7SetupRemoveInterruptedFailed =>
-      'Could not remove the interrupted app-owned Ubuntu install';
+  String get e7SetupCheckStorageFailed => '设置前无法检查可用存储空间';
 
   @override
-  String get e7SetupCheckStorageFailed =>
-      'Could not check available storage before setup';
+  String get e7SetupReadStorageFailed => '设置前无法读取可用存储空间';
 
   @override
-  String get e7SetupReadStorageFailed =>
-      'Could not read available storage before setup';
-
-  @override
-  String get e7SetupRepositoryFailed =>
-      'Could not select the official Termux package repository';
+  String get e7SetupRepositoryFailed => '无法选择 Termux 官方软件包仓库';
 
   @override
   String get e7SetupRepositoryRefreshFailed =>
-      'Could not refresh packages.termux.dev; check the network and retry';
+      '无法刷新 packages.termux.dev；请检查网络后重试';
 
   @override
-  String get e7SetupRepairFailed =>
-      'Could not repair the interrupted Termux package transaction';
+  String get e7SetupRepairFailed => '无法修复被中断的 Termux 软件包事务';
 
   @override
-  String get e7SetupUpgradeFailed =>
-      'Could not complete the safe Termux package upgrade';
+  String get e7SetupUpgradeFailed => '无法完成 Termux 软件包的安全升级';
 
   @override
-  String get e7SetupDependenciesFailed =>
-      'Could not install the Termux dependencies';
+  String get e7SetupDependenciesFailed => '无法安装 Termux 依赖';
 
   @override
-  String get e7SetupDependenciesUnusable =>
-      'Termux dependencies are still unusable after the package repair';
+  String get e7SetupDependenciesUnusable => '软件包修复后 Termux 依赖仍无法使用';
 
   @override
-  String get e7SetupUbuntuUnusable =>
-      'An existing Ubuntu container is not usable; setup will not delete it';
+  String get e7SetupUbuntuUnusable => '现有的 Ubuntu 容器无法使用；设置不会删除它';
 
   @override
-  String get e7SetupExtractionFailed =>
-      'Ubuntu Base extraction did not create a usable container';
+  String get e7SetupExtractionFailed => 'Ubuntu Base 解压后未生成可用的容器';
 
   @override
-  String get e7SetupLockFailed =>
-      'Setup manager could not claim its launch lock';
+  String get e7SetupLockFailed => '设置管理器无法获取其启动锁';
 
   @override
-  String get e7SetupSetupGroupFailed =>
-      'Setup manager did not start in an isolated process group';
+  String get e7SetupSetupGroupFailed => '设置管理器未在隔离的进程组中启动';
 
   @override
-  String get e7SetupSwitchGroupFailed =>
-      'Switch manager did not start in an isolated process group';
+  String get e7SetupSwitchGroupFailed => '切换管理器未在隔离的进程组中启动';
 
   @override
-  String get e7SetupServerGroupFailed =>
-      'Managed server did not start in an isolated process group';
+  String get e7SetupServerGroupFailed => '托管服务器未在隔离的进程组中启动';
 
   @override
-  String get e7SetupRecordIdentityFailed =>
-      'Could not record the managed server process identity';
+  String get e7SetupRecordIdentityFailed => '无法记录托管服务器进程的标识';
 
   @override
   String e7SetupConnectingProfile(String name) {
-    return 'Connecting to $name';
+    return '正在连接 $name';
   }
 
   @override
   String e7SetupConnectingAttempt(int attempt) {
-    return 'Connecting again (attempt $attempt)';
+    return '正在重新连接（第 $attempt 次尝试）';
   }
 
   @override
-  String get e7SetupOpeningWorkspace => 'Opening your saved project.';
+  String get e7SetupOpeningWorkspace => '正在打开你保存的项目。';
 
   @override
-  String get e7SetupWhatToCheck => 'What to check';
+  String get e7SetupWhatToCheck => '需要检查的内容';
 
   @override
-  String get e7SetupUpdatePassword => 'Update password';
+  String get e7SetupUpdatePassword => '更新密码';
 
   @override
   String e7SetupLastSetupDetail(String detail) {
-    return 'Last setup output: $detail';
+    return '上次设置的输出：$detail';
   }
 
   @override
   String e7SetupBridgeDetail(String detail) {
-    return 'Bridge detail: $detail';
+    return '桥接详情：$detail';
   }
 
   @override
   String e7SetupDiagnosticsUnavailable(String detail) {
-    return 'Diagnostics unavailable: $detail';
+    return '诊断信息不可用：$detail';
   }
 
   @override
   String e7SetupProbeHttp(String status) {
-    return 'The address responded, but not like an OpenCode server (HTTP $status). Check that the URL points at opencode serve.';
+    return '该地址有响应，但不像 OpenCode 服务器（HTTP $status）。请检查 URL 是否指向 opencode serve。';
   }
 
   @override
   String e7SetupProbeError(String detail) {
-    return 'Connection test failed: $detail';
+    return '连接测试失败：$detail';
   }
 
   @override
   String e7SetupServerExit(String code) {
-    return 'OpenCode server exited (code $code)';
+    return 'OpenCode 服务器已退出（代码 $code）';
   }
 
   @override
-  String get e7SetupCheckTermux => 'On this phone';
+  String get e7SetupCheckTermux => '在此手机上';
 
   @override
-  String get e7SetupCommandFailed => 'Termux command failed.';
+  String get e7SetupCommandFailed => 'Termux 命令执行失败。';
 
   @override
-  String get e7SetupUnexpectedBridge =>
-      'Termux returned an unexpected bridge response.';
+  String get e7SetupUnexpectedBridge => 'Termux 返回了意外的桥接响应。';
 
   @override
-  String get e7SetupSetupQueued => 'Setup queued';
+  String get e7SetupSetupQueued => '设置已排队';
 
   @override
-  String get e7SetupNoSetup => 'No setup has been started';
+  String get e7SetupNoSetup => '尚未开始任何设置';
 
   @override
-  String get e7SetupManagerMissingAfterLaunch =>
-      'Setup manager is missing after launch';
+  String get e7SetupManagerMissingAfterLaunch => '启动后找不到设置管理器';
 
   @override
-  String get e7SetupBootstrapCleared => 'Bootstrap state cleared';
+  String get e7SetupBootstrapCleared => '已清除 bootstrap 状态';
 
   @override
-  String get e7SetupInstallingBeta => 'Installing OpenCode 2';
+  String get e7SetupInstallingBeta => '正在安装 OpenCode 2';
 
   @override
-  String get e7SetupAuthenticationFailed => 'Authentication failed';
+  String get e7SetupAuthenticationFailed => '认证失败';
 
   @override
-  String get e7SetupUnknownVersion => 'unknown version';
+  String get e7SetupUnknownVersion => '未知版本';
 
   @override
   String get e7ModelUiClose => '关闭模型选择器';
@@ -8212,8 +7936,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get e7ModelUiRetry => '重试';
 
   @override
-  String get e7ModelUiBasicCatalog =>
-      'This server returned a basic catalog. Capability and context details are unavailable.';
+  String get e7ModelUiBasicCatalog => '此服务器返回的是基础目录，没有能力和上下文的详细信息。';
 
   @override
   String get e7ModelUiEditFilters => 'Edit model filters';
@@ -8234,7 +7957,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get e7ModelUiAnyCapability => '任意能力';
 
   @override
-  String get e7ModelUiFastModes => 'Fast modes';
+  String get e7ModelUiFastModes => '快速模式';
 
   @override
   String get e7ModelUiReasoning => '推理';
@@ -8265,8 +7988,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get e7ModelUiRecentHint => '你用过的模型会按最近使用顺序出现在这里。';
 
   @override
-  String get e7ModelUiNoFastModes =>
-      'No model reports an explicit fast or low-effort mode.';
+  String get e7ModelUiNoFastModes => '没有模型声明明确的快速或低强度模式。';
 
   @override
   String get e7ModelUiNoMatchesHint => '试试其他搜索词、服务商或能力筛选。';
@@ -8296,10 +8018,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get e7ModelUiUnavailable => 'Unavailable';
 
   @override
-  String get e7ModelUiDeprecated => 'Deprecated';
+  String get e7ModelUiDeprecated => '已弃用';
 
   @override
-  String get e7ModelUiPreview => 'Preview';
+  String get e7ModelUiPreview => '预览版';
 
   @override
   String get e7ModelUiFavoritesFailed => '无法保存收藏。请重试。';
@@ -8325,8 +8047,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get e7ModelUiDefault => '默认';
 
   @override
-  String get e7ModelUiSelectionGone =>
-      'This choice is no longer available. Refresh models and try again.';
+  String get e7ModelUiSelectionGone => '此选项已不可用。请刷新模型后重试。';
 
   @override
   String get e7VoiceUiLocalInput => 'Local voice input';
@@ -8430,7 +8151,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String e7ModelUiContext(String count) {
-    return '$count context';
+    return '$count 上下文';
   }
 
   @override
@@ -8450,7 +8171,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String e7ModelUiEffort(String variant, String effort) {
-    return '$variant · $effort effort';
+    return '$variant · $effort 强度';
   }
 
   @override
@@ -8458,7 +8179,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String e7ModelUiCost(String input, String output) {
-    return '$input in · $output out /1M';
+    return '$input 输入 · $output 输出 /1M';
   }
 
   @override
@@ -8631,37 +8352,34 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get e7ModelUiProviderFallback => 'a provider';
+  String get e7ModelUiProviderFallback => '某个提供商';
 
   @override
   String e7ModelUiProviderPair(String first, String last) {
-    return '$first and $last';
+    return '$first 和 $last';
   }
 
   @override
   String e7ModelUiProviderMany(String first, String last) {
-    return '$first, and $last';
+    return '$first 和 $last';
   }
 
   @override
-  String get e7ModelUiListSeparator => ', ';
+  String get e7ModelUiListSeparator => '、';
 
   @override
   String e7ModelUiUnloadedProviders(int count, String providers) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          'Signed in to $providers, but the server has not loaded them yet, so their models cannot answer.',
-      one:
-          'Signed in to $providers, but the server has not loaded it yet, so its models cannot answer.',
+      other: '已登录 $providers，但服务器尚未加载它们，因此其模型无法回答。',
+      one: '已登录 $providers，但服务器尚未加载它，因此其模型无法回答。',
     );
     return '$_temp0';
   }
 
   @override
-  String get e7SharedOpenCodeUnreachableTryAgain =>
-      'OpenCode is unreachable. Try again.';
+  String get e7SharedOpenCodeUnreachableTryAgain => '无法访问 OpenCode。请重试。';
 
   @override
   String get approvalsUiMenu => '批准';
@@ -8716,7 +8434,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String approvalsUiSaveFailed(String error) {
-    return 'Couldn’t save the approval setting: $error';
+    return '无法保存审批设置：$error';
   }
 
   @override
@@ -8819,7 +8537,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get teamUiAddAddressLabel => 'Address';
 
   @override
-  String get teamUiAddManually => 'Add manually';
+  String get teamUiAddManually => '手动添加';
 
   @override
   String get teamUiAddSubmit => 'Test and turn on';
@@ -8834,7 +8552,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get teamUiAddressRequired => 'Enter the host address.';
 
   @override
-  String get teamUiChange => 'Change';
+  String get teamUiChange => '更改';
 
   @override
   String get teamUiDisclaimerComputer =>
@@ -8845,16 +8563,15 @@ class AppLocalizationsZh extends AppLocalizations {
       'Android may stop it when the screen is off; slower than a computer';
 
   @override
-  String get teamUiEditorBody =>
-      'If this computer runs Gas City, the app can find it automatically.';
+  String get teamUiEditorBody => '如果这台电脑运行 Gas City，应用可以自动发现它。';
 
   @override
   String teamUiEditorConfigured(String url) {
-    return 'AI Team host: $url';
+    return 'AI Team 主机：$url';
   }
 
   @override
-  String get teamUiEditorTitle => 'AI Team (optional)';
+  String get teamUiEditorTitle => 'AI Team（可选）';
 
   @override
   String get teamUiHostGuideIntro =>
@@ -8910,7 +8627,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get teamUiLabelVersion => 'Version';
 
   @override
-  String get teamUiLearnHow => 'Learn how';
+  String get teamUiLearnHow => '了解方法';
 
   @override
   String get teamUiNoServer => 'Connect to a server to use plugins.';
@@ -10295,12 +10012,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String termuxProcsStopSemantics(String name) {
-    return 'Stop $name';
+    return '停止 $name';
   }
 
   @override
   String termuxProcsStopOneTitle(String name) {
-    return 'Stop $name?';
+    return '停止 $name？';
   }
 
   @override
@@ -10373,19 +10090,19 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get teamUiPhoneOptionalTag => 'Optional · experimental';
+  String get teamUiPhoneOptionalTag => '可选 · 实验性';
 
   @override
   String get teamUiPhoneChooseProjectTitle => 'Choose a project';
 
   @override
-  String get teamUiPhoneContinue => 'Continue';
+  String get teamUiPhoneContinue => '继续';
 
   @override
   String get teamUiPhoneSuccessTitle => 'AI Team is running on this phone';
 
   @override
-  String get teamUiPhoneRetry => 'Try again';
+  String get teamUiPhoneRetry => '重试';
 
   @override
   String teamUiPhoneFailedChecksum(String name) {
@@ -10582,13 +10299,13 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get phoneServerConnect => 'Connect';
+  String get phoneServerConnect => '连接';
 
   @override
-  String get phoneServerOpen => 'Open';
+  String get phoneServerOpen => '打开';
 
   @override
-  String get phoneServerStart => 'Start';
+  String get phoneServerStart => '启动';
 
   @override
   String get phoneServerStop => 'Stop';
@@ -10597,7 +10314,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get phoneServerMore => 'More server actions';
 
   @override
-  String get phoneServerForget => 'Forget saved sign-in';
+  String get phoneServerForget => '忘记已保存的登录信息';
 
   @override
   String get phoneServerStartFailed =>
@@ -10623,43 +10340,42 @@ class AppLocalizationsZh extends AppLocalizations {
       'Previous scan · Scan again before cleaning more';
 
   @override
-  String get safetyStopSharingTitle => 'Stop sharing this conversation?';
+  String get safetyStopSharingTitle => '停止分享此对话？';
 
   @override
-  String get safetyStopSharingBody =>
-      'The link stops working for anyone who has it. The conversation itself is not changed.';
+  String get safetyStopSharingBody => '任何持有该链接的人都将无法再使用它。对话本身不会改变。';
 
   @override
-  String get safetyStopSharingKeep => 'Keep sharing';
+  String get safetyStopSharingKeep => '继续分享';
 
   @override
-  String get safetyStopLocalServerTitle => 'Stop the local server?';
+  String get safetyStopLocalServerTitle => '停止本地服务器？';
 
   @override
   String get safetyStopLocalServerBody =>
-      'Anything the agent is running on this phone is interrupted, and this app disconnects from it. Your projects and conversations stay on the phone; start the server again to continue.';
+      '智能体在此手机上正在运行的任务会被中断，本应用也会与它断开连接。你的项目和对话会保留在手机上；重新启动服务器即可继续。';
 
   @override
-  String get safetyStopLocalServerKeep => 'Keep running';
+  String get safetyStopLocalServerKeep => '继续运行';
 
   @override
   String safetyMcpDisconnectTitle(String server) {
-    return 'Disconnect $server?';
+    return '断开 $server？';
   }
 
   @override
   String get safetyMcpDisconnectBody =>
-      'Agents lose its tools until you connect it again, and a tool call in progress may fail. Its configuration stays saved.';
+      '在你重新连接之前，智能体将无法使用它的工具，正在进行的工具调用可能会失败。它的配置会保留。';
 
   @override
-  String get safetyMcpDisconnectKeep => 'Stay connected';
+  String get safetyMcpDisconnectKeep => '保持连接';
 
   @override
   String get safetyStopOrphanBody =>
-      'Nothing is waiting on it, but whatever it was still doing is lost. It gets a polite stop, then a forced one after 5 seconds.';
+      '没有任何东西在等待它，但它正在进行的工作会丢失。它会先收到正常停止信号，5 秒后被强制停止。';
 
   @override
-  String get settingsHubGroupNotifications => 'Notifications and background';
+  String get settingsHubGroupNotifications => '通知与后台';
 
   @override
   String get settingsHubGroupUsage => 'Usage';
@@ -10680,7 +10396,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsHubVoice => 'Voice';
 
   @override
-  String get settingsHubPrivacyRow => 'Privacy and data';
+  String get settingsHubPrivacyRow => '隐私与数据';
 
   @override
   String get settingsHubSearchServerAliases =>
@@ -10786,54 +10502,50 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pluginsSectionOnServer => 'Plugins on this server';
 
   @override
-  String get notifySectionWhat => 'What notifies me';
+  String get notifySectionWhat => '通知内容';
 
   @override
-  String get notifyFinishedRuns => 'Finished runs';
+  String get notifyFinishedRuns => '运行完成';
 
   @override
-  String get notifyFinishedRunsDetail =>
-      'When a run on the connected server finishes or fails.';
+  String get notifyFinishedRunsDetail => '已连接服务器上的某次运行完成或失败时。';
 
   @override
-  String get notifyRequests => 'Approvals and questions';
+  String get notifyRequests => '批准与提问';
 
   @override
-  String get notifyRequestsDetail =>
-      'When the agent is waiting for your answer, on any monitored server.';
+  String get notifyRequestsDetail => '当智能体在任何受监控的服务器上等待你回应时。';
 
   @override
-  String get notifyQuotaAlerts => 'Usage alerts';
+  String get notifyQuotaAlerts => '用量提醒';
 
   @override
-  String get notifyQuotaAlertsDetail =>
-      'Which plans to watch, and at what level. Set in Usage › Alerts.';
+  String get notifyQuotaAlertsDetail => '要监控哪些套餐以及达到什么水平。在“用量 › 提醒”中设置。';
 
   @override
-  String get notifyBlockedTitle => 'Notifications are off for this app';
+  String get notifyBlockedTitle => '此应用的通知已关闭';
 
   @override
   String get notifyBlockedMessage =>
-      'Android is not letting OpenCode notify you, so finished runs, approvals and quota alerts cannot arrive until this is fixed.';
+      'Android 不允许 OpenCode 向你发送通知，因此在解决之前，你将收不到运行完成、批准和配额提醒。';
 
   @override
-  String get notifySendTest => 'Send a test notification';
+  String get notifySendTest => '发送测试通知';
 
   @override
-  String get notifySendTestDetail =>
-      'Confirms whether Android is actually delivering this app\'s notifications right now.';
+  String get notifySendTestDetail => '确认 Android 此刻是否正在送达此应用的通知。';
 
   @override
-  String get notifyQuietDetail => 'Silence notifications during these hours.';
+  String get notifyQuietDetail => '在这些时段内静音通知。';
 
   @override
-  String get notifySectionBackground => 'Background';
+  String get notifySectionBackground => '后台';
 
   @override
-  String get notifySectionServers => 'Saved servers';
+  String get notifySectionServers => '已保存的服务器';
 
   @override
-  String get notifyWifiOnly => 'Check in the background on Wi-Fi only';
+  String get notifyWifiOnly => '仅在 Wi-Fi 下于后台检查';
 
   @override
   String notifyHubBackgroundSummary(String state) {
@@ -10850,7 +10562,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get shellTabInbox => 'Inbox';
 
   @override
-  String get serverSwitcherManage => 'Manage servers';
+  String get serverSwitcherManage => '管理服务器';
 
   @override
   String get serverSwitcherOpen => '切换服务器';
@@ -10975,7 +10687,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String gestureEquivFileRowActions(String name) {
-    return 'Actions for $name';
+    return '$name 的操作';
   }
 
   @override
@@ -11302,124 +11014,118 @@ class AppLocalizationsZh extends AppLocalizations {
   String get firstRunAgentCodex => 'Codex';
 
   @override
-  String get firstRunRunOnComputer => 'On your computer, run:';
+  String get firstRunRunOnComputer => '在你的电脑上运行：';
 
   @override
-  String get firstRunPairingNextScan =>
-      'It shows a code. Scan it, or copy it and paste it here.';
+  String get firstRunPairingNextScan => '它会显示一个代码。扫描它，或复制后粘贴到这里。';
 
   @override
-  String get firstRunPairingNextPaste => 'Then paste the code it prints.';
+  String get firstRunPairingNextPaste => '然后粘贴它输出的代码。';
 
   @override
-  String get firstRunNotSameNetwork => 'Not on the same network?';
+  String get firstRunNotSameNetwork => '不在同一网络？';
 
   @override
-  String get firstRunShowCommands => 'Show the commands';
+  String get firstRunShowCommands => '显示命令';
 
   @override
-  String get firstRunCommandsPaseoNetwork =>
-      'To reach it from this phone over your private network, listen on that address and set a password:';
+  String get firstRunCommandsPaseoNetwork => '若要从此手机通过私有网络访问，请监听该地址并设置密码：';
 
   @override
-  String get firstRunCommandsCodexToken =>
-      'Create the connection token before you start it:';
+  String get firstRunCommandsCodexToken => '启动前先创建连接令牌：';
 
   @override
-  String get firstRunCommandsCodexUsb =>
-      'A phone on a USB cable reaches it with:';
+  String get firstRunCommandsCodexUsb => '通过 USB 线连接的手机可用以下命令访问：';
 
   @override
-  String get firstRunNotifyTitle => 'Notify you when the agent needs you?';
+  String get firstRunNotifyTitle => '当智能体需要你时通知你？';
 
   @override
   String get firstRunNotifyBody =>
       'Leave the app while the agent works. You get a notification when it needs your answer. Android shows a small ongoing notification while it stays connected.';
 
   @override
-  String get firstRunNotifyAccept => 'Notify me';
+  String get firstRunNotifyAccept => '通知我';
 
   @override
-  String get firstRunNotifyDecline => 'Not now';
+  String get firstRunNotifyDecline => '暂不';
 
   @override
-  String get localAgentTitle => 'Claude Code on this phone';
+  String get localAgentTitle => '此手机上的 Claude Code';
 
   @override
   String get localAgentOfferBody =>
-      'Run Claude Code here with no computer. The app installs Node.js, the Paseo daemon and Claude Code into the Ubuntu it already manages, and reaches them on this phone only.';
+      '无需电脑，直接在这里运行 Claude Code。应用会把 Node.js、Paseo 守护进程和 Claude Code 安装到它已管理的 Ubuntu 中，且只能在此手机上访问。';
 
   @override
   String get localAgentOfferSize =>
-      'About 60 MB to download for Node.js, plus the packages; about 1 GB once installed. Needs 2 GB free.';
+      'Node.js 约需下载 60 MB，另加软件包；安装后约占 1 GB。需要 2 GB 可用空间。';
 
   @override
   String get localAgentOfferWarning =>
-      'Android may stop Termux in the background. The battery settings that keep the OpenCode server alive keep this alive too.';
+      'Android 可能会在后台停止 Termux。让 OpenCode 服务器保持运行的电池设置同样适用于它。';
 
   @override
-  String get localAgentSetUp => 'Set up Claude Code';
+  String get localAgentSetUp => '设置 Claude Code';
 
   @override
-  String get localAgentNotNow => 'Not now';
+  String get localAgentNotNow => '暂不';
 
   @override
   String get localAgentNeedsUbuntuBody =>
-      'Claude Code runs inside the Ubuntu this app sets up. Finish the On this phone setup first, then come back here.';
+      'Claude Code 运行在本应用设置的 Ubuntu 中。请先完成“在这部手机上”的设置，再回到这里。';
 
   @override
-  String get localAgentOpenSetup => 'Open phone setup';
+  String get localAgentOpenSetup => '打开手机设置向导';
 
   @override
   String get localAgentNeedsTermuxBody =>
-      'Claude Code needs Termux for now; the in-app Linux does not run it yet. Set up Termux to use it here.';
+      'Claude Code 目前需要 Termux；应用内置的 Linux 还不能运行它。请设置 Termux 以在此使用。';
 
   @override
-  String get localAgentSetUpWithTermux => 'Set up with Termux';
+  String get localAgentSetUpWithTermux => '使用 Termux 设置';
 
   @override
   String get localAgentStepNode => 'Node.js';
 
   @override
-  String get localAgentStepPaseo => 'Paseo daemon';
+  String get localAgentStepPaseo => 'Paseo 守护进程';
 
   @override
   String get localAgentStepClaude => 'Claude Code';
 
   @override
-  String get localAgentStepSignIn => 'Sign in to Claude';
+  String get localAgentStepSignIn => '登录 Claude';
 
   @override
-  String get localAgentStepStart => 'Start on this phone';
+  String get localAgentStepStart => '在此手机上启动';
 
   @override
-  String get localAgentInstalling => 'Setting up Claude Code';
+  String get localAgentInstalling => '正在设置 Claude Code';
 
   @override
-  String get localAgentLeaveNote =>
-      'You can leave this screen. The install keeps going in Termux.';
+  String get localAgentLeaveNote => '你可以离开此屏幕。安装会在 Termux 中继续进行。';
 
   @override
   String get localAgentSignInBody =>
-      'Termux opens and Claude Code shows a link. Approve it in your browser, paste the code back into Termux, then return here. This app never sees or stores your Claude sign-in.';
+      'Termux 会打开，Claude Code 会显示一个链接。请在浏览器中批准，将代码粘贴回 Termux，然后返回这里。本应用从不查看或保存你的 Claude 登录信息。';
 
   @override
-  String get localAgentSignInAlready => 'I already signed in';
+  String get localAgentSignInAlready => '我已登录';
 
   @override
   String localAgentSignInOpenFailed(String command) {
-    return 'Termux could not be opened. Open Termux yourself and run: $command';
+    return '无法打开 Termux。请自行打开 Termux 并运行：$command';
   }
 
   @override
-  String get localAgentSignInMissing => 'No Claude sign-in was found yet.';
+  String get localAgentSignInMissing => '尚未找到 Claude 登录信息。';
 
   @override
-  String get localAgentReadyTitle => 'Claude Code is running on this phone';
+  String get localAgentReadyTitle => 'Claude Code 正在此手机上运行';
 
   @override
-  String get localAgentReadyBody =>
-      'It listens on this phone only (127.0.0.1), behind a password this app keeps.';
+  String get localAgentReadyBody => '它只在此手机上监听（127.0.0.1），并由本应用保管的密码保护。';
 
   @override
   String localAgentVersions(String claude, String paseo, String node) {
@@ -11427,120 +11133,112 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get localAgentInstalledTitle => 'Claude Code is installed and stopped';
+  String get localAgentInstalledTitle => 'Claude Code 已安装但未运行';
 
   @override
-  String get localAgentKilled =>
-      'Android stopped Claude Code while the app was away. Nothing is lost.';
+  String get localAgentKilled => '应用在后台时，Android 停止了 Claude Code。没有丢失任何内容。';
 
   @override
-  String get localAgentFailedTitle => 'Claude Code setup stopped';
+  String get localAgentFailedTitle => 'Claude Code 设置已停止';
 
   @override
   String localAgentFailedNoSpace(String detail) {
-    return 'Not enough space on this phone. $detail Free some space, then try again.';
+    return '此手机空间不足。$detail请释放一些空间后重试。';
   }
 
   @override
-  String get localAgentFailedDownload =>
-      'Node.js could not be downloaded. Check the network, then try again.';
+  String get localAgentFailedDownload => '无法下载 Node.js。请检查网络后重试。';
 
   @override
   String get localAgentFailedChecksum =>
-      'The Node.js download did not match its pinned checksum, so nothing was installed. Try again; if it happens twice, something on the network is changing the file.';
+      'Node.js 下载内容与固定的校验和不一致，因此未安装任何内容。请重试；如果再次发生，说明网络中有东西在篡改该文件。';
 
   @override
   String get localAgentFailedNativeBuild =>
-      'A package needs a native module with no ready-made build for this phone. Nothing was compiled; the output below names it.';
+      '某个软件包需要原生模块，而此手机没有现成的构建。未编译任何内容；下方输出中指出了该模块。';
 
   @override
-  String get localAgentFailedPackages =>
-      'The packages could not be installed. Check the network, then try again.';
+  String get localAgentFailedPackages => '无法安装软件包。请检查网络后重试。';
 
   @override
-  String get localAgentFailedPortInUse =>
-      'Port 6767 on this phone is already used by another program. Stop that program, then try again.';
+  String get localAgentFailedPortInUse => '此手机的 6767 端口已被其他程序占用。请停止该程序后重试。';
 
   @override
-  String get localAgentFailedTimeout =>
-      'Claude Code did not answer within two minutes. The output below shows what it printed.';
+  String get localAgentFailedTimeout => 'Claude Code 在两分钟内没有响应。下方输出显示了它打印的内容。';
 
   @override
-  String get localAgentFailedInterrupted =>
-      'Android stopped the step before it finished. Try again; it picks up where it stopped.';
+  String get localAgentFailedInterrupted => 'Android 在该步骤完成前将其中断。请重试，它会从中断处继续。';
 
   @override
-  String get localAgentFailedUnsupported => 'Claude Code needs a 64-bit phone.';
+  String get localAgentFailedUnsupported => 'Claude Code 需要 64 位手机。';
 
   @override
-  String get localAgentFailedDaemon =>
-      'Claude Code stopped or does not answer. Start it again.';
+  String get localAgentFailedDaemon => 'Claude Code 已停止或没有响应。请重新启动它。';
 
   @override
   String localAgentFailedReason(String detail) {
-    return 'It stopped: $detail';
+    return '已停止：$detail';
   }
 
   @override
-  String get localAgentProjectTitle => 'Choose a project folder';
+  String get localAgentProjectTitle => '选择项目文件夹';
 
   @override
-  String get localAgentProjectBody =>
-      'Claude Code works inside one folder of the Ubuntu on this phone.';
+  String get localAgentProjectBody => 'Claude Code 在此手机 Ubuntu 的某个文件夹内工作。';
 
   @override
-  String get localAgentProjectPathLabel => 'Or type a path inside Ubuntu';
+  String get localAgentProjectPathLabel => '或输入 Ubuntu 内的路径';
 
   @override
   String get localAgentProjectPathInvalid =>
-      'Enter a full path, like /root/projects/my-app.';
+      '请输入完整路径，例如 /root/projects/my-app。';
 
   @override
   String localAgentConnectFailed(String detail) {
-    return 'Could not connect to Claude Code on this phone. $detail';
+    return '无法连接到此手机上的 Claude Code。$detail';
   }
 
   @override
   String localAgentCardActionFailed(String detail) {
-    return 'That did not work. $detail';
+    return '操作失败。$detail';
   }
 
   @override
-  String get localAgentRestartTitle => 'Restart Claude Code on this phone?';
+  String get localAgentRestartTitle => '在此手机上重启 Claude Code？';
 
   @override
   String get localAgentRestartBody =>
-      'Claude Code is briefly unavailable and anything it is doing right now is interrupted. Your conversations stay on the phone.';
+      'Claude Code 会短暂不可用，它当前正在做的事情会被中断。你的对话会保留在手机上。';
 
   @override
-  String get localAgentStopTitle => 'Stop Claude Code on this phone?';
+  String get localAgentStopTitle => '在此手机上停止 Claude Code？';
 
   @override
   String get localAgentStopBody =>
-      'Anything Claude Code is doing on this phone is interrupted, and this app disconnects from it. Your projects, conversations and Claude sign-in stay; start it again to continue.';
+      'Claude Code 在此手机上正在做的事情会被中断，本应用也会与它断开连接。你的项目、对话和 Claude 登录信息会保留；重新启动即可继续。';
 
   @override
-  String get localAgentRemove => 'Remove from this phone';
+  String get localAgentRemove => '从此手机移除';
 
   @override
-  String get localAgentRemoveTitle => 'Remove Claude Code from this phone?';
+  String get localAgentRemoveTitle => '从此手机移除 Claude Code？';
 
   @override
   String get localAgentRemoveBody =>
-      'Stops it and deletes Node.js, Paseo and Claude Code from Ubuntu, about 1 GB. Your projects and your Claude sign-in stay.';
+      '停止它，并从 Ubuntu 中删除 Node.js、Paseo 和 Claude Code，约 1 GB。你的项目和 Claude 登录信息会保留。';
 
   @override
-  String get localAgentRemoveKeep => 'Keep it';
+  String get localAgentRemoveKeep => '保留';
 
   @override
-  String get localAgentMore => 'More Claude Code actions';
+  String get localAgentMore => '更多 Claude Code 操作';
 
   @override
   String get firstRunAgentsSideBySide =>
-      'They run side by side on the same computer. Start with one, and add the others any time from the server name at the top.';
+      '它们在同一台电脑上并行运行。先从一个开始，之后随时可从顶部的服务器名称添加其他的。';
 
   @override
-  String get firstRunPaseoTitle => 'Agents through Paseo';
+  String get firstRunPaseoTitle => '通过 Paseo 使用智能体';
 
   @override
   String get approvalsUiEverythingTitle => 'Approve everything on this server';
@@ -11562,70 +11260,57 @@ class AppLocalizationsZh extends AppLocalizations {
       'The server’s own deny rules still apply, and automatic approval stops whenever this app disconnects.';
 
   @override
-  String get agentErrorConnectionDropped =>
-      'The connection to the model dropped.';
+  String get agentErrorConnectionDropped => '与模型的连接已断开。';
 
   @override
   String get agentErrorConnectionDroppedHint =>
-      'Usually brief, and OpenCode retries by itself. If it keeps happening, check the internet on the computer running OpenCode.';
+      '请检查运行 OpenCode 的设备的网络。如果回复已停止，请先查看对话，再重新发送。';
 
   @override
-  String get agentErrorTimedOut => 'The model took too long to answer.';
+  String get agentErrorTimedOut => '模型响应时间过长。';
 
   @override
-  String get agentErrorTimedOutHint =>
-      'OpenCode retries by itself. A smaller request or another model may be faster.';
+  String get agentErrorTimedOutHint => '如果回复已停止，请尝试更小的请求或其他模型。';
 
   @override
-  String get agentErrorProviderUnreachable =>
-      'The server couldn’t reach the model provider.';
+  String get agentErrorProviderUnreachable => '服务器无法连接到模型提供商。';
 
   @override
   String get agentErrorProviderUnreachableHint =>
-      'Check the internet connection on the computer running OpenCode, then try again.';
+      '请检查运行 OpenCode 的电脑的网络连接，然后重试。';
 
   @override
-  String get agentErrorRequestTooLarge =>
-      'This request was too large to send to the model.';
+  String get agentErrorRequestTooLarge => '此请求过大，无法发送给模型。';
 
   @override
-  String get agentErrorRequestTooLargeHint =>
-      'Send fewer or smaller attachments, or compact the conversation, then try again.';
+  String get agentErrorRequestTooLargeHint => '请减少附件数量或缩小附件，或压缩对话，然后重试。';
 
   @override
-  String get agentErrorRateLimited =>
-      'The model provider is limiting how fast you can send.';
+  String get agentErrorRateLimited => '模型提供商正在限制你的发送速度。';
 
   @override
-  String get agentErrorRateLimitedHint =>
-      'It retries by itself after a short wait.';
+  String get agentErrorRateLimitedHint => '请稍等。如果回复已停止，请重试或选择其他模型。';
 
   @override
-  String get agentErrorProviderBusy =>
-      'The model provider is overloaded right now.';
+  String get agentErrorProviderBusy => '模型提供商目前负载过高。';
 
   @override
-  String get agentErrorProviderBusyHint =>
-      'It retries by itself. Another model may answer sooner.';
+  String get agentErrorProviderBusyHint => '如果回复已停止，请稍后重试或选择其他模型。';
 
   @override
-  String get agentErrorOutOfCredit =>
-      'The provider account is out of credit or quota.';
+  String get agentErrorOutOfCredit => '提供商账户的额度或配额已用完。';
 
   @override
-  String get agentErrorOutOfCreditHint =>
-      'Top up the account, or switch to another provider or model.';
+  String get agentErrorOutOfCreditHint => '请为账户充值，或切换到其他提供商或模型。';
 
   @override
-  String get agentErrorServerDiskFull =>
-      'The computer running OpenCode is out of disk space.';
+  String get agentErrorServerDiskFull => '运行 OpenCode 的电脑磁盘空间已满。';
 
   @override
-  String get agentErrorServerDiskFullHint =>
-      'Free some space there, then try again.';
+  String get agentErrorServerDiskFullHint => '请在那台电脑上释放一些空间，然后重试。';
 
   @override
-  String get agentErrorRecovered => 'The agent carried on after this.';
+  String get agentErrorRecovered => '智能体在此之后继续运行了。';
 
   @override
   String chatUiRetryingSoon(String attempt) {
@@ -11704,26 +11389,25 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String chatAttachmentOfficeHeader(String name) {
-    return 'Contents of $name, read on the phone: values and text only, without formatting, charts or formulas.';
+    return '$name 的内容，在手机上读取：仅包含数值和文字，不含格式、图表或公式。';
   }
 
   @override
-  String get chatAttachmentOfficeTruncated =>
-      'The file was larger than a prompt can carry, so it is cut short below.';
+  String get chatAttachmentOfficeTruncated => '文件超出了一条提示词可容纳的大小，因此下方内容已被截断。';
 
   @override
   String chatAttachmentOfficeUnreadable(String name) {
-    return '$name could not be read. It may be password protected, damaged, or in the older Excel or Word format; save it as .xlsx, .docx or CSV and try again.';
+    return '无法读取 $name。它可能受密码保护、已损坏，或为旧版 Excel 或 Word 格式；请另存为 .xlsx、.docx 或 CSV 后重试。';
   }
 
   @override
   String chatAttachmentOfficeEmpty(String name) {
-    return '$name has nothing in it to attach.';
+    return '$name 中没有可附加的内容。';
   }
 
   @override
   String chatAttachmentDocumentAttached(String name) {
-    return '$name attached as text.';
+    return '已将 $name 作为文字附加。';
   }
 
   @override
@@ -11731,16 +11415,16 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       sheets,
       locale: localeName,
-      other: '$sheets sheets',
-      one: '1 sheet',
+      other: '$sheets 个工作表',
+      one: '1 个工作表',
     );
     String _temp1 = intl.Intl.pluralLogic(
       rows,
       locale: localeName,
-      other: '$rows rows',
-      one: '1 row',
+      other: '$rows 行',
+      one: '1 行',
     );
-    return '$name attached as text · $_temp0, $_temp1';
+    return '已将 $name 作为文字附加 · $_temp0，$_temp1';
   }
 
   @override
@@ -11750,14 +11434,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get otherProjectsUntitled => 'Untitled conversation';
 
   @override
-  String get localAgentUpdate => 'Update Claude Code';
+  String get localAgentUpdate => '更新 Claude Code';
 
   @override
-  String get localAgentUpdateAvailable =>
-      'An update adds the newest Claude models, such as Opus 5.5.';
+  String get localAgentUpdateAvailable => '更新后将加入最新的 Claude 模型，例如 Opus 5.5。';
 
   @override
-  String get localAgentUpdateNow => 'Update';
+  String get localAgentUpdateNow => '更新';
 
   @override
   String get modelNewBadge => '新';
@@ -11784,18 +11467,17 @@ class AppLocalizationsZh extends AppLocalizations {
   String get modelEffortMax => '最大';
 
   @override
-  String get setupStoppedByRestart =>
-      'The phone restarted, so the local server stopped. Start it again when you need it.';
+  String get setupStoppedByRestart => '手机已重启，因此本地服务器已停止。需要时请再次启动。';
 
   @override
-  String get phoneServerStoppedTitle => 'The server on this phone is stopped';
+  String get phoneServerStoppedTitle => '此手机上的服务器已停止';
 
   @override
   String get phoneServerStoppedBody =>
-      'It stops when the phone restarts or Android closes Termux to save battery. Your conversations are kept; start it again to continue.';
+      '手机重启或 Android 为省电关闭 Termux 时，它会停止。你的对话会保留；请重新启动以继续。';
 
   @override
-  String get phoneServerStartAndConnect => 'Start and connect';
+  String get phoneServerStartAndConnect => '启动并连接';
 
   @override
   String get otherServersTitle => 'On your other servers';
@@ -11824,8 +11506,8 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Show $countString earlier lines',
-      one: 'Show 1 earlier line',
+      other: '显示前 $countString 行',
+      one: '显示前 1 行',
     );
     return '$_temp0';
   }
@@ -11836,46 +11518,44 @@ class AppLocalizationsZh extends AppLocalizations {
         intl.NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
 
-    return 'Open all $countString lines';
+    return '打开全部 $countString 行';
   }
 
   @override
   String get setupProgressViewOverallLabel => '设置进度';
 
   @override
-  String get setupProgressViewGettingStarted => 'Getting started…';
+  String get setupProgressViewGettingStarted => '正在开始…';
 
   @override
   String setupProgressViewMinutesLeft(int minutes) {
     String _temp0 = intl.Intl.pluralLogic(
       minutes,
       locale: localeName,
-      other: '~$minutes min left',
-      one: '~1 min left',
+      other: '剩余约 $minutes 分钟',
+      one: '剩余约 1 分钟',
     );
     return '$_temp0';
   }
 
   @override
-  String get setupProgressViewUnderMinute => 'Less than a minute';
+  String get setupProgressViewUnderMinute => '不到一分钟';
 
   @override
-  String get setupProgressViewDone => 'All set';
+  String get setupProgressViewDone => '全部完成';
 
   @override
-  String get setupProgressViewFailedTitle => 'Setup didn\'t finish';
+  String get setupProgressViewFailedTitle => '设置未完成';
 
   @override
-  String get setupProgressViewInterrupted =>
-      'Setup was interrupted. What\'s finished is kept.';
+  String get setupProgressViewInterrupted => '设置被中断。已完成的部分会保留。';
 
   @override
-  String get setupProgressViewCancelled =>
-      'Setup stopped. What\'s finished stays installed.';
+  String get setupProgressViewCancelled => '设置已停止。已完成的部分仍保持安装。';
 
   @override
   String setupProgressViewBytes(String done, String total) {
-    return '$done of $total';
+    return '$done / $total';
   }
 
   @override
@@ -11889,32 +11569,30 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get setupProgressViewChecking => 'Checking';
+  String get setupProgressViewChecking => '检查中';
 
   @override
-  String get setupProgressViewStarting => 'Starting';
+  String get setupProgressViewStarting => '启动中';
 
   @override
   String setupProgressViewFailedDuring(String stage) {
-    return 'Stopped during: $stage. What went wrong is under Details.';
+    return '停止于：$stage。出错原因见“详情”。';
   }
 
   @override
-  String get setupProgressViewFailedUnknown =>
-      'Setup stopped before it finished. What went wrong is under Details.';
+  String get setupProgressViewFailedUnknown => '设置在完成前停止了。出错原因见“详情”。';
 
   @override
-  String get setupProgressViewNoInternet =>
-      'No internet connection — Continue when you\'re back online';
+  String get setupProgressViewNoInternet => '无网络连接 — 恢复联网后再继续';
 
   @override
-  String get setupProgressViewContinue => 'Continue setup';
+  String get setupProgressViewContinue => '继续设置';
 
   @override
-  String get setupProgressViewCancel => 'Stop setup';
+  String get setupProgressViewCancel => '停止设置';
 
   @override
-  String get setupProgressViewNoLog => 'Nothing logged yet.';
+  String get setupProgressViewNoLog => '暂无日志。';
 
   @override
   String get phoneSetupProgressTitle => '正在这部手机上设置 OpenCode';
@@ -11925,6 +11603,14 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get phoneSetupProgressFirstSetupNote =>
       '第 1 步，共 3 步：安装。之后为项目命名，然后开始对话。你可以离开应用，准备好后我们会通知你。';
+
+  @override
+  String get phoneSetupProgressLeaveHintQuiet =>
+      'You can leave the app. Setup keeps going. Open OpenCode again to see how far it got.';
+
+  @override
+  String get phoneSetupProgressFirstSetupNoteQuiet =>
+      'Step 1 of 3: install. Then name a project and start a conversation. You can leave the app. Setup keeps going. Open OpenCode again to see how far it got.';
 
   @override
   String get phoneSetupProgressStopTitle => '要停止设置吗？';
@@ -11946,29 +11632,29 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String builtinServerStartFailed(String reason) {
-    return 'OpenCode did not answer: $reason. Open the log to see why.';
+    return 'OpenCode 没有响应：$reason。打开日志查看原因。';
   }
 
   @override
-  String get builtinServerExited => 'the server stopped';
+  String get builtinServerExited => '服务器已停止';
 
   @override
   String builtinServerTimedOut(int seconds) {
-    return 'no answer within $seconds seconds';
+    return '$seconds 秒内无响应';
   }
 
   @override
   String builtinServerConnectFailed(String reason) {
-    return 'Could not connect: $reason';
+    return '无法连接：$reason';
   }
 
   @override
   String builtinServerProfileName(String runtime) {
-    return 'This phone, built-in ($runtime)';
+    return '此手机，内置（$runtime）';
   }
 
   @override
-  String get phoneSetupProfileName => 'This phone';
+  String get phoneSetupProfileName => '此手机';
 
   @override
   String get phoneSetupLinuxTitle => 'Linux 基础环境';
@@ -11998,66 +11684,64 @@ class AppLocalizationsZh extends AppLocalizations {
   String get phoneSetupStartWhy => '设置完成时 OpenCode 已在运行。';
 
   @override
-  String get phoneSetupStageDownloadingLinux => 'Downloading Linux base';
+  String get phoneSetupStageDownloadingLinux => '正在下载 Linux 基础系统';
 
   @override
-  String get phoneSetupStageUnpackingLinux => 'Unpacking Linux base';
+  String get phoneSetupStageUnpackingLinux => '正在解压 Linux 基础系统';
 
   @override
-  String get phoneSetupStageStarting => 'Starting OpenCode';
+  String get phoneSetupStageStarting => '正在启动 OpenCode';
 
   @override
-  String get phoneSetupNotificationChannel => 'Phone setup';
+  String get phoneSetupNotificationChannel => '手机设置';
 
   @override
-  String get phoneSetupNotificationTitle => 'Setting up OpenCode on this phone';
+  String get phoneSetupNotificationTitle => '正在此手机上设置 OpenCode';
 
   @override
   String phoneSetupNotificationProgress(String percent) {
-    return '$percent% done';
+    return '已完成 $percent%';
   }
 
   @override
-  String get phoneSetupNotificationDone => 'OpenCode is ready on this phone';
+  String get phoneSetupNotificationDone => 'OpenCode 已在此手机上就绪';
 
   @override
-  String get phoneSetupNotificationStopped =>
-      'Setup stopped. Open the app to continue.';
+  String get phoneSetupNotificationStopped => '设置已停止。打开应用以继续。';
 
   @override
-  String get phoneSetupErrorNoInternet =>
-      'No internet connection. Continue when you\'re back online.';
+  String get phoneSetupErrorNoInternet => '没有网络连接。恢复联网后再继续。';
 
   @override
   String phoneSetupErrorOffline(String name) {
-    return 'Could not download $name: no internet connection';
+    return '无法下载 $name：没有网络连接';
   }
 
   @override
   String phoneSetupErrorInstall(String name) {
-    return 'Could not install $name';
+    return '无法安装 $name';
   }
 
   @override
   String phoneSetupErrorChecksum(String name) {
-    return 'The download of $name was damaged. Continue to fetch it again.';
+    return '$name 的下载已损坏。继续以重新下载。';
   }
 
   @override
   String get phoneSetupErrorOpenCodeNoProgram =>
-      'OpenCode was downloaded, but its program was not in the download. Continue to fetch it again.';
+      'OpenCode 已下载，但下载内容中没有它的程序。继续以重新下载。';
 
   @override
   String get phoneSetupErrorOpenCodeWontRun =>
-      'OpenCode was downloaded, but its program does not run on this phone. Details show what it said.';
+      'OpenCode 已下载，但其程序无法在此手机上运行。详情会显示它的输出。';
 
   @override
   String get phoneSetupErrorOpenCodeNoStart =>
-      'OpenCode was installed, but it did not start. Continue to try again; Details show what it said.';
+      'OpenCode 已安装，但没有启动。继续以重试；详情会显示它的输出。';
 
   @override
   String phoneSetupErrorNoSpace(String name) {
-    return 'Not enough free space to install $name';
+    return '可用空间不足，无法安装 $name。请释放一些存储空间，然后继续设置。';
   }
 
   @override
@@ -12067,10 +11751,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get phoneSetupErrorCannotStart =>
-      'OpenCode is installed, but the app could not start it here.';
+      'OpenCode 已安装但没有响应。继续设置以重试。详情会显示停止的原因。';
 
   @override
-  String get builtinServerLogTitle => 'Server log';
+  String get builtinServerLogTitle => '服务器日志';
 
   @override
   String get phoneSetupReadyTitle => 'OpenCode 已准备就绪';
@@ -12114,31 +11798,31 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get phoneServerCardTitle => 'In-app Ubuntu';
+  String get phoneServerCardTitle => '应用内 Ubuntu';
 
   @override
-  String get phoneServerCardRunning => 'Running';
+  String get phoneServerCardRunning => '运行中';
 
   @override
-  String get phoneServerCardStopped => 'Stopped';
+  String get phoneServerCardStopped => '已停止';
 
   @override
-  String get phoneServerCardStarting => 'Starting';
+  String get phoneServerCardStarting => '正在启动';
 
   @override
-  String get phoneServerCardStopping => 'Stopping';
+  String get phoneServerCardStopping => '正在停止';
 
   @override
-  String get phoneServerCardRemoving => 'Removing';
+  String get phoneServerCardRemoving => '正在移除';
 
   @override
-  String get phoneServerCardChecking => 'Checking';
+  String get phoneServerCardChecking => '检查中';
 
   @override
-  String get phoneServerCardNotSetUp => 'Not set up';
+  String get phoneServerCardNotSetUp => '未设置';
 
   @override
-  String get phoneServerCardSettingUp => 'Setting up';
+  String get phoneServerCardSettingUp => '正在设置';
 
   @override
   String phoneServerCardVersion(String version) {
@@ -12146,22 +11830,22 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get phoneServerCardSetUp => 'Set up';
+  String get phoneServerCardSetUp => '设置';
 
   @override
-  String get phoneServerCardShowProgress => 'Show progress';
+  String get phoneServerCardShowProgress => '查看进度';
 
   @override
-  String get phoneServerCardContinueSetup => 'Continue setup';
+  String get phoneServerCardContinueSetup => '继续设置';
 
   @override
-  String get phoneServerCardLogTitle => 'Log';
+  String get phoneServerCardLogTitle => '日志';
 
   @override
-  String get phoneServerCardLogEmpty => 'Nothing in the log yet.';
+  String get phoneServerCardLogEmpty => '日志中暂无内容。';
 
   @override
-  String get phoneServerCardMore => 'More';
+  String get phoneServerCardMore => '更多';
 
   @override
   String phoneServerCardSwitchTo(String runtime) {
@@ -12169,65 +11853,60 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get phoneServerCardAddTools => 'Add tools (Python, AI Team…)';
+  String get phoneServerCardAddTools => '添加工具（Python、AI Team…）';
 
   @override
-  String get phoneServerCardUpdate => 'Update OpenCode';
+  String get phoneServerCardUpdate => '更新 OpenCode';
 
   @override
-  String get phoneServerCardRemove => 'Remove from this phone…';
+  String get phoneServerCardRemove => '从此手机移除…';
 
   @override
-  String get phoneServerCardRemoveTitle => 'Remove OpenCode from this phone?';
+  String get phoneServerCardRemoveTitle => '从此手机移除 OpenCode？';
 
   @override
   String phoneServerCardActionFailed(String reason) {
-    return 'That did not work: $reason';
+    return '操作失败：$reason';
   }
 
   @override
-  String get serverEditorMoreOptions => 'More options';
+  String get serverEditorMoreOptions => '更多选项';
 
   @override
-  String get inAppServerStoppedTitle => 'OpenCode inside the app is stopped';
+  String get inAppServerStoppedTitle => '应用内的 OpenCode 已停止';
 
   @override
-  String get inAppServerStoppedBody =>
-      'It stops when the app is closed for a while or updated. Your conversations are kept; start it again to continue.';
+  String get inAppServerStoppedBody => '应用关闭一段时间或更新后，它会停止。你的对话会保留；请重新启动以继续。';
 
   @override
-  String get inAppServerNotRespondingTitle =>
-      'OpenCode inside the app is not answering';
+  String get inAppServerNotRespondingTitle => '应用内的 OpenCode 没有响应';
 
   @override
-  String get inAppServerNotRespondingBody =>
-      'Starting it again usually fixes this. Your conversations are kept.';
+  String get inAppServerNotRespondingBody => '重新启动通常即可解决。你的对话会保留。';
 
   @override
-  String get inAppServerStartFailedTitle =>
-      'OpenCode inside the app did not start';
+  String get inAppServerStartFailedTitle => '应用内的 OpenCode 未能启动';
 
   @override
-  String get inAppServerStartFailedBody =>
-      'Open its setup to see the server log, or try starting it again.';
+  String get inAppServerStartFailedBody => '打开其设置查看服务器日志，或再次尝试启动。';
 
   @override
-  String get inAppServerStarting => 'Starting OpenCode inside the app…';
+  String get inAppServerStarting => '正在应用内启动 OpenCode…';
 
   @override
-  String get inAppServerStartingBody => 'This takes a few seconds.';
+  String get inAppServerStartingBody => '这需要几秒钟。';
 
   @override
-  String get inAppServerOpenSetup => 'Open setup';
+  String get inAppServerOpenSetup => '打开设置向导';
 
   @override
   String get projectFolderInAppTitle => 'Open a project';
 
   @override
-  String get projectFolderNewProject => 'New project';
+  String get projectFolderNewProject => '新项目';
 
   @override
-  String get projectFolderProjectNameLabel => 'Project name';
+  String get projectFolderProjectNameLabel => '项目名称';
 
   @override
   String projectFolderNewProjectHelp(String directory) {
@@ -12235,7 +11914,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get projectFolderEnterPath => 'Enter a path';
+  String get projectFolderEnterPath => '输入路径';
 
   @override
   String get projectFolderMissing => 'That folder does not exist yet.';
@@ -12254,77 +11933,70 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get folderBrowserUp => 'Up one folder';
+  String get folderBrowserUp => '返回上一级文件夹';
 
   @override
   String folderBrowserCurrent(String path) {
-    return 'Current folder: $path';
+    return '当前文件夹：$path';
   }
 
   @override
   String folderBrowserOpen(String name) {
-    return 'Open $name';
+    return '打开 $name';
   }
 
   @override
-  String get folderBrowserGit => 'Git repository';
+  String get folderBrowserGit => 'Git 仓库';
 
   @override
-  String get folderBrowserProject => 'OpenCode project';
+  String get folderBrowserProject => 'OpenCode 项目';
 
   @override
   String folderBrowserShowInside(String name) {
-    return 'Show the folders in $name';
+    return '显示 $name 中的文件夹';
   }
 
   @override
-  String get folderBrowserProjectsHere =>
-      'Your projects live here. Tap one to open it.';
+  String get folderBrowserProjectsHere => '你的项目都在这里。点按一个即可打开。';
 
   @override
-  String get folderBrowserHomeHere =>
-      'The home folder and the root cannot be projects. Open a folder inside.';
+  String get folderBrowserHomeHere => '主目录和根目录不能作为项目。请打开其中的某个文件夹。';
 
   @override
-  String get folderBrowserNoProjectsTitle => 'No projects yet';
+  String get folderBrowserNoProjectsTitle => '还没有项目';
 
   @override
-  String get folderBrowserNoProjectsBody => 'Start one to make it here.';
+  String get folderBrowserNoProjectsBody => '新建一个，它会出现在这里。';
 
   @override
-  String get folderBrowserEmptyTitle => 'No folders in here';
+  String get folderBrowserEmptyTitle => '这里没有文件夹';
 
   @override
-  String get folderBrowserEmptyBody =>
-      'Open it as a project, or go up one folder.';
+  String get folderBrowserEmptyBody => '将其作为项目打开，或返回上一级文件夹。';
 
   @override
-  String get folderBrowserErrorTitle => 'This folder can’t be shown';
+  String get folderBrowserErrorTitle => '无法显示此文件夹';
 
   @override
-  String get folderBrowserErrorNotInstalled =>
-      'Ubuntu isn’t installed in the app yet.';
+  String get folderBrowserErrorNotInstalled => '应用内尚未安装 Ubuntu。';
 
   @override
-  String get folderBrowserErrorMissing => 'It isn’t there any more.';
+  String get folderBrowserErrorMissing => '它已不存在。';
 
   @override
-  String get folderBrowserErrorDenied => 'The app isn’t allowed to read it.';
+  String get folderBrowserErrorDenied => '应用无权读取它。';
 
   @override
-  String get folderBrowserErrorLinked =>
-      'It is a link. Enter its path instead.';
+  String get folderBrowserErrorLinked => '它是一个链接。请改为输入它的路径。';
 
   @override
-  String get folderBrowserErrorFailed =>
-      'Try again, or enter its path instead.';
+  String get folderBrowserErrorFailed => '请重试，或改为输入它的路径。';
 
   @override
-  String get folderBrowserErrorTimedOut =>
-      'It took too long to answer. Try again.';
+  String get folderBrowserErrorTimedOut => '响应时间过长。请重试。';
 
   @override
-  String get folderBrowserRetry => 'Try again';
+  String get folderBrowserRetry => '重试';
 
   @override
   String get phoneSetupStartScreenTitle => '在这部手机上';
@@ -12607,7 +12279,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatStartTip => '输入 / 使用命令 · 长按消息查看操作';
 
   @override
-  String get chatLoadingConversation => 'Loading the conversation';
+  String get chatLoadingConversation => '正在加载对话';
 
   @override
   String get chatLoadFailedTitle => '无法打开这个对话';
@@ -12685,12 +12357,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String aiteamComponentAddingTitle(String names) {
-    return 'Adding $names';
+    return '正在添加 $names';
   }
 
   @override
-  String get aiteamComponentNotice =>
-      'OpenCode and AI Team are running on this phone';
+  String get aiteamComponentNotice => 'OpenCode 和 AI Team 正在此手机上运行';
 
   @override
   String get aiteamComponentSectionTitle => 'AI Team on this phone';
@@ -12817,50 +12488,47 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String agentNotAnsweringPhone(String agent) {
-    return '$agent on this phone isn\'t answering';
+    return '此手机上的 $agent 没有响应';
   }
 
   @override
-  String get workServerNotAnsweringPhone =>
-      'OpenCode on this phone isn\'t answering';
+  String get workServerNotAnsweringPhone => '此手机上的 OpenCode 没有响应';
 
   @override
   String workServerNotAnswering(String server) {
-    return '$server isn\'t answering';
+    return '$server 没有响应';
   }
 
   @override
-  String get workServerKeepsTrying => 'The app keeps trying in the background.';
+  String get workServerKeepsTrying => '应用会在后台继续尝试。';
 
   @override
-  String get workServerRestart => 'Restart';
+  String get workServerRestart => '重启';
 
   @override
-  String get workServerRestartTitle => 'Restart OpenCode on this phone?';
+  String get workServerRestartTitle => '在此手机上重启 OpenCode？';
 
   @override
-  String get workServerRestartBody =>
-      'A running agent turn will stop. Your conversations are kept.';
+  String get workServerRestartBody => '正在进行的智能体回合将会停止。你的对话会保留。';
 
   @override
   String get workStale => 'This may be out of date';
 
   @override
   String workRunaway(String duration) {
-    return 'OpenCode has been busy for $duration with nothing to do';
+    return 'OpenCode 已空转忙碌 $duration';
   }
 
   @override
   String workRunawayInProject(String project, String duration) {
-    return 'OpenCode has been busy in $project for $duration with nothing to do';
+    return 'OpenCode 在 $project 中已空转忙碌 $duration';
   }
 
   @override
   String get connectStartingPhone => '正在这部手机上启动 OpenCode…';
 
   @override
-  String get connectStartingBody =>
-      'Your conversations are kept. This can take a minute.';
+  String get connectStartingBody => '你的对话会保留。这可能需要一分钟。';
 
   @override
   String aiteamBringInDone(String project, String commit) {
@@ -13005,16 +12673,16 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get phoneServerRowRestarting => 'Restarting';
+  String get phoneServerRowRestarting => '正在重启';
 
   @override
-  String get phoneServerRowNotAnswering => 'Not answering';
+  String get phoneServerRowNotAnswering => '没有响应';
 
   @override
-  String get phoneServerRowNotRunning => 'Not running';
+  String get phoneServerRowNotRunning => '未运行';
 
   @override
-  String get phoneServerRowDetails => 'Details';
+  String get phoneServerRowDetails => '详情';
 
   @override
   String get localAgentRowOptional => 'Optional';
@@ -13060,10 +12728,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pluginsDetailsId => 'ID';
 
   @override
-  String get localTerminalSourcePhone => 'Built-in Linux';
+  String get localTerminalSourcePhone => '内置 Linux';
 
   @override
-  String get localTerminalSourceServer => 'OpenCode server';
+  String get localTerminalSourceServer => 'OpenCode 服务器';
 
   @override
   String localTerminalShellName(int number) {
@@ -13091,7 +12759,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get localTerminalStop => 'Stop';
 
   @override
-  String get localTerminalStarting => 'Starting the shell';
+  String get localTerminalStarting => '正在启动 shell';
 
   @override
   String get localTerminalNotSetUpTitle => 'Linux isn\'t set up on this phone';
@@ -13112,11 +12780,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get localTerminalRestart => 'Restart';
 
   @override
-  String get localTerminalFailedTitle => 'The shell didn\'t start';
+  String get localTerminalFailedTitle => 'shell 未能启动';
 
   @override
-  String get localTerminalFailedBody =>
-      'Try again. If it keeps failing, Details says why.';
+  String get localTerminalFailedBody => '请重试。如果仍然失败，可在“详情”中查看原因。';
 
   @override
   String get localTerminalTryAgain => 'Try again';
@@ -13132,7 +12799,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get localTerminalKeysLabel => 'Terminal keys';
+  String get localTerminalKeysLabel => '终端按键';
 
   @override
   String get localTerminalKeyCtrl => 'Control';
@@ -13141,14 +12808,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get localTerminalKeyAlt => 'Alt';
 
   @override
-  String get localTerminalKeyPageUp => 'Page up';
+  String get localTerminalKeyPageUp => '向上翻页';
 
   @override
-  String get localTerminalKeyPageDown => 'Page down';
+  String get localTerminalKeyPageDown => '向下翻页';
 
   @override
-  String get localTerminalSemantics =>
-      'Terminal on this phone. Tap to type; touch and hold to select text.';
+  String get localTerminalSemantics => '此手机上的终端。点按即可输入；长按可选择文字。';
 
   @override
   String get phoneServerTermuxTitle => 'Termux';
@@ -13164,105 +12830,98 @@ class AppLocalizationsZh extends AppLocalizations {
   String get globalSessionsLoadFailedTitle => 'Couldn\'t load conversations';
 
   @override
-  String get filesLoadFailedTitle => 'Couldn\'t open this folder';
+  String get filesLoadFailedTitle => '无法打开此文件夹';
 
   @override
-  String get filesSymbolsFailedTitle => 'Couldn\'t search symbols';
+  String get filesSymbolsFailedTitle => '无法搜索符号';
 
   @override
-  String get terminalListFailedTitle => 'Couldn\'t list the terminals';
+  String get terminalListFailedTitle => '无法列出终端';
 
   @override
-  String get addServerConnectTo => 'Connect to';
+  String get addServerConnectTo => '连接到';
 
   @override
-  String get addServerTypeOpenCode => 'OpenCode on a computer';
+  String get addServerTypeOpenCode => '电脑上的 OpenCode';
 
   @override
-  String get addServerTypeOpenCodeDetail =>
-      'Pair with a code, or enter its address';
+  String get addServerTypeOpenCodeDetail => '使用配对码，或输入其地址';
 
   @override
   String get addServerTypeCodex => 'Codex';
 
   @override
-  String get addServerTypeCodexDetail =>
-      'The Codex app-server on your computer';
+  String get addServerTypeCodexDetail => '你电脑上的 Codex app-server';
 
   @override
   String get addServerTypePaseo => 'Claude Code 或 Pi';
 
   @override
-  String get addServerTypePaseoDetail => 'Through Paseo on your computer';
+  String get addServerTypePaseoDetail => '通过你电脑上的 Paseo';
 
   @override
-  String get addServerScan => 'Scan code';
+  String get addServerScan => '扫描代码';
 
   @override
-  String get addServerPaste => 'Paste code';
+  String get addServerPaste => '粘贴代码';
 
   @override
-  String get addServerManual => 'Enter the address instead';
+  String get addServerManual => '改为输入地址';
 
   @override
-  String get addServerChecking => 'Checking the connection…';
+  String get addServerChecking => '正在检查连接…';
 
   @override
   String addServerCheckingHost(String host) {
-    return 'Checking $host…';
+    return '正在检查 $host…';
   }
 
   @override
   String addServerConnectingHost(String host) {
-    return 'Connecting to $host…';
+    return '正在连接到 $host…';
   }
 
   @override
-  String get addServerSaveAnyway => 'Save anyway';
+  String get addServerSaveAnyway => '仍然保存';
 
   @override
-  String get appearanceDisplaySection => 'Display';
+  String get appearanceDisplaySection => '显示';
 
   @override
-  String get effectsSection => 'Effects';
+  String get effectsSection => '效果';
 
   @override
-  String get effectsAnimations => 'Motion';
+  String get effectsAnimations => '动效';
 
   @override
-  String get effectsMotionFull => 'Full';
+  String get effectsMotionFull => '完整';
 
   @override
-  String get effectsMotionFullHint =>
-      'Drawings move, waiting screens breathe and finished moments celebrate';
+  String get effectsMotionFullHint => '图形会动，等待页面会有呼吸效果，完成时会有庆祝效果';
 
   @override
-  String get effectsMotionCalm => 'Calm';
+  String get effectsMotionCalm => '平静';
 
   @override
-  String get effectsMotionCalmHint =>
-      'Drawings appear, nothing keeps moving and nothing celebrates';
+  String get effectsMotionCalmHint => '图形直接出现，没有持续的动效，也没有庆祝效果';
 
   @override
-  String get effectsMotionOff => 'Off';
+  String get effectsMotionOff => '关闭';
 
   @override
-  String get effectsMotionOffHint => 'Everything shows at once';
+  String get effectsMotionOffHint => '所有内容立即显示';
 
   @override
-  String get effectsMotionSystemOff =>
-      'Your phone’s Remove animations is on, so nothing moves whatever you choose here';
+  String get effectsMotionSystemOff => '你手机的“移除动画”已开启，因此无论在此如何选择，都不会有动效';
 
   @override
-  String get effectsActivityGlow => 'Glowing border while replying';
+  String get effectsActivityGlow => '回复时边框发光';
 
   @override
-  String get effectsActivityGlowHint =>
-      'A glowing border circles the message box while a reply is written';
+  String get effectsActivityGlowHint => '生成回复时，输入框周围会有发光的边框环绕';
 
   @override
-  String get effectsSaveFailed =>
-      'Could not save this choice on this device. Try again.';
+  String get effectsSaveFailed => '无法在此设备上保存该选项。请重试。';
 
   @override
   String get teamDiscoverEntryTitle => 'Give a bigger job to a team';
@@ -13839,158 +13498,150 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String appExitForceStopped(String time) {
-    return 'OpenCode Mobile was closed $time';
+    return 'OpenCode Mobile 已关闭 $time';
   }
 
   @override
   String appExitLowMemory(String time) {
-    return 'Android closed OpenCode Mobile $time to free memory';
+    return 'Android 为释放内存关闭了 OpenCode Mobile $time';
   }
 
   @override
   String appExitCrashed(String time) {
-    return 'OpenCode Mobile stopped unexpectedly $time';
+    return 'OpenCode Mobile 意外停止 $time';
   }
 
   @override
   String appExitKilled(String time) {
-    return 'Android stopped OpenCode Mobile $time';
+    return 'Android 已停止 OpenCode Mobile $time';
   }
 
   @override
   String appExitServerStopped(String what) {
-    return '$what. Your phone\'s OpenCode stopped with it; it\'s starting again.';
+    return '$what。手机上的 OpenCode 随之停止，正在重新启动。';
   }
 
   @override
   String appExitServerAndTeamStopped(String what) {
-    return '$what. Your phone\'s OpenCode and the AI Team stopped with it; they\'re starting again.';
+    return '$what。手机上的 OpenCode 和 AI Team 随之停止，正在重新启动。';
   }
 
   @override
   String appExitServerStoppedManual(String what) {
-    return '$what. Your phone\'s OpenCode stopped with it. Start it again when you\'re ready.';
+    return '$what。手机上的 OpenCode 随之停止。准备好后请再次启动。';
   }
 
   @override
   String appExitServerAndTeamStoppedManual(String what) {
-    return '$what. Your phone\'s OpenCode and the AI Team stopped with it. Start them again when you\'re ready.';
+    return '$what。手机上的 OpenCode 和 AI Team 随之停止。准备好后请再次启动它们。';
   }
 
   @override
   String appExitServerBack(String what) {
-    return '$what. Your phone\'s OpenCode stopped with it and is running again.';
+    return '$what。手机上的 OpenCode 随之停止，现已重新运行。';
   }
 
   @override
   String appExitServerBackTeam(String what) {
-    return '$what. Your phone\'s OpenCode and the AI Team stopped with it; OpenCode is running again.';
+    return '$what。手机上的 OpenCode 和 AI Team 随之停止；OpenCode 现已重新运行。';
   }
 
   @override
   String appExitAtTime(String time) {
-    return 'at $time';
+    return '于 $time';
   }
 
   @override
   String appExitOnDay(String day, String time) {
-    return 'on $day at $time';
+    return '于 $day $time';
   }
 
   @override
-  String get appExitSwitchToPhone => 'Switch to this phone';
+  String get appExitSwitchToPhone => '切换到此手机';
 
   @override
-  String get appExitKeepRunning => 'Keep it running';
+  String get appExitKeepRunning => '保持运行';
 
   @override
-  String get keepRunningTitle => 'Keep running in the background';
+  String get keepRunningTitle => '在后台保持运行';
 
   @override
   String get keepRunningRowSubtitle =>
       'What to allow so your phone doesn\'t close the app';
 
   @override
-  String keepRunningIntro(String maker) {
-    return 'Your phone\'s OpenCode and the AI Team run inside this app, so they stop when Android closes it. On this $maker, allow these:';
-  }
+  String get keepRunningIntro =>
+      '手机上的 OpenCode 和 AI Team 都在此应用内运行，因此 Android 关闭应用时它们也会停止。在这部手机上，请允许以下项：';
 
   @override
   String get keepRunningSwipeWarning =>
-      'This phone closes an app you swipe away from Recent apps, even while it works. Lock it there instead of swiping it away.';
+      '这部手机会关闭你从最近任务中划掉的应用，即使它正在工作。请在那里锁定它，而不是划掉。';
 
   @override
-  String get keepRunningBatteryTitle => 'Don\'t optimize battery';
+  String get keepRunningBatteryTitle => '不优化电池';
 
   @override
-  String get keepRunningBatteryDetail =>
-      'Lets the app keep running while you use other apps.';
+  String get keepRunningBatteryDetail => '让应用在你使用其他应用时继续运行。';
 
   @override
-  String get keepRunningBatteryDone => 'Allowed';
+  String get keepRunningBatteryDone => '已允许';
 
   @override
-  String get keepRunningLockTitle => 'Lock it in Recent apps';
+  String get keepRunningLockTitle => '在最近任务中锁定';
 
   @override
   String get keepRunningLockNubia =>
-      'Open Recent apps and pull OpenCode Mobile\'s card down until the lock shows.';
+      '打开“最近任务”，将 OpenCode Mobile 的卡片向下拉，直到出现锁图标。';
 
   @override
   String get keepRunningLockSamsung =>
-      'Open Recent apps, tap OpenCode Mobile\'s icon above its card and choose Keep open.';
+      '打开“最近任务”，点按卡片上方的 OpenCode Mobile 图标，然后选择“保持打开”。';
 
   @override
-  String get keepRunningLockOther =>
-      'Open Recent apps, long-press OpenCode Mobile\'s card and tap the lock.';
+  String get keepRunningLockOther => '打开“最近任务”，长按 OpenCode Mobile 的卡片，然后点按锁图标。';
 
   @override
-  String get keepRunningAutostartTitle => 'Allow auto-start';
+  String get keepRunningAutostartTitle => '允许自启动';
 
   @override
-  String get keepRunningAutostartDetail =>
-      'Turn it on for OpenCode Mobile so the phone doesn\'t stop it in the background.';
+  String get keepRunningAutostartDetail => '为 OpenCode Mobile 开启，避免手机在后台将其停止。';
 
   @override
   String get keepRunningAutostartHuawei =>
-      'Under App launch, set OpenCode Mobile to Manage manually and turn on all three switches.';
+      '在“应用启动管理”中，将 OpenCode Mobile 设为“手动管理”，并开启全部三个开关。';
 
   @override
-  String get keepRunningBackgroundTitle => 'Allow background activity';
+  String get keepRunningBackgroundTitle => '允许后台活动';
 
   @override
-  String get keepRunningBackgroundXiaomi =>
-      'In App info › Battery saver, choose No restrictions.';
+  String get keepRunningBackgroundXiaomi => '在“应用信息 › 省电策略”中，选择“无限制”。';
 
   @override
-  String get keepRunningBackgroundOppo =>
-      'In App info › Battery usage, allow background activity.';
+  String get keepRunningBackgroundOppo => '在“应用信息 › 耗电管理”中，允许后台活动。';
 
   @override
-  String get keepRunningBackgroundVivo =>
-      'In App info › Battery, allow high background power use.';
+  String get keepRunningBackgroundVivo => '在“应用信息 › 电池”中，允许后台高耗电。';
 
   @override
   String get keepRunningBackgroundSamsung =>
-      'In App info › Battery, choose Unrestricted, and keep the app out of Sleeping apps.';
+      '在“应用信息 › 电池”中，选择“无限制”，并确保应用不在“休眠应用”中。';
 
   @override
-  String get keepRunningBackgroundOther =>
-      'In App info › Battery, choose Unrestricted or allow background running.';
+  String get keepRunningBackgroundOther => '在“应用信息 › 电池”中，选择“无限制”或允许后台运行。';
 
   @override
-  String get keepRunningOpen => 'Open';
+  String get keepRunningOpen => '打开';
 
   @override
   String get keepRunningOpenFailed =>
-      'This phone has no such screen. Open Settings › Apps › OpenCode Mobile instead.';
+      '这部手机没有该界面。请改为打开“设置 › 应用 › OpenCode Mobile”。';
 
   @override
   String get keepRunningFootnote =>
-      'If Android still closes the app, it starts your phone\'s OpenCode again the next time you open it.';
+      '如果 Android 仍然关闭应用，下次打开时它会重新启动你手机上的 OpenCode。';
 
   @override
-  String get keepRunningThisPhone => 'phone';
+  String get keepRunningThisPhone => '手机';
 
   @override
   String teamAgentLastStep(String step) {
@@ -14014,23 +13665,20 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get thermalPausedNotice =>
-      'Your phone is hot — paused the AI Team to cool down. It resumes by itself.';
+  String get thermalPausedNotice => '手机过热，已暂停 AI Team 以降温。它会自动恢复。';
 
   @override
   String get thermalStoppedNotice =>
-      'Your phone is very hot — stopped the AI Team to protect it. Its work is kept, and it starts again once the phone has cooled down.';
+      '手机非常烫，已停止 AI Team 以保护设备。其工作会保留，手机降温后会再次启动。';
 
   @override
-  String get thermalResumedNotice =>
-      'Resumed the AI Team — your phone has cooled down.';
+  String get thermalResumedNotice => '已恢复 AI Team，手机已降温。';
 
   @override
-  String get thermalGuardSetting => 'Pause the AI Team when the phone is hot';
+  String get thermalGuardSetting => '手机过热时暂停 AI Team';
 
   @override
-  String get thermalGuardSettingDetail =>
-      'The team pauses with its work kept and resumes by itself once the phone cools.';
+  String get thermalGuardSettingDetail => '团队会暂停并保留已完成的工作，待手机降温后自动恢复。';
 
   @override
   String get kitSheetClose => '关闭';
@@ -14045,19 +13693,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get kitConfirmCancel => '取消';
 
   @override
-  String get kitConfirmKeepRunning => 'Keep running';
+  String get kitConfirmKeepRunning => '保持运行';
 
   @override
-  String get kitConfirmKeepEditing => 'Keep editing';
+  String get kitConfirmKeepEditing => '继续编辑';
 
   @override
   String kitConfirmTypeName(String name) {
-    return 'Type $name to confirm';
+    return '输入 $name 以确认';
   }
 
   @override
-  String get kitConfirmTypeNameReason =>
-      'Type the name exactly as shown to turn this on.';
+  String get kitConfirmTypeNameReason => '请按所示原样输入名称以启用。';
 
   @override
   String get kitConfirmFailed => '没有完成，你可以再试一次。';
@@ -14145,7 +13792,7 @@ class AppLocalizationsZh extends AppLocalizations {
     );
     final String ofString = ofNumberFormat.format(of);
 
-    return 'Step $stepString of $ofString';
+    return '第 $stepString 步，共 $ofString 步';
   }
 
   @override
@@ -14157,7 +13804,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       seconds,
       locale: localeName,
-      other: 'about $secondsString s left',
+      other: '约剩 $secondsString 秒',
     );
     return '$_temp0';
   }
@@ -14171,7 +13818,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       minutes,
       locale: localeName,
-      other: 'about $minutesString min left',
+      other: '约剩 $minutesString 分钟',
     );
     return '$_temp0';
   }
@@ -14185,14 +13832,13 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       hours,
       locale: localeName,
-      other: 'about $hoursString h left',
+      other: '约剩 $hoursString 小时',
     );
     return '$_temp0';
   }
 
   @override
-  String get kitQrTooLong =>
-      'This is too long for a QR code. Copy the link instead.';
+  String get kitQrTooLong => '内容太长，无法生成二维码。请改为复制链接。';
 
   @override
   String kitSinceStillWaiting(int seconds) {
@@ -14257,46 +13903,46 @@ class AppLocalizationsZh extends AppLocalizations {
   String get kitTaskStopped => '已停止';
 
   @override
-  String get kitSwatchInUse => 'In use';
+  String get kitSwatchInUse => '使用中';
 
   @override
-  String get kitThemePreviewTitle => 'Fix the login bug';
+  String get kitThemePreviewTitle => '修复登录错误';
 
   @override
-  String get kitThemePreviewWorking => 'Working · 2 min';
+  String get kitThemePreviewWorking => '进行中 · 2 分钟';
 
   @override
-  String get kitThemePreviewNeedsYou => 'Needs you';
+  String get kitThemePreviewNeedsYou => '需要你处理';
 
   @override
-  String get kitThemePreviewPrimary => 'Send';
+  String get kitThemePreviewPrimary => '发送';
 
   @override
-  String get kitThemePreviewSecondary => 'Attach';
+  String get kitThemePreviewSecondary => '附加';
 
   @override
-  String get kitThemePreviewSegment => 'On';
+  String get kitThemePreviewSegment => '开';
 
   @override
   String get kitThemePreviewCode => 'final ready = true;';
 
   @override
-  String get kitTerminalViewKeySlash => 'Slash key';
+  String get kitTerminalViewKeySlash => '斜杠键';
 
   @override
-  String get kitTerminalViewKeyDash => 'Dash key';
+  String get kitTerminalViewKeyDash => '连字符键';
 
   @override
-  String get kitTerminalViewKeyPipe => 'Pipe key';
+  String get kitTerminalViewKeyPipe => '竖线键';
 
   @override
-  String get kitTerminalViewKeyTilde => 'Tilde key';
+  String get kitTerminalViewKeyTilde => '波浪号键';
 
   @override
-  String get kitTerminalViewKeyHome => 'Home key';
+  String get kitTerminalViewKeyHome => 'Home 键';
 
   @override
-  String get kitTerminalViewKeyEnd => 'End key';
+  String get kitTerminalViewKeyEnd => 'End 键';
 
   @override
   String kitTerminalViewShowingLast(int count) {
@@ -14307,8 +13953,8 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Showing the last $countString lines',
-      one: 'Showing the last line',
+      other: '显示最后 $countString 行',
+      one: '显示最后一行',
     );
     return '$_temp0';
   }
@@ -14318,11 +13964,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String kitUndoFailed(String message) {
-    return 'Couldn\'t undo. $message';
+    return '无法撤销。$message';
   }
 
   @override
-  String get kitUndoWorking => 'Undoing';
+  String get kitUndoWorking => '正在撤销';
 
   @override
   String get kitTermHint => 'Explanation available';
@@ -14335,29 +13981,29 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String kitFieldShowNamed(String label) {
-    return 'Show $label';
+    return '显示$label';
   }
 
   @override
   String kitFieldHideNamed(String label) {
-    return 'Hide $label';
+    return '隐藏$label';
   }
 
   @override
-  String get kitFieldPaste => 'Paste';
+  String get kitFieldPaste => '粘贴';
 
   @override
-  String get kitFieldSaved => 'Saved';
+  String get kitFieldSaved => '已保存';
 
   @override
-  String get kitFieldReplace => 'Replace';
+  String get kitFieldReplace => '替换';
 
   @override
-  String get kitFieldChecking => 'Checking…';
+  String get kitFieldChecking => '正在检查…';
 
   @override
   String kitFieldStillChecking(int seconds) {
-    return 'Still checking after $seconds s';
+    return '已检查 $seconds 秒，仍在进行';
   }
 
   @override
@@ -14373,20 +14019,20 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$countString of $maxString',
-      one: '1 of $maxString',
+      other: '$countString/$maxString',
+      one: '1/$maxString',
     );
     return '$_temp0';
   }
 
   @override
-  String get kitFieldLimitReached => 'Limit reached';
+  String get kitFieldLimitReached => '已达上限';
 
   @override
-  String get kitFieldErrorLabel => 'Error';
+  String get kitFieldErrorLabel => '错误';
 
   @override
-  String get kitTappableShowActions => 'Show actions';
+  String get kitTappableShowActions => '显示操作';
 
   @override
   String kitWorkRead(int count) {
@@ -14530,7 +14176,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String kitReceiptRefusedReason(String reason) {
-    return 'Not accepted: $reason';
+    return '未被接受：$reason';
   }
 
   @override
@@ -14543,23 +14189,23 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String kitReceiptActRefusedReason(String act, String reason) {
-    return '$act: $reason';
+    return '$act：$reason';
   }
 
   @override
   String kitReceiptAt(String time) {
-    return 'at $time';
+    return '于 $time';
   }
 
   @override
   String get kitDetailsHide => '隐藏详情';
 
   @override
-  String get kitCopyAll => 'Copy all';
+  String get kitCopyAll => '全部复制';
 
   @override
   String kitCopyValue(String label) {
-    return 'Copy $label';
+    return '复制$label';
   }
 
   @override
@@ -14567,18 +14213,18 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Show all $count lines',
+      other: '显示全部 $count 行',
     );
     return '$_temp0';
   }
 
   @override
   String kitDetailsValueSpoken(String label, String value) {
-    return '$label: $value';
+    return '$label：$value';
   }
 
   @override
-  String get kitProgressRowLoading => 'Loading';
+  String get kitProgressRowLoading => '加载中';
 
   @override
   String kitProgressRowPercent(int percent) {
@@ -14586,22 +14232,22 @@ class AppLocalizationsZh extends AppLocalizations {
         intl.NumberFormat.decimalPattern(localeName);
     final String percentString = percentNumberFormat.format(percent);
 
-    return '$percentString percent';
+    return '$percentString%';
   }
 
   @override
-  String get kitProgressRowNearLimit => 'Near limit';
+  String get kitProgressRowNearLimit => '接近上限';
 
   @override
-  String get kitProgressRowAtLimit => 'Limit reached';
+  String get kitProgressRowAtLimit => '已达上限';
 
   @override
   String kitProgressRowAsOf(String time) {
-    return 'as of $time';
+    return '截至 $time';
   }
 
   @override
-  String get kitProgressRowOther => 'Other';
+  String get kitProgressRowOther => '其他';
 
   @override
   String get kitModelServerDefault => '服务器默认';
@@ -14811,11 +14457,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get kitComposerSendsAfter => '将在回复结束后发送';
 
   @override
-  String get kitComposerStopAndSend => 'Stop and send';
+  String get kitComposerStopAndSend => '停止并发送';
 
   @override
-  String get kitComposerStopAndSendNote =>
-      'Stops the current reply and starts again with your message.';
+  String get kitComposerStopAndSendNote => '停止当前回复，并用你的消息重新开始。';
 
   @override
   String get kitComposerCannotSendYet => '回复结束后即可发送';
@@ -14833,52 +14478,52 @@ class AppLocalizationsZh extends AppLocalizations {
   String get kitComposerEditor => '打开全屏编辑器';
 
   @override
-  String get kitVoiceLeave => 'Leave voice mode';
+  String get kitVoiceLeave => '退出语音模式';
 
   @override
-  String get kitVoiceStarting => 'Getting the microphone ready…';
+  String get kitVoiceStarting => '正在准备麦克风…';
 
   @override
-  String get kitVoiceListening => 'Listening…';
+  String get kitVoiceListening => '正在聆听…';
 
   @override
-  String get kitVoiceTranscribing => 'Writing down what you said…';
+  String get kitVoiceTranscribing => '正在转写你说的话…';
 
   @override
-  String get kitVoiceWaitingReply => 'Waiting for the reply…';
+  String get kitVoiceWaitingReply => '正在等待回复…';
 
   @override
-  String get kitVoiceSpeaking => 'Reading the reply aloud';
+  String get kitVoiceSpeaking => '正在朗读回复';
 
   @override
-  String get kitVoiceReplyReady => 'The reply is ready';
+  String get kitVoiceReplyReady => '回复已就绪';
 
   @override
-  String get kitVoicePaused => 'Paused · the agent needs you';
+  String get kitVoicePaused => '已暂停 · 智能体需要你';
 
   @override
-  String get kitVoiceMicDenied => 'The microphone is off for this app';
+  String get kitVoiceMicDenied => '此应用的麦克风已关闭';
 
   @override
-  String get kitVoiceFailed => 'Voice stopped';
+  String get kitVoiceFailed => '语音已停止';
 
   @override
-  String get kitVoiceSend => 'Send';
+  String get kitVoiceSend => '发送';
 
   @override
-  String get kitVoiceDone => 'Done';
+  String get kitVoiceDone => '完成';
 
   @override
-  String get kitVoiceStopReading => 'Stop reading';
+  String get kitVoiceStopReading => '停止朗读';
 
   @override
-  String get kitVoiceReadReply => 'Read it aloud';
+  String get kitVoiceReadReply => '朗读';
 
   @override
-  String get kitVoiceListen => 'Listen';
+  String get kitVoiceListen => '聆听';
 
   @override
-  String get kitVoiceReadAloud => 'Read replies aloud';
+  String get kitVoiceReadAloud => '朗读回复';
 
   @override
   String kitVoiceElapsed(String minutes, String seconds) {
@@ -14886,14 +14531,14 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get kitSearchClear => 'Clear search';
+  String get kitSearchClear => '清除搜索';
 
   @override
-  String get kitSearchFilter => 'Filter';
+  String get kitSearchFilter => '筛选';
 
   @override
   String kitSearchFilterActive(String name) {
-    return 'Filter: $name';
+    return '筛选：$name';
   }
 
   @override
@@ -14901,26 +14546,26 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count results',
-      one: '1 result',
-      zero: 'No results',
+      other: '$count 个结果',
+      one: '1 个结果',
+      zero: '无结果',
     );
     return '$_temp0';
   }
 
   @override
   String kitSearchPartial(int count) {
-    return '$count loaded · searching the server…';
+    return '已加载 $count 项 · 正在搜索服务器…';
   }
 
   @override
   String kitSearchNoMatch(String query) {
-    return 'Nothing matches $query';
+    return '没有与$query匹配的内容';
   }
 
   @override
   String kitSearchNoMatchIn(String what, String query) {
-    return 'Nothing in $what matches $query';
+    return '$what中没有与$query匹配的内容';
   }
 
   @override
@@ -14942,18 +14587,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get kitTopBarMore => '更多操作';
 
   @override
-  String get kitAgentStripLabel => 'Agents on this task';
+  String get kitAgentStripLabel => '此任务的智能体';
 
   @override
   String kitAgentOpen(String name) {
-    return 'Open $name\'s conversation';
+    return '打开 $name 的对话';
   }
 
   @override
   String kitAgentLabel(String hasRole, String name, String role, String state) {
     String _temp0 = intl.Intl.selectLogic(hasRole, {
-      'yes': '$name, $role, $state',
-      'other': '$name, $state',
+      'yes': '$name，$role，$state',
+      'other': '$name，$state',
     });
     return '$_temp0';
   }
@@ -15011,7 +14656,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Show all $count lines',
+      other: '显示全部 $count 行',
     );
     return '$_temp0';
   }
@@ -15020,11 +14665,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get kitCodeOpenFull => 'Open full output';
 
   @override
-  String get kitWrapLines => 'Wrap lines';
+  String get kitWrapLines => '自动换行';
 
   @override
   String kitCodeChanges(int added, int removed) {
-    return '$added added, $removed removed';
+    return '新增 $added，删除 $removed';
   }
 
   @override
@@ -15041,45 +14686,45 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String kitQueuedTitle(int count) {
-    return 'Waiting to send · $count';
+    return '等待发送 · $count';
   }
 
   @override
-  String get kitQueuedOffline => 'Sends when you\'re back online';
+  String get kitQueuedOffline => '恢复联网后发送';
 
   @override
-  String get kitQueuedWaiting => 'Waiting to send';
+  String get kitQueuedWaiting => '等待发送';
 
   @override
-  String get kitQueuedReachedServer => 'Reached the server';
+  String get kitQueuedReachedServer => '已送达服务器';
 
   @override
-  String get kitQueuedAfterReply => 'Sends after this reply';
+  String get kitQueuedAfterReply => '在此回复后发送';
 
   @override
-  String get kitQueuedAddToTurn => 'Adds to this turn';
+  String get kitQueuedAddToTurn => '将加入当前轮次';
 
   @override
-  String get kitQueuedUpdate => 'Update waiting';
+  String get kitQueuedUpdate => '更新等待中';
 
   @override
   String kitQueuedAttachments(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count attachments',
-      one: '1 attachment',
+      other: '$count 个附件',
+      one: '1 个附件',
     );
     return '$_temp0';
   }
 
   @override
   String kitQueuedItemLabel(int index, int count, String text, String state) {
-    return 'Waiting message $index of $count: $text. $state';
+    return '第 $index 条等待中的消息，共 $count 条：$text。$state';
   }
 
   @override
-  String get kitQueuedActions => 'Message actions';
+  String get kitQueuedActions => '消息操作';
 
   @override
   String get kitLogTitle => 'Output';
@@ -15173,22 +14818,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get kitRiskTurnOff => '关闭';
 
   @override
-  String get safetyDisconnectBody =>
-      'Live updates stop and you return to the server list. The server keeps running and nothing on it changes.';
+  String get safetyDisconnectBody => '实时更新将停止，你会返回服务器列表。服务器继续运行，其上的内容不会有任何改变。';
 
   @override
   String get safetyDisconnectBodyPhone =>
-      'Live updates stop and you return to the server list. OpenCode keeps running on this phone, using battery, until you stop it.';
+      '实时更新将停止，你会返回服务器列表。OpenCode 会继续在此手机上运行并消耗电量，直到你停止它。';
 
   @override
   String safetyDisconnectWaiting(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          '$count messages waiting to send stay on this phone until you connect again.',
-      one:
-          '1 message waiting to send stays on this phone until you connect again.',
+      other: '有 $count 条待发送的消息会保留在此手机上，直到你重新连接。',
+      one: '有 1 条待发送的消息会保留在此手机上，直到你重新连接。',
     );
     return '$_temp0';
   }
@@ -15200,14 +14842,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get quotaMonitorSaving => 'Saving…';
 
   @override
-  String get folderBrowserSlowTitle => 'Still reading this folder';
+  String get folderBrowserSlowTitle => '仍在读取此文件夹';
 
   @override
-  String get folderBrowserSlowBody =>
-      'Folders on this phone can take up to 15 seconds to list.';
+  String get folderBrowserSlowBody => '列出此手机上的文件夹最多可能需要 15 秒。';
 
   @override
-  String get folderBrowserFirstProject => 'Name your first project';
+  String get folderBrowserFirstProject => '为你的第一个项目命名';
 
   @override
   String kitChecklistNext(String step) {
@@ -15444,28 +15085,31 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get kitToolNotRun => 'Not run';
+  String get kitToolNotRun => '未运行';
 
   @override
-  String get kitToolWaiting => 'Waiting';
+  String get kitToolWaiting => '等待中';
 
   @override
-  String get kitToolRunning => 'Running';
+  String get kitToolRunning => '运行中';
 
   @override
-  String get kitToolWaitingForYou => 'Waiting for you';
+  String get kitToolWaitingForYou => '等待你操作';
 
   @override
-  String get kitToolDone => 'Done';
+  String get kitToolDone => '完成';
 
   @override
-  String get kitToolFailed => 'Failed';
+  String get kitToolFailed => '失败';
 
   @override
-  String get kitToolStopped => 'Stopped';
+  String get kitToolDeclined => '你已拒绝';
 
   @override
-  String get kitToolBackground => 'Started in the background';
+  String get kitToolStopped => '已停止';
+
+  @override
+  String get kitToolBackground => '已在后台启动';
 
   @override
   String kitToolTookSeconds(int count) {
@@ -15476,8 +15120,8 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$countString seconds',
-      one: '1 second',
+      other: '$countString 秒',
+      one: '1 秒',
     );
     return '$_temp0';
   }
@@ -15491,14 +15135,14 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$countString minutes',
-      one: '1 minute',
+      other: '$countString 分钟',
+      one: '1 分钟',
     );
     return '$_temp0';
   }
 
   @override
-  String get kitToolOpenConversation => 'Open its conversation';
+  String get kitToolOpenConversation => '打开其对话';
 
   @override
   String get kitViewerFind => 'Find in file';
@@ -15611,21 +15255,13 @@ class AppLocalizationsZh extends AppLocalizations {
       'Add a server to start working with an agent.';
 
   @override
-  String get kitCapServerOc1Title => 'OpenCode 1 server';
-
-  @override
-  String get kitCapServerOc1Why =>
-      'Needs this phone\'s own server or a computer running OpenCode 1.';
-
-  @override
   String get kitCapServerOc2Title => 'OpenCode 2 server';
 
   @override
-  String get kitCapServerOc2Why =>
-      'Needs a server running OpenCode 2. This phone\'s server can switch to it.';
+  String get kitCapServerOc2Why => 'Needs a server running OpenCode 2.';
 
   @override
-  String get kitCapServerOc2Enable => 'Switch to OpenCode 2';
+  String get kitCapServerOc2Enable => 'Connect OpenCode 2';
 
   @override
   String get kitCapServerOc2Offer =>
@@ -15865,7 +15501,7 @@ class AppLocalizationsZh extends AppLocalizations {
       'Your phone and computer aren\'t on the same network.';
 
   @override
-  String get kitCapNetworkTailscaleEnable => 'Set up Tailscale';
+  String get kitCapNetworkTailscaleEnable => '设置 Tailscale';
 
   @override
   String get kitCapNetworkTailscaleOffer =>
@@ -15968,9 +15604,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get kitHostTermux => 'Termux';
-
-  @override
-  String get kitHostOpenCode1 => 'computers with OpenCode 1';
 
   @override
   String get kitHostOpenCode2 => 'computers with OpenCode 2';
@@ -16110,16 +15743,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get shortcutsHelpConversation => 'In a conversation';
 
   @override
-  String get homeShellProjectUnavailable => 'Files isn\'t available';
+  String get homeShellProjectUnavailable => '文件不可用';
 
   @override
   String homeShellProjectUnavailableReason(String server) {
-    return '$server doesn\'t offer files, changes or code search. Connect to an OpenCode server to use them.';
+    return '$server 不提供文件、变更或代码搜索。请连接到 OpenCode 服务器以使用这些功能。';
   }
 
   @override
   String homeShellProjectUnavailableShort(String server) {
-    return '$server has no project tools.';
+    return '$server 没有项目工具。';
   }
 
   @override
@@ -16411,63 +16044,61 @@ class AppLocalizationsZh extends AppLocalizations {
       'Anything this kind of action touches';
 
   @override
-  String get settingsHubDetailEmpty => 'Choose a group of settings';
+  String get settingsHubDetailEmpty => '选择一组设置';
 
   @override
-  String get notifyQuietStartPicker => 'Set when quiet hours start';
+  String get notifyQuietStartPicker => '设置静默时段的开始时间';
 
   @override
-  String get notifyQuietEndPicker => 'Set when quiet hours end';
+  String get notifyQuietEndPicker => '设置静默时段的结束时间';
 
   @override
-  String get notifyQuietSet => 'Set';
+  String get notifyQuietSet => '设置';
 
   @override
-  String get notifyQuietAllDay =>
-      'Start and end are the same, so notifications stay quiet all day.';
+  String get notifyQuietAllDay => '开始和结束时间相同，因此通知全天保持静默。';
 
   @override
-  String get notifySendingTest => 'Sending a test notification…';
+  String get notifySendingTest => '正在发送测试通知…';
 
   @override
-  String get notifyNoServersTitle => 'No servers to watch';
+  String get notifyNoServersTitle => '没有可监控的服务器';
 
   @override
-  String get notifyNoServersDetail =>
-      'Servers you save can be watched from here, so a request on one reaches you.';
+  String get notifyNoServersDetail => '你保存的服务器可以在这里监控，这样其中任何一个的请求都会通知到你。';
 
   @override
-  String get notifyDismiss => 'Dismiss';
+  String get notifyDismiss => '忽略';
 
   @override
-  String get notifySaving => 'Saving';
+  String get notifySaving => '正在保存';
 
   @override
-  String get notifyMonitorDetails => 'How watching servers works';
+  String get notifyMonitorDetails => '服务器监控的工作方式';
 
   @override
-  String get notifyRestartBackground => 'Restart the live connection';
+  String get notifyRestartBackground => '重启实时连接';
 
   @override
-  String get appearanceModeSystem => 'System';
+  String get appearanceModeSystem => '跟随系统';
 
   @override
-  String get privacySharedSection => 'Shared with your server';
+  String get privacySharedSection => '与你的服务器共享';
 
   @override
   String get privacySaving => 'Saving…';
 
   @override
-  String get privacyDeleting => 'Deleting';
+  String get privacyDeleting => '正在删除';
 
   @override
   String privacyDeleteQueuedCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Delete $count queued prompts',
-      one: 'Delete 1 queued prompt',
-      zero: 'Delete queued prompts',
+      other: '删除 $count 条排队的提示词',
+      one: '删除 1 条排队的提示词',
+      zero: '删除排队的提示词',
     );
     return '$_temp0';
   }
@@ -16477,31 +16108,31 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Delete $count drafts',
-      one: 'Delete 1 draft',
-      zero: 'Delete drafts',
+      other: '删除 $count 份草稿',
+      one: '删除 1 份草稿',
+      zero: '删除草稿',
     );
     return '$_temp0';
   }
 
   @override
-  String get kitMessageYou => 'You said';
+  String get kitMessageYou => '你说';
 
   @override
-  String get kitMessageThinking => 'Thinking…';
+  String get kitMessageThinking => '思考中…';
 
   @override
-  String get kitMessageThought => 'Thought';
+  String get kitMessageThought => '已思考';
 
   @override
   String kitMessageThoughtForSeconds(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count seconds',
-      one: '1 second',
+      other: '$count 秒',
+      one: '1 秒',
     );
-    return 'Thought for $_temp0';
+    return '思考了 $_temp0';
   }
 
   @override
@@ -16509,17 +16140,17 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count minutes',
-      one: '1 minute',
+      other: '$count 分钟',
+      one: '1 分钟',
     );
-    return 'Thought for $_temp0';
+    return '思考了 $_temp0';
   }
 
   @override
-  String get kitMessageActions => 'Message actions';
+  String get kitMessageActions => '消息操作';
 
   @override
-  String get kitMessageNoticeFailed => 'Failed';
+  String get kitMessageNoticeFailed => '失败';
 
   @override
   String get kitRequestChooseOneReason => '请至少选择一个回答。';
@@ -16528,27 +16159,24 @@ class AppLocalizationsZh extends AppLocalizations {
   String get kitRequestSendAnswers => 'Send answers';
 
   @override
-  String get serversRemoveBody =>
-      'This phone forgets the server: its password, chosen model and agent, project and widget conversations.';
+  String get serversRemoveBody => '此手机将忘记该服务器：其密码、所选模型和智能体，以及项目和小组件对话。';
 
   @override
   String serversRemoveDrafts(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count unsent drafts will be deleted',
-      one: '1 unsent draft will be deleted',
+      other: '将删除 $count 份未发送的草稿',
+      one: '将删除 1 份未发送的草稿',
     );
     return '$_temp0';
   }
 
   @override
-  String get serversRemoveActiveNext =>
-      'You are connected to it: the app disconnects and shows your servers';
+  String get serversRemoveActiveNext => '你当前已连接到它：应用将断开连接并显示你的服务器列表';
 
   @override
-  String get serversRemoveServerKeeps =>
-      'Nothing is deleted on the server or at your AI providers';
+  String get serversRemoveServerKeeps => '服务器和你的 AI 服务商处不会删除任何内容';
 
   @override
   String get guideStepTwoScan =>
@@ -16566,10 +16194,10 @@ class AppLocalizationsZh extends AppLocalizations {
       'Install OpenCode on this phone and use it here, no computer needed';
 
   @override
-  String get pairingScannerAllowCamera => 'Allow camera';
+  String get pairingScannerAllowCamera => '允许使用相机';
 
   @override
-  String get pairingScannerStarting => 'Opening the camera…';
+  String get pairingScannerStarting => '正在打开相机…';
 
   @override
   String profileMonitorSwitchBody(String current, String target) {
@@ -16584,7 +16212,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get serverSettingsRestartCommandLabel =>
-      'Set up with the Linux service script?';
+      'Start OpenCode 2 on this computer';
 
   @override
   String get serverSettingsRestartedIt => 'I restarted it';
@@ -16620,29 +16248,25 @@ class AppLocalizationsZh extends AppLocalizations {
   String get serverSettingsAddressLabel => 'Address';
 
   @override
-  String get tailscaleSetupAppTitle => 'Tailscale on this phone';
+  String get tailscaleSetupAppTitle => '此手机上的 Tailscale';
 
   @override
-  String get tailscaleSetupVpnTitle => 'Sign in and connect';
+  String get tailscaleSetupVpnTitle => '登录并连接';
 
   @override
-  String get tailscaleSetupVpnSupporting =>
-      'Sign in and connect. OpenCode can’t check this.';
+  String get tailscaleSetupVpnSupporting => '登录并连接。OpenCode 无法检查这一步。';
 
   @override
-  String get tailscaleSetupOpenFailed =>
-      'Tailscale didn’t open. Open it from your launcher, then come back.';
+  String get tailscaleSetupOpenFailed => 'Tailscale 未能打开。请从启动器中打开它，然后返回。';
 
   @override
-  String get tailscaleSetupAddressHelper =>
-      'Paste the HTTPS address Tailscale Serve printed.';
+  String get tailscaleSetupAddressHelper => '粘贴 Tailscale Serve 输出的 HTTPS 地址。';
 
   @override
-  String get tailscaleSetupGetApp => 'Get Tailscale';
+  String get tailscaleSetupGetApp => '获取 Tailscale';
 
   @override
-  String get tailscaleSetupContinueReason =>
-      'Enter your server’s address first.';
+  String get tailscaleSetupContinueReason => '请先输入服务器地址。';
 
   @override
   String languagePickerPartlyTranslated(int percent) {
@@ -16651,18 +16275,18 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String appearancePickerPreviewLabel(String name) {
-    return 'Preview of $name';
+    return '$name 预览';
   }
 
   @override
-  String get appearancePickerPreviewIn => 'Preview in';
+  String get appearancePickerPreviewIn => '预览模式';
 
   @override
-  String get appearancePickerInUse => 'In use now';
+  String get appearancePickerInUse => '当前使用';
 
   @override
   String appearancePickerThemeApplied(String name) {
-    return 'Theme set to $name';
+    return '主题已设为 $name';
   }
 
   @override
@@ -16673,24 +16297,23 @@ class AppLocalizationsZh extends AppLocalizations {
   String get teamDiscoveryCardTurningOn => 'Turning the AI team on…';
 
   @override
-  String get serverSwitcherTitle => 'Servers';
+  String get serverSwitcherTitle => '服务器';
 
   @override
-  String get serverSwitcherCurrentMenu => 'Server actions';
+  String get serverSwitcherCurrentMenu => '服务器操作';
 
   @override
-  String get localAgentEntryStillStarting =>
-      'Still starting · this can take a minute';
+  String get localAgentEntryStillStarting => '仍在启动 · 可能需要一分钟';
 
   @override
-  String get localAgentEntryDidNotStart => 'Didn\'t start';
+  String get localAgentEntryDidNotStart => '未能启动';
 
   @override
-  String get localAgentEntryRemoving => 'Removing';
+  String get localAgentEntryRemoving => '正在移除';
 
   @override
   String localAgentEntrySignedOut(String state) {
-    return '$state · Not signed in to Claude';
+    return '$state · 未登录 Claude';
   }
 
   @override
@@ -16772,86 +16395,85 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get kitScannerStarting => 'Opening the camera…';
+  String get kitScannerStarting => '正在打开相机…';
 
   @override
-  String get kitScannerSlow => 'Still opening the camera';
+  String get kitScannerSlow => '相机仍在打开';
 
   @override
-  String get kitScannerPaused => 'Camera paused';
+  String get kitScannerPaused => '相机已暂停';
 
   @override
-  String get kitScannerPreview => 'Camera view';
+  String get kitScannerPreview => '相机画面';
 
   @override
-  String get kitDateSet => 'Set date';
+  String get kitDateSet => '设置日期';
 
   @override
-  String get kitTimeSet => 'Set time';
+  String get kitTimeSet => '设置时间';
 
   @override
-  String get kitDateTimeSet => 'Set';
+  String get kitDateTimeSet => '设置';
 
   @override
-  String get kitDateType => 'Type a date';
+  String get kitDateType => '输入日期';
 
   @override
-  String get kitDateCalendar => 'Show calendar';
+  String get kitDateCalendar => '显示日历';
 
   @override
   String kitDateFormatHint(String example) {
-    return 'e.g. $example';
+    return '例如 $example';
   }
 
   @override
-  String get kitDateField => 'Date';
+  String get kitDateField => '日期';
 
   @override
-  String get kitDateInvalid => 'Not a date';
+  String get kitDateInvalid => '不是有效日期';
 
   @override
   String kitDateOutOfRange(String first, String last) {
-    return 'Pick a date between $first and $last';
+    return '请选择 $first 到 $last 之间的日期';
   }
 
   @override
-  String get kitTimeHour => 'Hour';
+  String get kitTimeHour => '小时';
 
   @override
-  String get kitTimeMinute => 'Minute';
+  String get kitTimeMinute => '分钟';
 
   @override
-  String get kitTimePeriod => 'Morning or afternoon';
+  String get kitTimePeriod => '上午或下午';
 
   @override
-  String get kitTimeInvalid => 'Not a time';
+  String get kitTimeInvalid => '不是有效时间';
 
   @override
-  String get kitDateTimeNotSet => 'Not set';
+  String get kitDateTimeNotSet => '未设置';
 
   @override
   String kitDateTimeClear(String title) {
-    return 'Clear $title';
+    return '清除$title';
   }
 
   @override
-  String get kitDateUnavailable => 'That day can’t be chosen';
+  String get kitDateUnavailable => '无法选择该日期';
 
   @override
-  String get filesLoadingFolder => 'Opening folder…';
+  String get filesLoadingFolder => '正在打开文件夹…';
 
   @override
-  String get filesSearching => 'Searching…';
+  String get filesSearching => '正在搜索…';
 
   @override
-  String get filesShowHidden => 'Show hidden files';
+  String get filesShowHidden => '显示隐藏文件';
 
   @override
-  String get filesOnlyHidden =>
-      'This folder has only hidden files and folders.';
+  String get filesOnlyHidden => '此文件夹只有隐藏的文件和文件夹。';
 
   @override
-  String get filesCopyName => 'Copy name';
+  String get filesCopyName => '复制名称';
 
   @override
   String globalSessionsMoveTitle(String project) {
@@ -17028,7 +16650,7 @@ class AppLocalizationsZh extends AppLocalizations {
       'Started by something else on this phone.';
 
   @override
-  String get termuxProcsNoRestart => 'It can\'t be started again from here.';
+  String get termuxProcsNoRestart => '无法从这里重新启动。';
 
   @override
   String get termuxProcsStopGroupTeamLost =>
@@ -17090,12 +16712,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String modelPickerDetailsOutput(String count) {
-    return 'Up to $count tokens per answer';
+    return '每次回答最多 $count 个 token';
   }
 
   @override
   String modelPickerDetailsPrice(String input, String output) {
-    return '$input per million tokens read, $output per million written';
+    return '每百万 token：读取 $input，写入 $output';
   }
 
   @override
@@ -17108,7 +16730,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get modelPickerCanReadAttachments => '可读取你附加的图片和文件';
 
   @override
-  String get modelPickerCopyId => 'Copy model id';
+  String get modelPickerCopyId => '复制模型 id';
 
   @override
   String get modelPickerInUse => '使用中';
@@ -17143,23 +16765,23 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String phoneServerCardDisconnect(String server) {
-    return 'Disconnect from $server';
+    return '断开与 $server 的连接';
   }
 
   @override
-  String get phoneServerCardStartOpenCode => 'Start OpenCode';
+  String get phoneServerCardStartOpenCode => '启动 OpenCode';
 
   @override
-  String get phoneServerCardStopOpenCode => 'Stop OpenCode on this phone';
+  String get phoneServerCardStopOpenCode => '停止此手机上的 OpenCode';
 
   @override
-  String get phoneServerCardShowServerLog => 'Show server log';
+  String get phoneServerCardShowServerLog => '显示服务器日志';
 
   @override
-  String get phoneServerCardOpenTerminal => 'Open terminal';
+  String get phoneServerCardOpenTerminal => '打开终端';
 
   @override
-  String get phoneServerCardFailedTitle => 'Could not finish';
+  String get phoneServerCardFailedTitle => '未能完成';
 
   @override
   String get phoneServerRestartFailedTitle => 'Restart failed';
@@ -17200,34 +16822,34 @@ class AppLocalizationsZh extends AppLocalizations {
   String get teamPhoneRemoveConfirm => 'Delete the team';
 
   @override
-  String get productStatesActionFailedTitle => 'Couldn\'t finish that';
+  String get productStatesActionFailedTitle => '无法完成';
 
   @override
-  String get productStatesSwitchServer => 'Switch server';
+  String get productStatesSwitchServer => '切换服务器';
 
   @override
-  String get externalLinkBlockedTitle => 'Link blocked';
+  String get externalLinkBlockedTitle => '链接已被阻止';
 
   @override
   String get externalLinkBlockedBody =>
-      'This app opens only https:// links, and http:// links after you confirm.';
+      '本应用只打开 https:// 链接，http:// 链接需经你确认后才会打开。';
 
   @override
   String externalLinkOpensHost(String host) {
-    return 'Opens $host outside this app.';
+    return '将在本应用之外打开 $host。';
   }
 
   @override
-  String get externalLinkDontOpen => 'Don\'t open';
+  String get externalLinkDontOpen => '不打开';
 
   @override
-  String get externalLinkCopy => 'Copy link';
+  String get externalLinkCopy => '复制链接';
 
   @override
-  String get externalLinkAddress => 'Full address';
+  String get externalLinkAddress => '完整地址';
 
   @override
-  String get externalLinkOpenFailedTitle => 'Couldn\'t open link';
+  String get externalLinkOpenFailedTitle => '无法打开链接';
 
   @override
   String get runCommandReconnecting =>
@@ -17611,7 +17233,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String integrationsManageAccounts(String name) {
-    return 'Manage $name accounts';
+    return '管理 $name 账号';
   }
 
   @override
@@ -17675,8 +17297,7 @@ class AppLocalizationsZh extends AppLocalizations {
       'Paste the address your browser ended on after you approved access, or the code it showed.';
 
   @override
-  String get integrationsFinishSignInProviderHelper =>
-      'Paste the code the sign-in page showed after you approved access.';
+  String get integrationsFinishSignInProviderHelper => '粘贴你批准访问后登录页面显示的代码。';
 
   @override
   String integrationsOAuthInputsContinue(String name) {
@@ -17687,8 +17308,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get integrationsCancelSignIn => 'Cancel sign-in';
 
   @override
-  String get integrationsPendingNotRecoverable =>
-      'Keep this screen open until you finish: this server can\'t resume a sign-in after you leave.';
+  String get integrationsPendingNotRecoverable => '完成前请保持此界面打开：离开后，此服务器无法恢复登录。';
 
   @override
   String integrationsMcpActions(String name) {
@@ -17735,51 +17355,49 @@ class AppLocalizationsZh extends AppLocalizations {
   String get integrationsCopyResourceAddress => 'Copy address';
 
   @override
-  String get terminalScreenSourceLabel => 'Where the shell runs';
+  String get terminalScreenSourceLabel => 'Shell 的运行位置';
 
   @override
-  String get terminalScreenNameLabel => 'Name';
+  String get terminalScreenNameLabel => '名称';
 
   @override
-  String get terminalScreenRenameConfirm => 'Rename';
+  String get terminalScreenRenameConfirm => '重命名';
 
   @override
-  String get terminalScreenNameEmpty => 'Type a name.';
+  String get terminalScreenNameEmpty => '请输入名称。';
 
   @override
   String terminalScreenStopTitle(String name) {
-    return 'Stop $name?';
+    return '停止 $name？';
   }
 
   @override
-  String get terminalScreenStopBody =>
-      'The program and everything it started stop, and the terminal goes away. Its output can\'t be brought back.';
+  String get terminalScreenStopBody => '程序及其启动的所有进程都会停止，终端也会消失。其输出无法找回。';
 
   @override
   String terminalScreenRemoveTitle(String name) {
-    return 'Remove $name?';
+    return '移除 $name？';
   }
 
   @override
-  String get terminalScreenRemoveBody =>
-      'The terminal and its output go away. This can\'t be undone.';
+  String get terminalScreenRemoveBody => '该终端及其输出将被删除。此操作无法撤销。';
 
   @override
-  String get terminalScreenStopConfirm => 'Stop terminal';
+  String get terminalScreenStopConfirm => '停止终端';
 
   @override
-  String get terminalScreenRemoveConfirm => 'Remove terminal';
+  String get terminalScreenRemoveConfirm => '移除终端';
 
   @override
-  String get terminalScreenCreateFailed => 'Couldn\'t start a terminal';
+  String get terminalScreenCreateFailed => '无法启动终端';
 
   @override
   String terminalScreenRemoveEnded(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Remove $count ended terminals',
-      one: 'Remove 1 ended terminal',
+      other: '移除 $count 个已结束的终端',
+      one: '移除 1 个已结束的终端',
     );
     return '$_temp0';
   }
@@ -17789,96 +17407,94 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Remove $count ended terminals?',
-      one: 'Remove 1 ended terminal?',
+      other: '移除 $count 个已结束的终端？',
+      one: '移除 1 个已结束的终端？',
     );
     return '$_temp0';
   }
 
   @override
-  String get terminalScreenRemoveEndedBody =>
-      'Their output goes away too. Running terminals stay.';
+  String get terminalScreenRemoveEndedBody => '它们的输出也会一并删除。运行中的终端会保留。';
 
   @override
-  String get terminalScreenUsePhone => 'Use this phone\'s terminal';
+  String get terminalScreenUsePhone => '使用此手机的终端';
 
   @override
   String terminalScreenRowRunning(String command) {
-    return 'Running · $command';
+    return '运行中 · $command';
   }
 
   @override
   String terminalScreenRowEnded(String code, String command) {
-    return 'Ended · code $code · $command';
+    return '已结束 · 代码 $code · $command';
   }
 
   @override
   String terminalScreenRowEndedNoCode(String command) {
-    return 'Ended · $command';
+    return '已结束 · $command';
   }
 
   @override
   String terminalScreenMenuLabel(String name) {
-    return 'Actions for $name';
+    return '$name 的操作';
   }
 
   @override
   String terminalScreenOpen(String name) {
-    return 'Open $name';
+    return '打开 $name';
   }
 
   @override
   String terminalScreenRename(String name) {
-    return 'Rename $name';
+    return '重命名 $name';
   }
 
   @override
   String terminalScreenStop(String name) {
-    return 'Stop $name';
+    return '停止 $name';
   }
 
   @override
   String terminalScreenRemove(String name) {
-    return 'Remove $name';
+    return '移除 $name';
   }
 
   @override
-  String get terminalScreenLoading => 'Loading terminals';
+  String get terminalScreenLoading => '正在加载终端';
 
   @override
-  String get terminalScreenPaused =>
-      'Paused while the app is in the background';
+  String get terminalScreenPaused => '应用在后台时已暂停';
 
   @override
-  String get terminalScreenConnecting => 'Connecting to the terminal';
+  String get terminalScreenConnecting => '正在连接终端';
 
   @override
-  String get terminalScreenCopy => 'Copy output';
+  String get terminalScreenCopy => '复制输出';
 
   @override
   String terminalScreenPaste(String name) {
-    return 'Paste into $name';
+    return '粘贴到 $name';
   }
 
   @override
-  String get terminalScreenDetails => 'Terminal details';
+  String get terminalScreenDetails => '终端详情';
 
   @override
   String terminalScreenDetailsTitle(String name) {
-    return '$name details';
+    return '$name 详情';
   }
 
   @override
-  String get terminalScreenDetailCommand => 'Command';
+  String get terminalScreenDetailCommand => '命令';
 
   @override
-  String get terminalScreenDetailFolder => 'Folder';
+  String get terminalScreenDetailFolder => '文件夹';
 
   @override
-  String get terminalScreenDetailPid => 'Process id';
+  String get terminalScreenDetailPid => '进程 ID';
 
   @override
-  String get terminalScreenDetailExit => 'Exit code';
+  String get terminalScreenDetailExit => '退出码';
 
   @override
   String localTerminalStopNamedTitle(String name) {
@@ -17904,10 +17520,10 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get terminalScreenReadableMode => 'Show as readable text';
+  String get terminalScreenReadableMode => '显示为易读文本';
 
   @override
-  String get terminalScreenLiveMode => 'Show as live terminal';
+  String get terminalScreenLiveMode => '显示为实时终端';
 
   @override
   String get localTerminalSetUpLinux => 'Set up Linux on this phone';
@@ -17916,7 +17532,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get messageViewSendAgain => '重新发送这条消息';
 
   @override
-  String get messageViewContinueReply => 'Continue this reply';
+  String get messageViewContinueReply => '继续此回复';
 
   @override
   String get reviewRunResultsLoadingTitle => 'Loading run results';
@@ -18151,15 +17767,14 @@ class AppLocalizationsZh extends AppLocalizations {
       'Connect another computer or set one up on this phone, then switch to it';
 
   @override
-  String get keepRunningAllSetTitle => 'You\'re set';
+  String get keepRunningAllSetTitle => '已设置完成';
 
   @override
-  String get keepRunningAllSetBody =>
-      'Android leaves the app running in the background. There is nothing else to allow on this phone.';
+  String get keepRunningAllSetBody => 'Android 会让应用在后台保持运行。这部手机上无需再允许其他项。';
 
   @override
   String get keepRunningDailyLimit =>
-      'On Android 15 and newer, Android allows background syncing for about 6 hours a day, even with everything here allowed. After that the app pauses in the background until you open it.';
+      '在 Android 15 及更高版本中，即使这里的选项全部允许，Android 每天也只允许约 6 小时的后台同步。之后应用会在后台暂停，直到你再次打开它。';
 
   @override
   String get aboutTitle => 'About';
@@ -18557,14 +18172,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sessionContextModelId => 'Model ID';
 
   @override
-  String get demoScreenTitle => 'Try it offline';
+  String get demoScreenTitle => '离线试用';
 
   @override
-  String get demoScreenSimulated => 'Simulated · nothing is saved';
+  String get demoScreenSimulated => '模拟 · 不保存任何内容';
 
   @override
-  String get demoScreenFinished =>
-      'That\'s the whole loop: a prompt, a reply and a reviewed edit.';
+  String get demoScreenFinished => '这就是完整流程：一条提示词、一次回复和一处经过审查的编辑。';
 
   @override
   String sessionContextPercent(String percent) {
@@ -19115,61 +18729,60 @@ class AppLocalizationsZh extends AppLocalizations {
   String get commandAuthSheetWorking => 'Asking the server…';
 
   @override
-  String get credentialSheetLoading => 'Reading saved accounts…';
+  String get credentialSheetLoading => '正在读取已保存的账号…';
 
   @override
   String credentialSheetEmptyBody(String provider) {
-    return 'Sign in to $provider again from Providers to add an account.';
+    return '请在“服务商”中重新登录 $provider 以添加账号。';
   }
 
   @override
   String credentialSheetActions(String label) {
-    return 'Actions for $label';
+    return '$label 的操作';
   }
 
   @override
   String credentialSheetUseNamed(String label) {
-    return 'Use $label';
+    return '使用 $label';
   }
 
   @override
-  String get credentialSheetInUse => 'Already in use';
+  String get credentialSheetInUse => '已在使用';
 
   @override
   String credentialSheetRenameNamed(String label) {
-    return 'Rename $label…';
+    return '重命名 $label…';
   }
 
   @override
   String credentialSheetRemoveNamed(String label) {
-    return 'Remove $label';
+    return '移除 $label';
   }
 
   @override
   String credentialSheetRemoveBody(String label, String provider) {
-    return 'Removes $label from this server. Projects that use it will need another $provider account.';
+    return '将从此服务器移除 $label。使用它的项目需要改用另一个 $provider 账号。';
   }
 
   @override
   String credentialSheetRenamed(String label) {
-    return 'Renamed to $label.';
+    return '已重命名为 $label。';
   }
 
   @override
-  String get credentialSheetLabelEmpty => 'Give the account a name.';
+  String get credentialSheetLabelEmpty => '请为账号命名。';
 
   @override
-  String get credentialSheetLabelInvalid =>
-      'Use up to 128 characters, without line breaks or control characters.';
+  String get credentialSheetLabelInvalid => '最多 128 个字符，不能包含换行或控制字符。';
 
   @override
   String pendingAuthRecoveryForgetTitle(String integration) {
-    return 'Forget the $integration sign-in?';
+    return '要忽略 $integration 登录吗？';
   }
 
   @override
   String get pendingAuthRecoveryForgetBody =>
-      'The app stops tracking it on this device. Nothing is cancelled on the server; an unfinished sign-in there expires on its own.';
+      '应用将不再在此设备上跟踪它。服务器上不会取消任何内容；未完成的登录会在那里自行过期。';
 
   @override
   String get toolsScreenLoadFailed => 'Couldn\'t load this model\'s tools';
@@ -19293,7 +18906,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String toolCardDelegatedTo(String agent) {
-    return 'Delegated to $agent';
+    return '已委派给 $agent';
   }
 
   @override
@@ -19312,12 +18925,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String toolCardLoadImageAgain(String name) {
-    return 'Load $name again';
+    return '重新加载 $name';
   }
 
   @override
   String toolCardChangesIn(String file) {
-    return 'Changes in $file';
+    return '$file 中的更改';
   }
 
   @override
@@ -19407,18 +19020,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get promptStashDeleteAction => 'Delete saved prompt';
 
   @override
-  String get modelShortcutsNextRecent => 'Next recent model';
+  String get modelShortcutsNextRecent => '下一个最近的模型';
 
   @override
-  String get modelShortcutsPreviousRecent => 'Previous recent model';
+  String get modelShortcutsPreviousRecent => '上一个最近的模型';
 
   @override
-  String get modelShortcutsNoRecent =>
-      'Use another model first to cycle back to it';
+  String get modelShortcutsNoRecent => '请先使用另一个模型，才能切换回来';
 
   @override
-  String get modelShortcutsNoFavorite =>
-      'Mark a model as a favorite in the model picker first';
+  String get modelShortcutsNoFavorite => '请先在模型选择器中将某个模型标为收藏';
 
   @override
   String get composerDraftBlockedReason => '请先回答关于这份草稿的问题';
@@ -19454,7 +19065,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String connectionReconnectTo(String server) {
-    return 'Reconnect to $server';
+    return '重新连接到 $server';
   }
 
   @override
@@ -19467,14 +19078,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String serverDisconnectFrom(String server) {
-    return 'Disconnect from $server';
+    return '断开与 $server 的连接';
   }
 
   @override
-  String get localAgentStopNamed => 'Stop Claude Code';
+  String get localAgentStopNamed => '停止 Claude Code';
 
   @override
-  String get localAgentStartNamed => 'Start Claude Code';
+  String get localAgentStartNamed => '启动 Claude Code';
 
   @override
   String monitorSwitchToTitle(String server) {
@@ -19498,7 +19109,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String serverSettingsChangeSignIn(String server) {
-    return 'Change sign-in for $server';
+    return '更改 $server 的登录信息';
   }
 
   @override
@@ -19514,10 +19125,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsHubModelRow => 'Model';
 
   @override
-  String get notifyTurnOnInAndroid => 'Turn on notifications in Android';
+  String get notifyTurnOnInAndroid => '在 Android 中开启通知';
 
   @override
-  String get serversAddOtherWays => 'Or connect another way';
+  String get serversAddOtherWays => '或使用其他方式连接';
 
   @override
   String get libraryImportAConversation => 'Import a conversation';
@@ -19613,52 +19224,48 @@ class AppLocalizationsZh extends AppLocalizations {
   String get projectHubCopyFolderPath => 'Copy folder path';
 
   @override
-  String get terminalScreenNoTerminalThisServer =>
-      'This server doesn\'t share a terminal';
+  String get terminalScreenNoTerminalThisServer => '此服务器未共享终端';
 
   @override
   String terminalScreenNoTerminalNamed(String server) {
-    return '$server doesn\'t share a terminal';
+    return '$server 未共享终端';
   }
 
   @override
-  String get terminalScreenNoTerminalWhy =>
-      'Terminals open here only on servers that share them.';
+  String get terminalScreenNoTerminalWhy => '只有共享终端的服务器才能在此打开终端。';
 
   @override
-  String get integrationsSignInWaiting => 'Sign-in waiting';
+  String get integrationsSignInWaiting => '登录等待中';
 
   @override
-  String get integrationsSignInMayNotHaveStarted =>
-      'Sign-in may not have started';
+  String get integrationsSignInMayNotHaveStarted => '登录可能未开始';
 
   @override
-  String get integrationsSignInExpired => 'Sign-in expired';
+  String get integrationsSignInExpired => '登录已过期';
 
   @override
-  String get integrationsSignInFailed => 'Sign-in failed';
+  String get integrationsSignInFailed => '登录失败';
 
   @override
-  String get integrationsSignInComplete => 'Signed in · tap to finish';
+  String get integrationsSignInComplete => '已登录 · 点按完成';
 
   @override
   String integrationsFinishSigningIn(String provider) {
-    return 'Finish signing in to $provider';
+    return '完成 $provider 登录';
   }
 
   @override
   String integrationsEnterCodeFor(String provider) {
-    return 'Enter code for $provider';
+    return '输入 $provider 的代码';
   }
 
   @override
   String integrationsCancelSignInFor(String provider) {
-    return 'Cancel $provider sign-in';
+    return '取消 $provider 登录';
   }
 
   @override
-  String get integrationsForgetSignInOnPhone =>
-      'Forget this sign-in on this phone';
+  String get integrationsForgetSignInOnPhone => '在这部手机上忽略此登录';
 
   @override
   String integrationsSignInActions(String provider) {
@@ -19799,33 +19406,32 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String removeFromPhoneKeepBody(String size) {
-    return 'OpenCode and its tools are removed, freeing about $size.';
+    return '将移除 OpenCode 及其工具，释放约 $size。';
   }
 
   @override
-  String get removeFromPhoneKeepBodyUnmeasured =>
-      'OpenCode and its tools are removed.';
+  String get removeFromPhoneKeepBodyUnmeasured => '将移除 OpenCode 及其工具。';
 
   @override
-  String get removeFromPhoneKeepConfirm => 'Remove OpenCode, keep my projects';
+  String get removeFromPhoneKeepConfirm => '移除 OpenCode，保留我的项目';
 
   @override
-  String get removeFromPhoneDeleteAll => 'Delete everything';
+  String get removeFromPhoneDeleteAll => '全部删除';
 
   @override
-  String get removeFromPhoneDeleteTitle => 'Delete OpenCode and projects?';
+  String get removeFromPhoneDeleteTitle => '删除 OpenCode 和项目？';
 
   @override
   String removeFromPhoneDeleteBody(String size) {
-    return 'OpenCode, its tools and every project on this phone are deleted, freeing about $size. This cannot be undone.';
+    return '将删除此手机上的 OpenCode、其工具和所有项目，释放约 $size。此操作无法撤销。';
   }
 
   @override
   String get removeFromPhoneDeleteBodyUnmeasured =>
-      'OpenCode, its tools and every project on this phone are deleted. This cannot be undone.';
+      '将删除此手机上的 OpenCode、其工具和所有项目。此操作无法撤销。';
 
   @override
-  String get thisPhoneManage => 'Manage This phone';
+  String get thisPhoneManage => '管理“此手机”';
 
   @override
   String get chatRequestWho => '智能体';
@@ -19856,7 +19462,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String chatRequestAlwaysConfirm(String what) {
-    return 'Always allow $what in this project?';
+    return '在此项目中始终允许$what？';
   }
 
   @override
@@ -19939,7 +19545,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get teamUiPhoneProjectLabel => 'Project folder';
 
   @override
-  String get phoneServerNameInSentence => 'the in-app Ubuntu';
+  String get phoneServerNameInSentence => '应用内的 Ubuntu';
 
   @override
   String get teamAgentWorkUnblockedShort => 'nothing blocking it';
@@ -20005,7 +19611,7 @@ class AppLocalizationsZh extends AppLocalizations {
       'People near you may hear it. Reading stops when you leave this conversation or the app.';
 
   @override
-  String get transcriptFindStopSearchingAll => 'Stop searching older messages';
+  String get transcriptFindStopSearchingAll => '停止搜索更早的消息';
 
   @override
   String nudgeReviewChangesCount(int count) {
@@ -20036,10 +19642,10 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get setupAppStageDownloading => 'Downloading';
+  String get setupAppStageDownloading => '正在下载';
 
   @override
-  String get setupAppStageVerifying => 'Checking the download';
+  String get setupAppStageVerifying => '正在检查下载内容';
 
   @override
   String kitDiffFilePosition(int index, int count) {
@@ -20072,14 +19678,13 @@ class AppLocalizationsZh extends AppLocalizations {
       'This server doesn\'t list the tools its agent can use.';
 
   @override
-  String get demoScreenReset => 'Reset demo';
+  String get demoScreenReset => '重置演示';
 
   @override
-  String get demoScreenLeave => 'Leave demo';
+  String get demoScreenLeave => '退出演示';
 
   @override
-  String get demoScreenDisclosure =>
-      'Everything here is simulated on this device. No server, provider, or files are accessed.';
+  String get demoScreenDisclosure => '这里的一切都在此设备上模拟。不会访问任何服务器、提供商或文件。';
 
   @override
   String capabilityScreenIntroWithGaps(String server) {
@@ -20232,8 +19837,8 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count errors kept',
-      one: '1 error kept',
+      other: '已保留 $count 条错误',
+      one: '已保留 1 条错误',
     );
     return '$_temp0';
   }
@@ -20310,57 +19915,56 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String addServerConnectedHost(String host) {
-    return 'Connected to $host';
+    return '已连接到 $host';
   }
 
   @override
   String addServerCheckSlow(String host) {
-    return '$host has not answered yet. A slow network can take a while.';
+    return '$host 尚未响应。网络较慢时可能需要一些时间。';
   }
 
   @override
-  String get addServerCheckCancel => 'Stop checking';
+  String get addServerCheckCancel => '停止检查';
 
   @override
   String get addServerRemoteHttpAdvice =>
-      'A computer on your network needs an https:// address. Tailscale gives it a private one that only your devices can reach.';
+      'Remote HTTP needs your explicit permission. Prefer HTTPS or a private Tailscale connection.';
 
   @override
-  String get addServerUseTailscale => 'Use Tailscale';
+  String get addServerUseTailscale => '使用 Tailscale';
 
   @override
-  String get addServerStepsLabel => 'Add server progress';
+  String get addServerStepsLabel => '添加服务器进度';
 
   @override
-  String get addServerStepKind => 'What runs there';
+  String get addServerStepKind => '运行的内容';
 
   @override
-  String get addServerStepTailscale => 'Tailscale on this phone';
+  String get addServerStepTailscale => '此手机上的 Tailscale';
 
   @override
-  String get addServerStepPair => 'Pair or enter the address';
+  String get addServerStepPair => '配对或输入地址';
 
   @override
-  String get addServerStepAddress => 'Address and sign-in';
+  String get addServerStepAddress => '地址与登录';
 
   @override
-  String get addServerStepCheck => 'Checking';
+  String get addServerStepCheck => '检查中';
 
   @override
-  String get addServerStepReady => 'Ready';
+  String get addServerStepReady => '就绪';
 
   @override
   String addServerReadyTitle(String name) {
-    return '$name is connected';
+    return '$name 已连接';
   }
 
   @override
-  String get addServerReadyBody =>
-      'Its conversations open next. Start one, or pick up one already there.';
+  String get addServerReadyBody => '接下来会打开它的对话。你可以新建一个，或继续已有的对话。';
 
   @override
   String addServerReadyOpen(String name) {
-    return 'Open $name';
+    return '打开 $name';
   }
 
   @override
@@ -20409,12 +20013,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String credentialRemoveAccountTitle(String provider, String name) {
-    return 'Remove $provider account “$name”?';
+    return '移除 $provider 账号“$name”？';
   }
 
   @override
   String credentialRemoveConfirmNamed(String name) {
-    return 'Remove “$name”';
+    return '移除“$name”';
   }
 
   @override
@@ -20781,8 +20385,8 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count queued prompts move to Saved prompts',
-      one: '1 queued prompt moves to Saved prompts',
+      other: '$count 条排队的提示词将移至已保存的提示词',
+      one: '1 条排队的提示词将移至已保存的提示词',
     );
     return '$_temp0';
   }
@@ -20792,8 +20396,8 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count of them may already have been sent',
-      one: '1 of them may already have been sent',
+      other: '其中 $count 条可能已发送',
+      one: '其中 1 条可能已发送',
     );
     return '$_temp0';
   }
@@ -20803,20 +20407,20 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Remove and delete $count queued prompts',
-      one: 'Remove and delete the queued prompt',
+      other: '移除并删除 $count 条排队的提示词',
+      one: '移除并删除排队的提示词',
     );
     return '$_temp0';
   }
 
   @override
   String serversRemoveQueuedChanged(String name) {
-    return 'The queued prompts for $name changed, so nothing was removed. Remove it again to see the new count.';
+    return '$name 的排队提示词已变化，因此未移除任何内容。请再次移除以查看新的数量。';
   }
 
   @override
   String serversRemoveQueuedNotKept(String name) {
-    return 'Could not move the queued prompts for $name to Saved prompts, so nothing was removed. Delete some saved prompts or free up storage, then try again.';
+    return '无法将 $name 的排队提示词移至已保存的提示词，因此未移除任何内容。请删除一些已保存的提示词或释放存储空间，然后重试。';
   }
 
   @override
@@ -20826,7 +20430,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsHubGroupConversations => 'Conversations';
 
   @override
-  String get settingsHubGroupThisApp => 'This app';
+  String get settingsHubGroupThisApp => '此应用';
 
   @override
   String get settingsHubProvidersRow => 'Providers and accounts';
@@ -20835,24 +20439,24 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsHubToolsRow => 'Tools';
 
   @override
-  String get settingsHubShowReasoning => 'Show reasoning';
+  String get settingsHubShowReasoning => '显示推理过程';
 
   @override
-  String get settingsHubShowTimestamps => 'Show time, tokens and cost';
+  String get settingsHubShowTimestamps => '显示时间、令牌和费用';
 
   @override
   String settingsHubUnavailableCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count settings aren\'t available on this server',
-      one: '1 setting isn\'t available on this server',
+      other: '此服务器上有 $count 项设置不可用',
+      one: '此服务器上有 1 项设置不可用',
     );
     return '$_temp0';
   }
 
   @override
-  String get settingsHubUnavailableWhy => 'Why';
+  String get settingsHubUnavailableWhy => '原因';
 
   @override
   String get toolsHubMcpSubtitle => 'Servers that give the agent more tools';
@@ -21023,76 +20627,61 @@ class AppLocalizationsZh extends AppLocalizations {
   String get thisPhoneRemoveToolKept => 'Your projects stay';
 
   @override
-  String get removeFromPhoneKeepLost =>
-      'Conversations and settings inside OpenCode are deleted';
+  String get removeFromPhoneKeepLost => 'OpenCode 内的对话和设置将被删除';
 
   @override
-  String get removeFromPhoneKeepKept =>
-      'Your projects stay and come back when you set up again';
+  String get removeFromPhoneKeepKept => '你的项目会保留，重新设置后即可恢复';
 
   @override
   String removeFromPhoneKeepKeptSize(String size) {
-    return 'Your projects ($size) stay and come back when you set up again';
+    return '你的项目（$size）会保留，重新设置后即可恢复';
   }
 
   @override
-  String get removeFromPhoneDeleteLost =>
-      'Project files not saved anywhere else are lost for good';
+  String get removeFromPhoneDeleteLost => '未保存在其他位置的项目文件将永久丢失';
 
   @override
-  String get productErrorTimedOut =>
-      'The server took too long to answer. Try again.';
+  String get productErrorTimedOut => '服务器响应时间过长。请重试。';
 
   @override
-  String get productErrorCertificate =>
-      'The server\'s security certificate isn\'t trusted, so the app stopped. Check the server address.';
+  String get productErrorCertificate => '服务器的安全证书不受信任，应用已停止。请检查服务器地址。';
 
   @override
-  String get productErrorSignIn =>
-      'The server didn\'t accept the sign-in. Check the password in the server\'s settings.';
+  String get productErrorSignIn => '服务器未接受登录。请在服务器设置中检查密码。';
 
   @override
-  String get productErrorNotFound =>
-      'The server couldn\'t find it. It may have been moved or deleted.';
+  String get productErrorNotFound => '服务器找不到它。它可能已被移动或删除。';
 
   @override
-  String get productErrorConflict =>
-      'It changed on the server in the meantime. Refresh, then try again.';
+  String get productErrorConflict => '它在此期间已在服务器上发生变化。请刷新后重试。';
 
   @override
-  String get productErrorBusy =>
-      'The server is busy. Wait a moment, then try again.';
+  String get productErrorBusy => '服务器正忙。请稍等片刻后重试。';
 
   @override
-  String get productErrorRejected =>
-      'The server didn\'t accept the request. Try again, or report the problem.';
+  String get productErrorRejected => '服务器未接受该请求。请重试，或报告该问题。';
 
   @override
-  String get productErrorUnknown =>
-      'That didn\'t work. Details show what happened. Try again, or report the problem.';
+  String get productErrorUnknown => '操作失败。“详情”会显示具体情况。请重试，或报告该问题。';
 
   @override
-  String get productErrorUnexpected =>
-      'The server\'s answer didn\'t make sense to the app. Try again, or report the problem.';
+  String get productErrorUnexpected => '应用无法理解服务器的响应。请重试，或报告该问题。';
 
   @override
-  String get productErrorDevice =>
-      'Something on this device didn\'t work. Try again.';
+  String get productErrorDevice => '此设备上出了点问题。请重试。';
 
   @override
-  String get productErrorStorage =>
-      'The app couldn\'t read or save a file on this device.';
+  String get productErrorStorage => '应用无法在此设备上读取或保存文件。';
 
   @override
-  String get productErrorTermux =>
-      'Termux didn\'t finish that. Check that Termux is installed and open, then try again.';
+  String get productErrorTermux => 'Termux 未能完成该操作。请确认 Termux 已安装并已打开，然后重试。';
 
   @override
-  String get productErrorDetailsLabel => 'Error details';
+  String get productErrorDetailsLabel => '错误详情';
 
   @override
   String productErrorServer(int code) {
-    return 'The server had a problem (error $code). Try again in a moment.';
+    return '服务器出现问题（错误 $code）。请稍后重试。';
   }
 
   @override
@@ -21129,8 +20718,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get settingsBackgroundOffFailed =>
-      'Android did not turn background mode off.';
+  String get settingsBackgroundOffFailed => 'Android 未能关闭后台模式。';
 
   @override
   String defaultProjectOnlyNotice(String project) {
@@ -21318,8 +20906,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get consentNotNow => 'Not now';
 
   @override
-  String get consentSaveFailed =>
-      'Your answer couldn\'t be saved on this phone, so nothing was changed. Try again.';
+  String get consentSaveFailed => '你的回答未能保存到此手机，因此没有做任何更改。请重试。';
 
   @override
   String get consentStorageFailed =>
@@ -21395,34 +20982,32 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String consentAlwaysAllowQuestion(String what) {
-    return 'Asked 3 times. Always allow $what?';
+    return '已询问 3 次。始终允许 $what？';
   }
 
   @override
-  String get consentAlwaysAllowDecline => 'Keep asking';
+  String get consentAlwaysAllowDecline => '继续询问';
 
   @override
-  String get consentAlwaysAllowFailed =>
-      'The server didn\'t save Always allow. The request is still waiting; try again or answer it once.';
+  String get consentAlwaysAllowFailed => '服务器未保存“始终允许”。请求仍在等待；请重试，或仅这一次作答。';
 
   @override
-  String get consentAlwaysAllowTitle => 'Always allow this request?';
+  String get consentAlwaysAllowTitle => '始终允许此请求？';
 
   @override
   String get consentNeedsYouAllow => 'Turn on notifications';
 
   @override
-  String get bootstrapOpeningTitle => 'Opening…';
+  String get bootstrapOpeningTitle => '正在打开…';
 
   @override
-  String get bootstrapOpeningBody => 'Reading your saved servers.';
+  String get bootstrapOpeningBody => '正在读取你已保存的服务器。';
 
   @override
-  String get bootstrapFailedTitle => 'Can\'t read saved servers';
+  String get bootstrapFailedTitle => '无法读取已保存的服务器';
 
   @override
-  String get bootstrapFailedBody =>
-      'If your phone just restarted, unlock it, then try again.';
+  String get bootstrapFailedBody => '如果手机刚刚重启，请先解锁，然后重试。';
 
   @override
   String get shareFailedLine =>
@@ -21446,39 +21031,35 @@ class AppLocalizationsZh extends AppLocalizations {
       'The server or project changed while it opened. Try again.';
 
   @override
-  String get appNewConversationFailed => 'Couldn\'t start a new conversation';
+  String get appNewConversationFailed => '无法开始新对话';
 
   @override
-  String get rootPhoneServerStartFailed =>
-      'OpenCode on this phone didn\'t start';
+  String get rootPhoneServerStartFailed => 'OpenCode 未能在此手机上启动';
 
   @override
-  String get connectionFailureLocalCodexBody =>
-      'A local Codex listener should answer on this phone, but nothing did.';
+  String get connectionFailureLocalCodexBody => '此手机上应有本地 Codex 监听器响应，但没有任何响应。';
 
   @override
-  String get connectionFailureRemoteCodexBody =>
-      'Nothing answered at the Codex endpoint.';
+  String get connectionFailureRemoteCodexBody => 'Codex 端点没有响应。';
 
   @override
   String get connectionFailureLoopbackBody =>
-      'The app looked for a server running on this phone and got no answer. Start that server, or reconnect the tunnel that brings one here, then try again.';
+      '应用在此手机上查找服务器，但没有得到响应。请启动该服务器，或重新连接把服务器带到这里的隧道，然后重试。';
 
   @override
   String get connectionFailureTimedOutBody =>
-      'Something is at that address, but it did not reply. Usually the network in between, not the server.';
+      '该地址上有东西，但没有回复。通常是中间的网络问题，而不是服务器。';
 
   @override
   String get connectionFailureNothingAnsweredBody =>
-      'Nothing answered. Either the server is not running, or this phone cannot reach its address.';
+      '没有任何响应。可能是服务器未运行，或此手机无法访问其地址。';
 
   @override
-  String get connectionFailureUnknownBody =>
-      'The connection failed. What went wrong is under Details.';
+  String get connectionFailureUnknownBody => '连接失败。具体原因见“详情”。';
 
   @override
   String get connectionFailureTailnetCheck =>
-      'This is a Tailscale address: is Tailscale on, on this phone and on the server?';
+      '这是 Tailscale 地址：此手机和服务器上的 Tailscale 都已开启吗？';
 
   @override
   String get teamHomeSpentHistoryMissing =>
@@ -21617,15 +21198,15 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get terminalScreenEmptyTitle => 'No terminals yet';
+  String get terminalScreenEmptyTitle => '还没有终端';
 
   @override
   String terminalScreenEmptyBody(String project) {
-    return 'Start one in $project.';
+    return '在 $project 中启动一个。';
   }
 
   @override
-  String get terminalScreenEmptyBodyNoProject => 'Start one in this project.';
+  String get terminalScreenEmptyBodyNoProject => '在此项目中启动一个。';
 
   @override
   String get integrationsProvidersExplanation =>
@@ -21675,7 +21256,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String kitToolFor(String duration) {
-    return 'for $duration';
+    return '用时 $duration';
   }
 
   @override
@@ -21734,19 +21315,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get teamTaskDetailsReported => 'What the server reported';
 
   @override
-  String get kitToolOpenDetails => 'Open its details';
+  String get kitToolOpenDetails => '打开详情';
 
   @override
   String get teamStartRunKeepInBacklog => 'Keep in backlog';
 
   @override
   String workRunawayStopped(String helper) {
-    return 'Stopped $helper';
+    return '已停止 $helper';
   }
 
   @override
   String workRunawayStopFailed(String helper) {
-    return 'Couldn\'t stop $helper. Try again, or stop it from Termux.';
+    return '无法停止 $helper。请重试，或在 Termux 中停止它。';
   }
 
   @override
@@ -21759,7 +21340,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String hostServiceTitle(String server) {
-    return 'Linux service for $server';
+    return 'OpenCode on $server';
   }
 
   @override
@@ -21769,16 +21350,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String tailscaleSetupToDo(String detail) {
-    return 'To do · $detail';
+    return '待办 · $detail';
   }
 
   @override
-  String get tailscaleSetupNoDeviceList =>
-      'OpenCode can’t list the devices on your tailnet.';
+  String get tailscaleSetupNoDeviceList => 'OpenCode 无法列出你的 tailnet 中的设备。';
 
   @override
-  String get productErrorStagedRevert =>
-      'Review the staged revert before sending this queued prompt.';
+  String get productErrorStagedRevert => '发送此排队的提示词之前，请先查看已暂存的撤销。';
 
   @override
   String teamWatchComposerHint(String name) {
@@ -21803,34 +21382,33 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String serversRemoveQueuedUnreadable(String name) {
-    return 'The queued prompts for $name cannot be read. The server and its queued prompts were kept. Try removing it again after the queue can be read.';
+    return '无法读取 $name 的排队提示词。已保留该服务器及其排队提示词。待队列可读取后，再尝试移除。';
   }
 
   @override
-  String get bootstrapStartFresh => 'Start fresh';
+  String get bootstrapStartFresh => '重新开始';
 
   @override
-  String get bootstrapStartFreshTitle => 'Remove saved sign-ins?';
+  String get bootstrapStartFreshTitle => '移除已保存的登录信息？';
 
   @override
   String get bootstrapStartFreshBody =>
-      'This removes saved passwords and connection tokens from this phone and clears the selected server. Your saved servers, queued prompts and drafts are kept.';
+      '这会从此手机移除已保存的密码和连接令牌，并清除所选服务器。你已保存的服务器、排队的提示词和草稿会保留。';
 
   @override
-  String get bootstrapStartFreshConfirm => 'Remove saved sign-ins';
+  String get bootstrapStartFreshConfirm => '移除已保存的登录信息';
 
   @override
-  String get bootstrapResettingTitle => 'Removing saved sign-ins…';
+  String get bootstrapResettingTitle => '正在移除已保存的登录信息…';
 
   @override
-  String get bootstrapResettingBody => 'Keep the app open while this finishes.';
+  String get bootstrapResettingBody => '请保持应用打开，直到完成。';
 
   @override
-  String get bootstrapResetFailedTitle => 'Sign-in reset failed';
+  String get bootstrapResetFailedTitle => '重置登录失败';
 
   @override
-  String get bootstrapResetFailedBody =>
-      'Some saved sign-ins could not be removed. Try again.';
+  String get bootstrapResetFailedBody => '部分已保存的登录信息无法移除。请重试。';
 
   @override
   String get workStalled => 'Stalled';
@@ -22053,212 +21631,201 @@ class AppLocalizationsZh extends AppLocalizations {
   String get teamNowNotStartingLine => 'The team isn\'t starting a worker';
 
   @override
-  String get aiSetupTitle => 'AI setup';
+  String get aiSetupTitle => 'AI 设置';
 
   @override
   String get aiSetupEntryDetail =>
       'Models, tools and suggestions for this server';
 
   @override
-  String get aiSetupRefresh => 'Read this server\'s setup again';
+  String get aiSetupRefresh => '重新读取此服务器的配置';
 
   @override
-  String get aiSetupLoading => 'Reading this server\'s setup…';
+  String get aiSetupLoading => '正在读取此服务器的配置…';
 
   @override
-  String get aiSetupReviewOnly =>
-      'Review only. Changes are made on the server for now.';
+  String get aiSetupReviewOnly => '仅供查看。目前更改需在服务器上进行。';
 
   @override
-  String get aiSetupUnsupportedTitle => 'AI setup isn\'t available';
+  String get aiSetupUnsupportedTitle => 'AI 设置不可用';
 
   @override
-  String get aiSetupUnsupportedBody =>
-      'This server doesn\'t share its configuration with the app. Set up its models and tools on the server itself.';
+  String get aiSetupUnsupportedBody => '此服务器不会向应用共享其配置。请在服务器本身上设置模型和工具。';
 
   @override
-  String get aiSetupSignInTitle => 'Sign-in needed';
+  String get aiSetupSignInTitle => '需要登录';
 
   @override
   String aiSetupSignInBody(String server) {
-    return '$server didn\'t accept the saved sign-in, so its setup can\'t be read.';
+    return '$server 未接受已保存的登录信息，因此无法读取其配置。';
   }
 
   @override
-  String get aiSetupErrorTitle => 'Couldn\'t read setup';
+  String get aiSetupErrorTitle => '无法读取配置';
 
   @override
-  String get aiSetupErrorBody =>
-      'The server didn\'t answer as expected. Try again, or check the server on its settings page.';
+  String get aiSetupErrorBody => '服务器未按预期响应。请重试，或在其设置页面检查该服务器。';
 
   @override
-  String get aiSetupTryAgain => 'Try again';
+  String get aiSetupTryAgain => '重试';
 
   @override
-  String get aiSetupOfflineTitle => 'You\'re offline';
+  String get aiSetupOfflineTitle => '你已离线';
 
   @override
   String aiSetupOfflineBody(String server) {
-    return 'Reconnect to $server to read its setup.';
+    return '重新连接到 $server 以读取其配置。';
   }
 
   @override
   String aiSetupOfflineStale(String server) {
-    return 'Offline. This is $server\'s setup as last read; it updates when you reconnect.';
+    return '已离线。这是上次读取的 $server 配置；重新连接后会更新。';
   }
 
   @override
-  String get aiSetupEmptyTitle => 'Nothing set up yet';
+  String get aiSetupEmptyTitle => '尚未配置任何内容';
 
   @override
-  String get aiSetupEmptyBody =>
-      'This server runs on its defaults, with no model chosen and no tool servers. Changes are made on the server for now.';
+  String get aiSetupEmptyBody => '此服务器使用默认设置，未选择模型，也没有工具服务器。目前更改需在服务器上进行。';
 
   @override
-  String get aiSetupSuggestionsLabel => 'Suggestions';
+  String get aiSetupSuggestionsLabel => '建议';
 
   @override
   String aiSetupSuggestSignInTitle(String name) {
-    return 'Sign in to $name';
+    return '登录 $name';
   }
 
   @override
-  String get aiSetupSuggestSignInDetail =>
-      'Its tools stay off until someone signs in to it on the server.';
+  String get aiSetupSuggestSignInDetail => '在有人于服务器上登录它之前，其工具将保持关闭。';
 
   @override
   String aiSetupSuggestFixTitle(String name) {
-    return 'Check $name\'s settings';
+    return '检查 $name 的设置';
   }
 
   @override
-  String get aiSetupSuggestFixDetail =>
-      'It failed to start. Fix its entry in the server\'s configuration, then restart the server.';
+  String get aiSetupSuggestFixDetail => '它启动失败。请修正服务器配置中的对应条目，然后重启服务器。';
 
   @override
-  String get aiSetupSuggestModelTitle => 'Choose a default model';
+  String get aiSetupSuggestModelTitle => '选择默认模型';
 
   @override
   String get aiSetupSuggestModelDetail =>
-      'No model is set, so new conversations use the server\'s own pick. Set “model” in the server\'s configuration.';
+      '未设置模型，因此新对话会使用服务器自己的选择。请在服务器配置中设置“model”。';
 
   @override
-  String get aiSetupSuggestToolsTitle => 'Add tool servers';
+  String get aiSetupSuggestToolsTitle => '添加工具服务器';
 
   @override
   String get aiSetupSuggestToolsDetail =>
-      'No MCP servers are set up. Add one in the server\'s configuration to give the agent more tools.';
+      '尚未配置 MCP 服务器。在服务器配置中添加一个，可为智能体提供更多工具。';
 
   @override
-  String get aiSetupToolsLabel => 'Tool servers';
+  String get aiSetupToolsLabel => '工具服务器';
 
   @override
-  String get aiSetupToolsTerm =>
-      'MCP servers give the agent extra tools. Each shows whether it is working now.';
+  String get aiSetupToolsTerm => 'MCP 服务器为智能体提供额外的工具。每个服务器都会显示它当前是否正常工作。';
 
   @override
-  String get aiSetupToolConnected => 'Connected';
+  String get aiSetupToolConnected => '已连接';
 
   @override
-  String get aiSetupToolWaiting => 'Waiting';
+  String get aiSetupToolWaiting => '等待中';
 
   @override
-  String get aiSetupToolOff => 'Off';
+  String get aiSetupToolOff => '已关闭';
 
   @override
-  String get aiSetupToolFailed => 'Failed';
+  String get aiSetupToolFailed => '失败';
 
   @override
-  String get aiSetupToolNeedsSignIn => 'Needs sign-in';
+  String get aiSetupToolNeedsSignIn => '需要登录';
 
   @override
-  String get aiSetupToolUnknown => 'Unknown';
+  String get aiSetupToolUnknown => '未知';
 
   @override
-  String get aiSetupEffectiveLabel => 'Settings in effect';
+  String get aiSetupEffectiveLabel => '生效的设置';
 
   @override
-  String get aiSetupEffectiveTerm =>
-      'What this server\'s conversations use, after combining its configuration files.';
+  String get aiSetupEffectiveTerm => '合并配置文件后，此服务器的对话所使用的设置。';
 
   @override
-  String get aiSetupModel => 'Model';
+  String get aiSetupModel => '模型';
 
   @override
-  String get aiSetupServerDefault => 'Not set: the server picks';
+  String get aiSetupServerDefault => '未设置：由服务器选择';
 
   @override
-  String get aiSetupSmallModel => 'Small model';
+  String get aiSetupSmallModel => '小模型';
 
   @override
-  String get aiSetupDefaultAgent => 'Default agent';
+  String get aiSetupDefaultAgent => '默认智能体';
 
   @override
-  String get aiSetupProviders => 'Providers';
+  String get aiSetupProviders => '服务商';
 
   @override
-  String get aiSetupPermissions => 'Permissions';
+  String get aiSetupPermissions => '权限';
 
   @override
   String aiSetupPermissionRules(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count rules',
-      one: '1 rule',
+      other: '$count 条规则',
+      one: '1 条规则',
     );
     return '$_temp0';
   }
 
   @override
-  String get aiSetupAllSettings => 'All settings';
+  String get aiSetupAllSettings => '所有设置';
 
   @override
-  String get aiSetupSourcesLabel => 'Configuration sources';
+  String get aiSetupSourcesLabel => '配置来源';
 
   @override
-  String get aiSetupSourcesTerm =>
-      'Listed from lowest to highest priority, as the server reports them. The app doesn\'t combine them.';
+  String get aiSetupSourcesTerm => '按优先级从低到高排列，与服务器报告的一致。应用不会合并它们。';
 
   @override
-  String get aiSetupNoSources => 'No configuration files';
+  String get aiSetupNoSources => '没有配置文件';
 
   @override
-  String get aiSetupNoSourcesDetail => 'This server runs on its defaults.';
+  String get aiSetupNoSourcesDetail => '此服务器使用默认设置。';
 
   @override
   String aiSetupSourceUnnamed(String type) {
-    return 'Source without a file ($type)';
+    return '无文件的来源（$type）';
   }
 
   @override
   String aiSetupSourceSets(int position, String keys) {
-    return '$position. Sets $keys';
+    return '$position。设置了 $keys';
   }
 
   @override
   String aiSetupSourceEmpty(int position) {
-    return '$position. Sets nothing';
+    return '$position。未设置任何内容';
   }
 
   @override
-  String get aiSetupAllSources => 'All sources';
+  String get aiSetupAllSources => '所有来源';
 
   @override
   String get integrationsPageLoadFailed => 'Could not load this page';
 
   @override
   String kitLastKnownRefreshing(String updated) {
-    return '$updated · Refreshing';
+    return '$updated · 正在刷新';
   }
 
   @override
-  String get kitLastKnownHint =>
-      'Saved from last time. They open once the live list loads.';
+  String get kitLastKnownHint => '上次保存的内容。实时列表加载后即可打开。';
 
   @override
-  String get kitTranscriptExcerptHint =>
-      'Saved from last time. The conversation opens fully once it loads.';
+  String get kitTranscriptExcerptHint => '保存自上次。加载完成后会完整打开对话。';
 
   @override
   String get lastKnownUpdatedJustNow => 'Updated just now';
@@ -22283,8 +21850,8 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Move $count waiting prompts to $destination',
-      one: 'Move 1 waiting prompt to $destination',
+      other: '将 $count 条等待中的提示词移到 $destination',
+      one: '将 1 条等待中的提示词移到 $destination',
     );
     return '$_temp0';
   }
@@ -22651,15 +22218,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sessionAddressFailCancelled => 'Opening this link was cancelled.';
 
   @override
-  String get removeFromPhoneDeleteAllChoice => 'Delete everything…';
+  String get removeFromPhoneDeleteAllChoice => '全部删除…';
 
   @override
   String removeFromPhoneDeleteAllChoiceSize(String size) {
-    return 'Delete everything, freeing about $size…';
+    return '全部删除，释放约 $size…';
   }
 
   @override
-  String get phoneServerCardErrorDetail => 'Error';
+  String get phoneServerCardErrorDetail => '错误';
 
   @override
   String get sessionMenuGoTo => 'Go to';
@@ -22717,12 +22284,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String commandSheetAgentCommandNotSent(String command, String agent) {
-    return '$command wasn\'t sent: $agent doesn\'t share its commands with the app yet. Remove the / to send it as a message.';
+    return '未发送 $command：$agent 尚未向应用提供其命令。删除 / 即可作为消息发送。';
   }
 
   @override
   String commandSheetShellNotSent(String command, String agent) {
-    return '$command wasn\'t sent: shell commands can\'t run on $agent from the app. Remove the ! to send it as a message.';
+    return '未发送 $command：无法从应用在 $agent 上运行 shell 命令。删除 ! 即可作为消息发送。';
   }
 
   @override
@@ -22749,7 +22316,7 @@ class AppLocalizationsZh extends AppLocalizations {
       'Pick a command, then the conversation it runs in';
 
   @override
-  String get commandSheetAgentFallback => 'This agent';
+  String get commandSheetAgentFallback => '此智能体';
 
   @override
   String get commandSheetPlanDescription =>
@@ -23149,33 +22716,32 @@ class AppLocalizationsZh extends AppLocalizations {
       'Try again, or switch it on where the team runs.';
 
   @override
-  String get addServerTailscaleNext => 'Enter the address';
+  String get addServerTailscaleNext => '输入地址';
 
   @override
   String get phoneSetupTermuxGetCurrent => '获取最新版 Termux';
 
   @override
-  String get phoneSetupUnsupportedTitle => 'Connect a server';
+  String get phoneSetupUnsupportedTitle => '连接服务器';
 
   @override
   String get phoneSetupUnsupportedBody =>
-      'Setting up on the device itself works only on Android phones. On your computer, run this command, then add the server here with the code it prints.';
+      '在设备本机上设置仅适用于 Android 手机。请在你的电脑上运行此命令，然后用它输出的代码在这里添加服务器。';
 
   @override
   String get termuxStorageStageTotal => 'The whole Termux install';
 
   @override
-  String get setupProgressViewFailedStep =>
-      'This step didn\'t finish. What went wrong is under Details.';
+  String get setupProgressViewFailedStep => '此步骤未完成。出错原因见“详情”。';
 
   @override
   String setupProgressViewFailedAt(String name) {
-    return 'Stopped at $name. What went wrong is under Details.';
+    return '在 $name 处停止。出错原因见“详情”。';
   }
 
   @override
   String workRunawayHelper(String helper, String duration) {
-    return 'A leftover $helper process has been busy for $duration with nothing to do';
+    return '残留的 $helper 进程已空转忙碌 $duration';
   }
 
   @override
@@ -23184,11 +22750,11 @@ class AppLocalizationsZh extends AppLocalizations {
     String project,
     String duration,
   ) {
-    return 'A leftover $helper process in $project has been busy for $duration with nothing to do';
+    return '$project 中残留的 $helper 进程已空转忙碌 $duration';
   }
 
   @override
-  String get workRunawaySeeRunning => 'See what\'s running';
+  String get workRunawaySeeRunning => '查看正在运行的内容';
 
   @override
   String thisPhoneUpToDate(String version) {
@@ -23254,16 +22820,14 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get thisPhoneHistoryFailed =>
-      'Your earlier conversations could not be brought across. They are still safe in OpenCode 1.';
+  String get thisPhoneHistoryFailed => '无法迁移你之前的对话。原始数据仍完好地保留在此手机上。';
 
   @override
-  String get addServerCheckFailedPlain =>
-      'The server could not be checked. Check the address and this phone’s connection, then try again.';
+  String get addServerCheckFailedPlain => '无法检查该服务器。请检查地址和此手机的网络连接后重试。';
 
   @override
   String serverRowDetailsTitle(String name) {
-    return '$name details';
+    return '$name 详情';
   }
 
   @override
@@ -23283,18 +22847,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get commandAuthTryAgain => 'Try again';
 
   @override
-  String get draftLeaveMessageNoText =>
-      'Try saving again. If you leave without saving, your latest changes to this draft may be lost.';
+  String get draftLeaveMessageNoText => '请再次尝试保存。如果不保存就离开，你对此草稿的最近修改可能会丢失。';
 
   @override
-  String get draftLeaveCopyAction => 'Copy draft and leave';
+  String get draftLeaveCopyAction => '复制草稿并离开';
 
   @override
-  String get draftLeaveRetry => 'Try saving again';
+  String get draftLeaveRetry => '再次尝试保存';
 
   @override
-  String get draftLeaveStillFailing =>
-      'Still not saved. Copy your text before you leave.';
+  String get draftLeaveStillFailing => '仍未保存。请先复制你的文字再离开。';
 
   @override
   String get queuedRetry => '重试';
@@ -23552,6 +23114,14 @@ class AppLocalizationsZh extends AppLocalizations {
       'Links, sockets and Git worktrees can\'t be copied. Remove them in Termux and try again, or copy that project by hand.';
 
   @override
+  String get migrationLinkedFileUnreadable =>
+      'Some of this project\'s Git history can\'t be read in Termux, so it can\'t be moved safely.';
+
+  @override
+  String get migrationLinkedFileUnreadableFix =>
+      'Open Termux, run git fsck in that project to see what is missing, then try again. Nothing was changed on your phone.';
+
+  @override
   String get migrationTooLarge =>
       'This item exceeds the migration size or file limit.';
 
@@ -23688,8 +23258,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get migrationOfferAction => 'Review what moves';
 
   @override
-  String get integrationsSignInUncertainNext =>
-      'Check the server before you start again';
+  String get integrationsSignInUncertainNext => '重新开始前请先检查服务器';
 
   @override
   String teamHomeLastKnownTasks(String time) {
@@ -23707,24 +23276,23 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get inAppServerStartExitedBody =>
-      'OpenCode closed by itself while it was starting. Open setup to see its log, or start it again.';
+      'OpenCode 在启动时自行退出了。打开设置查看其日志，或重新启动。';
 
   @override
   String inAppServerStartTimedOutBody(int seconds) {
-    return 'OpenCode did not answer within $seconds seconds. The phone may be busy or short on memory; close other apps, then start it again.';
+    return 'OpenCode 在 $seconds 秒内没有响应。手机可能繁忙或内存不足；请关闭其他应用，然后重新启动。';
   }
 
   @override
-  String get inAppServerStartInterruptedBody =>
-      'The start stopped because the app left the screen. Start it again to continue.';
+  String get inAppServerStartInterruptedBody => '启动因应用离开屏幕而中断。请重新启动以继续。';
 
   @override
   String get inAppServerStartPasswordBody =>
-      'The app could not set up OpenCode\'s sign-in on this phone. Start it again; if this repeats, open setup.';
+      '应用无法在此手机上设置 OpenCode 的登录。请重新启动；如果反复出现，请打开设置。';
 
   @override
   String get inAppServerStartRefusedBody =>
-      'The phone did not let the app start OpenCode just now. Start it again; if this repeats, restart the phone.';
+      '手机刚才不允许应用启动 OpenCode。请重新启动；如果反复出现，请重启手机。';
 
   @override
   String get integrationsConnectWithKey => 'Add an API key';
@@ -23747,71 +23315,70 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get termuxProblemAccessHeard =>
-      'OpenCode is running in Termux, but this app can\'t reach Termux yet. Allow access and it connects.';
+      'OpenCode 正在 Termux 中运行，但此应用暂时无法访问 Termux。允许访问后即可连接。';
 
   @override
   String get termuxProblemAccessNeeded =>
-      'This app can\'t reach Termux yet. Allow access so it can find OpenCode there and connect.';
+      '此应用暂时无法访问 Termux。请允许访问，这样它才能找到 OpenCode 并连接。';
 
   @override
   String get termuxProblemAccessBlocked =>
-      'Android blocked Termux access for this app. In this app\'s permissions, turn on “Run commands in Termux environment”.';
+      'Android 阻止了此应用访问 Termux。请在此应用的权限中开启“Run commands in Termux environment”。';
 
   @override
   String get termuxProblemOtherAppsOff =>
-      'Termux doesn\'t take commands from other apps yet. One line in Termux allows it.';
+      'Termux 尚不接受来自其他应用的命令。在 Termux 中运行一行命令即可允许。';
 
   @override
   String get termuxProblemAsleep =>
-      'Termux didn\'t answer. Android may have put it to sleep. Open Termux to wake it.';
+      'Termux 没有响应。可能是 Android 将其休眠了。请打开 Termux 唤醒它。';
 
   @override
   String termuxProblemNotAnswering(String runtime) {
-    return '$runtime is set up in Termux but isn\'t answering. A restart usually brings it back.';
+    return '$runtime 已在 Termux 中设置，但没有响应。重启通常能恢复。';
   }
 
   @override
-  String get termuxProblemNotInstalled =>
-      'Termux isn\'t on this phone. Install it again, or set up the in-app server instead.';
+  String get termuxProblemNotInstalled => '此手机上没有 Termux。请重新安装，或改为设置应用内服务器。';
 
   @override
   String get termuxProblemOutdated =>
-      'This Termux is too old for the app to use. Install the current Termux from F-Droid.';
+      '此 Termux 版本过旧，应用无法使用。请从 F-Droid 安装最新版 Termux。';
 
   @override
   String termuxProblemUnknown(String runtime) {
-    return 'This phone couldn\'t check on $runtime in Termux. Try again in a moment.';
+    return '此手机无法检查 Termux 中的 $runtime。请稍后再试。';
   }
 
   @override
-  String get termuxFixAllowAccess => 'Allow access to Termux';
+  String get termuxFixAllowAccess => '允许访问 Termux';
 
   @override
-  String get termuxFixOpenPermissions => 'Open this app\'s permissions';
+  String get termuxFixOpenPermissions => '打开此应用的权限';
 
   @override
-  String get termuxFixAllowOtherApps => 'Allow other apps in Termux';
+  String get termuxFixAllowOtherApps => '在 Termux 中允许其他应用';
 
   @override
-  String get termuxFixOpenTermux => 'Open Termux';
+  String get termuxFixOpenTermux => '打开 Termux';
 
   @override
   String termuxFixRestart(String runtime) {
-    return 'Restart $runtime in Termux';
+    return '在 Termux 中重启 $runtime';
   }
 
   @override
-  String get termuxFixGetTermux => 'Get Termux';
+  String get termuxFixGetTermux => '获取 Termux';
 
   @override
-  String get termuxFixGetCurrentTermux => 'Get the current Termux';
+  String get termuxFixGetCurrentTermux => '获取最新版 Termux';
 
   @override
-  String get termuxOtherAppsTitle => 'Allow other apps';
+  String get termuxOtherAppsTitle => '允许其他应用';
 
   @override
   String get termuxOtherAppsBody =>
-      'Paste this line in Termux and press Enter, then come back here. Open Termux copies it for you.';
+      '在 Termux 中粘贴这一行并按回车，然后回到这里。“打开 Termux”会为你复制它。';
 
   @override
   String get termuxLeadRunning => 'OpenCode is running in Termux';
@@ -24067,8 +23634,7 @@ class AppLocalizationsZh extends AppLocalizations {
       'Save them as a zip file, to keep or move';
 
   @override
-  String get demoNoCommands =>
-      'The demo has no commands — send the sample prompt to see a change reviewed.';
+  String get demoNoCommands => '演示没有命令：发送示例提示词即可查看一次更改审查。';
 
   @override
   String e7ModelUiUnusableProviders(int count, String providers) {
@@ -24076,9 +23642,9 @@ class AppLocalizationsZh extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          'Signed in to $providers, but this server could not load those sign-ins even after a reload, so their models cannot answer. Browser sign-ins for some providers, such as Anthropic and Google, do not load on this server. Add an API key under Providers instead, or pick another model.',
+          '已登录 $providers，但此服务器即使重新加载也无法加载这些登录信息，因此其模型无法回答。部分提供商（如 Anthropic 和 Google）的浏览器登录无法在此服务器上加载。请改为在“提供商”下添加 API 密钥，或选择其他模型。',
       one:
-          'Signed in to $providers, but this server could not load that sign-in even after a reload, so its models cannot answer. Browser sign-ins for some providers, such as Anthropic and Google, do not load on this server. Add an API key under Providers instead, or pick another model.',
+          '已登录 $providers，但此服务器即使重新加载也无法加载该登录信息，因此其模型无法回答。部分提供商（如 Anthropic 和 Google）的浏览器登录无法在此服务器上加载。请改为在“提供商”下添加 API 密钥，或选择其他模型。',
     );
     return '$_temp0';
   }
@@ -24088,10 +23654,8 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          'The reload waits for $count running replies to finish, because reloading would stop them.',
-      one:
-          'The reload waits for 1 running reply to finish, because reloading would stop it.',
+      other: '重新加载会等待 $count 个正在进行的回复完成，因为重新加载会中断它们。',
+      one: '重新加载会等待 1 个正在进行的回复完成，因为重新加载会中断它。',
     );
     return '$_temp0';
   }
@@ -24250,22 +23814,20 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String pickerProviderNotLoaded(String name) {
-    return '$name is saved, but the server has not loaded it yet.';
+    return '$name 已保存，但服务器尚未加载它。';
   }
 
   @override
-  String get integrationsSignedInUnusable =>
-      'Signed in, but this server can\'t use it';
+  String get integrationsSignedInUnusable => '已登录，但此服务器无法使用';
 
   @override
-  String get chatUiCompactConfirmTitle => 'Compact this conversation?';
+  String get chatUiCompactConfirmTitle => '压缩此对话？';
 
   @override
-  String get chatUiCompactConfirmBody =>
-      'Compact replaces earlier messages with a short summary to save space. It can\'t be undone.';
+  String get chatUiCompactConfirmBody => '压缩会用简短摘要替换较早的消息以节省空间，且无法撤销。';
 
   @override
-  String get chatUiCompactConfirmAction => 'Compact conversation';
+  String get chatUiCompactConfirmAction => '压缩对话';
 
   @override
   String get kitTurnReconnecting => '连接已断开。正在重新连接以获取此回复的其余部分。';
@@ -24298,7 +23860,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get kitTurnLiveWaitingForYou => '等待你操作';
 
   @override
-  String get kitTurnLiveStop => 'Stop reply';
+  String get kitTurnLiveStop => '停止回复';
 
   @override
   String get kitTurnLiveStopping => 'Stopping…';
@@ -24330,7 +23892,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get composerFieldLabel => '发给智能体的消息';
 
   @override
-  String get e7WorkspaceYesterday => 'Yesterday';
+  String get e7WorkspaceYesterday => '昨天';
 
   @override
   String get teamStripTitle => 'AI Team';
@@ -24668,7 +24230,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get teamUiStartOnPhone => 'Start AI Team on this phone';
 
   @override
-  String get chatCollapseAllSteps => 'Collapse all steps';
+  String get chatCollapseAllSteps => '折叠所有步骤';
 
   @override
   String chatWatchTeamInstructions(int count, String time) {
@@ -25370,7 +24932,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get teamProjectTaskVerify => 'Verify task';
 
   @override
-  String get teamProjectTryDemo => 'Try AI Team demo';
+  String get teamProjectTryDemo => '试用 AI Team 演示';
 
   @override
   String get teamProjectLoadFailure =>
@@ -26524,14 +26086,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get addServerCleartextWarning =>
-      'This address uses plain HTTP. On this network, others could read your password and conversations. Use Tailscale or HTTPS if you can.';
+      '此私有网络或 Tailscale 地址使用明文 HTTP。你的密码和验证码在 HTTP 层以未加密方式传输。请仅在可信的私有网络或通过 Tailscale 使用；在公共 Wi-Fi 上有风险。';
 
   @override
-  String get addServerCleartextConfirm => 'Use it anyway';
+  String get addServerCleartextConfirm => '仍然使用';
 
   @override
   String get addServerCleartextConfirmed =>
-      'Plain HTTP is on for this address. Anyone on this network could read what you send.';
+      '已为此地址启用明文 HTTP。此网络中的任何人都可能读取你发送的内容。';
 
   @override
   String get storageAccessTitle => 'Allow access to files?';
@@ -26553,7 +26115,7 @@ class AppLocalizationsZh extends AppLocalizations {
       'You can turn it off any time in Android Settings, under All files access.';
 
   @override
-  String get storageAccessAllow => 'Allow access to files';
+  String get storageAccessAllow => '允许访问文件';
 
   @override
   String get storageAccessNotNow => 'Not now';
@@ -26576,7 +26138,7 @@ class AppLocalizationsZh extends AppLocalizations {
       'Your server runs in Termux, and Termux cannot read your phone’s shared storage yet. Without that, this folder shows only hidden items such as .git.';
 
   @override
-  String get storageTermuxAllow => 'Open Termux';
+  String get storageTermuxAllow => '打开 Termux';
 
   @override
   String get storageTermuxStillTitle => 'Allow storage in Termux';
@@ -26586,15 +26148,14 @@ class AppLocalizationsZh extends AppLocalizations {
       'In Termux, allow storage when Android asks (the command is termux-setup-storage), then open the folder again.';
 
   @override
-  String get filesAccessNeededTitle => 'Files are hidden';
+  String get filesAccessNeededTitle => '文件已隐藏';
 
   @override
-  String get filesAccessNeededBody =>
-      'This folder is in your phone’s shared storage and the app cannot read most of its files yet. Only hidden items show.';
+  String get filesAccessNeededBody => '此文件夹位于手机的共享存储中，应用暂时无法读取其中大部分文件。只显示隐藏项。';
 
   @override
   String get filesAccessNeededTermuxBody =>
-      'This folder is in your phone’s shared storage and Termux cannot read most of its files yet. Only hidden items show.';
+      '此文件夹位于手机的共享存储中，Termux 暂时无法读取其中大部分文件。只显示隐藏项。';
 
   @override
   String get storageRestartTitle => 'Restart to open folder?';
@@ -26622,19 +26183,18 @@ class AppLocalizationsZh extends AppLocalizations {
       'The folder was not opened. Try again, or start OpenCode from This phone.';
 
   @override
-  String get kitQueuedChecking => 'Checking whether your message arrived…';
+  String get kitQueuedChecking => '正在确认你的消息是否已送达…';
 
   @override
-  String get kitQueuedUncertain => 'We couldn\'t confirm your message arrived.';
+  String get kitQueuedUncertain => '我们无法确认你的消息是否已送达。';
 
   @override
   String kitQueuedLastChecked(String time) {
-    return 'Last checked $time.';
+    return '上次检查：$time。';
   }
 
   @override
-  String get kitQueuedStorageFull =>
-      'This phone can\'t safely record sends right now, so your message wasn\'t sent. It is kept here.';
+  String get kitQueuedStorageFull => '此手机目前无法安全地记录发送，因此你的消息没有发出。它仍保留在这里。';
 
   @override
   String get queuedReceiptConfirmed => 'Message received.';
@@ -26648,49 +26208,48 @@ class AppLocalizationsZh extends AppLocalizations {
       'This phone can\'t safely record or check sends right now. Free up some storage and try again.';
 
   @override
-  String get queuedReceiptDetailSentAt => 'Sent';
+  String get queuedReceiptDetailSentAt => '发送时间';
 
   @override
-  String get queuedReceiptDetailCommand => 'Command ID';
+  String get queuedReceiptDetailCommand => '命令 ID';
 
   @override
-  String get queuedReceiptDetailReceipt => 'Receipt ID';
+  String get queuedReceiptDetailReceipt => '回执 ID';
 
   @override
-  String get queuedReceiptDetailNote =>
-      'The connection ended before we could confirm receipt.';
+  String get queuedReceiptDetailNote => '连接在我们确认收到之前已中断。';
 
   @override
-  String get kitToolRetry => 'Try again';
+  String get kitToolRetry => '重试';
 
   @override
-  String get folderBrowserPlaceLabel => 'Place';
+  String get folderBrowserPlaceLabel => '位置';
 
   @override
-  String get folderBrowserPlaceProjects => 'Project space';
+  String get folderBrowserPlaceProjects => '项目空间';
 
   @override
-  String get folderBrowserPlacePhone => 'This phone';
+  String get folderBrowserPlacePhone => '此手机';
 
   @override
-  String get folderBrowserInternalStorage => 'Internal storage';
+  String get folderBrowserInternalStorage => '内部存储';
 
   @override
-  String get folderBrowserOpenedBefore => 'Opened before';
+  String get folderBrowserOpenedBefore => '之前打开过';
 
   @override
-  String get folderBrowserShowHidden => 'Show hidden folders';
+  String get folderBrowserShowHidden => '显示隐藏文件夹';
 
   @override
-  String get folderBrowserHintEmpty => 'Empty';
+  String get folderBrowserHintEmpty => '空';
 
   @override
   String folderBrowserHintMore(String names, int count) {
-    return '$names, $count more';
+    return '$names，另有 $count 个';
   }
 
   @override
-  String get folderBrowserEmptyPhoneBody => 'Open it, or go up one level.';
+  String get folderBrowserEmptyPhoneBody => '打开它，或返回上一级。';
 
   @override
   String get remoteFolderRecent => 'Recent folders';
@@ -26705,24 +26264,23 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String folderBrowserNewProjectCreates(String path) {
-    return 'Creates $path';
+    return '将创建 $path';
   }
 
   @override
-  String get folderBrowserCreateAndOpen => 'Create and open';
+  String get folderBrowserCreateAndOpen => '创建并打开';
 
   @override
   String get folderBrowserFoldersLabel => 'Folders';
 
   @override
-  String get folderBrowserPhoneRefused =>
-      'Phone storage is off. Allow access to look here.';
+  String get folderBrowserPhoneRefused => '手机存储已关闭。请允许访问以在此查看。';
 
   @override
   String get folderBrowserFindProjects => 'Find projects';
 
   @override
-  String get phoneScanTitle => 'Projects on this phone';
+  String get phoneScanTitle => '此手机上的项目';
 
   @override
   String get phoneScanLooking => 'Looking…';
@@ -26740,22 +26298,22 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String phoneScanStopped(int seconds, int count) {
-    return 'Stopped after $seconds seconds · $count found';
+    return '$seconds 秒后已停止 · 找到 $count 个';
   }
 
   @override
   String phoneScanFirstShown(int count) {
-    return 'First $count shown';
+    return '显示前 $count 个';
   }
 
   @override
-  String get phoneScanLookDeeper => 'Look deeper';
+  String get phoneScanLookDeeper => '深入查找';
 
   @override
-  String get phoneScanEmptyTitle => 'No projects found';
+  String get phoneScanEmptyTitle => '未找到项目';
 
   @override
-  String get phoneScanEmptyBody => 'Browse folders or start a New project.';
+  String get phoneScanEmptyBody => '浏览文件夹，或新建项目。';
 
   @override
   String get phoneScanGit => 'Git';
@@ -26794,81 +26352,81 @@ class AppLocalizationsZh extends AppLocalizations {
   String get phoneScanKindGit => 'Folder';
 
   @override
-  String get openProjectTitle => 'Open a project';
+  String get openProjectTitle => '打开项目';
 
   @override
-  String get openProjectSearchPhone => 'Search this phone';
+  String get openProjectSearchPhone => '在此手机上搜索';
 
   @override
-  String get openProjectChooseFolder => 'Choose a folder';
+  String get openProjectChooseFolder => '选择文件夹';
 
   @override
-  String get openProjectChangeFolder => 'Change folder';
+  String get openProjectChangeFolder => '更改文件夹';
 
   @override
   String openProjectUseFolder(String name) {
-    return 'Use $name';
+    return '使用 $name';
   }
 
   @override
-  String get phoneScanSearching => 'Searching this phone';
+  String get phoneScanSearching => '正在搜索此手机';
 
   @override
   String phoneScanChecked(int folders, int found) {
     String _temp0 = intl.Intl.pluralLogic(
       folders,
       locale: localeName,
-      other: '$folders folders',
-      one: '1 folder',
+      other: '$folders 个文件夹',
+      one: '1 个文件夹',
     );
-    return '$_temp0 checked · $found found';
+    return '已检查 $_temp0 · 找到 $found 个';
   }
 
   @override
   String phoneScanDoneIn(int count, String time) {
-    return '$count found in $time';
+    return '$time 内找到 $count 个';
   }
 
   @override
-  String get phoneScanStop => 'Stop';
+  String get phoneScanStop => '停止';
 
   @override
-  String get openProjectChange => 'Change';
+  String get openProjectChange => '更改';
 
   @override
   String openProjectIn(String folder) {
-    return 'In $folder';
+    return '在 $folder 中';
   }
 
   @override
-  String get effectsGlowStyle => 'Style';
+  String get effectsGlowStyle => '样式';
 
   @override
-  String get effectsGlowStyleClassic => 'Classic';
+  String get effectsGlowStyleClassic => '经典';
 
   @override
-  String get effectsGlowStyleSoft => 'Soft ring';
+  String get effectsGlowStyleSoft => '柔和光环';
 
   @override
-  String get effectsGlowColours => 'Colours';
+  String get effectsGlowColours => '颜色';
 
   @override
-  String get effectsGlowColoursOne => 'One colour';
+  String get effectsGlowColoursOne => '单色';
 
   @override
-  String get effectsGlowColoursTwo => 'Two colours';
+  String get effectsGlowColoursTwo => '双色';
 
   @override
-  String get effectsGlowSpeed => 'Speed';
+  String get effectsGlowSpeed => '速度';
 
   @override
-  String get effectsGlowSpeedSlow => 'Slow';
+  String get effectsGlowSpeedSlow => '慢';
 
   @override
-  String get effectsGlowSpeedNormal => 'Normal';
+  String get effectsGlowSpeedNormal => '正常';
 
   @override
-  String get effectsGlowSpeedFast => 'Fast';
+  String get effectsGlowSpeedFast => '快';
 
   @override
   String get approvalModeAskDetail => '每个请求都由你来回应。';
@@ -26912,7 +26470,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatsHomeRunning => '运行中';
 
   @override
-  String get chatsHomeRowWorking => 'Working';
+  String get chatsHomeRowWorking => '进行中';
 
   @override
   String get chatsHomeDone => '已完成';
@@ -26928,7 +26486,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String chatsHomeOnlyProject(String project) {
-    return 'Showing conversations in $project only. This server can\'t list all projects.';
+    return '仅显示 $project 中的对话。此服务器无法列出所有项目。';
   }
 
   @override
@@ -27043,7 +26601,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatsFilterOpenProject => '打开项目…';
 
   @override
-  String get chatsNewSeparateCopy => 'In a separate copy';
+  String get chatsNewSeparateCopy => '在单独的副本中';
 
   @override
   String get chatsNewPrompt => '我们要做什么？';
@@ -27058,6 +26616,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatsNewFailed => '对话没有开始。你的消息还在这里。';
 
   @override
+  String get chatsNewFailedTitle => 'The conversation didn\'t start';
+
+  @override
+  String get chatsNewFailedReportHint =>
+      'Report a problem includes these details.';
+
+  @override
   String get shellTabChats => '对话';
 
   @override
@@ -27069,12 +26634,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String chatProjectChipSemantics(String name) {
-    return 'Project $name. Opens a menu of its files, terminal and changes.';
+    return '项目 $name。打开包含其文件、终端和更改的菜单。';
   }
 
   @override
   String chatProjectServerChipSemantics(String name, String server) {
-    return 'Project $name on $server. Opens a menu of its files, terminal and changes.';
+    return '$server 上的项目 $name。打开包含其文件、终端和更改的菜单。';
   }
 
   @override
@@ -27109,7 +26674,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get agentsStateChecking => '正在检查登录状态…';
 
   @override
-  String get agentsStatePhoneCheck => 'Phone check needed';
+  String get agentsStatePhoneCheck => '需要检查手机';
 
   @override
   String get agentsStateStopped => '已在后台停止';
@@ -27137,7 +26702,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String agentsSetupSizeNote(String size) {
-    return '$size is the agent itself. Shared parts may add more.';
+    return '$size 是智能体本身的大小。共享组件可能会额外占用空间。';
   }
 
   @override
@@ -27157,34 +26722,32 @@ class AppLocalizationsZh extends AppLocalizations {
   String get agentsPreparing => 'Preparing the agent connection…';
 
   @override
-  String get agentsSetupInterrupted =>
-      'Setup stopped before it finished. Install again to continue.';
+  String get agentsSetupInterrupted => '设置在完成前中断。请重新安装以继续。';
 
   @override
-  String get agentsSetupFailed =>
-      'Setup didn\'t finish. Install again to try once more.';
+  String get agentsSetupFailed => '设置未完成。请重新安装再试一次。';
 
   @override
-  String get agentsCheckTitle => 'Check this phone';
+  String get agentsCheckTitle => '检查此手机';
 
   @override
   String agentsCheckRunning(String agent) {
-    return 'Checking $agent…';
+    return '正在检查 $agent…';
   }
 
   @override
   String agentsCheckPassed(String agent) {
-    return '$agent is ready on this phone.';
+    return '$agent 已在此手机上就绪。';
   }
 
   @override
   String agentsCheckFailed(String agent) {
-    return '$agent didn\'t pass the check.';
+    return '$agent 未通过检查。';
   }
 
   @override
   String agentsCheckAction(String agent) {
-    return 'Check $agent';
+    return '检查 $agent';
   }
 
   @override
@@ -27200,40 +26763,39 @@ class AppLocalizationsZh extends AppLocalizations {
   String get agentsStepReady => '就绪';
 
   @override
-  String get agentsFailUnavailable => 'This phone can\'t run this agent yet.';
+  String get agentsFailUnavailable => '此手机暂时还不能运行该智能体。';
 
   @override
-  String get agentsFailStorage =>
-      'Couldn\'t save this setup. Free some space and run it again.';
+  String agentsResumeFailed(String agent) {
+    return '$agent didn\'t start again. Tap Resume to try once more. If it still won\'t start, run its phone check.';
+  }
 
   @override
-  String get agentsFailInstall =>
-      'The agent didn\'t install. Install it again.';
+  String get agentsFailStorage => '无法保存此设置。请释放一些空间后重新运行。';
 
   @override
-  String get agentsFailInterrupted =>
-      'Setup stopped before it finished. Install it again.';
+  String get agentsFailInstall => '智能体未能安装。请重新安装。';
 
   @override
-  String get agentsFailVersion =>
-      'The installed agent didn\'t pass its version check.';
+  String get agentsFailInterrupted => '设置在完成前中断。请重新安装。';
 
   @override
-  String get agentsFailDaemon => 'The agent connection didn\'t start.';
+  String get agentsFailVersion => '已安装的智能体未通过版本检查。';
 
   @override
-  String get agentsFailHello => 'The agent started but didn\'t answer.';
+  String get agentsFailDaemon => '智能体连接未能启动。';
 
   @override
-  String get agentsFailArchitecture =>
-      'This agent doesn\'t match this phone\'s processor.';
+  String get agentsFailHello => 'Paseo 未确认连接。请重试以重新启动并再次检查。';
 
   @override
-  String get agentsFailStale => 'This check is out of date. Run it again.';
+  String get agentsFailArchitecture => '此智能体与本手机的处理器不匹配。';
 
   @override
-  String get agentsFailBusy =>
-      'Another setup is running. Wait for it to finish.';
+  String get agentsFailStale => '此次检查已过期。请重新运行。';
+
+  @override
+  String get agentsFailBusy => '另一项设置正在进行。请等待其完成。';
 
   @override
   String agentsSignInTitle(String agent) {
@@ -27242,22 +26804,22 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String agentsSignInIntro(String agent) {
-    return '$agent signs in with its own prompts, on your own Claude account under Anthropic\'s terms. The app never sees your sign-in.';
+    return '$agent 通过自带的提示完成登录，使用你自己的 Claude 账号并遵循 Anthropic 的条款。应用不会获取你的登录信息。';
   }
 
   @override
   String agentsSignInTerminalIntro(String agent) {
-    return '$agent opens its sign-in page. Sign in there with your Claude account, then come back. If $agent asks for a code, copy it on the page and choose Paste.';
+    return '$agent 会打开其登录页面。请在那里用你的 Claude 账号登录，然后返回。如果 $agent 要求输入代码，请在页面上复制，然后选择“粘贴”。';
   }
 
   @override
   String agentsSignInIntroOther(String agent) {
-    return '$agent signs in with its own prompts, on your own account with its provider. The app never sees your sign-in.';
+    return '$agent 通过自带的提示完成登录，使用你在其服务商的账号。应用不会获取你的登录信息。';
   }
 
   @override
   String agentsSignInTerminalIntroOther(String agent) {
-    return '$agent signs in here with its own prompts. If it opens a page, sign in there and come back. If it asks for a code or key, choose Paste.';
+    return '$agent 在此通过自带的提示登录。如果它打开页面，请在那里登录后返回。如果要求输入代码或密钥，请选择“粘贴”。';
   }
 
   @override
@@ -27265,15 +26827,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String agentsSignInTerminalNotYet(String agent) {
-    return '$agent isn\'t signed in yet. Start the sign-in again when you\'re ready.';
+    return '$agent 尚未登录。准备好后请重新开始登录。';
   }
 
   @override
-  String get agentsSignInStopFailed =>
-      'Sign-in could not be stopped. Keep the app open and try again.';
+  String get agentsSignInStopFailed => '无法停止登录。请保持应用打开并重试。';
 
   @override
-  String get agentsSignInChecking => 'Checking sign-in…';
+  String get agentsSignInChecking => '正在检查登录状态…';
 
   @override
   String agentsSignInStart(String agent) {
@@ -27285,12 +26846,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String agentsSignedInBody(String agent) {
-    return '$agent is ready for new conversations.';
+    return '$agent 已可开始新的对话。';
   }
 
   @override
   String agentsSignInDone(String agent) {
-    return 'Use $agent';
+    return '使用 $agent';
   }
 
   @override
@@ -27300,27 +26861,27 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String agentsSignOutAction(String agent) {
-    return 'Sign out of $agent';
+    return '退出 $agent 登录';
   }
 
   @override
   String agentsSignOutTitle(String agent) {
-    return 'Sign out of $agent?';
+    return '退出 $agent 登录？';
   }
 
   @override
   String agentsSignOutBody(String agent) {
-    return '$agent can\'t start new conversations until you sign in again.';
+    return '在你重新登录之前，$agent 无法开始新的对话。';
   }
 
   @override
   String agentsSignOutKept(String agent) {
-    return 'Your conversations with $agent stay.';
+    return '你与 $agent 的对话会保留。';
   }
 
   @override
   String agentsSignOutFailed(String agent) {
-    return 'Couldn\'t confirm that $agent signed out. Try again.';
+    return '无法确认 $agent 已退出登录。请重试。';
   }
 
   @override
@@ -27330,12 +26891,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String agentsRemoveTitle(String agent) {
-    return 'Remove $agent?';
+    return '移除 $agent？';
   }
 
   @override
-  String get agentsRemoveBody =>
-      'This removes the installed agent from this phone. Your accounts and conversations stay, and you can install it again.';
+  String get agentsRemoveBody => '这会从此手机上移除已安装的智能体。你的账号和对话会保留，之后可以重新安装。';
 
   @override
   String agentsRemoving(String agent) {
@@ -27344,24 +26904,22 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String agentsRemoved(String agent, String size) {
-    return '$agent removed. Freed $size.';
+    return '已移除 $agent。释放了 $size。';
   }
 
   @override
   String agentsAlreadyRemoved(String agent) {
-    return '$agent is already removed.';
+    return '$agent 已被移除。';
   }
 
   @override
-  String get agentsRemoveUnsupported => 'This agent can\'t be removed here.';
+  String get agentsRemoveUnsupported => '此智能体无法在这里移除。';
 
   @override
-  String get agentsRemoveBusy =>
-      'This agent is in use. Finish its work and try again.';
+  String get agentsRemoveBusy => '此智能体正在使用。请等其任务完成后重试。';
 
   @override
-  String get agentsRemoveUnconfirmed =>
-      'Couldn\'t confirm this agent was removed. Check this phone and try again.';
+  String get agentsRemoveUnconfirmed => '无法确认该智能体已被移除。请检查此手机后重试。';
 
   @override
   String get agentsDone => '完成';
@@ -27376,33 +26934,30 @@ class AppLocalizationsZh extends AppLocalizations {
   String get agentsModelLoading => '正在读取模型…';
 
   @override
-  String get agentsSignInBadCode =>
-      'That code is incomplete. Copy the whole code from the browser (it has a # in the middle) and paste it again.';
+  String get agentsSignInBadCode => '该代码不完整。请从浏览器复制完整的代码（中间有一个 #）并重新粘贴。';
 
   @override
-  String get agentsSignInFailed => 'Sign-in didn\'t finish. Start it again.';
+  String get agentsSignInFailed => '登录未完成。请重新开始。';
 
   @override
   String agentsSignInRejected(String agent) {
-    return '$agent didn\'t accept that code. It may have expired or been used already. Tap Get a new code.';
+    return '$agent 未接受该代码。它可能已过期或已被使用。请点按“获取新代码”。';
   }
 
   @override
-  String get agentsSignInHostDown =>
-      'The agent isn\'t running. Resume it, then sign in.';
+  String get agentsSignInHostDown => '智能体未在运行。请先恢复它，再登录。';
 
   @override
-  String get agentsSignInUnavailable =>
-      'Sign-in isn\'t ready on this phone yet';
+  String get agentsSignInUnavailable => '此手机上暂时还不能登录';
 
   @override
   String agentsSignInLimit(String agent) {
-    return '$agent plan limit reached · try again later';
+    return '$agent 的套餐额度已用完 · 请稍后再试';
   }
 
   @override
   String agentsLimitReset(String agent, String time) {
-    return '$agent plan limit reached · resets $time';
+    return '$agent 的套餐额度已用完 · $time重置';
   }
 
   @override
@@ -27412,7 +26967,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String agentsSignedOutLine(String agent) {
-    return '$agent signed out';
+    return '$agent 已退出登录';
   }
 
   @override
@@ -27445,20 +27000,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get agentsCancel => '取消';
 
   @override
-  String get agentsRestartLine =>
-      'Close and reopen the app to finish clearing sign-ins.';
+  String get agentsRestartLine => '请关闭并重新打开应用，以完成登录信息的清除。';
 
   @override
-  String get agentsRestartAction => 'Close the app';
+  String get agentsRestartAction => '关闭应用';
 
   @override
   String get agentsSectionTitle => '智能体';
 
   @override
-  String get agentsRunOnBuiltIn => 'Agents run on the built-in server';
+  String get agentsRunOnBuiltIn => '智能体在内置服务器上运行';
 
   @override
-  String get agentsSwitchToBuiltIn => 'Switch to the built-in server';
+  String get agentsSwitchToBuiltIn => '切换到内置服务器';
 
   @override
   String get agentsChecking => '正在查找这部手机上的智能体…';
@@ -27467,20 +27021,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get agentsStateNeedsArm => '需要 64 位手机';
 
   @override
-  String get agentsStateNoDownload => 'No verified download yet';
+  String get agentsStateNoDownload => '尚无已验证的下载';
 
   @override
   String get agentsInstallHint => '安装';
 
   @override
-  String get agentsActionFailed =>
-      'That didn\'t work on this phone. Open Details to see why.';
+  String get agentsActionFailed => '此手机上操作未成功。打开“详情”查看原因。';
 
   @override
   String get chatsHomeOtherFolders => '其他文件夹';
 
   @override
-  String get agentsSignInPaste => 'Paste';
+  String get agentsSignInPaste => '粘贴';
 
   @override
   String get chatRequestAnswerAllowed => '已允许';
@@ -27783,11 +27336,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get agentCardDangerConfirm => 'Send answer';
 
   @override
-  String get agentsSignInOpenPage => 'Open sign-in page';
+  String get agentsSignInOpenPage => '打开登录页面';
 
   @override
   String agentsSignInCopyCode(String code) {
-    return 'Copy code $code';
+    return '复制代码 $code';
   }
 
   @override
@@ -27981,40 +27534,37 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chatUiToolShowCard => 'Show card';
 
   @override
-  String get chatUiToolShowedCard => 'Showed a card';
+  String get chatUiToolShowedCard => '展示了一张卡片';
 
   @override
-  String get chatUiToolCardFailed => 'Couldn\'t show this card';
+  String get chatUiToolCardFailed => '无法显示此卡片';
 
   @override
-  String get chatStallModelSlow =>
-      'The model is taking longer than usual. Wait, or stop the reply and try again.';
+  String get chatStallModelSlow => '模型响应比平时慢。请等待，或停止回复后重试。';
 
   @override
-  String get chatStallHelperDown =>
-      'The agent\'s helper on this phone stopped. Stop the reply and try again.';
+  String get chatStallHelperDown => '此手机上智能体的辅助程序已停止。请停止回复并重试。';
 
   @override
-  String get chatStallConnectionLost =>
-      'The connection to the agent was lost. Stop the reply and try again once it is back.';
+  String get chatStallConnectionLost => '与智能体的连接已断开。请停止回复，待连接恢复后重试。';
 
   @override
   String get chatStallConnectionUnchecked =>
-      'Nothing has come back for a while and the connection could not be checked. Wait, or stop the reply and try again.';
+      '已有一段时间没有任何返回，且无法检查连接。请等待，或停止回复后重试。';
 
   @override
   String get kitWorkHideSteps => '隐藏步骤';
 
   @override
   String connectionSwitchingTo(String target) {
-    return 'Switching to $target…';
+    return '正在切换到 $target…';
   }
 
   @override
   String get shellServerSwitching => '正在切换…';
 
   @override
-  String get agentsStateNotCertified => 'Not certified on this version yet';
+  String get agentsStateNotCertified => '此版本尚未认证';
 
   @override
   String get agentsChipSignIn => '登录';
@@ -28120,45 +27670,46 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String backgroundPauseTimeLimit(String at) {
-    return 'Background connection paused $at to save battery.';
+    return '后台连接已于 $at 暂停以节省电量。';
   }
 
   @override
-  String get backgroundPauseRestricted =>
-      'Background connection paused: battery use is restricted.';
+  String get backgroundPauseRestricted => '后台连接已暂停：电池使用受限。';
 
   @override
   String backgroundPauseUserStopped(String at) {
-    return 'Background connection stopped when the app closed $at.';
+    return '应用于 $at 关闭时，后台连接已停止。';
   }
 
   @override
   String backgroundPauseAppUpdated(String at) {
-    return 'Background connection stopped when the app was updated $at.';
+    return '应用于 $at 更新时，后台连接已停止。';
   }
 
   @override
-  String get backgroundPauseInterrupted =>
-      'Background connection stopped for an unknown reason.';
+  String get backgroundPauseInterrupted => '后台连接因未知原因停止。';
 
   @override
-  String get backgroundPauseResume => 'Resume background connection';
+  String get backgroundPauseDeviceRestarted =>
+      'Background connection stopped when the phone restarted.';
 
   @override
-  String get backgroundPauseResumeShort => 'Resume';
+  String get backgroundPauseResume => '恢复后台连接';
 
   @override
-  String get backgroundPauseResuming => 'Resuming background connection…';
+  String get backgroundPauseResumeShort => '恢复';
 
   @override
-  String get backgroundPauseResumeFailed =>
-      'Couldn\'t resume. Open Keep running settings.';
+  String get backgroundPauseResuming => '正在恢复后台连接…';
 
   @override
-  String get backgroundPauseOpenKeepRunning => 'Open Keep running settings';
+  String get backgroundPauseResumeFailed => '无法恢复。请打开“保持运行”设置。';
 
   @override
-  String get backgroundPauseResumed => 'Background connection resumed.';
+  String get backgroundPauseOpenKeepRunning => '打开“保持运行”设置';
+
+  @override
+  String get backgroundPauseResumed => '后台连接已恢复。';
 
   @override
   String get diagnosticsExitNoProblems => 'No unexpected closes recently.';
@@ -28220,7 +27771,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get liveToolPlan => 'Planning…';
 
   @override
-  String get liveToolWorking => 'Working…';
+  String get liveToolWorking => '正在处理…';
 
   @override
   String get liveToolCard => 'Showing a card…';
@@ -28447,7 +27998,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get toolCardWhatItDid => 'What it did';
 
   @override
-  String get toolCardTechnicalDetails => 'Technical details';
+  String get toolCardTechnicalDetails => '技术详情';
 
   @override
   String toolCardPageStatus(String status) {
@@ -28460,59 +28011,58 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get chatUiAgentNote => 'Note';
+  String get chatUiAgentNote => '注意';
 
   @override
-  String get chatUiAgentWarning => 'Warning';
+  String get chatUiAgentWarning => '警告';
 
   @override
-  String get chatUiAgentProblem => 'Problem';
+  String get chatUiAgentProblem => '问题';
 
   @override
-  String get chatUiCompactedAutomatically =>
-      'Compacted automatically to make room.';
+  String get chatUiCompactedAutomatically => '已自动压缩以腾出空间。';
 
   @override
-  String get chatUiCompactedWhenAsked => 'Compacted when you asked.';
+  String get chatUiCompactedWhenAsked => '已按你的要求压缩。';
 
   @override
   String chatUiCompactedFrom(String tokens) {
-    return 'It was about $tokens tokens long.';
+    return '原本约有 $tokens 个 token。';
   }
 
   @override
-  String get chatRequestTitleFetch => 'Open a web page';
+  String get chatRequestTitleFetch => '打开网页';
 
   @override
-  String get chatRequestTitleWebSearch => 'Search the web';
+  String get chatRequestTitleWebSearch => '搜索网络';
 
   @override
-  String get chatRequestTitleSearch => 'Search the project';
+  String get chatRequestTitleSearch => '搜索项目';
 
   @override
-  String get chatRequestTitleTask => 'Start a helper agent';
+  String get chatRequestTitleTask => '启动辅助智能体';
 
   @override
-  String get chatRequestTitleSkill => 'Use a skill';
+  String get chatRequestTitleSkill => '使用技能';
 
   @override
-  String get chatRequestTitleMode => 'Switch the agent\'s mode';
+  String get chatRequestTitleMode => '切换智能体的模式';
 
   @override
-  String get chatRequestDetailRunsIn => 'Runs in';
+  String get chatRequestDetailRunsIn => '运行位置';
 
   @override
-  String get chatRequestDetailAsks => 'What it asks for';
+  String get chatRequestDetailAsks => '请求内容';
 
   @override
-  String get chatRequestDetailRange => 'Part of the file';
+  String get chatRequestDetailRange => '文件的部分内容';
 
   @override
-  String get chatRequestDetailHelper => 'Helper type';
+  String get chatRequestDetailHelper => '辅助程序类型';
 
   @override
   String chatRequestReadFrom(String line) {
-    return 'from line $line';
+    return '从第 $line 行起';
   }
 
   @override
@@ -28520,8 +28070,8 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count lines',
-      one: '1 line',
+      other: '$count 行',
+      one: '1 行',
     );
     return '$_temp0';
   }
@@ -28533,21 +28083,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get toolCardWhatCameBack => 'What came back';
 
   @override
-  String get kitRequestShowMore => 'Show more';
+  String get kitRequestShowMore => '展开';
 
   @override
-  String get kitRequestShowLess => 'Show less';
+  String get kitRequestShowLess => '收起';
 
   @override
   String paseoCheckReady(String agents) {
-    return 'Ready on that computer: $agents.';
+    return '那台电脑上已就绪：$agents。';
   }
 
   @override
-  String get paseoCheckNoneReady => 'No agent is ready on that computer yet.';
+  String get paseoCheckNoneReady => '那台电脑上还没有可用的智能体。';
 
   @override
-  String get serverRowDetailsVersion => 'Version';
+  String get serverRowDetailsVersion => '版本';
 
   @override
   String get capabilityDevServices => 'Dev servers';
@@ -28610,12 +28160,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String connectionPasswordRejectedFor(String server) {
-    return 'The password for $server changed. Update it to reconnect.';
+    return '$server 的密码已更改。请更新密码以重新连接。';
   }
 
   @override
   String connectionTokenRejectedFor(String server) {
-    return '$server rejected the connection token. Update it to reconnect.';
+    return '$server 拒绝了连接令牌。请更新令牌以重新连接。';
   }
 
   @override
@@ -28670,39 +28220,37 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String modelPickerAgentUses(String model) {
-    return 'Uses $model';
+    return '使用 $model';
   }
 
   @override
-  String get sessionMenuArchive => 'Archive conversation';
+  String get sessionMenuArchive => '归档对话';
 
   @override
   String get sessionMenuArchiveHint =>
       'Moves it to Archived; the server keeps it';
 
   @override
-  String get sessionMenuDelete => 'Delete conversation';
+  String get sessionMenuDelete => '删除对话';
 
   @override
   String get sessionMenuDeleteHint => 'Removes it and its history for good';
 
   @override
   String sessionArchiveTitle(String title) {
-    return 'Archive “$title”?';
+    return '归档“$title”？';
   }
 
   @override
-  String get sessionArchiveBody =>
-      'It moves to Archived, where you can still read it.';
+  String get sessionArchiveBody => '它会移到“已归档”，你仍可在那里阅读。';
 
   @override
   String sessionDeleteTitle(String title) {
-    return 'Delete “$title”?';
+    return '删除“$title”？';
   }
 
   @override
-  String get sessionDeleteBody =>
-      'The conversation and its history are removed for good. This cannot be undone.';
+  String get sessionDeleteBody => '对话及其历史记录将被永久删除，且无法撤销。';
 
   @override
   String monitorUnreachableTitle(String server) {
@@ -28720,7 +28268,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String agentsStateLimitReset(String time) {
-    return 'Plan limit reached · resets $time';
+    return '套餐额度已用完 · $time重置';
   }
 
   @override
@@ -29011,47 +28559,45 @@ class AppLocalizationsZh extends AppLocalizations {
   String get teamJobOther => 'Starts on its own';
 
   @override
-  String get agentFeaturesLabel => 'Agent settings';
+  String get agentFeaturesLabel => '智能体设置';
 
   @override
   String agentFeaturesSheetTitle(String agent) {
-    return '$agent settings';
+    return '$agent 设置';
   }
 
   @override
   String agentFeatureChipOff(String name) {
-    return '$name, off';
+    return '$name，已关闭';
   }
 
   @override
   String agentFeatureChipOn(String name) {
-    return '$name, on';
+    return '$name，已开启';
   }
 
   @override
-  String get agentFeatureFastChip => 'Fast';
+  String get agentFeatureFastChip => '快速';
 
   @override
-  String get agentFeaturesLoadFailed =>
-      'Could not load this agent\'s settings.';
+  String get agentFeaturesLoadFailed => '无法加载此智能体的设置。';
 
   @override
-  String get agentFeatureFastTitle => 'Fast mode';
+  String get agentFeatureFastTitle => '快速模式';
 
   @override
-  String get agentFeatureFastDetail =>
-      'Quicker replies from supported models. It costs more.';
+  String get agentFeatureFastDetail => '支持的模型回复更快，但费用更高。';
 
   @override
-  String get agentFeatureSaving => 'Saving…';
+  String get agentFeatureSaving => '正在保存…';
 
   @override
   String agentFeatureChangeFailed(String name) {
-    return 'Could not change $name. It keeps its old setting.';
+    return '无法更改 $name。它将保持原有设置。';
   }
 
   @override
-  String get claudeImportTitle => 'Import from Claude Code';
+  String get claudeImportTitle => '从 Claude Code 导入';
 
   @override
   String claudeImportIntro(String project) {
@@ -29176,46 +28722,47 @@ class AppLocalizationsZh extends AppLocalizations {
   String get hostUpdateDetailsMessage => 'Message from the computer';
 
   @override
-  String get filesTextSurface => 'Text in files';
+  String get filesTextSurface => '文件内文本';
 
   @override
-  String get filesSearchText => 'Search text in files';
+  String get filesSearchText => '在文件中搜索文本';
 
   @override
   String filesSearchInside(String query) {
-    return 'Search inside files for \"$query\"';
+    return '在文件内容中搜索“$query”';
   }
 
   @override
-  String get filesTextHintTitle => 'Search inside files';
+  String get filesTextHintTitle => '在文件内搜索';
 
   @override
-  String get filesTextHintBody =>
-      'Type a word or a phrase to see every line that has it.';
+  String get filesTextHintBody => '输入单词或短语，查看包含它的每一行。';
 
   @override
-  String get filesNoTextTitle => 'No matches';
+  String get filesNoTextTitle => '无匹配项';
 
   @override
-  String get filesNoTextBody =>
-      'No file has that text. Check the spelling or try fewer words.';
+  String get filesNoTextBody => '没有文件包含该文本。请检查拼写，或减少关键词。';
 
   @override
-  String get filesTextFailedTitle => 'Couldn\'t search the files';
+  String get filesTextFailedTitle => '无法搜索文件';
 
   @override
   String filesTextLimited(int count) {
-    return 'Showing the first $count matches. Type more to narrow them.';
+    return '显示前 $count 个匹配项。输入更多内容可缩小范围。';
   }
 
   @override
   String filesTextMatchLine(int line) {
-    return 'Line $line';
+    return '第 $line 行';
   }
 
   @override
-  String get productErrorComputer =>
-      'Couldn\'t reach your computer. Check it\'s on and connected, then try again.';
+  String get productErrorComputer => '无法连接到你的电脑。请确认它已开机并联网，然后重试。';
+
+  @override
+  String get productErrorProjectGit =>
+      'This project\'s Git history can\'t be read, so the conversation couldn\'t start. Restore the project from a copy, or clone it again.';
 
   @override
   String kitGalleryPosition(int current, int total) {
@@ -29314,7 +28861,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get kitContextRingCompactingSemantics => 'Context, compacting';
 
   @override
-  String get kitContextSheetTitle => 'Context window';
+  String get kitContextSheetTitle => '上下文窗口';
 
   @override
   String kitContextSheetTokens(String used, String limit) {
@@ -29349,45 +28896,45 @@ class AppLocalizationsZh extends AppLocalizations {
   String get kitContextChartCompacted => 'Compacted here';
 
   @override
-  String get kitContextSheetCompactNow => 'Compact now';
+  String get kitContextSheetCompactNow => '立即压缩';
 
   @override
-  String get phraseChipsRowLabel => 'Quick phrases';
+  String get phraseChipsRowLabel => '快捷短语';
 
   @override
   String phraseChipsSend(String phrase) {
-    return 'Send: $phrase';
+    return '发送：$phrase';
   }
 
   @override
-  String get phraseChipsMenuLabel => 'Phrase options';
+  String get phraseChipsMenuLabel => '短语选项';
 
   @override
-  String get phraseChipsEdit => 'Edit';
+  String get phraseChipsEdit => '编辑';
 
   @override
-  String get phraseChipsHide => 'Hide';
+  String get phraseChipsHide => '隐藏';
 
   @override
-  String get phraseChipsWorkingStarter => 'What\'s the update?';
+  String get phraseChipsWorkingStarter => '进展如何？';
 
   @override
-  String get settingsPhraseChipsTitle => 'Phrase suggestions';
+  String get settingsPhraseChipsTitle => '短语建议';
 
   @override
   String get settingsPhraseChipsSupporting =>
       'Your common short phrases, above the message box. Learned on this phone from what you send.';
 
   @override
-  String get settingsPhraseChipsShowHidden => 'Show hidden phrases';
+  String get settingsPhraseChipsShowHidden => '显示已隐藏的短语';
 
   @override
   String settingsPhraseChipsHiddenCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count hidden phrases',
-      one: '1 hidden phrase',
+      other: '$count 条已隐藏的短语',
+      one: '1 条已隐藏的短语',
     );
     return '$_temp0';
   }
@@ -31513,16 +31060,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get fbThingExplainWaiting => 'It is waiting for your OK in Needs you.';
 
   @override
-  String get settingsV3GroupConnections => 'Connections';
+  String get settingsV3GroupConnections => '连接';
 
   @override
   String get settingsV3GroupAi => 'AI';
 
   @override
-  String get settingsV3GroupChat => 'Conversations';
+  String get settingsV3GroupChat => '对话';
 
   @override
-  String get settingsV3GroupHelp => 'Help and about';
+  String get settingsV3GroupHelp => '帮助与关于';
 
   @override
   String get settingsV3Servers => 'Servers';
@@ -31543,28 +31090,28 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsV3Permissions => 'Permissions and automation';
 
   @override
-  String get settingsV3Notifications => 'Notifications';
+  String get settingsV3Notifications => '通知';
 
   @override
-  String get settingsV3Background => 'Background';
+  String get settingsV3Background => '后台';
 
   @override
   String get settingsV3Language => 'Language';
 
   @override
-  String get settingsV3ByServer => 'By server';
+  String get settingsV3ByServer => '按服务器';
 
   @override
-  String get settingsV3On => 'On';
+  String get settingsV3On => '开';
 
   @override
-  String get settingsV3Off => 'Off';
+  String get settingsV3Off => '关';
 
   @override
   String get settingsV3Connected => 'Connected';
 
   @override
-  String get settingsV3NotConnected => 'Not connected';
+  String get settingsV3NotConnected => '未连接';
 
   @override
   String get settingsV3PhoneRunning => 'Running';
@@ -31677,7 +31224,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String settingsV3ModelNewOn(String name) {
-    return 'New conversations on $name';
+    return '$name 上的新对话';
   }
 
   @override
@@ -31697,7 +31244,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String settingsV3ConnectTo(String name) {
-    return 'Connect to $name';
+    return '连接到 $name';
   }
 
   @override
@@ -31706,7 +31253,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get settingsV3ServerSettings => 'Server settings';
+  String get settingsV3ServerSettings => '服务器设置';
 
   @override
   String get settingsV3ShellAutomatic => 'Automatic';
@@ -31717,7 +31264,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String settingsV3SharingCount(int count, int total) {
-    return '$count of $total share';
+    return '$total 个中有 $count 个共享';
   }
 
   @override
@@ -31762,8 +31309,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get settingsV3NotificationsAllServers =>
-      'Notifications for every server';
+  String get settingsV3NotificationsAllServers => '所有服务器的通知';
 
   @override
   String get settingsV3AgentsOnPhone => 'Agents on this phone';
@@ -31919,12 +31465,11 @@ class AppLocalizationsZh extends AppLocalizations {
       'Tools are what the agent can use, like reading files or running commands. Each server keeps its own set.';
 
   @override
-  String get launchUiUsageSignInServerGone =>
-      'That server is no longer saved, so here is your usage instead.';
+  String get launchUiUsageSignInServerGone => '该服务器已不再保存，因此这里显示你的用量。';
 
   @override
   String get launchUiUsageSignInConnectionFailed =>
-      'Could not connect to that server to sign in. Check it in Servers, then try the widget again.';
+      '无法连接到该服务器以登录。请在“服务器”中检查，然后重试该小组件。';
 
   @override
   String get settingsHubSearchReasoningAliases =>
@@ -32184,7 +31729,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get usageReadUsageFromHere => 'Read usage from here';
 
   @override
-  String get usageSignIn => 'Sign in';
+  String get usageSignIn => '登录';
 
   @override
   String get usageSignInAgain => 'Sign in again';
@@ -32531,29 +32076,28 @@ class AppLocalizationsZh extends AppLocalizations {
   String get usagePhoneNotRunning => 'Not running';
 
   @override
-  String get kitRequestNeedsYouLabel => 'Needs you';
+  String get kitRequestNeedsYouLabel => '需要你处理';
 
   @override
-  String get kitRequestAlwaysAllowLike => 'Always allow requests like this';
+  String get kitRequestAlwaysAllowLike => '始终允许此类请求';
 
   @override
-  String get chatRequestAlwaysAllowCommands =>
-      'Always allow commands like this';
+  String get chatRequestAlwaysAllowCommands => '始终允许此类命令';
 
   @override
-  String get chatRequestAskCommand => 'Run this command?';
+  String get chatRequestAskCommand => '运行此命令？';
 
   @override
-  String get chatRequestAskEdit => 'Edit this file?';
+  String get chatRequestAskEdit => '编辑此文件？';
 
   @override
-  String get chatRequestAskRead => 'Read this file?';
+  String get chatRequestAskRead => '读取此文件？';
 
   @override
-  String get chatRequestAskDirectory => 'Open this folder?';
+  String get chatRequestAskDirectory => '打开此文件夹？';
 
   @override
-  String get chatRequestAskFetch => 'Open this web page?';
+  String get chatRequestAskFetch => '打开此网页？';
 
   @override
   String usageBackAt(String time) {
@@ -32662,140 +32206,139 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count need you',
-      one: '1 needs you',
+      other: '$count 个需要你处理',
+      one: '1 个需要你处理',
     );
     return '$_temp0';
   }
 
   @override
   String notifStatusStillWorking(int count) {
-    return '$count still working';
+    return '$count 个仍在进行';
   }
 
   @override
   String notifStatusChatsWorking(int count) {
-    return '$count conversations working';
+    return '$count 个对话进行中';
   }
 
   @override
   String notifStatusMore(int count) {
-    return '+$count more';
+    return '另有 $count 个';
   }
 
   @override
   String notifStatusWaitingCount(int count) {
-    return '$count waiting';
+    return '$count 个等待中';
   }
 
   @override
   String notifStatusTasksProgress(int done, int total) {
-    return '$done of $total tasks';
+    return '$done/$total 个任务';
   }
 
   @override
   String notifStatusMinutes(int count) {
-    return '$count min';
+    return '$count 分钟';
   }
 
   @override
   String notifStatusHours(int count) {
-    return '$count h';
+    return '$count 小时';
   }
 
   @override
   String notifStatusWaitingProvider(String provider) {
-    return 'Waiting · $provider limit';
+    return '等待中 · $provider 限额';
   }
 
   @override
-  String get notifStatusWaitingGeneric => 'Waiting · the provider is busy';
+  String get notifStatusWaitingGeneric => '等待中 · 提供商繁忙';
 
   @override
   String notifStatusTriesAgainAt(String time) {
-    return 'Tries again at $time';
+    return '将在 $time 重试';
   }
 
   @override
-  String get notifStatusTriesAgainSoon => 'Tries again soon';
+  String get notifStatusTriesAgainSoon => '稍后重试';
 
   @override
-  String get notifStatusPausedAndroidTitle =>
-      'Paused · Android\'s background limit';
+  String get notifStatusPausedAndroidTitle => '已暂停 · Android 后台限制';
 
   @override
   String get notifStatusPausedAndroidBody =>
-      'Android stops background work after 6 hours a day. Open OpenCode to keep going.';
+      'Android 每天在后台运行 6 小时后会停止后台工作。打开 OpenCode 以继续。';
 
   @override
-  String get notifStatusPausedHotTitle => 'Paused · phone is hot';
+  String get notifStatusPausedHotTitle => '已暂停 · 手机过热';
 
   @override
-  String get notifStatusPausedHotBody => 'Resumes when it cools down';
+  String get notifStatusPausedHotBody => '冷却后自动恢复';
 
   @override
-  String get notifStatusPausedIdleTitle => 'Paused · nothing was running';
+  String get notifStatusPausedIdleTitle => '已暂停 · 没有运行中的任务';
 
   @override
-  String get notifStatusPausedIdleBody => 'Tap to start OpenCode again';
+  String get notifStatusPausedIdleBody => '点按以重新启动 OpenCode';
 
   @override
   String notifStatusReconnectingTitle(String server) {
-    return 'Reconnecting to $server';
+    return '正在重新连接 $server';
   }
 
   @override
-  String get notifStatusReconnectingGeneric => 'Reconnecting';
+  String get notifStatusReconnectingGeneric => '正在重新连接';
 
   @override
-  String get notifStatusReconnectingBody => 'Waiting for the connection';
+  String get notifStatusReconnectingBody => '正在等待连接';
 
   @override
-  String get notifStatusReadyTitle => 'Ready · nothing running';
+  String get notifStatusReadyTitle => '就绪 · 没有运行中的任务';
 
   @override
-  String get notifStatusReadyBody => 'Ready when you are';
+  String get notifStatusReadyBody => '随时可以开始';
 
   @override
   String notifStatusLastReply(String ago) {
-    return 'Last reply $ago ago';
+    return '上次回复于 $ago前';
   }
 
   @override
-  String get notifStatusLastReplyNow => 'Last reply just now';
+  String get notifStatusLastReplyNow => '上次回复刚刚完成';
 
   @override
   String notifStatusSetupTitle(int step, int steps) {
-    return 'Setup · $step of $steps';
+    return '设置 · 第 $step 步，共 $steps 步';
   }
 
   @override
   String notifStatusOnServer(String server) {
-    return 'on $server';
+    return '在 $server';
   }
 
   @override
-  String get notifStatusOnThisPhone => 'on this phone';
+  String get notifStatusOnThisPhone => '在此手机上';
 
   @override
   String notifStatusPublicWorking(int count) {
-    return '$count working';
+    return '$count 个进行中';
   }
 
   @override
-  String get notifStatusPublicWaiting => 'Waiting';
+  String get notifStatusPublicWaiting => '等待中';
 
   @override
-  String get notifStatusPublicPaused => 'Paused';
+  String get notifStatusPublicPaused => '已暂停';
 
   @override
-  String get notifStatusPublicReconnecting => 'Reconnecting';
+  String get notifStatusPublicReconnecting => '正在重新连接';
 
   @override
-  String get notifStatusPublicReady => 'Ready';
+  String get notifStatusPublicReady => '就绪';
 
   @override
-  String get notifStatusPublicSetup => 'Setting up';
+  String get notifStatusPublicSetup => '正在设置';
 
   @override
   String get integrationsSignInCodeLabel => 'Your code';
@@ -32808,35 +32351,33 @@ class AppLocalizationsZh extends AppLocalizations {
   String get integrationsCodeCopied => 'Code copied';
 
   @override
-  String get integrationsCopyCode => 'Copy code';
+  String get integrationsCopyCode => '复制代码';
 
   @override
-  String get integrationsOpenBrowserAgain => 'Open browser again';
+  String get integrationsOpenBrowserAgain => '重新打开浏览器';
 
   @override
-  String get integrationsSignInWaitingBrowser =>
-      'Waiting for approval in the browser';
+  String get integrationsSignInWaitingBrowser => '正在等待在浏览器中批准';
 
   @override
   String get integrationsSignInWaitingDetail =>
-      'Enter the code in your browser and approve. This app is waiting and finishes the sign-in by itself when you come back.';
+      '在浏览器中输入代码并批准。应用正在等待，你返回后会自动完成登录。';
 
   @override
-  String get integrationsSignInEnded => 'Sign-in ended';
+  String get integrationsSignInEnded => '登录已结束';
 
   @override
   String get integrationsSignInEndedDetail =>
-      'This sign-in ended before it was approved. The code may have run out or the server restarted. Nothing was added.';
+      '此次登录在获批前已结束。可能是代码已过期，或服务器已重启。未添加任何内容。';
 
   @override
-  String get integrationsStartAgain => 'Start again';
+  String get integrationsStartAgain => '重新开始';
 
   @override
-  String get mentionToolTitle => 'File from the project';
+  String get mentionToolTitle => '项目文件';
 
   @override
-  String get mentionToolSupporting =>
-      'Point the agent at a file in this project';
+  String get mentionToolSupporting => '让智能体查看此项目中的文件';
 
   @override
   String get mentionSheetTitle => 'Project files';
@@ -32863,7 +32404,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get inAppServerOwnershipRecoveryBody =>
-      'The server on this phone couldn\'t restart safely. In app settings, tap Force stop, then reopen the app; your conversations stay.';
+      '此手机上的服务器无法安全重启。请在应用设置中点按“强制停止”，然后重新打开应用；你的对话会保留。';
 
   @override
   String get liveStyleAurora => 'Aurora drift';
@@ -32926,37 +32467,36 @@ class AppLocalizationsZh extends AppLocalizations {
   String get liveStyleBokeh => 'Bokeh';
 
   @override
-  String get liveStylePickerTitle => 'Look';
+  String get liveStylePickerTitle => '外观';
 
   @override
-  String get liveStyleUse => 'Use this';
+  String get liveStyleUse => '使用此项';
 
   @override
-  String get liveStyleReplyRunning => 'Reply running';
+  String get liveStyleReplyRunning => '回复进行中';
 
   @override
   String liveStyleSelected(String name) {
-    return '$name, selected';
+    return '$name，已选中';
   }
 
   @override
-  String get liveIntensityTitle => 'Intensity';
+  String get liveIntensityTitle => '强度';
 
   @override
-  String get liveIntensitySubtle => 'Subtle';
+  String get liveIntensitySubtle => '柔和';
 
   @override
-  String get liveIntensityNormal => 'Normal';
+  String get liveIntensityNormal => '正常';
 
   @override
-  String get liveIntensityBold => 'Bold';
+  String get liveIntensityBold => '强烈';
 
   @override
-  String get effectsLiveBackground => 'Live background';
+  String get effectsLiveBackground => '动态背景';
 
   @override
-  String get effectsLiveBackgroundHint =>
-      'A slow, soft drift of colour behind every page';
+  String get effectsLiveBackgroundHint => '每个页面背后有缓慢、柔和流动的色彩';
 
   @override
   String get continueWithMenu => 'Continue with…';
@@ -33114,7 +32654,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get continueWithOpenConversation => 'Open the conversation';
 
   @override
-  String get continueWithAnother => 'Continue with another agent';
+  String get continueWithAnother => '改用其他智能体继续';
 
   @override
   String get continueWithErrNoWriter =>
@@ -33171,47 +32711,45 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get continuedGone => 'This conversation is no longer available.';
+  String get continuedGone => '此对话已不可用。';
 
   @override
   String get continueWithChange => 'Change';
 
   @override
-  String get workServerBusyPhone => 'OpenCode on this phone is busy';
+  String get workServerBusyPhone => '此手机上的 OpenCode 正忙';
 
   @override
-  String get workServerRestartBodyCommand =>
-      'The running command will stop too. Your conversations are kept.';
+  String get workServerRestartBodyCommand => '正在运行的命令也会停止。你的对话会保留。';
 
   @override
-  String get connectionReconnectingQuiet => 'Reconnecting…';
+  String get connectionReconnectingQuiet => '正在重新连接…';
 
   @override
-  String get connectionTryNow => 'Try now';
+  String get connectionTryNow => '立即重试';
 
   @override
   String kitComposerWaitsForAgent(String agent) {
-    return 'Sends when $agent answers';
+    return '$agent 回复后发送';
   }
 
   @override
-  String get textSizeTitle => 'Text size';
+  String get textSizeTitle => '文字大小';
 
   @override
-  String get textSizeSmallest => 'Smallest';
+  String get textSizeSmallest => '最小';
 
   @override
-  String get textSizeSmall => 'Small';
+  String get textSizeSmall => '小';
 
   @override
-  String get textSizeDefault => 'Default';
+  String get textSizeDefault => '默认';
 
   @override
-  String get textSizeLarge => 'Large';
+  String get textSizeLarge => '大';
 
   @override
-  String get kitComposerAddToTurnNote =>
-      'The agent will read this while it works.';
+  String get kitComposerAddToTurnNote => '智能体会在工作时读取这条内容。';
 
   @override
   String get continuedOpenFromList =>
@@ -33323,49 +32861,49 @@ class AppLocalizationsZh extends AppLocalizations {
   String get teamProjectInterruptedResume => 'Resume';
 
   @override
-  String get widgetV2ConfigureTitle => 'Widget style';
+  String get widgetV2ConfigureTitle => '小组件样式';
 
   @override
-  String get widgetV2BackgroundLabel => 'Background';
+  String get widgetV2BackgroundLabel => '背景';
 
   @override
-  String get widgetV2BackgroundSolid => 'Solid';
+  String get widgetV2BackgroundSolid => '纯色';
 
   @override
-  String get widgetV2BackgroundTinted => 'Tinted';
+  String get widgetV2BackgroundTinted => '着色';
 
   @override
-  String get widgetV2BackgroundTransparent => 'Transparent';
+  String get widgetV2BackgroundTransparent => '透明';
 
   @override
-  String get widgetV2AccentLabel => 'Accent colour';
+  String get widgetV2AccentLabel => '强调色';
 
   @override
-  String get widgetV2AccentWallpaper => 'Wallpaper';
+  String get widgetV2AccentWallpaper => '壁纸';
 
   @override
-  String get widgetV2AccentApp => 'App theme';
+  String get widgetV2AccentApp => '应用主题';
 
   @override
-  String get widgetV2AccentGreen => 'Green';
+  String get widgetV2AccentGreen => '绿色';
 
   @override
-  String get widgetV2AccentTeal => 'Teal';
+  String get widgetV2AccentTeal => '青色';
 
   @override
-  String get widgetV2AccentBlue => 'Blue';
+  String get widgetV2AccentBlue => '蓝色';
 
   @override
-  String get widgetV2AccentAmber => 'Amber';
+  String get widgetV2AccentAmber => '琥珀色';
 
   @override
-  String get widgetV2SaveStyle => 'Save style';
+  String get widgetV2SaveStyle => '保存样式';
 
   @override
-  String get widgetV2SteerTitle => 'Add to this turn';
+  String get widgetV2SteerTitle => '添加到本轮';
 
   @override
-  String get widgetV2AfterReplyTitle => 'Send after this reply';
+  String get widgetV2AfterReplyTitle => '在本次回复后发送';
 
   @override
   String get widgetV2RestartTitle => 'Stop and send';
@@ -33375,113 +32913,1811 @@ class AppLocalizationsZh extends AppLocalizations {
       'Stops the current reply and starts again with your message.';
 
   @override
-  String get widgetV2VoiceTitle => 'New message';
+  String get widgetV2VoiceTitle => '新消息';
 
   @override
-  String get widgetV2MessageHint => 'Write a message';
+  String get widgetV2MessageHint => '输入消息';
 
   @override
-  String get widgetV2Dictate => 'Dictate a message';
+  String get widgetV2Dictate => '听写消息';
 
   @override
-  String get widgetV2Send => 'Send';
+  String get widgetV2Send => '发送';
 
   @override
-  String get widgetV2Sending => 'Sending…';
+  String get widgetV2Sending => '正在发送…';
 
   @override
-  String get widgetV2Accepted => 'Sent';
+  String get widgetV2Accepted => '已发送';
 
   @override
-  String get widgetV2StaleRequest =>
-      'The conversation changed. Your message is still here.';
+  String get widgetV2StaleRequest => '对话已更改。你的消息仍在这里。';
 
   @override
-  String get widgetV2Unavailable =>
-      'The background connection is unavailable. Your message is still here.';
+  String get widgetV2Unavailable => '后台连接不可用。你的消息仍在这里。';
 
   @override
-  String get widgetV2Unsupported => 'This connection can’t do that.';
+  String get widgetV2Unsupported => '此连接不支持该操作。';
 
   @override
-  String get widgetV2Uncertain =>
-      'We couldn’t confirm whether this was sent. Check the conversation before sending again.';
+  String get widgetV2Uncertain => '无法确认是否已发送。再次发送前请先查看对话。';
 
   @override
-  String get widgetV2Busy => 'Please wait for the current action.';
+  String get widgetV2Busy => '请等待当前操作完成。';
 
   @override
-  String get widgetV2InvalidRequest => 'Write a message before sending.';
+  String get widgetV2InvalidRequest => '发送前请先输入消息。';
 
   @override
-  String get widgetV2UnknownBehavior => 'Waiting for conversation details…';
+  String get widgetV2UnknownBehavior => '正在等待对话详情…';
 
   @override
-  String get widgetV2Cancel => 'Cancel';
+  String get widgetV2Cancel => '取消';
 
   @override
-  String get widgetV2PreviewLabel => 'Widget preview';
+  String get widgetV2PreviewLabel => '小组件预览';
 
   @override
-  String get widgetV2PreviewTitle => 'Fix the sign-in page';
+  String get widgetV2PreviewTitle => '修复登录页面';
 
   @override
-  String get widgetV2PreviewSecond => 'Write the release notes';
+  String get widgetV2PreviewSecond => '撰写发行说明';
 
   @override
-  String get widgetV2PreviewStep => 'Editing files';
+  String get widgetV2PreviewStep => '正在编辑文件';
 
   @override
-  String get widgetV2PreviewWorking => 'Working';
+  String get widgetV2PreviewWorking => '进行中';
 
   @override
-  String get widgetV2PreviewStop => 'Stop';
+  String get widgetV2PreviewStop => '停止';
 
   @override
-  String get widgetV2PreviewSteer => 'Steer';
+  String get widgetV2PreviewSteer => '引导';
 
   @override
-  String get widgetV2PreviewAllow => 'Allow';
+  String get widgetV2PreviewAllow => '允许';
 
   @override
-  String get widgetV2SizeLabel => 'Preview size';
+  String get widgetV2SizeLabel => '预览大小';
 
   @override
-  String get widgetV2SizeCompact => 'Small';
+  String get widgetV2SizeCompact => '小';
 
   @override
-  String get widgetV2SizeCard => 'Medium';
+  String get widgetV2SizeCard => '中';
 
   @override
-  String get widgetV2SizeList => 'Wide';
+  String get widgetV2SizeList => '宽';
 
   @override
-  String get widgetV2StyleStale =>
-      'This widget changed. Close this and try again.';
+  String get widgetV2StyleStale => '此小组件已更改。请关闭后重试。';
 
   @override
-  String get widgetV2StyleUnavailable => 'Couldn’t save the style. Try again.';
+  String get widgetV2StyleUnavailable => '无法保存样式。请重试。';
 
   @override
-  String get widgetV2DictationUnavailable =>
-      'Dictation isn’t available right now. You can type instead.';
+  String get widgetV2DictationUnavailable => '听写暂时不可用。你可以改为输入。';
 
   @override
-  String get widgetV2RestartUnavailable =>
-      'This conversation can only be changed from inside the app.';
+  String get widgetV2RestartUnavailable => '此对话只能在应用内更改。';
 
   @override
   String get phoneSetupErrorPackageRepair =>
-      'Some Linux packages need repair. Continue setup to try again. Details show what stopped it.';
+      '部分 Linux 软件包需要修复。继续设置以重试。详情会显示停止的原因。';
 
   @override
-  String get setupSwitchSeparateHistoryDetail =>
-      'OpenCode 2 already has its own conversations. Older OpenCode conversations stay in Older OpenCode. Switching is unavailable while both have conversations. Stay on Older OpenCode to keep using these conversations.';
+  String get agentsFailNeedsSignIn => 'Claude Code 需要你在此手机上登录。';
 
   @override
-  String get setupSwitchHistoryUnavailableDetail =>
-      'Could not check your conversations safely. Stay on Older OpenCode and try again.';
+  String get agentsFailHelperVersion => '此智能体连接前需要先更新 Paseo。请更新后重试。';
 
   @override
-  String get setupSwitchStay => 'Stay on Older OpenCode';
+  String get agentsFailTimeout => '手机完成检查耗时过长。请在其不太忙时重试。';
+
+  @override
+  String get agentsCheckRetry => '重试';
+
+  @override
+  String get agentsCheckUpdateHelper => '更新 Paseo 并重试';
+
+  @override
+  String get agentsCheckPrevious => '使用上一版本';
+
+  @override
+  String agentsCheckPreviousNote(String version) {
+    return '版本 $version 仍在此手机上。使用前会先检查。你的登录状态和对话会保留。';
+  }
+
+  @override
+  String get agentsCheckAgentChanged => '所需的智能体版本已变化。请重新检查此手机。';
+
+  @override
+  String get agentsCheckHelperChanged => '所需的 Paseo 版本已变化。请重新检查连接。';
+
+  @override
+  String get agentsCheckInstallChanged => '手机的设置已变化。请重新检查。';
+
+  @override
+  String agentsCheckDownload(
+    String component,
+    String downloaded,
+    String total,
+  ) {
+    return '正在下载 $component · $downloaded/$total';
+  }
+
+  @override
+  String agentsCheckDownloadUnknown(String component, String downloaded) {
+    return '正在下载 $component · $downloaded';
+  }
+
+  @override
+  String agentsCheckDownloading(String component) {
+    return '正在下载 $component';
+  }
+
+  @override
+  String agentsCheckPreparing(String component) {
+    return '正在准备 $component';
+  }
+
+  @override
+  String get agentsCheckPhoneTools => '手机工具';
+
+  @override
+  String get phoneSetupErrorInterrupted => '设置在完成前中断了。继续设置以重试。已完成的步骤会保留。';
+
+  @override
+  String get agentErrorProviderAuth => '模型提供商需要有效的登录。';
+
+  @override
+  String get agentErrorProviderAuthHint => '打开提供商设置以登录或更换 API 密钥，然后重试。';
+
+  @override
+  String get agentErrorUnknown => '请求未能完成。';
+
+  @override
+  String get agentErrorUnknownHint => '重新发送前请先查看对话。详情可能有助于说明发生了什么。';
+
+  @override
+  String get serverTrustHttpTitle => '使用未加密的 HTTP？';
+
+  @override
+  String get serverTrustHttpPublicBody =>
+      '在此公共 HTTP 地址上，你的密码和验证码以未加密方式传输，网络上的其他人可以读取或篡改。在公共 Wi-Fi 上有风险；建议使用 HTTPS 或 Tailscale 私有连接。';
+
+  @override
+  String get serverTrustHttpAccept => '允许此服务器使用 HTTP';
+
+  @override
+  String get serverTrustCertificateTitle => '信任此证书？';
+
+  @override
+  String get serverTrustCertificateBody =>
+      '此连接已加密，但本设备无法验证证书的颁发者或服务器名称。请通过另一个可信渠道，将此 SHA-256 指纹与你的服务器核对，仅在一致时才信任；之后的连接将要求使用这份证书。';
+
+  @override
+  String get serverTrustCertificateChangedTitle => '服务器证书已更改';
+
+  @override
+  String get serverTrustCertificateChangedBody =>
+      '证书与你之前信任的不再一致，因此应用在发送密码前已阻止连接。这可能是证书更新，也可能是连接被拦截；信任新证书前，请先向服务器所有者重新核对指纹。';
+
+  @override
+  String get serverTrustCertificateInspect => '检查证书';
+
+  @override
+  String get serverTrustCertificateRecheck => '重新检查证书';
+
+  @override
+  String get serverTrustCertificateAccept => '信任此指纹';
+
+  @override
+  String get serverTrustCertificateReplace => '信任新证书';
+
+  @override
+  String get serverTrustCertificatePinned => '此服务器使用你已信任的证书指纹。若证书不同，连接将被阻止。';
+
+  @override
+  String get serverTrustCertificateFailed => '无法检查该证书。请检查地址和网络后重试。未信任任何内容。';
+
+  @override
+  String get serverTrustFingerprint => 'SHA-256 指纹';
+
+  @override
+  String get serverTrustInvalidPort => '请输入 1 到 65535 之间的服务器端口。';
+
+  @override
+  String get serverTrustHttpUnconfirmed =>
+      '此服务器使用明文 HTTP，而你尚未确认。请编辑服务器以查看并批准 HTTP 警告，或改用 HTTPS。';
+
+  @override
+  String get serverTrustProbeFailed => '无法检查该服务器。请检查地址后重试。';
+
+  @override
+  String get serverTrustPasswordRejected => '密码被拒绝。请检查服务器密码后重试。';
+
+  @override
+  String serverTrustCertificateValidity(String from, String to) {
+    return '有效期：$from 至 $to';
+  }
+
+  @override
+  String get serverTrustCertificateValidityError =>
+      '服务器证书已过期或尚未生效。请让服务器所有者续期，或在重新连接前检查设备时钟。';
+
+  @override
+  String get devPreviewTitle => '预览';
+
+  @override
+  String get devPreviewReload => '刷新页面';
+
+  @override
+  String get devPreviewOpenInBrowser => '在浏览器中打开';
+
+  @override
+  String get devPreviewCopyAddress => '复制地址';
+
+  @override
+  String get devPreviewLoading => '正在加载预览';
+
+  @override
+  String get devPreviewFailedTitle => '暂无响应';
+
+  @override
+  String devPreviewFailedBody(String port) {
+    return '端口 $port 没有响应。应用可能仍在启动。';
+  }
+
+  @override
+  String get devPreviewRetry => '重试';
+
+  @override
+  String devPreviewRemoteNote(String port, String host) {
+    return '正在显示 $host 上的端口 $port。开发服务器必须监听 0.0.0.0（所有地址），此手机才能访问。';
+  }
+
+  @override
+  String get devPreviewNoServerTitle => '请先连接服务器';
+
+  @override
+  String get devPreviewNoServerBody =>
+      '指向本机的链接只在运行应用的那台机器上有意义。请连接服务器，或在浏览器中打开链接。';
+
+  @override
+  String get devPreviewNoHostTitle => '找不到该服务器';
+
+  @override
+  String get devPreviewNoHostBody => '此服务器的地址不完整，链接无法指向它。请改在浏览器中打开。';
+
+  @override
+  String get devPreviewUnsupportedTitle => '此处无法预览';
+
+  @override
+  String get devPreviewUnsupportedBody => '本设备无法在应用内显示该页面。请改用浏览器打开。';
+
+  @override
+  String get devPreviewMenu => '预览运行中的应用';
+
+  @override
+  String get devPreviewMenuHint =>
+      'Open a dev server this conversation mentioned';
+
+  @override
+  String get devPreviewSheetSubtitle => '此对话提到的服务器';
+
+  @override
+  String devPreviewPortTitle(String port) {
+    return '端口 $port';
+  }
+
+  @override
+  String get devPreviewOnPhone => '在此手机上';
+
+  @override
+  String devPreviewOnServer(String host) {
+    return '在 $host 上';
+  }
+
+  @override
+  String get openCode1UnsupportedTitle => '更新此服务器';
+
+  @override
+  String get openCode1Unsupported =>
+      '此服务器运行的是 OpenCode 1，本应用已不再支持。请将其升级到 OpenCode 2。';
+
+  @override
+  String get openCode2UpgradeTitle => '正在升级到 OpenCode 2';
+
+  @override
+  String get openCode2UpgradeProgress => '正在更新此手机的服务器并迁移你的对话。请保持应用打开。';
+
+  @override
+  String get openCode2UpgradeFailed =>
+      '升级无法安全完成。你的 OpenCode 1 对话和文件仍保留在此手机上，未受影响。请在服务器空闲且可用空间充足时重试。';
+
+  @override
+  String get openCode2HostInstall => 'Install and start OpenCode 2';
+
+  @override
+  String get openCode2HostInstallDetail =>
+      'Requires Node.js and npm. Starts on this computer only and prints its password. Keep this terminal open.';
+
+  @override
+  String get schedulePhoneBusy =>
+      'A scheduled prompt is using the phone server. Try again when it finishes.';
+
+  @override
+  String get schedulePhoneCheckFailed =>
+      'The phone server could not be checked. Try again.';
+
+  @override
+  String get scheduleTitle => '定时提示词';
+
+  @override
+  String get scheduleCreate => '安排提示词';
+
+  @override
+  String get scheduleEdit => '编辑计划';
+
+  @override
+  String get schedulePrompt => '提示词';
+
+  @override
+  String get scheduleTarget => '对话';
+
+  @override
+  String get scheduleThisConversation => '此对话';
+
+  @override
+  String get scheduleNewConversation => '每次运行新建对话';
+
+  @override
+  String get scheduleAgent => '智能体';
+
+  @override
+  String get scheduleWeekdays => '每个工作日';
+
+  @override
+  String get scheduleEveryHours => '每 N 小时';
+
+  @override
+  String get scheduleOnce => '一次';
+
+  @override
+  String get scheduleRepeat => '时间';
+
+  @override
+  String get scheduleTime => '时间';
+
+  @override
+  String get scheduleHours => '运行间隔（小时）';
+
+  @override
+  String scheduleNextRun(String time) {
+    return '下次：$time';
+  }
+
+  @override
+  String get scheduleSave => '保存计划';
+
+  @override
+  String get schedulePause => '暂停';
+
+  @override
+  String get scheduleResume => '恢复';
+
+  @override
+  String get scheduleDelete => '删除计划';
+
+  @override
+  String get scheduleHistory => '运行历史';
+
+  @override
+  String get scheduleStarted => '已开始';
+
+  @override
+  String get scheduleRunning => '运行中';
+
+  @override
+  String get scheduleFailed => '失败';
+
+  @override
+  String get scheduleSkipped => '已跳过';
+
+  @override
+  String get scheduleLate => '已延迟';
+
+  @override
+  String get schedulePaused => '已暂停';
+
+  @override
+  String get scheduleFinished => '没有更多运行';
+
+  @override
+  String get scheduleMissedRuns => '错过运行时';
+
+  @override
+  String get scheduleCatchUp => '可用时补运行一次';
+
+  @override
+  String get scheduleSkipMissed => '跳过错过的运行';
+
+  @override
+  String get scheduleTimingNotice =>
+      'Android 可能会延迟运行。允许精确闹钟可提高准时性，但仍需要网络连接。强制停止应用会暂停计划，直到你再次打开它。';
+
+  @override
+  String get scheduleExactAccess => '允许精确闹钟';
+
+  @override
+  String get scheduleBatteryNotice => '电池限制可能会延迟计划。每次运行都有时间上限，你无需保持应用打开。';
+
+  @override
+  String get scheduleDigest => '晨间摘要';
+
+  @override
+  String get scheduleDigestDescription => '每天早晨发送一条通知，汇总自上次摘要以来的定时运行数量。';
+
+  @override
+  String get scheduleEmpty => '还没有定时提示词';
+
+  @override
+  String get scheduleNoHistory => '暂无运行记录';
+
+  @override
+  String get scheduleUnsupported => '此连接不支持定时提示词。';
+
+  @override
+  String get scheduleSaveFailed => '无法保存此更改。请重试。';
+
+  @override
+  String get scheduleNeedsYou => '打开对话以回应请求。';
+
+  @override
+  String get scheduleBusy => '对话已在处理中。';
+
+  @override
+  String get scheduleUnavailable => '无法连接到服务器。请确认它正在运行，并且这部手机可以访问它。';
+
+  @override
+  String get scheduleSignInAgain => '服务器需要重新输入密码。请在下次运行前打开服务器并登录。';
+
+  @override
+  String get scheduleAllowHttp => '此服务器使用未加密的 HTTP，且尚未获准。请在下次运行前打开服务器并允许 HTTP。';
+
+  @override
+  String get scheduleAgentFailed => '智能体因错误而停止。打开对话查看发生了什么。';
+
+  @override
+  String get scheduleCertificateChanged => '服务器的证书已更改。请在下次运行前打开服务器进行检查。';
+
+  @override
+  String get scheduleCertificateInvalid => '服务器的证书已过期或尚未生效。请在下次运行前打开服务器进行检查。';
+
+  @override
+  String get scheduleTargetChanged => '已保存的连接或目标已更改。请编辑此计划。';
+
+  @override
+  String get scheduleInterrupted => '运行被中断，未重新发送。';
+
+  @override
+  String get scheduleTimeout => '运行已达到时间上限。请查看对话。';
+
+  @override
+  String get scheduleUncertain => '无法确认是否已送达。再次发送前请先查看对话。';
+
+  @override
+  String get scheduleMissed => '已按你对错过运行的设置跳过。';
+
+  @override
+  String get scheduleInvalid => '请输入提示词和未来的时间，或 1 到 168 小时的间隔。';
+
+  @override
+  String get scheduleOptions => '时间与投递';
+
+  @override
+  String get scheduleNotificationsOff => '通知已关闭。结果仍保留在运行历史中。';
+
+  @override
+  String get scheduleDeleteBody => '将移除后续运行和此计划的历史记录。已发送的提示词仍保留在各自的对话中。';
+
+  @override
+  String get scheduleNotificationTitle => 'Scheduled prompt started';
+
+  @override
+  String get scheduleNotificationBody => '点按打开对话';
+
+  @override
+  String get scheduleDigestTitle => 'Your scheduled runs';
+
+  @override
+  String scheduleDigestBody(int started, int failed, int skipped) {
+    return '$started started · $failed failed · $skipped skipped';
+  }
+
+  @override
+  String get scheduleDefaultAgent => 'Saved agent';
+
+  @override
+  String get scheduleProject => '项目';
+
+  @override
+  String get scheduleDeleteTitle => 'Delete this schedule?';
+
+  @override
+  String scheduleToday(String time) {
+    return '今天 $time';
+  }
+
+  @override
+  String scheduleTomorrow(String time) {
+    return '明天 $time';
+  }
+
+  @override
+  String scheduleInMinutes(String minutes) {
+    return '$minutes 分钟后';
+  }
+
+  @override
+  String scheduleEveryNHours(String hours) {
+    return '每 $hours 小时';
+  }
+
+  @override
+  String scheduleDeleteNamedTitle(String name) {
+    return '要删除“$name”吗？';
+  }
+
+  @override
+  String get openCode2MoveProgress =>
+      'Moving your conversations to OpenCode 2…';
+
+  @override
+  String openCode2MoveRetrying(int retry, int total) {
+    return 'The phone is still getting ready. Trying again shortly (attempt $retry of $total).';
+  }
+
+  @override
+  String get openCode2MoveFailedNotReady =>
+      'The server on this phone was not ready. Your OpenCode 1 conversations and files are still on this phone, untouched. Try again in a minute.';
+
+  @override
+  String get openCode2MoveFailedSeparateHistory =>
+      'OpenCode 2 on this phone already has its own conversations, so the move stopped to protect both. Nothing was changed.';
+
+  @override
+  String get openCode2MoveFailedStopped =>
+      'The move stopped before it finished, often because the phone is low on free space or the server is busy. Your OpenCode 1 conversations and files are still on this phone, untouched.';
+
+  @override
+  String get openCode2MoveFailedNotConfirmed =>
+      'OpenCode 2 did not confirm that your conversations arrived. Your OpenCode 1 conversations and files are still on this phone, untouched.';
+
+  @override
+  String get terminalLinkTitle => 'Link in the terminal';
+
+  @override
+  String get terminalLinkOpen => 'Open link';
+
+  @override
+  String get terminalLinkCopy => 'Copy link';
+
+  @override
+  String get terminalCopiedToClipboard => 'Copied to clipboard';
+
+  @override
+  String get chatRequestAskOutsideWrite => 'Write outside this project?';
+
+  @override
+  String get chatRequestAskOutsideRead => 'Read outside this project?';
+
+  @override
+  String get chatRequestAskOutsideRun => 'Run a command outside this project?';
+
+  @override
+  String get phoneSetupStageRetrying => 'Interrupted. Trying again';
+
+  @override
+  String get linuxMgrRow => 'Linux';
+
+  @override
+  String get linuxMgrRowDetail =>
+      'What runs, ports, storage and packages of the Ubuntu inside this app';
+
+  @override
+  String get linuxMgrTitle => 'Linux on this phone';
+
+  @override
+  String get linuxMgrRunning => 'Running';
+
+  @override
+  String get linuxMgrRunningDetail => 'What runs inside Linux, and stopping it';
+
+  @override
+  String get linuxMgrPorts => 'Ports';
+
+  @override
+  String get linuxMgrPortsDetail => 'What is listening, and previewing it';
+
+  @override
+  String get linuxMgrStorage => 'Storage';
+
+  @override
+  String get linuxMgrStorageDetail =>
+      'Where the space goes, and clearing caches';
+
+  @override
+  String get linuxMgrPackages => 'Packages';
+
+  @override
+  String get linuxMgrPackagesDetail =>
+      'Installed software: install, remove and update';
+
+  @override
+  String get linuxMgrRepair => 'Repair Linux';
+
+  @override
+  String get linuxMgrRepairDetail =>
+      'Checks Linux, OpenCode and your tools and fixes what is broken. Your projects are not touched.';
+
+  @override
+  String get linuxMgrRepairTitle => 'Repair Linux?';
+
+  @override
+  String get linuxMgrRepairBody =>
+      'Checks Linux, OpenCode and the tools you added, and installs again anything that is missing or broken. It needs a connection and can take several minutes.';
+
+  @override
+  String get linuxMgrRepairKept => 'Your projects and sign-ins are not touched';
+
+  @override
+  String get linuxMgrReset => 'Reset Linux';
+
+  @override
+  String get linuxMgrResetDetail =>
+      'Start again from a fresh Ubuntu. Your projects stay.';
+
+  @override
+  String get linuxMgrResetTitle => 'Reset Linux?';
+
+  @override
+  String get linuxMgrResetBody =>
+      'Linux is erased and set up again from scratch. This cannot be undone.';
+
+  @override
+  String get linuxMgrResetLostTools =>
+      'Installed packages and tools: OpenCode, Python, AI Team, voice typing';
+
+  @override
+  String get linuxMgrResetLostSignIns => 'Agent sign-ins and their settings';
+
+  @override
+  String get linuxMgrResetLostChats =>
+      'Conversations kept by the server on this phone';
+
+  @override
+  String get linuxMgrResetKept => 'Your projects stay on the phone';
+
+  @override
+  String get linuxMgrResetWord => 'Reset';
+
+  @override
+  String get linuxMgrProblemBusy =>
+      'Another task is using Linux right now. Wait a moment and try again.';
+
+  @override
+  String get linuxMgrProblemSetup =>
+      'Setup is running. Wait until it finishes.';
+
+  @override
+  String get linuxMgrProblemJob =>
+      'A package task is running. Wait until it finishes.';
+
+  @override
+  String get linuxMgrProblemUnavailable =>
+      'Linux is not set up or is not answering. Open This phone to set it up.';
+
+  @override
+  String get linuxMgrProblemFailed => 'That did not finish. Try again.';
+
+  @override
+  String get linuxMgrLoadFailedTitle => 'Could not read Linux';
+
+  @override
+  String get linuxMgrProcTitle => 'Running in Linux';
+
+  @override
+  String linuxMgrProcSummary(int count, String memory) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count programs',
+      one: '1 program',
+    );
+    return '$_temp0 · $memory';
+  }
+
+  @override
+  String get linuxMgrKindServer => 'OpenCode server';
+
+  @override
+  String get linuxMgrKindPaseo => 'Paseo';
+
+  @override
+  String get linuxMgrKindAgent => 'Agent';
+
+  @override
+  String get linuxMgrKindDev => 'Dev server';
+
+  @override
+  String get linuxMgrKindOther => 'Other';
+
+  @override
+  String get linuxMgrAboutServer =>
+      'The OpenCode server this app talks to. Stop it from This phone, not from here.';
+
+  @override
+  String get linuxMgrAboutPaseo =>
+      'Paseo runs coding agents on this phone. Stopping it ends the agents it started.';
+
+  @override
+  String get linuxMgrAboutAgent =>
+      'A coding agent or part of AI Team. Stopping it ends its work in progress.';
+
+  @override
+  String get linuxMgrAboutDev =>
+      'A program that serves your project while you build it. Start it again from the project when you need it.';
+
+  @override
+  String get linuxMgrAboutOther =>
+      'A program running inside Linux. Stopping it ends it; nothing restarts it.';
+
+  @override
+  String get linuxMgrProtected => 'Managed from This phone';
+
+  @override
+  String linuxMgrStopTitle(String name) {
+    return 'Stop $name?';
+  }
+
+  @override
+  String get linuxMgrStopBody =>
+      'It ends now and nothing restarts it. Unsaved work in it is lost.';
+
+  @override
+  String linuxMgrStopHelpers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count programs it started stop with it',
+      one: '1 program it started stops with it',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String linuxMgrStopLabel(String name) {
+    return 'Stop $name';
+  }
+
+  @override
+  String get linuxMgrStopping => 'Stopping…';
+
+  @override
+  String linuxMgrStopped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Stopped $count programs',
+      one: 'Stopped 1 program',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String linuxMgrStopForced(int count) {
+    return '$count had to be forced';
+  }
+
+  @override
+  String linuxMgrStopRemaining(int count) {
+    return '$count would not stop';
+  }
+
+  @override
+  String linuxMgrStopChanged(int count) {
+    return '$count had already changed and was left alone';
+  }
+
+  @override
+  String get linuxMgrNotStoppedTitle => 'Not everything stopped';
+
+  @override
+  String get linuxMgrProcEmpty => 'Nothing is running in Linux';
+
+  @override
+  String get linuxMgrProcEmptyBody =>
+      'OpenCode and your tools start when you use them.';
+
+  @override
+  String get linuxMgrCopyCommand => 'Copy command';
+
+  @override
+  String get linuxMgrPortsTitle => 'Ports in Linux';
+
+  @override
+  String linuxMgrPortRow(int port) {
+    return 'Port $port';
+  }
+
+  @override
+  String linuxMgrPortUsedBy(String name) {
+    return 'Used by $name';
+  }
+
+  @override
+  String get linuxMgrPortUnknown => 'Program not known';
+
+  @override
+  String get linuxMgrPortLocal => 'Only on this phone';
+
+  @override
+  String get linuxMgrPortAll => 'Open to other devices on your network';
+
+  @override
+  String get linuxMgrPortNotPage => 'Not a web page';
+
+  @override
+  String get linuxMgrPortPreview => 'Open preview';
+
+  @override
+  String linuxMgrPortPreviewNamed(int port) {
+    return 'Open preview of port $port';
+  }
+
+  @override
+  String get linuxMgrPortCopy => 'Copy address';
+
+  @override
+  String get linuxMgrPortsNote => 'Only ports this phone can open are listed.';
+
+  @override
+  String get linuxMgrPortsEmpty => 'Nothing is listening';
+
+  @override
+  String get linuxMgrPortsEmptyBody =>
+      'When a dev server starts, its port shows up here.';
+
+  @override
+  String get linuxMgrStorageTitle => 'Linux storage';
+
+  @override
+  String linuxMgrStorageTotal(String size) {
+    return '$size used inside Linux';
+  }
+
+  @override
+  String get linuxMgrCatBase => 'Linux itself';
+
+  @override
+  String get linuxMgrCatBaseDetail => 'Ubuntu and its system files';
+
+  @override
+  String get linuxMgrCatPackages => 'Package downloads';
+
+  @override
+  String get linuxMgrCatPackagesDetail =>
+      'Downloaded packages and package lists';
+
+  @override
+  String get linuxMgrCatTools => 'Node and caches';
+
+  @override
+  String get linuxMgrCatToolsDetail => 'Node, npm and setup downloads';
+
+  @override
+  String get linuxMgrCatAgents => 'Agents and OpenCode';
+
+  @override
+  String get linuxMgrCatAgentsDetail =>
+      'OpenCode, Paseo, Claude Code, AI Team and their saved settings';
+
+  @override
+  String get linuxMgrCatProjects => 'Projects';
+
+  @override
+  String get linuxMgrCatProjectsDetail => 'Your work. Never cleared from here.';
+
+  @override
+  String get linuxMgrCatTemp => 'Temporary files and logs';
+
+  @override
+  String get linuxMgrCatTempDetail => 'Scratch files and program logs';
+
+  @override
+  String get linuxMgrFreeUp => 'Free up space';
+
+  @override
+  String get linuxMgrCleanApt => 'Clear package downloads';
+
+  @override
+  String get linuxMgrCleanAptDetail =>
+      'Linux downloads them again if it needs them';
+
+  @override
+  String get linuxMgrCleanTools => 'Clear Node and download caches';
+
+  @override
+  String get linuxMgrCleanToolsDetail =>
+      'npm and setup downloads, fetched again when needed';
+
+  @override
+  String get linuxMgrCleanTemp => 'Clear old temporary files and logs';
+
+  @override
+  String get linuxMgrCleanTempDetail =>
+      'Files untouched for a day and logs older than a week';
+
+  @override
+  String get linuxMgrCleanAgents => 'Remove old agent versions';
+
+  @override
+  String get linuxMgrCleanAgentsDetail =>
+      'Paseo versions that are no longer in use';
+
+  @override
+  String linuxMgrCleanBody(String size) {
+    return 'About $size comes back. This cannot be undone, and nothing you made is touched.';
+  }
+
+  @override
+  String get linuxMgrCleanKept => 'Projects, sign-ins and settings stay';
+
+  @override
+  String linuxMgrCleanDone(String size) {
+    return 'Freed $size';
+  }
+
+  @override
+  String get linuxMgrCleanNothing => 'There was nothing to clear';
+
+  @override
+  String get linuxMgrCleanNone => 'Nothing to clear right now';
+
+  @override
+  String get linuxMgrMeasuring => 'Measuring…';
+
+  @override
+  String get linuxMgrPkgTitle => 'Packages';
+
+  @override
+  String linuxMgrPkgCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count packages installed',
+      one: '1 package installed',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get linuxMgrPkgSearch => 'Search installed packages';
+
+  @override
+  String get linuxMgrPkgNoMatch => 'No installed package matches that';
+
+  @override
+  String linuxMgrPkgShowAll(int count) {
+    return 'Show all $count packages';
+  }
+
+  @override
+  String get linuxMgrPkgUpdate => 'Update system';
+
+  @override
+  String get linuxMgrPkgUpdateDetail =>
+      'Refreshes the package lists and installs available updates';
+
+  @override
+  String get linuxMgrPkgUpdateTitle => 'Update Linux packages?';
+
+  @override
+  String get linuxMgrPkgUpdateBody =>
+      'Downloads the latest updates and installs them. It uses your connection, can take several minutes, and stops by itself after 45 minutes.';
+
+  @override
+  String get linuxMgrPkgInstall => 'Install a package';
+
+  @override
+  String get linuxMgrPkgInstallDetail => 'By name, for example htop';
+
+  @override
+  String get linuxMgrPkgName => 'Package name';
+
+  @override
+  String get linuxMgrPkgNameHelper =>
+      'Ubuntu package names, separated by spaces';
+
+  @override
+  String get linuxMgrPkgNameInvalid =>
+      'Use only lower case letters, digits and + - . in each name';
+
+  @override
+  String get linuxMgrPkgCheck => 'Check';
+
+  @override
+  String linuxMgrPkgAlready(String name) {
+    return '$name is already installed';
+  }
+
+  @override
+  String linuxMgrPkgUnknown(String name) {
+    return 'No package named $name. Update system refreshes the list of packages.';
+  }
+
+  @override
+  String linuxMgrPkgInstallTitle(String names) {
+    return 'Install $names?';
+  }
+
+  @override
+  String get linuxMgrPkgInstallBody =>
+      'Downloads from Ubuntu and installs. It uses your connection.';
+
+  @override
+  String linuxMgrPkgInstallLabel(String names) {
+    return 'Install $names';
+  }
+
+  @override
+  String linuxMgrPkgRemove(String name) {
+    return 'Remove $name';
+  }
+
+  @override
+  String linuxMgrPkgRemoveTitle(String name) {
+    return 'Remove $name?';
+  }
+
+  @override
+  String get linuxMgrPkgRemoveBody =>
+      'It is removed from Linux. Your projects are not touched.';
+
+  @override
+  String linuxMgrPkgAlsoRemoved(String list) {
+    return 'Also removed: $list';
+  }
+
+  @override
+  String get linuxMgrPkgLocked =>
+      'Linux or your tools need it. Tools are removed from This phone.';
+
+  @override
+  String linuxMgrPkgBlockedPlan(String list) {
+    return 'Removing it would also remove $list, which Linux needs.';
+  }
+
+  @override
+  String get linuxMgrPkgChecking => 'Checking what it would remove…';
+
+  @override
+  String linuxMgrJobInstalling(String names) {
+    return 'Installing $names';
+  }
+
+  @override
+  String linuxMgrJobRemoving(String names) {
+    return 'Removing $names';
+  }
+
+  @override
+  String get linuxMgrJobUpdating => 'Updating Linux packages';
+
+  @override
+  String get linuxMgrJobKeepsGoing => 'It keeps going if you leave this page.';
+
+  @override
+  String linuxMgrJobStopInstall(String names) {
+    return 'Stop installing $names';
+  }
+
+  @override
+  String linuxMgrJobStopRemove(String names) {
+    return 'Stop removing $names';
+  }
+
+  @override
+  String get linuxMgrJobStopUpdate => 'Stop updating';
+
+  @override
+  String get linuxMgrJobStopBody =>
+      'It stops now. A half-finished package is repaired the next time you run a package task.';
+
+  @override
+  String linuxMgrJobDoneInstall(String names) {
+    return 'Installed $names';
+  }
+
+  @override
+  String linuxMgrJobDoneRemove(String names) {
+    return 'Removed $names';
+  }
+
+  @override
+  String get linuxMgrJobDoneUpdate => 'Linux packages are up to date';
+
+  @override
+  String get linuxMgrJobFailed =>
+      'That did not finish. Nothing you made was touched. Try again; it carries on where it stopped.';
+
+  @override
+  String get linuxMgrJobTimedOut =>
+      'It took longer than 45 minutes and stopped itself. Run it again to continue.';
+
+  @override
+  String get linuxMgrJobInterrupted =>
+      'It stopped before it finished, for example when the app was closed. Run it again to continue.';
+
+  @override
+  String get linuxMgrJobNoticeInstall => 'Installing Linux packages';
+
+  @override
+  String get linuxMgrJobNoticeRemove => 'Removing Linux packages';
+
+  @override
+  String get linuxMgrJobNoticeUpdate => 'Updating Linux packages';
+
+  @override
+  String get linuxMgrJobDismiss => 'Done';
+
+  @override
+  String linuxMgrJobStopInstallTitle(String names) {
+    return 'Stop installing $names?';
+  }
+
+  @override
+  String linuxMgrJobStopRemoveTitle(String names) {
+    return 'Stop removing $names?';
+  }
+
+  @override
+  String get linuxMgrJobStopUpdateTitle => 'Stop updating Linux packages?';
+
+  @override
+  String get linuxMgrCleanAptAsk => 'Clear package downloads?';
+
+  @override
+  String get linuxMgrCleanToolsAsk => 'Clear Node and download caches?';
+
+  @override
+  String get linuxMgrCleanTempAsk => 'Clear old temporary files and logs?';
+
+  @override
+  String get linuxMgrCleanAgentsAsk => 'Remove old agent versions?';
+
+  @override
+  String get kitLogSearch => 'Search this output';
+
+  @override
+  String get kitLogPause => 'Pause following';
+
+  @override
+  String get kitLogFollow => 'Follow new output';
+
+  @override
+  String get kitLogPreviousMatch => 'Previous match';
+
+  @override
+  String get kitLogNextMatch => 'Next match';
+
+  @override
+  String get servicesAlsoRunning => 'Also running';
+
+  @override
+  String get servicesAlsoPhoneHint =>
+      'Found by the ports they listen on, however they were started.';
+
+  @override
+  String get servicesAlsoServerHint =>
+      'This server lists the commands it is running. A server started in a terminal on it is not found here.';
+
+  @override
+  String servicesPorts(int count, String ports) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Ports $ports',
+      one: 'Port $ports',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get servicesNoPortYet => 'No port found yet';
+
+  @override
+  String get servicesOpenPreview => 'Open preview';
+
+  @override
+  String servicesOpenPreviewNamed(String name) {
+    return 'Preview $name';
+  }
+
+  @override
+  String servicesPreviewPort(String port) {
+    return 'Preview port $port';
+  }
+
+  @override
+  String get servicesSaveCommand => 'Save as command';
+
+  @override
+  String servicesStopFoundTitle(String name) {
+    return 'Stop $name?';
+  }
+
+  @override
+  String get servicesStopFoundHint =>
+      'This ends the program on the machine it runs on. Anything it has not saved is lost.';
+
+  @override
+  String get servicesLogsUnavailable =>
+      'This program was not started from this app, so its output is not kept where the app can read it. Choose Save as command on its row, stop this one, then start the saved command here to see its logs.';
+
+  @override
+  String get servicesStopFailed =>
+      'It did not stop. Try again, or stop it from the Terminal.';
+
+  @override
+  String devPreviewRunningNow(String name) {
+    return 'Running now: $name';
+  }
+
+  @override
+  String get devPreviewNoneFound => 'No running apps found';
+
+  @override
+  String get linuxMgrResetNotErasedTitle => 'Linux was not reset';
+
+  @override
+  String get linuxMgrResetNotErasedBody =>
+      'Nothing was erased. Close the terminals and stop what runs in Linux, then try again.';
+
+  @override
+  String get linuxMgrResetDetailsLabel => 'Error code';
+
+  @override
+  String get linuxMgrResetCleanupTitle => 'Setting Linux up again';
+
+  @override
+  String linuxMgrResetForgetFailed(String name) {
+    return '“$name” from before the reset could not be forgotten and is still saved.';
+  }
+
+  @override
+  String linuxMgrResetLeft(String name, String what) {
+    return 'From before the reset, “$name” still has saved: $what.';
+  }
+
+  @override
+  String get linuxMgrResetLeftConnection => 'its saved connection';
+
+  @override
+  String get servicesAlsoPhoneFailed =>
+      'Could not check what else runs in Linux right now. It is checked again in a few seconds.';
+
+  @override
+  String linuxMgrProcGroupCount(int count) {
+    return '$count processes';
+  }
+
+  @override
+  String get gitRepairFailureWords => 'Git history can\'t be read.';
+
+  @override
+  String get gitRepairAction => 'Repair';
+
+  @override
+  String get gitRepairTitle => 'Repair Git history';
+
+  @override
+  String gitRepairWorking(String project) {
+    return 'Repairing $project…';
+  }
+
+  @override
+  String get gitRepairLooking => 'Looking for missing Git files…';
+
+  @override
+  String gitRepairRestoring(int done, int total) {
+    return 'Putting back $done of $total Git files…';
+  }
+
+  @override
+  String gitRepairAskingTermux(int done, int total) {
+    return 'Copying $done of $total Git files from Termux…';
+  }
+
+  @override
+  String get gitRepairChecking => 'Checking the project with Git…';
+
+  @override
+  String gitRepairDoneTitle(String project) {
+    return '$project is repaired';
+  }
+
+  @override
+  String gitRepairDoneBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Git files are back, and Git can read the project again.',
+      one: '1 Git file is back, and Git can read the project again.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get gitRepairHealthyTitle => 'Nothing was missing';
+
+  @override
+  String gitRepairHealthyBody(String project) {
+    return 'Git can read $project now.';
+  }
+
+  @override
+  String get gitRepairStart => 'Start the conversation';
+
+  @override
+  String get gitRepairTermuxNotAllowedTitle => 'Files are in Termux';
+
+  @override
+  String get gitRepairTermuxNotAllowedBody =>
+      'Allow the app to run commands in Termux, and it copies them back.';
+
+  @override
+  String get gitRepairAllow => 'Allow and repair';
+
+  @override
+  String get gitRepairTermuxNoAnswerTitle => 'Termux didn\'t answer';
+
+  @override
+  String get gitRepairTermuxNoAnswerBody =>
+      'Open Termux once so it starts, come back here, and repair again.';
+
+  @override
+  String get gitRepairAgain => 'Repair again';
+
+  @override
+  String get gitRepairOpenTermux => 'Open Termux';
+
+  @override
+  String gitRepairCannotTitle(String project) {
+    return 'Can\'t repair $project';
+  }
+
+  @override
+  String gitRepairMissingBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count Git files aren\'t on this phone any more. Clone the project again from where it\'s hosted, or restore a copy.',
+      one:
+          '1 Git file isn\'t on this phone any more. Clone the project again from where it\'s hosted, or restore a copy.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get gitRepairStillBrokenBody =>
+      'Git still can\'t read it. Clone the project again from where it\'s hosted, or restore a copy.';
+
+  @override
+  String get gitRepairNotRepositoryTitle => 'Can\'t repair this folder';
+
+  @override
+  String get gitRepairNotRepositoryBody =>
+      'Only Git projects in the in-app Linux\'s projects folder can be repaired here.';
+
+  @override
+  String get gitRepairClose => 'Close';
+
+  @override
+  String get gitProblemNotARepository => 'This folder isn’t a Git repository.';
+
+  @override
+  String get gitProblemGitMissing =>
+      'Git isn’t installed where this project lives. Install it there, then try again.';
+
+  @override
+  String get gitProblemFolderMissing =>
+      'The project folder wasn’t found. It may have been moved or deleted.';
+
+  @override
+  String get gitProblemEnvironmentUnavailable =>
+      'Couldn’t reach the place this project lives. Check that it’s running, then try again.';
+
+  @override
+  String get gitProblemServerCannotRunCommands =>
+      'This server can’t run Git commands for the app.';
+
+  @override
+  String get gitProblemOutputTooLarge =>
+      'There are too many changes to read here. Commit or clean up some files, then try again.';
+
+  @override
+  String get gitProblemTimedOut => 'Git took too long to answer. Try again.';
+
+  @override
+  String get gitProblemUnsafeRepository =>
+      'Git won’t work in this folder because another user owns it. Fix the folder’s owner on that device.';
+
+  @override
+  String get gitProblemRepositoryLocked =>
+      'Another Git command is using this repository. Wait for it to finish, then try again.';
+
+  @override
+  String get gitProblemNoUpstream =>
+      'This branch isn’t linked to a branch on the remote yet. Push it first.';
+
+  @override
+  String get gitProblemNoRemote =>
+      'This repository has no remote to push to. Add one on that device first.';
+
+  @override
+  String get gitProblemDetachedHead =>
+      'You’re not on a branch. Switch to a branch first.';
+
+  @override
+  String get gitProblemCannotFastForward =>
+      'The remote and this branch both have new commits, so they can’t be combined automatically. Merge or rebase on that device.';
+
+  @override
+  String get gitProblemPushRejected =>
+      'The remote has commits this branch doesn’t have. Pull first, then push again.';
+
+  @override
+  String get gitProblemLocalChangesBlock =>
+      'Your uncommitted changes would be overwritten. Commit or discard them first.';
+
+  @override
+  String get gitProblemAuthRequired =>
+      'The remote needs you to sign in. Set up Git sign-in where this project lives, then try again.';
+
+  @override
+  String get gitProblemAuthRequiredSignIn =>
+      'The remote needs you to sign in. Sign in to GitHub, then try again.';
+
+  @override
+  String get gitProblemGitHubTokenRejected =>
+      'GitHub didn’t accept your sign-in. Sign in to GitHub again.';
+
+  @override
+  String get gitProblemNoPermission =>
+      'Your account can’t push to this repository. Ask its owner for access.';
+
+  @override
+  String get gitProblemNetwork =>
+      'Couldn’t reach the remote. Check the internet connection, then try again.';
+
+  @override
+  String get gitProblemRemoteNotFound =>
+      'The remote repository wasn’t found, or your account can’t see it.';
+
+  @override
+  String get gitProblemNothingSelected => 'Choose at least one file to commit.';
+
+  @override
+  String get gitProblemEmptyMessage =>
+      'Write a message that describes the commit.';
+
+  @override
+  String get gitProblemNothingToCommit =>
+      'There’s nothing to commit in the files you chose.';
+
+  @override
+  String get gitProblemIdentityMissing =>
+      'Git needs your name and email to make a commit. Add them, then try again.';
+
+  @override
+  String get gitProblemSigningFailed =>
+      'Git couldn’t sign the commit. Check commit signing on that device.';
+
+  @override
+  String get gitProblemHookRejected =>
+      'A check in this repository stopped the action. Details shows what it said.';
+
+  @override
+  String get gitProblemInvalidBranchName =>
+      'That isn’t a valid branch name. Avoid spaces and characters like ~ ^ : ? * [';
+
+  @override
+  String get gitProblemBranchExists =>
+      'A branch with that name already exists.';
+
+  @override
+  String get gitProblemBranchNotFound => 'That branch wasn’t found.';
+
+  @override
+  String get gitProblemConflicts =>
+      'Some files have conflicts. Resolve them on that device first.';
+
+  @override
+  String get gitProblemOperationInProgress =>
+      'A merge or rebase isn’t finished. Finish or cancel it on that device first.';
+
+  @override
+  String get gitProblemCannotDiscardConflict =>
+      'Files with conflicts can’t be discarded here.';
+
+  @override
+  String get gitProblemUnknown =>
+      'Git couldn’t finish. Details shows what it said.';
+
+  @override
+  String get gitUnavailableNotConnected =>
+      'Connect to a server to see its Git changes.';
+
+  @override
+  String get gitUnavailableNoProject =>
+      'Open a project to see its Git changes.';
+
+  @override
+  String get gitUnavailableServerCannotRun =>
+      'This server can’t run Git for the app. Use Git on that computer instead.';
+
+  @override
+  String get gitNotRepositoryTitle => 'Not a Git repository';
+
+  @override
+  String get gitNotRepositoryBody => 'This project folder doesn’t use Git yet.';
+
+  @override
+  String get gitCleanTitle => 'No changes';
+
+  @override
+  String get gitCleanBody => 'Everything is committed.';
+
+  @override
+  String get gitDetachedHead => 'Not on a branch';
+
+  @override
+  String get gitNotPushedYet => 'Not pushed yet';
+
+  @override
+  String get gitNoCommitsYet => 'No commits yet';
+
+  @override
+  String gitAhead(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count commits to push',
+      one: '1 commit to push',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String gitBehind(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count commits to pull',
+      one: '1 commit to pull',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get gitOperationMerge => 'Merge not finished';
+
+  @override
+  String get gitOperationRebase => 'Rebase not finished';
+
+  @override
+  String get gitOperationCherryPick => 'Cherry-pick not finished';
+
+  @override
+  String get gitOperationRevert => 'Revert not finished';
+
+  @override
+  String get gitUsesOwnSignIn =>
+      'Push and pull use the Git sign-in already set up where this project lives.';
+
+  @override
+  String get gitChangeAdded => 'Added';
+
+  @override
+  String get gitChangeModified => 'Modified';
+
+  @override
+  String get gitChangeDeleted => 'Deleted';
+
+  @override
+  String get gitChangeRenamed => 'Renamed';
+
+  @override
+  String get gitChangeCopied => 'Copied';
+
+  @override
+  String get gitChangeTypeChanged => 'Type changed';
+
+  @override
+  String get gitChangeUntracked => 'New';
+
+  @override
+  String get gitChangeConflicted => 'Conflict';
+
+  @override
+  String get gitActionPull => 'Pull';
+
+  @override
+  String get gitActionPush => 'Push';
+
+  @override
+  String get gitActionCommit => 'Commit';
+
+  @override
+  String get gitActionSwitchBranch => 'Switch branch';
+
+  @override
+  String get gitActionCreateBranch => 'New branch';
+
+  @override
+  String get gitActionDiscard => 'Discard changes';
+
+  @override
+  String get gitActionRefresh => 'Refresh';
+
+  @override
+  String get gitActionSaveIdentity => 'Save name and email';
+
+  @override
+  String get gitBusyPull => 'Pulling…';
+
+  @override
+  String get gitBusyPush => 'Pushing…';
+
+  @override
+  String get gitBusyCommit => 'Committing…';
+
+  @override
+  String get gitBusySwitchBranch => 'Switching branch…';
+
+  @override
+  String get gitBusyCreateBranch => 'Creating the branch…';
+
+  @override
+  String get gitBusyDiscard => 'Discarding changes…';
+
+  @override
+  String get gitBusyRefresh => 'Checking for changes…';
+
+  @override
+  String get gitBusySaveIdentity => 'Saving…';
+
+  @override
+  String get gitDoneUpToDate => 'Already up to date.';
+
+  @override
+  String get gitDonePulled => 'Pulled the latest commits.';
+
+  @override
+  String get gitDonePushed => 'Pushed.';
+
+  @override
+  String get gitDonePushedTracking =>
+      'Pushed. This branch now follows the one on the remote.';
+
+  @override
+  String gitDoneCommitted(String commit) {
+    return 'Committed $commit.';
+  }
+
+  @override
+  String get gitDoneSwitched => 'Switched branch.';
+
+  @override
+  String get gitDoneCreated => 'Created the branch and switched to it.';
+
+  @override
+  String get gitDoneDiscarded => 'Changes discarded.';
+
+  @override
+  String get gitDoneIdentitySaved =>
+      'Saved your name and email for this repository.';
+
+  @override
+  String gitDiscardConfirmTitle(String file) {
+    return 'Discard changes to $file?';
+  }
+
+  @override
+  String get gitDiscardConfirmBody =>
+      'Its changes are deleted from this device. This can’t be undone.';
+
+  @override
+  String get gitCommitMessageHint => 'Describe what changed';
+
+  @override
+  String get gitBranchNameHint => 'Branch name';
+
+  @override
+  String get gitIdentityName => 'Name';
+
+  @override
+  String get gitIdentityEmail => 'Email';
+
+  @override
+  String get gitHubSignIn => 'Sign in to GitHub';
+
+  @override
+  String get gitHubSignOut => 'Sign out of GitHub';
+
+  @override
+  String gitHubSignedInAs(String login) {
+    return 'Signed in to GitHub as $login';
+  }
+
+  @override
+  String get gitHubRequestingCode => 'Getting a sign-in code…';
+
+  @override
+  String get gitHubEnterCode =>
+      'Enter this code on GitHub to finish signing in.';
+
+  @override
+  String get gitHubOpenGitHub => 'Open GitHub';
+
+  @override
+  String get gitHubCopyCode => 'Copy code';
+
+  @override
+  String get gitHubWaiting => 'Waiting for you to finish on GitHub…';
+
+  @override
+  String get gitHubFinishing => 'Finishing sign-in…';
+
+  @override
+  String get gitHubCancel => 'Cancel';
+
+  @override
+  String get gitHubSignOutBody =>
+      'The app forgets your GitHub sign-in on this device. To remove its access completely, revoke it on GitHub too.';
+
+  @override
+  String get gitHubManageAccess => 'Manage access on GitHub';
+
+  @override
+  String get gitHubPushOverHttps =>
+      'Pushes to GitHub use this sign-in over HTTPS. Your SSH settings don’t change.';
+
+  @override
+  String get gitHubProblemExpired =>
+      'The code expired before it was entered. Sign in again to get a new one.';
+
+  @override
+  String get gitHubProblemDenied => 'Sign-in was cancelled on GitHub.';
+
+  @override
+  String get gitHubProblemDisabled =>
+      'GitHub sign-in isn’t switched on for this app yet.';
+
+  @override
+  String get gitHubProblemNetwork =>
+      'Couldn’t reach GitHub. Check the internet connection, then try again.';
+
+  @override
+  String get gitHubProblemTokenRejected =>
+      'Your GitHub sign-in ended. Sign in again.';
+
+  @override
+  String get gitHubProblemUnexpected =>
+      'GitHub sent an answer the app didn’t understand. Try again.';
 }

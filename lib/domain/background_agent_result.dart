@@ -1,4 +1,4 @@
-import '../api/models.dart';
+import '../domain/models.dart';
 
 /// Presentation of the canonical OC2 synthetic completion contract. Parsing
 /// never creates a message, changes message identity, or trusts arbitrary XML.

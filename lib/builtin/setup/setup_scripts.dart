@@ -14,7 +14,7 @@ import 'component_updates.dart';
 /// both dash and bash on the PC.
 ///
 /// - `oc_stage LABEL…` and `oc_version TEXT` print their `::oc` line.
-/// - `oc_download URL FILE SHA256`: curl into FILE, resuming a partial FILE
+/// - `oc_download URL FILE SHA256 [BYTES]`: curl into FILE, resuming a partial FILE
 ///   with `-C -`, printing `::oc bytes <done> <total>` about twice a second
 ///   from the file's size against the server's Content-Length. A finished
 ///   file is checked against SHA256 and deleted when it does not match, so a
@@ -36,11 +36,12 @@ oc_size_of() { stat -c %s "$1" 2>/dev/null || echo 0; }
 oc_sha_ok() { [ "$(sha256sum "$1" 2>/dev/null | cut -d ' ' -f 1)" = "$2" ]; }
 oc_fetch() {
   oc_rc_file="$oc_file.oc-rc"
-  rm -f "$oc_rc_file"
+  oc_http_file="$oc_file.oc-http"
+  rm -f "$oc_rc_file" "$oc_http_file"
   (
     oc_r=0
-    curl -fsSL --retry 5 --retry-delay 3 --connect-timeout 20 \
-      -C - -o "$oc_file" "$oc_url" || oc_r=$?
+    curl -fsSL --connect-timeout 20 \
+      -C - -o "$oc_file" --write-out '%{http_code}' "$oc_url" > "$oc_http_file" || oc_r=$?
     echo "$oc_r" > "$oc_rc_file"
   ) &
   while [ ! -s "$oc_rc_file" ]; do
@@ -49,20 +50,23 @@ oc_fetch() {
   done
   wait "$!" 2>/dev/null || true
   oc_rc=$(cat "$oc_rc_file")
-  rm -f "$oc_rc_file"
+  oc_http=$(cat "$oc_http_file")
+  rm -f "$oc_rc_file" "$oc_http_file"
 }
 oc_download() {
-  oc_url=$1 oc_file=$2 oc_sha=$3
+  oc_url=$1 oc_file=$2 oc_sha=$3 oc_total=${4:-0}
   mkdir -p "$(dirname "$oc_file")"
   if [ -s "$oc_file" ] && oc_sha_ok "$oc_file" "$oc_sha"; then
     oc_have=$(oc_size_of "$oc_file")
     printf '::oc bytes %s %s\n' "$oc_have" "$oc_have"
     return 0
   fi
-  oc_total=$(curl -fsSIL --retry 3 --connect-timeout 20 "$oc_url" 2>/dev/null |
-    tr -d '\r' |
-    awk 'tolower($1) == "content-length:" { n = $2 } END { print n + 0 }') ||
-    oc_total=0
+  if [ "$oc_total" = 0 ]; then
+    oc_total=$(curl -fsSIL --retry 3 --connect-timeout 20 "$oc_url" 2>/dev/null |
+      tr -d '\r' |
+      awk 'tolower($1) == "content-length:" { n = $2 } END { print n + 0 }') ||
+      oc_total=0
+  fi
   case $oc_total in ''|*[!0-9]*) oc_total=0 ;; esac
   # A partial file as long as the whole download, yet with the wrong
   # checksum, cannot be resumed into anything good.
@@ -70,26 +74,26 @@ oc_download() {
     rm -f "$oc_file"
   fi
   oc_fetch
-  # A phone's network drops for a moment (switching Wi-Fi/mobile, a VPN
-  # coming up): curl's own --retry skips "could not connect" (7), DNS (6),
-  # timeouts (28), TLS (35) and a cut connection (56). Try those again,
-  # resuming what already arrived.
+  # Each attempt starts from the CURRENT file size. curl's built-in --retry
+  # can rewind to the size at its first attempt, discarding bytes it received.
+  # Partial transfers (18), network failures and transient HTTP failures are
+  # retried here, preserving progress across attempts.
   oc_try=1
   while [ "$oc_try" -le 4 ]; do
     case $oc_rc in
-      6|7|28|35|56) ;;
+      6|7|18|28|35|52|55|56|92) ;;
+      22) case $oc_http in 408|429|500|502|503|504) ;; *) break ;; esac ;;
       *) break ;;
     esac
     echo "[oc] The connection dropped; trying again ($oc_try of 4)"
-    sleep $((oc_try * 5))
+    sleep "${OC_RETRY_SECONDS:-$((oc_try * 5))}"
     oc_fetch
     oc_try=$((oc_try + 1))
   done
-  # 33: the server cannot resume; 36: the partial file does not fit it.
+  # Never silently erase resumable progress if a server refuses Range.
   if [ "$oc_rc" = 33 ] || [ "$oc_rc" = 36 ]; then
-    echo "[oc] The download could not be resumed; starting it again"
-    rm -f "$oc_file"
-    oc_fetch
+    echo "[oc] The download server could not resume this download. Retry later." >&2
+    return "$oc_rc"
   fi
   if [ "$oc_rc" != 0 ]; then
     echo "[oc] Download failed (curl exit $oc_rc): $oc_url" >&2
@@ -206,6 +210,14 @@ oc_apt_reinstall_required() {
   if oc_apt_run 'Repairing interrupted package installation' \
     --reinstall --no-remove install -y --no-install-recommends \
     -o Acquire::Retries=5 "$@"; then
+    :
+  # An upgrade stopped mid-unpack records the old version, which the
+  # archive may no longer carry (perl-base 0.4 over 0.6 on a fresh
+  # phone): reinstall the same packages at the version apt offers.
+  elif set -- $(printf '%s\n' "$oc_reinstall_packages" | sed 's/=.*//') &&
+    oc_apt_run 'Repairing interrupted package installation' \
+      --reinstall --no-remove install -y --no-install-recommends \
+      -o Acquire::Retries=5 "$@"; then
     :
   else
     oc_apt_reinstall_rc=$?

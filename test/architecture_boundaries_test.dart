@@ -608,7 +608,7 @@ void main() {
   group('G24 scanner', () {
     test('strips comments but keeps strings', () {
       const src = '''
-// import '../api/models.dart';
+// import '../domain/models.dart';
 /* export "../api2/x.dart"; /* nested */ */
 final url = 'http://example.com'; // ServerFlavor.v2
 ''';
@@ -691,7 +691,7 @@ String label(Profile p) => switch (p.flavor) {
 
 class _EditorState extends State<Editor> {
   final _map = <String, int>{'a': 1};
-  ServerFlavor get flavor => ServerFlavor.v1;
+  ServerFlavor get flavor => ServerFlavor.v2;
 
   _EditorState(this.x) : y = x;
 

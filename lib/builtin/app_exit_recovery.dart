@@ -171,7 +171,13 @@ class AppExitRecovery extends ChangeNotifier {
         'team': teamWas,
       },
     );
-    if (exit != null && exit.kind.notable) {
+    // A stop of an app with nothing of ours running is the person (or the
+    // phone's own housekeeping, a clean reinstall, "clear data") closing an
+    // idle app: not a failure, so it must not light the problem badge on a
+    // first run. A crash, a memory kill, or any stop that took our server
+    // or team with it is still kept.
+    final idleStop = exit?.kind == AppExitKind.forceStop && !wasRunning;
+    if (exit != null && exit.kind.notable && !idleStop) {
       diagnostics?.record(
         'Android ended the app (${exit.kind.name}): reason ${exit.reason}, '
         'subreason ${exit.subReason}, importance ${exit.importance}'

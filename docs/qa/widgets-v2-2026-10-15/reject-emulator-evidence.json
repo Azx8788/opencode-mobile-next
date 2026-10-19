@@ -1,0 +1,190 @@
+{
+  "result": "FAIL: Reject passes; Allow can retain cached work and row-specific background recovery",
+  "build": {
+    "bytes": 105025594,
+    "sha256": "b63d2fa9a89373283480da28c9f723b62fa9ed04ea6ad39a6060becd1e9648ec",
+    "signerSha256": "1DE5BF08146F269BCD9EB5C2FFC94469CE4617D37806285955F978A62494D60C",
+    "package": "package: name='io.github.eslamasabry.opencode_mobile' versionCode='2328' versionName='1.4.0' platformBuildVersionName='17' platformBuildVersionCode='37' compileSdkVersion='37' compileSdkVersionCodename='17'",
+    "source_commit": "3e2a18e9c"
+  },
+  "captures": [
+    {
+      "action": "reject",
+      "before": {
+        "status": "running",
+        "pending": 1,
+        "screenshot": "reject-emulator-reject-before.png",
+        "app_process_absent": true
+      },
+      "right_after": {
+        "capture_started_seconds": 0.0,
+        "screenshot": "reject-emulator-reject-after.png",
+        "status": "idle",
+        "pending": 0
+      },
+      "six_seconds_after": {
+        "capture_started_seconds": 6.0,
+        "screenshot": "reject-emulator-reject-6s.png",
+        "status": "idle",
+        "pending": 0
+      }
+    },
+    {
+      "action": "allow",
+      "before": {
+        "status": "running",
+        "pending": 1,
+        "screenshot": "reject-emulator-allow-before.png",
+        "app_process_absent": true
+      },
+      "right_after": {
+        "capture_started_seconds": 0.0,
+        "screenshot": "reject-emulator-allow-after.png",
+        "status": "running",
+        "pending": 0
+      },
+      "six_seconds_after": {
+        "capture_started_seconds": 6.0,
+        "screenshot": "reject-emulator-allow-6s.png",
+        "status": "running",
+        "pending": 0
+      }
+    }
+  ],
+  "final_native_snapshot": {
+    "connected": false,
+    "runningCount": 1,
+    "pendingCount": 0
+  },
+  "final_rows": [
+    {
+      "title": "Widget Allow Proof",
+      "busy": true,
+      "startedAt": 1792086327637,
+      "onDemandActions": []
+    },
+    {
+      "title": "Widget Reject Proof",
+      "busy": false,
+      "startedAt": 0,
+      "onDemandActions": []
+    }
+  ],
+  "stay_connected_enabled": false,
+  "background_service_after_actions": "none",
+  "serial": "emulator-5554",
+  "transcript_results": {
+    "reject": {
+      "current_status": {
+        "type": "idle"
+      },
+      "pending_count": 0,
+      "tools": [
+        {
+          "name": "shell",
+          "status": "error",
+          "exit": null,
+          "error_type": "aborted"
+        },
+        {
+          "name": "shell",
+          "status": "error",
+          "exit": null,
+          "error_type": "aborted"
+        }
+      ],
+      "assistant_finishes": [
+        "error",
+        "error"
+      ]
+    },
+    "allow": {
+      "current_status": {
+        "type": "idle"
+      },
+      "pending_count": 0,
+      "tools": [
+        {
+          "name": "shell",
+          "status": "completed",
+          "exit": 0,
+          "error_type": null
+        },
+        {
+          "name": "shell",
+          "status": "completed",
+          "exit": 0,
+          "error_type": null
+        },
+        {
+          "name": "shell",
+          "status": "completed",
+          "exit": 0,
+          "error_type": null
+        }
+      ],
+      "assistant_finishes": [
+        "stop",
+        "tool-calls",
+        "stop",
+        "tool-calls",
+        "stop",
+        "tool-calls"
+      ]
+    }
+  },
+  "cleanup": {
+    "emulator_pid": 960677,
+    "emulator_stopped": true,
+    "server_pid": 959867,
+    "server_stopped": true,
+    "server_port_4097_free": true,
+    "gradle_pids": [
+      961064,
+      962731
+    ],
+    "gradle_stopped": true
+  },
+  "earlier_allow_attempts": [
+    {
+      "action": "allow",
+      "before": {
+        "status": "running",
+        "pending": 1,
+        "app_process_absent": true
+      },
+      "right_after": {
+        "capture_started_seconds": 0.0,
+        "status": "running",
+        "pending": 0
+      },
+      "six_seconds_after": {
+        "capture_started_seconds": 6.0,
+        "status": "running",
+        "pending": 0
+      },
+      "six_second_widget": "1 running; Connects when you tap; Stop",
+      "note": "Earlier attempt; screenshot names were overwritten by final attempt."
+    },
+    {
+      "action": "allow",
+      "before": {
+        "status": "running",
+        "pending": 1,
+        "app_process_absent": true
+      },
+      "right_after": {
+        "capture_started_seconds": 0.0,
+        "status": "running",
+        "pending": 0
+      },
+      "six_seconds_after": {
+        "capture_started_seconds": 6.0,
+        "status": "idle",
+        "pending": 0
+      },
+      "six_second_widget": "1 running; Connects when you tap; Stop despite server idle",
+      "note": "Earlier attempt; screenshot names were overwritten by final attempt."
+    }
+  ]
+}

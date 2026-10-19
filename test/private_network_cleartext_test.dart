@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/server_probe.dart';
+import 'package:opencode_mobile/domain/server_probe.dart';
 import 'package:opencode_mobile/codex/transport.dart';
+import 'package:opencode_mobile/domain/server_trust.dart';
 import 'package:opencode_mobile/platform/connection_advice.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/pairing.dart';
@@ -31,7 +32,10 @@ void main() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(_channel, (_) async => null);
   });
-  tearDown(() => serverProbe = probeServerConnection);
+  tearDown(() {
+    serverProbe = probeServerConnection;
+    serverCertificateInspector = inspectServerCertificate;
+  });
 
   group('isPrivateNetworkHost', () {
     test('private IPv4 ranges are in, their neighbours are out', () {
@@ -133,7 +137,7 @@ void main() {
       }
     });
 
-    test('public addresses and other names stay refused over http', () {
+    test('public addresses and other names need explicit HTTP consent', () {
       for (final url in [
         'http://192.0.2.4:4096',
         'http://8.8.8.8:4096',
@@ -144,21 +148,15 @@ void main() {
         'http://router:4096',
         'http://100.64.0.1:4096',
       ]) {
-        expect(
-          validateServerProfileUrl(url),
-          contains('HTTP is allowed only'),
-          reason: url,
-        );
+        expect(validateServerProfileUrl(url), isNull, reason: url);
         expect(
           validateServerProfileUrl(url, username: 'u', password: 'p'),
-          contains('Basic credentials'),
+          isNull,
           reason: url,
         );
+        expect(serverUrlNeedsCleartextConfirmation(url), isTrue, reason: url);
       }
-      expect(
-        validateServerProfileUrl('http://192.0.2.4'),
-        contains('Use HTTPS'),
-      );
+      expect(validateServerProfileUrl('http://192.0.2.4'), isNull);
     });
 
     test('loopback and https never need the confirmation', () {
@@ -193,20 +191,29 @@ void main() {
       expect(cleartextOriginOf('http://[fd00::5]:1'), 'http://[fd00::5]:1');
     });
 
-    test('connection advice tells a private http address apart', () {
-      expect(
-        explainConnectionAddress('http://192.168.1.20:4096'),
-        ConnectionAdvice.privateHttp,
-      );
-      expect(
-        explainConnectionAddress('http://192.0.2.4:4096'),
-        ConnectionAdvice.remoteHttp,
-      );
-      expect(
-        explainConnectionAddress('http://127.0.0.1:4096'),
-        ConnectionAdvice.loopback,
-      );
-    });
+    test(
+      'connection advice distinguishes private, Tailscale and public HTTP',
+      () {
+        expect(
+          explainConnectionAddress('http://192.168.1.20:4096'),
+          ConnectionAdvice.privateHttp,
+        );
+        expect(
+          explainConnectionAddress('http://192.0.2.4:4096'),
+          ConnectionAdvice.remoteHttp,
+        );
+        for (final host in ['100.64.0.8', 'computer.example.ts.net']) {
+          expect(
+            explainConnectionAddress('http://$host:4096'),
+            ConnectionAdvice.privateHttp,
+          );
+        }
+        expect(
+          explainConnectionAddress('http://127.0.0.1:4096'),
+          ConnectionAdvice.loopback,
+        );
+      },
+    );
   });
 
   group('Codex and Paseo stay HTTPS-only off this device', () {
@@ -275,17 +282,16 @@ void main() {
       },
     );
 
-    test('public http addresses are still refused outright', () async {
+    test('public HTTP pairing waits for explicit origin consent', () async {
       final selection = await selectPairingUrl(
         payload(['http://192.0.2.20:4097']),
         probe: ({required baseUrl, username, password}) async =>
             fail('must not be dialed: $baseUrl'),
-        confirmedCleartextOrigins: {'http://192.0.2.20:4097'},
       );
       final outcome = selection.outcomes.single;
-      expect(outcome.needsCleartextConfirm, isFalse);
+      expect(outcome.needsCleartextConfirm, isTrue);
       expect(outcome.probed, isFalse);
-      expect(outcome.reason, contains('HTTPS is required'));
+      expect(outcome.reason, cleartextConfirmReason);
     });
   });
 
@@ -424,6 +430,9 @@ void main() {
 
       await tester.tap(find.byKey(const ValueKey('server-cleartext-confirm')));
       await tester.pumpAndSettle();
+      expect(probed, isEmpty);
+      await tester.tap(find.byKey(const ValueKey('server-trust-accept')));
+      await tester.pumpAndSettle();
       expect(find.text('Use it anyway'), findsNothing);
       expect(
         find.byKey(const ValueKey('server-cleartext-warning')),
@@ -435,14 +444,11 @@ void main() {
       expect(probed, ['http://192.168.1.20:4096']);
     });
 
-    testWidgets('https, loopback and public http show no warning', (
-      tester,
-    ) async {
+    testWidgets('https and loopback show no warning', (tester) async {
       await pumpEditor(tester);
       for (final url in [
         'https://192.168.1.20:4096',
         'http://127.0.0.1:4096',
-        'http://192.0.2.4:4096',
       ]) {
         await tester.enterText(
           find.byKey(const ValueKey('server-url-field')),
@@ -456,6 +462,141 @@ void main() {
         );
       }
     });
+
+    testWidgets(
+      'certificate inspection never trusts until confirmed and replacement asks again',
+      (tester) async {
+        const firstPin =
+            '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
+        const secondPin =
+            'abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789';
+        var probes = 0;
+        var inspections = 0;
+        var changed = false;
+        serverProbe = ({required baseUrl, username, password}) async {
+          probes++;
+          if (changed) {
+            return const ServerProbeResult.failure(
+              'The server certificate changed.',
+            );
+          }
+          if (probes == 1) {
+            return const ServerProbeResult.failure(
+              'The server certificate is not trusted. Review its fingerprint.',
+            );
+          }
+          return const ServerProbeResult.success(
+            '2.0.0',
+            flavor: ServerFlavor.v2,
+          );
+        };
+        serverCertificateInspector = (url) async {
+          inspections++;
+          expect(url, 'https://private.example:4099');
+          return ServerCertificateInfo(
+            fingerprintSha256: changed ? secondPin : firstPin,
+            subject: 'test',
+            issuer: 'test',
+            startValidity: DateTime(2026),
+            endValidity: DateTime(2027),
+          );
+        };
+        await pumpEditor(tester);
+        await tester.enterText(
+          find.byKey(const ValueKey('server-url-field')),
+          'https://private.example:4099',
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const ValueKey('test-server-connection')));
+        await tester.pumpAndSettle();
+        expect(inspections, 0);
+        // The certificate notice says it once; the verdict does not repeat it.
+        expect(
+          find.textContaining('The certificate is not trusted'),
+          findsOneWidget,
+        );
+        await tester.tap(
+          find.byKey(const ValueKey('server-certificate-inspect')),
+        );
+        await tester.pumpAndSettle();
+        expect(inspections, 1);
+        expect(probes, 1);
+        expect(
+          find.byKey(const ValueKey('server-trust-fingerprint')),
+          findsOneWidget,
+        );
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(probes, 1);
+        expect(find.text('Check certificate'), findsOneWidget);
+        await tester.tap(
+          find.byKey(const ValueKey('server-certificate-inspect')),
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const ValueKey('server-trust-accept')));
+        await tester.pumpAndSettle();
+        expect(probes, 2);
+        expect(find.textContaining('fingerprint you trusted'), findsOneWidget);
+        changed = true;
+        await tester.tap(find.byKey(const ValueKey('test-server-connection')));
+        await tester.pumpAndSettle();
+        expect(probes, 3);
+        expect(
+          find.textContaining("The server's certificate changed"),
+          findsOneWidget,
+        );
+        await tester.tap(
+          find.byKey(const ValueKey('server-certificate-inspect')),
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('Trust replacement certificate'), findsOneWidget);
+        expect(probes, 3);
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(probes, 3);
+        expect(
+          find.textContaining("The server's certificate changed"),
+          findsWidgets,
+        );
+      },
+    );
+
+    testWidgets(
+      'public HTTP warns about public Wi-Fi and still needs consent',
+      (tester) async {
+        final probed = <String>[];
+        serverProbe = ({required baseUrl, username, password}) async {
+          probed.add(baseUrl);
+          return const ServerProbeResult.success(
+            '2.0.0',
+            flavor: ServerFlavor.v2,
+          );
+        };
+        await pumpEditor(tester);
+        await tester.enterText(
+          find.byKey(const ValueKey('server-url-field')),
+          'http://public.example:4098',
+        );
+        await tester.pumpAndSettle();
+        expect(find.textContaining('public Wi-Fi'), findsOneWidget);
+        await tester.tap(find.byKey(const ValueKey('test-server-connection')));
+        await tester.pumpAndSettle();
+        expect(probed, isEmpty);
+        await tester.tap(
+          find.byKey(const ValueKey('server-cleartext-confirm')),
+        );
+        await tester.pumpAndSettle();
+        expect(
+          find.byKey(const ValueKey('server-trust-sheet')),
+          findsOneWidget,
+        );
+        await tester.tap(find.byKey(const ValueKey('server-trust-accept')));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const ValueKey('test-server-connection')));
+        await tester.pumpAndSettle();
+        expect(probed, ['http://public.example:4098']);
+      },
+    );
 
     testWidgets('a pairing code with a private http address asks first', (
       tester,
@@ -501,6 +642,9 @@ void main() {
       );
 
       await tester.tap(find.byKey(const ValueKey('server-cleartext-confirm')));
+      await tester.pumpAndSettle();
+      expect(probed, isEmpty);
+      await tester.tap(find.byKey(const ValueKey('server-trust-accept')));
       await tester.pumpAndSettle();
       expect(probed, ['http://192.168.1.20:4097|$_password']);
     });

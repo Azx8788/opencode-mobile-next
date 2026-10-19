@@ -4,9 +4,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:opencode_mobile/ui/kit/kit_row.dart';
@@ -83,7 +83,12 @@ class _RelationsController extends ConnectionController {
 Future<_RelationsController> _controller() async {
   SharedPreferences.setMockInitialValues({
     'oc.profiles': jsonEncode([
-      {'id': 'profile', 'name': 'Synthetic', 'baseUrl': 'http://localhost'},
+      {
+        'id': 'profile',
+        'name': 'Synthetic',
+        'flavor': 'v2',
+        'baseUrl': 'http://localhost',
+      },
     ]),
     'oc.activeProfile': 'profile',
   });

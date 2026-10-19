@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/server_probe.dart';
+import 'package:opencode_mobile/domain/server_probe.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
 import 'package:opencode_mobile/state/pairing.dart';
 
@@ -468,7 +468,8 @@ void main() {
           (o) => o.url == 'http://192.0.2.20:4097',
         );
         expect(lan.probed, isFalse);
-        expect(lan.reason, contains('HTTPS is required'));
+        expect(lan.reason, cleartextConfirmReason);
+        expect(lan.needsCleartextConfirm, isTrue);
         expect(lan.result, isNull);
       },
     );

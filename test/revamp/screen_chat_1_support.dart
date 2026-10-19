@@ -7,7 +7,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart' show StreamStatus;
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -179,6 +179,7 @@ Future<ChatOneConnection> chatOneConnection([ChatOneRepository? repo]) async {
       {
         'id': 'p1',
         'name': 'Laptop',
+        'flavor': 'v2',
         'baseUrl': 'http://localhost',
         'username': '',
       },

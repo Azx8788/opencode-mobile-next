@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/server_probe.dart';
+import 'package:opencode_mobile/domain/server_probe.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -236,11 +236,11 @@ void main() {
     expect(find.textContaining('adb reverse'), findsWidgets);
   });
 
-  testWidgets('a cleartext LAN address is explained, not silently dropped', (
+  testWidgets('remote HTTP pairing waits for its explicit warning choice', (
     tester,
   ) async {
     serverProbe = ({required baseUrl, username, password}) async {
-      fail('A cleartext LAN address must never be dialed: $baseUrl');
+      fail('An unconfirmed remote HTTP address must never be dialed: $baseUrl');
     };
     await pumpEditor(tester);
     setClipboard(tester, pairJson(urls: ['http://192.0.2.20:4097']));
@@ -249,11 +249,15 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(
-      find.byKey(const ValueKey('server-pairing-failure')),
+      find.byKey(const ValueKey('server-cleartext-warning')),
       findsOneWidget,
     );
-    // Plain words since slice-qa-ui (637b1827, B9).
-    expect(find.textContaining('https://'), findsWidgets);
+    expect(
+      find.textContaining('password and code travel unencrypted'),
+      findsWidgets,
+    );
+    expect(find.textContaining('public Wi-Fi'), findsWidgets);
+    expect(find.textContaining(_password), findsNothing);
   });
 
   testWidgets('a malformed pairing code fails honestly without a crash', (

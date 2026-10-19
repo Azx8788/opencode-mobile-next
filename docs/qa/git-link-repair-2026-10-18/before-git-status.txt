@@ -1,0 +1,8 @@
+== ledger
+fatal: bad object HEAD
+== notes
+fatal: bad object HEAD
+== ledger: 9 object links
+ledger/.git/objects/75/6ddbf03d93d8bcfa28ab051f762fab89261e8e -> /data/data/com.termux/files/usr/var/lib/proot-distro/containers/opencode-ubuntu/rootfs/.l2s/.l2s.tmp_obj_ILx8WZ0001
+== notes: 3 object links
+notes/.git/objects/58/7be6b4c3f93f93c489c0111bba5596147a26cb -> /data/data/io.github.eslamasabry.opencode_mobile/files/projects/exp-rename/.git/objects/58/.l2s.tmp_obj_J3K4hz0001

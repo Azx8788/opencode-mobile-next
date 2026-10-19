@@ -1,5 +1,5 @@
 {
-  "source": "contracts/opencode-openapi-f12e14cf.json",
+  "source": "contracts/opencode2-openapi-beta-18600.json",
   "schema": {
     "location": [
       {
@@ -17,6 +17,10 @@
       {
         "path": "project.directory",
         "kind": "string"
+      },
+      {
+        "path": "project.canonical",
+        "kind": "string"
       }
     ],
     "command": [
@@ -25,35 +29,15 @@
         "kind": "string"
       },
       {
-        "path": "template",
-        "kind": "string"
-      },
-      {
         "path": "description",
         "kind": "string"
-      },
-      {
-        "path": "agent",
-        "kind": "string"
-      },
-      {
-        "path": "model.id",
-        "kind": "string"
-      },
-      {
-        "path": "model.providerID",
-        "kind": "string"
-      },
-      {
-        "path": "model.variant",
-        "kind": "string"
-      },
-      {
-        "path": "subtask",
-        "kind": "boolean"
       }
     ],
     "skill": [
+      {
+        "path": "id",
+        "kind": "string"
+      },
       {
         "path": "name",
         "kind": "string"
@@ -64,6 +48,10 @@
       },
       {
         "path": "slash",
+        "kind": "boolean"
+      },
+      {
+        "path": "autoinvoke",
         "kind": "boolean"
       },
       {
@@ -116,64 +104,6 @@
         "path": "source.type",
         "kind": "enum"
       }
-    ],
-    "tool": [
-      {
-        "path": "id",
-        "kind": "string"
-      },
-      {
-        "path": "description",
-        "kind": "string"
-      },
-      {
-        "path": "parameters",
-        "kind": "any"
-      }
-    ],
-    "tool_id": [
-      {
-        "path": "[]",
-        "kind": "string"
-      }
-    ],
-    "experimental": [
-      {
-        "path": "backgroundSubagents",
-        "kind": "boolean"
-      }
-    ],
-    "mcp_status": [
-      {
-        "path": "error",
-        "kind": "string"
-      },
-      {
-        "path": "status",
-        "kind": "enum"
-      }
-    ],
-    "mcp_resource": [
-      {
-        "path": "name",
-        "kind": "string"
-      },
-      {
-        "path": "uri",
-        "kind": "string"
-      },
-      {
-        "path": "description",
-        "kind": "string"
-      },
-      {
-        "path": "mimeType",
-        "kind": "string"
-      },
-      {
-        "path": "client",
-        "kind": "string"
-      }
     ]
   },
   "excluded": {},
@@ -186,19 +116,10 @@
         "data": [
           {
             "name": "review-pr",
-            "template": "Review $ARGUMENTS carefully",
-            "description": "Review a pull request",
-            "agent": "plan",
-            "model": {
-              "id": "opus",
-              "providerID": "anthropic",
-              "variant": "high"
-            },
-            "subtask": true
+            "description": "Review a pull request"
           },
           {
-            "name": "ship-it",
-            "template": "Run the release checklist"
+            "name": "ship-it"
           }
         ],
         "location": {
@@ -206,7 +127,8 @@
           "workspaceID": "wrk_main",
           "project": {
             "id": "prj_shop",
-            "directory": "/work/shop"
+            "directory": "/work/shop",
+            "canonical": "/work/shop"
           }
         }
       },
@@ -240,19 +162,19 @@
           "primary": false
         },
         {
+          "key": "location.project.canonical",
+          "path": "project.canonical",
+          "kind": "string",
+          "probes": [],
+          "primary": false
+        },
+        {
           "key": "command.name",
           "path": "name",
           "kind": "string",
           "probes": [
             "review-pr"
           ],
-          "primary": false
-        },
-        {
-          "key": "command.template",
-          "path": "template",
-          "kind": "string",
-          "probes": [],
           "primary": false
         },
         {
@@ -265,58 +187,12 @@
           "primary": false
         },
         {
-          "key": "command.agent",
-          "path": "agent",
-          "kind": "string",
-          "probes": [
-            "plan"
-          ],
-          "primary": false
-        },
-        {
-          "key": "command.model.id",
-          "path": "model.id",
-          "kind": "string",
-          "probes": [],
-          "primary": false
-        },
-        {
-          "key": "command.model.providerID",
-          "path": "model.providerID",
-          "kind": "string",
-          "probes": [],
-          "primary": false
-        },
-        {
-          "key": "command.model.variant",
-          "path": "model.variant",
-          "kind": "string",
-          "probes": [],
-          "primary": false
-        },
-        {
-          "key": "command.subtask",
-          "path": "subtask",
-          "kind": "boolean",
-          "probes": [
-            "Runs as a helper"
-          ],
-          "primary": false
-        },
-        {
           "key": "command.name",
           "path": "name",
           "kind": "string",
           "probes": [
             "ship-it"
           ],
-          "primary": false
-        },
-        {
-          "key": "command.template",
-          "path": "template",
-          "kind": "string",
-          "probes": [],
           "primary": false
         }
       ]
@@ -328,6 +204,8 @@
       "payload": {
         "data": [
           {
+            "id": "skill_frontend",
+            "autoinvoke": true,
             "name": "frontend-design",
             "description": "Make a clear visual hierarchy",
             "slash": true,
@@ -347,7 +225,8 @@
           "workspaceID": "wrk_main",
           "project": {
             "id": "prj_shop",
-            "directory": "/work/shop"
+            "directory": "/work/shop",
+            "canonical": "/work/shop"
           }
         }
       },
@@ -377,6 +256,27 @@
           "key": "location.project.directory",
           "path": "project.directory",
           "kind": "string",
+          "probes": [],
+          "primary": false
+        },
+        {
+          "key": "location.project.canonical",
+          "path": "project.canonical",
+          "kind": "string",
+          "probes": [],
+          "primary": false
+        },
+        {
+          "key": "skill.id",
+          "path": "id",
+          "kind": "string",
+          "probes": [],
+          "primary": false
+        },
+        {
+          "key": "skill.autoinvoke",
+          "path": "autoinvoke",
+          "kind": "boolean",
           "probes": [],
           "primary": false
         },
@@ -509,7 +409,8 @@
           "workspaceID": "wrk_main",
           "project": {
             "id": "prj_shop",
-            "directory": "/work/shop"
+            "directory": "/work/shop",
+            "canonical": "/work/shop"
           }
         }
       },
@@ -538,6 +439,13 @@
         {
           "key": "location.project.directory",
           "path": "project.directory",
+          "kind": "string",
+          "probes": [],
+          "primary": false
+        },
+        {
+          "key": "location.project.canonical",
+          "path": "project.canonical",
           "kind": "string",
           "probes": [],
           "primary": false
@@ -699,227 +607,6 @@
           "path": "source.path",
           "kind": "string",
           "probes": [],
-          "primary": false
-        }
-      ]
-    },
-    {
-      "id": "tool_inventory",
-      "kind": "/experimental/tool",
-      "endpoint": "/experimental/tool",
-      "payload": {
-        "tools": [
-          {
-            "id": "bash_run",
-            "description": "Run a shell command in the project",
-            "parameters": {
-              "type": "object",
-              "properties": {
-                "command": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "ids": [
-          "bash_run",
-          "read_file"
-        ],
-        "capabilities": {
-          "backgroundSubagents": true
-        }
-      },
-      "fields": [
-        {
-          "key": "tool.id",
-          "path": "id",
-          "kind": "string",
-          "probes": [
-            "bash_run"
-          ],
-          "primary": false
-        },
-        {
-          "key": "tool.description",
-          "path": "description",
-          "kind": "string",
-          "probes": [
-            "Run a shell command in the project"
-          ],
-          "primary": false
-        },
-        {
-          "key": "tool.parameters",
-          "path": "parameters",
-          "kind": "any",
-          "probes": [],
-          "primary": false
-        },
-        {
-          "key": "tool_id.[]",
-          "path": "[]",
-          "kind": "string",
-          "probes": [
-            "read_file"
-          ],
-          "primary": false
-        },
-        {
-          "key": "experimental.backgroundSubagents",
-          "path": "backgroundSubagents",
-          "kind": "boolean",
-          "probes": [],
-          "primary": false
-        }
-      ]
-    },
-    {
-      "id": "mcp_every_status",
-      "kind": "/mcp",
-      "endpoint": "/mcp",
-      "payload": {
-        "github": {
-          "status": "connected"
-        },
-        "sentry": {
-          "status": "needs_auth"
-        },
-        "linear": {
-          "status": "failed",
-          "error": "connection refused by linear.example"
-        },
-        "notion": {
-          "status": "disabled"
-        },
-        "figma": {
-          "status": "needs_client_registration",
-          "error": "client registration is required"
-        }
-      },
-      "fields": [
-        {
-          "key": "mcp_status.status",
-          "path": "status",
-          "kind": "enum",
-          "probes": [
-            "github"
-          ],
-          "primary": false
-        },
-        {
-          "key": "mcp_status.status",
-          "path": "status",
-          "kind": "enum",
-          "probes": [
-            "sentry"
-          ],
-          "primary": false
-        },
-        {
-          "key": "mcp_status.status",
-          "path": "status",
-          "kind": "enum",
-          "probes": [
-            "linear"
-          ],
-          "primary": false
-        },
-        {
-          "key": "mcp_status.error",
-          "path": "error",
-          "kind": "string",
-          "probes": [
-            "connection refused by linear.example"
-          ],
-          "primary": false
-        },
-        {
-          "key": "mcp_status.status",
-          "path": "status",
-          "kind": "enum",
-          "probes": [
-            "notion"
-          ],
-          "primary": false
-        },
-        {
-          "key": "mcp_status.status",
-          "path": "status",
-          "kind": "enum",
-          "probes": [
-            "figma"
-          ],
-          "primary": false
-        },
-        {
-          "key": "mcp_status.error",
-          "path": "error",
-          "kind": "string",
-          "probes": [
-            "client registration is required"
-          ],
-          "primary": false
-        }
-      ]
-    },
-    {
-      "id": "mcp_resource_one",
-      "kind": "/experimental/resource",
-      "endpoint": "/experimental/resource",
-      "payload": {
-        "github:readme": {
-          "name": "readme",
-          "uri": "file:///work/shop/README.md",
-          "description": "The project readme",
-          "mimeType": "text/markdown",
-          "client": "github"
-        }
-      },
-      "fields": [
-        {
-          "key": "mcp_resource.name",
-          "path": "name",
-          "kind": "string",
-          "probes": [
-            "readme"
-          ],
-          "primary": false
-        },
-        {
-          "key": "mcp_resource.uri",
-          "path": "uri",
-          "kind": "string",
-          "probes": [
-            "README.md"
-          ],
-          "primary": false
-        },
-        {
-          "key": "mcp_resource.description",
-          "path": "description",
-          "kind": "string",
-          "probes": [
-            "The project readme"
-          ],
-          "primary": false
-        },
-        {
-          "key": "mcp_resource.mimeType",
-          "path": "mimeType",
-          "kind": "string",
-          "probes": [
-            "text/markdown"
-          ],
-          "primary": false
-        },
-        {
-          "key": "mcp_resource.client",
-          "path": "client",
-          "kind": "string",
-          "probes": [
-            "github"
-          ],
           "primary": false
         }
       ]

@@ -1,3 +1,5 @@
+# Paseo-only replay of historical release screenshots. OC1 setup and captures
+# were retired on 2026-10-15; this is not a complete current release checklist.
 env_file = "private.env"  # git-ignored; copy private.env.example
 # Before/after shots for the OpenCode Mobile release notes.
 #   export SHOTS_SCRATCH=<work dir>  SHOTS_CACHE=<apk cache>  SHOTS_AFTER_APK=<apk>
@@ -128,81 +130,9 @@ steps = [
   { kind = "capture", name = "07-claude-server", builds = ["after"], caption = "After: the page can edit or remove the computer, check for agents again and update them." },
   { kind = "tap", text = "Back", until = { text = "Conversations", contains = true } },
 
-  # --- the OpenCode server and its "Shop notes" conversation
-  { kind = "tap", text = "Switch server", contains = true },
-  { kind = "wait_for", text = "Add server", timeout = 10 },
-  { kind = "tap", text = "Add server" },
-  # older builds ask what runs there first; newer ones remember and go straight to pairing
-  { kind = "tap", text = "OpenCode on a computer", contains = true, timeout = 4, optional = true },
-  { kind = "wait_for", text = "Enter the address instead", timeout = 20 },
-  { kind = "tap", text = "Enter the address instead" },
-  { kind = "type", into = { class = "EditText", index = 0 }, text = "http://10.0.2.2:4123" },
-  { kind = "tap", text = "Save & connect" },
-  # plain HTTP asks once; the emulator reaches the host over 10.0.2.2
-  { kind = "tap", text = "Use it anyway", contains = true, timeout = 6, optional = true },
-  { kind = "tap", text = "Save & connect", timeout = 4, optional = true },
-  { kind = "wait_for", text = "Connection verified", contains = true, timeout = 15, optional = true },
-  { kind = "tap", text = "Save & connect", timeout = 3, optional = true },
-  { kind = "wait_for", text = "is connected", contains = true, timeout = 60 },
-  { kind = "tap", text = "Open Computer", contains = true },
-  { kind = "wait_for", text = "Shop notes", contains = true, timeout = 30 },
-  { kind = "tap", text = "Settings" },
-  { kind = "tap", text = "This server", contains = true },
-  { kind = "tap", text = "Edit ", contains = true, builds = ["after"] },
-  { kind = "tap", at = [0.3, 0.23], builds = ["before"] },
-  { kind = "wait_for", text = "Edit server", timeout = 15 },
-  { kind = "tap", text = "More options", timeout = 5, optional = true },
-  { kind = "type", into = { class = "EditText", index = 2 }, clear = true, text = "Work server" },
-  { kind = "tap", text = "Save & connect" },
-  { kind = "wait_for", text = "Work server", contains = true, timeout = 30 },
-  { kind = "tap", text = "Back", until = { text = "Settings" } },
-  { kind = "tap", at = [0.19, 0.955] },
-  { kind = "wait_for", text = "Shop notes", contains = true, timeout = 30 },
-  { kind = "tap", text = "Shop notes", contains = true },
-  { kind = "wait_for", text = "Conversation menu", timeout = 20 },
-  { kind = "tap", text = "Conversation menu" },
-  { kind = "wait_for", text = "Rename conversation", timeout = 10 },
-  { kind = "capture", name = "06b-opencode-conversation-menu", builds = ["before"], caption = "Before: an OpenCode conversation's menu had no Archive or Delete." },
-  { kind = "capture", name = "06b-opencode-conversation-menu", builds = ["after"], caption = "After: the menu adds Archive conversation and Delete conversation." },
-  { kind = "key", key = "back" },
+  # Historical OpenCode 1 screenshots have been retired. Existing release
+  # evidence remains in docs; this runnable manifest covers Paseo only.
 
-  # --- 12: delete asks first and names the conversation (never confirmed)
-  { kind = "tap", text = "Conversation menu", builds = ["after"] },
-  { kind = "tap", text = "Delete conversation", builds = ["after"] },
-  { kind = "wait_for", text = "removed for good", contains = true, timeout = 10, builds = ["after"] },
-  { kind = "capture", name = "12-delete-conversation", builds = ["after"], caption = "New: deleting a conversation asks first and names it." },
-  { kind = "tap", text = "Cancel", builds = ["after"] },
-
-  # --- 13 / 15: Tools and Usage under Settings
-  { kind = "tap", text = "Back", until = { text = "Settings" } },
-  { kind = "tap", text = "Settings" },
-  { kind = "tap", text = "Tools" },
-  { kind = "wait_for", text = "Tools, Work server", timeout = 15 },
-  { kind = "sleep", seconds = 1.5 },
-  { kind = "capture", name = "13-tools-tabs", builds = ["before"], caption = "Before: Tools showed two sections, MCP and External agents." },
-  { kind = "capture", name = "13-tools-tabs", builds = ["after"], caption = "After: Tools is one page with tabs for MCP, Commands, Tools, Skills and References." },
-  { kind = "key", key = "back" },
-  { kind = "scroll_to", text = "Remaining", direction = "down", max_swipes = 6 },
-  { kind = "tap", text = "Remaining" },
-  { kind = "wait_for", text = "Provider", timeout = 15 },
-  { kind = "sleep", seconds = 1.5 },
-  { kind = "capture", name = "15-usage", builds = ["before"], caption = "Before: the Usage screen, with a tab for each provider." },
-  { kind = "capture", name = "15-usage", builds = ["after"], caption = "After: the Usage screen is unchanged." },
-  { kind = "key", key = "back" },
-  { kind = "tap", at = [0.19, 0.955] },
-
-  # --- 09 / 09b: search in Files, on the OpenCode server (its Files tab exists in both builds)
-  { kind = "tap", text = "Back", until = { text = "Settings" }, timeout = 3, optional = true },
-  { kind = "tap", text = "Files", index = 0 },
-  { kind = "tap", text = "Files", index = 2 },
-  { kind = "wait_for", text = "README.md", timeout = 20 },
-  { kind = "type", into = { class = "EditText", index = 0 }, text = "discount" },
-  { kind = "sleep", seconds = 1.5 },
-  { kind = "capture", name = "09-files-search", builds = ["before"], caption = "Before: searching Files for a word finds only file names, so nothing comes up." },
-  { kind = "capture", name = "09-files-search", builds = ["after"], caption = "After: searching Files for a word offers to search inside the files." },
-  { kind = "tap", text = "Search inside files", contains = true, builds = ["after"], skip_env = "SHOTS_SKIP_SEARCH_INSIDE" },
-  { kind = "wait_for", text = "notes.txt", contains = true, timeout = 20, builds = ["after"], skip_env = "SHOTS_SKIP_SEARCH_INSIDE" },
-  { kind = "capture", name = "09b-files-search-inside", builds = ["after"], caption = "New: the lines that contain the word, in each file.", skip_env = "SHOTS_SKIP_SEARCH_INSIDE" },
 ]
 
 [app]
@@ -229,8 +159,6 @@ avd = "shots_after"
 setup = [
   { name = "demo repo", run = "${CONFIG_DIR}/env.sh repo", wait = true },
   { name = "forwarder", run = "${CONFIG_DIR}/env.sh forward", ready = "127.0.0.1:16767", timeout = 15 },
-  { name = "opencode 1.18.23", run = "${CONFIG_DIR}/env.sh opencode", ready = "127.0.0.1:4123", timeout = 90 },
-  { name = "seed Shop notes", run = "${CONFIG_DIR}/env.sh seed", wait = true },
 ]
 # the Paseo daemon is restarted per build, so each build sees an empty Claude Code history
 build_setup = [

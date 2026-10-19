@@ -2,7 +2,7 @@
 
 The README is written for people who want to use the app. This page keeps
 the detail that used to live there: platform state, how connections work,
-the two server protocols, building, releasing, and the code layout.
+the supported server backends, building, releasing, and the code layout.
 
 ## Platform state
 
@@ -41,8 +41,7 @@ like SSH access, and do not put one on a network you do not control.
 Start OpenCode on the machine with your code, bound to loopback:
 
 ```bash
-OPENCODE_SERVER_PASSWORD=<your password> \
-  opencode serve --hostname 127.0.0.1 --port 4096
+opencode2 serve --hostname 127.0.0.1 --port 4096
 ```
 
 **Pair, don't type.** On an OpenCode 2 server, `opencode2 pair` prints the
@@ -62,24 +61,34 @@ and there is nothing to mistype.
 
 The pairing code carries the serve password, so it is as good as shell
 access to that machine — treat it accordingly, and note that it goes stale
-whenever the server restarts without `OPENCODE_SERVER_PASSWORD` set.
-OpenCode 1 servers have no `pair` command, so the manual path below remains
-for them, and for anyone who prefers it.
+whenever the server restarts without `OPENCODE_PASSWORD` set. Manual address
+and password entry remains available for OpenCode 2. OpenCode 1 servers are
+recognized only to show an upgrade instruction; the app cannot connect to them.
 
-Pairing supplies credentials, not a route. The app refuses plain HTTP to
-public addresses and ordinary host names. Plain HTTP is accepted to the
-phone's own loopback, and to a private network address (10/8, 172.16/12,
-192.168/16, 169.254/16, IPv6 `fc00::/7` and `fe80::/10`, `*.local`) only after
-an inline warning that the password and conversation travel unencrypted on
-that network and an explicit "Use it anyway", recorded per server as
-`oc.cleartextOk.<profileId>` (the confirmed origin; a changed address asks
-again, and profile deletion removes it). A pairing code or QR carrying such an
-address goes through the same confirm before anything is sent. Codex and
-Paseo stay `wss://`-only off this device (Paseo also allows Tailscale), and
-quota reads are off for a plain-HTTP server. A client for plain HTTP never
-follows redirects. The safest layout still keeps the server on `127.0.0.1`
-and brings the connection to the phone through a tunnel that ends at
-`127.0.0.1` there too:
+Pairing supplies credentials, not a route or transport consent. OpenCode 2
+accepts an explicitly entered HTTP origin on a LAN, tailnet or public host,
+but every non-loopback origin needs a warning and an explicit per-server
+choice before any probe or Basic credentials are sent. The warning says the
+password and code travel unencrypted; private ranges and Tailscale get softer
+wording, while public hosts get the public-network warning. Consent is stored
+as the exact origin in `oc.cleartextOk.<profileId>`; changing the address asks
+again, and profile deletion removes it. Pairing and QR addresses follow the
+same gate. Bare remote addresses still default to HTTPS; no failure silently
+downgrades a connection. Codex, Paseo and AI Team orchestration keep their
+existing transport policies, and quota reads remain off for plain HTTP.
+
+For self-signed HTTPS, the person inspects the SHA-256 certificate fingerprint
+and explicitly pins it for that profile. Inspection performs a TLS handshake
+without sending HTTP or credentials. `oc.certificatePin.<profileId>` stores the
+fingerprint and exact HTTPS origin separately from profile metadata, survives
+restart and is removed on profile deletion or an origin change. The transport
+checks the pinned leaf certificate and its validity dates during TLS, before
+HTTP/authentication; a changed certificate blocks connection and offers a
+re-check, never automatic acceptance. Unpinned HTTPS retains normal PKI
+validation. OpenCode 2 requests never follow redirects, so neither credentials
+nor trust cross origins through a redirect. A tunnel can also keep both ends
+on loopback: bind the server to `127.0.0.1` and bring the connection to
+`127.0.0.1` on the phone:
 
 - **USB / adb (simplest)** — with the phone plugged in and USB debugging on,
   `adb reverse tcp:4096 tcp:4096`, then connect the app to
@@ -98,15 +107,14 @@ and brings the connection to the phone through a tunnel that ends at
 - **On-device (Termux)** — tap **On-device (Termux)** on the Servers
   screen. The app detects Termux (or opens its F-Droid page), walks you
   through the one required unlock line, installs Ubuntu via proot-distro
-  plus Node and `opencode-ai` in the chroot, launches
-  `opencode serve` detached, health-polls until live, and connects. A "Live
+  plus Node and `@opencode/cli@2.0.29` in the chroot, launches
+  `opencode2 serve` detached, health-polls until live, and connects. A "Live
   log in Termux" button streams install/server logs at any time. The native
   side is
   [`MainActivity.kt`](../android/app/src/main/kotlin/io/github/eslamasabry/opencode_mobile/MainActivity.kt)
   + [`lib/termux/bridge.dart`](../lib/termux/bridge.dart). (Why the chroot:
-  plain-Termux npm installs of opencode are broken upstream — npm sees
-  `os=android` and no `opencode-android-arm64` package exists. The chroot is
-  real glibc and shares the network stack, so the app reaches it at
+  the managed installer uses the Linux binaries inside Ubuntu, whose glibc
+  environment shares the phone’s network stack. The app reaches it at
   `127.0.0.1:4096`.) Prefer manual? Inside Termux:
 
   ```bash
@@ -114,8 +122,8 @@ and brings the connection to the phone through a tunnel that ends at
   proot-distro install ubuntu
   proot-distro login ubuntu     # then inside the chroot:
     apt update && apt install -y nodejs npm
-    npm i -g opencode-ai
-    opencode serve --hostname 127.0.0.1 --port 4096 &
+    npm i -g @opencode/cli@2.0.29
+    opencode2 serve --hostname 127.0.0.1 --port 4096
     exit
   ```
 
@@ -130,57 +138,57 @@ port filled in. Leave your firewall closed: opening a port does nothing for
 you and everything for anyone else on the network.
 
 
-### Provider sign-ins on OpenCode 1
+### Provider sign-ins
 
-OpenCode 1 builds its provider runtime once per server instance and caches
-it. A sign-in that lands after startup (an OAuth flow finished in the TUI, or
-one this app ran) is written to the auth store but not loaded: `/provider`
-then lists the provider as connected with the entire models.dev catalog,
-while `/config/providers`, the runtime view, still omits it, and every
-prompt to one of its models fails with `Model not found: openai/gpt-5.6`
-(the "Did you mean" list even names the model you picked). The app compares
-the two lists on every catalog load; when a connected provider is missing
-from the runtime it asks the server to dispose the instance
-(`POST /instance/dispose`, the same call OpenCode's own clients make) and
-re-reads, once per connection. The picker then shows only the models the
-loaded provider can serve; for a ChatGPT Plus/Pro sign-in that is the Codex
-set, and plain `gpt-5.6` is deliberately not in it. If the reload does not
-bring the provider up, the picker says so and offers **Reload providers**,
-and a "Model not found" error in chat re-reads the catalog on arrival.
+OpenCode 2 exposes providers and models separately from integration credentials.
+The app lists integrations, starts an integration OAuth attempt, polls its state,
+and supports completion or cancellation through `/api/integration/...`.
+API-key and command-based integrations use their corresponding endpoints.
+Credentials stay on the server; catalog and diagnostic output must never include
+provider keys. The removed OpenCode 1 provider-runtime refresh and
+`/config/providers` fallback are not used.
 
 ### Sending while a run is active
 
-Both server generations accept a prompt mid-turn, so Send stays live next
-to Stop. OpenCode 1 creates the user message at once and runs it after the
-current turn; the app marks such messages "Queued · runs after this turn"
-and the composer says "Sends after this run finishes". OpenCode 2 has an
-inbox with two delivery modes, so the composer shows a Steer / Queue toggle
-above the field while a turn runs (steer injects at the next step, queue
-waits), the caption under it states what Send will do, and pending inbox
-items carry inline flip and cancel actions.
+OpenCode 2 supports steering a running turn and reports pending work through
+its inbox. Where the connected gateway advertises steering, Send adds input
+at the next supported boundary; the composer does not offer a queue choice.
+Direct Codex steering is bound to the expected active turn. Other agent
+backends report their own supported send behavior through the domain gateway;
+uncertain delivery must not silently retry or resend a mutation.
 
-## OpenCode 2
+## OpenCode 2 and supported backends
 
-The app speaks **both protocols**. The existing v1 client keeps serving
-current 1.18.x servers (including Termux installs); a typed `lib/api2/`
-client speaks the v2 beta API (`opencode2`) — Basic-auth transport, the
-`/api/` surface, cursor pagination, forms, inbox delivery, and WebSocket
-PTY — and both sit behind one protocol-neutral gateway, so the screens
-never know which server they are talking to.
+OpenCode 2 is the only supported OpenCode protocol. The handwritten
+`lib/api2/` client handles HTTP Basic authentication, `/api` routes, typed
+messages, volatile SSE events, cursor pagination, forms, inbox delivery and
+single-use terminal connection tickets. Stable 2.0.29 uses `/api/info` for
+identity; the earlier beta uses `/api/health`. Reconnects reconcile state by
+refetching because the global event stream does not replay missed events.
 
-Protocol detection happens at connect time: paste an address, and a v2
-server announces itself (a `401` on `/api/health`) so the app asks for
-its serve password. Against a v2 server you get streamed turns, forms
-in place of questions, permission approvals with a reason, steer-or-queue
-sends (a labelled control, not a hidden long press), a real terminal over
-ticketed WebSockets, and native rendering of v2's own message shapes. Every
-capability is negotiated, so features a server does not implement are not
-offered.
+Codex direct and Paseo remain separate gateway implementations. Shared models
+and operations live under `lib/domain/`; screens gate actions through
+`ServerCapabilities`, rather than selecting a protocol flavor. Unsupported
+OpenCode 2 features stay unavailable. Revert stage/clear/commit, integration
+sign-in, git initialization, worktree creation and shell settings are supported
+by the existing OpenCode 2 adapters.
 
-Plan and status: [docs/opencode2-port-plan.md](opencode2-port-plan.md);
-captured ground truth in [docs/opencode2-protocol-notes.md](opencode2-protocol-notes.md),
-[docs/opencode2-port-matrix.md](opencode2-port-matrix.md), and the live
-OpenAPI dumps under [contracts/](../contracts/).
+A remote OpenCode 1 response produces the plain explanation that support has
+ended and a copyable `npm uninstall -g opencode-ai && npm install -g @opencode/cli@2.0.29` upgrade command.
+Managed phone installations instead enter the automatic history-migration
+flow. It preserves the saved profile ID and original database, copies history
+before the first OpenCode 2 start, and requires server-side import confirmation
+before clearing the pending migration marker. Unsafe or ambiguous copies stop
+with a recovery message; separate existing histories are not overwritten.
+Legacy runtime identifiers remain only for detection and migration, never as
+an installation or start option.
+
+The decommission decision and outstanding validation are recorded in
+[the removal plan](design/oc1-decommission-plan-2026-10-14.md). Wire details and
+version-specific limits are in [protocol notes](opencode2-protocol-notes.md),
+[the port matrix](opencode2-port-matrix.md) and [capability gaps](opencode2-capability-gaps-ux.md).
+The retained [contracts](../contracts/) describe OpenCode 2 and Gas City;
+there is no generated OpenCode 1 SDK or generator.
 
 
 ## Build from source
@@ -205,13 +213,22 @@ Shorebird); `SHOREBIRD_FLUTTER_VERSION` in `scripts/release.sh` and
 `android-release.yml` must agree. Older local Flutters may fail to resolve
 packages. Run tests serially — `flutter test --concurrency=1`.
 
-Two integration tests run against any live server, no emulator needed:
+Optional integration tools target an explicitly selected scratch OpenCode 2
+server, with no emulator. Start it in a separate terminal on an unused port:
 
 ```bash
-opencode serve --port 4123 &
-dart run tool/smoke_test.dart http://127.0.0.1:4123 /server/project
-dart run tool/prompt_test.dart http://127.0.0.1:4123   # needs model auth
+opencode2 serve --port 4097 --hostname 127.0.0.1
 ```
+
+Supply its password through `OC2_LIVE_PASSWORD` in the test process environment,
+never as a command-line argument or in committed output. Then run:
+
+```bash
+dart run tool/smoke_test.dart http://127.0.0.1:4097 /scratch/project
+dart run tool/prompt_test.dart http://127.0.0.1:4097   # needs model auth
+```
+
+Stop only the scratch process you started; never target an owner server.
 
 
 ## Releases and code push
@@ -270,7 +287,7 @@ and always target an exact `x.y.z+build`; never distribute an APK from a raw
 `flutter build apk` — it cannot receive patches.
 
 CI runs [android-quality.yml](../.github/workflows/android-quality.yml) on
-`master`, `dev`, and pull requests. It includes contract/SDK verification,
+`master`, `dev`, and pull requests. It includes
 analysis, the serial test suite, Android release lint, and a test-signed release
 compile. The short-lived APK artifact proves the app compiles, but its isolated
 CI certificate is intentionally not the public upgrade lineage and the APK
@@ -281,9 +298,10 @@ must not be distributed as a release.
 
 ```
 lib/
-├── api/           # v1 client: DTOs, Dio HTTP client, /event SSE w/ reconnect
 ├── api2/          # OpenCode 2 client: Basic-auth transport, typed models, SSE
-├── domain/        # protocol-neutral gateway over v1 and v2
+├── domain/        # shared models, capabilities and backend-neutral gateways
+├── codex/         # direct Codex app-server adapter
+├── paseo/         # Paseo agent adapter
 ├── state/         # profiles (Keystore secrets), ConnectionController,
 │                  #  offline queue, session drafts, review→prompt handoff
 ├── termux/        # Dart side of the Termux RUN_COMMAND bridge
@@ -293,8 +311,7 @@ lib/
 ├── diagnostics/   # redacted, explicit-only app diagnostics
 └── ui/            # screens (workspace, chat, files, review, activity,
                    #  terminal, more hub, settings…) and widgets
-packages/opencode_sdk/   # generated Dart SDK from the checked-in OpenAPI contract
-contracts/               # OpenAPI dumps (v1 + v2 beta) + SDK coverage matrix
+contracts/               # retained OpenCode 2 and Gas City OpenAPI snapshots
 tool/demo-video/         # Remotion showcase project
 ```
 
@@ -319,7 +336,7 @@ are kept per profile as `oc.sharedProjects.<profileId>` (swept on deletion,
 survive a restart. A folder opened for the first time while AI Team is on is
 visible after the next server start. Other servers are never gated.
 
-UI talks to the gateway, never to `api/` or `api2/` directly. See
+UI talks to domain gateways, never directly to `api2/`, `codex/` or `paseo/`. See
 [CONTRIBUTING.md](../CONTRIBUTING.md) for the boundaries a change must respect.
 
 
@@ -341,8 +358,7 @@ UI talks to the gateway, never to `api/` or `api2/` directly. See
 - [docs/desktop-feasibility.md](desktop-feasibility.md) — Linux desktop
   findings. The desktop build compiles and runs; it has no dedicated
   interaction layer yet and should be treated as experimental.
-- [docs/opencode-sdk-coverage.md](opencode-sdk-coverage.md) /
-  [command feature map](opencode-command-feature-map.md) — how much of
-  the server API the app exercises
+- [OpenCode 2 capability gaps](opencode2-capability-gaps-ux.md) — supported
+  operations and intentionally unavailable features
 - [docs/showcase-video-plan.md](showcase-video-plan.md) — the showcase
   storyboard, shot list, and render plan

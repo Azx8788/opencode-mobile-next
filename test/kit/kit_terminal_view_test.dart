@@ -5,10 +5,12 @@
 // tail, cap and redaction, tints, right-to-left, the TerminalView wrapper,
 // reduced motion and the overflow matrix.
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../support/no_red.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
 import 'package:opencode_mobile/ui/app_theme.dart';
@@ -172,9 +174,6 @@ List<Color> _roleColorList(ThemeRoles roles) => [
   roles.onAttentionFill,
   roles.attentionSurface,
   roles.attentionLine,
-  roles.danger,
-  roles.dangerFill,
-  roles.onDangerFill,
   roles.success,
   roles.scrim,
   roles.codeKeyword,
@@ -414,6 +413,36 @@ void main() {
   });
 
   group('the live view', () {
+    _test('an Android tablet with a mouse keeps touch terminal input', (
+      tester,
+    ) async {
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: const Offset(20, 20));
+      addTearDown(mouse.removePointer);
+      final live = _terminal();
+      await _pump(
+        tester,
+        KitTerminalView.live(
+          terminal: live.terminal,
+          semanticsLabel: 'Terminal',
+          keys: TerminalKeyBarController(),
+        ),
+        size: const Size(1280, 800),
+      );
+      expect(RendererBinding.instance.mouseTracker.mouseIsConnected, isTrue);
+      expect(find.byType(TerminalKeyBar), findsOneWidget);
+      expect(
+        tester
+            .widget<xterm.TerminalView>(find.byType(xterm.TerminalView))
+            .hardwareKeyboardOnly,
+        isFalse,
+        reason: 'A mouse does not prove that a physical keyboard exists.',
+      );
+      await tester.tap(_key(TerminalBarKey.esc));
+      await tester.pump();
+      expect(live.sent, ['\x1b']);
+    });
+
     _test('7. Tab reaches the shell; Ctrl+Tab leaves the terminal', (
       tester,
     ) async {
@@ -646,7 +675,8 @@ void main() {
         expect(theme.background, roles.ground);
         expect(theme.foreground, roles.text1);
         expect(theme.cursor, roles.accent);
-        expect(theme.red, roles.danger);
+        expect(theme.red, roles.text1);
+        expect(theme.red, isNotRed);
         expect(theme.green, roles.success);
         expect(theme.black, roles.surface3);
         expect(theme.brightBlack, roles.text3);
@@ -860,7 +890,7 @@ void main() {
                 as TextSpan)
             .style
             ?.color,
-        graphiteDark.danger,
+        graphiteDark.text1,
       );
     });
 
@@ -871,11 +901,11 @@ void main() {
         final error = styleOf('error: something broke');
         expect(error?.color, roles.text1);
         expect(error?.fontWeight, FontWeight.w600);
-        expect(error?.color, isNot(roles.danger));
+        expect(error?.color, isNotRed);
         final warning = styleOf('warning: deprecated call');
         expect(warning?.color, isNot(roles.attention));
         expect(warning?.color, roles.text2);
-        expect(styleOf('\x1b[31mred\x1b[0m')?.color, roles.danger);
+        expect(styleOf('\x1b[31mred\x1b[0m')?.color, roles.text1);
         expect(styleOf('All tests passed!')?.color, roles.success);
         expect(styleOf('Found 0 errors')?.color, isNull);
         final progress = KitTerminalText.line('00:07 +6 ~1 -2: x', roles);

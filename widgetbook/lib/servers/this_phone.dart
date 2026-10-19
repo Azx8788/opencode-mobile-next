@@ -4,7 +4,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:opencode_mobile/builtin/builtin_linux.dart';
 import 'package:opencode_mobile/builtin/builtin_server.dart';
-import 'package:opencode_mobile/domain/opencode_history_copy.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/phone_host.dart';
 import 'package:opencode_mobile/ui/screens/this_phone_screen.dart';
@@ -12,12 +11,12 @@ import 'package:widgetbook/widgetbook.dart';
 
 import '../catalog.dart';
 import '../fakes/fake_app.dart';
+import '../fakes/setup_inventory.dart';
 
 /// The in-app Linux, stood in for: installed, with the server running.
 class _FakeLinux extends BuiltinLinux {
-  _FakeLinux({this.recovery = false, this.separateHistory = false});
+  _FakeLinux({this.recovery = false});
   final bool recovery;
-  final bool separateHistory;
 
   @override
   Future<BuiltinLinuxStatus> status() async => BuiltinLinuxStatus(
@@ -32,13 +31,7 @@ class _FakeLinux extends BuiltinLinux {
   Future<BuiltinLinuxRunResult> run(
     String script, {
     Duration timeout = const Duration(minutes: 2),
-  }) async =>
-      separateHistory && script.contains(openCode1HistorySwitchCheckScript)
-      ? const BuiltinLinuxRunResult(
-          exitCode: 74,
-          output: openCode1HistorySwitchBlockedMessage,
-        )
-      : const BuiltinLinuxRunResult(exitCode: 0, output: '1.18.29\n');
+  }) async => const BuiltinLinuxRunResult(exitCode: 0, output: '2.0.29\n');
 
   @override
   Future<void> startServer(
@@ -69,35 +62,31 @@ class _FakeLinux extends BuiltinLinux {
       );
 }
 
-Widget _scene({bool recovery = false, bool separateHistory = false}) =>
-    FakeAppScene<FakeApp>(
-      autoTap: recovery ? 'this-phone-start' : null,
-      platform: FakePlatform.android,
-      create: () => FakeApp.create(
-        profiles: [
-          FakeProfile(
-            'phone',
-            'This phone, built-in (OpenCode 1)',
-            url: BuiltinLinux.serverUrl,
-          ),
-        ],
-      ),
-      builder: (context, app) {
-        app.store.profiles.first.password = 'catalog-only-password';
-        final linux = _FakeLinux(
-          recovery: recovery,
-          separateHistory: separateHistory,
-        );
-        return ProviderScope(
-          overrides: [
-            bootstrapProvider.overrideWithValue(AppBootstrap(app.store)),
-            connProvider.overrideWithValue(app.connection),
-            builtinLinuxProvider.overrideWithValue(linux),
-          ],
-          child: const ThisPhoneScreen(kind: PhoneHostKind.inApp),
-        );
-      },
+Widget _scene({
+  bool recovery = false,
+  Set<String> installed = const {},
+  bool inventoryUnavailable = false,
+}) => FakeAppScene<SetupInventoryScene>(
+  autoTap: recovery ? 'this-phone-start' : null,
+  platform: FakePlatform.android,
+  create: () => SetupInventoryScene.create(
+    installed: installed,
+    unavailable: inventoryUnavailable,
+  ),
+  builder: (context, scene) {
+    final app = scene.app;
+    app.store.profiles.first.password = 'catalog-only-password';
+    final linux = _FakeLinux(recovery: recovery);
+    return ProviderScope(
+      overrides: [
+        bootstrapProvider.overrideWithValue(AppBootstrap(app.store)),
+        connProvider.overrideWithValue(app.connection),
+        builtinLinuxProvider.overrideWithValue(linux),
+      ],
+      child: const ThisPhoneScreen(kind: PhoneHostKind.inApp),
     );
+  },
+);
 
 CatalogComponent thisPhoneScreen() => catalogComponent(
   area: 'Servers',
@@ -109,8 +98,12 @@ CatalogComponent thisPhoneScreen() => catalogComponent(
       builder: (_) => _scene(),
     ),
     WidgetbookUseCase(
-      name: 'OpenCode 2 has separate conversations',
-      builder: (_) => _scene(separateHistory: true),
+      name: 'Python and AI Team installed',
+      builder: (_) => _scene(installed: const {'python', 'aiteam'}),
+    ),
+    WidgetbookUseCase(
+      name: 'Installed tools inventory unavailable',
+      builder: (_) => _scene(inventoryUnavailable: true),
     ),
     WidgetbookUseCase(
       name: 'Previous work needs Android recovery',

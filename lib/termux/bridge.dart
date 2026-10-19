@@ -131,7 +131,7 @@ class TermuxBridge {
       }
       for (final value in entry.value.entries) {
         final valid = switch (value.key) {
-          'runtime' => {'opencode1', 'opencode2'}.contains(value.value),
+          'runtime' => {'opencode2'}.contains(value.value),
           'version' => RegExp(
             r'^\d+\.\d+\.\d+(?:[-+][A-Za-z0-9.-]+)?$',
           ).hasMatch(value.value),
@@ -217,7 +217,7 @@ class TermuxBridge {
   static Future<bool> setupHostInstalled() async =>
       await _setupInvoke<bool>('setupHostInstalled') ?? false;
 
-  /// Runs a check in the same app-managed Ubuntu container as the v1 manager.
+  /// Runs a check in the same app-managed Ubuntu container as the server manager.
   static Future<TermuxCommandResult> setupRun(
     String script, {
     Duration timeout = const Duration(minutes: 2),

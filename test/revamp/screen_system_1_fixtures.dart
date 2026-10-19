@@ -5,16 +5,16 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import '../support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import '../support/fake_event_channel.dart';
 import 'package:opencode_mobile/diagnostics/perf_trace.dart';
 import 'package:opencode_mobile/platform/app_exit.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SystemApi extends OpenCodeApi {
+class SystemApi extends FakeServerGateway {
   SystemApi(this._capabilities) : super(baseUrl: 'http://localhost');
 
   final ServerCapabilities _capabilities;
@@ -64,6 +64,7 @@ Future<ConnectionController> systemController(
       {
         'id': 'profile-1',
         'name': 'Workstation',
+        'flavor': 'v2',
         'baseUrl': 'http://localhost:4096',
         'username': '',
       },

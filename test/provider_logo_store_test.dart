@@ -4,6 +4,8 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:opencode_mobile/domain/agent_catalog.dart';
+import 'package:opencode_mobile/domain/mark_catalog.dart';
 import 'package:opencode_mobile/domain/provider_logo_store.dart';
 
 const String _svg =
@@ -26,6 +28,8 @@ void main() {
   ProviderLogoStore store() => ProviderLogoStore(
     directory: () async => dir,
     now: () => clock,
+    // The fallback cases below run with no bundled mark available.
+    loadBundled: (_) async => throw StateError('no bundle'),
     fetch: (url) async {
       requests.add(url);
       return respond(url);
@@ -166,5 +170,112 @@ void main() {
   test('an unsafe id never reaches the network', () async {
     expect(await store().svgFor('../x'), isNull);
     expect(requests, isEmpty);
+  });
+
+  test('a bundled mark is answered without any request', () async {
+    final asked = <String>[];
+    final bundled = ProviderLogoStore(
+      directory: () async => dir,
+      loadBundled: (path) async {
+        asked.add(path);
+        return '<svg/>';
+      },
+      fetch: (url) async {
+        requests.add(url);
+        return respond(url);
+      },
+    );
+    expect(await bundled.svgFor('anthropic'), '<svg/>');
+    expect(await bundled.svgFor('anthropic'), '<svg/>');
+    expect(asked, ['assets/marks/anthropic.svg']);
+    expect(requests, isEmpty);
+  });
+
+  test('a provider with no bundled mark falls back to the download', () async {
+    final unmarked = ProviderLogoStore(
+      directory: () async => dir,
+      now: () => clock,
+      loadBundled: (_) async => throw StateError('never asked'),
+      fetch: (url) async {
+        requests.add(url);
+        return _ok(_svg);
+      },
+    );
+    expect(await unmarked.svgFor('some-new-lab'), _svg);
+    expect(requests, hasLength(1));
+  });
+
+  test('an unreadable bundled mark falls back to the download', () async {
+    final broken = ProviderLogoStore(
+      directory: () async => dir,
+      now: () => clock,
+      loadBundled: (_) async => throw StateError('x'),
+      fetch: (url) async {
+        requests.add(url);
+        return _ok(_svg);
+      },
+    );
+    expect(await broken.svgFor('openai'), _svg);
+    expect(requests, hasLength(1));
+  });
+
+  test(
+    'every listed mark is a bundled single-colour SVG, and none is spare',
+    () {
+      final files = Directory('assets/marks')
+          .listSync()
+          .whereType<File>()
+          .map((f) => f.uri.pathSegments.last)
+          .where((n) => n.endsWith('.svg'))
+          .map((n) => n.substring(0, n.length - 4))
+          .toSet();
+      expect(files, bundledMarkSlugs);
+      for (final slug in bundledMarkSlugs) {
+        final svg = File(markAssetPath(slug)).readAsStringSync();
+        expect(svg, contains('currentColor'), reason: slug);
+        expect(svg.toLowerCase(), isNot(contains('<image')), reason: slug);
+        expect(svg.toLowerCase(), isNot(contains('<script')), reason: slug);
+      }
+    },
+  );
+
+  test('provider ids resolve to a bundled mark, unknown ones to none', () {
+    for (final id in [
+      'anthropic',
+      'openai',
+      'google',
+      'xai',
+      'mistral',
+      'deepseek',
+      'groq',
+      'openrouter',
+      'ollama',
+      'zai',
+      'zhipuai-coding-plan',
+      'amazon-bedrock',
+      'azure',
+      'github-copilot',
+      'togetherai',
+      'fireworks-ai',
+      'cerebras',
+      'moonshotai',
+      'alibaba',
+    ]) {
+      expect(bundledMarkSlugs, contains(providerMarkSlug(id)), reason: id);
+    }
+    expect(providerMarkSlug('some-unknown-gateway'), isNull);
+    expect(providerMarkSlug('../etc'), isNull);
+  });
+
+  test('every catalog agent with a logo has a bundled mark', () {
+    const noLogo = {'fx'};
+    for (final agent in AgentCatalog.builtIn.agents) {
+      final slug = agentMarkSlug(agent.iconKey);
+      if (noLogo.contains(agent.id)) {
+        expect(slug, isNull, reason: agent.id);
+      } else {
+        expect(bundledMarkSlugs, contains(slug), reason: agent.id);
+      }
+    }
   });
 }

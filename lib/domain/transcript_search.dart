@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import '../api/models.dart';
+import '../domain/models.dart';
 
 RegExp literalTranscriptQuery(String query) =>
     RegExp(RegExp.escape(query), caseSensitive: false, unicode: true);

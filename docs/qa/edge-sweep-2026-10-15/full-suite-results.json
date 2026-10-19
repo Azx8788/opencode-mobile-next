@@ -1,0 +1,2381 @@
+{
+  "candidate": "cc9052019e7cffef9429779fa9e1091ad29514e1",
+  "runner": "tool/qa/vps_test.sh",
+  "concurrency": 4,
+  "manifest": "full-suite-manifest.txt",
+  "aggregate_generator": "tool/qa/gen_aggregates.py with existing exclusions and <=20-second timing eligibility",
+  "chunks": [
+    {
+      "chunk": 1,
+      "files": 241,
+      "manifest": "chunk-1.txt",
+      "log": "full-1.log",
+      "exit_code": 1,
+      "seconds": 1007.9,
+      "revision": "cc9052019e7cffef9429779fa9e1091ad29514e1",
+      "original_file_count": 241,
+      "entrypoint_count": 241,
+      "seen_files": 241,
+      "missing_files": [],
+      "aggregate_members": {},
+      "counts": {
+        "success": 2598,
+        "skipped": 41,
+        "error": 2
+      },
+      "done": {
+        "success": false,
+        "type": "done",
+        "time": 969526
+      },
+      "skips": [
+        {
+          "file": "test/active_context_test.dart",
+          "name": "phone context preview",
+          "result": "success"
+        },
+        {
+          "file": "test/app_exit_history_test.dart",
+          "name": "native exit history policy query-bounds",
+          "result": "success"
+        },
+        {
+          "file": "test/app_exit_history_test.dart",
+          "name": "native exit history policy main-process-history",
+          "result": "success"
+        },
+        {
+          "file": "test/app_exit_history_test.dart",
+          "name": "native exit history policy safe-summaries",
+          "result": "success"
+        },
+        {
+          "file": "test/app_exit_history_test.dart",
+          "name": "native exit history policy read-failure",
+          "result": "success"
+        },
+        {
+          "file": "test/appearance_preview_capture_test.dart",
+          "name": "captures appearance en 1.0x",
+          "result": "success"
+        },
+        {
+          "file": "test/appearance_preview_capture_test.dart",
+          "name": "captures appearance en 2.5x",
+          "result": "success"
+        },
+        {
+          "file": "test/appearance_preview_capture_test.dart",
+          "name": "captures appearance ar 1.0x",
+          "result": "success"
+        },
+        {
+          "file": "test/appearance_preview_capture_test.dart",
+          "name": "captures appearance ar 2.5x",
+          "result": "success"
+        },
+        {
+          "file": "test/background_pause_native_test.dart",
+          "name": "native background receipt: timeout-reopen",
+          "result": "success"
+        },
+        {
+          "file": "test/background_pause_native_test.dart",
+          "name": "native background receipt: task-removal",
+          "result": "success"
+        },
+        {
+          "file": "test/background_pause_native_test.dart",
+          "name": "native background receipt: current-restriction",
+          "result": "success"
+        },
+        {
+          "file": "test/background_pause_native_test.dart",
+          "name": "native background receipt: user-stop",
+          "result": "success"
+        },
+        {
+          "file": "test/background_pause_native_test.dart",
+          "name": "native background receipt: old-exit-interruption",
+          "result": "success"
+        },
+        {
+          "file": "test/background_pause_native_test.dart",
+          "name": "native background receipt: intentional-clear",
+          "result": "success"
+        },
+        {
+          "file": "test/background_pause_native_test.dart",
+          "name": "native background receipt: failed-commit",
+          "result": "success"
+        },
+        {
+          "file": "test/background_pause_native_test.dart",
+          "name": "native background receipt: confirmed-start",
+          "result": "success"
+        },
+        {
+          "file": "test/background_pause_native_test.dart",
+          "name": "native background receipt: reason-eleven",
+          "result": "success"
+        },
+        {
+          "file": "test/background_pause_native_test.dart",
+          "name": "native background receipt: app-update",
+          "result": "success"
+        },
+        {
+          "file": "test/bb8_main_callback_native_test.dart",
+          "name": "native BB8 main callback: callback-success",
+          "result": "success"
+        },
+        {
+          "file": "test/bb8_main_callback_native_test.dart",
+          "name": "native BB8 main callback: callback-failure",
+          "result": "success"
+        },
+        {
+          "file": "test/builtin_project_storage_native_test.dart",
+          "name": "native project storage: fresh",
+          "result": "success"
+        },
+        {
+          "file": "test/builtin_project_storage_native_test.dart",
+          "name": "native project storage: migration",
+          "result": "success"
+        },
+        {
+          "file": "test/builtin_project_storage_native_test.dart",
+          "name": "native project storage: empty-destination",
+          "result": "success"
+        },
+        {
+          "file": "test/builtin_project_storage_native_test.dart",
+          "name": "native project storage: retry-after-rename",
+          "result": "success"
+        },
+        {
+          "file": "test/builtin_project_storage_native_test.dart",
+          "name": "native project storage: retain-reinstall-delete",
+          "result": "success"
+        },
+        {
+          "file": "test/builtin_project_storage_native_test.dart",
+          "name": "native project storage: reset-rootfs",
+          "result": "success"
+        },
+        {
+          "file": "test/builtin_project_storage_native_test.dart",
+          "name": "native project storage: collision",
+          "result": "success"
+        },
+        {
+          "file": "test/builtin_project_storage_native_test.dart",
+          "name": "native project storage: symlink-ancestors",
+          "result": "success"
+        },
+        {
+          "file": "test/builtin_project_storage_native_test.dart",
+          "name": "native project storage: symlink-contents",
+          "result": "success"
+        },
+        {
+          "file": "test/builtin_project_storage_native_test.dart",
+          "name": "native project storage: measurement",
+          "result": "success"
+        },
+        {
+          "file": "test/builtin_project_storage_native_test.dart",
+          "name": "native project storage: inspection-failure",
+          "result": "success"
+        },
+        {
+          "file": "test/builtin_project_storage_native_test.dart",
+          "name": "native project storage: deletion-failure",
+          "result": "success"
+        },
+        {
+          "file": "test/builtin_project_storage_native_test.dart",
+          "name": "native project storage: read-only-directories",
+          "result": "success"
+        },
+        {
+          "file": "test/builtin_project_storage_native_test.dart",
+          "name": "native project storage: invalid-size",
+          "result": "success"
+        },
+        {
+          "file": "test/chat_background_result_test.dart",
+          "name": "capture canonical result at normal, narrow and large RTL scales",
+          "result": "success"
+        },
+        {
+          "file": "test/chat_header_declutter_shots_test.dart",
+          "name": "shots",
+          "result": "success"
+        },
+        {
+          "file": "test/chat_free_model_note_test.dart",
+          "name": "evidence \u00b7 412",
+          "result": "success"
+        },
+        {
+          "file": "test/chat_free_model_note_test.dart",
+          "name": "evidence \u00b7 1280",
+          "result": "success"
+        },
+        {
+          "file": "test/chat_notify_offer_test.dart",
+          "name": "evidence \u00b7 412",
+          "result": "success"
+        },
+        {
+          "file": "test/chat_notify_offer_test.dart",
+          "name": "evidence \u00b7 1280",
+          "result": "success"
+        }
+      ],
+      "failures": [
+        {
+          "file": "test/chat_states_standard_test.dart",
+          "name": "a message that was not sent stays on the status line, with its text back in the box, until dismissed or sent again",
+          "result": "error"
+        },
+        {
+          "file": "test/coverage/oc1_parts_coverage_test.dart",
+          "name": "opencode 1 message \u00b7 error_api",
+          "result": "error"
+        }
+      ]
+    },
+    {
+      "chunk": 2,
+      "files": 241,
+      "manifest": "chunk-2.txt",
+      "log": "full-2.log",
+      "exit_code": 1,
+      "seconds": 2260.2,
+      "revision": "cc9052019e7cffef9429779fa9e1091ad29514e1",
+      "original_file_count": 241,
+      "entrypoint_count": 241,
+      "seen_files": 241,
+      "missing_files": [],
+      "aggregate_members": {},
+      "counts": {
+        "success": 3625,
+        "error": 3,
+        "skipped": 2
+      },
+      "done": {
+        "success": false,
+        "type": "done",
+        "time": 2215762
+      },
+      "skips": [
+        {
+          "file": "test/goldens/kit/kit_dialog_golden_test.dart",
+          "name": "kit_dialog input_invalid \u00b7 dark",
+          "result": "success"
+        },
+        {
+          "file": "test/goldens/kit/kit_dialog_golden_test.dart",
+          "name": "kit_dialog input_invalid \u00b7 light",
+          "result": "success"
+        }
+      ],
+      "failures": [
+        {
+          "file": "test/gen_ui_install_test.dart",
+          "name": "isolated persistent ownership transaction Claude show preallow verifies and repairs missing permission",
+          "result": "error"
+        },
+        {
+          "file": "test/goldens/chat_states_golden_test.dart",
+          "name": "chat \u00b7 send error \u00b7 dark",
+          "result": "error"
+        },
+        {
+          "file": "test/goldens/chat_states_golden_test.dart",
+          "name": "chat \u00b7 send error \u00b7 light",
+          "result": "error"
+        }
+      ]
+    },
+    {
+      "chunk": 3,
+      "files": 93,
+      "manifest": "chunk-3.txt",
+      "log": "full-3.log",
+      "exit_code": 1,
+      "seconds": 1607.1,
+      "revision": "cc9052019e7cffef9429779fa9e1091ad29514e1",
+      "original_file_count": 241,
+      "entrypoint_count": 93,
+      "seen_files": 241,
+      "missing_files": [],
+      "aggregate_members": {
+        "tool/edge_sweep_agg/shard_300_test.dart": [
+          "test/home_navigation_test.dart",
+          "test/kit/kit_feed_item_test.dart",
+          "test/kit/kit_live_style_preview_test.dart",
+          "test/kit/kit_status_tag_test.dart",
+          "test/kit/kit_terminal_view_test.dart",
+          "test/kit/kit_choice_list_test.dart",
+          "test/kit/kit_status_mark_test.dart",
+          "test/kit/kit_notice_test.dart",
+          "test/kit/kit_sheet_r2_test.dart",
+          "test/kit/kit_findings_card_test.dart",
+          "test/kit/kit_milestone_row_test.dart",
+          "test/kit/kit_row_group_inset_test.dart",
+          "test/isolated_task_launch_test.dart",
+          "test/ios_runner_contract_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_301_test.dart": [
+          "test/kit/kit_date_time_picker_test.dart",
+          "test/kit/kit_fact_row_test.dart",
+          "test/kit/kit_live_style_picker_test.dart",
+          "test/kit/kit_sheet_header_bar_test.dart",
+          "test/kit/kit_segmented_test.dart",
+          "test/kit/kit_dialog_test.dart",
+          "test/kit/kit_composer_chips_test.dart",
+          "test/kit/kit_qr_test.dart",
+          "test/kit/kit_agent_strip_test.dart",
+          "test/kit/kit_icon_test.dart",
+          "test/kit/kit_plan_card_test.dart",
+          "test/kit/kit_scrollbar_test.dart",
+          "test/kit/kit_redact_test.dart",
+          "test/in_flow_consent_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_302_test.dart": [
+          "test/kit/kit_sliver_row_group_test.dart",
+          "test/kit/kit_diff_highlight_test.dart",
+          "test/kit/kit_live_look_preview_test.dart",
+          "test/kit/kit_sense_ask_test.dart",
+          "test/isolated_task_sheet_test.dart",
+          "test/kit/kit_action_test.dart",
+          "test/kit/kit_term_test.dart",
+          "test/kit/kit_scenes_test.dart",
+          "test/kit/kit_breadcrumb_test.dart",
+          "test/kit/kit_row_parts_test.dart",
+          "test/kit/kit_project_row_test.dart",
+          "test/kit/kit_transcript_excerpt_test.dart",
+          "test/kit/kit_bottom_inset_test.dart",
+          "test/kit/kit_pre_wave_tokens_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_303_test.dart": [
+          "test/host_agent_providers_test.dart",
+          "test/kit/kit_clean_steps_test.dart",
+          "test/kit/kit_filter_chip_test.dart",
+          "test/kit/kit_markdown_image_test.dart",
+          "test/kit/kit_steer_box_test.dart",
+          "test/kit/kit_composer_test.dart",
+          "test/kit/kit_capability_explainer_test.dart",
+          "test/kit/kit_message_test.dart",
+          "test/kit/kit_motion_parts_test.dart",
+          "test/kit/kit_digest_test.dart",
+          "test/kit/kit_server_lane_test.dart",
+          "test/kit/kit_row_group_test.dart",
+          "test/kit/kit_tokens_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_304_test.dart": [
+          "test/in_app_quota_enroller_test.dart",
+          "test/kit/kit_code_block_prompt_test.dart",
+          "test/kit/kit_filter_chips_test.dart",
+          "test/kit/kit_markdown_picture_layout_test.dart",
+          "test/kit/kit_step_timeline_test.dart",
+          "test/kit/kit_screen_test.dart",
+          "test/kit/kit_image_test.dart",
+          "test/kit/kit_dialog_r2_test.dart",
+          "test/kit/kit_queued_message_test.dart",
+          "test/kit/kit_merge_queue_test.dart",
+          "test/kit/kit_sheet_live_actions_test.dart",
+          "test/kit/kit_row_value_test.dart",
+          "test/kit/kit_refresh_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_305_test.dart": [
+          "test/in_app_quota_gateway_test.dart",
+          "test/kit/kit_composer_glow_test.dart",
+          "test/kit/kit_floating_action_test.dart",
+          "test/kit/kit_micro_animations_test.dart",
+          "test/kit/kit_task_chip_test.dart",
+          "test/kit/kit_field_test.dart",
+          "test/kit/kit_confirm_sheet_test.dart",
+          "test/kit/kit_tappable_test.dart",
+          "test/kit/kit_state_view_test.dart",
+          "test/kit/kit_page_route_test.dart",
+          "test/kit/kit_timeline_day_test.dart",
+          "test/kit/kit_since_test.dart",
+          "test/kit/kit_time_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_306_test.dart": [
+          "test/installer_admission_native_test.dart",
+          "test/kit/kit_composer_moving_part_test.dart",
+          "test/kit/kit_floating_panel_test.dart",
+          "test/kit/kit_mini_table_test.dart",
+          "test/kit/kit_top_bar_large_text_test.dart",
+          "test/kit/kit_bidi_test.dart",
+          "test/kit/kit_sheet_test.dart",
+          "test/kit/kit_scanner_test.dart",
+          "test/kit/kit_top_bar_test.dart",
+          "test/kit/kit_progress_row_test.dart",
+          "test/kit/kit_section_label_test.dart",
+          "test/kit/kit_group_note_test.dart",
+          "test/kit/kit_consequences_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_307_test.dart": [
+          "test/installer_monitor_native_test.dart",
+          "test/kit/kit_composer_status_strip_test.dart",
+          "test/kit/kit_handoff_record_test.dart",
+          "test/kit/kit_one_time_code_test.dart",
+          "test/kit/kit_top_bar_transparent_test.dart",
+          "test/kit/kit_log_panel_test.dart",
+          "test/kit/kit_swatch_test.dart",
+          "test/kit/kit_surface_test.dart",
+          "test/integration_auth_recovery_test.dart",
+          "test/kit/kit_arrival_test.dart",
+          "test/kit/kit_progress_test.dart",
+          "test/kit/kit_last_known_test.dart",
+          "test/kit/kit_context_region_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_308_test.dart": [
+          "test/kit/audit_kit_2026_10_14_test.dart",
+          "test/kit/kit_context_chart_test.dart",
+          "test/kit/kit_image_gallery_test.dart",
+          "test/kit/kit_phrase_chips_test.dart",
+          "test/kit/kit_vector_logo_test.dart",
+          "test/kit/kit_search_field_test.dart",
+          "test/kit/kit_code_block_test.dart",
+          "test/kit/kit_tool_row_test.dart",
+          "test/kit/kit_draft_test.dart",
+          "test/kit/kit_status_line_test.dart",
+          "test/kit/kit_spec_block_test.dart",
+          "test/kit/kit_level_meter_test.dart",
+          "test/kit/kit_sheet_wrap_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_309_test.dart": [
+          "test/kit/kit_agent_card_test.dart",
+          "test/kit/kit_context_ring_test.dart",
+          "test/kit/kit_image_markup_test.dart",
+          "test/kit/kit_plan_block_test.dart",
+          "test/kit/kit_widget_preview_test.dart",
+          "test/kit/kit_tab_switcher_test.dart",
+          "test/kit/kit_details_fold_test.dart",
+          "test/kit/kit_glass_test.dart",
+          "test/kit/kit_draft_manifest_test.dart",
+          "test/kit/kit_phase_card_test.dart",
+          "test/kit/kit_divider_test.dart",
+          "test/kit/kit_r6_notice_receipt_task_card_test.dart",
+          "test/host_script_pin_test.dart",
+          "test/interaction_defaults_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_310_test.dart": [
+          "test/kit/kit_chart_test.dart",
+          "test/kit/kit_context_sheet_test.dart",
+          "test/kit/kit_key_value_test.dart",
+          "test/kit/kit_presence_test.dart",
+          "test/kit/kit_diff_view_test.dart",
+          "test/kit/kit_viewer_test.dart",
+          "test/host_management_screen_test.dart",
+          "test/kit/kit_confirm_sheet_look_test.dart",
+          "test/kit/kit_keyboard_test.dart",
+          "test/kit/kit_code_block_r3_test.dart",
+          "test/kit/kit_promote_card_test.dart",
+          "test/kit/kit_log_panel_r3_test.dart",
+          "test/kit/kit_capability_explainer_r10_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_311_test.dart": [
+          "test/kit/kit_clean_steps_open_test.dart",
+          "test/kit/kit_continued_line_test.dart",
+          "test/kit/kit_live_background_test.dart",
+          "test/kit/kit_project_file_list_test.dart",
+          "test/kit/kit_board_lane_test.dart",
+          "test/kit/kit_request_sheet_test.dart",
+          "test/kit/kit_checklist_test.dart",
+          "test/kit/kit_turn_test.dart",
+          "test/kit/kit_icon_button_test.dart",
+          "test/kit/kit_status_slot_test.dart",
+          "test/kit/kit_confirm_sheet_r2_test.dart",
+          "test/kit/kit_r6_choice_current_test.dart",
+          "test/kit/kit_copy_test.dart"
+        ]
+      },
+      "counts": {
+        "success": 4842,
+        "error": 7,
+        "skipped": 24
+      },
+      "done": {
+        "success": false,
+        "type": "done",
+        "time": 1557880
+      },
+      "skips": [
+        {
+          "file": "test/installer_admission_native_test.dart",
+          "name": "test/installer_admission_native_test.dart native installer admission: check-cached-dead",
+          "result": "success"
+        },
+        {
+          "file": "test/installer_admission_native_test.dart",
+          "name": "test/installer_admission_native_test.dart native installer admission: check-durable-dead",
+          "result": "success"
+        },
+        {
+          "file": "test/installer_admission_native_test.dart",
+          "name": "test/installer_admission_native_test.dart native installer admission: install-cached-dead",
+          "result": "success"
+        },
+        {
+          "file": "test/installer_admission_native_test.dart",
+          "name": "test/installer_admission_native_test.dart native installer admission: install-durable-dead",
+          "result": "success"
+        },
+        {
+          "file": "test/installer_admission_native_test.dart",
+          "name": "test/installer_admission_native_test.dart native installer admission: check-living-owner",
+          "result": "success"
+        },
+        {
+          "file": "test/installer_admission_native_test.dart",
+          "name": "test/installer_admission_native_test.dart native installer admission: install-living-owner",
+          "result": "success"
+        },
+        {
+          "file": "test/installer_admission_native_test.dart",
+          "name": "test/installer_admission_native_test.dart native installer admission: check-orphan",
+          "result": "success"
+        },
+        {
+          "file": "test/installer_admission_native_test.dart",
+          "name": "test/installer_admission_native_test.dart native installer admission: install-orphan",
+          "result": "success"
+        },
+        {
+          "file": "test/installer_admission_native_test.dart",
+          "name": "test/installer_admission_native_test.dart native installer admission: check-unknown",
+          "result": "success"
+        },
+        {
+          "file": "test/installer_admission_native_test.dart",
+          "name": "test/installer_admission_native_test.dart native installer admission: install-unknown",
+          "result": "success"
+        },
+        {
+          "file": "test/installer_admission_native_test.dart",
+          "name": "test/installer_admission_native_test.dart native installer admission: check-uncertain-absence",
+          "result": "success"
+        },
+        {
+          "file": "test/installer_admission_native_test.dart",
+          "name": "test/installer_admission_native_test.dart native installer admission: install-uncertain-absence",
+          "result": "success"
+        },
+        {
+          "file": "test/installer_admission_native_test.dart",
+          "name": "test/installer_admission_native_test.dart native installer admission: install-prepared-dead",
+          "result": "success"
+        },
+        {
+          "file": "test/installer_admission_native_test.dart",
+          "name": "test/installer_admission_native_test.dart native installer admission: install-clear-failed",
+          "result": "success"
+        },
+        {
+          "file": "test/installer_admission_native_test.dart",
+          "name": "test/installer_admission_native_test.dart native installer admission: install-cached-clear-failed",
+          "result": "success"
+        },
+        {
+          "file": "test/installer_admission_native_test.dart",
+          "name": "test/installer_admission_native_test.dart native installer admission: cold-durable-dead",
+          "result": "success"
+        },
+        {
+          "file": "test/installer_admission_native_test.dart",
+          "name": "test/installer_admission_native_test.dart native installer admission: cold-install-durable-dead",
+          "result": "success"
+        },
+        {
+          "file": "test/installer_admission_native_test.dart",
+          "name": "test/installer_admission_native_test.dart native installer admission: normal-check",
+          "result": "success"
+        },
+        {
+          "file": "test/installer_admission_native_test.dart",
+          "name": "test/installer_admission_native_test.dart native installer admission: normal-install",
+          "result": "success"
+        },
+        {
+          "file": "test/installer_monitor_native_test.dart",
+          "name": "test/installer_monitor_native_test.dart native installer monitor: monitor-failure-zero-exit",
+          "result": "success"
+        },
+        {
+          "file": "test/installer_monitor_native_test.dart",
+          "name": "test/installer_monitor_native_test.dart native installer monitor: retry-same-runtime",
+          "result": "success"
+        },
+        {
+          "file": "test/installer_monitor_native_test.dart",
+          "name": "test/installer_monitor_native_test.dart native installer monitor: stale-monitor-new-launch",
+          "result": "success"
+        },
+        {
+          "file": "test/host_script_pin_test.dart",
+          "name": "test/host_script_pin_test.dart ubuntu: the checksum matches the pinned commit's bytes",
+          "result": "success"
+        },
+        {
+          "file": "test/host_script_pin_test.dart",
+          "name": "test/host_script_pin_test.dart front: the checksum matches the pinned commit's bytes",
+          "result": "success"
+        }
+      ],
+      "failures": [
+        {
+          "file": "test/goldens/phone_server_screens_golden_test.dart",
+          "name": "phone_running \u00b7 dark",
+          "result": "error"
+        },
+        {
+          "file": "test/goldens/phone_server_screens_golden_test.dart",
+          "name": "phone_stopped \u00b7 dark",
+          "result": "error"
+        },
+        {
+          "file": "test/goldens/phone_server_screens_golden_test.dart",
+          "name": "phone_running \u00b7 light",
+          "result": "error"
+        },
+        {
+          "file": "test/goldens/phone_server_screens_golden_test.dart",
+          "name": "phone_stopped \u00b7 light",
+          "result": "error"
+        },
+        {
+          "file": "test/goldens/team_discover_golden_test.dart",
+          "name": "intro \u00b7 OpenCode inside the app \u00b7 dark",
+          "result": "error"
+        },
+        {
+          "file": "test/goldens/team_discover_golden_test.dart",
+          "name": "intro \u00b7 OpenCode inside the app \u00b7 light",
+          "result": "error"
+        },
+        {
+          "file": "test/kit/kit_image_test.dart",
+          "name": "test/kit/kit_image_test.dart KitImage decode size (KitImage.md \"Decode size\") a wide avatar image covers the circle without upscaling",
+          "result": "error"
+        }
+      ]
+    },
+    {
+      "chunk": 4,
+      "files": 42,
+      "manifest": "chunk-4.txt",
+      "log": "full-4.log",
+      "exit_code": 1,
+      "seconds": 867.6,
+      "revision": "cc9052019e7cffef9429779fa9e1091ad29514e1",
+      "original_file_count": 241,
+      "entrypoint_count": 42,
+      "seen_files": 241,
+      "missing_files": [],
+      "aggregate_members": {
+        "tool/edge_sweep_agg/shard_400_test.dart": [
+          "test/perf_chat_test.dart",
+          "test/notification_text_test.dart",
+          "test/paseo_files_test.dart",
+          "test/paseo_provider_sign_in_test.dart",
+          "test/phone_agent_host_native_test.dart",
+          "test/phone_agents_legacy_auth_test.dart",
+          "test/phrase_chips_test.dart",
+          "test/phone_setup_progress_screen_test.dart",
+          "test/phone_server_screens_test.dart",
+          "test/kit_motion_app_test.dart",
+          "test/phone_setup_notification_route_test.dart",
+          "test/phone_server_healing_test.dart",
+          "test/permission_migration_test.dart",
+          "test/model_presentation_new_test.dart",
+          "test/launch_shortcut_test.dart",
+          "test/phone_storage_test.dart",
+          "test/profile_sign_in_reset_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_401_test.dart": [
+          "test/local_agent_runtime_test.dart",
+          "test/native_crash_test.dart",
+          "test/paseo_acp_pilot_test.dart",
+          "test/paseo_midturn_send_test.dart",
+          "test/paseo_usage_test.dart",
+          "test/phone_agent_service_native_test.dart",
+          "test/phone_project_find_test.dart",
+          "test/project_hub_test.dart",
+          "test/kit/kit_work_graph_test.dart",
+          "test/phone_setup_termux_job_screen_test.dart",
+          "test/profile_monitor_screen_test.dart",
+          "test/offline_queue_concurrency_test.dart",
+          "test/phone_chat_admission_recovery_test.dart",
+          "test/monitor_attention_reader_test.dart",
+          "test/launch_surfaces_controller_test.dart",
+          "test/plugin_display_name_test.dart",
+          "test/product_repository_providers_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_402_test.dart": [
+          "test/opencode_native_install_test.dart",
+          "test/move_to_opencode2_line_test.dart",
+          "test/opencode_history_copy_test.dart",
+          "test/paseo_images_test.dart",
+          "test/paseo_tool_output_test.dart",
+          "test/phone_agent_scripts_test.dart",
+          "test/phone_host_runtime_test.dart",
+          "test/perf_transport_decode_test.dart",
+          "test/kit/kit_work_line_test.dart",
+          "test/library_commands_test.dart",
+          "test/leftover_process_notice_test.dart",
+          "test/model_shortcuts_test.dart",
+          "test/phone_project_engine_gateway_test.dart",
+          "test/managed_runtime_switch_preflight_test.dart",
+          "test/profile_monitor_test.dart",
+          "test/profile_monitor_attention_test.dart",
+          "test/product_repository_server_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_403_test.dart": [
+          "test/model_picker_test.dart",
+          "test/model_name_from_id_test.dart",
+          "test/open_folder_pending_failures_test.dart",
+          "test/paseo_idle_busy_test.dart",
+          "test/paseo_tool_names_test.dart",
+          "test/phone_agent_run_native_test.dart",
+          "test/phone_crash_native_test.dart",
+          "test/mcp_setup_screen_test.dart",
+          "test/project_health_screen_test.dart",
+          "test/library_skills_test.dart",
+          "test/product_ui_regression_test.dart",
+          "test/live_status_test.dart",
+          "test/model_library_test.dart",
+          "test/profile_deletion_test.dart",
+          "test/nudge_registry_test.dart",
+          "test/launch_surfaces_native_contract_test.dart",
+          "test/profile_monitor_navigation_test.dart",
+          "test/product_repository_projects_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_404_test.dart": [
+          "test/kit_motion_test.dart",
+          "test/merged_chat_feed_test.dart",
+          "test/od_team_gateway_test.dart",
+          "test/paseo_host_update_test.dart",
+          "test/paseo_reconnect_state_test.dart",
+          "test/phone_agent_paths_native_test.dart",
+          "test/phone_agents_test.dart",
+          "test/private_network_cleartext_test.dart",
+          "test/motion_setup_test.dart",
+          "test/managed_workspaces_screen_test.dart",
+          "test/profile_secure_storage_test.dart",
+          "test/local_pdf_test.dart",
+          "test/perf_startup_test.dart",
+          "test/kit_map_gate_test.dart",
+          "test/l10n_coverage_test.dart",
+          "test/phone_project_engine_controller_test.dart",
+          "test/phone_agent_context_test.dart",
+          "test/pinned_session_shortcuts_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_405_test.dart": [
+          "test/projects_screen_test.dart",
+          "test/mcp_connector_search_test.dart",
+          "test/oc1_dialect_probes_test.dart",
+          "test/paseo_hello_rejection_test.dart",
+          "test/paseo_real_chat_test.dart",
+          "test/phone_agent_owner_test.dart",
+          "test/phone_agents_removal_host_test.dart",
+          "test/phrase_moment_test.dart",
+          "test/local_agent_onboarding_test.dart",
+          "test/product_ui_regression_files_test.dart",
+          "test/no_raw_error_text_test.dart",
+          "test/library_integrations_mcp_test.dart",
+          "test/markdown_path_link_test.dart",
+          "test/phone_team_truth_test.dart",
+          "test/message_page_transport_test.dart",
+          "test/launch_session_shortcut_test.dart",
+          "test/network_test.dart",
+          "test/permission_presentation_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_406_test.dart": [
+          "test/kit/kit_widget_style_form_test.dart",
+          "test/local_agent_profile_match_test.dart",
+          "test/native_locale_refresh_test.dart",
+          "test/paseo_agent_features_test.dart",
+          "test/paseo_model_catalog_test.dart",
+          "test/pending_command_journal_test.dart",
+          "test/phone_agent_setup_engine_test.dart",
+          "test/phone_project_scan_test.dart",
+          "test/launch_shortcut_routing_test.dart",
+          "test/markdown_reading_test.dart",
+          "test/library_refresh_test.dart",
+          "test/plugins_screen_test.dart",
+          "test/markdown_streaming_test.dart",
+          "test/profile_monitor_check_in_test.dart",
+          "test/phone_engine_ready_reconnect_test.dart",
+          "test/mobile_download_consent_test.dart",
+          "test/notification_preferences_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_407_test.dart": [
+          "test/kit/kit_window_row_test.dart",
+          "test/local_agent_screen_managed_test.dart",
+          "test/native_notification_copy_test.dart",
+          "test/paseo_agent_handoff_test.dart",
+          "test/paseo_native_permissions_test.dart",
+          "test/perf_builtin_pollers_test.dart",
+          "test/phone_agent_work_provider_test.dart",
+          "test/phone_server_idle_test.dart",
+          "test/phone_server_card_test.dart",
+          "test/office_text_test.dart",
+          "test/paseo_gateway_test.dart",
+          "test/permission_sheet_test.dart",
+          "test/product_ui_regression_preview_test.dart",
+          "test/perf_work_lists_test.dart",
+          "test/perf_session_inventory_test.dart",
+          "test/managed_shell_gateway_test.dart",
+          "test/mcp_oauth_test.dart",
+          "test/product_repository_mcp_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_408_test.dart": [
+          "test/kit_top_bar_declutter_test.dart",
+          "test/mcp_chat_capabilities_test.dart",
+          "test/native_strings_test.dart",
+          "test/paseo_browser_launch_test.dart",
+          "test/paseo_native_questions_test.dart",
+          "test/perf_catalog_budget_test.dart",
+          "test/phone_agent_work_watch_test.dart",
+          "test/phone_storage_browser_test.dart",
+          "test/notifications_settings_screen_test.dart",
+          "test/phone_setup_welcome_entry_test.dart",
+          "test/offline_queue_unconfirmed_test.dart",
+          "test/language_picker_test.dart",
+          "test/markdown_agent_blocks_test.dart",
+          "test/profile_store_test.dart",
+          "test/phone_engine_connection_review_test.dart",
+          "test/message_delete_transport_test.dart",
+          "test/model_ref_normalization_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_409_test.dart": [
+          "test/l10n_fg5_screens_test.dart",
+          "test/mcp_chat_card_authority_test.dart",
+          "test/notification_moments_test.dart",
+          "test/paseo_chat_feed_source_test.dart",
+          "test/paseo_payload_use_test.dart",
+          "test/permission_edge_cases_test.dart",
+          "test/phone_agents_controller_test.dart",
+          "test/phone_storage_folders_test.dart",
+          "test/oc2_server_discovery_test.dart",
+          "test/manage_space/manage_space_screen_test.dart",
+          "test/offline_queue_test.dart",
+          "test/mobile_task_view_test.dart",
+          "test/perf_trace_test.dart",
+          "test/managed_server_recovery_test.dart",
+          "test/pairing_payload_test.dart",
+          "test/lifecycle_report_test.dart",
+          "test/launch_shortcut_native_contract_test.dart",
+          "test/platform_capabilities_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_410_test.dart": [
+          "test/l10n_new_locales_test.dart",
+          "test/mcp_chat_connection_test.dart",
+          "test/notification_status_controller_test.dart",
+          "test/paseo_compaction_test.dart",
+          "test/paseo_phone_install_test.dart",
+          "test/phone_agent_auth_native_test.dart",
+          "test/phone_agents_host_test.dart",
+          "test/phrase_chips_chat_test.dart",
+          "test/phone_setup_start_screen_test.dart",
+          "test/pairing_scanner_test.dart",
+          "test/library_integrations_oauth_test.dart",
+          "test/phone_team_stuck_resume_test.dart",
+          "test/product_error_text_test.dart",
+          "test/phone_engine_status_presentation_test.dart",
+          "test/local_server_controls_recovery_test.dart",
+          "test/problem_report_test.dart",
+          "test/phone_engine_completion_presentation_test.dart",
+          "test/plugin_inventory_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_411_test.dart": [
+          "test/list_forms_test.dart",
+          "test/mcp_chat_oc1_gateway_test.dart",
+          "test/notification_status_test.dart",
+          "test/paseo_correlated_prompt_test.dart",
+          "test/paseo_provider_import_test.dart",
+          "test/phone_agent_auth_other_owners_test.dart",
+          "test/phone_agents_idle_host_test.dart",
+          "test/phrase_chips_settings_test.dart",
+          "test/phone_termux_discovery_test.dart",
+          "test/phone_setup_ready_screen_test.dart",
+          "test/opening_shell_test.dart",
+          "test/perf_startup_connection_test.dart",
+          "test/phone_own_server_icon_test.dart",
+          "test/perf_memory_test.dart",
+          "test/perf_profile_load_test.dart",
+          "test/manage_space/project_export_test.dart",
+          "test/manage_space/manage_space_manifest_test.dart",
+          "test/profile_monitor_phone_servers_test.dart"
+        ]
+      },
+      "counts": {
+        "success": 3068,
+        "skipped": 119,
+        "error": 1
+      },
+      "done": {
+        "success": false,
+        "type": "done",
+        "time": 824111
+      },
+      "skips": [
+        {
+          "file": "test/library_integrations_test.dart",
+          "name": "evidence \u00b7 412",
+          "result": "success"
+        },
+        {
+          "file": "test/library_integrations_test.dart",
+          "name": "evidence \u00b7 1280",
+          "result": "success"
+        },
+        {
+          "file": "test/local_agent_runtime_test.dart",
+          "name": "test/local_agent_runtime_test.dart the embedded script: structure shellcheck passes when it is installed",
+          "result": "success"
+        },
+        {
+          "file": "test/opencode_native_install_test.dart",
+          "name": "test/opencode_native_install_test.dart the pinned native install real pinned OpenCode on this PC (smoke)",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_service_native_test.dart",
+          "name": "test/phone_agent_service_native_test.dart native agent service callback: event-foreground-before-restore",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_service_native_test.dart",
+          "name": "test/phone_agent_service_native_test.dart native agent service callback: event-dispatch-denied",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_service_native_test.dart",
+          "name": "test/phone_agent_service_native_test.dart native agent service callback: event-stale-settles",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_service_native_test.dart",
+          "name": "test/phone_agent_service_native_test.dart native agent service callback: event-foreground-denied",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_service_native_test.dart",
+          "name": "test/phone_agent_service_native_test.dart native agent service callback: event-stop-cancels",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_service_native_test.dart",
+          "name": "test/phone_agent_service_native_test.dart native agent service callback: event-untrusted-ignored",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_service_native_test.dart",
+          "name": "test/phone_agent_service_native_test.dart native agent service callback: setup-main-denied",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_service_native_test.dart",
+          "name": "test/phone_agent_service_native_test.dart native agent service callback: daemon-main-denied",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_service_native_test.dart",
+          "name": "test/phone_agent_service_native_test.dart native agent service callback: setup-channel-denied",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_service_native_test.dart",
+          "name": "test/phone_agent_service_native_test.dart native agent service callback: daemon-timeout-denied",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_service_native_test.dart",
+          "name": "test/phone_agent_service_native_test.dart native agent service callback: daemon-stop-denied",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_service_native_test.dart",
+          "name": "test/phone_agent_service_native_test.dart native agent service callback: result-notification-denied",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_service_native_test.dart",
+          "name": "test/phone_agent_service_native_test.dart native agent service callback: dispatch-denied",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_service_native_test.dart",
+          "name": "test/phone_agent_service_native_test.dart native agent service callback: armed-null-sticky",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_service_native_test.dart",
+          "name": "test/phone_agent_service_native_test.dart native agent service callback: unarmed-null-rejected",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_service_native_test.dart",
+          "name": "test/phone_agent_service_native_test.dart native agent service callback: restoration-disarmed-not-sticky",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_service_native_test.dart",
+          "name": "test/phone_agent_service_native_test.dart native agent service callback: explicit-unarmed-not-sticky",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_service_native_test.dart",
+          "name": "test/phone_agent_service_native_test.dart native agent service callback: daemon-timeout-async-revocation",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_service_native_test.dart",
+          "name": "test/phone_agent_service_native_test.dart native agent service callback: daemon-stop-async-revocation",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_service_native_test.dart",
+          "name": "test/phone_agent_service_native_test.dart native agent service callback: daemon-request-threw-after-revocation",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_service_native_test.dart",
+          "name": "test/phone_agent_service_native_test.dart native agent service callback: setup-timeout-async-revocation",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_service_native_test.dart",
+          "name": "test/phone_agent_service_native_test.dart native agent service callback: destroy-revokes-kind",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_service_native_test.dart",
+          "name": "test/phone_agent_service_native_test.dart native agent service callback: localized-copy-ar",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_service_native_test.dart",
+          "name": "test/phone_agent_service_native_test.dart native agent service callback: localized-copy-en",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_run_native_test.dart",
+          "name": "test/phone_agent_run_native_test.dart native agent setup run: receipts",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_run_native_test.dart",
+          "name": "test/phone_agent_run_native_test.dart native agent setup run: reader-failure",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_run_native_test.dart",
+          "name": "test/phone_agent_run_native_test.dart native agent setup run: stdin-failure",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_run_native_test.dart",
+          "name": "test/phone_agent_run_native_test.dart native agent setup run: wait-failure",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_run_native_test.dart",
+          "name": "test/phone_agent_run_native_test.dart native agent setup run: log-failure",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_run_native_test.dart",
+          "name": "test/phone_agent_run_native_test.dart native agent setup run: timeout",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_crash_native_test.dart",
+          "name": "test/phone_crash_native_test.dart native channel/crash: reply-once",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_crash_native_test.dart",
+          "name": "test/phone_crash_native_test.dart native channel/crash: reply-detached",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_crash_native_test.dart",
+          "name": "test/phone_crash_native_test.dart native channel/crash: crash-redaction",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_crash_native_test.dart",
+          "name": "test/phone_crash_native_test.dart native channel/crash: crash-chain-and-storage-failure",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_crash_native_test.dart",
+          "name": "test/phone_crash_native_test.dart native channel/crash: crash-symlinks",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_host_native_test.dart",
+          "name": "test/phone_agent_host_native_test.dart native phone host: low-space-launch",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_host_native_test.dart",
+          "name": "test/phone_agent_host_native_test.dart native phone host: healthy-launch",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_host_native_test.dart",
+          "name": "test/phone_agent_host_native_test.dart native phone host: exited-at-once",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_host_native_test.dart",
+          "name": "test/phone_agent_host_native_test.dart native phone host: concurrent-start",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_host_native_test.dart",
+          "name": "test/phone_agent_host_native_test.dart native phone host: partial-inventory",
+          "result": "success"
+        },
+        {
+          "file": "test/native_locale_refresh_test.dart",
+          "name": "test/native_locale_refresh_test.dart native locale refresh: status-row-owns-phone",
+          "result": "success"
+        },
+        {
+          "file": "test/native_locale_refresh_test.dart",
+          "name": "test/native_locale_refresh_test.dart native locale refresh: channel-policy",
+          "result": "success"
+        },
+        {
+          "file": "test/native_locale_refresh_test.dart",
+          "name": "test/native_locale_refresh_test.dart native locale refresh: empty-surfaces",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_paths_native_test.dart",
+          "name": "test/phone_agent_paths_native_test.dart native agent launch directory: anchor-alias",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_paths_native_test.dart",
+          "name": "test/phone_agent_paths_native_test.dart native agent launch directory: managed-symlink",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_paths_native_test.dart",
+          "name": "test/phone_agent_paths_native_test.dart native agent launch directory: managed-ancestor-symlink",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_paths_native_test.dart",
+          "name": "test/phone_agent_paths_native_test.dart native agent launch directory: projects-symlink",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_paths_native_test.dart",
+          "name": "test/phone_agent_paths_native_test.dart native agent launch directory: repeat",
+          "result": "success"
+        },
+        {
+          "file": "test/native_strings_test.dart",
+          "name": "test/native_strings_test.dart native resource locale: arabic-override",
+          "result": "success"
+        },
+        {
+          "file": "test/native_strings_test.dart",
+          "name": "test/native_strings_test.dart native resource locale: english-override",
+          "result": "success"
+        },
+        {
+          "file": "test/native_strings_test.dart",
+          "name": "test/native_strings_test.dart native resource locale: system-ar",
+          "result": "success"
+        },
+        {
+          "file": "test/native_strings_test.dart",
+          "name": "test/native_strings_test.dart native resource locale: system-list",
+          "result": "success"
+        },
+        {
+          "file": "test/native_strings_test.dart",
+          "name": "test/native_strings_test.dart native resource locale: untranslated-app",
+          "result": "success"
+        },
+        {
+          "file": "test/native_strings_test.dart",
+          "name": "test/native_strings_test.dart native resource locale: unsupported-system",
+          "result": "success"
+        },
+        {
+          "file": "test/native_strings_test.dart",
+          "name": "test/native_strings_test.dart native resource locale: invalid-choice",
+          "result": "success"
+        },
+        {
+          "file": "test/native_strings_test.dart",
+          "name": "test/native_strings_test.dart native resource locale: read-refused",
+          "result": "success"
+        },
+        {
+          "file": "test/native_strings_test.dart",
+          "name": "test/native_strings_test.dart native resource locale: choice-changes",
+          "result": "success"
+        },
+        {
+          "file": "test/native_strings_test.dart",
+          "name": "test/native_strings_test.dart native resource locale: resource-formatting",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_other_owners_test.dart",
+          "name": "test/phone_agent_auth_other_owners_test.dart native other-agent ownership: registered-helper",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_other_owners_test.dart",
+          "name": "test/phone_agent_auth_other_owners_test.dart native other-agent ownership: private-excluded",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_other_owners_test.dart",
+          "name": "test/phone_agent_auth_other_owners_test.dart native other-agent ownership: unknown-at-launch",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_other_owners_test.dart",
+          "name": "test/phone_agent_auth_other_owners_test.dart native other-agent ownership: dead-pruned",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_other_owners_test.dart",
+          "name": "test/phone_agent_auth_other_owners_test.dart native other-agent ownership: reused-pruned",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_other_owners_test.dart",
+          "name": "test/phone_agent_auth_other_owners_test.dart native other-agent ownership: unreadable-excluded",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_other_owners_test.dart",
+          "name": "test/phone_agent_auth_other_owners_test.dart native other-agent ownership: unreadable-launch",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_other_owners_test.dart",
+          "name": "test/phone_agent_auth_other_owners_test.dart native other-agent ownership: invalid-birth",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: request-admission",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: request-rejection",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: projection-valid",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: projection-rejection",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: private-success",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: invalid-no-launch",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: prepare-denied",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: start-failure",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: timeout",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: logout-timeout",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: wait-failure",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: reader-failure",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: output-overflow",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: output-overflow-timeout",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: blocked-profile",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: retained-dead-root",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: deletion-during-run",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: tree-dead-root",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: tree-pid-reuse",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: tree-zombie",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: tree-unconfirmed-drain",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: tree-missing-identity",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: tree-inventory-failure",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: tree-root-only-then-orphan",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: tree-signal-reuse",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: tree-failed-start-unknown",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: outside-helper-after-baseline",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: outside-unknown-orphan",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: outside-wrong-root-cookie",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: outside-reused-root-cookie",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: outside-private-identities-win",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: outside-retained-helper-child",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: outside-reused-helper-child",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: outside-registry-failure",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: private-success-helper-concurrent",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: cold-registered-owner",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: cold-unknown-owner",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: deadline-absolute-probe",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: deadline-absolute-logout",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: inventory-valid",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: inventory-unreadable",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: inventory-malformed",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: inventory-vanished",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: inventory-cross-uid",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: lock-empty-exact",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: lock-nonempty-retained",
+          "result": "success"
+        },
+        {
+          "file": "test/phone_agent_auth_native_test.dart",
+          "name": "test/phone_agent_auth_native_test.dart native private agent auth: lock-foreign-symlink",
+          "result": "success"
+        },
+        {
+          "file": "test/phrase_chips_chat_test.dart",
+          "name": "test/phrase_chips_chat_test.dart captures the stopped-partway moment",
+          "result": "success"
+        },
+        {
+          "file": "test/phrase_chips_chat_test.dart",
+          "name": "test/phrase_chips_chat_test.dart captures the working moment",
+          "result": "success"
+        }
+      ],
+      "failures": [
+        {
+          "file": "test/local_agent_onboarding_test.dart",
+          "name": "test/local_agent_onboarding_test.dart the wizard block needs_ubuntu becomes the button that opens the wizard, from status and from a refused install",
+          "result": "error"
+        }
+      ]
+    },
+    {
+      "chunk": 5,
+      "files": 104,
+      "manifest": "chunk-5.txt",
+      "log": "full-5.log",
+      "exit_code": 1,
+      "seconds": 1329.2,
+      "revision": "cc9052019e7cffef9429779fa9e1091ad29514e1",
+      "original_file_count": 241,
+      "entrypoint_count": 104,
+      "seen_files": 241,
+      "missing_files": [],
+      "aggregate_members": {
+        "tool/edge_sweep_agg/shard_500_test.dart": [
+          "test/release_script_contract_test.dart",
+          "test/revamp/slice_p10_3_test.dart",
+          "test/session_export_test.dart",
+          "test/revamp/slice_r17_test.dart",
+          "test/revamp/slice_p5_1_test.dart",
+          "test/revamp/screen_team_2_test.dart",
+          "test/saved_server_connection_card_test.dart",
+          "test/provider_reload_running_reply_test.dart",
+          "test/queued_prompt_removal_wiring_test.dart",
+          "test/session_execution_transport_test.dart",
+          "test/saved_prompts_photo_recovery_test.dart",
+          "test/return_brief_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_501_test.dart": [
+          "test/server_v2_connect_flow_test.dart",
+          "test/revamp/slice_p3_5_test.dart",
+          "test/revamp/shared_chat_1_test.dart",
+          "test/safety_confirms_test.dart",
+          "test/revamp/screen_voice_1_test.dart",
+          "test/revamp/shared_servers_1_test.dart",
+          "test/session_skill_test.dart",
+          "test/session_pins_test.dart",
+          "test/revamp/screen_team_3_test.dart",
+          "test/provider_runtime_heal_test.dart",
+          "test/session_model_scope_test.dart",
+          "test/session_auto_approval_store_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_502_test.dart": [
+          "test/release_blockers_test.dart",
+          "test/session_leave_test.dart",
+          "test/reader_preferences_test.dart",
+          "test/redaction_test.dart",
+          "test/revamp/screen_library_4_test.dart",
+          "test/session_address_ui_test.dart",
+          "test/revamp/shared_system_1_test.dart",
+          "test/servers_reachability_test.dart",
+          "test/session_lifecycle_transport_test.dart",
+          "test/reply_watch_test.dart",
+          "test/session_inventory_cache_test.dart",
+          "test/saved_prompts_wiring_test.dart",
+          "test/review_followups_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_503_test.dart": [
+          "test/server_switcher_test.dart",
+          "test/settings_access_test.dart",
+          "test/revamp/screen_library_3_test.dart",
+          "test/session_import_test.dart",
+          "test/revamp/slice_p4_4_test.dart",
+          "test/revamp/screen_library_1_test.dart",
+          "test/revamp/slice_p4_1c_test.dart",
+          "test/revamp/slice_provider_truth_test.dart",
+          "test/session_command_handoff_test.dart",
+          "test/server_data_widening_test.dart",
+          "test/quota_answers_test.dart",
+          "test/provider_quota_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_504_test.dart": [
+          "test/prompt_file_mention_wire_test.dart",
+          "test/recent_errors_plain_test.dart",
+          "test/session_draft_test.dart",
+          "test/revamp/slice_p54_quota_answers_test.dart",
+          "test/revamp/slice_close_misc_test.dart",
+          "test/revamp/slice_aisetup_review_test.dart",
+          "test/revamp/screen_settings_1_test.dart",
+          "test/session_inventory_paging_test.dart",
+          "test/session_link_test.dart",
+          "test/session_address_controller_test.dart",
+          "test/session_link_bindings_test.dart",
+          "test/server_probe_test.dart",
+          "test/run_result_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_505_test.dart": [
+          "test/provider_device_code_signin_test.dart",
+          "test/reconnect_hardening_test.dart",
+          "test/revamp/slice_p37a_perf_test.dart",
+          "test/read_aloud_test.dart",
+          "test/revamp/screen_team_1_test.dart",
+          "test/revamp/screen_phone_1_test.dart",
+          "test/server_capabilities_screen_test.dart",
+          "test/revamp/slice_qa_phone_setup_test.dart",
+          "test/session_read_state_test.dart",
+          "test/session_address_link_intent_test.dart",
+          "test/running_agents_strip_test.dart",
+          "test/queued_prompt_removal_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_506_test.dart": [
+          "test/provider_logo_store_test.dart",
+          "test/release_metadata_test.dart",
+          "test/revamp/screen_usage_1_test.dart",
+          "test/revamp/screen_work_3_test.dart",
+          "test/revamp/screen_work_4_test.dart",
+          "test/saved_permissions_screen_test.dart",
+          "test/revamp/screen_files_1_test.dart",
+          "test/revamp/slice_r12_test.dart",
+          "test/revamp/slice_r15_test.dart",
+          "test/report_problem_capture_test.dart",
+          "test/session_read_transport_test.dart",
+          "test/session_tail_cache_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_507_test.dart": [
+          "test/provider_oauth_gateway_test.dart",
+          "test/reply_picture_tiles_test.dart",
+          "test/session_address_link_native_test.dart",
+          "test/running_work_sheet_test.dart",
+          "test/server_backend_preselection_test.dart",
+          "test/revamp/screen_chat_1_test.dart",
+          "test/revamp/slice_p6_6a_defaults_test.dart",
+          "test/revamp/shared_shell_1_test.dart",
+          "test/revamp/chat_2_test.dart",
+          "test/prompt_transport_test.dart",
+          "test/session_link_native_contract_test.dart",
+          "test/session_address_link_test.dart",
+          "test/session_handoff_domain_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_508_test.dart": [
+          "test/quota_collector_host_test.dart",
+          "test/runtime_switch_status_test.dart",
+          "test/prompt_shelf_test.dart",
+          "test/revamp/shared_phone_1_test.dart",
+          "test/revamp/screen_library_2_test.dart",
+          "test/review_handoff_test.dart",
+          "test/revamp/shared_work_1_test.dart",
+          "test/session_relations_screen_test.dart",
+          "test/session_management_transport_test.dart",
+          "test/provider_quota_client_test.dart",
+          "test/session_address_transport_test.dart",
+          "test/saved_prompts_controller_test.dart",
+          "test/quota_budgets_retired_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_509_test.dart": [
+          "test/raw_state_errors_test.dart",
+          "test/sent_photo_thumbnails_test.dart",
+          "test/server_codex_connect_flow_test.dart",
+          "test/revamp/screen_terminal_1_test.dart",
+          "test/revamp/chat_3_test.dart",
+          "test/server_profile_reentry_test.dart",
+          "test/session_handoff_sheet_layout_test.dart",
+          "test/session_selection_sync_test.dart",
+          "test/provider_quota_monitor_test.dart",
+          "test/report_problem_test.dart",
+          "test/session_auto_approval_controller_test.dart",
+          "test/saved_prompts_migration_test.dart",
+          "test/repeated_permission_consent_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_510_test.dart": [
+          "test/read_state_consent_test.dart",
+          "test/server_pairing_paste_test.dart",
+          "test/revamp/slice_p3_6_test.dart",
+          "test/revamp/slice_p2_4_5_test.dart",
+          "test/revamp/screen_servers_2_test.dart",
+          "test/session_context_screen_test.dart",
+          "test/revamp/slice_p37a_test.dart",
+          "test/revamp/slice_p52_test.dart",
+          "test/revamp/screen_system_1_test.dart",
+          "test/return_brief_state_test.dart",
+          "test/prompt_photos_test.dart",
+          "test/session_title_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_511_test.dart": [
+          "test/receipts_ui_test.dart",
+          "test/session_creation_receipts_test.dart",
+          "test/review_workspace_test.dart",
+          "test/session_note_test.dart",
+          "test/revamp/screen_shell_1_test.dart",
+          "test/revamp/slice_p3_11a_test.dart",
+          "test/revamp/shared_team_1_test.dart",
+          "test/revamp/shared_settings_1_test.dart",
+          "test/provider_logo_test.dart",
+          "test/report_problem_startup_test.dart",
+          "test/session_review_transport_test.dart",
+          "test/session_title_text_test.dart"
+        ]
+      },
+      "counts": {
+        "failure": 5,
+        "success": 2822,
+        "error": 14
+      },
+      "done": {
+        "success": false,
+        "type": "done",
+        "time": 1285159
+      },
+      "skips": [],
+      "failures": [
+        {
+          "file": "test/repository_hygiene_test.dart",
+          "name": "G25 repository hygiene MOT-10: flutter_animate is never a dependency or an import",
+          "result": "failure"
+        },
+        {
+          "file": "test/repository_hygiene_test.dart",
+          "name": "G25 repository hygiene SEC-6, SEC-7: no skill packs, keystores or signing secrets and no screen recordings in docs/qa are tracked",
+          "result": "failure"
+        },
+        {
+          "file": "test/repository_hygiene_test.dart",
+          "name": "G25 repository hygiene TEST-12: golden-failure artefacts are never committed (ratchet)",
+          "result": "failure"
+        },
+        {
+          "file": "test/repository_hygiene_test.dart",
+          "name": "G25 repository hygiene PROC-1: the Android build targets compileSdk 37 and Java 17",
+          "result": "failure"
+        },
+        {
+          "file": "test/repository_hygiene_test.dart",
+          "name": "G25 repository hygiene PROC-1: every CI workflow pins the same Flutter version, and CI runs it",
+          "result": "failure"
+        },
+        {
+          "file": "test/revamp/screen_team_1_golden_test.dart",
+          "name": "intro \u00b7 OpenCode inside the app \u00b7 dark \u00b7 phone",
+          "result": "error"
+        },
+        {
+          "file": "test/revamp/screen_team_1_golden_test.dart",
+          "name": "intro \u00b7 OpenCode inside the app \u00b7 dark \u00b7 wide",
+          "result": "error"
+        },
+        {
+          "file": "test/revamp/screen_team_1_golden_test.dart",
+          "name": "intro \u00b7 OpenCode inside the app \u00b7 light \u00b7 phone",
+          "result": "error"
+        },
+        {
+          "file": "test/revamp/screen_team_1_golden_test.dart",
+          "name": "intro \u00b7 OpenCode inside the app \u00b7 light \u00b7 wide",
+          "result": "error"
+        },
+        {
+          "file": "test/revamp/slice_close_servers_phone_golden_test.dart",
+          "name": "start failed (Size(412.0, 915.0))",
+          "result": "error"
+        },
+        {
+          "file": "test/revamp/slice_close_servers_phone_golden_test.dart",
+          "name": "start failed (Size(1280.0, 800.0))",
+          "result": "error"
+        },
+        {
+          "file": "test/revamp/slice_close_chat_golden_test.dart",
+          "name": "close_chat_queued_refused_dark",
+          "result": "error"
+        },
+        {
+          "file": "test/revamp/slice_close_servers_phone_golden_test.dart",
+          "name": "install failed",
+          "result": "error"
+        },
+        {
+          "file": "test/revamp/slice_close_chat_golden_test.dart",
+          "name": "close_chat_queued_refused_1280x800_dark",
+          "result": "error"
+        },
+        {
+          "file": "test/revamp/slice_close_servers_phone_golden_test.dart",
+          "name": "switch stopped half way",
+          "result": "error"
+        },
+        {
+          "file": "test/revamp/slice_close_servers_phone_golden_test.dart",
+          "name": "up to date (Size(412.0, 915.0))",
+          "result": "error"
+        },
+        {
+          "file": "test/revamp/slice_close_servers_phone_golden_test.dart",
+          "name": "up to date (Size(1280.0, 800.0))",
+          "result": "error"
+        },
+        {
+          "file": "test/revamp/termux_v2_host_golden_test.dart",
+          "name": "This phone in Termux: Add tools, and Claude Code beside it",
+          "result": "error"
+        },
+        {
+          "file": "test/session_address_link_native_test.dart",
+          "name": "test/session_address_link_native_test.dart Android executes the same ASCII byte ceiling before Dart delivery",
+          "result": "error"
+        }
+      ]
+    },
+    {
+      "chunk": 6,
+      "files": 27,
+      "manifest": "chunk-6.txt",
+      "log": "full-6.log",
+      "exit_code": 1,
+      "seconds": 1733.2,
+      "revision": "cc9052019e7cffef9429779fa9e1091ad29514e1",
+      "original_file_count": 241,
+      "entrypoint_count": 27,
+      "seen_files": 241,
+      "missing_files": [],
+      "aggregate_members": {
+        "tool/edge_sweep_agg/shard_600_test.dart": [
+          "test/termux_processes_test.dart",
+          "test/text_scale_overflow_matrix_1_test.dart",
+          "test/usage_read_from_screen_test.dart",
+          "test/widget_action_runner_http_test.dart",
+          "test/team_task_details_test.dart",
+          "test/tools_screen_test.dart",
+          "test/team_work_sheet_test.dart",
+          "test/team_run_layout_test.dart",
+          "test/shorebird_update_notice_test.dart",
+          "test/team_migration_test.dart",
+          "test/terminal_view_test.dart",
+          "test/team_agent_sessions_test.dart",
+          "test/team_project_fixture_test.dart",
+          "test/shipped_download_urls_test.dart",
+          "test/team_models_test.dart",
+          "test/voice_audio_test.dart",
+          "test/voice_model_manifest_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_601_test.dart": [
+          "test/termux_aiteam_script_test.dart",
+          "test/terminal_source_labels_test.dart",
+          "test/turn_stall_test.dart",
+          "test/usage_widget_screen_test.dart",
+          "test/setup_progress_report_test.dart",
+          "test/termux_running_server_test.dart",
+          "test/team_project_editor_fixes_test.dart",
+          "test/team_roles_ui_test.dart",
+          "test/team_gate_answer_test.dart",
+          "test/team_usage_test.dart",
+          "test/team_dispatch_test.dart",
+          "test/update_channel_platform_test.dart",
+          "test/voice_automatic_setup_platform_test.dart",
+          "test/termux_folders_test.dart",
+          "test/termux_aiteam_upstream_test.dart",
+          "test/team_last_known_test.dart",
+          "test/tool_state_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_602_test.dart": [
+          "test/team_activity_test.dart",
+          "test/team_home_test.dart",
+          "test/text_scale_overflow_matrix_4_test.dart",
+          "test/usage_subscription_screen_test.dart",
+          "test/widget_v2_contract_test.dart",
+          "test/team_gate_rows_notifications_test.dart",
+          "test/theme_packs_test.dart",
+          "test/team_controls_test.dart",
+          "test/stash_lifecycle_test.dart",
+          "test/team_home_stable_layout_test.dart",
+          "test/team_project_pages_test.dart",
+          "test/sync_transport_test.dart",
+          "test/sv3_skill_conversation_test.dart",
+          "test/team_project_integration_test.dart",
+          "test/team_conversation_lead_test.dart",
+          "test/team_overview_test.dart",
+          "test/voice_recognizer_config_test.dart",
+          "test/voice_platform_support_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_603_test.dart": [
+          "test/termux_storage_test.dart",
+          "test/setup_apt_repair_test.dart",
+          "test/team_project_controls_test.dart",
+          "test/text_size_test.dart",
+          "test/usage_subscriptions_controller_test.dart",
+          "test/team_merge_test.dart",
+          "test/team_plugins_layout_test.dart",
+          "test/settings_search_rows_test.dart",
+          "test/this_phone_component_removal_test.dart",
+          "test/voice_model_localization_test.dart",
+          "test/voice_automatic_setup_sheet_test.dart",
+          "test/stash_attachments_test.dart",
+          "test/setup_engine_test.dart",
+          "test/setup_config_adapter_test.dart",
+          "test/settings_search_domain_test.dart",
+          "test/theme_roles_test.dart",
+          "test/termux_migration_controller_test.dart",
+          "test/team_storage_redaction_test.dart",
+          "test/widget_snapshot_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_604_test.dart": [
+          "test/termux_setup_native_test.dart",
+          "test/settings_speed_test.dart",
+          "test/team_models_setup_test.dart",
+          "test/text_scale_overflow_matrix_5_test.dart",
+          "test/usage_subscription_sources_test.dart",
+          "test/transcript_search_test.dart",
+          "test/staged_revert_workflow_test.dart",
+          "test/work_tab_status_line_test.dart",
+          "test/team_work_layout_test.dart",
+          "test/usage_statistics_test.dart",
+          "test/this_phone_speed_test.dart",
+          "test/team_work_graph_test.dart",
+          "test/termux_migration_transport_test.dart",
+          "test/setup_component_removal_test.dart",
+          "test/voice_automatic_setup_test.dart",
+          "test/termux_recovery_scripts_test.dart",
+          "test/termux_healing_arm_test.dart",
+          "test/team_project_planning_state_test.dart",
+          "test/while_away_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_605_test.dart": [
+          "test/setup_scripts_test.dart",
+          "test/settings_scope_domain_test.dart",
+          "test/side_connections_test.dart",
+          "test/text_scale_overflow_matrix_2_test.dart",
+          "test/usage_signin_destination_test.dart",
+          "test/widget_action_runner_test.dart",
+          "test/slice_close_servers_profile_editor_test.dart",
+          "test/work_tab_cleanup_test.dart",
+          "test/team_home_layout_test.dart",
+          "test/termux_setup_v2_words_test.dart",
+          "test/team_host_guide_sheet_test.dart",
+          "test/team_work_tab_test.dart",
+          "test/team_control_mutations_test.dart",
+          "test/sv3_tool_test.dart",
+          "test/termux_setup_finish_test.dart",
+          "test/team_fixture_gateway_test.dart",
+          "test/team_project_controller_test.dart",
+          "test/share_intent_native_contract_test.dart",
+          "test/team_usage_evidence_test.dart",
+          "test/workspace_paths_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_606_test.dart": [
+          "test/voice_reply_pipeline_test.dart",
+          "test/settings_session_agent_test.dart",
+          "test/team_follows_runtime_test.dart",
+          "test/text_scale_overflow_matrix_3_test.dart",
+          "test/usage_subscription_alerts_test.dart",
+          "test/widget_overlay_test.dart",
+          "test/stable_chat_layout_test.dart",
+          "test/v2_feature_gating_test.dart",
+          "test/voice_composer_test.dart",
+          "test/this_phone_plain_failures_test.dart",
+          "test/team_project_conversation_test.dart",
+          "test/thermal_guard_test.dart",
+          "test/terminal_key_bar_test.dart",
+          "test/setup_audit_store_test.dart",
+          "test/share_intent_test.dart",
+          "test/setup_controller_test.dart",
+          "test/voice_controller_test.dart",
+          "test/team_directories_test.dart",
+          "test/team_worker_start_test.dart",
+          "test/worktree_inspection_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_607_test.dart": [
+          "test/tailscale_setup_test.dart",
+          "test/settings_scope_controller_test.dart",
+          "test/shared_storage_path_test.dart",
+          "test/text_scale_overflow_matrix_0_test.dart",
+          "test/usage_plans_page_test.dart",
+          "test/voice_settings_page_test.dart",
+          "test/team_conversation_screen_test.dart",
+          "test/web_search_test.dart",
+          "test/team_plugin_off_test.dart",
+          "test/team_on_work_test.dart",
+          "test/v2_transcript_rows_test.dart",
+          "test/team_controller_test.dart",
+          "test/terminal_input_queue_test.dart",
+          "test/team_session_state_test.dart",
+          "test/usage_budgets_test.dart",
+          "test/terminal_lifecycle_test.dart",
+          "test/terminal_close_gone_test.dart",
+          "test/team_gascity_state_table_test.dart",
+          "test/termux_bridge_platform_test.dart",
+          "test/team_gascity_mappers_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_608_test.dart": [
+          "test/team_agent_screen_test.dart",
+          "test/team_board_test.dart",
+          "test/shared_storage_access_flow_test.dart",
+          "test/termux_script_hashes_test.dart",
+          "test/usage_alerts_screen_test.dart",
+          "test/usage_widget_snapshot_test.dart",
+          "test/share_routing_test.dart",
+          "test/terminal_accessibility_test.dart",
+          "test/team_runtime_test.dart",
+          "test/team_cycle_test.dart",
+          "test/team_projects_screen_test.dart",
+          "test/slice_team_g17_test.dart",
+          "test/tailscale_profile_test.dart",
+          "test/setup_preflight_test.dart",
+          "test/shell_output_test.dart",
+          "test/setup_finish_host_test.dart",
+          "test/voice_downloader_test.dart",
+          "test/team_glance_test.dart",
+          "test/termux_migration_space_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_609_test.dart": [
+          "test/setup_runner_native_test.dart",
+          "test/team_agent_chat_test.dart",
+          "test/shared_project_roots_test.dart",
+          "test/termux_default_runtime_test.dart",
+          "test/usage_add_flow_test.dart",
+          "test/usage_widget_settings_test.dart",
+          "test/team_controls_start_run_test.dart",
+          "test/team_refusal_test.dart",
+          "test/worktrees_screen_test.dart",
+          "test/team_f3_ui_fixes_test.dart",
+          "test/tool_card_test.dart",
+          "test/static_svg_test.dart",
+          "test/setup_voice_component_test.dart",
+          "test/setup_registry_test.dart",
+          "test/slice_fix_stop_offer_test.dart",
+          "test/setup_termux_existing_install_test.dart",
+          "test/setup_persistence_failure_test.dart",
+          "test/termux_migration_profile_test.dart",
+          "test/ui_ledger_coverage_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_610_test.dart": [
+          "test/settings_hub_test.dart",
+          "test/teaching_empty_states_test.dart",
+          "test/setup_component_update_test.dart",
+          "test/team_setup_polish_test.dart",
+          "test/tool_label_surfaces_test.dart",
+          "test/usage_subscriptions_test.dart",
+          "test/termux_migration_ui_test.dart",
+          "test/team_one_page_test.dart",
+          "test/slice_close_team_test.dart",
+          "test/team_now_test.dart",
+          "test/team_digest_failure_test.dart",
+          "test/while_away_inbox_test.dart",
+          "test/setup_transaction_test.dart",
+          "test/setup_ui_messages_test.dart",
+          "test/team_control_test.dart",
+          "test/setup_termux_host_test.dart",
+          "test/setup_planner_test.dart",
+          "test/termux_migration_provider_names_test.dart",
+          "test/v1_health_html_flavor_test.dart"
+        ],
+        "tool/edge_sweep_agg/shard_611_test.dart": [
+          "test/settings_server_updates_test.dart",
+          "test/termux_scripts_test.dart",
+          "test/setup_inventory_test.dart",
+          "test/team_status_words_test.dart",
+          "test/transcript_settle_test.dart",
+          "test/usage_widget_claude_home_test.dart",
+          "test/this_phone_screen_test.dart",
+          "test/usage_hub_screen_test.dart",
+          "test/team_project_editors_test.dart",
+          "test/termux_clarity_test.dart",
+          "test/team_policy_test.dart",
+          "test/termux_runtime_switch_test.dart",
+          "test/termux_migration_archive_test.dart",
+          "test/sv3_mcp_test.dart",
+          "test/team_now_line_test.dart",
+          "test/setup_termux_resume_test.dart",
+          "test/staged_revert_message_count_test.dart",
+          "test/termux_setup_bridge_test.dart",
+          "test/voice_model_manager_test.dart"
+        ]
+      },
+      "counts": {
+        "success": 3415,
+        "skipped": 43,
+        "error": 7,
+        "failure": 2
+      },
+      "done": {
+        "success": false,
+        "type": "done",
+        "time": 1689547
+      },
+      "skips": [
+        {
+          "file": "test/termux_aiteam_script_test.dart",
+          "name": "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu status before any install is idle and not installed",
+          "result": "success"
+        },
+        {
+          "file": "test/termux_aiteam_script_test.dart",
+          "name": "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu install downloads the upstream archives, checks them, and installs the packages and the programs inside Ubuntu",
+          "result": "success"
+        },
+        {
+          "file": "test/termux_aiteam_script_test.dart",
+          "name": "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu a second install downloads and installs nothing",
+          "result": "success"
+        },
+        {
+          "file": "test/termux_aiteam_script_test.dart",
+          "name": "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu a package status query that succeeds but reports an unpacked package stops before the programs are unpacked",
+          "result": "success"
+        },
+        {
+          "file": "test/termux_aiteam_script_test.dart",
+          "name": "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu a checksum mismatch stops before anything reaches Ubuntu",
+          "result": "success"
+        },
+        {
+          "file": "test/termux_aiteam_script_test.dart",
+          "name": "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu a refused download names the host and HTTP status; Try again fetches only what is missing",
+          "result": "success"
+        },
+        {
+          "file": "test/termux_aiteam_script_test.dart",
+          "name": "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu a download cut off mid-file resumes where it stopped",
+          "result": "success"
+        },
+        {
+          "file": "test/termux_aiteam_script_test.dart",
+          "name": "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu a program Android stops (SIGSYS) fails in plain words, and Try again downloads nothing",
+          "result": "success"
+        },
+        {
+          "file": "test/termux_aiteam_script_test.dart",
+          "name": "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu install without Ubuntu, or on a 32-bit phone, says so",
+          "result": "success"
+        },
+        {
+          "file": "test/termux_aiteam_script_test.dart",
+          "name": "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu init makes the tuned store and adds the project with its phone-side origin and hook",
+          "result": "success"
+        },
+        {
+          "file": "test/termux_aiteam_script_test.dart",
+          "name": "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu merged work reaches /root/projects/<project> through the hook",
+          "result": "success"
+        },
+        {
+          "file": "test/termux_aiteam_script_test.dart",
+          "name": "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu init refuses what it cannot use, in plain words",
+          "result": "success"
+        },
+        {
+          "file": "test/termux_aiteam_script_test.dart",
+          "name": "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu init takes a Termux-side path and fixes an origin by that path (the earlier native layout)",
+          "result": "success"
+        },
+        {
+          "file": "test/termux_aiteam_script_test.dart",
+          "name": "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu start runs the supervisor in its own Ubuntu login, registers and waits; stop takes it all down",
+          "result": "success"
+        },
+        {
+          "file": "test/termux_aiteam_script_test.dart",
+          "name": "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu a supervisor that vanished while ready reads as killed by Android, and start brings it back",
+          "result": "success"
+        },
+        {
+          "file": "test/termux_aiteam_script_test.dart",
+          "name": "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu start without a team, or a supervisor that dies, fails",
+          "result": "success"
+        },
+        {
+          "file": "test/termux_aiteam_script_test.dart",
+          "name": "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu remove deletes the programs and the team; the project and its origin stay",
+          "result": "success"
+        },
+        {
+          "file": "test/termux_aiteam_script_test.dart",
+          "name": "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu remove never deletes a foreign opencode in $PREFIX/bin",
+          "result": "success"
+        },
+        {
+          "file": "test/termux_aiteam_script_test.dart",
+          "name": "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu a verb that dies mid-way reads as failed, not busy forever",
+          "result": "success"
+        },
+        {
+          "file": "test/termux_aiteam_script_test.dart",
+          "name": "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu every verb appends to aiteam.log and the OpenCode install log",
+          "result": "success"
+        },
+        {
+          "file": "test/termux_aiteam_script_test.dart",
+          "name": "test/termux_aiteam_script_test.dart aiteam.sh in Termux's Ubuntu the bridge dispatch writes the script, the pins and the project's script, queues, detaches and refuses while busy",
+          "result": "success"
+        },
+        {
+          "file": "test/termux_aiteam_script_test.dart",
+          "name": "test/termux_aiteam_script_test.dart TermuxTeamRuntime over the oc/termux channel Set up takes the team from idle to running and gives the Termux profile its loopback config",
+          "result": "success"
+        },
+        {
+          "file": "test/termux_setup_native_test.dart",
+          "name": "test/termux_setup_native_test.dart Termux durable shell: progress-and-finish",
+          "result": "success"
+        },
+        {
+          "file": "test/termux_setup_native_test.dart",
+          "name": "test/termux_setup_native_test.dart Termux durable shell: cancel-and-resume",
+          "result": "success"
+        },
+        {
+          "file": "test/termux_setup_native_test.dart",
+          "name": "test/termux_setup_native_test.dart Termux durable shell: interrupted-launch",
+          "result": "success"
+        },
+        {
+          "file": "test/voice_reply_pipeline_test.dart",
+          "name": "test/voice_reply_pipeline_test.dart capture production voice states dark",
+          "result": "success"
+        },
+        {
+          "file": "test/voice_reply_pipeline_test.dart",
+          "name": "test/voice_reply_pipeline_test.dart capture production voice states light",
+          "result": "success"
+        },
+        {
+          "file": "test/voice_reply_pipeline_test.dart",
+          "name": "test/voice_reply_pipeline_test.dart capture production voice states large",
+          "result": "success"
+        },
+        {
+          "file": "test/setup_runner_native_test.dart",
+          "name": "test/setup_runner_native_test.dart native setup persistence: interrupted-installer-retry",
+          "result": "success"
+        },
+        {
+          "file": "test/setup_runner_native_test.dart",
+          "name": "test/setup_runner_native_test.dart native setup persistence: ordered-terminal",
+          "result": "success"
+        },
+        {
+          "file": "test/setup_runner_native_test.dart",
+          "name": "test/setup_runner_native_test.dart native setup persistence: installer-routed",
+          "result": "success"
+        },
+        {
+          "file": "test/setup_runner_native_test.dart",
+          "name": "test/setup_runner_native_test.dart native setup persistence: setup-work-owned",
+          "result": "success"
+        },
+        {
+          "file": "test/setup_runner_native_test.dart",
+          "name": "test/setup_runner_native_test.dart native setup persistence: setup-work-revoked-before-worker",
+          "result": "success"
+        },
+        {
+          "file": "test/setup_runner_native_test.dart",
+          "name": "test/setup_runner_native_test.dart native setup persistence: typed-write-failure",
+          "result": "success"
+        },
+        {
+          "file": "test/setup_runner_native_test.dart",
+          "name": "test/setup_runner_native_test.dart native setup persistence: failed-start-status",
+          "result": "success"
+        },
+        {
+          "file": "test/setup_runner_native_test.dart",
+          "name": "test/setup_runner_native_test.dart native setup persistence: service-start-denied",
+          "result": "success"
+        },
+        {
+          "file": "test/setup_runner_native_test.dart",
+          "name": "test/setup_runner_native_test.dart native setup persistence: service-finish-denied",
+          "result": "success"
+        },
+        {
+          "file": "test/setup_runner_native_test.dart",
+          "name": "test/setup_runner_native_test.dart native setup persistence: service-update-denied",
+          "result": "success"
+        },
+        {
+          "file": "test/setup_runner_native_test.dart",
+          "name": "test/setup_runner_native_test.dart native setup persistence: agent-output-private",
+          "result": "success"
+        },
+        {
+          "file": "test/setup_runner_native_test.dart",
+          "name": "test/setup_runner_native_test.dart native setup persistence: low-space-first",
+          "result": "success"
+        },
+        {
+          "file": "test/setup_runner_native_test.dart",
+          "name": "test/setup_runner_native_test.dart native setup persistence: low-space-next",
+          "result": "success"
+        },
+        {
+          "file": "test/setup_runner_native_test.dart",
+          "name": "test/setup_runner_native_test.dart native setup persistence: paseo-checksum-failed",
+          "result": "success"
+        },
+        {
+          "file": "test/setup_runner_native_test.dart",
+          "name": "test/setup_runner_native_test.dart native setup persistence: paseo-launch-failed",
+          "result": "success"
+        }
+      ],
+      "failures": [
+        {
+          "file": "test/termux_migration_transport_test.dart",
+          "name": "test/termux_migration_transport_test.dart authenticated stream resumes flushed chunks after bridge loss",
+          "result": "error"
+        },
+        {
+          "file": "test/team_runtime_test.dart",
+          "name": "test/team_runtime_test.dart GasCityGateway on the phone loopback + phone host turns controls on without a front and posts with X-GC-Request only",
+          "result": "failure"
+        },
+        {
+          "file": "test/voice_downloader_test.dart",
+          "name": "test/voice_downloader_test.dart cancellation aborts a stalled native TLS handshake promptly",
+          "result": "failure"
+        },
+        {
+          "file": "test/team_on_work_test.dart",
+          "name": "test/team_on_work_test.dart disclaimer per host kind (Technical details) pc shows its line, and only its line",
+          "result": "error"
+        },
+        {
+          "file": "test/team_on_work_test.dart",
+          "name": "test/team_on_work_test.dart disclaimer per host kind (Technical details) laptop shows its line, and only its line",
+          "result": "error"
+        },
+        {
+          "file": "test/team_on_work_test.dart",
+          "name": "test/team_on_work_test.dart disclaimer per host kind (Technical details) wsl shows its line, and only its line",
+          "result": "error"
+        },
+        {
+          "file": "test/team_on_work_test.dart",
+          "name": "test/team_on_work_test.dart disclaimer per host kind (Technical details) phone shows its line, and only its line",
+          "result": "error"
+        },
+        {
+          "file": "test/team_on_work_test.dart",
+          "name": "test/team_on_work_test.dart disclaimer per host kind (Technical details) a config without a kind shows the mode default",
+          "result": "error"
+        },
+        {
+          "file": "test/team_on_work_test.dart",
+          "name": "test/team_on_work_test.dart disclaimer per host kind (Technical details) Arabic carries the laptop line",
+          "result": "error"
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "success": 20370,
+    "skipped": 229,
+    "error": 34,
+    "failure": 7
+  },
+  "all_chunks_completed": true,
+  "initial_all_passed": false
+}

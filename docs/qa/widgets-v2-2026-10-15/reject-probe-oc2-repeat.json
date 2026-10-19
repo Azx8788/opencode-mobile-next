@@ -1,0 +1,376 @@
+{
+  "server_version": "2.0.29",
+  "flavor": "oc2",
+  "server_status_endpoint": "GET /api/session/active",
+  "model": "opencode/big-pickle",
+  "rows": [
+    {
+      "seconds": 0.136,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 0.391,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 1.37,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 1.625,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 1.879,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 2.134,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 2.407,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 2.661,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 2.917,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 3.172,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 3.428,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 3.685,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 3.945,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 4.203,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 4.462,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 4.723,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 4.983,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 5.24,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 5.497,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 5.754,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 6.02,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 6.279,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 6.534,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 6.793,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 7.049,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 7.304,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 7.558,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 7.814,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 8.07,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 8.332,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 8.589,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 8.846,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 9.108,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 9.363,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 9.619,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 9.875,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 10.134,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 10.387,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 10.642,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 10.905,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 11.16,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 11.435,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 11.688,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 11.944,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 12.197,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 12.457,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 12.714,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 12.967,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 13.227,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 14.737,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 14.991,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 1
+    },
+    {
+      "seconds": 15.265,
+      "status": {
+        "type": "idle"
+      },
+      "pending_count": 0
+    }
+  ],
+  "rejected_seconds": 15.008427246008068,
+  "idle_semantics": "Idle status or absent from the complete status map",
+  "probe_completed": true,
+  "post_reject_first_idle_seconds": 0.257
+}

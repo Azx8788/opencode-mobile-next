@@ -84,6 +84,20 @@ Finder get _signOut => find.byKey(const ValueKey('agents-sign-out'));
 void main() {
   setUpAll(loadCaptureFonts);
 
+  testWidgets('Use Claude Code opens a new conversation with it chosen', (
+    tester,
+  ) async {
+    // Owner, 2026-10-17: the button only closed the sheet.
+    final agents = _claude();
+    await _pump(tester, agents);
+    await _openClaudeSheet(tester);
+    await tester.tap(find.byKey(const ValueKey('agents-sign-in-done')));
+    await tester.pumpAndSettle();
+    expect(agents.selectedChatAgentId, 'claude');
+    expect(find.text('What should we work on?'), findsOneWidget);
+    expect(find.byKey(const ValueKey('chats-new-agent')), findsOneWidget);
+  });
+
   group('the Settings row says Signed in only after the status check', () {
     testWidgets('a confirmed sign-in reads Signed in, not Ready', (
       tester,

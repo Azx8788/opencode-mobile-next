@@ -8,9 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/background/live_background.dart';
 import 'package:opencode_mobile/background/team_alerts.dart';
 import 'package:opencode_mobile/domain/orchestration_gateway.dart';
@@ -36,7 +36,7 @@ class _Repository implements ProductRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-class _Api extends OpenCodeApi with CompleteMessageHistory {
+class _Api extends FakeServerGateway with CompleteMessageHistory {
   _Api() : super(baseUrl: 'http://localhost:4096');
 
   @override

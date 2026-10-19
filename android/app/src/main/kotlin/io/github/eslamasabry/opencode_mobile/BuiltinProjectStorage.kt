@@ -1,6 +1,13 @@
 package io.github.eslamasabry.opencode_mobile
 
 import java.io.File
+import java.io.IOException
+import java.nio.file.FileVisitResult
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.nio.file.SimpleFileVisitor
+import java.nio.file.attribute.BasicFileAttributes
 
 /**
  * App-private projects survive removal of the disposable Linux runtime.
@@ -67,13 +74,52 @@ class BuiltinProjectStorage(
         rejectCollision()
         if (inspect(legacy) != null && children(legacy).isNotEmpty()) {
             // A missing or empty destination is the only safe rename target.
+            // Links may spell the folder either way (/data/user/0 or /data/data).
+            val before = listOf(legacy.absolutePath, legacy.canonicalPath)
             if (inspect(projects) != null) check(projects.delete())
             check(legacy.renameTo(projects))
+            val after = listOf(projects.absolutePath, projects.canonicalPath)
+            repointMovedLinks(before.zip(after).distinct())
         }
         makeDirectory(projects)
         if (inspect(rootfs) != null) {
             makeDirectory(root)
             makeDirectory(legacy)
+        }
+    }
+
+    /**
+     * proot's link2symlink made every hard link (each Git object, for one)
+     * a link holding the absolute path it was made at. After the move above
+     * those still name the old folder, and Git says `bad object HEAD`; each
+     * link into the old folder is pointed at the same place in the new one.
+     * Best effort: an entry that can't be read or changed keeps its link,
+     * and nothing here can stop the move from being used.
+     */
+    private fun repointMovedLinks(moved: List<Pair<String, String>>) {
+        try {
+            Files.walkFileTree(projects.toPath(), object : SimpleFileVisitor<Path>() {
+                override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult {
+                    if (attrs.isSymbolicLink) repoint(file, moved)
+                    return FileVisitResult.CONTINUE
+                }
+
+                override fun visitFileFailed(file: Path, exc: IOException): FileVisitResult =
+                    FileVisitResult.CONTINUE
+            })
+        } catch (_: Exception) {
+        }
+    }
+
+    private fun repoint(link: Path, moved: List<Pair<String, String>>) {
+        try {
+            val target = Files.readSymbolicLink(link).toString()
+            val (old, new) = moved.firstOrNull { (old, _) ->
+                target == old || target.startsWith("$old/")
+            } ?: return
+            Files.delete(link)
+            Files.createSymbolicLink(link, Paths.get(new + target.substring(old.length)))
+        } catch (_: Exception) {
         }
     }
 

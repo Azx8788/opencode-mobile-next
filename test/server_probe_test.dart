@@ -4,7 +4,7 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/server_probe.dart';
+import 'package:opencode_mobile/domain/server_probe.dart';
 
 /// Serves canned HTTP answers per path so every probe branch is exercised
 /// without a network.
@@ -160,16 +160,24 @@ void main() {
     expect(result.version, '2.0.10');
   });
 
-  test('a 404 on /api/health falls through to the v1 health check', () async {
-    final result = await probe(
-      handler: (options) => options.path.endsWith('/api/health')
-          ? _empty(404)
-          : _json('{"healthy":true,"version":"0.3.5"}', 200),
-    );
-    expect(result.ok, isTrue);
-    expect(result.flavor, ServerFlavor.v1);
-    expect(result.version, '0.3.5');
-  });
+  test(
+    'a legacy server is rejected with a plain upgrade instruction',
+    () async {
+      final result = await probe(
+        handler: (options) => options.path.endsWith('/api/health')
+            ? _empty(404)
+            : _json('{"healthy":true,"version":"0.3.5"}', 200),
+      );
+      expect(result.ok, isFalse);
+      expect(result.flavor, ServerFlavor.unknown);
+      expect(result.unsupportedLegacy, isTrue);
+      expect(result.message, unsupportedOpenCode1Message);
+      expect(
+        openCode2UpgradeCommand,
+        'npm uninstall -g opencode-ai && npm install -g @opencode/cli@2.0.29',
+      );
+    },
+  );
 
   test(
     'an address answering neither health route is not an OpenCode server',
@@ -191,9 +199,10 @@ void main() {
             ? _json('{"status":"ok"}', 200)
             : _json('{"healthy":true,"version":"0.3.9"}', 200),
       );
-      expect(result.ok, isTrue);
-      expect(result.flavor, ServerFlavor.v1);
-      expect(result.version, '0.3.9');
+      expect(result.ok, isFalse);
+      expect(result.flavor, ServerFlavor.unknown);
+      expect(result.unsupportedLegacy, isTrue);
+      expect(result.message, unsupportedOpenCode1Message);
     },
   );
 
@@ -244,7 +253,7 @@ void main() {
     expect(result.ok, isFalse);
     expect(
       result.message,
-      'The connection was refused. Is opencode serve running on that '
+      'The connection was refused. Is opencode2 serve running on that '
       'host and port?',
     );
     expect(result.suggestsMissingServer, isTrue);
@@ -298,9 +307,10 @@ void main() {
           ? _json('{"healthy":true}', 200)
           : _json('{"healthy":true,"version":"1.18.25"}', 200),
     );
-    expect(result.ok, isTrue);
-    expect(result.flavor, ServerFlavor.v1);
-    expect(result.version, '1.18.25');
+    expect(result.ok, isFalse);
+    expect(result.flavor, ServerFlavor.unknown);
+    expect(result.unsupportedLegacy, isTrue);
+    expect(result.message, unsupportedOpenCode1Message);
     expect(result.needsPassword, isFalse);
   });
 }

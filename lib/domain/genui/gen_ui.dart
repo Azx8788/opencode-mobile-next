@@ -1,7 +1,7 @@
 /// Phone-native, app-owned Agent cards. Agent input remains untrusted.
 library;
 
-export '../../api/models.dart' show Part, MessageWithParts, PromptAttachment;
+export '../../domain/models.dart' show Part, MessageWithParts, PromptAttachment;
 export '../chat_feed.dart' show ChatFeedItem;
 export 'gen_ui_answers.dart';
 export 'gen_ui_asks.dart';

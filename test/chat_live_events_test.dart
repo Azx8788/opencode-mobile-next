@@ -20,11 +20,11 @@ import 'package:opencode_mobile/ui/kit/kit.dart'
         KitTurn,
         KitZoom,
         KitUndo;
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:opencode_mobile/state/review_handoff.dart';
@@ -49,7 +49,7 @@ part 'chat_live_events/transport_tools_tests.dart';
 part 'chat_live_events/commands_timeline_tests.dart';
 part 'chat_live_events/composer_errors_tests.dart';
 
-class _FakeOpenCodeApi extends OpenCodeApi with CompleteMessageHistory {
+class _FakeOpenCodeApi extends FakeServerGateway with CompleteMessageHistory {
   _FakeOpenCodeApi() : super(baseUrl: 'http://localhost');
 
   Future<List<MessageWithParts>> Function(String id)? messagesHandler;
@@ -194,10 +194,15 @@ class _FakeOpenCodeApi extends OpenCodeApi with CompleteMessageHistory {
 }
 
 class _FakeProductRepository implements ProductRepository {
-  _FakeProductRepository(this.commands, {this.references = const []});
+  _FakeProductRepository(
+    this.commands, {
+    this.references = const [],
+    this.vcsDiffs = const [],
+  });
 
   final List<CommandInfo> commands;
   final List<ReferenceInfo> references;
+  final List<FileDiff> vcsDiffs;
   String? forkMessageID;
   int forkCalls = 0;
 
@@ -206,6 +211,9 @@ class _FakeProductRepository implements ProductRepository {
 
   @override
   Future<List<ReferenceInfo>> listReferences() async => references;
+
+  @override
+  Future<List<FileDiff>> listVcsDiffs(VcsDiffMode mode) async => vcsDiffs;
 
   @override
   Future<String> forkSession(String id, {String? messageID}) async {
@@ -417,14 +425,16 @@ Finder _textField(Finder field) => find.descendant(
   matchRoot: true,
 );
 
-Future<ConnectionController> _controller(
-  _FakeOpenCodeApi api, {
-  bool savedProfile = false,
-}) async {
+Future<ProfileStore> _profileStore({bool savedProfile = true}) async {
   SharedPreferences.setMockInitialValues({
     if (savedProfile) ...{
       'oc.profiles': jsonEncode([
-        {'id': 'profile', 'name': 'Synthetic', 'baseUrl': 'http://localhost'},
+        {
+          'id': 'profile',
+          'name': 'Synthetic',
+          'flavor': 'v2',
+          'baseUrl': 'http://localhost',
+        },
       ]),
       'oc.activeProfile': 'profile',
     },
@@ -432,7 +442,8 @@ Future<ConnectionController> _controller(
   final prefs = await SharedPreferences.getInstance();
   final store = ProfileStore(prefs: prefs);
   if (savedProfile) {
-    // Navigation guards require the saved profile whose location they protect.
+    // Navigation guards and durable online sends require their real saved
+    // profile, just as a connected chat has in the app.
     const secure = MethodChannel(
       'plugins.it_nomads.com/flutter_secure_storage',
     );
@@ -442,7 +453,21 @@ Future<ConnectionController> _controller(
     addTearDown(() => messenger.setMockMethodCallHandler(secure, null));
     await store.load();
   }
-  return ConnectionController(store)
+  return store;
+}
+
+Future<ConnectionController> _controller(
+  _FakeOpenCodeApi api, {
+  bool savedProfile = true,
+  bool staticCatalog = false,
+  Completer<FakeServerGateway?>? readyApi,
+}) async {
+  final store = await _profileStore(savedProfile: savedProfile);
+  return (readyApi != null
+        ? _DelayedActionController(store, readyApi)
+        : staticCatalog
+        ? _StaticCatalogController(store)
+        : ConnectionController(store))
     ..api = api
     ..status = StreamStatus.connected;
 }
@@ -450,10 +475,10 @@ Future<ConnectionController> _controller(
 class _DelayedActionController extends ConnectionController {
   _DelayedActionController(super.store, this.readyApi);
 
-  final Completer<OpenCodeApi?> readyApi;
+  final Completer<FakeServerGateway?> readyApi;
 
   @override
-  Future<OpenCodeApi?> prepareActionTransport() async {
+  Future<FakeServerGateway?> prepareActionTransport() async {
     final replacement = await readyApi.future;
     // Real wake recovery publishes the replacement before returning it.
     api = replacement;
@@ -489,6 +514,11 @@ class _DelayedLocationController extends ConnectionController {
 
 class _StaticCatalogController extends ConnectionController {
   _StaticCatalogController(super.store);
+
+  // Commands may request a fresh catalog. These interaction fixtures seed
+  // their own agents and selection; an empty transport catalog is unrelated.
+  @override
+  Future<void> ensureCatalog() async {}
 
   @override
   Future<void> refreshCatalog() async {}

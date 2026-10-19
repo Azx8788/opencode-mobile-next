@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'support/complete_message_history.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/background/attention_tile_snapshot.dart';
 import 'package:opencode_mobile/background/pinned_session_shortcuts.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
@@ -38,7 +38,7 @@ class _MemoryProfileStore extends ProfileStore {
   }
 }
 
-class _Api extends OpenCodeApi with CompleteMessageHistory {
+class _Api extends FakeServerGateway with CompleteMessageHistory {
   _Api() : super(baseUrl: 'http://localhost:4096');
 
   @override

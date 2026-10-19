@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../support/no_red.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/ui/app_theme.dart';
 import 'package:opencode_mobile/ui/kit/kit_buttons.dart';
@@ -481,7 +482,7 @@ void main() {
           final roles = _roles(tester);
           expect(_iconColour(tester), roles.text1, reason: '$tone');
           expect(_iconColour(tester), isNot(roles.attention));
-          expect(_iconColour(tester), isNot(roles.danger));
+          expect(_iconColour(tester), isNotRed);
         }
       });
 

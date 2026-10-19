@@ -11,10 +11,7 @@ void main() {
 
   Map<String, dynamic> record({String id = 'claude'}) => {
     'id': id,
-    'agentVersion': AgentCatalog.builtIn
-        .byId(id == 'opencode1' ? 'opencode' : id)
-        ?.recipe
-        ?.version,
+    'agentVersion': AgentCatalog.builtIn.byId(id)?.recipe?.version,
     'helperVersion': '0.9.2',
     'architecture': 'arm64',
     'cells': {
@@ -288,35 +285,21 @@ void main() {
     }
   });
 
-  test(
-    'duplicate IDs invalidate all records including the OpenCode 1 alias',
-    () {
-      expectClosed(project([record(), record()]));
-      expectClosed(
-        project([
-          record(),
-          {'id': 'claude', 'cells': null},
-        ]),
-      );
-      expectClosed(
-        project([
-          {'id': 'claude'},
-          record(),
-        ]),
-      );
-      final opencode = AgentCatalog.builtIn.byId('opencode')!;
-      expect(
-        project([record(id: 'opencode1')], descriptor: opencode).resumeVerified,
-        isTrue,
-      );
-      expectClosed(
-        project([
-          record(id: 'opencode'),
-          record(id: 'opencode1'),
-        ], descriptor: opencode),
-      );
-    },
-  );
+  test('duplicate IDs invalidate all records', () {
+    expectClosed(project([record(), record()]));
+    expectClosed(
+      project([
+        record(),
+        {'id': 'claude', 'cells': null},
+      ]),
+    );
+    expectClosed(
+      project([
+        {'id': 'claude'},
+        record(),
+      ]),
+    );
+  });
 
   test('malformed and unrecognized records never grant capabilities', () {
     for (final invalid in [null, [], 3, 'records']) {
@@ -412,6 +395,8 @@ void main() {
         'codex',
         'gemini',
         'qwen',
+        'kilo',
+        'cline',
         'goose',
         'omp-acp',
         'fx',

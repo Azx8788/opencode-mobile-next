@@ -8,6 +8,12 @@ export 'kit/kit_icon.dart' show AppGlyph, AppBrandMark;
 /// adds a quiet duotone fill; More stays as dots. Static references let Flutter
 /// remove unused font glyphs when building a release. Artwork is Phosphor 2.1.0
 /// (MIT); native IconData keeps compatibility with Flutter 3.47.2.
+/// Mirroring (`matchTextDirection`) is only for glyphs that point along the
+/// reading direction: back/forward, the carets (the vertical ones are
+/// symmetric, so their flag is a no-op kept so no RTL render changes), the
+/// nested-reply elbow, reply, undo, sign-in, open-in-new and the return key. Objects, clocks,
+/// checks, media controls, vertical arrows and brand marks never mirror
+/// (`test/app_iconography_mirroring_test.dart` pins the set).
 @staticIconProvider
 abstract final class AppIconography {
   static const navigationSize = 24.0;
@@ -117,7 +123,7 @@ abstract final class AppIconography {
   static const externalLink = IconData(
     0xe5de,
     fontFamily: 'AppPhosphorRegular',
-    matchTextDirection: false,
+    matchTextDirection: true,
   );
   static const review = IconData(
     0xe27c,
@@ -647,10 +653,10 @@ abstract final class AppIconography {
   static const login = IconData(
     0xe428,
     fontFamily: 'AppPhosphorRegular',
-    matchTextDirection: false,
+    matchTextDirection: true,
   );
   static const lowPriority = IconData(
-    0xe03e,
+    0xe126,
     fontFamily: 'AppPhosphorRegular',
     matchTextDirection: false,
   );
@@ -670,7 +676,7 @@ abstract final class AppIconography {
     matchTextDirection: false,
   );
   static const networkCheck = IconData(
-    0xee74,
+    0xe4ea,
     fontFamily: 'AppPhosphorRegular',
     matchTextDirection: false,
   );
@@ -797,7 +803,7 @@ abstract final class AppIconography {
   static const returnKey = IconData(
     0xe782,
     fontFamily: 'AppPhosphorRegular',
-    matchTextDirection: false,
+    matchTextDirection: true,
   );
   static const save = IconData(
     0xe248,

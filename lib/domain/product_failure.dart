@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/services.dart' show PlatformException;
 
-import '../api/mcp_oauth.dart' show McpOAuthCallbackException;
-import '../api/opencode_api.dart' show ApiException;
-import '../api/product_repository.dart' show ProductException;
+import '../domain/mcp_oauth.dart' show McpOAuthCallbackException;
+import 'models.dart' show ApiException;
+import '../domain/product_repository.dart' show ProductException;
 import '../api2/transport.dart' show Api2Error, Api2NetworkError;
 import '../builtin/builtin_folders.dart'
     show FolderListException, FolderListProblem;
@@ -86,6 +86,10 @@ enum ProductFailureCategory {
   device,
   storage,
 
+  /// The project's Git history can't be read (the agent host's Git refused
+  /// it), so the agent could not start there.
+  projectGit,
+
   /// Termux did not finish a command the app sent it.
   termux,
 
@@ -110,6 +114,16 @@ final RegExp _httpStatus = RegExp(
   r'\b(?:HTTP|status(?: code)?|answered|returned|responded)\D{0,12}\b([1-5]\d\d)\b',
   caseSensitive: false,
 );
+
+/// Whether a daemon's reason says Git could not read the project.
+final RegExp _gitReason = RegExp(
+  r'git command failed|bad object|not a git repository|garbage found'
+  r'|unable to read tree|object file .* is empty|loose object .* corrupt',
+  caseSensitive: false,
+);
+
+bool _isGitReason(String? reason) =>
+    reason != null && _gitReason.hasMatch(reason);
 
 /// The kind of failure a status code says.
 ProductFailureCategory _forStatus(int code) => switch (code) {
@@ -249,6 +263,15 @@ ProductFailureCategory _classify(Object error) {
       FolderListProblem.linked => ProductFailureCategory.folderLinked,
     };
   }
+  // A start wrapped in "Could not start this chat…" whose cause is the
+  // project's Git: the Git words and their repair, not "refresh" (the
+  // owner's phone and the emulator, 2026-10-18).
+  if (error is ProductException) {
+    final cause = error.cause;
+    if (cause is PaseoFailure && _isGitReason(cause.reason)) {
+      return ProductFailureCategory.projectGit;
+    }
+  }
   if (error is ProductException ||
       error is McpOAuthCallbackException ||
       error is SecureStorageUnavailable) {
@@ -259,15 +282,18 @@ ProductFailureCategory _classify(Object error) {
     if (error.errorTag == 'SessionRevertPending') {
       return ProductFailureCategory.stagedRevert;
     }
+    if (error is PaseoFailure && _isGitReason(error.reason)) {
+      return ProductFailureCategory.projectGit;
+    }
     final code = error.statusCode;
     if (code != null && code >= 400) return _forStatus(code);
     if (const {
-      'Paseounavailable',
-      'Paseodisconnected',
-      'PaseoinvalidResponse',
-      'PaseohostRefused',
-      'PaseoinvalidEndpoint',
-      'PaseoincompatibleProtocol',
+      'Paseo unavailable',
+      'Paseo disconnected',
+      'Paseo invalidResponse',
+      'Paseo hostRefused',
+      'Paseo invalidEndpoint',
+      'Paseo incompatibleProtocol',
     }.contains(error.errorTag)) {
       return ProductFailureCategory.computer;
     }
@@ -323,7 +349,11 @@ String? _technicalDetails(Object? error) {
       return null;
     case ProductException(:final cause):
       if (cause == null) return null;
-      raw = '$cause';
+      // The cause's own details: a Paseo refusal's sentence (its reason)
+      // is not part of its toString, and an unknown type names itself.
+      raw =
+          (cause is ProductException ? null : _technicalDetails(cause)) ??
+          '$cause';
     case SecureStorageUnavailable(:final cause):
       if (cause == null) return null;
       raw = '$cause';

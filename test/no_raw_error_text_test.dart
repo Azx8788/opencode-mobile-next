@@ -15,7 +15,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart' show ApiException;
+import 'support/fake_server_gateway.dart' show ApiException;
 import 'package:opencode_mobile/api2/transport.dart';
 import 'package:opencode_mobile/domain/product_failure.dart';
 

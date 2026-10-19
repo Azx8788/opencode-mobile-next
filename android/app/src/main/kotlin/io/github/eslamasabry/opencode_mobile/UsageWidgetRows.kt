@@ -21,7 +21,11 @@ internal object UsageWidgetRows {
     /** One row per provider window, grouped by server then provider order. */
     fun readRows(context: Context): List<UsageWidgetRow> {
         val prefs = context.getSharedPreferences(FLUTTER_PREFS, Context.MODE_PRIVATE)
-        readSubscriptionRows(prefs.getString(SUBS_KEY, null))?.let { return it }
+        val subscriptions = readSubscriptionRows(prefs.getString(SUBS_KEY, null))
+        val hasSelection = prefs.contains("flutter.oc.usageWidget.v1")
+        if (hasSelection || subscriptions?.any { !it.signInOnly } == true) {
+            return subscriptions.orEmpty()
+        }
         val rows = mutableListOf<UsageWidgetRow>()
         for (key in prefs.all.keys.filter { it.startsWith(PREFIX) }.sorted()) {
             val raw = prefs.getString(key, null) ?: continue
@@ -32,7 +36,8 @@ internal object UsageWidgetRows {
             }
         }
         // Stable: servers keep their order within one provider.
-        return rows.sortedWith(compareBy({ providerRank(it.provider) }, { it.provider }))
+        val profiles = rows.sortedWith(compareBy({ providerRank(it.provider) }, { it.provider }))
+        return UsageWidgetPlans.chooseFeed(subscriptions, profiles, hasSelection)
     }
 
     /** Null means the subscription feed is absent or unreadable, so use the profile feed. */

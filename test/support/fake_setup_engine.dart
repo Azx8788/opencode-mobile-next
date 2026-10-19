@@ -75,6 +75,10 @@ class FakeSetupEngine implements SetupEngine {
   var restores = 0;
   Set<String> optionalInstalled = {};
 
+  /// How many [installedOptional] reads fail before one answers (the task
+  /// slot still held as setup ends).
+  int optionalFailures = 0;
+
   /// Published when [run] is called, as the real engine publishes the new
   /// job; null leaves the progress as it was.
   SetupProgress? afterRun;
@@ -102,6 +106,10 @@ class FakeSetupEngine implements SetupEngine {
 
   @override
   Future<Set<String>> installedOptional() async {
+    if (optionalFailures > 0) {
+      optionalFailures--;
+      throw StateError('Another phone task is running.');
+    }
     final snapshot = optionalInstalled;
     final gate = optionalGate;
     if (gate != null) await gate;

@@ -125,10 +125,11 @@ enum KitButtonRole { primary, secondary, tertiary }
 
 /// The only buttons a migrated screen uses (visual language §5): primary
 /// (accent filled, `onAccent` words), secondary (`surface3`) and tertiary
-/// (neutral `text1` words; `danger` when destructive, `text3` when disabled, so
+/// (neutral `text1` words, also when destructive; `text3` when disabled, so
 /// an enabled inline action never looks disabled), all at least 48 dp tall, 50 dp at full width, with
-/// 14 dp corners. A destructive primary is the one `dangerFill` button,
-/// used only inside a confirmation.
+/// 14 dp corners. A destructive primary is the strong neutral
+/// (`text1` fill, `ground` words), never red; used only inside a
+/// confirmation, which is what makes it safe.
 ///
 /// [working] swaps the icon for a small spinner while the button's own tap
 /// is in flight (a second or two, e.g. creating a conversation): the icon
@@ -427,7 +428,7 @@ class KitButton extends StatelessWidget {
     final ringColor = role != KitButtonRole.primary
         ? roles.accent
         : destructive
-        ? roles.onDangerFill
+        ? roles.ground
         : roles.onAccent;
     final ring = WidgetStateProperty.resolveWith<BorderSide?>(
       (states) => states.contains(WidgetState.focused)
@@ -443,10 +444,9 @@ class KitButton extends StatelessWidget {
     // label from the tracker; Material's splash and its delayed pressed
     // highlight are off.
     final pressedLayer = switch (role) {
-      KitButtonRole.primary =>
-        destructive ? roles.onDangerFill : roles.onAccent,
-      KitButtonRole.secondary => destructive ? roles.danger : roles.text1,
-      KitButtonRole.tertiary => destructive ? roles.danger : roles.text1,
+      KitButtonRole.primary => destructive ? roles.ground : roles.onAccent,
+      KitButtonRole.secondary => roles.text1,
+      KitButtonRole.tertiary => roles.text1,
     }.withValues(alpha: 0.16);
     final showPressed = press.shown && onPressed != null && !working;
     ButtonStyle pressable(ButtonStyle style) => style.copyWith(
@@ -468,19 +468,19 @@ class KitButton extends StatelessWidget {
     switch (role) {
       case KitButtonRole.primary:
         // Destructive is primary only where the whole sheet or screen is
-        // that one confirmed act (design standard §2): the one red fill.
+        // that one confirmed act (design standard §2): the strong neutral fill, never red.
         final style = pressable(
           FilledButton.styleFrom(
             minimumSize: minimum,
             shape: shape,
             elevation: 0,
             backgroundColor: destructive
-                ? roles.dangerFill
+                ? roles.text1
                 : calm && Theme.of(context).brightness == Brightness.dark
                 // Calm (dark mode): the accent eased toward the ground.
                 ? Color.lerp(roles.accent, roles.surface1, .32)
                 : roles.accent,
-            foregroundColor: destructive ? roles.onDangerFill : roles.onAccent,
+            foregroundColor: destructive ? roles.ground : roles.onAccent,
             disabledBackgroundColor: roles.surface3,
             disabledForegroundColor: roles.text3,
           ),
@@ -504,7 +504,7 @@ class KitButton extends StatelessWidget {
             shape: shape,
             elevation: 0,
             backgroundColor: roles.surface3,
-            foregroundColor: destructive ? roles.danger : roles.text1,
+            foregroundColor: roles.text1,
             disabledBackgroundColor: roles.surface3,
             disabledForegroundColor: roles.text3,
           ),
@@ -530,7 +530,7 @@ class KitButton extends StatelessWidget {
             // Green is the one accent for the primary action only: a
             // tertiary (cancel, dismiss, inline) action is neutral text1,
             // which still reads apart from disabled text3 (R5).
-            foregroundColor: destructive ? roles.danger : roles.text1,
+            foregroundColor: roles.text1,
             disabledForegroundColor: roles.text3,
           ),
         );
@@ -987,7 +987,7 @@ Widget? _buildMore(
   );
 }
 
-/// One "More" item: its label in the kit's body role (danger when
+/// One "More" item: its label in the kit's body role (neutral when
 /// destructive, `text3` when disabled) and, when disabled with a reason,
 /// that reason under it.
 PopupMenuItem<int> _moreItem(BuildContext context, KitAction action, int id) {
@@ -998,11 +998,7 @@ PopupMenuItem<int> _moreItem(BuildContext context, KitAction action, int id) {
     style: KitText.styleOf(
       context,
       KitTextRole.body,
-      tone: !enabled
-          ? KitTextTone.tertiary
-          : action.destructive
-          ? KitTextTone.danger
-          : KitTextTone.primary,
+      tone: !enabled ? KitTextTone.tertiary : KitTextTone.primary,
     ),
   );
   return PopupMenuItem<int>(

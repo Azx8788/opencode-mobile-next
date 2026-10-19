@@ -155,7 +155,7 @@ Widget _scene(_State state) => Builder(
           leading: icon(
             context,
             AppIconography.delete,
-            color: KitTokens.of(context).roles.danger,
+            color: KitTokens.of(context).roles.text1,
           ),
           destructive: true,
           onTap: () {},

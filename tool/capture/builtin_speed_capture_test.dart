@@ -9,9 +9,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import '../../test/support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/builtin/builtin_linux.dart';
 import 'package:opencode_mobile/builtin/reply_watch.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
@@ -82,7 +82,7 @@ void Function(ConnectionController) _connected({
   List<String> signedIn = const [],
 }) => (controller) {
   controller
-    ..api = OpenCodeApi(baseUrl: BuiltinLinux.serverUrl)
+    ..api = FakeServerGateway(baseUrl: BuiltinLinux.serverUrl)
     ..repository = _Repository()
     ..status = StreamStatus.connected
     ..providers = ProvidersResponse(

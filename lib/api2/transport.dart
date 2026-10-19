@@ -1,12 +1,14 @@
 import 'dart:convert';
+import 'dart:io' show HandshakeException;
 
 import 'package:dio/dio.dart';
 
 import 'dialect.dart';
+import '../domain/models.dart' show unexpectedHealthShapeTag;
 import 'http_keep_alive.dart' if (dart.library.io) 'http_keep_alive_io.dart';
 import '../diagnostics/perf_trace.dart';
 import '../ui/kit/kit_redact.dart';
-import '../domain/loopback_host.dart' show isCleartextRemoteBase;
+import '../domain/server_trust.dart';
 
 /// Transport layer for the OpenCode 2 server API (`/api/...`).
 ///
@@ -28,6 +30,8 @@ class Api2Transport {
   final String serverRoot;
   final String username;
   final String password;
+  final String? cleartextConfirmedOrigin;
+  final String? certificatePinSha256;
   late final Dio _dio;
   bool _closed = false;
 
@@ -43,6 +47,8 @@ class Api2Transport {
     required String baseUrl,
     required this.password,
     this.username = 'opencode',
+    this.cleartextConfirmedOrigin,
+    this.certificatePinSha256,
   }) : serverRoot = normalizeServerRoot(baseUrl) {
     KitRedact.registerKnownSecret(password);
     _dio = Dio(
@@ -50,13 +56,40 @@ class Api2Transport {
         baseUrl: '${normalizeServerRoot(baseUrl)}/api',
         connectTimeout: connectTimeout,
         receiveTimeout: requestTimeout,
-        followRedirects: !isCleartextRemoteBase(baseUrl),
-        maxRedirects: isCleartextRemoteBase(baseUrl) ? 0 : 5,
+        followRedirects: false,
+        maxRedirects: 0,
         responseType: ResponseType.json,
         validateStatus: (s) => s != null && s >= 200 && s < 300,
       ),
     );
-    configureHttpKeepAlive(_dio);
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          try {
+            validateServerTrust(
+              baseUrl: serverRoot,
+              cleartextConfirmedOrigin: cleartextConfirmedOrigin,
+              certificatePinSha256: certificatePinSha256,
+            );
+            if (serverOrigin(options.uri.origin) != serverOrigin(serverRoot) ||
+                options.uri.userInfo.isNotEmpty) {
+              throw const ServerOriginChangedException();
+            }
+            options.followRedirects = false;
+            options.maxRedirects = 0;
+            handler.next(options);
+          } on Exception catch (error) {
+            handler.reject(DioException(requestOptions: options, error: error));
+          }
+        },
+      ),
+    );
+    configureHttpKeepAlive(
+      _dio,
+      baseUrl: serverRoot,
+      cleartextConfirmedOrigin: cleartextConfirmedOrigin,
+      certificatePinSha256: certificatePinSha256,
+    );
     if (password.isNotEmpty) {
       _dio.options.headers['Authorization'] = 'Basic $basicToken';
     }
@@ -289,7 +322,25 @@ class Api2Transport {
   /// [Api2Unavailable]; a missing/denied password as [Api2AuthRequired].
   Future<Api2Health> health({CancelToken? cancelToken}) async {
     final json = await getJson('/health', cancelToken: cancelToken);
-    return Api2Health.fromJson(json is Map<String, dynamic> ? json : const {});
+    final version = json is Map ? json['version'] : null;
+    final supportedVersion =
+        version is String &&
+        (version.startsWith('0.0.0-beta-') ||
+            (int.tryParse(version.split('.').first) ?? 0) >= 2);
+    if (json is! Map<String, dynamic> ||
+        json['healthy'] is! bool ||
+        !supportedVersion) {
+      // OC1 also serves /api/health, but without an OC2 version. A web UI
+      // can answer HTML with 200. Neither proves a supported connection.
+      // Preserve this signal through the domain mapper so connect re-probes
+      // and shows the explicit legacy-upgrade explanation.
+      throw const Api2RequestError(
+        'This address did not return an OpenCode 2 health response.',
+        statusCode: 200,
+        tag: unexpectedHealthShapeTag,
+      );
+    }
+    return Api2Health.fromJson(json);
   }
 
   /// Health probe that also reports whether the server speaks the v2 API
@@ -319,6 +370,16 @@ class Api2Transport {
   /// `_tag`-discriminated error envelope. 401 is always [Api2AuthRequired]
   /// even when the body is empty (the Basic-auth gate sends none).
   static Api2Error mapError(DioException e, String what) {
+    final trustTag = serverTrustErrorTag(e.error);
+    if (trustTag != null) {
+      return Api2NetworkError(e.error.toString(), tag: trustTag);
+    }
+    if (e.error is HandshakeException ||
+        e.type == DioExceptionType.badCertificate) {
+      return const Api2NetworkError(
+        'The server certificate could not be verified.',
+      );
+    }
     final status = e.response?.statusCode;
     var raw = e.response?.data;
     // Byte downloads still carry JSON error envelopes. Preserve their tags so
@@ -423,6 +484,7 @@ class Api2NetworkError extends Api2Error {
     super.message, {
     this.timedOut = false,
     this.cancelled = false,
+    super.tag,
   });
 }
 

@@ -1,9 +1,10 @@
+import 'support/fake_server_capabilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart'
     show ServerCapabilities;
 import 'package:opencode_mobile/l10n/app_localizations.dart';
@@ -21,7 +22,7 @@ import 'support/complete_message_history.dart';
 /// conversation, naming the mode with no count, and opening a menu of the
 /// modes this phone really supports.
 
-class _Api extends OpenCodeApi with CompleteMessageHistory {
+class _Api extends FakeServerGateway with CompleteMessageHistory {
   _Api({this.asksBeforeActing = true}) : super(baseUrl: 'http://localhost');
 
   /// Whether this runtime sends permission requests at all.
@@ -29,7 +30,7 @@ class _Api extends OpenCodeApi with CompleteMessageHistory {
 
   @override
   ServerCapabilities get capabilities => asksBeforeActing
-      ? ServerCapabilities.allV1
+      ? testServerCapabilities
       : const ServerCapabilities(permissionRequests: false);
 
   @override

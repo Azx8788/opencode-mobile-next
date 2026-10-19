@@ -55,7 +55,7 @@ class KitSwatch extends StatelessWidget {
   const KitSwatch.accent({
     super.key,
     required Color this.color,    // a guarded accent (LOOK-39: deriveRoles moved it out of the
-                                  //   attention/danger band, and it reads on the ground)
+                                  //   attention band, and it reads on the ground)
     required this.label,          // "Blue": the colour's name is its semantic label
     required this.selected,
     required this.onPressed,      // selects at once (a single choice acts on tap, KIT-25)

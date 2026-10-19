@@ -71,7 +71,8 @@ class _RootState extends ConsumerState<_Root> {
     _controller = ref.read(connProvider)..addListener(_changed);
     _builtin = ref.read(builtinServerStarterProvider)..addListener(_changed);
     _attachPhoneSetup();
-    _recoverFromLastExit();
+    unawaited(_finishLinuxReset());
+    if (!_controller.managedOpenCode2MigrationRequired) _recoverFromLastExit();
     // Times each reply and keeps the phone awake while one runs on the
     // in-app server (lib/builtin/reply_watch.dart).
     ref.read(replyWatchProvider).attach(ConnectionReplySource(_controller));
@@ -126,6 +127,28 @@ class _RootState extends ConsumerState<_Root> {
             ),
           ),
     );
+  }
+
+  /// A Reset Linux the app did not finish (killed while erasing, or before
+  /// setup started) is finished now: Linux is never left erased with no
+  /// setup on the way (lib/builtin/linux_manager/linux_reset_flow.dart).
+  Future<void> _finishLinuxReset() async {
+    final prefs = _controller.store.prefs;
+    if (!LinuxResetFlow.pending(prefs)) return;
+    final engine = PhoneSetup.engine;
+    try {
+      final resumed = await LinuxResetFlow(
+        linux: _builtin.linux,
+        engine: engine,
+        prefs: prefs,
+        selection: linuxResetSelection(engine),
+      ).resumeIfPending();
+      // Show the setup that is running now, over a home that would
+      // otherwise say the old server is stopped.
+      if (resumed && mounted) unawaited(openPhoneSetupProgress(context));
+    } on Object catch (error) {
+      debugPrint(KitRedact.text('linux reset: resume ${error.runtimeType}'));
+    }
   }
 
   /// The phone setup engine ends every job by starting OpenCode and
@@ -190,6 +213,128 @@ class _RootState extends ConsumerState<_Root> {
     // long healthy session starts its count from one again.
     if (_controller.hasConnectedServer) _attempts = 0;
     setState(() {});
+  }
+
+  String? _migrationAttemptedFor;
+  bool _migrationRunning = false;
+  ManagedMoveAttempt? _migrationFailure;
+  int _migrationRetry = 0;
+  int _migrationRetries = 0;
+
+  /// One try of the move for the current saved profile. The failure it
+  /// returns is the only one the person is told about: the alerts of the
+  /// shared runtime-switch action are routed here (`onMoveFailure`).
+  Future<ManagedMoveAttempt> _moveAttempt(String profileId) async {
+    final profile = _controller.profile;
+    if (profile == null || profile.id != profileId) {
+      return const ManagedMoveAttempt.success();
+    }
+    try {
+      if (profile.openCode2HistoryPending) {
+        if (looksLikeInAppServer(profile)) {
+          final failure = await _builtin.start(profile);
+          if (failure != null) {
+            return ManagedMoveAttempt.failure(
+              ManagedMoveReason.phoneNotReady,
+              details: failure.technicalDetails ?? failure.problem.name,
+            );
+          }
+        } else {
+          await LocalServerControls(
+            store: _controller.store,
+            connection: _controller,
+          ).restart();
+        }
+        await _controller.connect(profile);
+      } else if (looksLikeInAppServer(profile)) {
+        ManagedMoveAttempt? failed;
+        await runPhoneServerAction(
+          context,
+          PhoneServerAction.switchRuntime,
+          connection: _controller,
+          linux: ref.read(builtinLinuxProvider),
+          profile: profile,
+          onMoveFailure: (failure) => failed = failure,
+        );
+        if (failed != null) return failed!;
+      } else {
+        await openPhoneSetupTermux(
+          context,
+          job: TermuxHostJob.switchRuntime,
+          target: TermuxRuntime.openCode2,
+        );
+      }
+      final confirmed = await _controller.confirmManagedOpenCode2Migration();
+      return confirmed
+          ? const ManagedMoveAttempt.success()
+          : const ManagedMoveAttempt.failure(ManagedMoveReason.notConfirmed);
+    } catch (error) {
+      return ManagedMoveAttempt.failure(
+        ManagedMoveReason.moveStopped,
+        details: productErrorDetails(error),
+      );
+    }
+  }
+
+  Future<void> _upgradeManagedServer(ServerProfile profile) async {
+    if (_migrationRunning || !mounted) return;
+    setState(() {
+      _migrationRunning = true;
+      _migrationFailure = null;
+      _migrationRetry = 0;
+    });
+    ManagedMoveAttempt result;
+    try {
+      // The phone server is often still starting right after an update, so
+      // wait for it and retry quietly before any failure is shown.
+      final linux = ref.read(builtinLinuxProvider);
+      result = await _moveRunner.run(
+        attempt: () => _moveAttempt(profile.id),
+        ready: looksLikeInAppServer(profile)
+            ? () async =>
+                  (await linux.run('true').timeout(const Duration(seconds: 10)))
+                      .ok
+            : null,
+        onWaiting: (retry, of) {
+          if (!mounted) return;
+          setState(() {
+            _migrationRetry = retry;
+            _migrationRetries = of;
+          });
+        },
+        cancelled: () => !mounted,
+      );
+    } catch (error) {
+      result = ManagedMoveAttempt.failure(
+        ManagedMoveReason.moveStopped,
+        details: productErrorDetails(error),
+      );
+    }
+    if (!mounted) return;
+    setState(() {
+      _migrationRunning = false;
+      _migrationFailure = result.ok ? null : result;
+    });
+  }
+
+  /// The pauses between quiet retries.
+  final _moveRunner = const ManagedMoveRunner();
+
+  Widget _managedUpgrade(AppLocalizations l10n, ServerProfile profile) {
+    if (_migrationAttemptedFor != profile.id) {
+      _migrationAttemptedFor = profile.id;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _controller.profile?.id == profile.id) {
+          unawaited(_upgradeManagedServer(profile));
+        }
+      });
+    }
+    return ManagedMoveView(
+      failure: _migrationRunning ? null : _migrationFailure,
+      retry: _migrationRetry,
+      retries: _migrationRetries,
+      onTryAgain: () => unawaited(_upgradeManagedServer(profile)),
+    );
   }
 
   bool _startingPhoneServer = false;
@@ -287,6 +432,12 @@ class _RootState extends ConsumerState<_Root> {
   Widget build(BuildContext context) {
     final conn = ref.watch(connProvider);
     if (conn.profile == null) return const ServersScreen();
+    if (conn.managedOpenCode2MigrationRequired) {
+      return _managedUpgrade(
+        lookupAppLocalizations(Localizations.localeOf(context)),
+        conn.profile!,
+      );
+    }
     if (conn.hasConnectedServer) {
       return const HomeScreen();
     }
@@ -376,6 +527,11 @@ class _RootState extends ConsumerState<_Root> {
         '/servers',
         (_) => false,
         arguments: 'edit-active',
+      ),
+      onReviewCertificate: () => navigator.pushNamedAndRemoveUntil(
+        '/servers',
+        (_) => false,
+        arguments: ServersRouteRequest.edit(profile.id),
       ),
       onUpdatePassword: () => navigator.pushNamedAndRemoveUntil(
         '/servers',

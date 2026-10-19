@@ -4,7 +4,7 @@
 // and draft storage can be faked per shot.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/api2/models.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/state/draft_attachments.dart';
@@ -14,6 +14,7 @@ import 'package:opencode_mobile/state/prompt_shelf.dart';
 import 'package:opencode_mobile/state/session_drafts.dart';
 import 'package:opencode_mobile/ui/screens/chat_screen.dart';
 
+import '../../../../test/support/fake_server_capabilities.dart';
 import '../../fixtures.dart';
 import '../census_core.dart';
 
@@ -24,7 +25,7 @@ class ChatCensusApi extends CaptureApi {
   @override
   ServerCapabilities get capabilities => inbox
       ? const ServerCapabilities(clientPromptMessageID: true, inbox: true)
-      : ServerCapabilities.allV1;
+      : testServerCapabilities;
 
   @override
   Future<ServerPage<MessageWithParts>> messagePage(

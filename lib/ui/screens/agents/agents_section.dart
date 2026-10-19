@@ -10,6 +10,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../app_iconography.dart';
 import '../../kit/kit.dart';
 import '../chats/chats_host.dart';
+import '../chats/new_chat_screen.dart' show showNewChat;
 import 'agent_error_notice.dart';
 import 'agent_sheet.dart';
 import 'agents_text.dart';
@@ -98,15 +99,20 @@ class _AgentsSectionState extends ConsumerState<AgentsSection> {
       }
       return;
     }
-    await showAgentSheet(
-      context,
-      agentId: row.id,
-      step: switch (action) {
-        PhoneAgentFixAction.install => AgentSheetStep.setup,
-        PhoneAgentFixAction.signIn => AgentSheetStep.signIn,
-        _ => AgentSheetStep.check,
-      },
-    );
+    await _openSheet(row.id, switch (action) {
+      PhoneAgentFixAction.install => AgentSheetStep.setup,
+      PhoneAgentFixAction.signIn => AgentSheetStep.signIn,
+      _ => AgentSheetStep.check,
+    });
+  }
+
+  /// The agent's sheet. Choosing the agent there ("Use Claude Code") opens
+  /// a new conversation with it, rather than leaving the person where they
+  /// were with nothing changed in sight.
+  Future<void> _openSheet(String agentId, AgentSheetStep step) async {
+    final chosen = await showAgentSheet(context, agentId: agentId, step: step);
+    if (chosen != true || !mounted) return;
+    await showNewChat(context);
   }
 
   /// A signed-in agent opens its sheet: who it is signed in as, Sign in
@@ -133,7 +139,11 @@ class _AgentsSectionState extends ConsumerState<AgentsSection> {
     return KitRow(
       key: ValueKey('agents-row-${row.id}'),
       title: KitBidi.auto(row.name),
-      leading: KitRow.icon(context, agentIcon(row.iconKey)),
+      leading: KitRow.icon(
+        context,
+        agentIcon(row.iconKey),
+        mark: agentMark(row.iconKey),
+      ),
       supporting: TextSpan(text: line),
       supportingMaxLines: 3,
       // The title names the agent: the chip says only the act, and every
@@ -149,13 +159,7 @@ class _AgentsSectionState extends ConsumerState<AgentsSection> {
       // A row with a chip has no trailing slot for a chevron.
       trailing: opens && row.fixAction == null ? const KitChevron() : null,
       onTap: opens
-          ? () => unawaited(
-              showAgentSheet(
-                context,
-                agentId: row.id,
-                step: AgentSheetStep.signIn,
-              ),
-            )
+          ? () => unawaited(_openSheet(row.id, AgentSheetStep.signIn))
           : null,
     );
   }
@@ -245,6 +249,11 @@ class _AgentsSectionState extends ConsumerState<AgentsSection> {
                   result: entry.key == _running
                       ? null
                       : agents.agentPhoneCheck(entry.key),
+                  progress:
+                      entry.key == _running &&
+                          agents.agentSetupProgress.agentId == entry.key
+                      ? agents.agentSetupProgress
+                      : null,
                 ),
               ),
           ],

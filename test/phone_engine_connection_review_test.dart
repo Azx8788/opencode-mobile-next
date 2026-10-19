@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
 import 'package:opencode_mobile/api2/client.dart';
 import 'package:opencode_mobile/api2/gateway.dart';
 import 'package:opencode_mobile/api2/gateway_operations.dart';
@@ -19,7 +19,7 @@ import 'phone_project_engine_controller_test.dart' show NativeBridge;
 import 'phone_project_engine_gateway_test.dart' as engine;
 import 'support/stash_memory_vault.dart';
 
-class _ConnectingApi extends OpenCodeApi {
+class _ConnectingApi extends FakeServerGateway {
   _ConnectingApi() : super(baseUrl: 'http://127.0.0.1:4097');
   final healthGate = Completer<Health>();
   @override
@@ -193,56 +193,6 @@ void main() {
   );
 
   test(
-    'phone dispatch fence exposes plain API failure when another engine cannot stop',
-    () async {
-      await store.upsert(
-        ServerProfile(
-          id: 'alias',
-          name: 'Alias',
-          baseUrl: 'http://127.0.0.1:4097',
-          teamEngineAuth: 'private-engine-token',
-          orchestration: const OrchestrationConfig(
-            provider: OrchestrationProvider.phoneEngine,
-            url: 'http://127.0.0.1:42761',
-          ),
-        ),
-      );
-      final bridge = NativeBridge()..failStop = true;
-      final api = _ConnectingApi();
-      final controller = connection(bridge, api: api);
-      final connect = controller.connect(
-        store.profiles.first,
-        redetectOnFailure: false,
-      );
-      await Future<void>.delayed(Duration.zero);
-      await expectLater(
-        api.promptAsync('human', text: 'Please help'),
-        throwsA(
-          isA<ApiException>().having(
-            (error) => error.message,
-            'message',
-            'AI Team could not pause safely. Stop AI Team before sending.',
-          ),
-        ),
-      );
-      await expectLater(
-        controller.prepareActionTransport(),
-        throwsA(
-          isA<ApiException>().having(
-            (error) => error.message,
-            'message',
-            'AI Team could not pause safely. Stop AI Team before sending.',
-          ),
-        ),
-      );
-      expect(bridge.calls, ['stop:alias', 'stop:alias']);
-      await controller.disconnect();
-      api.healthGate.complete(Health(healthy: true, version: '1.18.32'));
-      await connect;
-    },
-  );
-
-  test(
     'selected profile capabilities use only its matching live gateway',
     () async {
       final api = _NoTeamApi();
@@ -271,10 +221,10 @@ void main() {
         controller
             .serverCapabilitiesFor(
               ServerProfile(
-                id: 'unknown',
-                name: 'Unknown',
+                id: 'pending-history',
+                name: 'History import pending',
                 baseUrl: 'http://127.0.0.1:4097',
-                flavor: ServerFlavor.unknown,
+                openCode2HistoryPending: true,
               ),
             )
             .phoneTeamExecution,
@@ -355,33 +305,20 @@ void main() {
           ),
         ),
       );
-      expect(bridge.calls, ['stop:alias']);
+      await expectLater(
+        controller.prepareActionTransport(),
+        throwsA(
+          isA<ApiException>().having(
+            (error) => error.message,
+            'message',
+            'AI Team could not pause safely. Stop AI Team before sending.',
+          ),
+        ),
+      );
+      expect(bridge.calls, ['stop:alias', 'stop:alias']);
       await controller.disconnect();
       api.healthGate.complete(Health(healthy: true, version: '2.0.29'));
       await connecting;
     },
   );
-
-  test('retired phone dispatch fence exposes plain API failure', () async {
-    final api = _ConnectingApi();
-    final controller = connection(NativeBridge(), api: api);
-    final connect = controller.connect(
-      store.profiles.single,
-      redetectOnFailure: false,
-    );
-    await Future<void>.delayed(Duration.zero);
-    await controller.disconnect();
-    await expectLater(
-      api.promptAsync('human', text: 'Please help'),
-      throwsA(
-        isA<ApiException>().having(
-          (error) => error.message,
-          'message',
-          'The chat connection changed. Reconnect before sending.',
-        ),
-      ),
-    );
-    api.healthGate.complete(Health(healthy: true, version: '1.18.32'));
-    await connect;
-  });
 }

@@ -143,13 +143,31 @@ select_item() {
   esac
   for path in "${paths[@]}"; do safe_path "$path"; done
 }
-# Reject links and devices rather than follow them out of an allowed tree.
+# proot-distro's link2symlink turned every Git hard link into a symlink to a
+# file in the container's private .l2s store. Those are the only links the
+# transport accepts, and only as their target's contents: the target lives in
+# Termux storage the app cannot read, so a copied link would dangle.
+is_l2s_link() {
+  local target
+  [ -L "$1" ] || return 1
+  target=$(readlink "$1") || return 1
+  case "$target" in */proot-distro/*/.l2s/.l2s.*) return 0 ;; esac
+  return 1
+}
+# Reject other links and devices rather than follow them out of an allowed tree.
 # Counts and logical bytes are metadata only; find names never leave Termux.
 measure_item() {
   count=0; bytes=0
   for path in "${paths[@]}"; do
     [ -e "$path" ] || [ -L "$path" ] || continue
-    if [ -n "$(find "$path" ! -type f ! -type d -print -quit)" ]; then fail unsupportedEntry; fi
+    while IFS= read -r -d '' entry; do
+      if is_l2s_link "$entry"; then
+        [ -f "$entry" ] && [ -r "$entry" ] || fail linkedFileUnreadable
+        size=$(stat -L -c %s "$entry") || fail linkedFileUnreadable
+        count=$((count + 1)); bytes=$((bytes + size))
+        [ "$count" -le 20000 ] && [ "$bytes" -le 536870912 ] || fail tooLarge
+      else fail unsupportedEntry; fi
+    done < <(find "$path" ! -type f ! -type d -print0)
     if [ "$selected" = projects ] && [ -n "$(find "$path" -name .git -type f -print -quit)" ]; then fail unsupportedEntry; fi
     while IFS= read -r size; do
       count=$((count + 1)); bytes=$((bytes + size))
@@ -245,7 +263,7 @@ job="\$HOME/.oc/migration/$jobId"
 [ ! -L "\$HOME/.oc" ] && [ ! -L "\$HOME/.oc/migration" ] && [ ! -L "\$job" ] || fail unsupportedEntry
 mkdir -p "\$job"; chmod 700 "\$HOME/.oc/migration" "\$job"
 archive="\$job/${item.name}.tar"
-for candidate in "\$job/packing.lock" "\$job/cancel" "\$archive" "\$archive.ready" "\$archive.ready.tmp" "\$archive.part" "\$archive.list"; do
+for candidate in "\$job/packing.lock" "\$job/cancel" "\$archive" "\$archive.ready" "\$archive.ready.tmp" "\$archive.part" "\$archive.list" "\$archive.links"; do
   [ ! -L "\$candidate" ] || fail unsupportedEntry
   [ ! -e "\$candidate" ] || [ -f "\$candidate" ] || fail unsupportedEntry
   [ ! -e "\$candidate" ] || [ "\$(stat -c %h "\$candidate")" = 1 ] || fail unsupportedEntry
@@ -265,15 +283,25 @@ measure_item
 [ \$((bytes + count * 1024 + 10240)) -le $maxBytes ] || fail tooLarge
 free=\$(df -Pk "\$job" | awk 'END {printf "%.0f", \$4 * 1024}')
 [ "\$free" -ge \$((bytes + count * 1024 + 10240)) ] || fail storage
-: > "\$archive.list"
+# Ordinary entries go in as they are. The link2symlink links are archived as
+# regular files holding their target's contents (--dereference applies to that
+# list only).
+: > "\$archive.list"; : > "\$archive.links"
 for path in "\${paths[@]}"; do
   [ -e "\$path" ] || continue
-  find "\$path" -print0 >> "\$archive.list"
+  while IFS= read -r -d '' entry; do
+    if is_l2s_link "\$entry"; then printf '%s\\0' "\$entry" >> "\$archive.links"
+    else printf '%s\\0' "\$entry" >> "\$archive.list"; fi
+  done < <(find "\$path" -print0)
 done
 # All regular hardlinks become independent regular entries, never links.
 # ulimit bounds a concurrently growing source. tar detects changed files.
 ulimit -f \$((($maxBytes + 1023) / 1024))
 if ! tar --format=ustar --hard-dereference --no-recursion --null -T "\$archive.list" -cf "\$archive.part" >/dev/null 2>&1; then fail sourceChanged; fi
+if [ -s "\$archive.links" ]; then
+  if ! tar --format=ustar --dereference --no-recursion --null -T "\$archive.links" -rf "\$archive.part" >/dev/null 2>&1; then fail linkedFileUnreadable; fi
+fi
+rm -f "\$archive.links"
 [ ! -f "\$job/cancel" ] || fail cancelled
 size=\$(stat -c %s "\$archive.part")
 [ "\$size" -le $maxBytes ] || fail tooLarge

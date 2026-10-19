@@ -9,9 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart' show PromptDelivery;
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -20,7 +20,7 @@ import 'package:opencode_mobile/state/profiles.dart';
 import 'package:opencode_mobile/ui/screens/chat_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class _Api extends OpenCodeApi with CompleteMessageHistory {
+class _Api extends FakeServerGateway with CompleteMessageHistory {
   _Api() : super(baseUrl: 'http://localhost');
 
   /// What the server holds right now; tests swap it to model a reply that
@@ -98,6 +98,7 @@ Future<_Controller> _controller(_Api api) async {
       {
         'id': 'profile-1',
         'name': 'Test server',
+        'flavor': 'v2',
         'baseUrl': 'http://localhost',
         'username': '',
       },

@@ -25,7 +25,7 @@ class TermuxSetupHost extends BuiltinLinux {
           _invalidParams();
         }
         final valid = switch (entry.key) {
-          'runtime' => {'opencode1', 'opencode2'}.contains(entry.value),
+          'runtime' => {'opencode2'}.contains(entry.value),
           'version' => RegExp(
             r'^\d+\.\d+\.\d+(?:[-+][A-Za-z0-9.-]+)?$',
           ).hasMatch(entry.value),

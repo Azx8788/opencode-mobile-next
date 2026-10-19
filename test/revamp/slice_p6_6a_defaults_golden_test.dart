@@ -7,13 +7,14 @@
 // Regenerate deliberately:
 //   flutter test --update-goldens test/revamp/slice_p6_6a_defaults_golden_test.dart
 // and look at every changed image before committing it.
+import '../support/fake_server_capabilities.dart';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -152,7 +153,7 @@ Future<void> _reviewShot(
 
 class _Api extends CaptureApi {
   @override
-  ServerCapabilities get capabilities => ServerCapabilities.allV1;
+  ServerCapabilities get capabilities => testServerCapabilities;
 
   @override
   Future<Health> health() async => Health(healthy: true, version: '1.18.25');

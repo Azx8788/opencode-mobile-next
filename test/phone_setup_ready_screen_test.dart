@@ -1,9 +1,10 @@
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
 import 'package:opencode_mobile/builtin/builtin_folders.dart';
 import 'package:opencode_mobile/builtin/builtin_linux.dart';
 import 'package:opencode_mobile/builtin/builtin_server.dart';
@@ -52,7 +53,7 @@ class _Connection extends ConnectionController {
     bool redetectOnFailure = true,
   }) async {
     connected.add(profile.id);
-    api = OpenCodeApi(baseUrl: profile.baseUrl);
+    api = FakeServerGateway(baseUrl: profile.baseUrl);
   }
 
   @override
@@ -126,7 +127,8 @@ void main() {
     store = _Store(prefs: await SharedPreferences.getInstance())
       ..saved.add(phone)
       ..selected = phone.id;
-    connection = _Connection(store)..api = OpenCodeApi(baseUrl: phone.baseUrl);
+    connection = _Connection(store)
+      ..api = FakeServerGateway(baseUrl: phone.baseUrl);
     linux = _Linux();
     pushed = [];
     ProjectFolderActions.builtinLinuxOverride = linux;

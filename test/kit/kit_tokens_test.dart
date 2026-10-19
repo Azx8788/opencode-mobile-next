@@ -65,7 +65,6 @@ void main() {
     final tokens = KitTokens.fallback(theme);
     expect(tokens.sheetSurface, theme.bottomSheetTheme.modalBackgroundColor);
     expect(tokens.panelSurface, theme.dialogTheme.backgroundColor);
-    expect(tokens.danger, theme.colorScheme.error);
     expect(tokens.minTarget, 48);
   });
 }

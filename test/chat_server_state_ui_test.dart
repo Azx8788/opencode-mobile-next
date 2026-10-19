@@ -1,10 +1,11 @@
 import 'support/complete_message_history.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart'
     show CatalogModel, CatalogSnapshot, PromptDelivery;
 import 'package:opencode_mobile/state/connection.dart';
@@ -39,7 +40,7 @@ CatalogModel _model(String providerID, String id, String name) => CatalogModel(
   variants: const [],
 );
 
-class _Api extends OpenCodeApi with CompleteMessageHistory {
+class _Api extends FakeServerGateway with CompleteMessageHistory {
   _Api() : super(baseUrl: 'http://localhost');
 
   List<MessageWithParts> messagesResult = const [];
@@ -126,9 +127,19 @@ Future<ConnectionController> _controller(
   _Api api, {
   List<CatalogModel>? models,
 }) async {
-  SharedPreferences.setMockInitialValues({});
+  SharedPreferences.setMockInitialValues({
+    'oc.profiles':
+        '[{"id":"profile","name":"Test","baseUrl":"http://localhost"}]',
+    'oc.activeProfile': 'profile',
+  });
+  const secure = MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
+  final messenger =
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+  messenger.setMockMethodCallHandler(secure, (_) async => null);
+  addTearDown(() => messenger.setMockMethodCallHandler(secure, null));
   final prefs = await SharedPreferences.getInstance();
   final store = ProfileStore(prefs: prefs);
+  await store.load();
   final controller =
       (models == null ? ConnectionController(store) : _CatalogController(store))
         ..api = api

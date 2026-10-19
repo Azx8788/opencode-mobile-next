@@ -154,7 +154,7 @@ class _CardsFromAgentsRowState extends ConsumerState<CardsFromAgentsRow> {
                 status,
                 key: const Key('cards-from-agents-status'),
                 role: KitTextRole.secondary,
-                tone: _failed ? KitTextTone.danger : KitTextTone.secondary,
+                tone: _failed ? KitTextTone.primary : KitTextTone.secondary,
               ),
             ),
           ],

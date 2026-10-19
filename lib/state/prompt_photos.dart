@@ -8,7 +8,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../api/models.dart';
+import '../domain/models.dart';
 import '../ui/kit/kit_redact.dart';
 import 'draft_attachments.dart';
 import 'saved_prompt_safety.dart';

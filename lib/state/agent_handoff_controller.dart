@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:uuid/uuid.dart';
 
-import '../api/models.dart';
+import '../domain/models.dart';
 import '../domain/agent_handoff.dart';
 import '../domain/server_gateway.dart';
 import '../ui/kit/kit_redact.dart';

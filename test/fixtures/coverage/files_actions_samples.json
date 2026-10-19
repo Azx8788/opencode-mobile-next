@@ -1,74 +1,9 @@
 {
   "sources": [
-    "contracts/opencode-openapi-f12e14cf.json",
     "contracts/opencode2-openapi-beta-18600.json",
     "/home/eslam/node_modules/@getpaseo/protocol/dist/messages.js"
   ],
   "operations": [
-    {
-      "key": "OC1 POST /experimental/worktree",
-      "operationId": "worktree.create"
-    },
-    {
-      "key": "OC1 DELETE /experimental/worktree",
-      "operationId": "worktree.remove"
-    },
-    {
-      "key": "OC1 POST /experimental/worktree/reset",
-      "operationId": "worktree.reset"
-    },
-    {
-      "key": "OC1 POST /vcs/apply",
-      "operationId": "vcs.apply"
-    },
-    {
-      "key": "OC1 POST /experimental/project/{projectID}/copy/generate-name",
-      "operationId": "experimental.projectCopy.generateName"
-    },
-    {
-      "key": "OC1 POST /session/{sessionID}/revert",
-      "operationId": "session.revert"
-    },
-    {
-      "key": "OC1 POST /session/{sessionID}/unrevert",
-      "operationId": "session.unrevert"
-    },
-    {
-      "key": "OC1 POST /experimental/workspace",
-      "operationId": "experimental.workspace.create"
-    },
-    {
-      "key": "OC1 POST /experimental/workspace/sync-list",
-      "operationId": "experimental.workspace.syncList"
-    },
-    {
-      "key": "OC1 DELETE /experimental/workspace/{id}",
-      "operationId": "experimental.workspace.remove"
-    },
-    {
-      "key": "OC1 POST /api/session/{sessionID}/revert/stage",
-      "operationId": "v2.session.revert.stage"
-    },
-    {
-      "key": "OC1 POST /api/session/{sessionID}/revert/clear",
-      "operationId": "v2.session.revert.clear"
-    },
-    {
-      "key": "OC1 POST /api/session/{sessionID}/revert/commit",
-      "operationId": "v2.session.revert.commit"
-    },
-    {
-      "key": "OC1 POST /experimental/project/{projectID}/copy",
-      "operationId": "v2.projectCopy.create"
-    },
-    {
-      "key": "OC1 DELETE /experimental/project/{projectID}/copy",
-      "operationId": "v2.projectCopy.remove"
-    },
-    {
-      "key": "OC1 POST /experimental/project/{projectID}/copy/refresh",
-      "operationId": "v2.projectCopy.refresh"
-    },
     {
       "key": "OC2 POST /api/session/{sessionID}/revert/stage",
       "operationId": "v2.session.revert.stage"

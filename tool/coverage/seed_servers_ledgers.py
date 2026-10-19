@@ -22,7 +22,6 @@ for k in keys(wire):
 def put(k, v):
     assert k in L, k
     L[k] = v
-put('oc1.health.version', 'shown')
 put('oc2.health.version', 'shown')
 put('oc2.health.pid', PROC)
 put('oc2.info.version', 'shown')
@@ -49,10 +48,6 @@ put('paseo.provider.fetchedAt', 'ignored: when the daemon last asked the agent; 
 for f in ['label', 'description', 'iconSvg']:
     put(f'paseo.provider.{f}', "ignored: the app uses its own agent names and icons")
 for k in list(L):
-    if k.startswith('oc1.path.'):
-        L[k] = 'ignored: the app never asks for the server paths; the folder a person works in comes from the project they pick'
-    if k == 'oc1.experimental_capabilities.backgroundSubagents':
-        L[k] = 'ignored: read for the Tools page, not a server page; that page says in words when background helpers are missing'
     if re.match(r'paseo\.(daemon_status|pairing_offer|daemon_config|config_reload|available_providers|daemon_update)\.', k):
         L[k] = 'ignored: the app never asks the server for this message, so no page shows it'
 missing = [k for k, v in L.items() if v is None]
@@ -69,6 +64,8 @@ P = {
     'profile.username': 'shown',
     'profile.codexDirectory': 'shown',
     'profile.flavor': 'shown',
+    'profile.openCode2HistoryPending': 'ignored: controls confirmation of a managed history move before connection; never shown as raw state',
+    'profile.requiresOpenCode2Migration': 'ignored: controls a safe managed-server upgrade before connection; never shown as raw state',
     'profile.serverVersion': 'shown',
     'profile.orchestration': 'ignored: AI Team settings are shown on the AI Team pages, not on the server row',
 }
@@ -86,6 +83,11 @@ SHOWN = ['fileBrowsing', 'terminal', 'shellSettings', 'projectManagement', 'mana
          'developmentServices', 'webSearch', 'messageDelete', 'savedPermissionList', 'permissionRequests', 'inbox',
          'mcpConfigWrites', 'mcpRuntimeAdds']
 IGN = {
+    'agentHandoffFiles': 'ignored: controls portable agent handoff files; the handoff flow explains availability',
+    'promptSteering': PLUMB,
+    'conversationShell': 'ignored: controls shell commands within a conversation; the composer explains availability',
+    'sessionDelete': 'ignored: controls conversation deletion; the conversation menu exposes it',
+    'phoneTeamExecution': 'ignored: controls whether AI Team can run on the managed phone server; the team page explains availability',
     'genUi': "ignored: turns on Agent cards only on the phone's own server; not a server ability a person could ask about",
     'sessionAddressHandoff': 'ignored: off for every server until portable conversation links are released',
     'setupConfigRead': 'ignored: decides whether Settings offers AI setup, which needs a server that shares its settings',
@@ -185,15 +187,6 @@ json.dump(S, open(f'{OUT}/servers_state_ledger.json', 'w'), indent=2, sort_keys=
 # "proof:", by the named existing test, which the ratchet checks exists);
 # "not offered: <reason>" says why no control on the area's screens calls it.
 A = {
-    # ---- OpenCode 1
-    'oc1 POST /global/upgrade': 'reachable: Server settings > Update OpenCode to <version> (confirm); proof: test/settings_server_updates_test.dart :: remote update event offers the exact generated upgrade',
-    'oc1 POST /global/dispose': 'not offered: it closes every open conversation on the server; a server is restarted on its own computer, which Server settings explains',
-    'oc1 POST /instance/dispose': 'not offered: the app asks for it by itself right after it creates a project folder; there is nothing for a person to tap',
-    'oc1 PATCH /config': "not offered: covered elsewhere - changed from Tools > MCP (add a server to the project), not from a server page",
-    'oc1 PATCH /global/config': "not offered: covered elsewhere - changed from Tools > MCP and from the default shell row, not from a server page",
-    'oc1 POST /log': "not offered: covered elsewhere - sent by Settings > Report a problem, not from a server page",
-    'oc1 PUT /auth/{providerID}': 'not offered: covered elsewhere - provider sign-in belongs to Models and providers',
-    'oc1 DELETE /auth/{providerID}': 'not offered: covered elsewhere - provider sign-out belongs to Models and providers',
     # ---- Paseo
     'paseo daemon.update.request': 'not offered: owner decision needed - updates software on the owner\'s computer',
     'paseo set_daemon_config_request': "not offered: admin-only - changes the daemon's own relay, hostnames and access rules; that is done on the computer that runs it",
@@ -231,12 +224,12 @@ A = {
     # ---- server settings and capabilities
     'app server-settings.check-again': 'reachable: Server settings > Check again',
     'app server-settings.change-sign-in': 'reachable: Server settings > Change sign-in',
-    'app server-settings.host-management': 'reachable: Server settings > Run as a Linux service',
+    'app server-settings.host-management': 'reachable: Server settings > Set up OpenCode 2',
     'app server-settings.edit': 'reachable: Server settings > Edit <server>',
     'app server-settings.remove': 'reachable: Server settings > Remove <server> (confirm)',
     'app server-settings.recheck-agents': 'reachable: Server settings (Claude Code or Pi server) > Check for agents again',
     'app server-settings.disconnect': 'reachable: Server settings > Disconnect (confirm)',
-    'app host.copy-command': "reachable: Run as a Linux service > Copy; proof: test/host_management_screen_test.dart :: copy buttons place the exact command on the clipboard",
+    'app host.copy-command': "reachable: Set up OpenCode 2 > Copy; proof: test/host_management_screen_test.dart :: install copies the pinned OC2 command without a retired helper",
     'app capabilities.add-server': 'reachable: Available on this server > Add a server that has these',
 }
 json.dump(A, open(f'{OUT}/servers_actions_ledger.json', 'w'), indent=2, sort_keys=True)

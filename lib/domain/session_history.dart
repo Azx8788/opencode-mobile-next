@@ -1,4 +1,4 @@
-import '../api/models.dart';
+import '../domain/models.dart';
 import 'server_gateway.dart';
 
 /// V2's newest raw pages can consist entirely of staged-away rows. Skip

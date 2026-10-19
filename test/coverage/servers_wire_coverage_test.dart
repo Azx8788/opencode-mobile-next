@@ -6,16 +6,17 @@
 // Messages the app never asks a server for are in the ledger as ignored.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/server_probe.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import '../support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/server_probe.dart';
+import '../support/fake_event_channel.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart'
     show ServerCapabilities;
 import 'package:opencode_mobile/paseo/gateway.dart';
 import 'package:opencode_mobile/paseo/transport.dart';
 import 'package:opencode_mobile/state/paseo_connection_probe.dart';
 import 'package:opencode_mobile/state/profiles.dart';
+import 'package:opencode_mobile/state/server_trust_probe.dart';
 import 'package:opencode_mobile/ui/screens/servers_screen.dart';
 import 'package:opencode_mobile/ui/screens/settings_screen.dart';
 
@@ -27,7 +28,7 @@ import 'paseo_coverage_support.dart';
 import 'servers_support.dart';
 
 /// A connection whose health answer is the one the case produced.
-class _HealthApi extends OpenCodeApi {
+class _HealthApi extends FakeServerGateway {
   _HealthApi(this._health, {this.abilities})
     : super(baseUrl: 'https://lab.example.net:4096');
 
@@ -63,6 +64,7 @@ void main() {
     providerWarmupInterval = oldWarmup.$2;
     serverProbe = probeServerConnection;
     serverProbeAdapterFactory = null;
+    trustedServerProbeAdapterFactory = null;
     socketAgentProbe = oldSocketProbe;
   });
 
@@ -121,8 +123,8 @@ void main() {
                   },
             );
       } else {
-        serverProbeAdapterFactory = () => WireAdapter((options) {
-          final path = options.path;
+        adapterFactory() => WireAdapter((options) {
+          final path = options.uri.path;
           if (flavor == 'oc1') {
             return path.endsWith('/global/health')
                 ? wireJson(payload)
@@ -139,6 +141,11 @@ void main() {
           }
           return wireEmpty(404);
         });
+        if (flavor == 'oc1') {
+          serverProbeAdapterFactory = adapterFactory;
+        } else {
+          trustedServerProbeAdapterFactory = adapterFactory;
+        }
       }
 
       final (store, controller) = await serversState();

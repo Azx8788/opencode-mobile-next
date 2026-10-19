@@ -11,7 +11,6 @@ import '../../l10n/app_localizations.dart';
 import '../../state/connection.dart';
 import '../../state/phone_host.dart' show PhoneHostKind;
 import '../../state/profiles.dart';
-import '../../state/termux_host_setup.dart' show ManagedRuntimeFlavor;
 import '../../state/termux_migration_owner.dart';
 import '../../termux/bridge.dart';
 import '../app_theme.dart';
@@ -75,6 +74,8 @@ String migrationFailureWords(
   TermuxMigrationFailure.sourceChanged => l10n.migrationSourceChanged,
   TermuxMigrationFailure.sourceBusy => l10n.migrationSourceBusy,
   TermuxMigrationFailure.unsupportedEntry => l10n.migrationUnsupportedFiles,
+  TermuxMigrationFailure.linkedFileUnreadable =>
+    l10n.migrationLinkedFileUnreadable,
   TermuxMigrationFailure.tooLarge => l10n.migrationTooLarge,
   TermuxMigrationFailure.invalidArchive ||
   TermuxMigrationFailure.checksumMismatch => l10n.migrationVerificationFailed,
@@ -93,6 +94,8 @@ String? migrationFailureFix(
   TermuxMigrationFailure code,
 ) => switch (code) {
   TermuxMigrationFailure.unsupportedEntry => l10n.migrationUnsupportedFilesFix,
+  TermuxMigrationFailure.linkedFileUnreadable =>
+    l10n.migrationLinkedFileUnreadableFix,
   TermuxMigrationFailure.tooLarge => l10n.migrationTooLargeFix,
   TermuxMigrationFailure.destinationConflict =>
     l10n.migrationDestinationChangedFix,
@@ -459,10 +462,12 @@ class _TermuxMigrationScreenState extends ConsumerState<TermuxMigrationScreen> {
       _settingUp = true;
       _setupFailed = false;
     });
-    final runtime = ManagedRuntimeFlavor.runtimeOf(widget.source);
     var failed = false;
     try {
-      await (widget.setUpBuiltin ?? setUpBuiltinForMigration)(context, runtime);
+      await (widget.setUpBuiltin ?? setUpBuiltinForMigration)(
+        context,
+        TermuxRuntime.openCode2,
+      );
     } catch (_) {
       failed = true;
     }
@@ -671,16 +676,11 @@ class _TermuxMigrationScreenState extends ConsumerState<TermuxMigrationScreen> {
   }
 
   Widget _needsBuiltin(AppLocalizations l10n) {
-    final runtime = ManagedRuntimeFlavor.runtimeOf(widget.source);
     return KitStateView(
       key: const ValueKey('migration-needs-builtin'),
       icon: AppIconography.phone,
       title: l10n.migrationNeedsBuiltin,
-      body: l10n.migrationNeedsBuiltinBody(
-        runtime == TermuxRuntime.openCode2
-            ? l10n.setupRuntimeTwo
-            : l10n.setupRuntimeOne,
-      ),
+      body: l10n.migrationNeedsBuiltinBody(l10n.setupRuntimeTwo),
       primary: KitAction(
         key: const ValueKey('migration-set-up'),
         label: l10n.migrationSetUpBuiltin,

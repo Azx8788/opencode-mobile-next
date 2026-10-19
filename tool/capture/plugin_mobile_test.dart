@@ -1,7 +1,7 @@
 // Synthetic source captures; no live server traffic or plugin execution.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/domain/plugin_inventory.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/ui/screens/settings/server_plugins_section.dart';

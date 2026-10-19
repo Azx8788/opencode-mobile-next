@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart' show StreamStatus;
 import 'package:opencode_mobile/domain/server_gateway.dart'
     show ProductException;
@@ -821,6 +821,35 @@ void main() {
         'behavior': 'deny',
         'interrupt': true,
       });
+    });
+
+    test('a call rejected with a typed reason reads as declined', () async {
+      await gateway.respondPermission(
+        'perm-1',
+        'reject',
+        message: 'use the other file',
+      );
+      events.clear();
+      daemon.push(
+        'agent_stream',
+        stream(
+          'a1',
+          timeline({
+            'type': 'tool_call',
+            'callId': 'toolu_1',
+            'name': 'Write',
+            'status': 'failed',
+            'error': {'content': 'use the other file'},
+            'detail': {'type': 'write', 'filePath': '$_dir/hello.txt'},
+          }),
+          seq: 1,
+        ),
+      );
+      await pumpEventQueue();
+      final part = events.lastWhere((e) => e.type == 'message.part.updated');
+      final state = (part.properties['part'] as Map)['state'] as Map;
+      expect(state['status'], 'error');
+      expect(state['output'], 'The user declined this tool call');
     });
 
     test('an answered request does not return from a stale snapshot', () async {

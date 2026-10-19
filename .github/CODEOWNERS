@@ -39,7 +39,6 @@
 /.github/workflows/                     @Eslamasabry
 
 # Generated from the checked-in contracts; never hand-edited.
-/packages/opencode_sdk/                 @Eslamasabry
 /contracts/                             @Eslamasabry
 
 # Legally load-bearing, and the last two of these ship inside the app.

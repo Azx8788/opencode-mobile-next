@@ -245,29 +245,26 @@ install_runtime() {
   );
 
   test(
-    'return uses installed OC1 and leaves isolated beta data and credential intact',
+    'return to OC1 is refused and the migrated runtime stays intact',
     () async {
       final home = _home();
       expect(
         (await _run(home, _switch('opencode2', 'two-fixture'))).exitCode,
         0,
       );
-      final oc = '${home.path}/.oc';
-      File('$oc/beta-data').writeAsStringSync('beta history fixture');
       final result = await _run(home, _switch('opencode1', 'one-fixture'));
-      expect(result.exitCode, 0, reason: result.stderr.toString());
-      expect(File('$oc/runtime').readAsStringSync(), 'opencode1');
-      expect(File('$oc/server.password').readAsStringSync(), 'one-fixture');
-      expect(File('$oc/password-opencode2').readAsStringSync(), 'two-fixture');
-      expect(File('$oc/beta-data').readAsStringSync(), 'beta history fixture');
-      expect(File('$oc/installed').readAsLinesSync(), ['opencode2']);
-      expect(File('$oc/opencode2-data-mode').readAsStringSync(), 'isolated');
+      expect(result.exitCode, 64);
+      expect(File('${home.path}/.oc/runtime').readAsStringSync(), 'opencode2');
+      expect(
+        File('${home.path}/.oc/server.password').readAsStringSync(),
+        'two-fixture',
+      );
     },
   );
 
   for (final failure in ['FAIL_INSTALL=1', 'FAIL_START=1', 'REFUSE_STOP=1']) {
     test(
-      '$failure leaves durable return and permits explicit old-runtime recovery',
+      '$failure leaves durable history and permits retrying the OC2 move',
       () async {
         final home = _home();
         final result = await _run(
@@ -283,10 +280,10 @@ install_runtime() {
           File('$oc/password-opencode1').readAsStringSync(),
           'one-fixture',
         );
-        final restored = await _run(home, _switch('opencode1', 'one-fixture'));
+        final restored = await _run(home, _switch('opencode2', 'two-fixture'));
         expect(restored.exitCode, 0, reason: restored.stderr.toString());
-        expect(File('$oc/runtime').readAsStringSync(), 'opencode1');
-        expect(File('$oc/server.password').readAsStringSync(), 'one-fixture');
+        expect(File('$oc/runtime').readAsStringSync(), 'opencode2');
+        expect(File('$oc/server.password').readAsStringSync(), 'two-fixture');
         expect(File('$oc/runtime-switch').existsSync(), isFalse);
       },
     );
@@ -302,10 +299,10 @@ install_runtime() {
       File('$oc/runtime-switch').writeAsStringSync(
         'switch_previous=opencode1\nswitch_target=opencode2\nswitch_phase=stopping\n',
       );
-      final result = await _run(home, _switch('opencode1', 'one-fixture'));
+      final result = await _run(home, _switch('opencode2', 'two-fixture'));
       expect(result.exitCode, 0, reason: result.stderr.toString());
       expect(File('$oc/password-opencode1').readAsStringSync(), 'one-fixture');
-      expect(File('$oc/server.password').readAsStringSync(), 'one-fixture');
+      expect(File('$oc/server.password').readAsStringSync(), 'two-fixture');
     },
   );
 

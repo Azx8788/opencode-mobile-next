@@ -149,6 +149,10 @@ void main() {
       const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
       (_) async => null,
     );
+    binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      const MethodChannel('oc/scheduled_prompts'),
+      (_) async => null,
+    );
     addTearDown(() {
       debugPlatformCapabilities = null;
       AutomationPolicyController.resetShared();
@@ -162,6 +166,7 @@ void main() {
         {
           'id': 'phone',
           'name': 'Phone server',
+          'flavor': 'v2',
           'baseUrl': BuiltinLinux.serverUrl,
           'username': BuiltinLinux.serverUsername,
         },
@@ -218,6 +223,10 @@ void main() {
         const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
         (_) async => null,
       );
+      binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        const MethodChannel('oc/scheduled_prompts'),
+        (_) async => null,
+      );
       addTearDown(() {
         debugPlatformCapabilities = null;
         AutomationPolicyController.resetShared();
@@ -231,6 +240,7 @@ void main() {
           {
             'id': 'phone',
             'name': 'Phone server',
+            'flavor': 'v2',
             'baseUrl': BuiltinLinux.serverUrl,
             'username': BuiltinLinux.serverUsername,
           },

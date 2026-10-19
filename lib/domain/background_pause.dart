@@ -11,6 +11,9 @@ enum BackgroundPauseReason {
 
   /// Android ended the app to update it (exit reason PACKAGE_UPDATED).
   appUpdated,
+
+  /// The phone restarted while the connection was running.
+  deviceRestarted,
 }
 
 /// A native service receipt, independent of any selected remote server.

@@ -5,7 +5,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/voice/audio.dart';
 import 'package:opencode_mobile/voice/controller.dart';

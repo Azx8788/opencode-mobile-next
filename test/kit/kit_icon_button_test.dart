@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../support/no_red.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
 import 'package:opencode_mobile/ui/app_theme.dart';
@@ -473,24 +474,23 @@ void main() {
     },
   );
 
-  testWidgets('destructive paints the glyph danger, never dangerFill', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      _host(
-        KitIconButton(
-          icon: AppIconography.delete,
-          tooltip: 'Delete',
-          destructive: true,
-          onPressed: () {},
+  testWidgets(
+    'destructive keeps the glyph neutral, never danger (owner rule)',
+    (tester) async {
+      await tester.pumpWidget(
+        _host(
+          KitIconButton(
+            icon: AppIconography.delete,
+            tooltip: 'Delete',
+            destructive: true,
+            onPressed: () {},
+          ),
         ),
-      ),
-    );
-    await tester.pumpAndSettle();
-    final roles = ThemeRoles.resolve(AppTheme.dark());
-    expect(_glyphColor(tester), roles.danger);
-    expect(_glyphColor(tester), isNot(roles.dangerFill));
-  });
+      );
+      await tester.pumpAndSettle();
+      expect(_glyphColor(tester), isNotRed);
+    },
+  );
 
   testWidgets('selected shows an accent glyph with no filled circle', (
     tester,

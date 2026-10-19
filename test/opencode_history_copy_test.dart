@@ -10,7 +10,8 @@ import 'package:opencode_mobile/builtin/builtin_linux.dart';
 import 'package:opencode_mobile/domain/history_migration.dart';
 import 'package:opencode_mobile/domain/opencode_history_copy.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
-import 'package:opencode_mobile/termux/bridge.dart' show TermuxRuntime;
+import 'package:opencode_mobile/termux/bridge.dart'
+    show TermuxRuntime, TermuxBridgeException;
 import 'package:opencode_mobile/termux/scripts/manager_script.dart';
 import 'package:opencode_mobile/ui/screens/this_phone_screen.dart';
 
@@ -31,9 +32,9 @@ void main() {
         lessThan(two.indexOf(openCode1HistoryCopyScript)),
       );
       expect(
-        BuiltinLinux.serverScript(runtime: TermuxRuntime.openCode1),
-        isNot(contains('opencode.db')),
-        reason: 'OpenCode 1 starts untouched',
+        () => BuiltinLinux.serverScript(runtime: TermuxRuntime.openCode1),
+        throwsA(isA<TermuxBridgeException>()),
+        reason: 'The legacy runtime can never be started',
       );
     });
 
@@ -153,6 +154,7 @@ void main() {
           'opencode.db',
           'opencode.db-wal',
           'opencode.db-shm',
+          '.oc1-import-source.sha256',
         }, reason: 'no scratch folder left behind');
       });
 
@@ -196,6 +198,36 @@ void main() {
             'new$suffix',
           );
         }
+      });
+
+      test('completed copy can resume even after OC2 converted its target', () {
+        File('${oc1.path}/opencode.db').writeAsStringSync('original');
+        expect(run().exitCode, 0);
+        File('${oc2.path}/opencode.db').writeAsStringSync('converted');
+        expect(run(source: openCode1HistorySwitchCheckScript).exitCode, 0);
+        expect(File('${oc1.path}/opencode.db').readAsStringSync(), 'original');
+        expect(File('${oc2.path}/opencode.db').readAsStringSync(), 'converted');
+      });
+
+      test('changed original cannot reuse a prior copy receipt', () {
+        File('${oc1.path}/opencode.db').writeAsStringSync('original');
+        expect(run().exitCode, 0);
+        File('${oc1.path}/opencode.db-wal').writeAsStringSync('later chat');
+        expect(run(source: openCode1HistorySwitchCheckScript).exitCode, 74);
+        expect(
+          File('${oc1.path}/opencode.db-wal').readAsStringSync(),
+          'later chat',
+        );
+      });
+
+      test('interrupted verified sidecar placement safely resumes', () {
+        File('${oc1.path}/opencode.db').writeAsStringSync('original');
+        File('${oc1.path}/opencode.db-wal').writeAsStringSync('wal');
+        expect(run().exitCode, 0);
+        File('${oc2.path}/opencode.db').deleteSync();
+        expect(run().exitCode, 0);
+        expect(File('${oc2.path}/opencode.db').readAsStringSync(), 'original');
+        expect(File('${oc1.path}/opencode.db-wal').readAsStringSync(), 'wal');
       });
 
       test('explicit move permits a fresh target without modifying source', () {
@@ -345,7 +377,10 @@ void main() {
           error: 'SQLITE_FULL',
         ),
       )!;
-      expect(error, contains('still safe in OpenCode 1'));
+      expect(
+        error,
+        contains('original data is still on this phone, untouched'),
+      );
       expect(error, isNot(contains('SQLITE')));
     });
 

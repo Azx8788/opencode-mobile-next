@@ -1,6 +1,6 @@
 // The keys OpenCode's own tools send in a tool step's `input` and `metadata`
 // (the contracts type both as free objects, so these come from the tool
-// definitions), as one group per tool. Shared by oc1_parts and oc2_messages.
+// definitions), as one group per tool. Used by oc2_messages.
 const str = (...paths) => Object.fromEntries(paths.map((p) => [p, { kind: 'string' }]));
 const toolGroup = (fields) => ({ extra: fields });
 

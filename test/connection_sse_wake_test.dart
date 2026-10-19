@@ -1,20 +1,14 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/background/live_background.dart';
 import 'package:opencode_mobile/builtin/builtin_linux.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'support/connection_sse_fixtures.dart';
-
-class _RealHttpOverrides extends HttpOverrides {}
 
 /// Integrations answer only when the test completes [integrations]; counts
 /// catalog loads, so a test can see what waits for what.
@@ -738,69 +732,5 @@ void main() {
     await controller.resumeFromLifecycle();
     expect(wakeLockCalls, 0);
     controller.dispose();
-  });
-
-  test('OpenCode API scopes SSE and permission replies to location', () async {
-    await HttpOverrides.runZoned(() async {
-      final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
-      final requests = <Uri>[];
-      server.listen((request) async {
-        requests.add(request.uri);
-        if (request.uri.path == '/event' ||
-            request.uri.path == '/global/event') {
-          request.response.headers.contentType = ContentType(
-            'text',
-            'event-stream',
-          );
-          request.response.write(
-            'data: ${jsonEncode({'type': 'server.connected'})}\n\n',
-          );
-        } else if (request.uri.path == '/provider') {
-          request.response.headers.contentType = ContentType.json;
-          request.response.write(
-            jsonEncode({
-              'all': <Object>[],
-              'connected': <Object>[],
-              'default': <String, Object>{},
-            }),
-          );
-        } else if (request.uri.path == '/agent') {
-          request.response.headers.contentType = ContentType.json;
-          request.response.write('[]');
-        } else {
-          request.response.headers.contentType = ContentType.json;
-          request.response.write('true');
-        }
-        await request.response.close();
-      });
-
-      final api = OpenCodeApi(
-        baseUrl: 'http://${server.address.host}:${server.port}',
-      )..setLocation(directory: '/work/acme', workspace: 'workspace-1');
-      try {
-        final response = await api.openEventStream();
-        await response.data!.stream.drain<void>();
-        final globalResponse = await api.openGlobalEventStream();
-        await globalResponse.data!.stream.drain<void>();
-        await api.respondPermission('permission-1', 'once');
-        await api.providers();
-        await api.agents();
-
-        expect(requests, hasLength(5));
-        final globalEvent = requests.singleWhere(
-          (uri) => uri.path == '/global/event',
-        );
-        expect(globalEvent.queryParameters, isEmpty);
-        for (final uri in requests.where(
-          (uri) => uri.path != '/global/event',
-        )) {
-          expect(uri.queryParameters['directory'], '/work/acme');
-          expect(uri.queryParameters['workspace'], 'workspace-1');
-        }
-      } finally {
-        api.close();
-        await server.close(force: true);
-      }
-    }, createHttpClient: (_) => _RealHttpOverrides().createHttpClient(null));
   });
 }

@@ -1,6 +1,5 @@
-// Golden renders of the shell while this phone switches its own server from
-// OpenCode 2 to OpenCode 1: the old connection reconnecting, then refusing
-// its old password. At 412x915, dark and light, with the app's real fonts.
+// Golden renders of the shell while this phone restarts OpenCode 2.
+// At 412x915, dark and light, with the app's real fonts.
 //
 // Regenerate deliberately:
 //   flutter test --update-goldens test/goldens/runtime_switch_golden_test.dart
@@ -22,8 +21,6 @@ void main() {
   for (final light in [false, true]) {
     final mode = light ? 'light' : 'dark';
     for (final (scene, phase, target) in [
-      ('reconnecting', ConnectionStatusPhase.reconnecting, phoneOne),
-      ('password', ConnectionStatusPhase.credentialsRequired, phoneOne),
       // Not a switch: the same server restarting, a plain reconnect.
       ('restart', ConnectionStatusPhase.reconnecting, phoneTwo),
     ]) {

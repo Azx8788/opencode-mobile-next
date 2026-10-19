@@ -18,6 +18,10 @@ mixin _ChatDraftFields {
   int _draftWriteGeneration = 0;
   SessionDraftFailure? _draftSaveFailure;
   bool _allowRoutePop = false;
+
+  /// Queue entries already taken off the queue because the transcript shows
+  /// them ([_ChatQueue._waitingDrafts]).
+  final Set<String> _dropQueued = {};
   bool _leavingProvisionalSession = false;
 }
 
@@ -323,7 +327,23 @@ extension _ChatDrafts on _ChatScreenState {
     if (!mounted) return;
     _setChatState(() => _allowRoutePop = true);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) Navigator.of(context).maybePop();
+      if (!mounted) return;
+      final navigator = Navigator.of(context);
+      // A chat with nothing beneath it (opened from a notification or a
+      // launcher door) has nowhere to pop to: Back would do nothing and the
+      // person would be stuck. It leaves for home, the Conversations list,
+      // exactly as a chat opened from that list does. Only an app that
+      // declares that route can take it; a chat hosted alone stays put.
+      final routes = context
+          .findAncestorWidgetOfExactType<MaterialApp>()
+          ?.routes;
+      if (widget.showAppBar &&
+          !navigator.canPop() &&
+          (routes?.containsKey('/home') ?? false)) {
+        unawaited(navigator.pushNamedAndRemoveUntil('/home', (_) => false));
+        return;
+      }
+      unawaited(navigator.maybePop());
     });
   }
 }

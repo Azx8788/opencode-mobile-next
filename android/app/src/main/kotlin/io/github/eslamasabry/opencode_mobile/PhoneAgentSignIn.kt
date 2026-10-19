@@ -8,6 +8,17 @@ import java.util.concurrent.TimeUnit
 
 /** Private Claude subscription sign-in pipes. Never a terminal or log source. */
 class PhoneAgentSignIn(private val linux: BuiltinLinux) {
+    companion object {
+        /**
+         * `claude --version` of every build the app is qualified with; the
+         * same list as `claudeCodeTestedVersions` (lib/paseo/tested_versions.dart,
+         * kept equal by test/claude_phone_auth_test.dart). One exact version
+         * here made every check after the 2.1.294 update fail, which the
+         * picker shows as "Sign in needed" even when signed in.
+         */
+        val TESTED_CLAUDE_VERSIONS = setOf("2.1.283 (Claude Code)", "2.1.294 (Claude Code)")
+    }
+
     private val lock = Any()
     private val runs = mutableMapOf<String, Run>()
     // A cancelled ID cannot be reused by a late start or status call.
@@ -137,7 +148,7 @@ class PhoneAgentSignIn(private val linux: BuiltinLinux) {
     private fun inspect(run: Run): Boolean {
         if (!synchronized(lock) { run.versionVerified }) {
             val version = capture(run, listOf("claude", "--version"))
-            if (version.first != 0 || version.second.trim() != "2.1.283 (Claude Code)") {
+            if (version.first != 0 || version.second.trim() !in TESTED_CLAUDE_VERSIONS) {
                 throw AuthFailure("unavailable")
             }
             synchronized(lock) { run.versionVerified = true }

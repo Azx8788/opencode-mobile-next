@@ -1,3 +1,4 @@
+import 'support/fake_server_capabilities.dart';
 // The chat's context ring: in the top bar left of the menu when the use is
 // known, gone when it is not, compacting from the session's own signal, the
 // details sheet with Compact now only where the server can compact, and the
@@ -6,9 +7,9 @@ import 'support/complete_message_history.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -20,9 +21,9 @@ import 'package:opencode_mobile/ui/kit/kit.dart'
 import 'package:opencode_mobile/ui/screens/chat_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class _Api extends OpenCodeApi with CompleteMessageHistory {
+class _Api extends FakeServerGateway with CompleteMessageHistory {
   _Api({this.transcript = const [], ServerCapabilities? capabilities})
-    : _capabilities = capabilities ?? ServerCapabilities.allV1,
+    : _capabilities = capabilities ?? testServerCapabilities,
       super(baseUrl: 'http://localhost');
 
   final List<MessageWithParts> transcript;
@@ -80,7 +81,8 @@ class _Controller extends ConnectionController {
       ServerProfile(id: 'server-a', name: 'A', baseUrl: 'http://localhost');
 
   @override
-  Future<OpenCodeApi?> prepareActionTransport() async => api as OpenCodeApi?;
+  Future<FakeServerGateway?> prepareActionTransport() async =>
+      api as FakeServerGateway?;
 
   @override
   Future<ServerOperationsGateway?> prepareActionRepository() async =>

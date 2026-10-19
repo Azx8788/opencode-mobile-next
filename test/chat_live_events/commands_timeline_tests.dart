@@ -16,7 +16,11 @@ void _commandAndTimelineTests() {
         Todo(content: 'Verify review', status: 'pending'),
       ];
 
-    await _pumpChat(tester, api);
+    await _pumpChat(
+      tester,
+      api,
+      repository: _FakeProductRepository(const [], vcsDiffs: api.diffs),
+    );
     await tester.pumpAndSettle();
     // Changes live in the conversation menu's Go to (slice-P10.2).
     await tester.tap(find.byTooltip('Conversation menu'));

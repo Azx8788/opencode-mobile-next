@@ -22,8 +22,8 @@ CatalogComponent serverCapabilities() => catalogComponent(
   name: 'What this server can do',
   useCases: [
     WidgetbookUseCase(
-      name: 'Everything on',
-      builder: (_) => _scene(ServerCapabilities.allV1),
+      name: 'OpenCode 2 capabilities',
+      builder: (_) => _scene(catalogServerCapabilities),
     ),
     WidgetbookUseCase(
       name: 'Nothing optional',

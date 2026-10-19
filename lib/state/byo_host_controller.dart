@@ -59,9 +59,7 @@ class ByoHostController {
       username: profileId,
       password: secrets.deviceToken,
       serverVersion: snapshot.record?.openCodeVersion,
-      flavor: snapshot.record?.openCodeVersion?.startsWith('2.') == true
-          ? ServerFlavor.v2
-          : ServerFlavor.v1,
+      flavor: ServerFlavor.v2,
     );
   }
 

@@ -34,7 +34,7 @@ void main() {
   );
 
   testWidgets(
-    'lost is danger, kept is a text2 check, info is a text2 info glyph',
+    'lost is text1, kept is a text2 check, info is a text2 info glyph',
     (tester) async {
       final roles = ThemeRoles.resolve(AppTheme.light());
       await tester.pumpWidget(_host(KitConsequences(items: _items())));
@@ -43,7 +43,7 @@ void main() {
       final icons = tester.widgetList<Icon>(find.byType(Icon)).toList();
       expect(icons, hasLength(3));
       expect(icons[0].icon, AppIconography.warning);
-      expect(icons[0].color, roles.danger);
+      expect(icons[0].color, roles.text1);
       expect(icons[1].icon, AppIconography.check);
       expect(icons[1].color, roles.text2);
       expect(icons[2].icon, AppIconography.info);

@@ -2,6 +2,8 @@
 // nothing when the screen asks it to open or start something. Adapted from
 // test/support/chats_fakes.dart (the app never imports test/ from lib/).
 import 'package:flutter/widgets.dart';
+import 'package:opencode_mobile/builtin/git_link_repair.dart'
+    show GitRepairActions;
 import 'package:opencode_mobile/domain/chat_feed.dart';
 import 'package:opencode_mobile/domain/phone_agents_source.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart'
@@ -139,6 +141,9 @@ class FakeHost implements ChatsHost {
 
   @override
   Future<WorkspaceProject?> separateCopyProject(String directory) async => null;
+
+  @override
+  GitRepairActions? projectGitRepair(String directory) => null;
 
   @override
   Future<String?> startSeparateCopy(

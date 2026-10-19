@@ -67,7 +67,7 @@ class _ComputerCommand extends StatelessWidget {
                 children: switch (backend) {
                   ServerBackend.openCode => [
                     caption(copy.e7SharedServersStartedWithOpencodeServeDoNot),
-                    command(SetupCommands.legacyServe),
+                    command(SetupCommands.serve),
                     caption(copy.e7SharedThenAddTheServerManuallyWithUsername),
                   ],
                   ServerBackend.paseo => [
@@ -238,16 +238,30 @@ class _ProbeVerdict extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final copy = lookupAppLocalizations(Localizations.localeOf(context));
+    if (result.unsupportedLegacy) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          KitNotice(
+            key: const ValueKey('server-unsupported-legacy'),
+            tone: AppStatusTone.failure,
+            message: copy.openCode1Unsupported,
+          ),
+          KitCodeBlock(
+            text: openCode2UpgradeCommand,
+            kind: KitCodeKind.command,
+            copyLabel: copy.handoffCopyCommand,
+          ),
+        ],
+      );
+    }
     if (result.ok) {
       final version = result.version ?? copy.e7SetupUnknownVersion;
       return KitNotice(
         key: const ValueKey('server-test-success'),
         tone: AppStatusTone.ok,
-        title: result.flavor == ServerFlavor.v2
-            ? copy.e7SetupProbeV2(version)
-            : copy.e7SetupProbeV1(version),
+        title: copy.e7SetupProbeV2(version),
         message: copy.e7SetupSaveToFinish,
-        notes: [if (result.flavor == ServerFlavor.v1) copy.e7SetupV1Limited],
       );
     }
     // A check that failed before the server could answer carries the raw

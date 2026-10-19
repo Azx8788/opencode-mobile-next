@@ -70,6 +70,25 @@ class AndroidVoiceSetupPlatform implements VoiceSetupPlatform {
     }
   }
 
+  /// For a screen that wants to promise a notification: true when the
+  /// person can be notified, or when there is nothing to ask (not Android,
+  /// or the native side is not wired, as in widget tests, so no refusal is
+  /// known). False only for a refusal or a failed ask. No timeout: the
+  /// system prompt waits for the person.
+  Future<bool> askNotificationsIfWired() async {
+    if (!platformCapabilities.supportsVoice) return true;
+    try {
+      return await _channel.invokeMethod<Object?>(
+            'requestVoiceDownloadNotificationPermission',
+          ) ==
+          true;
+    } on MissingPluginException {
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   // All instances share the same native notification ID. Serialize mutations
   // so a queued progress update cannot overtake completion or dismissal.
   // The tail is cleared once idle so no settled future (and the zone it was

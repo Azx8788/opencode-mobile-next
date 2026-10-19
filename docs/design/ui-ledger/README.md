@@ -223,6 +223,7 @@ Files with no surface of their own and no interactive element (also in
 - `lib/ui/screens/servers/profile_editor_pairing.dart`: Part file of lib/ui/screens/servers_screen.dart (same screen, same library): its elements are listed under that screen's ledger entries; no separate surface.
 - `lib/ui/screens/servers/profile_editor_probe.dart`: Part file of lib/ui/screens/servers_screen.dart (same screen, same library): its elements are listed under that screen's ledger entries; no separate surface.
 - `lib/ui/screens/servers/profile_editor_steps.dart`: Part file of lib/ui/screens/servers_screen.dart (same screen, same library): its elements are listed under that screen's ledger entries; no separate surface.
+- `lib/ui/screens/servers/profile_editor_trust.dart`: Part file of lib/ui/screens/servers_screen.dart (same screen, same library): its elements are listed under that screen's ledger entries; no separate surface.
 - `lib/ui/screens/servers/profile_editor_widgets.dart`: Part file of lib/ui/screens/servers_screen.dart (same screen, same library): its elements are listed under that screen's ledger entries; no separate surface.
 - `lib/ui/screens/servers/server_rows.dart`: Part file of lib/ui/screens/servers_screen.dart (same screen, same library): its elements are listed under that screen's ledger entries; no separate surface.
 - `lib/ui/screens/servers/servers_actions.dart`: Part file of lib/ui/screens/servers_screen.dart (same screen, same library): its elements are listed under that screen's ledger entries; no separate surface.

@@ -89,16 +89,15 @@ Map<String, Map<String, String>> effectiveJobParams(
   final base = components.isEmpty && last != null && last.canContinue
       ? last.params
       : components;
-  // Missing runtime in an existing job means the historical OC1 default.
-  // Persist every new selection explicitly so future defaults cannot migrate it.
-  final openCode = base[SetupComponentIds.openCode] ?? const {};
-  final runtime =
-      openCode['runtime'] ??
-      (last == null
-          ? TermuxRuntime.defaultForNewInstall.wireName
-          : TermuxRuntime.parse(
-              last.params[SetupComponentIds.openCode]?['runtime'],
-            ).wireName);
+  // Interrupted legacy jobs resume on the only supported runtime. A v1
+  // package pin cannot leak into the OC2 installer. Starting OC2 still copies
+  // history before its first launch; explicit moves preflight both histories.
+  final openCode = {...?base[SetupComponentIds.openCode]};
+  if (openCode['runtime'] == 'opencode1' ||
+      (openCode['version']?.startsWith('1.') ?? false)) {
+    openCode.remove('version');
+  }
+  const runtime = 'opencode2';
   return {
     ...base,
     SetupComponentIds.openCode: {...openCode, 'runtime': runtime},
@@ -367,7 +366,11 @@ final _offline = RegExp(
   caseSensitive: false,
 );
 final _noSpace = RegExp(
-  r'No space left on device|ENOSPC',
+  r'No space left on device|ENOSPC|not enough free space',
+  caseSensitive: false,
+);
+final _interrupted = RegExp(
+  r'terminated with signal (?:9|15)\b|\bSIG(?:KILL|TERM)\b',
   caseSensitive: false,
 );
 final _checksum = RegExp(
@@ -396,9 +399,9 @@ final _checksum = RegExp(
     return (component: text, job: text);
   }
   if (step) {
-    final text = l10n.phoneSetupErrorStart(
-      reason.isEmpty ? l10n.phoneSetupErrorCannotStart : reason,
-    );
+    // The finisher may return native exception text. Keep that in Details;
+    // it is not safe or useful to interpolate into the person's recovery.
+    final text = l10n.phoneSetupErrorCannotStart;
     return (component: text, job: text);
   }
   // The OpenCode install names its own reason on its last line.
@@ -417,6 +420,12 @@ final _checksum = RegExp(
   ].join('\n');
   if (_noSpace.hasMatch(recent)) {
     final text = l10n.phoneSetupErrorNoSpace(title);
+    return (component: text, job: text);
+  }
+  if (_interrupted.hasMatch(recent)) {
+    // A signal proves interruption, not why Android or another process sent
+    // it. In particular, do not claim that low memory caused SIGTERM.
+    final text = l10n.phoneSetupErrorInterrupted;
     return (component: text, job: text);
   }
   if (_offline.hasMatch(recent)) {

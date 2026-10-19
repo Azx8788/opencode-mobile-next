@@ -283,12 +283,35 @@ mixin _Api2DevOps on _Api2Core implements OneShotCommandGateway {
         // The ticket authenticates OC2. A BYO proxy also needs the phone's
         // Basic header so revocation still applies before websocket forwarding.
         // Keep both credentials out of the URL except the single-use ticket.
-        final socket = await WebSocket.connect(
-          uri.toString(),
-          headers: {
-            HttpHeaders.authorizationHeader: _transport.authorizationHeader,
-          },
+        Exception? certificateFailure;
+        final http = _TerminalTrustHttpClient(
+          createServerHttpClient(
+            baseUrl: _transport.serverRoot,
+            cleartextConfirmedOrigin: _transport.cleartextConfirmedOrigin,
+            certificatePinSha256: _transport.certificatePinSha256,
+            onCertificateChanged: () =>
+                certificateFailure = const ServerCertificateChangedException(),
+            onCertificateInvalid: () =>
+                certificateFailure = const ServerCertificateValidityException(),
+          ),
         );
-        return _Api2TerminalChannel(socket, initialCursor: cursor ?? 0);
+        try {
+          final socket = await WebSocket.connect(
+            uri.toString(),
+            customClient: http,
+            headers: {
+              HttpHeaders.authorizationHeader: _transport.authorizationHeader,
+            },
+          );
+          // The upgraded socket is detached from HttpClient ownership.
+          return _Api2TerminalChannel(socket, initialCursor: cursor ?? 0);
+        } catch (_) {
+          if (certificateFailure != null) {
+            throw certificateFailure!;
+          }
+          rethrow;
+        } finally {
+          http.close();
+        }
       });
 }

@@ -53,6 +53,8 @@ Map<String, Object> _seed() => {
   'oc.activeProfile': 'doomed',
 
   // Per-profile preferences.
+  'oc.widgetFollowup.doomed': '{}',
+  'oc.widgetFollowup.keeper': '{}',
   'oc.model.doomed': 'anthropic|claude',
   'oc.modelExplicit.doomed': true,
   'oc.agent.doomed': 'build',
@@ -241,6 +243,7 @@ void main() {
       final store = ProfileStore(prefs: prefs);
 
       expect(store.profileScopedPreferenceKeys('doomed'), {
+        'oc.widgetFollowup.doomed',
         'oc.model.doomed',
         'oc.modelExplicit.doomed',
         'oc.agent.doomed',
@@ -267,7 +270,7 @@ void main() {
     final result = await controller.deleteProfileAndLocalData('doomed');
 
     // Reported truthfully: the UI copy depends on these numbers.
-    expect(result.removedPreferenceKeys, hasLength(12));
+    expect(result.removedPreferenceKeys, hasLength(13));
     expect(
       result.removedPreferenceKeys,
       containsAll([
@@ -292,7 +295,9 @@ void main() {
     expect(secureDeletes, contains('pw.doomed'));
 
     // Every profile-scoped preference.
+    expect(prefs.getString('oc.widgetFollowup.keeper'), '{}');
     for (final key in const [
+      'oc.widgetFollowup.doomed',
       'oc.model.doomed',
       'oc.modelExplicit.doomed',
       'oc.agent.doomed',
@@ -667,7 +672,7 @@ void main() {
       expect(result.removedProfile, isFalse);
       expect(result.failures, ['1 saved setting']);
       // Include the two migrated consent keys; the refused key is not claimed.
-      expect(result.removedPreferenceKeys, hasLength(11));
+      expect(result.removedPreferenceKeys, hasLength(12));
       expect(result.removedPreferenceKeys, isNot(contains('oc.agent.doomed')));
       expect(await onDisk('oc.agent.doomed'), 'build');
       expect(controller.store.profiles.map((p) => p.id), ['doomed', 'keeper']);

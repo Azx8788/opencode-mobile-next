@@ -6,7 +6,8 @@ import 'package:clock/clock.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../api/server_probe.dart';
+import '../domain/server_probe.dart';
+import '../domain/opencode_history_copy.dart';
 import '../l10n/app_localizations.dart';
 import '../state/profiles.dart';
 import 'builtin_linux.dart';
@@ -50,14 +51,27 @@ Future<bool> isInAppServer(ServerProfile? profile, BuiltinLinux linux) async {
 
 /// The saved profile of the in-app server for [flavor], if there is one.
 ServerProfile? findBuiltinProfile(ProfileStore store, ServerFlavor flavor) {
-  for (final profile in store.profiles) {
-    if (profile.backend == ServerBackend.openCode &&
-        BuiltinLinux.managesServerUrl(profile.baseUrl) &&
-        profile.flavor == flavor) {
+  final candidates = store.profiles
+      .where(
+        (profile) =>
+            profile.backend == ServerBackend.openCode &&
+            BuiltinLinux.managesServerUrl(profile.baseUrl) &&
+            profile.flavor == flavor,
+      )
+      .toList();
+  // Both old runtime aliases now speak OC2. Preserve the selected source's
+  // identity instead of adopting whichever alias happened to be saved first.
+  for (final profile in candidates) {
+    if (profile.id == store.activeId) return profile;
+  }
+  // A setup resumed without an active connection must still retain its
+  // unfinished history proof before considering an ordinary OC2 alias.
+  for (final profile in candidates) {
+    if (profile.requiresOpenCode2Migration || profile.openCode2HistoryPending) {
       return profile;
     }
   }
-  return null;
+  return candidates.firstOrNull;
 }
 
 /// The saved profile of the in-app server for [flavor], made on first use.
@@ -200,6 +214,7 @@ Future<BuiltinServerStartFailure?> startBuiltinServer({
   Duration pollInterval = const Duration(seconds: 2),
   bool Function()? stillWanted,
   int? recoveryGeneration,
+  bool migrateLegacyHistory = false,
 }) async {
   const cancelled = BuiltinServerStartFailure.detail(
     'The server start was not confirmed.',
@@ -207,6 +222,12 @@ Future<BuiltinServerStartFailure?> startBuiltinServer({
   );
   bool wanted() => stillWanted?.call() ?? true;
   if (!wanted()) return cancelled;
+  if (profile.requiresOpenCode2Migration && !migrateLegacyHistory) {
+    return const BuiltinServerStartFailure.detail(
+      'Your phone server needs to move to OpenCode 2. Your earlier conversations are safe.',
+      problem: BuiltinStartProblem.interrupted,
+    );
+  }
   if (profile.password.isEmpty) {
     return const BuiltinServerStartFailure.detail(
       'The saved server password is missing.',
@@ -216,6 +237,15 @@ Future<BuiltinServerStartFailure?> startBuiltinServer({
   // Which step threw, for Details: a start that keeps failing names it.
   var step = 'password';
   try {
+    if (profile.requiresOpenCode2Migration) {
+      final admission = await linux.run(openCode1HistorySwitchCheckScript);
+      if (!admission.ok) {
+        return const BuiltinServerStartFailure.detail(
+          'Your earlier conversations could not be moved safely. Both histories are unchanged.',
+          problem: BuiltinStartProblem.interrupted,
+        );
+      }
+    }
     final written = await linux.run(
       BuiltinLinux.writePasswordScript(profile.password),
       timeout: const Duration(seconds: 60),
@@ -351,7 +381,7 @@ class BuiltinServerStarter extends ChangeNotifier {
   /// runs, then for [handover] after a confirmed start answered, the moment
   /// between "the server answers" and "the app connected to it". A status
   /// line uses it to name the server being switched to, never the one being
-  /// left ("Switching to OpenCode 1…").
+  /// left during the move to OpenCode 2.
   ServerProfile? get bringingUp {
     final starting = startingProfile;
     if (starting != null) return starting;
@@ -473,6 +503,7 @@ class BuiltinServerStarter extends ChangeNotifier {
     bool automatic = false,
     bool Function()? stillWanted,
     int? recoveryGeneration,
+    bool migrateLegacyHistory = false,
   }) async {
     if (_starting) {
       return const BuiltinServerStartFailure.detail(
@@ -497,6 +528,7 @@ class BuiltinServerStarter extends ChangeNotifier {
         pollInterval: pollInterval,
         stillWanted: () => !_disposed && (stillWanted?.call() ?? true),
         recoveryGeneration: recoveryGeneration,
+        migrateLegacyHistory: migrateLegacyHistory,
       );
     } catch (error) {
       failure = BuiltinServerStartFailure.detail(

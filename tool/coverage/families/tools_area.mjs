@@ -15,12 +15,12 @@ import fs from 'node:fs';
 import { loadContract, walker } from '../openapi_walk.mjs';
 import { def, unwrap, objectFields } from '../paseo_cases_lib.mjs';
 
-const LOC = { directory: '/work/shop', workspaceID: 'wrk_main', project: { id: 'prj_shop', directory: '/work/shop' } };
+const LOC = { directory: '/work/shop', workspaceID: 'wrk_main', project: { id: 'prj_shop', directory: '/work/shop', canonical: '/work/shop' } };
 
-export function toolsFamilies({ oc1File, protocolMessages }) {
-  const S = loadContract(oc1File);
+export function toolsFamilies({ oc2File, protocolMessages }) {
+  const S = loadContract(oc2File);
   const w = walker(S);
-  const doc = JSON.parse(fs.readFileSync(oc1File, 'utf8'));
+  const doc = JSON.parse(fs.readFileSync(oc2File, 'utf8'));
   const out = {};
   const flatOf = (path) => {
     const sch = doc.paths[path].get.responses['200'].content['application/json'].schema;
@@ -37,37 +37,31 @@ export function toolsFamilies({ oc1File, protocolMessages }) {
     command: under(cmd, 'data[].'),
     skill: under(flatOf('/api/skill'), 'data[].'),
     reference: under(flatOf('/api/reference'), 'data[].'),
-    tool: under(flatOf('/experimental/tool'), '[].'),
-    tool_id: { '[]': { kind: 'string' } },
-    experimental: w.group('ExperimentalCapabilities'),
-    mcp_status: w.group('MCPStatus'),
-    mcp_resource: w.group('McpResource'),
   };
   const envelope = (data) => ({ data, location: LOC });
   const wc = (id, endpoint, payload, parts) => ({ id, kind: endpoint, endpoint, payload, parts });
   const locPart = { group: 'location', value: LOC, probes: Object.fromEntries(Object.keys(schema.location).map((k) => [k, []])) };
   const none = (group, keys) => Object.fromEntries(keys.map((k) => [k, []]));
-  const cmdA = { name: 'review-pr', template: 'Review $ARGUMENTS carefully', description: 'Review a pull request', agent: 'plan', model: { id: 'opus', providerID: 'anthropic', variant: 'high' }, subtask: true };
-  const cmdB = { name: 'ship-it', template: 'Run the release checklist' };
-  const skillA = { name: 'frontend-design', description: 'Make a clear visual hierarchy', slash: true, location: '/home/dev/.claude/skills/frontend-design/SKILL.md', content: '# Frontend design\nUse a clear hierarchy.' };
+  const cmdA = { name: 'review-pr', description: 'Review a pull request' };
+  const cmdB = { name: 'ship-it' };
+  const skillA = { id: 'skill_frontend', autoinvoke: true, name: 'frontend-design', description: 'Make a clear visual hierarchy', slash: true, location: '/home/dev/.claude/skills/frontend-design/SKILL.md', content: '# Frontend design\nUse a clear hierarchy.' };
   const skillB = { name: 'plain-notes', description: 'Keep short notes', slash: false, location: '/work/shop/.opencode/skills/plain-notes/SKILL.md', content: 'Keep notes short.' };
   const refA = { name: 'shop-docs', path: '/work/shop/docs', description: 'The shop design docs', hidden: false, source: { type: 'git', repository: 'https://github.com/example/shop-docs', branch: 'main', description: 'docs checkout', hidden: false } };
   const refLocal = { name: 'style-guide', path: '/work/shop/style', description: 'The style guide', source: { type: 'local', path: '/work/shop/style', description: 'local folder', hidden: false } };
   const refHidden = { name: 'secret-notes', path: '/work/shop/notes', hidden: true, source: { type: 'local', path: '/work/shop/notes' } };
-  const tool = { id: 'bash_run', description: 'Run a shell command in the project', parameters: { type: 'object', properties: { command: { type: 'string' } } } };
   out.tools_wire = {
     schema,
-    source: oc1File,
+    source: oc2File,
     excluded: {},
     cases: [
       wc('command_full_and_minimal', '/api/command', envelope([cmdA, cmdB]), [
         locPart,
-        { group: 'command', value: cmdA, probes: { name: ['review-pr'], template: [], description: ['Review a pull request'], agent: ['plan'], 'model.id': [], 'model.providerID': [], 'model.variant': [], subtask: ['Runs as a helper'] } },
-        { group: 'command', value: cmdB, probes: { name: ['ship-it'], template: [] } },
+        { group: 'command', value: cmdA, probes: { name: ['review-pr'], description: ['Review a pull request'],  } },
+        { group: 'command', value: cmdB, probes: { name: ['ship-it'] } },
       ]),
       wc('skill_slash_and_plain', '/api/skill', envelope([skillA, skillB]), [
         locPart,
-        { group: 'skill', value: skillA, probes: { name: ['frontend-design'], description: ['Make a clear visual hierarchy'], slash: [], location: ['SKILL.md'], content: ['Use a clear hierarchy'] } },
+        { group: 'skill', value: skillA, probes: { id: [], autoinvoke: [], name: ['frontend-design'], description: ['Make a clear visual hierarchy'], slash: [], location: ['SKILL.md'], content: ['Use a clear hierarchy'] } },
         { group: 'skill', value: skillB, probes: { name: ['plain-notes'], description: ['Keep short notes'], slash: [], location: [], content: [] } },
       ]),
       wc('reference_visible_and_hidden', '/api/reference', envelope([refA, refLocal, refHidden]), [
@@ -75,29 +69,6 @@ export function toolsFamilies({ oc1File, protocolMessages }) {
         { group: 'reference', value: refA, probes: { name: ['shop-docs'], path: ['/work/shop/docs'], description: ['The shop design docs'], hidden: [], 'source.type': [], 'source.repository': [], 'source.branch': [], 'source.description': [], 'source.hidden': [] } },
         { group: 'reference', value: refLocal, probes: { name: ['style-guide'], path: ['/work/shop/style'], description: ['The style guide'], 'source.type': [], 'source.path': [], 'source.description': [], 'source.hidden': [] } },
         { group: 'reference', value: refHidden, probes: { name: [], path: [], hidden: [], 'source.type': [], 'source.path': [] } },
-      ]),
-      wc('tool_inventory', '/experimental/tool', { tools: [tool], ids: ['bash_run', 'read_file'], capabilities: { backgroundSubagents: true } }, [
-        { group: 'tool', value: tool, probes: { id: ['bash_run'], description: ['Run a shell command in the project'], parameters: [] } },
-        { group: 'tool_id', value: ['bash_run', 'read_file'], probes: { '[]': ['read_file'] } },
-        { group: 'experimental', value: { backgroundSubagents: true }, probes: { backgroundSubagents: [] } },
-      ]),
-      wc('mcp_every_status', '/mcp', {
-        github: { status: 'connected' },
-        sentry: { status: 'needs_auth' },
-        linear: { status: 'failed', error: 'connection refused by linear.example' },
-        notion: { status: 'disabled' },
-        figma: { status: 'needs_client_registration', error: 'client registration is required' },
-      }, [
-        { group: 'mcp_status', value: { status: 'connected' }, probes: { status: ['github'] } },
-        { group: 'mcp_status', value: { status: 'needs_auth' }, probes: { status: ['sentry'] } },
-        { group: 'mcp_status', value: { status: 'failed', error: 'connection refused by linear.example' }, probes: { status: ['linear'], error: ['connection refused by linear.example'] } },
-        { group: 'mcp_status', value: { status: 'disabled' }, probes: { status: ['notion'] } },
-        { group: 'mcp_status', value: { status: 'needs_client_registration', error: 'client registration is required' }, probes: { status: ['figma'], error: ['client registration is required'] } },
-      ]),
-      wc('mcp_resource_one', '/experimental/resource', {
-        'github:readme': { name: 'readme', uri: 'file:///work/shop/README.md', description: 'The project readme', mimeType: 'text/markdown', client: 'github' },
-      }, [
-        { group: 'mcp_resource', value: { name: 'readme', uri: 'file:///work/shop/README.md', description: 'The project readme', mimeType: 'text/markdown', client: 'github' }, probes: { name: ['readme'], uri: ['README.md'], description: ['The project readme'], mimeType: ['text/markdown'], client: ['github'] } },
       ]),
     ],
   };

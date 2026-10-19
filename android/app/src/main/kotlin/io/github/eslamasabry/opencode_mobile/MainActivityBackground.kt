@@ -71,10 +71,17 @@ internal class MainActivityBackground(private val activity: Activity, private va
     /** Bounded acknowledgment only: never retries a service start. */
     private fun awaitBackgroundStart(result: MethodChannel.Result, deadline: Long) {
         if (backgroundStartResult !== result) return
-        if (BackgroundConnectionService.active || android.os.SystemClock.uptimeMillis() >= deadline) {
+        val failure = BackgroundConnectionService.lastStartFailure
+        if (BackgroundConnectionService.active || failure != null ||
+            android.os.SystemClock.uptimeMillis() >= deadline
+        ) {
             backgroundStartResult = null
             backgroundStartCallback = null
-            result.success(backgroundStatus())
+            val status = backgroundStatus()
+            result.success(
+                if (BackgroundConnectionService.active) status
+                else status + ("startFailure" to (failure ?: "ackTimeout"))
+            )
             return
         }
         val callback = Runnable { awaitBackgroundStart(result, deadline) }
@@ -126,7 +133,9 @@ internal class MainActivityBackground(private val activity: Activity, private va
     companion object {
         const val PERMISSION_REQUEST = 4703
         private const val BACKGROUND_NOTIFICATION_PERMISSION_REQUEST = PERMISSION_REQUEST
-        private const val BACKGROUND_START_ACK_MS = 2000L
+        // A busy phone (in-app Linux, agents) can take more than two seconds
+        // to run the service's start; Android itself allows it longer.
+        private const val BACKGROUND_START_ACK_MS = 5000L
         private const val BACKGROUND_START_POLL_MS = 50L
     }
 }

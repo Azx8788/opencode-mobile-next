@@ -1669,11 +1669,11 @@
   "module": "library",
   "chrome": "title-header",
   "needs": [
-   "server.oc1",
-   "server.oc2"
+   "server.oc2",
+   "flag:toolInventory"
   ],
   "whenMissing": {
-   "server.oc1": "explains (Tools tab hidden without toolInventory; other tabs show empty states on Codex/Paseo)"
+   "flag:toolInventory": "hidden: available only when the server advertises this capability"
   },
   "personas": [
    "tinkerer",
@@ -1805,11 +1805,12 @@
   "module": "shell",
   "chrome": "shell-header+dock",
   "needs": [
-   "server.any"
+   "server.any",
+   "flag:fileBrowsing+terminal"
   ],
   "whenMissing": {
    "server.any": "explains (route '/' shows root-connecting instead)",
-   "server.oc1": "hidden (Project tab disappears on Codex/Paseo: ProjectHub.isAvailable false)"
+   "flag:fileBrowsing+terminal": "hidden: available only when the server advertises this capability"
   },
   "personas": [
    "remote-lead",
@@ -3297,13 +3298,14 @@
   "module": "work",
   "chrome": "shell-header+dock",
   "needs": [
-   "server.any"
+   "server.any",
+   "flag:worktreeCreate+sessionShare+managedWorkspaces"
   ],
   "whenMissing": {
    "server.any": "explains (WorkStatusLine; list gives way to the unplugged drawing after the grace)",
    "project.open": "explains (workspace-folder-chooser replaces the body)",
    "team.on": "offers-enable:team intro (TeamDiscoverEntry; Team segment opens openTeamIntro)",
-   "server.oc1": "hidden (Isolated task needs worktreeCreate; Share/Archive need sessionShare/sessionArchive)"
+   "flag:worktreeCreate+sessionShare+managedWorkspaces": "hidden: available only when the server advertises this capability"
   },
   "personas": [
    "remote-lead",
@@ -3953,11 +3955,12 @@
   "chrome": "sheet",
   "needs": [
    "server.any",
-   "project.open"
+   "project.open",
+   "flag:worktreeCreate+sessionShare+managedWorkspaces"
   ],
   "whenMissing": {
    "project.open": "hidden (header opens Projects instead)",
-   "server.oc1": "hidden (Workspace section only with managed workspaces)"
+   "flag:worktreeCreate+sessionShare+managedWorkspaces": "hidden: available only when the server advertises this capability"
   },
   "personas": [
    "tinkerer",
@@ -4102,10 +4105,11 @@
   "module": "work",
   "chrome": "sheet",
   "needs": [
-   "server.any"
+   "server.any",
+   "flag:sessionDiff"
   ],
   "whenMissing": {
-   "server.oc1": "hidden (lines vanish: OC2 has no diff summary or share URL)"
+   "flag:sessionDiff": "hidden: available only when the server advertises this capability"
   },
   "personas": [
    "tinkerer",
@@ -4274,12 +4278,8 @@
   ],
   "module": "work",
   "chrome": "sheet",
-  "needs": [
-   "server.oc1"
-  ],
-  "whenMissing": {
-   "server.oc1": "hidden (sessionArchive off on OC2, Codex, Paseo; swipe becomes delete)"
-  },
+  "needs": [],
+  "whenMissing": {},
   "personas": [
    "remote-lead",
    "tinkerer"
@@ -4350,7 +4350,8 @@
    "kit": [
     "KitUndoSnackbar"
    ]
-  }
+  },
+  "availability": "Retired with OpenCode 1 support on 2026-10-15; this historical design record does not describe an available control."
  },
  {
   "pageId": "workspace-share-session-sheet",
@@ -4363,12 +4364,8 @@
   ],
   "module": "work",
   "chrome": "sheet",
-  "needs": [
-   "server.oc1"
-  ],
-  "whenMissing": {
-   "server.oc1": "hidden (sessionShare off on OC2, Codex, Paseo)"
-  },
+  "needs": [],
+  "whenMissing": {},
   "personas": [
    "remote-lead",
    "tinkerer"
@@ -4433,7 +4430,8 @@
    "lib/ui/screens/workspace_screen.dart:1673",
    "lib/ui/screens/chat_screen.dart:5330",
    "docs/qa/screen-census/e-workspace/workspace-share-session-sheet.png"
-  ]
+  ],
+  "availability": "Retired with OpenCode 1 support on 2026-10-15; this historical design record does not describe an available control."
  },
  {
   "pageId": "workspace-delete-session-sheet",
@@ -4524,12 +4522,8 @@
   ],
   "module": "work",
   "chrome": "sheet",
-  "needs": [
-   "server.oc1"
-  ],
-  "whenMissing": {
-   "server.oc1": "hidden (no archived row without sessionArchive)"
-  },
+  "needs": [],
+  "whenMissing": {},
   "personas": [
    "remote-lead",
    "tinkerer"
@@ -4620,7 +4614,8 @@
    "lib/ui/screens/workspace_screen.dart:1779",
    "lib/domain/server_gateway.dart:1203",
    "docs/qa/screen-census/e-workspace/workspace-archived-sheet.png"
-  ]
+  ],
+  "availability": "Retired with OpenCode 1 support on 2026-10-15; this historical design record does not describe an available control."
  },
  {
   "pageId": "global-sessions",
@@ -4635,12 +4630,9 @@
   "module": "work",
   "chrome": "title-header",
   "needs": [
-   "server.oc1",
    "server.oc2"
   ],
-  "whenMissing": {
-   "server.oc1": "hidden (entries need globalSessionSearch; off on Codex/Paseo)"
-  },
+  "whenMissing": {},
   "personas": [
    "tinkerer",
    "remote-lead",
@@ -4837,12 +4829,8 @@
   ],
   "module": "work",
   "chrome": "sheet",
-  "needs": [
-   "server.oc1"
-  ],
-  "whenMissing": {
-   "server.oc1": "hidden (sessionSteal OC1 only)"
-  },
+  "needs": [],
+  "whenMissing": {},
   "personas": [
    "tinkerer",
    "remote-lead"
@@ -4909,7 +4897,8 @@
   "evidence": [
    "lib/ui/screens/global_sessions_screen.dart:493",
    "docs/qa/screen-census/e-workspace/global-sessions-continue-here-sheet.png"
-  ]
+  ],
+  "availability": "Retired with OpenCode 1 support on 2026-10-15; this historical design record does not describe an available control."
  },
  {
   "pageId": "isolated-task-sheet",
@@ -4924,12 +4913,12 @@
   "module": "work",
   "chrome": "sheet",
   "needs": [
-   "server.oc1",
-   "project.open"
+   "project.open",
+   "flag:worktreeCreate+sessionShare+managedWorkspaces"
   ],
   "whenMissing": {
-   "server.oc1": "hidden (Isolated task needs projectManagement && worktreeCreate; OC2 has worktreeCreate false)",
-   "project.open": "hidden"
+   "project.open": "hidden",
+   "flag:worktreeCreate+sessionShare+managedWorkspaces": "hidden: available only when the server advertises this capability"
   },
   "personas": [
    "tinkerer",
@@ -5107,11 +5096,12 @@
   "chrome": "title-header",
   "needs": [
    "server.any",
-   "project.open"
+   "project.open",
+   "server.oc2"
   ],
   "whenMissing": {
    "project.open": "disabled (rows dim)",
-   "server.oc1": "hidden (Cloud environments row needs managedWorkspaces)"
+   "server.oc2": "explains: requires the supported OpenCode 2 server capabilities for this page"
   },
   "personas": [
    "tinkerer",
@@ -5236,11 +5226,9 @@
   "module": "work",
   "chrome": "title-header",
   "needs": [
-   "server.oc1",
    "project.open"
   ],
   "whenMissing": {
-   "server.oc1": "hidden (managedWorkspaces OC1 only; row absent on Manage project)",
    "project.open": "disabled"
   },
   "personas": [
@@ -5377,7 +5365,8 @@
    "lib/ui/screens/managed_workspaces_screen.dart:353",
    "lib/ui/screens/managed_workspaces_screen.dart:422",
    "docs/qa/screen-census/e-workspace/managed-workspaces--loaded.png"
-  ]
+  ],
+  "availability": "Retired with OpenCode 1 support on 2026-10-15; this historical design record does not describe an available control."
  },
  {
   "pageId": "managed-workspaces-create-dialog",
@@ -5390,12 +5379,8 @@
   ],
   "module": "work",
   "chrome": "dialog",
-  "needs": [
-   "server.oc1"
-  ],
-  "whenMissing": {
-   "server.oc1": "hidden"
-  },
+  "needs": [],
+  "whenMissing": {},
   "personas": [
    "tinkerer"
   ],
@@ -5471,7 +5456,8 @@
    "lib/ui/screens/managed_workspaces_screen.dart:584",
    "lib/ui/screens/managed_workspaces_screen.dart:598",
    "docs/qa/screen-census/e-workspace/managed-workspaces-create-dialog.png"
-  ]
+  ],
+  "availability": "Retired with OpenCode 1 support on 2026-10-15; this historical design record does not describe an available control."
  },
  {
   "pageId": "managed-workspaces-remove-dialog",
@@ -5484,12 +5470,8 @@
   ],
   "module": "work",
   "chrome": "dialog",
-  "needs": [
-   "server.oc1"
-  ],
-  "whenMissing": {
-   "server.oc1": "hidden"
-  },
+  "needs": [],
+  "whenMissing": {},
   "personas": [
    "tinkerer"
   ],
@@ -5560,7 +5542,8 @@
   "evidence": [
    "lib/ui/screens/managed_workspaces_screen.dart:693",
    "docs/qa/screen-census/e-workspace/managed-workspaces-remove-dialog.png"
-  ]
+  ],
+  "availability": "Retired with OpenCode 1 support on 2026-10-15; this historical design record does not describe an available control."
  },
  {
   "pageId": "project-folder-new-dialog",
@@ -5931,11 +5914,11 @@
   "module": "work",
   "chrome": "title-header",
   "needs": [
-   "server.oc1",
-   "project.open"
+   "project.open",
+   "server.oc2"
   ],
   "whenMissing": {
-   "server.oc1": "hidden (language services/formatters sections need languageServiceStatus/formatterStatus; Initialize Git needs gitInit — all off on OC2)"
+   "server.oc2": "explains: requires the supported OpenCode 2 server capabilities for this page"
   },
   "personas": [
    "tinkerer",
@@ -6081,10 +6064,10 @@
   "module": "work",
   "chrome": "dialog",
   "needs": [
-   "server.oc1"
+   "server.oc2"
   ],
   "whenMissing": {
-   "server.oc1": "explains (gated row says Git init is unavailable)"
+   "server.oc2": "explains: requires the supported OpenCode 2 server capabilities for this page"
   },
   "personas": [
    "tinkerer"
@@ -6149,11 +6132,9 @@
   "module": "work",
   "chrome": "title-header",
   "needs": [
-   "server.oc1",
    "server.oc2"
   ],
   "whenMissing": {
-   "server.oc1": "explains (read-only 'Project context' page on Codex/Paseo)",
    "phone.termux": "hidden (Create a new folder row)"
   },
   "personas": [
@@ -6323,12 +6304,9 @@
   "module": "work",
   "chrome": "dialog",
   "needs": [
-   "server.oc1",
    "server.oc2"
   ],
-  "whenMissing": {
-   "server.oc1": "hidden"
-  },
+  "whenMissing": {},
   "personas": [
    "tinkerer",
    "remote-lead"
@@ -6397,10 +6375,10 @@
   "module": "chat",
   "chrome": "sheet",
   "needs": [
-   "server.oc1"
+   "flag:developmentServices"
   ],
   "whenMissing": {
-   "server.oc1": "hidden (opener needs projectManagement; managed shells are OC1)"
+   "flag:developmentServices": "hidden: available only when the server advertises this capability"
   },
   "personas": [
    "tinkerer",
@@ -6539,11 +6517,11 @@
   "module": "terminal",
   "chrome": "title-header",
   "needs": [
-   "server.oc1"
+   "flag:developmentServices"
   ],
   "whenMissing": {
-   "server.oc1": "hidden",
-   "server.any": "disabled (mutations need same scope and connected)"
+   "server.any": "disabled (mutations need same scope and connected)",
+   "flag:developmentServices": "hidden: available only when the server advertises this capability"
   },
   "personas": [
    "tinkerer"
@@ -6682,10 +6660,10 @@
   "module": "terminal",
   "chrome": "dialog",
   "needs": [
-   "server.oc1"
+   "flag:developmentServices"
   ],
   "whenMissing": {
-   "server.oc1": "hidden"
+   "flag:developmentServices": "hidden: available only when the server advertises this capability"
   },
   "personas": [
    "tinkerer"
@@ -6753,10 +6731,10 @@
   "module": "terminal",
   "chrome": "sheet",
   "needs": [
-   "server.oc1"
+   "flag:developmentServices"
   ],
   "whenMissing": {
-   "server.oc1": "hidden"
+   "flag:developmentServices": "hidden: available only when the server advertises this capability"
   },
   "personas": [
    "tinkerer"
@@ -6830,10 +6808,10 @@
   "module": "chat",
   "chrome": "sheet",
   "needs": [
-   "server.oc1"
+   "server.oc2"
   ],
   "whenMissing": {
-   "server.oc1": "hidden (move/warp commands need projectManagement / workspaceWarp)"
+   "server.oc2": "explains: requires the supported OpenCode 2 server capabilities for this page"
   },
   "personas": [
    "tinkerer"
@@ -6946,10 +6924,10 @@
   "module": "chat",
   "chrome": "dialog",
   "needs": [
-   "server.oc1"
+   "server.oc2"
   ],
   "whenMissing": {
-   "server.oc1": "hidden"
+   "server.oc2": "explains: requires the supported OpenCode 2 server capabilities for this page"
   },
   "personas": [
    "tinkerer"
@@ -7025,12 +7003,9 @@
   "module": "settings",
   "chrome": "sheet",
   "needs": [
-   "server.oc1",
    "model.auth"
   ],
-  "whenMissing": {
-   "server.oc1": "hidden (consoleOrganizations OC1 only; the /org command is absent)"
-  },
+  "whenMissing": {},
   "personas": [
    "tinkerer",
    "remote-lead"
@@ -7120,7 +7095,8 @@
    "lib/ui/screens/session_destination_sheet.dart:488",
    "lib/ui/screens/session_destination_sheet.dart:615",
    "docs/qa/screen-census/e-workspace/console-organization-sheet.png"
-  ]
+  ],
+  "availability": "Retired with OpenCode 1 support on 2026-10-15; this historical design record does not describe an available control."
  },
  {
   "pageId": "console-organization-switch-dialog",
@@ -7133,12 +7109,8 @@
   ],
   "module": "settings",
   "chrome": "dialog",
-  "needs": [
-   "server.oc1"
-  ],
-  "whenMissing": {
-   "server.oc1": "hidden"
-  },
+  "needs": [],
+  "whenMissing": {},
   "personas": [
    "tinkerer"
   ],
@@ -7191,7 +7163,8 @@
   "evidence": [
    "lib/ui/screens/session_destination_sheet.dart:546",
    "docs/qa/screen-census/e-workspace/console-organization-switch-dialog.png"
-  ]
+  ],
+  "availability": "Retired with OpenCode 1 support on 2026-10-15; this historical design record does not describe an available control."
  },
  {
   "pageId": "worktrees",
@@ -7206,12 +7179,12 @@
   "module": "work",
   "chrome": "title-header",
   "needs": [
-   "server.oc1",
-   "project.open"
+   "project.open",
+   "flag:worktreeCreate+sessionShare+managedWorkspaces"
   ],
   "whenMissing": {
-   "server.oc1": "hidden (New needs worktreeCreate, Reset needs worktreeReset — both off on OC2; list still shows)",
-   "project.open": "disabled"
+   "project.open": "disabled",
+   "flag:worktreeCreate+sessionShare+managedWorkspaces": "hidden: available only when the server advertises this capability"
   },
   "personas": [
    "tinkerer"
@@ -7381,12 +7354,8 @@
   ],
   "module": "work",
   "chrome": "dialog",
-  "needs": [
-   "server.oc1"
-  ],
-  "whenMissing": {
-   "server.oc1": "hidden (worktreeReset)"
-  },
+  "needs": [],
+  "whenMissing": {},
   "personas": [
    "tinkerer"
   ],
@@ -7439,7 +7408,8 @@
   "evidence": [
    "lib/ui/screens/worktrees_screen.dart:349",
    "docs/qa/screen-census/e-workspace/worktrees-reset-dialog.png"
-  ]
+  ],
+  "availability": "Retired with OpenCode 1 support on 2026-10-15; this historical design record does not describe an available control."
  },
  {
   "pageId": "worktrees-create-dialog",
@@ -7453,10 +7423,10 @@
   "module": "work",
   "chrome": "dialog",
   "needs": [
-   "server.oc1"
+   "flag:worktreeCreate+sessionShare+managedWorkspaces"
   ],
   "whenMissing": {
-   "server.oc1": "hidden (worktreeCreate)"
+   "flag:worktreeCreate+sessionShare+managedWorkspaces": "hidden: available only when the server advertises this capability"
   },
   "personas": [
    "tinkerer"
@@ -7533,11 +7503,11 @@
   "module": "work",
   "chrome": "dialog",
   "needs": [
-   "server.oc1",
-   "server.oc2"
+   "server.oc2",
+   "flag:worktreeCreate+sessionShare+managedWorkspaces"
   ],
   "whenMissing": {
-   "server.oc1": "hidden"
+   "flag:worktreeCreate+sessionShare+managedWorkspaces": "hidden: available only when the server advertises this capability"
   },
   "personas": [
    "tinkerer"
@@ -7621,12 +7591,8 @@
   ],
   "module": "chat",
   "chrome": "none",
-  "needs": [
-   "server.oc1"
-  ],
-  "whenMissing": {
-   "server.oc1": "hidden (todo tool cards need sessionTodos; off on OC2/Codex/Paseo)"
-  },
+  "needs": [],
+  "whenMissing": {},
   "personas": [
    "remote-lead",
    "tinkerer",
@@ -7725,7 +7691,8 @@
    "lib/ui/widgets/mobile_task_view.dart:77",
    "lib/ui/widgets/mobile_task_view.dart:152",
    "docs/qa/screen-census/e-workspace/embedded-mobile-task-list.png"
-  ]
+  ],
+  "availability": "Retired with OpenCode 1 support on 2026-10-15; this historical design record does not describe an available control."
  },
  {
   "pageId": "embedded-session-inventory-footer",

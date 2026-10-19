@@ -1,4 +1,4 @@
-import '../../api/models.dart';
+import '../../domain/models.dart';
 
 class ExperimentalServerCapabilities {
   final bool backgroundSubagents;

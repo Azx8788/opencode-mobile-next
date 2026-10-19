@@ -35,7 +35,7 @@ void main() {
     addTearDown(() => messenger.setMockMethodCallHandler(secure, null));
     SharedPreferences.setMockInitialValues({
       'oc.profiles':
-          '[{"id":"retained","name":"Fixture","baseUrl":"https://server.test"}]',
+          '[{"id":"retained","name":"Fixture","flavor":"v2","baseUrl":"https://server.test"}]',
     });
     SharedPreferencesStorePlatform.instance = _RefusedConsentRemoval(
       await SharedPreferencesStorePlatform.instance.getAll(),

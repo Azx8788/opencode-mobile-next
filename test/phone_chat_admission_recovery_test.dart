@@ -3,8 +3,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/api2/client.dart';
 import 'package:opencode_mobile/api2/gateway.dart';
 import 'package:opencode_mobile/api2/gateway_operations.dart';
@@ -17,12 +16,19 @@ import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:opencode_mobile/orchestration/adapters/inapp/phone_engine_gateway.dart';
 
+import 'api2_interaction_gateway_test.dart' show readyPermissionSession;
 import 'phone_project_engine_controller_test.dart' show NativeBridge;
 import 'phone_project_engine_gateway_test.dart' as engine;
 import 'support/stash_memory_vault.dart';
 
-class _StatusApi extends OpenCodeApi {
-  _StatusApi() : super(baseUrl: 'http://127.0.0.1:4097');
+class _StatusApi extends Api2Gateway {
+  _StatusApi()
+    : super(
+        client: Api2Client.connect(
+          baseUrl: 'http://127.0.0.1:4097',
+          password: 'test-only',
+        ),
+      );
   final healthGate = Completer<Health>();
   Map<String, String> statuses = {};
   bool failStatus = false;
@@ -43,33 +49,14 @@ class _StatusApi extends OpenCodeApi {
       sessionGate == null ? [] : sessionGate!.future;
 
   @override
+  Future<ServerPage<Session>> sessionPage({
+    String? cursor,
+    int limit = 100,
+  }) async => ServerPage(items: cursor == null ? await sessions() : const []);
+
+  @override
   Future<Session> session(String id) async =>
       Session(id: id, directory: directory);
-}
-
-class _StatusV2Api extends Api2Gateway {
-  _StatusV2Api(this.statusSource)
-    : super(
-        client: Api2Client.connect(
-          baseUrl: 'http://127.0.0.1:4097',
-          password: 'test-only',
-        ),
-      );
-  final _StatusApi statusSource;
-  @override
-  Future<Health> health() => statusSource.health();
-  @override
-  Future<Map<String, String>> sessionStatuses() =>
-      statusSource.sessionStatuses();
-  @override
-  Future<List<Session>> sessions() => statusSource.sessions();
-  @override
-  Future<Session> session(String id) => statusSource.session(id);
-  @override
-  void close() {
-    statusSource.close();
-    super.close();
-  }
 }
 
 class _ChatGateway extends PhoneEngineGateway {
@@ -170,7 +157,7 @@ class _Phone {
   Future<void> close() async {
     connection.dispose();
     if (!api.healthGate.isCompleted) {
-      api.healthGate.complete(Health(healthy: true, version: '1.18.32'));
+      api.healthGate.complete(Health(healthy: true, version: '2.0.29'));
     }
     await settle(connect);
     await settle(connection.phoneProjectEngine.close());
@@ -243,11 +230,11 @@ void main() {
     );
   });
 
-  Future<_Phone> boot(WidgetTester tester, {bool oc2 = false}) async {
+  Future<_Phone> boot(WidgetTester tester) async {
     final profile = ServerProfile(
       id: 'phone',
       name: 'Phone',
-      flavor: oc2 ? ServerFlavor.v2 : ServerFlavor.v1,
+      flavor: ServerFlavor.v2,
       baseUrl: 'http://127.0.0.1:4097',
       teamEngineAuth: 'engine-private-token',
       orchestration: const OrchestrationConfig(
@@ -261,17 +248,11 @@ void main() {
       return store;
     }))!;
     final api = _StatusApi();
-    final api2 = oc2 ? _StatusV2Api(api) : null;
     final beats = <Map<String, dynamic>>[];
     final connection = ConnectionController(
       store,
-      apiFactory: (_) => api,
-      v2GatewayFactory: api2 == null
-          ? null
-          : (_) => (
-              gateway: api2,
-              operations: Api2OperationsGateway(client: api2.client),
-            ),
+      v2GatewayFactory: (_) =>
+          (gateway: api, operations: Api2OperationsGateway(client: api.client)),
       phoneEngineBridge: NativeBridge(),
       phoneEngineGatewayBuilder:
           ({required baseUrl, required profileId, required bearerToken}) =>
@@ -291,7 +272,6 @@ void main() {
     await tester.pump();
     connection.directory = '/root/projects/person';
     api.setLocation(directory: connection.directory);
-    api2?.setLocation(directory: connection.directory);
     connection.status = StreamStatus.connected;
     final phone = _Phone(tester, connection, api, connecting, beats);
     phones.add(phone);
@@ -302,7 +282,7 @@ void main() {
   phoneTest(
     'OC2 refetch restores admission after missing status and preserves busy work',
     (tester) async {
-      final phone = await boot(tester, oc2: true);
+      final phone = await boot(tester);
       expect((await phone.heartbeat())['known'], isFalse);
       await tester.pump(const Duration(seconds: 5));
       await tester.pump();
@@ -333,7 +313,7 @@ void main() {
   phoneTest('OC2 lifecycle disconnect rejects an old idle snapshot', (
     tester,
   ) async {
-    final phone = await boot(tester, oc2: true);
+    final phone = await boot(tester);
     await phone.connection.reconcileBusySessionsForTesting();
     expect((await phone.heartbeat())['known'], isTrue);
     final gate = phone.api.statusGate = Completer<Map<String, String>>();
@@ -504,19 +484,41 @@ void main() {
       await phone.connection.reconcileBusySessionsForTesting();
       final onWire = Completer<void>();
       final release = Completer<void>();
-      phone.api.dio.httpClientAdapter = engine.FakeEngineAdapter((
-        request,
-      ) async {
+      phone
+          .api
+          .client
+          .transport
+          .dio
+          .httpClientAdapter = engine.FakeEngineAdapter((request) async {
+        if (request.uri.path == '/api/session/ses_human') {
+          return engine.jsonBody({'data': readyPermissionSession('ses_human')});
+        }
+        if (request.uri.path == '/api/agent/build') {
+          return engine.jsonBody({
+            'data': {'id': 'build', 'permissions': []},
+          });
+        }
+        // The adapter runs while settle pumps the fake clock. This callback
+        // must not enter Flutter's top-level guarded expectation scope.
+        expectSync(request.uri.path, '/api/session/ses_human/prompt');
         onWire.complete();
         await release.future;
-        return engine.jsonBody(null, 204);
+        return engine.jsonBody({
+          'data': {
+            'id': 'msg_admitted',
+            'sessionID': 'ses_human',
+            'type': 'user',
+            'payload': {'text': 'Help with this project'},
+          },
+        });
       });
       await phone.heartbeat();
       final prompt = phone.api.promptAsync(
         'ses_human',
         text: 'Help with this project',
       );
-      await phone.settle(onWire.future);
+      await phone.settle(Future.any([onWire.future, prompt]));
+      expect(onWire.isCompleted, isTrue);
       await phone.connection.reconcileBusySessionsForTesting();
       final before = await phone.heartbeat();
       expect(before['known'], isTrue);

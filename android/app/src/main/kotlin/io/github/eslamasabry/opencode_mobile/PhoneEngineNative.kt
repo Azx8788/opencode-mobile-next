@@ -92,7 +92,7 @@ internal class PhoneEngineNative(private val context: Context) {
         if (!TOKEN.matches(token)) throw Failure("private_state_invalid")
         val source = File(filesRoot, "linux/ubuntu/root/.oc-builtin/server.password")
         val credentials = File(root, "oc1-credentials.json")
-        // The current daemon requires genuine OC1 credentials even in store
+        // The current daemon requires genuine server credentials even in store
         // mode. Refuse before proof/signing or child launch; never invent auth.
         if (regularNoLinks(source)) {
             val password = requiredServerPassword(source)
@@ -123,8 +123,8 @@ internal class PhoneEngineNative(private val context: Context) {
                 .put("hostRoot", safePath("projects").absolutePath)
                 .put("guestRoot", "/root/projects")))
             .put("port", 0).put("authTokenFile", tokenFile.absolutePath)
-            .put("oc1CredentialFile", credentials.absolutePath)
-            .put("oc1BaseUrl", "http://127.0.0.1:4097")
+            .put("serverCredentialFile", credentials.absolutePath)
+            .put("serverBaseUrl", "http://127.0.0.1:4097")
             .put("boundary", boundary)
             .toString())
         // No secrets in argv, environment, logs or exception text. Only the

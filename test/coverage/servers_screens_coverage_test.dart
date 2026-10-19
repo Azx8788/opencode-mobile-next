@@ -5,8 +5,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import '../support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/platform/camera.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:opencode_mobile/ui/screens/host_management_screen.dart';
@@ -49,7 +49,7 @@ void main() {
     final (store, controller) = await serversState(profiles: profiles);
     if (connected) {
       controller
-        ..api = OpenCodeApi(baseUrl: profiles.first.baseUrl)
+        ..api = FakeServerGateway(baseUrl: profiles.first.baseUrl)
         ..status = StreamStatus.connected;
     }
     addTearDown(controller.dispose);

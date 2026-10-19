@@ -1,13 +1,14 @@
+import 'support/fake_server_operations.dart';
+import 'support/fake_server_capabilities.dart';
 import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:opencode_mobile/api2/gateway_mappers.dart';
 import 'package:opencode_mobile/api2/models.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/domain/chat_feed.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -28,7 +29,7 @@ class _Script {
   int globalCalls = 0;
 }
 
-class _Api extends OpenCodeApi {
+class _Api extends FakeServerGateway {
   _Api(this.script) : super(baseUrl: 'http://127.0.0.1:1');
   final _Script script;
   final health_ = Completer<Health>();
@@ -38,7 +39,7 @@ class _Api extends OpenCodeApi {
   ServerCapabilities get capabilities => !script.projectsAreGit
       ? const ServerCapabilities(projectsAreGitRepositories: false)
       : script.acrossProjects
-      ? ServerCapabilities.allV1
+      ? testServerCapabilities
       : const ServerCapabilities(globalSessionSearch: false);
 
   @override
@@ -107,7 +108,7 @@ class _Api extends OpenCodeApi {
   Future<List<FileNode>> listFiles(String path) async => const [];
 }
 
-class _Stream extends EventStream {
+class _Stream extends FakeEventChannel {
   _Stream({
     required super.api,
     required super.onEvent,
@@ -122,8 +123,8 @@ class _Stream extends EventStream {
   Future<void> dispose() async {}
 }
 
-class _Repo extends SdkProductRepository {
-  _Repo(OpenCodeApi api, this.script) : super(api.sdkClient);
+class _Repo extends FakeServerOperations {
+  _Repo(super.api, this.script);
   final _Script script;
 
   @override

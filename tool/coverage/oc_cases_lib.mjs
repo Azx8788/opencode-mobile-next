@@ -1,4 +1,4 @@
-// Case building for the OpenCode families (oc1_*, oc2_*): a case is the wire
+// Case building for the OpenCode families (oc2_*): a case is the wire
 // payload a server sends, assembled from group values. `use(group, value)`
 // records that the value fills the named schema group and returns the value
 // with the group's discriminator (`type`, `role`, `status`, `name` ...) added,

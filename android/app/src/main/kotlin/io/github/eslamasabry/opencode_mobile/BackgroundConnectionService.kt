@@ -32,23 +32,41 @@ class BackgroundConnectionService : Service() {
             widgetActions.start(intent, startId)
             return START_NOT_STICKY
         }
+        beginLive(startId)
+        return START_NOT_STICKY
+    }
+
+    private fun beginLive(startId: Int) {
         // One shared status row: the phone server service uses the same ID.
         val notification = StatusNotification.begin(this, StatusNotification.OWNER_LIVE)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(
-                StatusNotification.ID,
-                notification,
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
-            )
-        } else {
-            startForeground(StatusNotification.ID, notification)
+        // Android 15+ refuses a dataSync start once its daily budget is spent
+        // (ForegroundServiceStartNotAllowedException). Uncaught, that ended the
+        // whole app; now the start is reported as refused to the one waiting.
+        val foreground = runCatching {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                startForeground(
+                    StatusNotification.ID,
+                    notification,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+                )
+            } else {
+                startForeground(StatusNotification.ID, notification)
+            }
+        }.isSuccess
+        if (!foreground) {
+            lastStartFailure = START_REFUSED
+            releaseStatus()
+            stopSelf(startId)
+            return
         }
         // Accepted start requests/onCreate are not evidence of a foreground
         // service. Clear the durable pause only after startForeground succeeds.
         if (!runCatching { BackgroundPauseStore(this).confirmedStarted() }.getOrDefault(false)) {
+            lastStartFailure = START_RECEIPT_UNSAVED
             releaseStatus()
             stopSelf(startId)
         } else {
+            lastStartFailure = null
             liveOwner = true
             active = true
             // A deliberate opt-in may arrive while the tap is executing. Its live
@@ -60,7 +78,6 @@ class BackgroundConnectionService : Service() {
             runCatching { SessionsWidgetProvider.refreshAll(this) }
             LivePauseReceiver.setPausedByUser(this, false)
         }
-        return START_NOT_STICKY
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -179,6 +196,12 @@ class BackgroundConnectionService : Service() {
         var active: Boolean = false
             private set
 
+        /** Why the last start did not run, in fixed words Dart maps to a code. */
+        @Volatile
+        var lastStartFailure: String? = null
+        const val START_REFUSED = "refused"
+        const val START_RECEIPT_UNSAVED = "receiptUnsaved"
+
         /**
          * Dart's wording for the one status notification (the `status` map of
          * `updateLiveStatus`). Returns whether a notification was refreshed;
@@ -273,6 +296,7 @@ class BackgroundConnectionService : Service() {
         }
 
         fun start(context: Context) {
+            lastStartFailure = null
             val intent = Intent(context, BackgroundConnectionService::class.java)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(intent)

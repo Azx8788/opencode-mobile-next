@@ -4,7 +4,7 @@
 // lead with the phone; any other loopback address is a server.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'support/fake_server_gateway.dart';
 import 'package:opencode_mobile/builtin/builtin_linux.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
@@ -57,7 +57,7 @@ void main() {
     final controller = SwitcherController(
       _LoopbackStore(prefs: await SharedPreferences.getInstance()),
     );
-    controller.api = OpenCodeApi(baseUrl: controller.profile!.baseUrl);
+    controller.api = FakeServerGateway(baseUrl: controller.profile!.baseUrl);
     addTearDown(controller.dispose);
     await tester.pumpWidget(
       MaterialApp(

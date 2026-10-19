@@ -626,7 +626,13 @@ class _SetupProgressViewState extends State<SetupProgressView> {
     }
     if (network) return l10n.setupProgressViewNoInternet;
     final reason = row.error ?? progress.error;
-    if (reason == l10n.phoneSetupErrorInstall(_titleOf(row.id))) {
+    final title = _titleOf(row.id);
+    if ({
+      l10n.phoneSetupErrorInstall(title),
+      l10n.phoneSetupErrorNoSpace(title),
+      l10n.phoneSetupErrorChecksum(title),
+      l10n.phoneSetupErrorOffline(title),
+    }.contains(reason)) {
       return reason!;
     }
     // The host's own row: its words are already the person's.

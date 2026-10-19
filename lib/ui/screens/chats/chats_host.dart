@@ -5,6 +5,7 @@ import 'package:flutter/services.dart' show SystemNavigator;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../builtin/builtin_linux.dart' show BuiltinLinux;
+import '../../../builtin/git_link_repair.dart' show GitRepairActions;
 import '../../../domain/chat_feed.dart';
 import '../../../domain/genui/gen_ui.dart';
 import '../../../domain/phone_agents_source.dart';
@@ -37,7 +38,8 @@ import '../chat/permission_sheet.dart'
         permissionAlwaysStep,
         permissionRequestCard;
 import '../../widgets/pickers.dart' show showModelPicker;
-import '../../widgets/product_states.dart' show productErrorText;
+import '../../widgets/product_states.dart'
+    show productErrorDetails, productErrorText;
 import '../project_folder_actions.dart';
 import '../library_screen.dart' show defaultModelLabel;
 import '../servers_screen.dart' show ServersRouteRequest;
@@ -136,6 +138,10 @@ abstract interface class ChatsHost {
   /// Connects to the built-in server through the Servers screen's own
   /// connect flow.
   Future<void> switchToBuiltIn(BuildContext context);
+
+  /// The repair of [directory]'s Git history (object links Git can't
+  /// follow) on this phone's built-in Ubuntu; null where it can't reach.
+  GitRepairActions? projectGitRepair(String directory);
 }
 
 /// The one place the app's connection becomes a [ChatFeedSource]. Until the
@@ -198,11 +204,16 @@ class ConnectionChatsHost implements ChatsHost {
           void answer(String reply) => unawaited(
             answerPermissionRequest(permissionOwner, permission, reply),
           );
+          final call = permissionOwner.permissionToolCall(permission);
           request = permissionRequestCard(
             context,
             key: ValueKey('chats-request-${permission.id}'),
             inList: true,
             permission: permission,
+            toolName: call?.tool,
+            target: permission.permission == 'external_directory'
+                ? call?.target
+                : null,
             who: item.agentLabel ?? 'OpenCode',
             answered: permissionAnswers.answerFor(permission.id),
             // Held for its Undo window: collapsed, with Undo, as in the chat.
@@ -351,15 +362,30 @@ class ConnectionChatsHost implements ChatsHost {
     String directory, {
     required String agentId,
     String? prompt,
-  }) {
+  }) async {
     final feed = source;
-    return feed is AgentChatFeedSource
-        ? feed.startAgentChatIn(
-            directory,
-            agentId: agentId,
-            firstPrompt: prompt,
-          )
-        : feed.startChatIn(directory, firstPrompt: prompt);
+    try {
+      return await (feed is AgentChatFeedSource
+          ? feed.startAgentChatIn(
+              directory,
+              agentId: agentId,
+              firstPrompt: prompt,
+            )
+          : feed.startChatIn(directory, firstPrompt: prompt));
+    } catch (error, stack) {
+      // Kept for Report a problem: the words the person saw and the
+      // technical cause behind them (redacted again by the diagnostics).
+      final details = productErrorDetails(error);
+      _conn.diagnostics.record(
+        [
+          'Starting a chat with $agentId failed: ${productErrorText(error)}',
+          ?details,
+        ].join('\n'),
+        stack,
+        source: 'chat.start',
+      );
+      rethrow;
+    }
   }
 
   @override
@@ -406,6 +432,10 @@ class ConnectionChatsHost implements ChatsHost {
       context,
     ).pushNamed('/servers', arguments: ServersRouteRequest.connect(profile.id));
   }
+
+  @override
+  GitRepairActions? projectGitRepair(String directory) =>
+      GitRepairActions.forThisPhone(directory);
 
   @override
   Future<String?> showStartedChat(

@@ -27,7 +27,12 @@ void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({
       'oc.profiles': jsonEncode([
-        {'id': 'audit', 'name': 'Audit', 'baseUrl': 'http://localhost:4096'},
+        {
+          'id': 'audit',
+          'name': 'Audit',
+          'flavor': 'v2',
+          'baseUrl': 'http://localhost:4096',
+        },
       ]),
     });
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger

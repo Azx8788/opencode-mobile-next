@@ -249,7 +249,9 @@ extension _ChatPage on _ChatScreenState {
         ),
       ),
     );
-    return _withChatShortcuts(screen);
+    return _withChatShortcuts(
+      KitLinkScope(claim: _claimDevLink, child: screen),
+    );
   }
 
   Widget _withChatShortcuts(Widget screen) {

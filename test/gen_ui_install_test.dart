@@ -60,19 +60,6 @@ final class _Linux extends BuiltinLinux {
   }
 }
 
-Map<String, dynamic> _decodeJsonc(String source) {
-  // Independent fixture decoder: quoted strings win over comment/comma tokens.
-  final uncommented = source.replaceAllMapped(
-    RegExp(r'"(?:\\.|[^"\\])*"|//[^\r\n]*|/\*[\s\S]*?\*/'),
-    (match) => match[0]!.startsWith('"') ? match[0]! : ' ',
-  );
-  final strict = uncommented.replaceAllMapped(
-    RegExp(r'"(?:\\.|[^"\\])*"|,(\s*[}\]])'),
-    (match) => match[1] ?? match[0]!,
-  );
-  return jsonDecode(strict) as Map<String, dynamic>;
-}
-
 void main() {
   test(
     'stages all tools and only verifies evidence-backed transports',
@@ -89,12 +76,11 @@ void main() {
             enabled: true,
           );
       expect(runner.calls, GenUiAgent.values);
-      expect(verifier.calls, [GenUiAgent.claude, GenUiAgent.openCode1]);
+      expect(verifier.calls, [GenUiAgent.claude]);
       expect(status, isA<GenUiSetupPartial>());
       expect(status.agents, [GenUiAgent.claude]);
-      // The problem names who it is about: OpenCode 1, whose check failed,
-      // not Claude.
-      expect((status as GenUiSetupPartial).affected, [GenUiAgent.openCode1]);
+      // OpenCode 2 registration remains unqualified.
+      expect((status as GenUiSetupPartial).affected, [GenUiAgent.openCode2]);
     },
   );
 
@@ -144,20 +130,20 @@ void main() {
     'OpenCode collision reports partial while Claude remains ready',
     () async {
       final runner = _Runner()
-        ..outcomes[GenUiAgent.openCode1] = GenUiInstallOutcome.nameCollision;
+        ..outcomes[GenUiAgent.openCode2] = GenUiInstallOutcome.nameCollision;
       final status =
           await ManagedGenUiInstaller(
             runner: runner,
             verifier: _Verifier({GenUiAgent.claude}),
           ).setEnabled(
             profileId: 'profile-1',
-            agents: {GenUiAgent.claude, GenUiAgent.openCode1},
+            agents: {GenUiAgent.claude, GenUiAgent.openCode2},
             enabled: true,
           );
       expect(status, isA<GenUiSetupPartial>());
       expect(status.agents, [GenUiAgent.claude]);
-      expect(runner.calls, [GenUiAgent.claude, GenUiAgent.openCode1]);
-      expect((status as GenUiSetupPartial).affected, [GenUiAgent.openCode1]);
+      expect(runner.calls, [GenUiAgent.claude, GenUiAgent.openCode2]);
+      expect((status as GenUiSetupPartial).affected, [GenUiAgent.openCode2]);
     },
   );
 
@@ -187,70 +173,19 @@ void main() {
     },
   );
 
-  test(
-    'BA6 qualified OC1 registration still needs live verification',
-    () async {
-      final verifier = _Verifier({GenUiAgent.openCode1});
-      final status =
-          await ManagedGenUiInstaller(
-            runner: _Runner(),
-            verifier: verifier,
-          ).setEnabled(
-            profileId: 'one',
-            agents: {GenUiAgent.openCode1},
-            enabled: true,
-          );
-      expect(status, isA<GenUiSetupOn>());
-      expect(verifier.calls, [GenUiAgent.openCode1]);
-      expect(status.agents, [GenUiAgent.openCode1]);
-
-      final failed =
-          await ManagedGenUiInstaller(
-            runner: _Runner(),
-            verifier: _Verifier({}),
-          ).setEnabled(
-            profileId: 'one',
-            agents: {GenUiAgent.openCode1},
-            enabled: true,
-          );
-      expect(failed, isA<GenUiSetupFailed>());
-      expect(
-        (failed as GenUiSetupFailed).reason,
-        GenUiSetupProblem.verificationFailed,
-      );
-    },
-  );
-
-  test(
-    'BA6 builtin verifier runs OC1 as root and Claude in the agent view',
-    () async {
-      final linux = _Linux();
-      final verifier = BuiltinGenUiSetupVerifier(linux: linux);
-      expect(
-        await verifier.verify(profileId: 'one', agent: GenUiAgent.openCode1),
-        true,
-      );
-      expect(
-        await verifier.verify(profileId: 'one', agent: GenUiAgent.claude),
-        true,
-      );
-      expect(linux.users, [AgentRunUser.root, AgentRunUser.agentUser]);
-      linux.exitCode = 24;
-      expect(
-        await verifier.verify(profileId: 'one', agent: GenUiAgent.openCode1),
-        false,
-      );
-      expect(
-        await verifier.verify(profileId: 'one', agent: GenUiAgent.openCode2),
-        false,
-      );
-      expect(linux.users, [
-        AgentRunUser.root,
-        AgentRunUser.agentUser,
-        AgentRunUser.root,
-      ]);
-    },
-  );
+  test('builtin verifier only invokes qualified Claude runtime', () async {
+    final linux = _Linux();
+    final verifier = BuiltinGenUiSetupVerifier(linux: linux);
+    expect(
+      await verifier.verify(profileId: 'one', agent: GenUiAgent.claude),
+      true,
+    );
+    expect(
+      await verifier.verify(profileId: 'one', agent: GenUiAgent.openCode2),
+      false,
+    );
+    expect(linux.users, [AgentRunUser.agentUser]);
+  });
 
   test('verified Claude registration becomes ready', () async {
     final verifier = _Verifier({GenUiAgent.claude});
@@ -266,7 +201,7 @@ void main() {
     'verified Claude remains ready when OpenCode runtime is missing',
     () async {
       final runner = _Runner()
-        ..outcomes[GenUiAgent.openCode1] = GenUiInstallOutcome.runtimeMissing;
+        ..outcomes[GenUiAgent.openCode2] = GenUiInstallOutcome.runtimeMissing;
       final verifier = _Verifier({GenUiAgent.claude});
       final status =
           await ManagedGenUiInstaller(
@@ -274,12 +209,12 @@ void main() {
             verifier: verifier,
           ).setEnabled(
             profileId: 'one',
-            agents: {GenUiAgent.claude, GenUiAgent.openCode1},
+            agents: {GenUiAgent.claude, GenUiAgent.openCode2},
             enabled: true,
           );
       expect(status, isA<GenUiSetupPartial>());
       expect(status.agents, [GenUiAgent.claude]);
-      expect(runner.calls, [GenUiAgent.claude, GenUiAgent.openCode1]);
+      expect(runner.calls, [GenUiAgent.claude, GenUiAgent.openCode2]);
       expect(verifier.calls, [GenUiAgent.claude]);
     },
   );
@@ -346,15 +281,10 @@ void main() {
       bool verify = false,
       bool wrongVersion = false,
       bool requireMarker = false,
-      String mcpStatus = 'connected',
-      bool wrongOpenCodeVersion = false,
-      bool missingPassword = false,
-      bool httpError = false,
-      bool oversizedResponse = false,
       Set<String> runtimes = const {'/usr/bin/node'},
       String? unsafePath,
       bool foreignOwner = false,
-      GenUiAgent agent = GenUiAgent.openCode1,
+      GenUiAgent agent = GenUiAgent.openCode2,
     }) async {
       final script = verify
           ? genUiVerificationScript(profileId: owner, agent: agent)
@@ -371,40 +301,12 @@ void main() {
               as Map<String, dynamic>;
       data['directory'] = '${root.path}/managed';
       data['config'] = '${root.path}/config/opencode.json';
-      data['passwordFile'] = '${root.path}/password';
-      if (!missingPassword) {
-        await File(
-          data['passwordFile'] as String,
-        ).writeAsString('fixture-only');
-      } else {
-        final password = File(data['passwordFile'] as String);
-        if (await password.exists()) await password.delete();
-      }
       final source = script
           .split("<<'OC_GENUI_SETUP' 2>/dev/null\n")[1]
           .split('\nOC_GENUI_SETUP')[0];
       // Real file/JSON/locking/atomic/rollback code runs against a temporary
       // tree. Replace only host identity/runtime execution, never file logic.
       final harness = source.replaceFirst('try: main()', '''
-class Response:
-    status = ${httpError ? 503 : 200}
-    def __init__(self, path): self.path = path
-    def read(self, maximum):
-        assert maximum == 65537
-        if ${oversizedResponse ? 'True' : 'False'}: return b'x' * 65537
-        value = {'healthy':True,'version':'${wrongOpenCodeVersion ? '9.0.0' : '1.19.0'}'} if self.path == '/global/health' else {'oc-ui':{'status':'$mcpStatus'}}
-        return json.dumps(value).encode()
-class Connection:
-    def __init__(self, host, port, timeout):
-        assert host == '127.0.0.1' and port == 4097 and timeout == 5
-    def request(self, method, path, headers):
-        assert method == 'GET' and path in ('/global/health', '/mcp')
-        assert headers['Authorization'] == 'Basic ' + base64.b64encode(b'opencode:fixture-only').decode()
-        assert headers['x-opencode-directory'] == '/root/projects'
-        self.path = path
-    def getresponse(self): return Response(self.path)
-    def close(self): pass
-http.client.HTTPConnection = Connection
 os.getuid = lambda: ${agent == GenUiAgent.claude ? 1000 : 0}
 runtime_paths = {'/usr/bin/node', '/opt/node/bin/node', '/opt/oc-node/bin/node'}
 available = set(${jsonEncode(runtimes.toList())})
@@ -480,278 +382,26 @@ try: main()''');
             )
             as Map<String, dynamic>;
 
-    Future<Map<String, dynamic>> effectiveMcp() async {
-      final json = await config();
-      final jsonc = _decodeJsonc(
-        await File('${root.path}/config/opencode.jsonc').readAsString(),
-      );
-      // Pinned OC1 merges the JSONC MCP object over the JSON MCP object.
-      return {
-        ...(json['mcp'] as Map? ?? const {}),
-        ...(jsonc['mcp'] as Map? ?? const {}),
-      };
-    }
-
-    test(
-      'OpenCode 1 schema-only JSONC receives the effective registration',
-      () async {
-        await Directory('${root.path}/config').create();
-        final file = File('${root.path}/config/opencode.jsonc');
-        const schema = r'  "$schema": "https://opencode.ai/config.json"';
-        const original = '{\n$schema\n}\n';
-        await file.writeAsString(original);
-
-        expect(await apply('one'), 0);
-
-        expect(await file.readAsString(), original);
-        expect((await effectiveMcp())['oc-ui'], {
-          'type': 'local',
-          'command': ['/usr/bin/node', '${root.path}/managed/server.cjs'],
-          'enabled': true,
-        });
-        expect(await apply('one'), 0);
-        expect(await file.readAsString(), original);
-      },
-    );
-
-    const commentedConfig = r'''{
-  // Keep this user's model choice.
-  "$schema": "https://opencode.ai/config.json",
-  "model": "provider/model",
-  "mcp": {
-    /* A user-managed server, not owned by this installer. */
-    "other": {"type": "remote", "url": "https://example.test/a//b/*c*/", "enabled": false,},
-  },
-}
-''';
-
-    for (final trailingComma in [false, true]) {
-      test(
-        'OpenCode 1 JSONC preserves string-array separator with trailing comma $trailingComma',
-        () async {
-          await Directory('${root.path}/config').create();
-          final file = File('${root.path}/config/opencode.jsonc');
-          final original =
-              '{\n'
-              '  // An unrelated local MCP server.\n'
-              '  "mcp": {"other": {"type": "local", '
-              '"command": ["node", "server.js"${trailingComma ? ',' : ''}]}}\n'
-              '}\n';
-          await file.writeAsString(original);
-
-          expect(await apply('one'), 0);
-
-          expect(await file.readAsString(), original);
-          final effective = await effectiveMcp();
-          expect(effective['other']['command'], ['node', 'server.js']);
-          expect(effective['oc-ui']['command'], [
-            '/usr/bin/node',
-            '${root.path}/managed/server.cjs',
-          ]);
-        },
-      );
-    }
-
-    test(
-      'OpenCode 1 JSONC merges owned entry without changing user content',
-      () async {
-        await Directory('${root.path}/config').create();
-        final file = File('${root.path}/config/opencode.jsonc');
-        final lower = File('${root.path}/config/opencode.json');
-        const lowerOriginal =
-            '{"model":"lower-priority","mcp":{"lower":{"enabled":false}}}';
-        await lower.writeAsString(lowerOriginal);
-        await file.writeAsString(commentedConfig);
-
-        expect(await apply('one'), 0);
-
-        expect(await file.readAsString(), commentedConfig);
-        final effective = await effectiveMcp();
-        expect(effective['oc-ui']['command'], [
-          '/usr/bin/node',
-          '${root.path}/managed/server.cjs',
-        ]);
-        expect(effective['other'], {
-          'type': 'remote',
-          'url': 'https://example.test/a//b/*c*/',
-          'enabled': false,
-        });
-        expect(effective['lower'], {'enabled': false});
-        expect((await config())['model'], 'lower-priority');
-      },
-    );
-
-    test('OpenCode 1 disable preserves JSONC and later user edits', () async {
+    test('OpenCode 2 preserves user JSONC by refusing registration', () async {
       await Directory('${root.path}/config').create();
       final file = File('${root.path}/config/opencode.jsonc');
-      await file.writeAsString(commentedConfig);
-      expect(await apply('one'), 0);
-      final installed = await file.readAsString();
-      final edited = installed.replaceFirst(
-        '"model": "provider/model",',
-        '"model": "provider/model",\n  "userAdded": 42,',
-      );
-      await file.writeAsString(edited);
-
-      expect(await apply('one', enabled: false), 10);
-
-      final disabled = await file.readAsString();
-      expect(disabled, edited);
-      expect(_decodeJsonc(disabled)['userAdded'], 42);
-      expect(await effectiveMcp(), isNot(contains('oc-ui')));
-      expect((await effectiveMcp())['other']['enabled'], false);
+      const original = '{"model":"user/model"}';
+      await file.writeAsString(original);
+      expect(await apply('one'), 21);
+      expect(await file.readAsString(), original);
       expect(await File('${root.path}/managed/enabled').exists(), false);
     });
-
-    for (final collisionFile in ['opencode.jsonc', 'opencode.json']) {
-      test(
-        'OpenCode 1 JSONC refuses a genuine collision in $collisionFile',
-        () async {
-          await Directory('${root.path}/config').create();
-          final jsonc = File('${root.path}/config/opencode.jsonc');
-          final json = File('${root.path}/config/opencode.json');
-          const collision =
-              '{"mcp":{"oc-ui":{"command":["custom"]}},"keep":42}';
-          final jsoncOriginal = collisionFile == 'opencode.jsonc'
-              ? collision
-              : commentedConfig;
-          final jsonOriginal = collisionFile == 'opencode.json'
-              ? collision
-              : '{"keep":43}';
-          await jsonc.writeAsString(jsoncOriginal);
-          await json.writeAsString(jsonOriginal);
-
-          expect(await apply('one'), 21);
-
-          expect(await jsonc.readAsString(), jsoncOriginal);
-          expect(await json.readAsString(), jsonOriginal);
-          expect(await File('${root.path}/managed/enabled').exists(), false);
-          expect(
-            await File('${root.path}/managed/owners.json').exists(),
-            false,
-          );
-        },
-      );
-    }
-
-    for (final entry in [
-      (label: 'flat null', mcp: '{"oc-ui":null}'),
-      (
-        label: 'nested compatibility',
-        mcp: '{"servers":{"oc-ui":{"command":["custom"]}}}',
-      ),
-    ]) {
-      test(
-        'OpenCode 1 current JSON refuses ${entry.label} collision',
-        () async {
-          await Directory('${root.path}/config').create();
-          final file = File('${root.path}/config/opencode.json');
-          final original = '{"mcp":${entry.mcp},"keep":42}';
-          await file.writeAsString(original);
-
-          expect(await apply('one'), 21);
-
-          expect(await file.readAsString(), original);
-          expect(await File('${root.path}/managed/enabled').exists(), false);
-          expect(
-            await File('${root.path}/managed/owners.json').exists(),
-            false,
-          );
-        },
-      );
-    }
-
-    for (final mcp in ['null', '[]', 'false']) {
-      test('OpenCode 1 JSONC refuses a nonobject MCP override $mcp', () async {
-        await Directory('${root.path}/config').create();
-        final file = File('${root.path}/config/opencode.jsonc');
-        final original = '{"mcp":$mcp}';
-        await file.writeAsString(original);
-        expect(await apply('one'), 21);
-        expect(await file.readAsString(), original);
-        expect(await File('${root.path}/config/opencode.json').exists(), false);
-        expect(await File('${root.path}/managed/enabled').exists(), false);
-      });
-    }
-
-    for (final blocked in [
-      (name: 'config.json', contents: '{"mcp":{"oc-ui":null}}'),
-      (name: 'opencode.jsonc', contents: '{"mcp":{"oc-ui":null}}'),
-      (name: 'config.json', contents: '{"mcp":{"servers":{"oc-ui":null}}}'),
-      (name: 'opencode.jsonc', contents: '{"mcp":{"servers":{"oc-ui":null}}}'),
-      (name: 'config.json', contents: '{"mcp":{"oc-ui":null},"mcp":{}}'),
-      (name: 'opencode.jsonc', contents: '{"mcp":{"oc-ui":null},"mcp":{}}'),
-      (name: 'opencode.jsonc', contents: '{"mcp":{"other":{},"other":{}}}'),
-      (name: 'opencode.jsonc', contents: '{"mcp": {/* unfinished'),
-      (name: 'config', contents: 'model = "user-model"\n'),
-    ]) {
-      test(
-        'OpenCode 1 refuses unsafe overlay ${blocked.name} ${blocked.contents}',
-        () async {
-          await Directory('${root.path}/config').create();
-          final file = File('${root.path}/config/${blocked.name}');
-          await file.writeAsString(blocked.contents);
-          expect(await apply('one'), 21);
-          expect(await file.readAsString(), blocked.contents);
-          expect(
-            await File('${root.path}/config/opencode.json').exists(),
-            false,
-          );
-          expect(await File('${root.path}/managed/enabled').exists(), false);
-        },
-      );
-    }
-
-    test(
-      'OpenCode 1 refuses symlinked JSONC without touching its target',
-      () async {
-        await Directory('${root.path}/config').create();
-        final outside = File('${root.path}/outside.jsonc');
-        await outside.writeAsString(commentedConfig);
-        await Link('${root.path}/config/opencode.jsonc').create(outside.path);
-        expect(await apply('one'), 22);
-        expect(await outside.readAsString(), commentedConfig);
-        expect(await File('${root.path}/config/opencode.json').exists(), false);
-        expect(await File('${root.path}/managed/enabled').exists(), false);
-      },
-    );
-
-    test(
-      'OpenCode 1 JSONC self-check rollback preserves user settings',
-      () async {
-        await Directory('${root.path}/config').create();
-        final jsonc = File('${root.path}/config/opencode.jsonc');
-        await jsonc.writeAsString(commentedConfig);
-        final original = {
-          'model': 'user-model',
-          'mcp': {
-            'lower': {'enabled': false},
-          },
-        };
-        await File(
-          '${root.path}/config/opencode.json',
-        ).writeAsString(jsonEncode(original));
-
-        expect(await apply('one', failCheck: true), 24);
-
-        expect(await jsonc.readAsString(), commentedConfig);
-        expect(await config(), original);
-        expect(await File('${root.path}/managed/enabled').exists(), false);
-        expect(await File('${root.path}/managed/owners.json').exists(), false);
-        expect(await File('${root.path}/managed/server.cjs').exists(), false);
-      },
-    );
 
     test(
       'OpenCode uses existing root-owned pinned Node without a system alias',
       () async {
         expect(await apply('one', runtimes: {'/opt/node/bin/node'}), 0);
-        expect((await config())['mcp']['oc-ui']['command'], [
+        expect((await config())['mcp']['servers']['oc-ui']['command'], [
           '/opt/node/bin/node',
           '${root.path}/managed/server.cjs',
         ]);
         expect(await apply('one', enabled: false, runtimes: {}), 10);
-        expect((await config())['mcp'], isEmpty);
+        expect((await config())['mcp']['servers'], isEmpty);
       },
     );
 
@@ -763,13 +413,13 @@ try: main()''');
           await apply('two', runtimes: {'/opt/node/bin/node', '/usr/bin/node'}),
           0,
         );
-        expect((await config())['mcp']['oc-ui']['command'], [
+        expect((await config())['mcp']['servers']['oc-ui']['command'], [
           '/usr/bin/node',
           '${root.path}/managed/server.cjs',
         ]);
         expect(await apply('one', enabled: false, runtimes: {}), 10);
         expect(await apply('two', enabled: false, runtimes: {}), 10);
-        expect((await config())['mcp'], isEmpty);
+        expect((await config())['mcp']['servers'], isEmpty);
       },
     );
 
@@ -835,32 +485,6 @@ try: main()''');
     );
 
     test(
-      'BA6 OC1 readiness requires pinned live connected server and owned helper',
-      () async {
-        expect(await apply('one'), 0);
-        expect(await apply('one', verify: true), 0);
-        for (final status in [
-          'disconnected',
-          'failed',
-          'disabled',
-          'needs_auth',
-        ]) {
-          expect(await apply('one', verify: true, mcpStatus: status), 24);
-        }
-        expect(
-          await apply('one', verify: true, wrongOpenCodeVersion: true),
-          24,
-        );
-        expect(await apply('one', verify: true, missingPassword: true), 24);
-        expect(await apply('one', verify: true, httpError: true), 24);
-        expect(await apply('one', verify: true, oversizedResponse: true), 24);
-        expect(await apply('other-owner', verify: true), 24);
-        await File('${root.path}/managed/server.cjs').writeAsString('damaged');
-        expect(await apply('one', verify: true), 24);
-      },
-    );
-
-    test(
       'two owners install idempotently and last disable removes only own entry',
       () async {
         await Directory('${root.path}/config').create();
@@ -868,7 +492,9 @@ try: main()''');
           jsonEncode({
             'model': 'keep',
             'mcp': {
-              'other': {'enabled': false},
+              'servers': {
+                'other': {'disabled': true},
+              },
             },
           }),
         );
@@ -876,7 +502,7 @@ try: main()''');
         expect(await apply('one'), 0);
         expect(await apply('two'), 0);
         expect(await apply('one', enabled: false), 10);
-        expect((await config())['mcp'], contains('oc-ui'));
+        expect((await config())['mcp']['servers'], contains('oc-ui'));
         expect(
           await File('${root.path}/managed/enabled').readAsString(),
           'enabled\n',
@@ -886,7 +512,9 @@ try: main()''');
         expect(await config(), {
           'model': 'keep',
           'mcp': {
-            'other': {'enabled': false},
+            'servers': {
+              'other': {'disabled': true},
+            },
           },
         });
       },
@@ -1089,7 +717,6 @@ try: main()''');
           ),
           11,
         );
-        await File('${root.path}/password').delete();
         expect(await root.list().toList(), isEmpty);
       },
     );
@@ -1174,7 +801,8 @@ try: main()''');
     test('unowned entry collision preserves existing config', () async {
       await Directory('${root.path}/config').create();
       final file = File('${root.path}/config/opencode.json');
-      const original = '{"mcp":{"oc-ui":{"command":["custom"]}},"keep":42}';
+      const original =
+          '{"mcp":{"servers":{"oc-ui":{"command":["custom"]}}},"keep":42}';
       await file.writeAsString(original);
       expect(await apply('one'), 21);
       expect(await file.readAsString(), original);
@@ -1191,14 +819,14 @@ try: main()''');
     test('edited owned entry is never removed', () async {
       expect(await apply('one'), 0);
       final value = await config();
-      (value['mcp'] as Map)['oc-ui'] = {
+      (value['mcp']['servers'] as Map)['oc-ui'] = {
         'command': ['user-edit'],
       };
       await File(
         '${root.path}/config/opencode.json',
       ).writeAsString(jsonEncode(value));
       expect(await apply('one', enabled: false), 21);
-      expect((await config())['mcp']['oc-ui'], {
+      expect((await config())['mcp']['servers']['oc-ui'], {
         'command': ['user-edit'],
       });
     });
@@ -1210,7 +838,7 @@ try: main()''');
       ).writeAsString('{"keep":42}');
       expect(await apply('one', failCheck: true), 24);
       expect((await config())['keep'], 42);
-      expect((await config())['mcp'], isEmpty);
+      expect((await config())['mcp']['servers'], isEmpty);
       expect(await File('${root.path}/managed/enabled').exists(), false);
       expect(await File('${root.path}/managed/owners.json').exists(), false);
       expect(await File('${root.path}/managed/server.cjs').exists(), false);

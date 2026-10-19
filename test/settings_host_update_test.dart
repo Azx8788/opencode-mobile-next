@@ -5,8 +5,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -16,7 +16,7 @@ import '../tool/capture/fixtures.dart';
 import 'coverage/servers_support.dart';
 import 'goldens/kit/kit_gallery.dart' show loadKitGalleryFonts;
 
-class _PaseoApi extends OpenCodeApi implements HostDaemonUpdateGateway {
+class _PaseoApi extends FakeServerGateway implements HostDaemonUpdateGateway {
   _PaseoApi() : super(baseUrl: 'ws://build.example.net:6767');
   int updates = 0;
   Completer<HostUpdateResult> answer = Completer();
@@ -203,7 +203,7 @@ void main() {
     );
     base.dispose();
     final controller = ServersConnection(store)
-      ..api = OpenCodeApi(baseUrl: 'https://studio.example.net:4096')
+      ..api = FakeServerGateway(baseUrl: 'https://studio.example.net:4096')
       ..status = StreamStatus.connected;
     addTearDown(controller.dispose);
     await tester.pumpWidget(

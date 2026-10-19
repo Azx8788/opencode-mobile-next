@@ -1,12 +1,12 @@
+import 'support/fake_server_operations.dart';
 import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/builtin/agents/gen_ui_install.dart';
 import 'package:opencode_mobile/builtin/builtin_linux.dart';
 import 'package:opencode_mobile/domain/chat_feed.dart';
@@ -20,7 +20,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class _Installer implements GenUiInstaller {
   final calls = <({String profile, Set<GenUiAgent> agents, bool enabled})>[];
-  GenUiSetupStatus on = GenUiSetupOn(agents: [GenUiAgent.openCode1]);
+  // Synthetic readiness exercises shared controller lifecycle only. The real
+  // installer keeps unqualified OC2 gated (gen_ui_install_test.dart).
+  GenUiSetupStatus on = GenUiSetupOn(agents: [GenUiAgent.openCode2]);
   GenUiSetupStatus off = const GenUiSetupOff();
   Completer<void>? pause;
   bool failRemoval = false;
@@ -38,7 +40,7 @@ class _Installer implements GenUiInstaller {
   }
 }
 
-class _Api extends OpenCodeApi {
+class _Api extends FakeServerGateway {
   _Api() : super(baseUrl: 'https://fixture.invalid');
   List<MessageWithParts> history = [_cardMessage()];
 
@@ -108,6 +110,7 @@ _harness(_Installer installer, {bool managed = true}) async {
       {
         'id': 'phone',
         'name': 'Phone',
+        'flavor': 'v2',
         'baseUrl': managed ? BuiltinLinux.serverUrl : 'https://fixture.invalid',
       },
       {'id': 'other', 'name': 'Other', 'baseUrl': 'https://other.invalid'},
@@ -126,7 +129,7 @@ _harness(_Installer installer, {bool managed = true}) async {
           phoneEngineBridge: _EngineBridge(),
         )
         ..api = api
-        ..repository = SdkProductRepository(api.sdkClient)
+        ..repository = FakeServerOperations(api)
         ..directory = '/work/project'
         ..status = StreamStatus.connected;
   controller.adoptConnectedProfileForTesting(store.profiles.first);
@@ -158,7 +161,7 @@ void main() {
     final installer = _Installer()
       ..on = GenUiSetupPartial(
         agents: [GenUiAgent.claude],
-        affected: [GenUiAgent.openCode1],
+        affected: [GenUiAgent.openCode2],
         reason: GenUiSetupProblem.verificationFailed,
       );
     final h = await _harness(installer);
@@ -174,19 +177,19 @@ void main() {
     await h.controller.disconnect();
     h.controller
       ..api = h.api
-      ..repository = SdkProductRepository(h.api.sdkClient)
+      ..repository = FakeServerOperations(h.api)
       ..directory = '/work/project'
       ..status = StreamStatus.connected;
     h.controller.adoptConnectedProfileForTesting(
       h.controller.store.profiles.first,
     );
     installer.on = GenUiSetupOn(
-      agents: [GenUiAgent.claude, GenUiAgent.openCode1],
+      agents: [GenUiAgent.claude, GenUiAgent.openCode2],
     );
     await h.controller.loadSessionTail('session');
     await _settle();
     expect(installer.calls, hasLength(2));
-    expect(h.controller.genUiStatus.agents, contains(GenUiAgent.openCode1));
+    expect(h.controller.genUiStatus.agents, contains(GenUiAgent.openCode2));
     expect(h.controller.capabilities.genUi, isTrue);
   });
 
@@ -194,7 +197,7 @@ void main() {
     final installer = _Installer()
       ..on = GenUiSetupPartial(
         agents: [GenUiAgent.claude],
-        affected: [GenUiAgent.openCode1],
+        affected: [GenUiAgent.openCode2],
         reason: GenUiSetupProblem.verificationFailed,
       );
     final h = await _harness(installer);
@@ -202,19 +205,19 @@ void main() {
     await h.controller.disconnect();
     h.controller
       ..api = h.api
-      ..repository = SdkProductRepository(h.api.sdkClient)
+      ..repository = FakeServerOperations(h.api)
       ..directory = null
       ..status = StreamStatus.connected;
     h.controller.adoptConnectedProfileForTesting(
       h.controller.store.profiles.first,
     );
     installer.on = GenUiSetupOn(
-      agents: [GenUiAgent.claude, GenUiAgent.openCode1],
+      agents: [GenUiAgent.claude, GenUiAgent.openCode2],
     );
     await h.controller.loadSessionTail('session');
     await _settle();
     expect(installer.calls, hasLength(2));
-    expect(h.controller.genUiStatus.agents, contains(GenUiAgent.openCode1));
+    expect(h.controller.genUiStatus.agents, contains(GenUiAgent.openCode2));
     expect(h.controller.directory, isNull);
   });
 
@@ -245,14 +248,14 @@ void main() {
       await h.controller.disconnect();
       h.controller
         ..api = h.api
-        ..repository = SdkProductRepository(h.api.sdkClient)
+        ..repository = FakeServerOperations(h.api)
         ..directory = '/work/project'
         ..status = StreamStatus.connected;
       h.controller.adoptConnectedProfileForTesting(
         h.controller.store.profiles.first,
       );
       await h.controller.loadSessionTail('session');
-      old.complete(GenUiSetupOn(agents: [GenUiAgent.openCode1]));
+      old.complete(GenUiSetupOn(agents: [GenUiAgent.openCode2]));
       await pending;
       await _settle();
       expect(installer.calls, hasLength(2));
@@ -262,7 +265,7 @@ void main() {
         GenUiSetupPartial(
           agents: [GenUiAgent.claude],
           reason: GenUiSetupProblem.verificationFailed,
-          affected: [GenUiAgent.openCode1],
+          affected: [GenUiAgent.openCode2],
         ),
       );
       await _settle();
@@ -284,7 +287,7 @@ void main() {
     },
   );
 
-  for (final flavor in [ServerFlavor.v1, ServerFlavor.v2]) {
+  for (final flavor in [ServerFlavor.v2]) {
     test(
       'fallback names only phone agents and connected ${flavor.name}',
       () async {
@@ -300,7 +303,7 @@ void main() {
         expect(status.reason, GenUiSetupProblem.notQualified);
         expect(status.affected, [
           GenUiAgent.claude,
-          AgentToolAdapters.forOpenCode(v2: flavor == ServerFlavor.v2),
+          AgentToolAdapters.forOpenCode(),
         ]);
         expect(status.agents, isEmpty);
         expect(h.controller.capabilities.genUi, isFalse);
@@ -308,81 +311,41 @@ void main() {
     );
   }
 
-  test('shared installation status follows runtime switches without naming '
-      'the other OpenCode generation', () async {
-    final installer = _Installer()
-      ..on = GenUiSetupPartial(
-        agents: [GenUiAgent.claude, GenUiAgent.openCode1],
-        reason: GenUiSetupProblem.notQualified,
-        affected: [GenUiAgent.openCode2],
-      );
-    final h = await _harness(installer);
-    await h.controller.setGenUiEnabled(true);
-    final oc1 = h.controller.genUiStatus as GenUiSetupOn;
-    expect(oc1.agents, [GenUiAgent.claude, GenUiAgent.openCode1]);
-    expect(oc1.agents.map((agent) => agent.displayName), [
-      'Claude Code',
-      'OpenCode 1',
-    ]);
-    h.controller.adoptConnectedProfileForTesting(
-      ServerProfile(
-        id: 'phone',
-        name: 'Phone',
-        baseUrl: BuiltinLinux.serverUrl,
-        flavor: ServerFlavor.v2,
-      ),
-    );
-    final oc2 = h.controller.genUiStatus as GenUiSetupPartial;
-    expect(oc2.agents, [GenUiAgent.claude]);
-    expect(oc2.reason, GenUiSetupProblem.notQualified);
-    expect(oc2.affected, [GenUiAgent.openCode2]);
-    expect(oc2.affected.single.displayName, 'OpenCode 2');
-    expect(installer.calls, hasLength(1));
-    expect(installer.calls.single.agents, GenUiAgent.values.toSet());
-  });
+  test(
+    'partial registration keeps OpenCode 2 unavailable alongside Claude',
+    () async {
+      final installer = _Installer()
+        ..on = GenUiSetupPartial(
+          agents: [GenUiAgent.claude],
+          reason: GenUiSetupProblem.notQualified,
+          affected: [GenUiAgent.openCode2],
+        );
+      final h = await _harness(installer);
+      await h.controller.setGenUiEnabled(true);
+      final status = h.controller.genUiStatus as GenUiSetupPartial;
+      expect(status.agents, [GenUiAgent.claude]);
+      expect(status.affected, [GenUiAgent.openCode2]);
+      expect(h.controller.capabilities.genUi, isFalse);
+      expect(installer.calls.single.agents, GenUiAgent.values.toSet());
+    },
+  );
 
-  test('opposite runtime readiness never qualifies this connection', () async {
-    final installer = _Installer()
-      ..on = GenUiSetupOn(agents: [GenUiAgent.openCode2]);
-    final h = await _harness(installer);
-    await h.controller.setGenUiEnabled(true);
-    final status = h.controller.genUiStatus as GenUiSetupUnavailable;
-    expect(status.reason, GenUiSetupProblem.notQualified);
-    expect(status.affected, [GenUiAgent.claude, GenUiAgent.openCode1]);
-    expect(status.agents, isEmpty);
-    expect(h.controller.capabilities.genUi, isFalse);
-  });
-
-  test('an opposite-only partial result remains unavailable without '
-      'applicable ready agents', () async {
-    final installer = _Installer()
-      ..on = GenUiSetupPartial(
-        agents: [GenUiAgent.openCode2],
-        reason: GenUiSetupProblem.verificationFailed,
-        affected: [GenUiAgent.openCode2],
-      );
-    final h = await _harness(installer);
-    await h.controller.setGenUiEnabled(true);
-    final status = h.controller.genUiStatus as GenUiSetupUnavailable;
-    expect(status.affected, [GenUiAgent.claude, GenUiAgent.openCode1]);
-    expect(status.agents, isEmpty);
-    expect(h.controller.capabilities.genUi, isFalse);
-  });
-
-  test('applicable failures keep their reason and exclude the other '
-      'runtime from affected agents', () async {
-    final installer = _Installer()
-      ..on = const GenUiSetupFailed(
-        reason: GenUiSetupProblem.registrationFailed,
-        affected: [GenUiAgent.claude, GenUiAgent.openCode2],
-      );
-    final h = await _harness(installer);
-    await h.controller.setGenUiEnabled(true);
-    final status = h.controller.genUiStatus as GenUiSetupFailed;
-    expect(status.reason, GenUiSetupProblem.registrationFailed);
-    expect(status.affected, [GenUiAgent.claude]);
-    expect(h.controller.capabilities.genUi, isFalse);
-  });
+  test(
+    'applicable failures keep their reason and name current agents',
+    () async {
+      final installer = _Installer()
+        ..on = const GenUiSetupFailed(
+          reason: GenUiSetupProblem.registrationFailed,
+          affected: [GenUiAgent.claude, GenUiAgent.openCode2],
+        );
+      final h = await _harness(installer);
+      await h.controller.setGenUiEnabled(true);
+      final status = h.controller.genUiStatus as GenUiSetupFailed;
+      expect(status.reason, GenUiSetupProblem.registrationFailed);
+      expect(status.affected, [GenUiAgent.claude, GenUiAgent.openCode2]);
+      expect(h.controller.capabilities.genUi, isFalse);
+    },
+  );
 
   test('generic setup problems survive connection projection', () async {
     final installer = _Installer()
@@ -393,7 +356,7 @@ void main() {
     final h = await _harness(installer);
     await h.controller.setGenUiEnabled(true);
     final partial = h.controller.genUiStatus as GenUiSetupPartial;
-    expect(partial.agents, [GenUiAgent.claude]);
+    expect(partial.agents, [GenUiAgent.claude, GenUiAgent.openCode2]);
     expect(partial.reason, GenUiSetupProblem.storageFailed);
     expect(partial.affected, isEmpty);
 
@@ -409,16 +372,12 @@ void main() {
     () async {
       final installer = _Installer()
         ..off = GenUiSetupRestartRequired(
-          agents: [
-            GenUiAgent.claude,
-            GenUiAgent.openCode1,
-            GenUiAgent.openCode2,
-          ],
+          agents: [GenUiAgent.claude, GenUiAgent.openCode2],
         );
       final h = await _harness(installer);
       await h.controller.setGenUiEnabled(false);
       final status = h.controller.genUiStatus as GenUiSetupRestartRequired;
-      expect(status.agents, [GenUiAgent.claude, GenUiAgent.openCode1]);
+      expect(status.agents, [GenUiAgent.claude, GenUiAgent.openCode2]);
       expect(h.controller.capabilities.genUi, isFalse);
     },
   );
@@ -662,9 +621,15 @@ void main() {
           {
             'id': 'remote',
             'name': 'Remote',
+            'flavor': 'v2',
             'baseUrl': 'https://fixture.invalid',
           },
-          {'id': 'phone', 'name': 'Phone', 'baseUrl': BuiltinLinux.serverUrl},
+          {
+            'id': 'phone',
+            'name': 'Phone',
+            'flavor': 'v2',
+            'baseUrl': BuiltinLinux.serverUrl,
+          },
         ]),
         'oc.activeProfile': 'remote',
       });
@@ -788,7 +753,7 @@ class _EngineBridge implements PhoneProjectEngineBridge {
 
 class _SideApi extends _Api {
   @override
-  Future<Health> health() async => Health(healthy: true, version: '1');
+  Future<Health> health() async => Health(healthy: true, version: '2.0.29');
   @override
   Future<List<Session>> sessions() async => const [];
   @override
@@ -813,8 +778,8 @@ class _SideApi extends _Api {
   Future<List<FileNode>> listFiles(String path) async => const [];
 }
 
-class _SideRepo extends SdkProductRepository {
-  _SideRepo(OpenCodeApi api) : super(api.sdkClient);
+class _SideRepo extends FakeServerOperations {
+  _SideRepo(super.api);
   @override
   Future<ChatDefaults> loadChatDefaults() async => const ChatDefaults();
   @override
@@ -839,7 +804,7 @@ class _SideRepo extends SdkProductRepository {
   }) async => const ServerPage(items: []);
 }
 
-class _SideStream extends EventStream {
+class _SideStream extends FakeEventChannel {
   _SideStream({
     required super.api,
     required super.onEvent,

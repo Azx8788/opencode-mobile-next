@@ -22,6 +22,7 @@ void main() {
   late String jsonJar;
   const scenarios = [
     'interrupted-installer-retry',
+    'interrupted-installer-recovers',
     'ordered-terminal',
     'installer-routed',
     'setup-work-owned',
@@ -70,6 +71,8 @@ void main() {
         'android/app/src/main/kotlin/io/github/eslamasabry/opencode_mobile/NativeRuntimeOwnership.kt',
         'android/app/src/main/kotlin/io/github/eslamasabry/opencode_mobile/NativeInstallerOwnership.kt',
         'android/app/src/main/kotlin/io/github/eslamasabry/opencode_mobile/NativeInstallerVisibility.kt',
+        'android/app/src/main/kotlin/io/github/eslamasabry/opencode_mobile/NativeProcRace.kt',
+        'android/app/src/main/kotlin/io/github/eslamasabry/opencode_mobile/SetupStepRetry.kt',
         if (File(
           'android/app/src/main/kotlin/io/github/eslamasabry/opencode_mobile/SetupPersistence.kt',
         ).existsSync())

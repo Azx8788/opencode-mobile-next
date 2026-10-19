@@ -211,9 +211,7 @@ class _PhoneSetupTermuxScreenState extends ConsumerState<PhoneSetupTermuxScreen>
   static const _allow = 'termux-allow';
 
   String _runtimeName(AppLocalizations l10n, TermuxRuntime runtime) =>
-      runtime == TermuxRuntime.openCode2
-      ? l10n.setupRuntimeTwo
-      : l10n.setupRuntimeOne;
+      l10n.setupRuntimeTwo;
 
   List<SetupComponent> _components(AppLocalizations l10n) {
     SetupComponent row(String id, String title) => SetupComponent(

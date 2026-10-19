@@ -3,8 +3,7 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/api2/client.dart';
 import 'package:opencode_mobile/api2/gateway_operations.dart';
 import 'package:opencode_mobile/api2/transport.dart';
@@ -90,40 +89,4 @@ void main() {
       );
     },
   );
-
-  test(
-    'OpenCode 1 worktree errors retain cause without trusting its prose',
-    () async {
-      final api = OpenCodeApi(baseUrl: 'https://server.test');
-      api.dio.httpClientAdapter = _ResponseAdapter(400, {
-        'name': 'WorktreeNotGitError',
-        'data': {'message': reason},
-      });
-      addTearDown(api.close);
-      final repository = SdkProductRepository(api.sdkClient);
-      await verify(
-        () => repository.listWorktrees(projectDirectory: '/project'),
-        'Could not load worktrees',
-      );
-    },
-  );
-
-  for (final status in [400, 200]) {
-    test(
-      'OpenCode 1 upgrade refusal with HTTP $status keeps a safe body',
-      () async {
-        final api = OpenCodeApi(baseUrl: 'https://server.test');
-        api.dio.httpClientAdapter = _ResponseAdapter(status, {
-          'success': false,
-          'error': reason,
-        });
-        addTearDown(api.close);
-        final repository = SdkProductRepository(api.sdkClient);
-        await verify(
-          () => repository.upgradeServer('1.19.0'),
-          'Could not upgrade OpenCode',
-        );
-      },
-    );
-  }
 }

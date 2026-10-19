@@ -6,7 +6,7 @@
 // (`eventTypes.<type>`), all "ignored: <reason>".
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/api2/events.dart';
 import 'package:opencode_mobile/api2/gateway_events.dart';
 import 'package:opencode_mobile/api2/gateway_mappers.dart';

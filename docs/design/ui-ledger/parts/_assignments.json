@@ -191,6 +191,7 @@
     "lib/ui/screens/chats/chats_project_sheet.dart",
     "lib/ui/screens/chats/chats_sources_sheet.dart",
     "lib/ui/screens/chats/new_chat_screen.dart",
+    "lib/ui/screens/chats/git_repair_sheet.dart",
     "lib/ui/screens/chats/chats_host.dart"
   ],
   "m-agents": [
@@ -203,5 +204,14 @@
     "lib/ui/screens/agents/agents_screen.dart",
     "lib/ui/screens/agents/agent_error_notice.dart",
     "lib/ui/screens/agents/cards_from_agents_row.dart"
+  ],
+  "q-linux-manager": [
+    "lib/ui/screens/linux_manager/linux_manager_screen.dart",
+    "lib/ui/screens/linux_manager/linux_processes_page.dart",
+    "lib/ui/screens/linux_manager/linux_ports_page.dart",
+    "lib/ui/screens/linux_manager/linux_storage_page.dart",
+    "lib/ui/screens/linux_manager/linux_packages_page.dart",
+    "lib/ui/screens/linux_manager/linux_manager_common.dart",
+    "lib/ui/screens/linux_manager/linux_reset.dart"
   ]
 }

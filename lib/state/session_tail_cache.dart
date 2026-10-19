@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../api/models.dart';
+import '../domain/models.dart';
 import '../ui/kit/kit_redact.dart';
 
 /// Text-only last-known opening content. Never merge this into authoritative

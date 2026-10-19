@@ -11,6 +11,7 @@ import '../../builtin/setup/setup_contract.dart';
 import '../../domain/opencode_history_copy.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state/connection.dart';
+import '../../state/managed_move.dart';
 import '../../state/phone_host.dart' show PhoneHostKind;
 import '../../state/profiles.dart';
 import '../../state/queued_prompt_removal.dart'
@@ -114,7 +115,13 @@ String _distinctServerName(
   }
 
   final port = portOf(profile);
-  final withPort = port.isEmpty ? name : '$name$port';
+  // "Computer at 10.0.2.2:4443 (secure)": a secure address that shares its
+  // host with a plain one says so, since a port alone can look arbitrary.
+  final secure =
+      Uri.tryParse(profile.baseUrl)?.scheme == 'https' &&
+      same.any((o) => Uri.tryParse(o.baseUrl)?.scheme != 'https');
+  final tag = secure ? ' (secure)' : '';
+  final withPort = '${port.isEmpty ? name : '$name$port'}$tag';
   final clashes = same
       .where((o) => o.id != profile.id && portOf(o) == port)
       .toList();
@@ -133,20 +140,7 @@ String phoneServerDisplayName(
   AppLocalizations l10n, {
   Iterable<ServerProfile> among = const [],
 }) {
-  final twoGenerations = among.any(
-    (other) =>
-        other.id != profile.id &&
-        other.backend == ServerBackend.openCode &&
-        BuiltinLinux.managesServerUrl(other.baseUrl) &&
-        other.flavor != profile.flavor,
-  );
-  if (!twoGenerations) return l10n.phoneServerCardTitle;
-  return l10n.phoneSetupOpenPhoneRuntime(
-    l10n.phoneServerCardTitle,
-    profile.flavor == ServerFlavor.v2
-        ? l10n.setupRuntimeTwo
-        : l10n.setupRuntimeOne,
-  );
+  return l10n.phoneServerCardTitle;
 }
 
 /// Test seams for the routes this card calls but other screens own.
@@ -184,7 +178,7 @@ SetupEngine? _engine() {
 }
 
 TermuxRuntime _runtimeOf(ServerProfile profile) =>
-    BuiltinLinux.runtimeFor(profile.flavor);
+    BuiltinLinux.runtimeForProfile(profile);
 
 /// Runs one ⋯ menu [action] for the in-app [profile] from [context], which
 /// must outlive it (a screen, not a closing sheet). Returns true when the
@@ -204,14 +198,30 @@ Future<bool> runPhoneServerAction(
   // True while a confirmed removal attempt runs, false once it ended (a
   // failed one leaves the question open with Try again).
   ValueChanged<bool>? onRemovingChanged,
+  // When set, a failed runtime switch is handed here instead of an alert: the
+  // automatic OpenCode 1 -> 2 move owns its failure page and its retries, so
+  // the person is told once (see [ManagedMoveRunner]).
+  void Function(ManagedMoveAttempt failure)? onMoveFailure,
 }) async {
   final l10n = lookupAppLocalizations(Localizations.localeOf(context));
-  Future<void> fail(List<String> messages) async {
+  Future<void> fail(
+    List<String> messages, {
+    String? details,
+    ManagedMoveReason reason = ManagedMoveReason.moveStopped,
+  }) async {
+    if (action == PhoneServerAction.switchRuntime && onMoveFailure != null) {
+      onMoveFailure(ManagedMoveAttempt.failure(reason, details: details));
+      return;
+    }
     if (messages.isEmpty || !context.mounted) return;
     await showKitAlert(
       context,
       title: l10n.phoneServerCardFailedTitle,
       body: messages.join('\n'),
+      details: [
+        if (details != null)
+          KitTechnicalValue(l10n.phoneServerCardErrorDetail, details),
+      ],
       icon: AppIconography.warning,
       alertKey: const ValueKey('phone-server-action-failed'),
     );
@@ -226,7 +236,11 @@ Future<bool> runPhoneServerAction(
     try {
       await engine.run(ids, params: params);
     } catch (error) {
-      await fail([l10n.phoneServerCardActionFailed(productErrorText(error))]);
+      await fail([
+        action == PhoneServerAction.switchRuntime
+            ? l10n.openCode2UpgradeFailed
+            : l10n.phoneSetupErrorCannotStart,
+      ], details: productErrorDetails(error));
       return;
     }
     if (context.mounted) await PhoneServerCardRoutes.openProgress(context);
@@ -251,21 +265,37 @@ Future<bool> runPhoneServerAction(
     case PhoneServerAction.switchRuntime:
       // Re-running the one component with the other runtime; the engine
       // starts and connects the server it installed.
-      final target = _runtimeOf(profile) == TermuxRuntime.openCode2
-          ? TermuxRuntime.openCode1
-          : TermuxRuntime.openCode2;
+      const target = TermuxRuntime.openCode2;
       if (target == TermuxRuntime.openCode2) {
         // Refuse before setup can stop the old server or select a new profile.
         // Restarting an already selected OC2 server does not use this check.
         try {
-          final check = await linux.run(openCode1HistorySwitchCheckScript);
+          final check = await linux.run(
+            '(\n$openCode1HistorySwitchCheckScript\n) 2>&1',
+          );
           if (!check.ok) {
-            await fail([l10n.thisPhoneHistoryFailed]);
+            final admission = OpenCodeHistorySwitchAdmission.fromResult(
+              check.exitCode,
+              check.output,
+            );
+            await fail(
+              [l10n.thisPhoneHistoryFailed],
+              reason:
+                  admission == OpenCodeHistorySwitchAdmission.separateHistory
+                  ? ManagedMoveReason.separateHistory
+                  : ManagedMoveReason.phoneNotReady,
+              details: check.output,
+            );
             return false;
           }
-        } catch (_) {
-          // An unreadable history is not evidence that moving is safe.
-          await fail([l10n.thisPhoneHistoryFailed]);
+        } catch (error) {
+          // An unreadable history is not evidence that moving is safe; the
+          // phone is most likely still starting, so a retry may find it.
+          await fail(
+            [l10n.thisPhoneHistoryFailed],
+            reason: ManagedMoveReason.phoneNotReady,
+            details: productErrorDetails(error),
+          );
           return false;
         }
         if (!context.mounted) return false;
@@ -290,10 +320,6 @@ Future<bool> runPhoneServerAction(
     case PhoneServerAction.addTools:
       final ids = await PhoneServerCardRoutes.addTools(context);
       if (ids == null || ids.isEmpty || !context.mounted) return false;
-      if (BuiltinLinux.knownRuntimeFor(profile.flavor) == null) {
-        await fail([l10n.phoneSetupErrorCannotStart]);
-        return false;
-      }
       await install(
         ids,
         params: {
@@ -525,6 +551,19 @@ Future<bool> _removePhoneServer(
     },
   );
   if (!outcome.removed) return false;
+  final problems = await forgetInAppServerProfiles(connection, l10n);
+  // OpenCode itself is gone either way; what could not be cleared is said.
+  await fail(problems);
+  return true;
+}
+
+/// After the in-app Linux was removed: every saved in-app server and its
+/// local data goes, queued prompts are kept in Saved prompts. Returns what
+/// could not be cleared, in words (empty when all went).
+Future<List<String>> forgetInAppServerProfiles(
+  ConnectionController connection,
+  AppLocalizations l10n,
+) async {
   final saved = [
     for (final profile in connection.store.profiles)
       if (looksLikeInAppServer(profile)) profile,
@@ -544,9 +583,16 @@ Future<bool> _removePhoneServer(
         profile.id,
         queuedPrompts: plan,
         keepQueuedPrompts: true,
+        // Called after Linux was erased: what lived in it cannot be asked.
+        linuxGone: true,
       );
-      final partial = result.partialDeletionMessage;
-      if (partial != null) problems.add(partial);
+      if (!result.complete) {
+        final left = [
+          if (!result.removedProfile) l10n.linuxMgrResetLeftConnection,
+          ...result.failures,
+        ];
+        problems.add(l10n.linuxMgrResetLeft(profile.name, left.join(', ')));
+      }
     } on QueuedPromptRemovalException catch (error) {
       problems.add(
         error.changed
@@ -554,12 +600,13 @@ Future<bool> _removePhoneServer(
             : l10n.serversRemoveQueuedNotKept(profile.name),
       );
     } catch (error) {
-      problems.add(l10n.phoneServerCardActionFailed(productErrorText(error)));
+      // Said for what it is (N1-5 showed "That did not work: That didn't
+      // work."); the cause goes to the device log only, redacted.
+      debugPrint(KitRedact.text('forget in-app server: ${error.runtimeType}'));
+      problems.add(l10n.linuxMgrResetForgetFailed(profile.name));
     }
   }
-  // OpenCode itself is gone either way; what could not be cleared is said.
-  await fail(problems);
-  return true;
+  return problems;
 }
 
 /// Storage as a phone shows it: one decimal, binary units. Callers show it
@@ -952,13 +999,10 @@ class _PhoneServerCardState extends ConsumerState<PhoneServerCard> {
           };
     final working = _removing || settingUp || locked;
 
-    final runtime = _runtimeOf(widget.profile);
     final version = widget.profile.serverVersion?.trim();
     final what = version != null && version.isNotEmpty
         ? l10n.phoneServerCardVersion(version)
-        : runtime == TermuxRuntime.openCode2
-        ? l10n.setupRuntimeTwo
-        : l10n.setupRuntimeOne;
+        : l10n.setupRuntimeTwo;
     // What it runs, never its storage: the line must fit, and the size is
     // said where it matters (removing it frees the space).
     final detail = what;
@@ -1062,15 +1106,6 @@ class _PhoneServerCardState extends ConsumerState<PhoneServerCard> {
         ),
       // Installing while a job runs would only queue behind it.
       if (!terminalOnly && hasEngine && installed && !settingUp) ...[
-        KitMenuItem(
-          key: const ValueKey('phone-server-switch'),
-          label: l10n.phoneServerCardSwitchTo(
-            runtime == TermuxRuntime.openCode2
-                ? l10n.setupRuntimeOne
-                : l10n.setupRuntimeTwo,
-          ),
-          onSelected: () => choose(PhoneServerAction.switchRuntime),
-        ),
         KitMenuItem(
           key: const ValueKey('phone-server-add-tools'),
           label: l10n.phoneServerCardAddTools,

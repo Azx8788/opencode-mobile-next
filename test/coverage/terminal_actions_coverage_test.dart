@@ -188,9 +188,7 @@ void main() {
     );
   });
 
-  path(['app terminal.new', 'oc1 POST /pty', 'oc1 POST /api/pty'], (
-    tester,
-  ) async {
+  path(['app terminal.new', 'oc2 POST /api/pty'], (tester) async {
     final repo = ToolsRepo()..terminals = const [_running];
     await openTerminal(tester, repo);
     await tester.tap(find.byKey(const ValueKey('terminal-new')).first);
@@ -198,25 +196,22 @@ void main() {
     expect(repo.created, hasLength(1));
   });
 
-  path(
-    ['app terminal.rename', 'oc1 PUT /pty/{ptyID}', 'oc1 PUT /api/pty/{ptyID}'],
-    (tester) async {
-      final repo = ToolsRepo()..terminals = const [_running];
-      await openTerminal(tester, repo);
-      await tester.longPress(find.text('Build watcher').first);
-      await frames(tester, 6);
-      await tester.tap(find.byKey(const ValueKey('terminal-menu-rename')));
-      await frames(tester, 8);
-      await tester.enterText(
-        find.byKey(const ValueKey('terminal-rename-field')),
-        'Watcher',
-      );
-      await tester.pump();
-      await tester.tap(find.byKey(const ValueKey('terminal-rename-confirm')));
-      await frames(tester, 10);
-      expect(repo.renamed, ['pty_run1:Watcher']);
-    },
-  );
+  path(['app terminal.rename', 'oc2 PUT /api/pty/{ptyID}'], (tester) async {
+    final repo = ToolsRepo()..terminals = const [_running];
+    await openTerminal(tester, repo);
+    await tester.longPress(find.text('Build watcher').first);
+    await frames(tester, 6);
+    await tester.tap(find.byKey(const ValueKey('terminal-menu-rename')));
+    await frames(tester, 8);
+    await tester.enterText(
+      find.byKey(const ValueKey('terminal-rename-field')),
+      'Watcher',
+    );
+    await tester.pump();
+    await tester.tap(find.byKey(const ValueKey('terminal-rename-confirm')));
+    await frames(tester, 10);
+    expect(repo.renamed, ['pty_run1:Watcher']);
+  });
 
   path(['app terminal.remove-ended'], (tester) async {
     final repo = ToolsRepo()..terminals = const [_running, _ended];

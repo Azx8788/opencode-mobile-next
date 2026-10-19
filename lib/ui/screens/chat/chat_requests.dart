@@ -64,6 +64,31 @@ extension _ChatRequests on _ChatScreenState {
   Future<void> _showQuestionSheet(PendingQuestion question) =>
       showQuestionSheet(context, _conn, question, agentLabel: _agentName);
 
+  /// The tool step a request asks about, when its message is on screen.
+  Part? _permissionToolPart(PermissionRequest request) {
+    final tool = request.tool;
+    if (tool == null) return null;
+    final message = _messageByID(tool.messageID);
+    if (message == null) return null;
+    for (final part in message.parts) {
+      if (part.callID == tool.callID) return part;
+    }
+    return null;
+  }
+
+  /// What an outside-the-project ask will touch: the exact path (or command)
+  /// the tool was given, not the folder glob the server asks about.
+  String? _permissionTarget(PermissionRequest request) {
+    if (request.permission != 'external_directory') return null;
+    final input = _permissionToolPart(request)?.toolState.input;
+    if (input == null) return null;
+    for (final key in const ['filePath', 'file_path', 'path', 'command']) {
+      final value = input[key];
+      if (value is String && value.trim().isNotEmpty) return value;
+    }
+    return null;
+  }
+
   /// Whether a pending permission request is for this tool call: its step
   /// then says "Waiting for you", never "Running" (AUTO-15).
   bool _toolWaitsForYou(Part part) {
@@ -116,6 +141,8 @@ extension _ChatRequests on _ChatScreenState {
                   _PermissionAttentionCard(
                     key: ValueKey('permission-card-${permission.id}'),
                     permission: permission,
+                    toolName: _permissionToolPart(permission)?.toolName,
+                    target: _permissionTarget(permission),
                     autoApprovalFailed:
                         _conn.autoApprovalFailure(permission.id) != null,
                     onReview: () =>

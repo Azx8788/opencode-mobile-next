@@ -132,9 +132,6 @@ class _KeepRunningSectionState extends ConsumerState<KeepRunningSection>
     final info = _info;
     if (info == null) return const SizedBox.shrink();
     final maker = PhoneMaker.of(info.manufacturer, info.brand);
-    final makerName = info.manufacturer.trim().isNotEmpty
-        ? info.manufacturer.trim()
-        : l10n.keepRunningThisPhone;
     final batteryAllowed = info.batteryOptimizationIgnored;
     // On stock Android, App info › Battery › Unrestricted is the same switch
     // as the battery exemption, so once it is allowed nothing is left that
@@ -160,10 +157,7 @@ class _KeepRunningSectionState extends ConsumerState<KeepRunningSection>
       child: child,
     );
     final intro = rails(
-      KitText(
-        l10n.keepRunningIntro(KitBidi.auto(makerName)),
-        key: const ValueKey('keep-running-intro'),
-      ),
+      KitText(l10n.keepRunningIntro, key: const ValueKey('keep-running-intro')),
     );
     // Not a lazy list: a search result that means one row (the battery step,
     // the heat pause) must find it laid out.

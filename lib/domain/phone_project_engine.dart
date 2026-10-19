@@ -15,7 +15,6 @@ class PhoneEngineHealth {
     required this.engineVersion,
     required this.execution,
     required this.boundary,
-    required this.oc1Verified,
     required this.oc2,
     this.oc2Verified = false,
     required this.commandActions,
@@ -28,7 +27,7 @@ class PhoneEngineHealth {
     this.globalAdmissionAuthority = false,
   }) : _boundaryReason = boundaryReason;
   final String profileId, engineVersion;
-  final bool execution, boundary, oc1Verified, oc2, oc2Verified;
+  final bool execution, boundary, oc2, oc2Verified;
   final Set<TeamProjectAction> commandActions;
 
   /// Admission is separate from supported execution capability.
@@ -36,7 +35,7 @@ class PhoneEngineHealth {
   final String _boundaryReason;
 
   /// Keep older setup callers from reporting a successful attestation as a
-  /// failed readiness reason while OC1 is restarting or unreachable.
+  /// failed readiness reason while OpenCode 2 is restarting or unreachable.
   String get boundaryReason =>
       !canExecute && boundary && _boundaryReason == 'boundary_attested'
       ? (readinessReason.isEmpty ? 'protocolUnverified' : readinessReason)
@@ -49,8 +48,7 @@ class PhoneEngineHealth {
   final bool restartRequired, globalAdmissionAuthority;
 
   /// Protocol identity alone never proves the engine's permission boundary.
-  bool get protocolVerified =>
-      oc2 ? oc2Verified && !oc1Verified : oc1Verified && !oc2Verified;
+  bool get protocolVerified => oc2 && oc2Verified;
   bool get canExecute => execution && boundary && protocolVerified;
 
   factory PhoneEngineHealth.fromJson(Object? value, String expectedProfile) {
@@ -70,12 +68,7 @@ class PhoneEngineHealth {
         actions.any((v) => v is! String) ||
         version is! String ||
         version.isEmpty ||
-        [
-          'execution',
-          'boundary',
-          'oc1Verified',
-          'oc2',
-        ].any((k) => flags[k] is! bool) ||
+        ['execution', 'boundary', 'oc2'].any((k) => flags[k] is! bool) ||
         (flags.containsKey('oc2Verified') && flags['oc2Verified'] is! bool)) {
       throw const PhoneEngineException('payloadInvalid');
     }
@@ -97,7 +90,6 @@ class PhoneEngineHealth {
       engineVersion: version,
       execution: flags['execution'] as bool,
       boundary: flags['boundary'] as bool,
-      oc1Verified: flags['oc1Verified'] as bool,
       oc2: flags['oc2'] as bool,
       oc2Verified: flags['oc2Verified'] == true,
       admission: switch (value['admission']) {

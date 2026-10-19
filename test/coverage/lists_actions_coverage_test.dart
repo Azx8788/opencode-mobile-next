@@ -14,9 +14,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/api2/client.dart';
 import 'package:opencode_mobile/api2/gateway.dart';
 import 'package:opencode_mobile/api2/gateway_operations.dart';
@@ -243,63 +242,6 @@ void main() {
       );
       sentProven.add(key);
     }
-
-    test('OpenCode 1', () async {
-      final api = OpenCodeApi(baseUrl: wire.baseUrl);
-      final repository = SdkProductRepository(api.sdkClient);
-      Future<void> one(String key, Future<Object?> Function() call) =>
-          sends(key, call, protocol: 'OC1');
-      await one('OC1 POST /session', api.createSession);
-      await one(
-        'OC1 DELETE /session/{sessionID}',
-        () => api.deleteSession('ses_1'),
-      );
-      await one(
-        'OC1 PATCH /session/{sessionID}',
-        () => repository.archiveSession('ses_1'),
-      );
-      await one(
-        'OC1 PATCH /project/{projectID}',
-        () => repository.renameProject(
-          projectID: 'prj_shopfront',
-          projectDirectory: '/work/shopfront',
-          name: 'Shopfront web',
-        ),
-      );
-      await one(
-        'OC1 POST /session/{sessionID}/abort',
-        () => api.abort('ses_1'),
-      );
-      await one(
-        'OC1 POST /experimental/session/{sessionID}/background',
-        () => repository.backgroundSession('ses_1'),
-      );
-      await one(
-        'OC1 POST /project/git/init',
-        repository.initializeGitRepository,
-      );
-      await one(
-        'OC1 POST /experimental/control-plane/move-session',
-        () => repository.moveSession(
-          'ses_1',
-          directory: '/work/shopfront-review',
-          moveChanges: false,
-        ),
-      );
-      await one(
-        'OC1 POST /experimental/workspace/warp',
-        () => repository.warpSession(
-          'ses_1',
-          workspaceID: 'wrk_review',
-          copyChanges: false,
-        ),
-      );
-      await one(
-        'OC1 POST /sync/steal',
-        () => repository.stealSessionIntoWorkspace('ses_1'),
-      );
-      api.close();
-    });
 
     test('OpenCode 2', () async {
       final client = Api2Client.connect(

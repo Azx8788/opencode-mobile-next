@@ -8,9 +8,10 @@ library;
 
 import 'dart:convert';
 
-import '../api/models.dart';
+import '../domain/models.dart';
 import '../domain/server_gateway.dart';
 import '../domain/parallel_requests.dart';
+import '../domain/remote_shell.dart';
 import 'client.dart';
 import 'gen_ui_history.dart';
 import 'gateway_events.dart';
@@ -18,21 +19,26 @@ import 'gateway_mappers.dart';
 import 'models.dart';
 import 'transport.dart';
 import 'session_permission_policy.dart';
+import 'shell_runner.dart';
 import '../diagnostics/perf_trace.dart';
 
 /// The OpenCode 2 side of the domain gateway.
 ///
 /// Failures surface as the same [ApiException]/[ProductException] types the
-/// v1 gateway throws, so existing error handling keeps working. Where the v2
+/// domain expects, so existing error handling keeps working. Where the
 /// server has no equivalent endpoint the method returns an inert empty
 /// result or throws a typed [ProductException], and the matching
 /// [ServerCapabilities] flag is false (see [api2ServerCapabilities]).
 class Api2Gateway
     with Api2GenUiHistory
-    implements ServerGateway, SessionSelectionGateway, WebSearchGateway {
+    implements
+        ServerGateway,
+        SessionSelectionGateway,
+        WebSearchGateway,
+        RemoteShellGateway {
   final Api2Client client;
 
-  /// Admission fence shared with the phone engine's OC1 chat path. A settled
+  /// Admission fence shared with the phone engine's chat path. A settled
   /// request is not proof of idle: transport failure may follow acceptance.
   Future<void> Function(String sessionID)? beforeSessionDispatch;
   void Function(String sessionID)? sessionDispatchSettled;
@@ -51,11 +57,15 @@ class Api2Gateway
   Api2Gateway.connect({
     required String baseUrl,
     required String password,
+    String? cleartextConfirmedOrigin,
+    String? certificatePinSha256,
     String? directory,
     String? workspace,
   }) : client = Api2Client.connect(
          baseUrl: baseUrl,
          password: password,
+         cleartextConfirmedOrigin: cleartextConfirmedOrigin,
+         certificatePinSha256: certificatePinSha256,
          directory: directory,
          workspace: workspace,
        );
@@ -65,6 +75,16 @@ class Api2Gateway
 
   @override
   ServerCapabilities get capabilities => api2ServerCapabilities;
+
+  /// `POST /api/shell` for the Git page ([ServerCapabilities.remoteShell]).
+  @override
+  Future<RemoteShellResult> runShellCommand(
+    String command, {
+    String? directory,
+    required Duration timeout,
+  }) => Api2ShellRunner(
+    client,
+  ).runShellCommand(command, directory: directory, timeout: timeout);
 
   @override
   String? get directory => client.directory;

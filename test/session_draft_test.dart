@@ -1,3 +1,4 @@
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'support/complete_message_history.dart';
 import 'dart:convert';
 import 'dart:async';
@@ -8,9 +9,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:opencode_mobile/state/migration_runner.dart';
@@ -42,7 +42,7 @@ class _DraftStorage extends InMemorySharedPreferencesStore {
   }
 }
 
-class _FakeApi extends OpenCodeApi with CompleteMessageHistory {
+class _FakeApi extends FakeServerGateway with CompleteMessageHistory {
   _FakeApi() : super(baseUrl: 'http://localhost');
 
   @override
@@ -83,6 +83,7 @@ Future<ConnectionController> _controller(
       {
         'id': 'profile-1',
         'name': 'Test server',
+        'flavor': 'v2',
         'baseUrl': 'http://localhost',
         'username': '',
       },
@@ -90,6 +91,7 @@ Future<ConnectionController> _controller(
         {
           'id': 'profile-2',
           'name': 'Other server',
+          'flavor': 'v2',
           'baseUrl': 'http://other',
           'username': '',
         },

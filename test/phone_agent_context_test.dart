@@ -69,7 +69,7 @@ void main() {
 
   test('both phone servers write it before OpenCode starts, and a failure '
       'never stops the server', () {
-    for (final runtime in TermuxRuntime.values) {
+    for (final runtime in [TermuxRuntime.openCode2]) {
       final script = BuiltinLinux.serverScript(runtime: runtime);
       final context = script.indexOf(PhoneAgentContext.begin);
       expect(context, greaterThan(0), reason: '$runtime');

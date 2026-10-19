@@ -33,11 +33,14 @@ enum AgentErrorCause {
   /// The provider account has no credit or quota left.
   outOfCredit,
 
+  /// The provider needs a missing or rejected credential replaced.
+  providerAuth,
+
   /// The machine running the server has no disk space left.
   serverDiskFull,
 }
 
-/// Causes that the server retries by itself, so the wording can say so.
+/// Causes a server may retry. Actual retry state must come from the server.
 const selfHealingAgentErrors = {
   AgentErrorCause.connectionDropped,
   AgentErrorCause.timedOut,
@@ -56,10 +59,7 @@ final _rules = <(RegExp, AgentErrorCause)>[
     ),
     AgentErrorCause.requestTooLarge,
   ),
-  (
-    RegExp(r'rate.?limit|too many requests|\b429\b', caseSensitive: false),
-    AgentErrorCause.rateLimited,
-  ),
+  // Providers also use HTTP 429 for exhausted credit. Waiting cannot fix it.
   (
     RegExp(
       r'insufficient.?(quota|credit|funds|balance)|out of credit'
@@ -67,6 +67,19 @@ final _rules = <(RegExp, AgentErrorCause)>[
       caseSensitive: false,
     ),
     AgentErrorCause.outOfCredit,
+  ),
+  (
+    RegExp(r'rate.?limit|too many requests|\b429\b', caseSensitive: false),
+    AgentErrorCause.rateLimited,
+  ),
+  (
+    RegExp(
+      r'invalid.?api.?key|incorrect api key|api.?key (?:is )?missing'
+      r'|missing api.?key|authentication (?:failed|required)'
+      r'|unauthorized|\b401\b',
+      caseSensitive: false,
+    ),
+    AgentErrorCause.providerAuth,
   ),
   (
     RegExp(
@@ -103,8 +116,8 @@ final _rules = <(RegExp, AgentErrorCause)>[
   ),
 ];
 
-/// The recognised cause of [raw], or null when it is something else and its
-/// own (cleaned) words are the best available.
+/// The recognised cause of [raw], or null for a typed or generic fallback.
+/// Unrecognised server text still belongs under Details.
 AgentErrorCause? classifyAgentError(String raw) {
   if (raw.trim().isEmpty) return null;
   for (final (pattern, cause) in _rules) {

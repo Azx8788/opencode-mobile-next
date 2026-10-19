@@ -328,7 +328,7 @@ message=This belongs to the terminal
     expect(pinned, TermuxRuntime.defaultForNewInstall.pinnedVersion);
     expect(manager, contains('opencode2) requested_version=$pinned'));
     expect(script, contains("\"\$self_start\" 'opencode2'"));
-    expect(manager, contains('local main_package=opencode-ai'));
+    expect(manager, contains('local main_package=@opencode/cli'));
     expect(manager, contains(r'"$main_package@$OC_REQUESTED_VERSION"'));
     expect(
       manager,
@@ -341,7 +341,7 @@ message=This belongs to the terminal
       manager,
       contains(r'proot-distro login "$PROOT_NAME" -- npm cache clean --force'),
     );
-    expect(manager, contains('opencode models --refresh'));
+    expect(manager, isNot(contains('opencode models --refresh')));
     expect(manager, contains('refreshing_models'));
   });
 
@@ -362,38 +362,22 @@ printf opencode2 > "$RUNTIME_FILE"
     expect(result.exitCode, 0, reason: '${result.stdout}\n${result.stderr}');
   });
 
-  test(
-    'direct Ubuntu setup preserves existing binary or selects fresh OC2',
-    () {
-      final manager = TermuxBridge.managerScriptForTesting();
-      final selection = manager.substring(
-        manager.indexOf('# Callers pass the chosen runtime.'),
-        manager.indexOf('\ninstall_opencode() {'),
+  test('direct Ubuntu setup only selects OC2 and refuses legacy requests', () {
+    final manager = TermuxBridge.managerScriptForTesting();
+    final selection = manager.substring(
+      manager.indexOf('# Only OpenCode 2 is installable.'),
+      manager.indexOf('\ninstall_opencode() {'),
+    );
+    for (final runtime in ['', 'opencode2', 'opencode1']) {
+      final result = Process.runSync(
+        'bash',
+        ['-c', '$selection\nprintf "%s" "\$OC_RUNTIME"'],
+        environment: {'OC_RUNTIME': runtime},
       );
-      for (final scenario in [
-        (runtime: '', legacy: '0', expected: 'opencode2'),
-        (runtime: '', legacy: '1', expected: 'opencode1'),
-        (runtime: 'opencode1', legacy: '0', expected: 'opencode1'),
-        (runtime: 'opencode2', legacy: '1', expected: 'opencode2'),
-      ]) {
-        final result = Process.runSync(
-          'bash',
-          [
-            '-c',
-            'command() { [ "\$1" = -v ] && [ "\$2" = opencode ] && '
-                '[ "\$HAS_LEGACY" = 1 ]; }\n'
-                '$selection\nprintf "%s" "\$OC_RUNTIME"\n',
-          ],
-          environment: {
-            'OC_RUNTIME': scenario.runtime,
-            'HAS_LEGACY': scenario.legacy,
-          },
-        );
-        expect(result.exitCode, 0, reason: result.stderr as String);
-        expect(result.stdout, scenario.expected);
-      }
-    },
-  );
+      expect(result.exitCode, runtime == 'opencode1' ? 64 : 0);
+      if (runtime != 'opencode1') expect(result.stdout, 'opencode2');
+    }
+  });
 
   test('Ubuntu bootstrap disables io_uring before Node and npm run', () {
     final manager = TermuxBridge.managerScriptForTesting();
@@ -465,7 +449,7 @@ printf opencode2 > "$RUNTIME_FILE"
       final directory = Directory.systemTemp.createTempSync('oc-npm-test-');
       addTearDown(() => directory.deleteSync(recursive: true));
       final calls = File('${directory.path}/calls');
-      for (final runtime in TermuxRuntime.values) {
+      for (final runtime in [TermuxRuntime.openCode2]) {
         // OpenCode 2 moved to the @opencode scope when it left beta.
         final mainPackage = runtime == TermuxRuntime.openCode2
             ? '@opencode/cli'
@@ -535,10 +519,7 @@ npm() {
               arguments,
               containsAllInOrder(['--prefix', '${directory.path}/oc2']),
             );
-            expect(
-              arguments,
-              containsAllInOrder(['uninstall', '-g', '@opencode-ai/cli']),
-            );
+            expect(arguments, isNot(contains('uninstall')));
             if (scenario.$2 == 0) {
               expect(
                 Link('${directory.path}/bin/opencode2').targetSync(),
@@ -768,19 +749,16 @@ printf 'ubuntu=installed\nversion=1.18.29\n'
     expect(probe(9).exitCode, 9);
   });
 
-  test('explicit Older OpenCode setup retains its own pin and runtime', () {
-    final script = TermuxBridge.installAndServeScript(
-      password: 'test-password',
-      runtime: TermuxRuntime.openCode1,
-    );
-    expect(script, contains("setup '4096' '1.19.0'"));
-    expect(script, contains("\"\$self_start\" 'opencode1'"));
-    expect(TermuxRuntime.parse(null), TermuxRuntime.openCode1);
-    expect(TermuxRuntime.parse(''), TermuxRuntime.openCode1);
+  test('legacy setup requests fail before generating any install script', () {
     expect(
-      () => TermuxRuntime.parse('unknown'),
+      () => TermuxBridge.installAndServeScript(
+        password: 'test-only',
+        runtime: TermuxRuntime.openCode1,
+      ),
       throwsA(isA<TermuxBridgeException>()),
     );
+    expect(TermuxRuntime.parse(null), TermuxRuntime.openCode1);
+    expect(TermuxRuntime.parse(''), TermuxRuntime.openCode1);
   });
 
   test('the npm dist-tag is reachable only by asking for it', () {

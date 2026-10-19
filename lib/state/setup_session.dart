@@ -2,8 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import '../api/opencode_api.dart';
-import '../api/setup_config_adapter.dart';
 import '../api2/gateway.dart';
 import '../api2/setup_config_adapter.dart';
 import '../domain/server_gateway.dart';
@@ -19,7 +17,6 @@ typedef SetupGatewayFactory = SetupConfigGateway? Function(ServerGateway api);
 
 SetupConfigGateway? setupGatewayFor(ServerGateway api) {
   if (!api.capabilities.setupConfigRead) return null;
-  if (api is OpenCodeApi) return OpenCode1SetupConfigGateway(api: api);
   if (api is Api2Gateway) {
     return OpenCode2SetupConfigGateway(client: api.client);
   }

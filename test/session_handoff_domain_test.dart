@@ -3,27 +3,14 @@ import 'package:opencode_mobile/domain/session_handoff.dart';
 
 void main() {
   group('SessionResumeCommand', () {
-    test('OpenCode 1 resumes with cd and --session', () {
-      final command = SessionResumeCommand.build(
-        cli: SessionResumeCli.openCode1,
-        sessionID: 'ses_0123abc',
-        directory: '/srv/project',
-      );
-      expect(command.available, isTrue);
-      expect(command.unavailable, isNull);
-      expect(
-        command.command,
-        "cd '/srv/project' && opencode --session 'ses_0123abc'",
-      );
-      expect(command.binary, 'opencode');
-    });
-
-    test('OpenCode 2 uses the opencode2 binary with the same flags', () {
+    test('OpenCode 2 resumes with cd and --session', () {
       final command = SessionResumeCommand.build(
         cli: SessionResumeCli.openCode2,
         sessionID: 'ses_0123abc',
         directory: '/srv/project',
       );
+      expect(command.available, isTrue);
+      expect(command.unavailable, isNull);
       expect(
         command.command,
         "cd '/srv/project' && opencode2 --session 'ses_0123abc'",
@@ -33,13 +20,13 @@ void main() {
 
     test('directories with spaces and shell metacharacters are quoted', () {
       final command = SessionResumeCommand.build(
-        cli: SessionResumeCli.openCode1,
+        cli: SessionResumeCli.openCode2,
         sessionID: 'ses_1',
         directory: r'/home/dev/My Projects/acme $HOME `x`',
       );
       expect(
         command.command,
-        "cd '/home/dev/My Projects/acme \$HOME `x`' && opencode --session 'ses_1'",
+        "cd '/home/dev/My Projects/acme \$HOME `x`' && opencode2 --session 'ses_1'",
       );
     });
 
@@ -57,14 +44,14 @@ void main() {
 
     test('a worktree session resumes inside the worktree directory', () {
       final command = SessionResumeCommand.build(
-        cli: SessionResumeCli.openCode1,
+        cli: SessionResumeCli.openCode2,
         sessionID: 'ses_wt',
         directory: '/srv/project/.worktrees/feature-x',
         workspaceID: null,
       );
       expect(
         command.command,
-        "cd '/srv/project/.worktrees/feature-x' && opencode --session 'ses_wt'",
+        "cd '/srv/project/.worktrees/feature-x' && opencode2 --session 'ses_wt'",
       );
     });
 
@@ -83,7 +70,7 @@ void main() {
     test('a missing or blank directory is unavailable', () {
       for (final directory in [null, '', '   ']) {
         final command = SessionResumeCommand.build(
-          cli: SessionResumeCli.openCode1,
+          cli: SessionResumeCli.openCode2,
           sessionID: 'ses_1',
           directory: directory,
         );
@@ -98,7 +85,7 @@ void main() {
 
     test('control characters in the directory are refused', () {
       final command = SessionResumeCommand.build(
-        cli: SessionResumeCli.openCode1,
+        cli: SessionResumeCli.openCode2,
         sessionID: 'ses_1',
         directory: '/srv/proj\necho pwned',
       );

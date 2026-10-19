@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../api/product_repository.dart';
+import '../../domain/product_repository.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state/connection.dart';
 import '../app_iconography.dart';

@@ -94,7 +94,7 @@ class KitSwatch extends StatelessWidget {
 
   /// True when the colour paints something outside the app (a home-screen
   /// widget's accent), so it is not held to LOOK-39's distance from this
-  /// theme's attention and danger. The colour is still only a choice here.
+  /// theme's attention. The colour is still only a choice here.
   final bool colorsAnotherSurface;
 
   bool get _isAccent => color != null;
@@ -428,7 +428,7 @@ class _SwatchTile extends StatelessWidget {
           swatch.colorsAnotherSurface ||
           accentKeepsMeaning(swatch.color!, roles),
       'KitSwatch.accent: color must keep LOOK-39\'s distance from the '
-      'current theme\'s attention and danger (hue ≥ 30°, ΔE2000 ≥ 20; '
+      'current theme\'s attention (hue ≥ 30°, ΔE2000 ≥ 20; '
       'accentKeepsMeaning in theme_roles.dart).',
     );
     final circle = DecoratedBox(

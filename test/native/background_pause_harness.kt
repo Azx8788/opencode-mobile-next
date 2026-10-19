@@ -98,6 +98,13 @@ fun main(args: Array<String>) {
             check(state["reason"] == "appUpdated" && state["at"] == 2000L)
             check(BackgroundPauseStore(context.reopen()).status(false)["reason"] == "appUpdated")
         }
+        "device-restart" -> {
+            running(context)
+            android.os.SystemClock.elapsed = 5000L
+            val state = store.status(false)
+            check(state["reason"] == "deviceRestarted" && state["paused"] == true)
+            check(BackgroundPauseStore(context.reopen()).status(false)["reason"] == "deviceRestarted")
+        }
         else -> error("Unknown harness scenario")
     }
     println("PASS ${args.single()}")

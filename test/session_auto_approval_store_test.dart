@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:opencode_mobile/state/session_auto_approval.dart';
@@ -246,8 +246,18 @@ void main() {
     test('waits for an in-flight write, then removes the key', () async {
       final (_, prefs, platform) = await _boot({
         'oc.profiles': jsonEncode([
-          {'id': 'doomed', 'name': 'Old', 'baseUrl': 'http://old.local:4096'},
-          {'id': 'keeper', 'name': 'Keep', 'baseUrl': 'http://keep.local:4096'},
+          {
+            'id': 'doomed',
+            'name': 'Old',
+            'flavor': 'v2',
+            'baseUrl': 'http://old.local:4096',
+          },
+          {
+            'id': 'keeper',
+            'name': 'Keep',
+            'flavor': 'v2',
+            'baseUrl': 'http://keep.local:4096',
+          },
         ]),
         'oc.activeProfile': 'doomed',
         'oc.autoApprove.keeper': jsonEncode({

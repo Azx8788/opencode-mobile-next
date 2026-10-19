@@ -1,12 +1,12 @@
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -28,7 +28,7 @@ const _sessionID = 'session-1';
 const _longTitle = 'Fix the flaky checkout test before the release build';
 const _draft = 'Keep the basket after reopening.';
 
-class _Api extends OpenCodeApi with CompleteMessageHistory {
+class _Api extends FakeServerGateway with CompleteMessageHistory {
   _Api({String? title}) : super(baseUrl: 'http://localhost') {
     current = Session(id: _sessionID, title: title);
   }
@@ -65,6 +65,7 @@ Future<ConnectionController> _controller(_Api api) async {
       {
         'id': 'profile-1',
         'name': 'Test server',
+        'flavor': 'v2',
         'baseUrl': 'http://localhost',
         'username': '',
       },

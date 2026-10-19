@@ -322,11 +322,11 @@ void main() {
     expect(_key('migration-needs-builtin'), findsOneWidget);
     expect(fixture.transport.inspectCalls, 0);
     expect(
-      find.text(_l10n.migrationNeedsBuiltinBody(_l10n.setupRuntimeOne)),
+      find.text(_l10n.migrationNeedsBuiltinBody(_l10n.setupRuntimeTwo)),
       findsOneWidget,
     );
     await tapKey(tester, 'migration-set-up');
-    expect(setUps, [TermuxRuntime.openCode1]);
+    expect(setUps, [TermuxRuntime.openCode2]);
     expect(_key('migration-review'), findsOneWidget);
     await finish(tester, fixture);
   });
@@ -343,7 +343,7 @@ void main() {
     await _frames(tester);
     await tapKey(tester, 'migration-set-up');
     expect(engine.runs.single, {'linux', 'essentials', 'node', 'opencode'});
-    expect(engine.runParams.single['opencode'], {'runtime': 'opencode1'});
+    expect(engine.runParams.single['opencode'], {'runtime': 'opencode2'});
     expect(find.byType(PhoneSetupProgressScreen), findsOneWidget);
     fixture.archives.installed = true;
     tester.state<NavigatorState>(find.byType(Navigator)).pop();

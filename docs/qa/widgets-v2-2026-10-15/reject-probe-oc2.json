@@ -1,0 +1,226 @@
+{
+  "model": "big-pickle",
+  "rows": [
+    {
+      "seconds": 0.059,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 0.317,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 0.569,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 0.821,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 1.073,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 1.325,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 1.577,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 1.83,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 2.082,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 2.334,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 2.586,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 2.838,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 3.091,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 3.344,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 3.597,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 3.849,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 4.101,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 4.353,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 4.605,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 4.858,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 5.11,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 5.362,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 5.614,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 5.866,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 6.118,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 6.371,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 6.623,
+      "status": {
+        "type": "running"
+      },
+      "pending_count": 1
+    },
+    {
+      "seconds": 6.892,
+      "status": {
+        "type": "idle"
+      },
+      "pending_count": 0
+    }
+  ],
+  "rejected_seconds": 6.639753138879314,
+  "server_version": "2.0.29",
+  "server_status_endpoint": "GET /api/session/active",
+  "idle_semantics": "Session absent from complete active map",
+  "assistant_outcome": [
+    {
+      "finish": "error",
+      "error": {
+        "type": "aborted",
+        "message": "Step interrupted"
+      },
+      "tools": [
+        {
+          "name": "shell",
+          "executed": false,
+          "status": "error",
+          "error": {
+            "type": "aborted",
+            "message": "The user declined this tool call"
+          }
+        }
+      ]
+    }
+  ],
+  "post_reject_first_idle_seconds": 0.252
+}

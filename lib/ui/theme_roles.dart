@@ -9,9 +9,9 @@ import 'package:flutter/material.dart';
 /// theme), so each theme supplies the whole set.
 ///
 /// The meaning of a role never changes between themes, only its hue:
-/// [attention] always means "needs you", [danger] and [dangerFill] always
-/// mean an act that destroys or stops something, [accent] is the primary
-/// action and "working".
+/// [attention] always means "needs you", [accent] is the primary action and
+/// "working". There is no red role: nothing in the app is ever painted red.
+/// A destructive act is made safe by its confirmation, never by a colour.
 ///
 /// Carried on the app's [ThemeData] as an extension; read it with [of].
 @immutable
@@ -33,9 +33,6 @@ class ThemeRoles extends ThemeExtension<ThemeRoles> {
     required this.onAttentionFill,
     required this.attentionSurface,
     required this.attentionLine,
-    required this.danger,
-    required this.dangerFill,
-    required this.onDangerFill,
     required this.success,
     required this.scrim,
     required this.codeKeyword,
@@ -91,22 +88,15 @@ class ThemeRoles extends ThemeExtension<ThemeRoles> {
   final Color attentionSurface;
   final Color attentionLine;
 
-  /// Destructive icons and text.
-  final Color danger;
-
-  /// The one destructive button, inside a confirmation, and its text.
-  final Color dangerFill;
-  final Color onDangerFill;
-
   /// Done, connected, a diff's added lines.
   final Color success;
 
   /// Behind sheets and dialogs.
   final Color scrim;
 
-  /// Code: keywords, strings and types. Added and removed lines are
-  /// [success] and [danger] on 10 % of themselves ([codeAddedSurface],
-  /// [codeRemovedSurface]).
+  /// Code: keywords, strings and types. Added lines are [success] and
+  /// removed lines [text2], each on 10 % of themselves ([codeAddedSurface],
+  /// [codeRemovedSurface]); the + and - glyphs carry the meaning.
   final Color codeKeyword;
   final Color codeString;
   final Color codeType;
@@ -116,9 +106,9 @@ class ThemeRoles extends ThemeExtension<ThemeRoles> {
   final Color elevationShadow;
 
   Color get codeAdded => success;
-  Color get codeRemoved => danger;
+  Color get codeRemoved => text2;
   Color get codeAddedSurface => success.withValues(alpha: .10);
-  Color get codeRemovedSurface => danger.withValues(alpha: .10);
+  Color get codeRemovedSurface => text2.withValues(alpha: .10);
 
   bool get isDark => brightness == Brightness.dark;
 
@@ -167,9 +157,6 @@ class ThemeRoles extends ThemeExtension<ThemeRoles> {
     Color? onAttentionFill,
     Color? attentionSurface,
     Color? attentionLine,
-    Color? danger,
-    Color? dangerFill,
-    Color? onDangerFill,
     Color? success,
     Color? scrim,
     Color? codeKeyword,
@@ -193,9 +180,6 @@ class ThemeRoles extends ThemeExtension<ThemeRoles> {
     onAttentionFill: onAttentionFill ?? this.onAttentionFill,
     attentionSurface: attentionSurface ?? this.attentionSurface,
     attentionLine: attentionLine ?? this.attentionLine,
-    danger: danger ?? this.danger,
-    dangerFill: dangerFill ?? this.dangerFill,
-    onDangerFill: onDangerFill ?? this.onDangerFill,
     success: success ?? this.success,
     scrim: scrim ?? this.scrim,
     codeKeyword: codeKeyword ?? this.codeKeyword,
@@ -225,9 +209,6 @@ class ThemeRoles extends ThemeExtension<ThemeRoles> {
       onAttentionFill: c(onAttentionFill, other.onAttentionFill),
       attentionSurface: c(attentionSurface, other.attentionSurface),
       attentionLine: c(attentionLine, other.attentionLine),
-      danger: c(danger, other.danger),
-      dangerFill: c(dangerFill, other.dangerFill),
-      onDangerFill: c(onDangerFill, other.onDangerFill),
       success: c(success, other.success),
       scrim: c(scrim, other.scrim),
       codeKeyword: c(codeKeyword, other.codeKeyword),
@@ -263,11 +244,6 @@ const graphiteDark = ThemeRoles(
   onAttentionFill: Color(0xFF1A1000),
   attentionSurface: Color(0x17FFB547), // .09
   attentionLine: Color(0x4DFFB547), // .30
-  danger: Color(0xFFFF7A7A),
-  // Spec #E5484D carries white text at 3.9:1; this is the nearest red with
-  // white at 4.5:1.
-  dangerFill: Color(0xFFD93B40),
-  onDangerFill: Color(0xFFFFFFFF),
   success: Color(0xFF3DDC8A),
   scrim: Color(0x94000000), // .58
   codeKeyword: Color(0xFFC7A6FF),
@@ -298,9 +274,6 @@ const graphiteLight = ThemeRoles(
   onAttentionFill: Color(0xFF1A1000),
   attentionSurface: Color(0x1FFFA600), // rgba(255,166,0,.12)
   attentionLine: Color(0x4DBE6E00), // rgba(190,110,0,.30)
-  danger: Color(0xFFC62828),
-  dangerFill: Color(0xFFD93B40),
-  onDangerFill: Color(0xFFFFFFFF),
   success: Color(0xFF087F43),
   scrim: Color(0x94000000),
   codeKeyword: Color(0xFF6D4AFF),
@@ -315,7 +288,7 @@ const graphiteLight = ThemeRoles(
 ///
 /// Teal replaced orange (owner decision B15): amber means only "needs
 /// you", so no accent may sit near it (LOOK-39: at least 30° of hue and a
-/// CIEDE2000 ΔE of 20 from attention and danger; [accentKeepsMeaning]). Teal is hue 180–182°,
+/// CIEDE2000 ΔE of 20 from attention; [accentKeepsMeaning]). Teal is hue 180–182°,
 /// carries its on-colour at 5.6:1 or more and reads on the ground and
 /// surface1 at 5:1 or more in both brightnesses (LOOK-8;
 /// test/theme_roles_test.dart).
@@ -329,24 +302,24 @@ const graphiteAccents = <({String name, Color dark, Color light})>[
 // ---------------------------------------------------------------------------
 // LOOK-39: an accent keeps its meaning. The one check every accent passes
 // (a Graphite accent, a pack's, the custom theme's picker in KitSwatch.accent,
-// test/theme_roles_test.dart): amber means only "needs you" and red only
-// "destroys or stops", so no accent may sit near either.
+// test/theme_roles_test.dart): amber means only "needs you", so no accent may
+// sit near it. (Red does not exist in the app, so there is nothing to keep
+// away from.)
 // ---------------------------------------------------------------------------
 
 /// The least hue distance, in degrees, an accent keeps from [ThemeRoles.attention]
-/// and [ThemeRoles.danger] (LOOK-39).
+/// (LOOK-39).
 const double accentMinHueDistance = 30;
 
 /// The least CIEDE2000 colour difference an accent keeps from
-/// [ThemeRoles.attention] and [ThemeRoles.danger] (LOOK-39).
+/// [ThemeRoles.attention] (LOOK-39).
 const double accentMinDeltaE = 20;
 
 /// Whether [accent] keeps its meaning in [roles] (LOOK-39): at least
 /// [accentMinHueDistance] of hue and a CIEDE2000 ΔE of [accentMinDeltaE]
-/// from both [ThemeRoles.attention] and [ThemeRoles.danger], so it never
-/// reads as "needs you" or as a destructive act.
+/// from [ThemeRoles.attention], so it never reads as "needs you".
 bool accentKeepsMeaning(Color accent, ThemeRoles roles) {
-  for (final other in [roles.attention, roles.danger]) {
+  for (final other in [roles.attention]) {
     if (hueDistance(accent, other) < accentMinHueDistance) return false;
     if (deltaE2000(accent, other) < accentMinDeltaE) return false;
   }
@@ -497,10 +470,10 @@ Color _guardAccent(Color accent, List<Color> grounds, Brightness brightness) {
 /// Every role from an [accent], a [ground] and a [brightness], with the
 /// contrast floors built in: text roles reach 4.5:1 (primary text 7:1) on
 /// the ground and on every surface they sit on, the accent reads as a link
-/// and carries its on-colour, attention and danger read as text.
+/// and carries its on-colour, attention reads as text.
 ///
-/// [text], [attention], [danger] and [success] take a theme's own hues
-/// where it has them (a palette's documented foreground, red and green);
+/// [text], [attention] and [success] take a theme's own hues
+/// where it has them (a palette's documented foreground and green);
 /// they are moved only as far as their floor needs.
 ThemeRoles deriveRoles({
   required Color accent,
@@ -508,7 +481,6 @@ ThemeRoles deriveRoles({
   required Brightness brightness,
   Color? text,
   Color? attention,
-  Color? danger,
   Color? success,
 }) {
   final dark = brightness == Brightness.dark;
@@ -553,19 +525,6 @@ ThemeRoles deriveRoles({
     4.5,
     toward: far,
   );
-  final dangerHue = danger ?? defaults.danger;
-  final dng = readableOn(
-    dangerHue,
-    [ground, surface1, surface2],
-    4.5,
-    toward: far,
-  );
-  final fill = readableOn(
-    defaults.dangerFill,
-    [Colors.white],
-    4.5,
-    toward: Colors.black,
-  );
   final ok = readableOn(
     success ?? defaults.success,
     [ground, surface1],
@@ -591,9 +550,6 @@ ThemeRoles deriveRoles({
     onAttentionFill: defaults.onAttentionFill,
     attentionSurface: defaults.attentionSurface,
     attentionLine: defaults.attentionLine,
-    danger: dng,
-    dangerFill: fill,
-    onDangerFill: Colors.white,
     success: ok,
     scrim: defaults.scrim,
     codeKeyword: code(defaults.codeKeyword),
@@ -633,12 +589,10 @@ ColorScheme schemeFromRoles(ThemeRoles roles, {ColorScheme? base}) {
     onTertiary: r.onAttentionFill,
     tertiaryContainer: Color.alphaBlend(r.attentionSurface, r.surface1),
     onTertiaryContainer: r.text1,
-    error: r.danger,
-    onError: r.isDark ? r.ground : Colors.white,
-    errorContainer: Color.alphaBlend(
-      r.danger.withValues(alpha: .14),
-      r.surface1,
-    ),
+    // No red: Material's error roles are the neutral ink.
+    error: r.text1,
+    onError: r.ground,
+    errorContainer: r.surface3,
     onErrorContainer: r.text1,
     surface: r.ground,
     onSurface: r.text1,

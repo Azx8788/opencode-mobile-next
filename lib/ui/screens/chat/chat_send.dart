@@ -86,6 +86,11 @@ List<PromptAgentMention> _promptAgentMentions(
 mixin _ChatSendFields {
   final List<_PendingSend> _pendingSends = [];
   bool _sending = false;
+  bool _sendInFlight = false;
+  String? _onlineSendID;
+  bool _onlineSendDispatched = false;
+  bool _onlineSendAccepted = false;
+  String? _onlineSendError;
 
   /// When the newest turn started running as far as this phone knows: set
   /// the moment a send is accepted here, before the server says the
@@ -107,8 +112,11 @@ mixin _ChatSendFields {
 extension _ChatSend on _ChatScreenState {
   /// Clears the composer and shows [pending] as the person's own bubble with
   /// the turn's live line, before the server says it is busy.
-  void _showOptimisticBubble(_PendingSend pending) {
-    _composer.clear();
+  void _showOptimisticBubble(
+    _PendingSend pending, {
+    bool clearComposer = true,
+  }) {
+    if (clearComposer) _composer.clear();
     // On a phone the keyboard would keep three quarters of the screen from
     // the reply the person just asked for; tapping the field brings it back.
     // A desktop keeps focus for the next line.
@@ -143,8 +151,20 @@ extension _ChatSend on _ChatScreenState {
           ],
         ),
       );
-      _attachments.clear();
+      if (clearComposer) {
+        _attachments.clear();
+      } else {
+        _attachments.removeWhere(pending.attachments.contains);
+      }
     });
+    // Sent from further up the conversation: the bubble lands at the bottom,
+    // out of sight, and the send would look like it did nothing. The view
+    // follows the person's own words there.
+    if (_awayFromLatest) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _jumpToLatest();
+      });
+    }
   }
 
   /// Takes a bubble shown before the transport was ready back out and gives
@@ -171,6 +191,37 @@ extension _ChatSend on _ChatScreenState {
   /// A send made while a turn runs steers it wherever steering is possible
   /// ([_activeDelivery]); there is no other way to send it.
   Future<void> _send() async {
+    // Claim before voice cancellation, command discovery or storage can yield.
+    if (_sendInFlight) return;
+    _sendInFlight = true;
+    try {
+      await _performSend();
+    } catch (error) {
+      _onlineSendError = KitRedact.text(error.toString());
+      if (mounted) _showActionError(error);
+    } finally {
+      try {
+        final id = _onlineSendID;
+        if (id != null) {
+          await _conn.finishOnlinePrompt(
+            id,
+            dispatched: _onlineSendDispatched,
+            accepted: _onlineSendAccepted,
+            error: _onlineSendError,
+          );
+        }
+      } finally {
+        _onlineSendID = null;
+        _onlineSendDispatched = false;
+        _onlineSendAccepted = false;
+        _onlineSendError = null;
+        _sendInFlight = false;
+        if (mounted && _sending) _setChatState(() => _sending = false);
+      }
+    }
+  }
+
+  Future<void> _performSend() async {
     final tapMicros = PerfTrace.nowMicros;
     final strings = _chatL10n(context);
     final conversationSend = _voiceConversation;
@@ -300,6 +351,62 @@ extension _ChatSend on _ChatScreenState {
       return;
     }
     _setChatState(() => _sending = true);
+    // Save before clearing the composer: a killed process must retain the
+    // prompt even if the server has not acknowledged it yet. Steering is
+    // never queued; only ordinary sends on queue-capable servers use this.
+    Future<bool> holdOnlineSend(
+      String text,
+      List<PromptAttachment> attachments,
+      SessionSelection selection,
+    ) async {
+      if (!_supportsOfflinePromptQueue ||
+          delivery == PromptDelivery.steer ||
+          conversationSend) {
+        return true;
+      }
+      final profileID = _conn.profile?.id;
+      if (profileID == null) return false;
+      final now = DateTime.now();
+      final id = _onlineSendID ?? 'online-${now.microsecondsSinceEpoch}';
+      final held = await _conn.holdOnlinePrompt(
+        QueuedPrompt(
+          id: id,
+          profileID: profileID,
+          sessionID: widget.sessionID,
+          text: text,
+          attachments: attachments,
+          mentions: _supportsPromptAgentMentions
+              ? _promptAgentMentions(text, _subagents)
+              : const [],
+          modelProviderID: selection.model?.providerID,
+          modelID: selection.model?.modelID,
+          agent: selection.agent,
+          variant: selection.variant,
+          createdAt: now.millisecondsSinceEpoch,
+          dispatchedAt: now.millisecondsSinceEpoch,
+        ),
+      );
+      if (held) _onlineSendID = id;
+      return held;
+    }
+
+    final draftText = _composer.text.trim();
+    final draftAttachments = resolveFileMentions(
+      draftText,
+      List<PromptAttachment>.from(_attachments),
+    );
+    if (!await holdOnlineSend(
+      draftText,
+      draftAttachments,
+      _conn.selectionForSession(widget.sessionID),
+    )) {
+      if (mounted) {
+        _setChatState(() => _sending = false);
+        _showActionError(strings.queueSaveFailed);
+      }
+      return;
+    }
+    if (!mounted) return;
     // The bubble is on screen before the transport is awaited: after a phone
     // wake `prepareActionTransport` can wait out the whole connect timeout,
     // and the person must not stare at a composer that looks unsent. Steering
@@ -312,14 +419,14 @@ extension _ChatSend on _ChatScreenState {
       early = _PendingSend(
         localID:
             'local-${now.millisecondsSinceEpoch}-${now.microsecondsSinceEpoch}',
-        text: _composer.text.trim(),
-        attachments: resolveFileMentions(
-          _composer.text.trim(),
-          List<PromptAttachment>.from(_attachments),
-        ),
+        text: draftText,
+        attachments: draftAttachments,
         createdAt: now.millisecondsSinceEpoch,
       );
-      _showOptimisticBubble(early);
+      _showOptimisticBubble(
+        early,
+        clearComposer: _composer.text.trim() == draftText,
+      );
       PerfTrace.recordSince(
         'chat.send_to_bubble',
         tapMicros,
@@ -407,7 +514,16 @@ extension _ChatSend on _ChatScreenState {
         throw StateError(strings.chatUiVoiceConversationWasInterrupted);
       }
       selection = _conn.selectionForSession(widget.sessionID);
+      if (!await holdOnlineSend(text, attachments, selection)) {
+        throw const OfflineQueueWriteException();
+      }
+      if (!identical(_conn.api, actionApi) ||
+          (_onlineSendID != null &&
+              !_conn.canDispatchOnlinePrompt(_onlineSendID!))) {
+        throw StateError(strings.chatUiOpenCodeIsReconnectingTryAgainWhenThe);
+      }
       promptStarted = true;
+      _onlineSendDispatched = true;
       if (conversationSend && voiceSendCurrent()) {
         _setChatState(() => _watchVoiceReply(pending));
       }
@@ -437,6 +553,7 @@ extension _ChatSend on _ChatScreenState {
           delivery: delivery,
         );
       }
+      _onlineSendAccepted = true;
       if (!conversationSend) {
         unawaited(_rememberSentPrompt(selectionProfileID ?? '', text));
         _learnPhrase(text, attachments, phraseMoment);
@@ -466,24 +583,15 @@ extension _ChatSend on _ChatScreenState {
               message.info.id == pending.canonicalID,
         );
       });
-      // A transport-level failure (no HTTP response) means the server became
-      // unreachable mid-send: queue the draft rather than erroring.
-      if (!voiceSendCurrent()) return;
-      if (!conversationSend &&
-          promptStarted &&
-          _supportsOfflinePromptQueue &&
-          e is ApiException &&
-          e.statusCode == null) {
-        if (await _queueDraft(
-          text,
-          attachments,
-          agentMentions,
-          selection: selection,
-          profileID: selectionProfileID,
-        )) {
-          return;
-        }
+      // A response error cannot establish whether the server already
+      // admitted work. Keep the durable marker for explicit review instead
+      // of returning a draft that appears safe to send a second time.
+      if (_onlineSendID != null && promptStarted) {
+        _onlineSendError = KitRedact.text(e.toString());
+        if (mounted) _showComposerNote(strings.queuedResendMessage);
+        return;
       }
+      if (!voiceSendCurrent()) return;
       if (!mounted) return;
       if (e is ApiException && e.errorTag == 'SessionRevertPending') {
         unawaited(_conn.ensureSession(widget.sessionID));

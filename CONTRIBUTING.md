@@ -7,13 +7,13 @@ of how the project is built and what a change has to satisfy.
 
 | Tool | Pinned version |
 |---|---|
-| Flutter | 3.47.2 — Shorebird's cached copy, `~/.shorebird/bin/cache/flutter/<rev>/bin/flutter` |
+| Flutter | 3.47.1 — Shorebird's cached copy, `~/.shorebird/bin/cache/flutter/<rev>/bin/flutter` |
 | JDK | 17 (temurin) |
 | Android SDK | API 37 |
 | Shorebird CLI | 1.6.x, only for release/patch work |
 
 The Flutter pin is not advisory. Release artifacts and the test suite are
-validated against 3.47.2; other local Flutters may fail to resolve packages or
+validated against 3.47.1; other local Flutters may fail to resolve packages or
 produce different analyzer results. Use the pinned binary for anything you
 intend to submit.
 
@@ -26,16 +26,23 @@ flutter test --concurrency=1         # serial; see "Tests" below
 ```
 
 CI ([android-quality.yml](.github/workflows/android-quality.yml)) runs the same
-two gates plus generated-SDK verification, Android lint, and a test-signed
+two gates with upstream Flutter 3.47.2, plus Android lint and a test-signed
 release compile whose artifact is never distributed. It splits the suite into
 thirds so one hung invocation cannot eat the job timeout.
 
-Two optional integration checks run against a live server, no emulator needed:
+Optional integration checks target an explicitly selected scratch OpenCode 2
+server on an unused port. Supply its password in `OC2_LIVE_PASSWORD`, never
+as a command-line argument or in committed output. Start and stop only the
+scratch process you own:
 
 ```bash
-opencode serve --port 4123 &
-dart run tool/smoke_test.dart http://127.0.0.1:4123 /server/project
-dart run tool/prompt_test.dart http://127.0.0.1:4123   # needs model auth
+# Separate terminal; leave this foreground process running during the checks.
+opencode2 serve --port 4097 --hostname 127.0.0.1
+```
+
+```bash
+dart run tool/smoke_test.dart http://127.0.0.1:4097 /scratch/project
+dart run tool/prompt_test.dart http://127.0.0.1:4097   # needs model auth
 ```
 
 ## Tests
@@ -56,9 +63,10 @@ dart run tool/prompt_test.dart http://127.0.0.1:4123   # needs model auth
 ## Architecture boundaries
 
 ```
-lib/api/          v1 client: DTOs, Dio HTTP client, /event SSE with reconnect
 lib/api2/         OpenCode 2 client: Basic-auth transport, typed models, SSE
-lib/domain/       protocol-neutral gateway over v1 and v2
+lib/domain/       shared models, capability flags and backend-neutral gateways
+lib/codex/        direct Codex app-server adapter
+lib/paseo/        Paseo agent adapter
 lib/state/        profiles (Keystore secrets), ConnectionController, offline queue
 lib/termux/       Dart side of the Termux RUN_COMMAND bridge
 lib/background/   foreground service, live-session notifications, home widget
@@ -66,8 +74,8 @@ lib/voice/        sherpa-onnx Whisper: model manager, downloader, recognizer
 lib/ui/           screens and widgets
 ```
 
-UI talks to the gateway, never to `api/` or `api2/` directly. Capability flags
-decide what a server generation supports — do not branch on the flavor enum in
+UI talks to domain gateways, never directly to `api2/`, `codex/` or `paseo/`.
+Capability flags decide which actions a connected backend supports — do not branch on the flavor enum in
 UI code.
 
 Two rules worth stating explicitly, because breaking them is a security
@@ -81,12 +89,6 @@ regression rather than a style issue:
   sweep in `ProfileStore.profileScopedPreferenceKeys` finds it, and extend
   `ConnectionController.deleteProfileAndLocalData` if it lives in a shared
   blob.
-
-## Generated code
-
-`packages/opencode_sdk/` is generated from the checked-in OpenAPI contracts in
-`contracts/`. Do not hand-edit it. CI re-verifies the generated tree, its
-manifest, and its coverage matrix against the contract, and fails on drift.
 
 ## Pull requests
 
@@ -119,7 +121,7 @@ link and the issue template. Triage them like this:
      Add `ux` or `accessibility` when that is the nature of the defect.
    - No: add `needs-repro` and ask for exactly one thing — usually the
      redacted diagnostics from Settings → App diagnostics, or the server
-     version and flavor (OpenCode 1 or 2). Close after 30 days without reply.
+     version and connection kind (OpenCode 2, Codex or Paseo). Close after 30 days without reply.
 4. **Old preview?** If the app version is behind the current release, ask the
    reporter to retest on the current APK before spending time on it.
 5. **Duplicate?** Link the original, label `duplicate`, close.

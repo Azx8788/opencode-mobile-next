@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 
-import '../../api/models.dart';
+import '../../domain/models.dart';
 import '../agent_tools/agent_tool_adapter.dart';
 import '../server_gateway.dart' show ProductException;
 import 'gen_ui_answers.dart';

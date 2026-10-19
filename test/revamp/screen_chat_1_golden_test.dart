@@ -18,8 +18,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import '../support/fake_server_gateway.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -167,6 +167,7 @@ Future<ConnectionController> _shellConnection(
       {
         'id': 'p1',
         'name': 'Laptop',
+        'flavor': 'v2',
         'baseUrl': 'http://localhost',
         'username': '',
       },
@@ -198,7 +199,7 @@ Future<ConnectionController> _shellConnection(
 
 // --- Conversation context --------------------------------------------------
 
-class _ContextApi extends OpenCodeApi with CompleteMessageHistory {
+class _ContextApi extends FakeServerGateway with CompleteMessageHistory {
   _ContextApi(this.result) : super(baseUrl: 'http://localhost');
   final List<MessageWithParts> result;
   @override
@@ -212,7 +213,7 @@ class _ContextConnection extends ConnectionController {
   }
   final _ContextApi actionApi;
   @override
-  Future<OpenCodeApi?> prepareActionTransport() async => actionApi;
+  Future<FakeServerGateway?> prepareActionTransport() async => actionApi;
 }
 
 MessageWithParts _message(

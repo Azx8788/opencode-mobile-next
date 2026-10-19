@@ -133,5 +133,9 @@ Route<void> chatLandingRoute({
     landOnRequestID: landOnRequestID,
     landOnFailure: landOnFailure,
   );
-  return KitPageRoute<void>(builder: (_) => page);
+  return KitPageRoute<void>(
+    // Named so the app can tell this chat is already showing.
+    settings: RouteSettings(name: '/chat/$sessionID'),
+    builder: (_) => page,
+  );
 }

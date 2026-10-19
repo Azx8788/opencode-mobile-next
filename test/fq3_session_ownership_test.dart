@@ -232,9 +232,24 @@ void main() {
   );
 
   test(
+    'retired protocol cleanup preserves its ledger without a request',
+    () async {
+      final ledger = _create(file, ids: ['ses_Fixture1']);
+      final before = file.readAsStringSync();
+      final wire = Fq3Wire(baseUrl: 'http://127.0.0.1:1', password: 'fixture');
+      addTearDown(wire.close);
+      await expectLater(
+        driver.cleanupLedger(wire, ledger),
+        _failure('retired_protocol_ownership_preserved'),
+      );
+      expect(file.readAsStringSync(), before);
+    },
+  );
+
+  test(
     'cleanup discovers interrupted IDs, accepts 404 and preserves user rows',
     () async {
-      final ledger = _create(file);
+      final ledger = _create(file, engine: 'opencode2');
       await ledger.recordCreated('ses_Recorded');
       final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
       final wire = Fq3Wire(
@@ -250,27 +265,37 @@ void main() {
         await request.drain<void>();
         request.response.headers.contentType = ContentType.json;
         final path = request.uri.path;
-        if (path == '/global/health') {
-          request.response.write('{"version":"1.18.32"}');
-        } else if (path == '/session') {
+        if (path == '/api/health') {
+          request.response.write('{"version":"2.0.10"}');
+        } else if (path == '/api/session') {
           request.response.write(
             jsonEncode([
-              _session(id: 'ses_Gap'),
+              _session(
+                id: 'ses_Gap',
+                title: '$_run-opencode2-stream-session-1',
+              ),
               _session(id: 'ses_User', title: 'User conversation'),
             ]),
           );
-        } else if (path == '/session/ses_Recorded') {
+        } else if (path == '/api/session/ses_Recorded') {
           request.response.statusCode = 404;
         } else if (request.method == 'DELETE') {
           deleted.add(path);
           request.response.write('{}');
         } else {
-          request.response.write(jsonEncode(_session(id: 'ses_Gap')));
+          request.response.write(
+            jsonEncode(
+              _session(
+                id: 'ses_Gap',
+                title: '$_run-opencode2-stream-session-1',
+              ),
+            ),
+          );
         }
         await request.response.close();
       });
       await driver.cleanupLedger(wire, ledger);
-      expect(deleted, ['/session/ses_Gap']);
+      expect(deleted, ['/api/session/ses_Gap']);
       expect(file.existsSync(), isFalse);
     },
   );
@@ -278,7 +303,12 @@ void main() {
   test(
     'cleanup retains durable ID when exact session scope disagrees',
     () async {
-      final ledger = _create(file, legacy: true, ids: ['ses_Fixture1']);
+      final ledger = _create(
+        file,
+        engine: 'opencode2',
+        legacy: true,
+        ids: ['ses_Fixture1'],
+      );
       final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
       final wire = Fq3Wire(
         baseUrl: 'http://127.0.0.1:${server.port}',

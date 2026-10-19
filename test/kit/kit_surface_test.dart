@@ -611,7 +611,10 @@ void main() {
                 tone: KitTextTone.accent,
               ),
               const SizedBox(width: 8),
-              KitSurface.tile(AppIconography.warning, tone: KitTextTone.danger),
+              KitSurface.tile(
+                AppIconography.warning,
+                tone: KitTextTone.primary,
+              ),
             ],
           ),
           const SizedBox(height: 12),

@@ -36,7 +36,7 @@ write('diag_perf', {
 
 # ---------------------------------------------------------------- actions
 WIRE = [
-    'oc2 GET /api/session/{sessionID}/export', 'oc1 GET /session/{sessionID}/export',
+    'oc2 GET /api/session/{sessionID}/export',
     'device share sheet', 'device clipboard copy', 'device file save', 'github issue link',
     'device crash store write', 'device crash store delete',
 ]
@@ -97,7 +97,6 @@ A = {
     'app demo.send': 'reachable: Try it offline > send the sample prompt (simulated; nothing real changes)' + proof(DEM, 'compact demo keeps send and exit reachable with large text and keyboard'),
     # wire
     'oc2 GET /api/session/{sessionID}/export': 'reachable: Export conversation > Save complete conversation' + proof(SEX, 'exports complete response bytes with default redaction and no location'),
-    'oc1 GET /session/{sessionID}/export': 'not offered: OpenCode 1 has no complete-copy export; its conversations are saved as the readable transcript from the loaded messages',
     'device share sheet': 'reachable: Report a problem > Review report > Share' + proof(ADS, 'Share hands the preview to the share sheet'),
     'device clipboard copy': 'reachable: Report a problem > Review report > Copy' + proof(ADS, 'diagnostics too long for the link are copied before the form'),
     'device file save': 'reachable: Export conversation > Save (the system file picker)' + proof(SEX, 'a file the device cannot write says so and allows retry'),

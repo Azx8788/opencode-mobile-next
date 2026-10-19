@@ -26,14 +26,18 @@ class AgentStatusNotices extends StatefulWidget {
 class _AgentStatusNoticesState extends State<AgentStatusNotices> {
   AgentFailure? _failure;
 
-  Future<void> _resume(PhoneAgentsSource agents) async {
+  Future<void> _resume(PhoneAgentsSource agents, String agentName) async {
     setState(() => _failure = null);
     try {
       await agents.resumeAgentHost();
     } catch (error) {
       if (!mounted) return;
       setState(
-        () => _failure = agentFailure(AppLocalizations.of(context), error),
+        () => _failure = agentResumeFailure(
+          AppLocalizations.of(context),
+          error,
+          KitBidi.auto(agentName),
+        ),
       );
     }
   }
@@ -114,7 +118,7 @@ class _AgentStatusNoticesState extends State<AgentStatusNotices> {
               KitAction(
                 key: ValueKey('agents-status-resume-${status.agentId}'),
                 label: l10n.agentsResumeAction(KitBidi.auto(status.agentName)),
-                onPressed: () => unawaited(_resume(agents)),
+                onPressed: () => unawaited(_resume(agents, status.agentName)),
               ),
             ],
           },

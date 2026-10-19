@@ -5,10 +5,10 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart' show StreamStatus;
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'support/fake_event_channel.dart' show StreamStatus;
 import 'package:opencode_mobile/background/live_background.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -17,7 +17,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'support/profile_monitor_fixture.dart' show monitorStore;
 import 'support/stash_memory_vault.dart';
 
-class _ReplyApi extends OpenCodeApi {
+class _ReplyApi extends FakeServerGateway {
   _ReplyApi() : super(baseUrl: 'http://localhost');
 
   final replies = <(String, String, String)>[];

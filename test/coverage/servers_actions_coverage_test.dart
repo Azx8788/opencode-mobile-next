@@ -17,9 +17,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/server_probe.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import '../support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/server_probe.dart';
 import 'package:opencode_mobile/domain/connection_status.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -103,7 +103,7 @@ class _Status extends ServersConnection {
   Future<void> retryConnection() async => retries++;
 }
 
-class _HealthApi extends OpenCodeApi {
+class _HealthApi extends FakeServerGateway {
   _HealthApi() : super(baseUrl: 'https://lab.example.net:4096');
   int checks = 0;
 
@@ -115,7 +115,7 @@ class _HealthApi extends OpenCodeApi {
 }
 
 /// A server with gaps: the page then offers one that has the missing things.
-class _GapApi extends OpenCodeApi {
+class _GapApi extends FakeServerGateway {
   _GapApi() : super(baseUrl: 'https://lab.example.net:4096');
 
   @override
@@ -145,9 +145,6 @@ class _AgentApi extends _HealthApi implements HostAgentProviderGateway {
     if (fail) throw StateError('daemon unreachable');
     return HostAgentProviderCatalog(providers: const []);
   }
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 final _profile = ServerProfile(

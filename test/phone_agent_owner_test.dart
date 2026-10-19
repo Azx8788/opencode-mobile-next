@@ -47,7 +47,7 @@ void main() {
 
   ServerProfile profile(
     String id, {
-    ServerFlavor flavor = ServerFlavor.v1,
+    ServerFlavor flavor = ServerFlavor.v2,
     String url = 'http://127.0.0.1:4097',
   }) => ServerProfile(id: id, name: 'This phone', baseUrl: url, flavor: flavor);
 

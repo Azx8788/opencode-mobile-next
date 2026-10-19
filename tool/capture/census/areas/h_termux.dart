@@ -12,8 +12,8 @@
 // ignore_for_file: invalid_use_of_visible_for_testing_member
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/server_probe.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/server_probe.dart';
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/builtin/builtin_linux.dart';
 import 'package:opencode_mobile/builtin/builtin_server.dart';
 import 'package:opencode_mobile/builtin/setup/phone_setup.dart';
@@ -78,7 +78,7 @@ Future<CaptureController> _controller(
   List<ServerProfile> profiles = const [],
   String? active,
   bool connected = false,
-  String version = '1.18.29',
+  String version = '2.0.29',
 }) async {
   final store = _Store(
     prefs: await kit.prefs(),
@@ -164,18 +164,18 @@ Future<void> _termuxHost(
   );
 }
 
-/// The installed runtime page with OpenCode 1 running and in use.
+/// The installed runtime page with OpenCode 2 running and in use.
 Future<TermuxFake> _installedRunning(CensusKit kit) async {
   final fake = TermuxFake()
-    ..inventory = 'ubuntu=installed\nversion=1.18.29\nruntime=opencode1\n'
+    ..inventory = 'ubuntu=installed\nversion=2.0.29\nruntime=opencode2\n'
     ..status = managerStatus(
       phase: 'ready',
       message: 'OpenCode is ready',
-      version: '1.18.29',
-      runtime: 'opencode1',
+      version: '2.0.29',
+      runtime: 'opencode2',
       output: '[oc] authenticated server ready on 127.0.0.1:4096\n',
     );
-  final phone = phoneProfileV1();
+  final phone = phoneProfileV2();
   await _setup(
     kit,
     fake,
@@ -238,10 +238,9 @@ class _CensusLinux extends BuiltinLinux {
     String script, {
     Duration timeout = const Duration(minutes: 2),
   }) async {
-    if (script == BuiltinLinux.versionScript(TermuxRuntime.openCode1) ||
-        script == BuiltinLinux.versionScript(TermuxRuntime.openCode2)) {
+    if (script == BuiltinLinux.versionScript(TermuxRuntime.openCode2)) {
       return openCode
-          ? const BuiltinLinuxRunResult(exitCode: 0, output: '1.18.29\n')
+          ? const BuiltinLinuxRunResult(exitCode: 0, output: '2.0.29\n')
           : const BuiltinLinuxRunResult(exitCode: 1, output: '');
     }
     return const BuiltinLinuxRunResult(exitCode: 0, output: '');
@@ -253,7 +252,7 @@ class _CensusLinux extends BuiltinLinux {
 }
 
 const _serverLog =
-    '''INFO  2026-09-25T09:12:04 +0ms service=default version=1.18.29 args=["serve","--hostname","127.0.0.1","--port","4097"] opencode
+    '''INFO  2026-09-25T09:12:04 +0ms service=default version=2.0.29 args=["serve","--hostname","127.0.0.1","--port","4097"] opencode
 INFO  2026-09-25T09:12:05 +812ms service=server listening on http://127.0.0.1:4097
 INFO  2026-09-25T09:12:09 +4102ms service=provider init
 INFO  2026-09-25T09:12:11 +2011ms service=session id=ses_7f2a created
@@ -269,7 +268,7 @@ Future<void> _builtin(CensusKit kit, _CensusLinux linux) async {
     baseUrl: BuiltinLinux.serverUrl,
     username: BuiltinLinux.serverUsername,
     password: 'synthetic-test-secret',
-    serverVersion: '1.18.29',
+    serverVersion: '2.0.29',
   );
   final controller = await _controller(
     kit,
@@ -415,54 +414,21 @@ final hTermuxArea = CensusArea(
       await _installedStopped(kit);
       kit.expectVisible(find.byKey(const ValueKey('this-phone-start')));
     }),
-    CensusShot(
-      'termux-setup-installed',
-      state: 'switch-pending',
-      note:
-          'A switch from OpenCode 1 to OpenCode 2 beta stopped half way: '
-          'Try again and Return lead the status row.',
-      (kit) async {
-        final fake = TermuxFake()
-          ..inventory =
-              'ubuntu=installed\nversion=0.0.0-beta-18600\nruntime=opencode2\n'
-          ..status = managerStatus(
-            phase: 'failed',
-            message:
-                'OpenCode server did not become authenticated and ready '
-                'within 30 seconds',
-            version: '0.0.0-beta-18600',
-            runtime: 'opencode2',
-            extra:
-                'switch_return=opencode1\nswitch_previous=opencode1\n'
-                'switch_target=opencode2\nswitch_phase=starting\n',
-            output: '[oc] Checking the selected runtime\n',
-          );
-        await _setup(
-          kit,
-          fake,
-          profiles: [laptopProfile(), phoneProfileV1(), phoneProfileV2()],
-          active: 'laptop',
-        );
-        kit.expectVisible(
-          find.byKey(const ValueKey('this-phone-switch-retry')),
-        );
-      },
-    ),
     CensusShot('termux-setup-installed', state: 'needs-attention', (kit) async {
       await _setup(
         kit,
         TermuxFake()
-          ..inventory = 'ubuntu=installed\nversion=1.18.29\nruntime=opencode1\n'
+          ..inventory = 'ubuntu=installed\nversion=2.0.29\nruntime=opencode2\n'
           ..status = managerStatus(
             phase: 'failed',
             message:
                 'OpenCode server did not become authenticated and ready '
                 'within 30 seconds',
-            version: '1.18.29',
-            runtime: 'opencode1',
+            version: '2.0.29',
+            runtime: 'opencode2',
             output: failedLog,
           ),
-        profiles: [laptopProfile(), phoneProfileV1()],
+        profiles: [laptopProfile(), phoneProfileV2()],
         active: 'laptop',
       );
       kit.expectText('Needs you');
@@ -501,12 +467,6 @@ final hTermuxArea = CensusArea(
         kit.expectVisible(find.byKey(const ValueKey('this-phone-set-up')));
       },
     ),
-    CensusShot('termux-setup-switch-runtime-sheet', (kit) async {
-      await _installedRunning(kit);
-      await kit.scrollTo(find.byKey(const ValueKey('this-phone-switch')));
-      await kit.tapKey('this-phone-switch');
-      kit.expectText('Switch version');
-    }),
     CensusShot('termux-setup-installed', state: 'details-log', (kit) async {
       await _builtin(
         kit,

@@ -10,7 +10,8 @@ bool isValidTailscaleAddress(String value) {
   final uri = Uri.tryParse(normalized);
   return value.length <= 2048 &&
       uri != null &&
-      uri.scheme.toLowerCase() == 'https' &&
+      (uri.scheme.toLowerCase() == 'https' ||
+          uri.scheme.toLowerCase() == 'http') &&
       uri.port > 0 &&
       uri.port <= 65535 &&
       uri.userInfo.isEmpty &&

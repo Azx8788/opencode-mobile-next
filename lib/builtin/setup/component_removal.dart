@@ -240,6 +240,7 @@ class ComponentRemovalService {
       throw const ComponentRemovalException(ComponentRemovalBlock.busy);
     }
     _busy.value = true;
+    var mutationAttempted = false;
     try {
       await _checkSetup();
       final entries = await inventory();
@@ -252,6 +253,7 @@ class ComponentRemovalService {
       final entry = matches.single;
       if (entry.block != null) throw ComponentRemovalException(entry.block!);
       await _checkSetup();
+      mutationAttempted = true;
       if (entry.component.app case final app?) {
         await app.remove();
       } else if (id == SetupComponentIds.aiTeam) {
@@ -280,6 +282,9 @@ class ComponentRemovalService {
       throw const ComponentRemovalException(ComponentRemovalBlock.failed);
     } finally {
       _busy.value = false;
+      // A failed removal can still change what is installed. Admission-only
+      // failures leave the tools untouched and do not invalidate inventory.
+      if (mutationAttempted) setupToolsChanged.value++;
     }
   }
 

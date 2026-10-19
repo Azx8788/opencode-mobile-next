@@ -68,6 +68,64 @@ extension _ChatQueue on _ChatScreenState {
     }
   }
 
+  /// Whether [text] already waits above the composer as "not confirmed" (the
+  /// app was closed mid-send). Bringing it back into the composer as well
+  /// would put a duplicate send one tap away.
+  bool _waitsAsUnconfirmed(String text) => _conn
+      .queuedPromptsFor(widget.sessionID)
+      .any((e) => e.dispatched && e.text.trim() == text.trim());
+
+  /// Whether the transcript already shows [entry]: a prompt with the same
+  /// words, written since the entry was queued. A send that was waiting
+  /// "not confirmed" and then turns up in the conversation (or an explicit
+  /// resend that landed) is one prompt, so the waiting card must not show
+  /// it a second time.
+  bool _queuedAlreadyInTranscript(QueuedPrompt entry) {
+    if (!entry.dispatched || _conn.queuedPromptSending(entry.id)) return false;
+    final words = entry.text.trim();
+    if (words.isEmpty) return false;
+    for (final message in _messages) {
+      if (!_isPrompt(message)) continue;
+      if ((message.info.time?.created ?? 0) < entry.createdAt) continue;
+      final text = message.parts
+          .where((part) => part.type == 'text' && !part.synthetic)
+          .map((part) => part.text)
+          .join('\n')
+          .trim();
+      if (text == words) return true;
+    }
+    return false;
+  }
+
+  /// The queue entries for this conversation that are still waiting, with
+  /// the ones the transcript already shows taken off the queue.
+  List<QueuedPrompt> _waitingDrafts() {
+    final all = _conn.queuedPromptsFor(widget.sessionID);
+    final shown = [
+      for (final entry in all)
+        if (_queuedAlreadyInTranscript(entry)) entry,
+    ];
+    if (shown.isEmpty) return all;
+    // Off the queue as well, so the card cannot offer a second send of a
+    // prompt that is already in the conversation.
+    for (final entry in shown) {
+      if (_dropQueued.add(entry.id)) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          try {
+            await _conn.removeQueuedPrompt(entry.id);
+          } catch (_) {
+            // It stays hidden; the next pass tries again.
+            _dropQueued.remove(entry.id);
+          }
+        });
+      }
+    }
+    return [
+      for (final entry in all)
+        if (!shown.contains(entry)) entry,
+    ];
+  }
+
   /// The entry as the controller holds it now, not as the tap saw it. A
   /// reconnect can mark and dispatch a draft while a sheet is open.
   QueuedPrompt? _liveQueuedPrompt(String id) {
@@ -172,7 +230,12 @@ extension _ChatQueue on _ChatScreenState {
       await _conn.resendQueuedPrompt(entry.id);
     } on OfflineQueueWriteException {
       if (mounted) _showActionError(_chatL10n(context).queueSaveFailed);
+      return;
     }
+    // The server may already hold the prompt (a receipt check found it, so
+    // nothing was sent again): the entry is gone and the transcript is
+    // refetched. A flush that sends it refetches on completion.
+    if (mounted && _liveQueuedPrompt(entry.id) == null) unawaited(_load());
   }
 
   /// Retry on a draft the server refused: nothing was delivered, so it is
@@ -240,6 +303,7 @@ extension _ChatQueue on _ChatScreenState {
     final api = await _conn.prepareActionTransport();
     if (api == null) throw StateError(_conn.connectionError ?? reconnecting);
     final selection = _conn.selectionForSession(widget.sessionID);
+    await _conn.ensureInteractiveSendAllowed(expectedApi: api);
     await api.promptAsync(
       widget.sessionID,
       text: text,

@@ -63,7 +63,7 @@ Future<void> _isolatedJourney(
 }) async {
   final saved = <String, Object>{
     'oc.profiles':
-        '[{"id":"real","name":"Existing server","baseUrl":"https://real.invalid"}]',
+        '[{"id":"real","name":"Existing server","flavor":"v2","baseUrl":"https://real.invalid"}]',
     'oc.activeProfile': 'real',
     'oc.sessionDrafts': '{"real/draft":"Existing private draft"}',
     'oc.offlineQueue': '[{"text":"Existing queued prompt"}]',

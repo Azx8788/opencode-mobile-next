@@ -1,0 +1,243 @@
+{
+  "server_version": "1.19.0",
+  "flavor": "oc1",
+  "server_status_endpoint": "GET /session/status",
+  "model": "opencode/big-pickle",
+  "rows": [
+    {
+      "seconds": 0.056,
+      "status": {
+        "type": "idle"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 0.361,
+      "status": {
+        "type": "idle"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 2.011,
+      "status": {
+        "type": "idle"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 2.324,
+      "status": {
+        "type": "idle"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 2.678,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 3.004,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 3.359,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 3.952,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 4.304,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 4.616,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 4.883,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 5.163,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 6.071,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 6.392,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 6.669,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 7.319,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 7.816,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 8.167,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 8.439,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 8.714,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 8.976,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 9.244,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 9.501,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 9.796,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 10.074,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 10.337,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 10.596,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 10.863,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 11.16,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 11.474,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 11.769,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 12.051,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 1
+    },
+    {
+      "seconds": 12.357,
+      "status": {
+        "type": "idle"
+      },
+      "pending_count": 0
+    }
+  ],
+  "rejected_seconds": 12.063296678941697,
+  "idle_semantics": "Idle status or absent from the complete status map",
+  "probe_completed": true,
+  "post_reject_first_idle_seconds": 0.294
+}

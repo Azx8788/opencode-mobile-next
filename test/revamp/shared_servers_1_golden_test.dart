@@ -12,8 +12,8 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import '../support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
 import 'package:opencode_mobile/termux/local_agent_runtime.dart';
@@ -97,7 +97,7 @@ Future<SwitcherController> _controller() async {
       'lab': snapshot('lab', running: 2),
     },
   )..status = StreamStatus.connected;
-  controller.api = OpenCodeApi(baseUrl: controller.profile!.baseUrl);
+  controller.api = FakeServerGateway(baseUrl: controller.profile!.baseUrl);
   return controller;
 }
 

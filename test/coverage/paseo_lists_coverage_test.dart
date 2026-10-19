@@ -6,7 +6,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/domain/chat_feed.dart';
 import 'package:opencode_mobile/paseo/chat_feed_source.dart';
 import 'package:opencode_mobile/paseo/gateway.dart';

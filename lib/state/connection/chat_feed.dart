@@ -535,6 +535,7 @@ mixin _ConnectionControllerChatFeed on ChangeNotifier {
       final transport = await _self._requireActionTransport();
       final agent = _self.selectedAgent;
       final variant = _self.selectedVariant;
+      await _self.ensureInteractiveSendAllowed(expectedApi: transport);
       await transport.promptAsync(
         session.id,
         text: text,

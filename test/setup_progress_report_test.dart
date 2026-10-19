@@ -5,7 +5,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:opencode_mobile/builtin/setup/components.dart';
 import 'package:opencode_mobile/builtin/setup/setup_contract.dart';
+import 'package:opencode_mobile/builtin/setup/setup_engine.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/ui/kit/kit.dart';
 import 'package:opencode_mobile/ui/screens/app_diagnostics_screen.dart';
@@ -15,15 +17,19 @@ import 'support/fake_setup_engine.dart';
 
 Finder _key(String key) => find.byKey(ValueKey(key));
 
-Widget _app(SetupProgress progress) => MaterialApp(
-  locale: const Locale('en'),
+Widget _app(
+  SetupProgress progress, {
+  Locale locale = const Locale('en'),
+  List<SetupComponent>? components,
+}) => MaterialApp(
+  locale: locale,
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
   home: Scaffold(
     body: SingleChildScrollView(
       child: SetupProgressView(
         progress: progress,
-        components: FakeSetupEngine.fakeRegistry,
+        components: components ?? FakeSetupEngine.fakeRegistry,
         onContinue: () {},
       ),
     ),
@@ -62,6 +68,56 @@ void main() {
     tester.view.physicalSize = const Size(800, 1800);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
+  }
+
+  for (final language in ['en', 'ar']) {
+    for (final failure in ['storage', 'signal', 'start', 'checksum']) {
+      testWidgets('$language $failure keeps recovery visible and raw cause in '
+          'Details', (tester) async {
+        tall(tester);
+        final locale = Locale(language);
+        final l10n = lookupAppLocalizations(locale);
+        final registry = setupComponents(l10n);
+        final id = failure == 'start' ? 'start' : 'python';
+        final title = registry.firstWhere((c) => c.id == id).shortTitle;
+        final reason = switch (failure) {
+          'storage' =>
+            'There is not enough free space on this phone. '
+                'Free some storage and try again.',
+          'signal' => 'proot info: vpid 1: terminated with signal 15',
+          'checksum' => 'checksum mismatch for download',
+          _ => 'StateError: private start failure password=synthetic-private',
+        };
+        final expected = switch (failure) {
+          'storage' => l10n.phoneSetupErrorNoSpace(title),
+          'signal' => l10n.phoneSetupErrorInterrupted,
+          'checksum' => l10n.phoneSetupErrorChecksum(title),
+          _ => l10n.phoneSetupErrorCannotStart,
+        };
+        final progress = progressFromRecord(
+          SetupJobRecord(
+            jobId: 'recoverable',
+            state: 'failed',
+            current: id,
+            components: [
+              SetupJobComponent(id: id, state: 'failed', error: reason),
+            ],
+          ),
+          registry,
+          l10n,
+          now: DateTime.now(),
+        );
+        await tester.pumpWidget(
+          _app(progress, locale: locale, components: registry),
+        );
+        await tester.pumpAndSettle();
+        expect(find.text(expected), findsOneWidget);
+        expect(find.text(reason), findsNothing);
+        expect(progress.logTail, isNot(contains('synthetic-private')));
+        expect(_key('setup-progress-details'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      });
+    }
   }
 
   testWidgets('a failed row offers Report with the job\'s log', (tester) async {

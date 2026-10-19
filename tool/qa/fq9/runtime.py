@@ -1,8 +1,7 @@
 """App-managed runtime observations, settled fixture writes and owned cleanup.
 
-OC1 is the live-survival scope; OC2 HTTP reads support static preservation only.
-Only the upgrade seeder posts a no-reply fixture; live survival never posts a
-prompt. No server start, provider config reads or credential persistence.
+OC2 HTTP reads support static preservation. The historical OC1 live-survival
+fixture is retired and refuses all actions. No server start, provider config reads or credential persistence.
 """
 
 import base64
@@ -106,75 +105,14 @@ class ProtocolHTTPFailure(ProtocolResponseFailure):
 
 class AndroidRuntimeMixin:
     def terminal_snapshot(self):
-        if self.turn is None:
-            raise DriverFailure("live_receipt_required")
-        history = self._session_history(self.turn, self.turn["sessions"][0])
-        status = self.protocol(
-            "GET", "/session/status", query={"directory": self.turn["directory"]}
-        )
-        return project_terminal(history, status, self.turn)
+        raise DriverFailure("legacy_fixture_retired")
 
     def find_live_receipt(self, directory):
-        """Export only the dedicated app-started fixture's public identities."""
-        self._connect("opencode")
-        if self._runtime_version != "1.18.32":
-            raise DriverFailure("app_managed_engine_unavailable")
-        title = self.run_id + "-background"
-        catalog = self.protocol(
-            "GET", "/session", query={"directory": directory, "limit": "100"}
-        )
-        if (
-            type(catalog) is not list
-            or len(catalog) >= 100
-            or any(type(s) is not dict for s in catalog)
-        ):
-            raise DriverFailure("live_snapshot_invalid")
-        matches = [
-            s
-            for s in catalog
-            if s.get("title") == title and s.get("directory") == directory
-        ]
-        if (
-            len(matches) != 1
-            or not isinstance(matches[0].get("id"), str)
-            or not re.fullmatch(ID_PATTERN, matches[0]["id"])
-        ):
-            raise DriverFailure("live_fixture_not_unique")
-        session = {"id": matches[0]["id"], "title": title}
-        receipt = {"engine": "opencode", "directory": directory, "sessions": [session]}
-        history = self._session_history(receipt, session)
-        users = [m for m in history if m.get("info", {}).get("role") == "user"]
-        if (
-            not users
-            or not isinstance(users[-1]["info"].get("id"), str)
-            or not re.fullmatch(ID_PATTERN, users[-1]["info"]["id"])
-        ):
-            raise DriverFailure("live_prompt_mismatch")
-        session["promptID"] = users[-1]["info"]["id"]
-        self.turn = receipt
-        snapshot = self.live_snapshot()
-        if (
-            not all(
-                snapshot[k]
-                for k in (
-                    "ownedTurn",
-                    "appManaged",
-                    "appVisible",
-                    "appAlive",
-                    "serverAlive",
-                    "foregroundService",
-                    "ongoingNotification",
-                    "turnActive",
-                )
-            )
-            or snapshot["progressCounter"] < 1
-            or snapshot["completed"]
-            or snapshot["failed"]
-        ):
-            raise DriverFailure("live_fixture_not_ready")
-        return receipt
+        raise DriverFailure("legacy_fixture_retired")
 
     def _connect(self, engine):
+        if engine != "opencode2":
+            raise DriverFailure("legacy_fixture_retired")
         self._runtime_mismatch = None
         if self._forward is None:
             socket = socket_identity(
@@ -202,39 +140,9 @@ class AndroidRuntimeMixin:
             self._forward = int(forwarded)
         try:
             health = self.protocol(
-                "GET", "/api/health" if engine == "opencode2" else "/global/health"
+                "GET", "/api/health"
             )
         except ProtocolResponseFailure as failure:
-            if engine == "opencode" and (
-                (failure.safe_facts or {}).get("kind") == "invalid_json"
-                or isinstance(failure, ProtocolHTTPFailure)
-                and failure.status == 404
-            ):
-                original_facts = getattr(
-                    self, "_protocol_failure_facts", failure.safe_facts
-                )
-                info = None
-                try:
-                    # Diagnose the other generation; never switch or seed it.
-                    info = self.protocol("GET", "/api/info")
-                except Exception:
-                    pass
-                finally:
-                    self._protocol_failure_facts = original_facts
-                if (
-                    type(info) is dict
-                    and type(info.get("version")) is str
-                    and re.fullmatch(
-                        r"2\.[0-9]{1,5}\.[0-9]{1,5}(?:[-+][A-Za-z0-9.-]{1,40})?",
-                        info["version"],
-                    )
-                ):
-                    self._runtime_mismatch = {
-                        "expected": "opencode1",
-                        "observed": "opencode2",
-                    }
-                    raise DriverFailure("app_managed_engine_unavailable") from None
-                raise
             if (
                 engine != "opencode2"
                 or not isinstance(failure, ProtocolHTTPFailure)
@@ -249,9 +157,9 @@ class AndroidRuntimeMixin:
             or health.get("healthy") is not True
             or not isinstance(version, str)
             or not re.fullmatch(
-                r"[12]\.[0-9]{1,5}\.[0-9]{1,5}(?:[-+][A-Za-z0-9.-]{1,40})?", version
+                r"2\.[0-9]{1,5}\.[0-9]{1,5}(?:[-+][A-Za-z0-9.-]{1,40})?", version
             )
-            or not version.startswith("2." if engine == "opencode2" else "1.")
+            or not version.startswith("2.")
         ):
             raise DriverFailure("app_managed_engine_unavailable")
         self._runtime_version = version
@@ -306,7 +214,7 @@ class AndroidRuntimeMixin:
     def _session_history(self, receipt, session):
         engine, directory = receipt["engine"], receipt["directory"]
         self._connect(engine)
-        prefix = "/api" if engine == "opencode2" else ""
+        prefix = "/api"
         query = (
             {"location[directory]": directory} if prefix else {"directory": directory}
         )
@@ -373,184 +281,10 @@ class AndroidRuntimeMixin:
         return pid, start
 
     def live_snapshot(self):
-        if self.turn is None:
-            raise DriverFailure("live_receipt_required")
-        if self.turn["engine"] != "opencode":
-            raise DriverFailure("live_oc2_observation_unavailable")
-        session = self.turn["sessions"][0]
-        if self._uid is None:
-            self.installed_identity()
-        history = self._session_history(self.turn, session)
-        if self._runtime_version != "1.18.32":
-            raise DriverFailure("app_managed_engine_unavailable")
-        prompt = next(
-            (m for m in history if m.get("info", {}).get("id") == session["promptID"]),
-            None,
-        )
-        users = [m for m in history if m.get("info", {}).get("role") == "user"]
-        if (
-            not prompt
-            or prompt["info"].get("role") != "user"
-            or users[-1]["info"]["id"] != session["promptID"]
-        ):
-            raise DriverFailure("live_prompt_mismatch")
-        prompt_text = "".join(
-            p.get("text", "")
-            for p in prompt.get("parts", [])
-            if p.get("type") == "text"
-        )
-        if "FQ9_BACKGROUND_FIXTURE" not in prompt_text:
-            raise DriverFailure("live_prompt_mismatch")
-        replies = [
-            m
-            for m in history
-            if m.get("info", {}).get("role") == "assistant"
-            and m["info"].get("parentID") == session["promptID"]
-        ]
-        tools = []
-        for message in replies:
-            for part in message.get("parts", []):
-                if part.get("type") == "tool":
-                    if (
-                        part.get("messageID") != message["info"].get("id")
-                        or part.get("synthetic") is True
-                        or part.get("executed") is False
-                        or part.get("state", {}).get("executed") is False
-                    ):
-                        raise DriverFailure("live_scope_mismatch")
-                    tools.append(part)
-        transitions = set()
-        ticks = 0
-        for tool in tools:
-            if tool.get("sessionID") != session["id"] or tool.get("tool") != "bash":
-                raise DriverFailure("live_scope_mismatch")
-            state = tool.get("state", {})
-            command = state.get("input", {}).get("command")
-            call = tool.get("callID")
-            if not isinstance(call, str) or not re.fullmatch(ID_PATTERN, call):
-                raise DriverFailure("live_scope_mismatch")
-            # OC1 persists pending tool parts before parsing their arguments.
-            # They are zero progress, not proof of an executed foreign command.
-            if state.get("status") == "pending" and command in (None, ""):
-                continue
-            if command not in ("sleep 120", COMMAND):
-                raise DriverFailure("live_fixture_command_invalid")
-            if state.get("status") in ("running", "completed"):
-                if command == COMMAND:
-                    if (
-                        "FQ9_BACKGROUND_FIXTURE_V2" not in prompt_text
-                        or len(tools) != 1
-                    ):
-                        raise DriverFailure("live_fixture_command_invalid")
-                    ticks = tick_progress(state)
-                else:
-                    transitions.add((call, state["status"]))
-        status = self.protocol(
-            "GET", "/session/status", query={"directory": self.turn["directory"]}
-        )
-        pending = []
-        for path in ("/permission", "/question"):
-            requests = self.protocol(
-                "GET", path, query={"directory": self.turn["directory"]}
-            )
-            if type(requests) is not list or any(
-                type(r) is not dict or not isinstance(r.get("sessionID"), str)
-                for r in requests
-            ):
-                raise DriverFailure("live_snapshot_invalid")
-            pending.extend(r for r in requests if r["sessionID"] == session["id"])
-        active = (
-            type(status) is dict
-            and type(status.get(session["id"])) is dict
-            and status[session["id"]].get("type") == "busy"
-        )
-        process = self._main_process()
-        if self._app_identity is None:
-            self._app_identity = process
-        socket = socket_identity(
-            self.text("shell", "cat", "/proc/net/tcp", "/proc/net/tcp6"), self._uid
-        )
-        services = self.services()
-        failed = any(m["info"].get("error") is not None for m in replies) or any(
-            t.get("state", {}).get("status") == "error" for t in tools
-        )
-        completed = not active and any(
-            m["info"].get("finish") == "stop"
-            and m["info"].get("time", {}).get("completed")
-            for m in replies
-        )
-        return {
-            "ownedTurn": True,
-            "appManaged": service_foreground(services, BUILTIN_FGS)
-            and socket == self._socket,
-            "appVisible": self.app_visible(),
-            "appAlive": process == self._app_identity,
-            "serverAlive": socket == self._socket,
-            "foregroundService": service_foreground(services, FGS),
-            "ongoingNotification": ongoing_notification(
-                self.text("shell", "dumpsys", "notification")
-            ),
-            # Busy is the OC1 live execution state; retry is a distinct
-            # state and never qualifies. Allow inference gaps between real
-            # fixture tool calls, still requiring increasing tool progress
-            # at both checkpoints and no newer prompt in this session.
-            "turnActive": active
-            and bool(transitions or ticks)
-            and not failed
-            and not completed
-            and not pending,
-            "progressCounter": len(transitions) + ticks,
-            "completed": bool(completed),
-            "failed": failed,
-        }
+        raise DriverFailure("legacy_fixture_retired")
 
     def cleanup_turn(self):
-        session = self.turn["sessions"][0]
-
-        def revalidate():
-            history = self._session_history(self.turn, session)
-            users = [m for m in history if m.get("info", {}).get("role") == "user"]
-            if (
-                session["title"] != self.run_id + "-background"
-                or not users
-                or users[-1]["info"].get("id") != session["promptID"]
-            ):
-                # A later prompt is somebody else's work even in our fixture
-                # row. Never interrupt/delete it merely because the title fits.
-                raise DriverFailure("owned_turn_cleanup_failed")
-
-        revalidate()
-        if (
-            self.protocol(
-                "POST",
-                f"/session/{session['id']}/abort",
-                query={"directory": self.turn["directory"]},
-            )
-            is not True
-        ):
-            raise DriverFailure("owned_turn_cleanup_failed")
-        for _ in range(10):
-            status = self.protocol(
-                "GET", "/session/status", query={"directory": self.turn["directory"]}
-            )
-            if (
-                type(status) is dict
-                and status.get(session["id"], {}).get("type", "idle") == "idle"
-            ):
-                break
-            time.sleep(0.2)
-        else:
-            raise DriverFailure("owned_turn_cleanup_failed")
-        revalidate()
-        if (
-            self.protocol(
-                "DELETE",
-                f"/session/{session['id']}",
-                query={"directory": self.turn["directory"]},
-            )
-            is not True
-        ):
-            raise DriverFailure("owned_turn_cleanup_failed")
+        raise DriverFailure("legacy_fixture_retired")
 
 
 class _NoRedirect(urllib.request.HTTPRedirectHandler):

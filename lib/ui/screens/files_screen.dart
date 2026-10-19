@@ -5,8 +5,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
 
-import '../../api/models.dart';
-import '../../api/product_repository.dart';
+import '../../domain/models.dart';
+import '../../domain/product_repository.dart';
 import '../../domain/delimited_text.dart';
 import '../../domain/static_svg.dart';
 import '../../feedback/bug_report.dart';

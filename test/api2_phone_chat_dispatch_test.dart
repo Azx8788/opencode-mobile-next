@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'support/fake_server_gateway.dart';
 import 'package:opencode_mobile/api2/gateway.dart';
 import 'package:opencode_mobile/state/phone_project_engine.dart';
 

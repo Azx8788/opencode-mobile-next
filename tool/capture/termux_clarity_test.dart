@@ -1,6 +1,6 @@
 // Before/after renders for slice-termux-clarity (owner report, build 2061):
 // the owner's three screens after an app storage reset on a phone whose
-// OpenCode 1 runs in Termux. Android took the Termux permission back with
+// OpenCode 2 runs in Termux. Android took the Termux permission back with
 // the data; Termux still has allow-external-apps and its server answers.
 //
 //   flutter test tool/capture/termux_clarity_test.dart \

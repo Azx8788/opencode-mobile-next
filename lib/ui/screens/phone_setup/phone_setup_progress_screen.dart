@@ -6,6 +6,7 @@ import '../../../builtin/setup/phone_setup.dart';
 import '../../../builtin/setup/setup_contract.dart';
 import '../../../builtin/setup/setup_engine.dart' show setupAddingTitle;
 import '../../../l10n/app_localizations.dart';
+import '../../../voice/automatic_setup_platform.dart';
 import '../../app_iconography.dart';
 import '../../kit/kit.dart';
 import '../../widgets/setup_progress_view.dart';
@@ -24,6 +25,7 @@ class PhoneSetupProgressScreen extends StatefulWidget {
     this.engine,
     this.openReady = openPhoneSetupReady,
     this.firstSetup = false,
+    this.askNotifications = _askNotifications,
   });
 
   /// Only a first setup ends on screen C ("name your first project"). An
@@ -34,13 +36,26 @@ class PhoneSetupProgressScreen extends StatefulWidget {
   /// Tests pass a fake; the app uses [PhoneSetup.engine].
   final SetupEngine? engine;
 
+  /// Asks Android for the notification permission (the system prompt) and
+  /// answers whether the person can now be notified. A parameter so tests
+  /// can script both answers.
+  final Future<bool> Function() askNotifications;
+
   /// Screen C. A parameter only so tests can see the hand-over.
   final Future<void> Function(BuildContext context) openReady;
+
+  /// Forgets the answer kept for this app run.
+  @visibleForTesting
+  static void resetNotificationAnswer() =>
+      _PhoneSetupProgressScreenState._answer = null;
 
   @override
   State<PhoneSetupProgressScreen> createState() =>
       _PhoneSetupProgressScreenState();
 }
+
+Future<bool> _askNotifications() =>
+    const AndroidVoiceSetupPlatform().askNotificationsIfWired();
 
 class _PhoneSetupProgressScreenState extends State<PhoneSetupProgressScreen> {
   late final SetupEngine _engine = widget.engine ?? PhoneSetup.engine;
@@ -50,6 +65,14 @@ class _PhoneSetupProgressScreenState extends State<PhoneSetupProgressScreen> {
   bool _restored = false;
   bool _handedOff = false;
 
+  /// One system prompt per app run: the moment setup starts and says
+  /// it will notify. Android shows nothing when already granted and stops
+  /// showing it after repeated refusals, so this never nags. Until the
+  /// answer is yes the screen promises no notification.
+  static bool? _answer;
+  // Promises until a refusal is known, so the first frame is unchanged.
+  bool _canNotify = true;
+
   /// The pending job read; leaving the screen cancels its timeout.
   final _reads = SetupReadScope();
 
@@ -58,6 +81,21 @@ class _PhoneSetupProgressScreenState extends State<PhoneSetupProgressScreen> {
     super.initState();
     _engine.progress.addListener(_onProgress);
     unawaited(_restore());
+    unawaited(_askToNotify());
+  }
+
+  Future<void> _askToNotify() async {
+    // Asked already this run: reuse the answer, never prompt again.
+    var granted = _answer;
+    if (granted == null) {
+      try {
+        granted = await widget.askNotifications();
+      } catch (_) {
+        granted = false;
+      }
+      _answer = granted;
+    }
+    if (mounted && granted != _canNotify) setState(() => _canNotify = granted!);
   }
 
   @override
@@ -174,8 +212,12 @@ class _PhoneSetupProgressScreenState extends State<PhoneSetupProgressScreen> {
             // FB2: a first setup says where it sits in the journey (install,
             // name a project, chat); an update or added tools end here.
             note: widget.firstSetup && progress.adding.isEmpty
-                ? l10n.phoneSetupProgressFirstSetupNote
-                : l10n.phoneSetupProgressLeaveHint,
+                ? (_canNotify
+                      ? l10n.phoneSetupProgressFirstSetupNote
+                      : l10n.phoneSetupProgressFirstSetupNoteQuiet)
+                : (_canNotify
+                      ? l10n.phoneSetupProgressLeaveHint
+                      : l10n.phoneSetupProgressLeaveHintQuiet),
             onCancel: progress.state == SetupState.running ? _cancel : null,
             onContinue: progress.canContinue ? _continue : null,
           );

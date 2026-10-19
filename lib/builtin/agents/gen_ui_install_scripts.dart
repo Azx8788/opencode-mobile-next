@@ -3,7 +3,6 @@ import 'dart:convert';
 import '../../domain/agent_catalog.dart';
 import '../../domain/genui/gen_ui_status.dart';
 import '../../paseo/tested_versions.dart';
-import '../builtin_linux.dart';
 import 'gen_ui_server.dart';
 import 'paseo_scripts.dart';
 
@@ -49,13 +48,11 @@ String _genUiManagedScript({
   final directory = claude ? '$home/.oc-genui' : '/root/.oc-genui/${agent.id}';
   final config = switch (format) {
     McpConfigFormat.claudeCli => '$home/claude/.claude.json',
-    McpConfigFormat.openCodeV1 => '/root/.config/opencode/opencode.json',
     McpConfigFormat.openCodeV2 =>
       '/root/.oc-opencode2/config/opencode/opencode.json',
   };
   final kind = switch (format) {
     McpConfigFormat.claudeCli => 'claude',
-    McpConfigFormat.openCodeV1 => 'openCode1',
     McpConfigFormat.openCodeV2 => 'openCode2',
   };
   final data = base64.encode(
@@ -67,11 +64,6 @@ String _genUiManagedScript({
         'verify': verify,
         'claudeVersion': claudeVersion,
         'nodeVersion': PaseoPhoneScripts.nodeVersion,
-        'openCodeVersion': '1.19.0',
-        'serverPort': BuiltinLinux.serverPort,
-        'serverDirectory': BuiltinLinux.projectsDir,
-        'serverUsername': BuiltinLinux.serverUsername,
-        'passwordFile': BuiltinLinux.passwordFile,
         // Transport qualification is version-specific, not inherited by a
         // future catalog update. Refresh these only with new runtime evidence.
         'qualifiedPins':
@@ -100,7 +92,7 @@ OC_GENUI_SETUP
 }
 
 const _installer = r'''
-import os, sys, json, re, stat, base64, pathlib, tempfile, hashlib, fcntl, subprocess, http.client
+import os, sys, json, re, stat, base64, pathlib, tempfile, hashlib, fcntl, subprocess
 class SetupError(Exception):
     def __init__(self, code): self.code = code
 
@@ -136,51 +128,6 @@ def read_json(path):
     except Exception: fail(21)
     if not isinstance(value, dict): fail(21)
     return value
-
-def read_jsonc(path):
-    # Parse only for collision checks. Never reserialize the user's JSONC.
-    raw = read(path)
-    if raw is None or raw == b'': return {}
-    try:
-        text = raw.decode('utf-8')
-        quoted = r'"(?:[^"\\]|\\.)*"'
-        text = re.sub(quoted + r'|//[^\r\n]*|/\*[\s\S]*?\*/',
-          lambda m: m[0] if m[0].startswith('"') else ' ' * len(m[0]), text)
-        # Mask strings so a literal ",}" or comment-like URL is unchanged.
-        masked = re.sub(quoted, lambda m: 'x' * len(m[0]), text)
-        chars = list(text)
-        for match in re.finditer(r',(?=\s*[}\]])', masked):
-            chars[match.start()] = ' '
-        def unique(pairs):
-            result = {}
-            for key, value in pairs:
-                if key in result: fail(21)
-                result[key] = value
-            return result
-        value = json.loads(''.join(chars), object_pairs_hook=unique,
-          parse_constant=lambda _: fail(21))
-    except Exception: fail(21)
-    if not isinstance(value, dict): fail(21)
-    return value
-
-def oc1_nested_collision(config):
-    # OC1 also lowers the native mcp.servers envelope into the flat namespace.
-    servers = slot(config, 'openCode1').get('servers')
-    return isinstance(servers, dict) and 'oc-ui' in servers
-
-def check_oc1_overlays(parent):
-    # v1.19.0 merges config.json -> opencode.json -> opencode.jsonc deeply
-    # (rechecked 2026-10-14 against a live 1.19.0 /config).
-    # A disjoint managed entry in opencode.json survives the JSONC overlay.
-    # The older extensionless TOML file migrates/merges last; do not adopt it.
-    legacy = parent + '/config'
-    root_owned(legacy)
-    if safe(legacy): fail(21)
-    for path in [parent + '/config.json', parent + '/opencode.jsonc']:
-        root_owned(path)
-        config = read_jsonc(path)
-        if 'oc-ui' in slot(config, 'openCode1') or oc1_nested_collision(config):
-            fail(21)
 
 def atomic(path, value):
     safe(path)
@@ -328,43 +275,12 @@ def verify_claude(d, helper, config_parent):
     except SetupError: raise
     except Exception: fail(24)
 
-def verify_opencode1(d, helper):
-    # All processes in the in-app Ubuntu share one Android UID/trust zone.
-    # Guest root checks below prevent accidental unsafe installs, not an
-    # adversarial agent modifying the runtime (owner decision, BA6).
-    root_executable(d['node'])
-    password = read(d['passwordFile'], maximum=4096)
-    if not password or b'\n' in password or b'\r' in password: fail(24)
-    root_owned(d['passwordFile'])
-    authorization = 'Basic ' + base64.b64encode(d['serverUsername'].encode() + b':' + password).decode()
-    def get(path):
-        connection = http.client.HTTPConnection('127.0.0.1', d['serverPort'], timeout=5)
-        try:
-            connection.request('GET', path, headers={
-              'Authorization': authorization, 'x-opencode-directory': d['serverDirectory']})
-            response = connection.getresponse()
-            body = response.read(65537)
-            if response.status != 200 or len(body) > 65536: fail(24)
-            value = json.loads(body)
-            if not isinstance(value, dict): fail(24)
-            return value
-        except SetupError: raise
-        except Exception: fail(24)
-        finally: connection.close()
-    health = get('/global/health')
-    if health.get('healthy') is not True or health.get('version') != d['openCodeVersion']: fail(24)
-    servers = get('/mcp')
-    server = servers.get('oc-ui')
-    if not isinstance(server, dict) or server.get('status') != 'connected': fail(24)
-    # No config dump, provider data, password or HTTP response reaches stdout.
-    # MCP connectivity refers to the actual running OC1, not persisted config.
-
 def main():
     d = json.loads(base64.b64decode(sys.argv[1]))
     kind, owner = d['kind'], d['profile']
     claude = kind == 'claude'
     if os.getuid() != (1000 if claude else 0): fail(22)
-    if d['verify'] and kind not in ('claude', 'openCode1'): fail(24)
+    if d['verify'] and not claude: fail(24)
     directory, config_path = d['directory'], d['config']
     if not d['enable'] and not safe(directory, directory=True): sys.exit(11)
     if not claude: root_owned(directory)
@@ -385,22 +301,17 @@ def main():
     config_parent = str(pathlib.Path(config_path).parent)
     if not claude: root_owned(config_path)
     if not safe(config_parent, directory=True, create=not d['verify']): fail(20)
-    if kind == 'openCode1':
-        check_oc1_overlays(config_parent)
-    elif not claude and os.path.lexists(config_path + 'c'):
-        # OC2 precedence has not been qualified by the OC1 loader contract.
+    if not claude and os.path.lexists(config_path + 'c'):
+        # Do not overwrite a user-managed config overlay.
         fail(21)
     current = read_json(config_path)
-    if kind == 'openCode1' and (oc1_nested_collision(current)
-      or ('oc-ui' in slot(current, kind) and slot(current, kind)['oc-ui'] is None)):
-        fail(21)
     settings_path = config_parent + '/settings.json'
     show_allowed = claude and d['enable'] and SHOW_PERMISSION in show_permissions(read_json(settings_path))
     owned = bool(manifest)
     if not claude: d['node'] = root_node(manifest, helper)
     expected = ({'type':'stdio','command':d['node'],'args':[helper],'env':{}}
       if claude else {'type':'local','command':[d['node'], helper],
-      **({'enabled':True} if kind == 'openCode1' else {'disabled':False,'codemode':False})})
+      'disabled':False,'codemode':False})
     existing = slot(current, kind).get('oc-ui')
     helper_bytes = d['helper'].encode()
     if owned:
@@ -426,8 +337,7 @@ def main():
           or read(marker) != b'enabled\n'
           or manifest['digest'] != hashlib.sha256(helper_bytes).hexdigest()
           or read(helper) != helper_bytes): fail(24)
-        if claude: verify_claude(d, helper, config_parent)
-        else: verify_opencode1(d, helper)
+        verify_claude(d, helper, config_parent)
         sys.exit(0)
     if not d['enable']:
         if not owned: sys.exit(11)

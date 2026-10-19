@@ -15,7 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/codex/gateway.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
@@ -272,7 +272,10 @@ void main() {
     testWidgets('capabilities: the intro says once where missing features '
         'work; rows repeat it only when they differ', (tester) async {
       _size(tester, const Size(412, 4000));
-      final controller = await systemController(codexServerCapabilities);
+      final controller = await systemController(
+        codexServerCapabilities,
+        usageStatistics: false,
+      );
       addTearDown(controller.dispose);
       await tester.pumpWidget(
         _app(ServerCapabilitiesScreen(controller: controller)),
@@ -290,10 +293,18 @@ void main() {
         ),
         findsNothing,
       );
-      // Worktrees work somewhere else: that row says where.
+      // Worktrees now share the OC2 hosts in the intro.
       expect(
         find.descendant(
           of: _key('capability-unavailable-worktrees'),
+          matching: _rich('Works on'),
+        ),
+        findsNothing,
+      );
+      // Usage also has a Codex host, so its distinct answer stays explicit.
+      expect(
+        find.descendant(
+          of: _key('capability-unavailable-usage'),
           matching: _rich('Works on'),
         ),
         findsOneWidget,

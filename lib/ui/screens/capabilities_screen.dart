@@ -285,12 +285,12 @@ class _ToolsNotListed extends StatelessWidget {
       children: [
         KitStateView.missing(
           key: const ValueKey('capabilities-tools-unavailable'),
-          capability: 'server.oc1',
+          capability: 'flag:toolInventory',
           icon: AppIconography.tools,
           title: name == null || name.isEmpty
               ? l10n.capabilitiesToolsMissingTitle
               : l10n.capabilitiesToolsMissingOnServer(name),
-          why: KitCapabilityExplainer.whyOf(context, 'server.oc1'),
+          why: KitCapabilityExplainer.whyOf(context, 'flag:toolInventory'),
         ),
       ],
     );

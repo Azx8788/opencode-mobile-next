@@ -10,7 +10,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/domain/connection_status.dart';
 import 'package:opencode_mobile/domain/form_request.dart' show Api2FormInfo;
 import 'package:opencode_mobile/domain/server_gateway.dart';
@@ -199,7 +199,20 @@ void main() {
         quiet: value['quiet'] as bool,
         attemptRevision: value['attemptRevision'] as int,
       );
-      final (store, base) = await serversState();
+      final (store, base) = await serversState(
+        profiles: [
+          ServerProfile(
+            id: snapshot.profileId!,
+            name: snapshot.serverName,
+            baseUrl: 'https://studio.example.net:4097',
+          ),
+          ServerProfile(
+            id: 'other-server',
+            name: 'Other computer',
+            baseUrl: 'https://other.example.net:4097',
+          ),
+        ],
+      );
       base.dispose();
       final controller = _StatusConnection(store, snapshot);
       addTearDown(controller.dispose);

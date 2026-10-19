@@ -199,6 +199,34 @@ void main() {
     },
   );
 
+  test('a failure outlives the timings that arrive after it', () async {
+    // Owner's phone, 2026-10-17: Linux status reads finish twice a second,
+    // so a failed chat start left the 128-entry report within a minute.
+    final service = await open(maxEntries: 4);
+    service.recordError(
+      'chat.start failed',
+      null,
+      source: 'chat.start',
+      at: at,
+    );
+    for (var i = 0; i < 20; i++) {
+      service.recordTiming(
+        PerfSpan(
+          id: i,
+          name: 'linux.status $i',
+          startMicros: i,
+          durationMicros: 1000,
+          wallStart: at.add(Duration(seconds: i)),
+        ),
+      );
+    }
+    expect(service.entries, hasLength(4));
+    expect(service.entries.first.message, 'chat.start failed');
+    expect(service.entries.last.message, contains('linux.status 19'));
+    final restarted = await open(maxEntries: 4);
+    expect(restarted.entries.first.message, 'chat.start failed');
+  });
+
   test('bounds actual UTF-8 bytes including multibyte content', () async {
     final service = await open(maxBytes: 1024);
     for (var i = 0; i < 12; i++) {

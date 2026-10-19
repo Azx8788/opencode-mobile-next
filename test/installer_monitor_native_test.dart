@@ -66,7 +66,14 @@ void main() {
     );
     final compiled = await Process.run(
       compiler,
-      [fixture.path, '-include-runtime', '-d', jar],
+      [
+        fixture.path,
+        // The monitor's /proc race rules and its interrupted-step error.
+        'android/app/src/main/kotlin/io/github/eslamasabry/opencode_mobile/NativeProcRace.kt',
+        '-include-runtime',
+        '-d',
+        jar,
+      ],
       environment: {'JAVA_OPTS': '-Xms32m -Xmx256m'},
     );
     expect(compiled.exitCode, 0, reason: '${compiled.stderr}');

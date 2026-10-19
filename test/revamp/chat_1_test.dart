@@ -1,3 +1,4 @@
+import 'package:opencode_mobile/domain/server_gateway.dart';
 // chat-1 (wave 2c): the transcript's messages, markdown and work line from
 // kit parts only. Behaviour a person sees: a turn blocked on a request says
 // "Waiting for you" (P7.5), a chat error's server words can be copied
@@ -7,9 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import '../support/fake_server_gateway.dart';
+import '../support/fake_event_channel.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -21,7 +22,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../support/complete_message_history.dart';
 
-class _Api extends OpenCodeApi with CompleteMessageHistory {
+class _Api extends FakeServerGateway with CompleteMessageHistory {
   _Api(this.transcript) : super(baseUrl: 'http://localhost');
 
   final List<MessageWithParts> transcript;
@@ -131,7 +132,7 @@ void main() {
     expect(
       find.descendant(
         of: find.byKey(const Key('work-group')),
-        matching: find.byType(KitStatusMark),
+        matching: find.byKey(const ValueKey('kit-step-light')),
       ),
       findsOneWidget,
     );

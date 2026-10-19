@@ -1,5 +1,5 @@
 {
- "generatedFrom": "57a1537f98fba865baddffcb9ae94dc6d2c4e4f7",
+ "generatedFrom": "626ceb7c78ab8c23087e8d6a2f4cbfafeb6024aa",
  "pages": [
   {
    "id": "system",
@@ -692,24 +692,6 @@
    ],
    "elements": [
     {
-     "id": "root-connecting-primary-retry",
-     "type": "button",
-     "label": "Try again",
-     "key": "saved-server-retry-primary",
-     "file": "lib/main.dart",
-     "line": 422,
-     "action": "other",
-     "target": null,
-     "targetWidget": null,
-     "effect": "Primary variant of retry (fallback when the diagnosed primary action has no callback): _started = false; _connectSaved().",
-     "gates": [
-      "failed",
-      "failure.primary == retry or its callback is null"
-     ],
-     "destructive": false,
-     "widgetFile": "lib/ui/widgets/saved_server_connection_card.dart"
-    },
-    {
      "id": "root-connecting-primary-termux",
      "type": "button",
      "label": "Check Termux",
@@ -855,6 +837,23 @@
      "effect": "Primary variant of Change server: pushNamedAndRemoveUntil('/servers').",
      "gates": [
       "failure.primary == ConnectionFailureAction.changeServer"
+     ],
+     "destructive": false
+    },
+    {
+     "id": "root-connecting-primary-retry",
+     "type": "button",
+     "label": "Try again",
+     "key": "saved-server-retry-primary",
+     "file": "lib/ui/widgets/saved_server_connection_card.dart",
+     "line": 422,
+     "action": "other",
+     "target": null,
+     "targetWidget": null,
+     "effect": "Primary variant of retry (fallback when the diagnosed primary action has no callback): _started = false; _connectSaved().",
+     "gates": [
+      "failed",
+      "failure.primary == retry or its callback is null"
      ],
      "destructive": false
     }
@@ -6704,6 +6703,10 @@
     {
      "page": "chats-new-chat",
      "element": "chats-new-send"
+    },
+    {
+     "page": "scheduled-prompts",
+     "element": "scheduled-history"
     }
    ],
    "gates": [
@@ -6712,6 +6715,21 @@
     "most authoring features are disabled when _conn.isIsolated"
    ],
    "elements": [
+    {
+     "id": "scheduled-entry-chat",
+     "type": "menu-item",
+     "label": "Schedule a prompt",
+     "key": null,
+     "file": "lib/ui/screens/chat/chat_session_menu.dart",
+     "line": 147,
+     "action": "navigate",
+     "target": "scheduled-prompts",
+     "effect": "Open scheduled prompts with the current saved profile and project; chat also captures its conversation.",
+     "gates": [
+      "canSchedulePrompts(connection)"
+     ],
+     "destructive": false
+    },
     {
      "id": "chat-watching-message-receipt-retry",
      "type": "button",
@@ -9061,6 +9079,74 @@
      "target": null,
      "targetWidget": null,
      "effect": "Closes the sheet and stays in the chat.",
+     "gates": [],
+     "destructive": false
+    }
+   ]
+  },
+  {
+   "id": "dev-preview",
+   "title": "Preview",
+   "kind": "screen",
+   "area": "chat",
+   "file": "lib/ui/screens/dev_preview_screen.dart",
+   "widget": "DevPreviewScreen",
+   "presentedBy": [
+    "openDevPreview"
+   ],
+   "line": 74,
+   "purpose": "Shows a dev server's page (the one a conversation linked as localhost:PORT) inside the app: the phone's own loopback, or the connected server's host with the same port. One origin only; other addresses leave through openExternalLink.",
+   "reachedFrom": [
+    {
+     "page": "chat",
+     "element": null
+    }
+   ],
+   "gates": [
+    "the link parses as a local dev-server link (DevPreviewLink.parse)",
+    "a saved server with a host is connected, else a plain alert explains",
+    "a web view exists on the platform (Android, iOS); elsewhere the screen offers the browser"
+   ],
+   "elements": [
+    {
+     "id": "dev-preview-reload",
+     "type": "icon-button",
+     "label": "Refresh page",
+     "key": "dev-preview-reload",
+     "file": "lib/ui/screens/dev_preview_screen.dart",
+     "line": 118,
+     "action": "other",
+     "target": null,
+     "targetWidget": null,
+     "effect": "Reloads the page in the web view.",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "dev-preview-browser",
+     "type": "icon-button",
+     "label": "Open in browser",
+     "key": "dev-preview-browser",
+     "file": "lib/ui/screens/dev_preview_screen.dart",
+     "line": 125,
+     "action": "external-link",
+     "target": null,
+     "targetWidget": null,
+     "effect": "Hands the page's current address to openExternalLink (confirmation first).",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "dev-preview-copy",
+     "type": "icon-button",
+     "label": "Copy address",
+     "key": "dev-preview-copy",
+     "file": "lib/ui/screens/dev_preview_screen.dart",
+     "line": 127,
+     "action": "copy",
+     "target": null,
+     "targetWidget": null,
+     "effect": "Copies the page's current address.",
      "gates": [],
      "destructive": false
     }
@@ -11620,6 +11706,110 @@
    ]
   },
   {
+   "id": "chats-git-repair",
+   "title": "Repair Git history",
+   "kind": "sheet",
+   "area": "workspace",
+   "file": "lib/ui/screens/chats/git_repair_sheet.dart",
+   "widget": "showGitRepairSheet",
+   "presentedBy": [
+    "showGitRepairSheet"
+   ],
+   "line": 14,
+   "purpose": "Repairs a project whose Git objects are links Git can't follow (from Termux's Ubuntu, or a moved folder): runs at once with its progress, then says what happened. Repaired: Start the conversation sends the kept message. Files in Termux: Allow and repair, or Repair again and Open Termux. Files gone: how many, and to clone again or restore a copy. Technical text under Details.",
+   "reachedFrom": [
+    {
+     "page": "chats-new-chat",
+     "element": "chats-new-git-repair"
+    }
+   ],
+   "gates": [
+    "Android, built-in Ubuntu, project under /root/projects, start failed with projectGit"
+   ],
+   "elements": [
+    {
+     "id": "chats-git-repair-start",
+     "type": "button",
+     "label": "Start the conversation",
+     "key": "git-repair-start",
+     "file": "lib/ui/screens/chats/git_repair_sheet.dart",
+     "line": 105,
+     "action": "dismiss",
+     "target": null,
+     "targetWidget": null,
+     "effect": "Closes the sheet; New conversation sends the message again.",
+     "gates": [
+      "repaired or nothing missing"
+     ],
+     "destructive": false
+    },
+    {
+     "id": "chats-git-repair-allow",
+     "type": "button",
+     "label": "Allow and repair",
+     "key": "git-repair-allow",
+     "file": "lib/ui/screens/chats/git_repair_sheet.dart",
+     "line": 124,
+     "action": "mutate",
+     "target": null,
+     "targetWidget": null,
+     "effect": "Asks Android for Termux's Run commands permission, then repairs again.",
+     "gates": [
+      "files in Termux, permission not given"
+     ],
+     "destructive": false
+    },
+    {
+     "id": "chats-git-repair-again",
+     "type": "button",
+     "label": "Repair again",
+     "key": "git-repair-again",
+     "file": "lib/ui/screens/chats/git_repair_sheet.dart",
+     "line": 129,
+     "action": "mutate",
+     "target": null,
+     "targetWidget": null,
+     "effect": "Runs the repair again.",
+     "gates": [
+      "Termux did not answer"
+     ],
+     "destructive": false
+    },
+    {
+     "id": "chats-git-repair-open-termux",
+     "type": "button",
+     "label": "Open Termux",
+     "key": null,
+     "file": "lib/ui/screens/chats/git_repair_sheet.dart",
+     "line": 136,
+     "action": "other",
+     "target": null,
+     "targetWidget": null,
+     "effect": "Opens the Termux app so it starts.",
+     "gates": [
+      "Termux did not answer"
+     ],
+     "destructive": false
+    },
+    {
+     "id": "chats-git-repair-close",
+     "type": "button",
+     "label": "Close",
+     "key": null,
+     "file": "lib/ui/screens/chats/git_repair_sheet.dart",
+     "line": 151,
+     "action": "dismiss",
+     "target": null,
+     "targetWidget": null,
+     "effect": "Closes the sheet; the message stays in the field.",
+     "gates": [
+      "can't repair"
+     ],
+     "destructive": false
+    }
+   ]
+  },
+  {
    "id": "chats-new-chat",
    "title": "New conversation",
    "kind": "screen",
@@ -11675,6 +11865,22 @@
      "gates": [
       "a project is chosen",
       "the field is not empty"
+     ],
+     "destructive": false
+    },
+    {
+     "id": "chats-new-git-repair",
+     "type": "button",
+     "label": "Repair",
+     "key": "chats-new-git-repair",
+     "file": "lib/ui/screens/chats/new_chat_screen.dart",
+     "line": 390,
+     "action": "open-sheet",
+     "target": "chats-git-repair",
+     "targetWidget": "showGitRepairSheet",
+     "effect": "In Retry's place when the project's Git can't be read: opens Repair Git history.",
+     "gates": [
+      "start failed with projectGit on this phone's built-in Ubuntu"
      ],
      "destructive": false
     }
@@ -15642,6 +15848,21 @@
       "capabilities.fileBrowsing"
      ],
      "destructive": false
+    },
+    {
+     "id": "scheduled-entry-project-hub",
+     "type": "menu-item",
+     "label": "Scheduled prompts",
+     "key": null,
+     "file": "lib/ui/screens/project_hub_screen.dart",
+     "line": 622,
+     "action": "navigate",
+     "target": "scheduled-prompts",
+     "effect": "Open scheduled prompts with the current saved profile and project; chat also captures its conversation.",
+     "gates": [
+      "canSchedulePrompts(connection)"
+     ],
+     "destructive": false
     }
    ]
   },
@@ -18338,14 +18559,14 @@
   },
   {
    "id": "host-management",
-   "title": "Run as a Linux service",
+   "title": "Set up OpenCode 2",
    "kind": "screen",
    "area": "servers",
    "file": "lib/ui/screens/host_management_screen.dart",
    "widget": "HostManagementScreen",
    "presentedBy": [],
    "line": 18,
-   "purpose": "Shows the connected server's facts and copyable commands for the Ubuntu helper script (install service, linger, read password, adb reverse, status/restart/logs/update); the app never runs them.",
+   "purpose": "Shows copyable commands to install and start the pinned OpenCode 2 server on a remote computer, with optional USB forwarding; the app never runs them.",
    "reachedFrom": [
     {
      "page": "server-settings",
@@ -18364,7 +18585,7 @@
      "action": "external-link",
      "target": null,
      "targetWidget": null,
-     "effect": "launchUrl(docs/ubuntu-host.md on GitHub, LaunchMode.externalApplication).",
+     "effect": "openExternalLink opens the remote-host setup walkthrough.",
      "gates": [],
      "destructive": false
     },
@@ -18378,7 +18599,7 @@
      "action": "copy",
      "target": null,
      "targetWidget": null,
-     "effect": "_HostCommandTile: Clipboard.setData(command) + 'copied' snackbar. One per command tile: Install OpenCode as a background service, Keep it running after logout, Read the server password for this app, Reach it from this phone over USB (adb reverse; only when platformCapabilities.supportsUsbHostBridge, Key host-command-adb-reverse), Service status, Restart the server, Follow the server log, Update OpenCode on the host.",
+     "effect": "KitCodeBlock copies the pinned OpenCode 2 install and foreground start command. Optional adb reverse is shown only when platformCapabilities.supportsUsbHostBridge.",
      "gates": [],
      "destructive": false
     }
@@ -19918,7 +20139,7 @@
     {
      "id": "server-settings-host-management",
      "type": "list-tile",
-     "label": "Run as a Linux service",
+     "label": "Set up OpenCode 2",
      "key": "host-management-entry",
      "file": "lib/ui/screens/settings/server_settings_screen.dart",
      "line": 274,
@@ -21211,15 +21432,7 @@
     },
     {
      "page": "termux-setup-installed",
-     "element": "termux-setup-installed-switch-return"
-    },
-    {
-     "page": "termux-setup-installed",
      "element": "termux-setup-installed-update"
-    },
-    {
-     "page": "termux-setup-switch-runtime-sheet",
-     "element": "termux-setup-switch-runtime-sheet-confirm"
     },
     {
      "page": "embedded-local-agent-onboarding-block",
@@ -22198,7 +22411,7 @@
     "/this-phone"
    ],
    "line": 61,
-   "purpose": "This phone (programme P1.5): OpenCode on this phone, inside the app or in Termux, on one host-neutral page. One list ordered by urgency: the status row with the one act it needs now (set up, start, connect, finish a half-done switch, show progress) and Stop, then update, switch between OpenCode 1 and 2, add tools, what is installed, storage, what runs, restart after a crash (Termux), keep running, the server log, a terminal (in app) and Remove last (in app). Replaces the Termux wizard (termux-setup-*) and the in-app four-step page (builtin-server-setup), slice P1.3/P1.5 (2026-09-27).",
+   "purpose": "Manage OpenCode 2 on this phone, inside the app or in Termux: set up, start, connect, recover an unfinished automatic upgrade, update, add tools, inspect logs and storage, and remove the managed server. Upgrading a managed OpenCode 1 server preserves its original data; choosing OpenCode 1 is no longer offered.",
    "reachedFrom": [
     {
      "page": "root-connecting",
@@ -22306,38 +22519,6 @@
      "destructive": false
     },
     {
-     "id": "termux-setup-installed-switch-retry",
-     "type": "button",
-     "label": "Try {runtime} again",
-     "key": "this-phone-switch-retry",
-     "file": "lib/ui/screens/this_phone_screen.dart",
-     "line": 453,
-     "action": "navigate",
-     "target": "phone-setup-progress",
-     "targetWidget": "openPhoneSetupTermux",
-     "effect": "A half-done Termux switch: openPhoneSetupTermux(job: switchRuntime, target: switchTarget).",
-     "gates": [
-      "host.state == attention && host.switchTarget != null (Termux only)"
-     ],
-     "destructive": false
-    },
-    {
-     "id": "termux-setup-installed-switch-return",
-     "type": "button",
-     "label": "Return to {runtime}",
-     "key": "this-phone-switch-return",
-     "file": "lib/ui/screens/this_phone_screen.dart",
-     "line": 465,
-     "action": "navigate",
-     "target": "phone-setup-progress",
-     "targetWidget": "openPhoneSetupTermux",
-     "effect": "openPhoneSetupTermux(job: switchRuntime, target: switchPrevious).",
-     "gates": [
-      "switchPrevious != null && switchPrevious != switchTarget"
-     ],
-     "destructive": false
-    },
-    {
      "id": "termux-setup-installed-start",
      "type": "button",
      "label": "Start the server on this phone",
@@ -22349,7 +22530,7 @@
      "targetWidget": null,
      "effect": "_start: host.start(l10n) (in app BuiltinServerStarter.start; Termux LocalServerControls.restart), then connects when no other server is in use.",
      "gates": [
-      "host.state in {stopped, attention} and no half-done switch"
+      "host.state in {stopped, needsYou} and no unfinished automatic upgrade"
      ],
      "destructive": false
     },
@@ -22414,25 +22595,8 @@
      "effect": "_update: in app runPhoneServerAction(update) (SetupEngine.run(opencode) then the progress screen); Termux: alert when conversations are busy, else a showKitConfirm (this-phone-update-confirm, Update) then openPhoneSetupTermux(job: update). Replaces termux-setup-update-sheet.",
      "gates": [
       "installed",
-      "hidden while a switch is half done",
+      "hidden while an automatic upgrade is unfinished",
       "off while starting, stopping or setting up"
-     ],
-     "destructive": false
-    },
-    {
-     "id": "termux-setup-installed-switch",
-     "type": "list-tile",
-     "label": "Switch to {runtime}",
-     "key": "this-phone-switch",
-     "file": "lib/ui/screens/this_phone_screen.dart",
-     "line": 612,
-     "action": "open-sheet",
-     "target": "termux-setup-switch-runtime-sheet",
-     "targetWidget": "_switchRuntime",
-     "effect": "_switchRuntime(other): the switch question (this-phone-switch-sheet).",
-     "gates": [
-      "installed",
-      "Termux: off with setupSwitchLegacyTwo when an old OpenCode 2 cannot go back"
      ],
      "destructive": false
     },
@@ -22568,6 +22732,22 @@
      "destructive": false
     },
     {
+     "id": "termux-setup-installed-switch-retry",
+     "type": "button",
+     "label": "Try OpenCode 2 again",
+     "key": "this-phone-switch-retry",
+     "file": "lib/ui/screens/this_phone_screen.dart",
+     "line": 879,
+     "action": "navigate",
+     "target": "phone-setup-progress",
+     "targetWidget": "openPhoneSetupTermux",
+     "effect": "Retry an unfinished automatic move to OpenCode 2 through openPhoneSetupTermux. The old history remains preserved on disk.",
+     "gates": [
+      "host.state == needsYou && host.switchTarget != null (Termux recovery only)"
+     ],
+     "destructive": false
+    },
+    {
      "id": "termux-setup-installed-storage-row",
      "type": "list-tile",
      "label": "Storage on this phone",
@@ -22601,57 +22781,6 @@
     }
    ],
    "key": "this-phone"
-  },
-  {
-   "id": "termux-setup-switch-runtime-sheet",
-   "title": "Switch to {runtime}?",
-   "kind": "sheet",
-   "area": "termux",
-   "file": "lib/ui/screens/this_phone_screen.dart",
-   "widget": "_switchRuntime",
-   "presentedBy": [
-    "_switchRuntime"
-   ],
-   "line": 257,
-   "purpose": "This phone's switch question (showKitConfirm): stops this phone's server and running tasks; conversations and credentials stay separate, project files are shared; you can switch back.",
-   "reachedFrom": [
-    {
-     "page": "termux-setup-installed",
-     "element": "termux-setup-installed-switch"
-    }
-   ],
-   "gates": [],
-   "elements": [
-    {
-     "id": "termux-setup-switch-runtime-sheet-cancel",
-     "type": "button",
-     "label": "Cancel",
-     "key": null,
-     "file": "lib/ui/screens/this_phone_screen.dart",
-     "line": 257,
-     "action": "dismiss",
-     "target": null,
-     "targetWidget": null,
-     "effect": "Closes the question; nothing changes.",
-     "gates": [],
-     "destructive": false
-    },
-    {
-     "id": "termux-setup-switch-runtime-sheet-confirm",
-     "type": "button",
-     "label": "Switch version",
-     "key": "this-phone-switch-confirm",
-     "file": "lib/ui/screens/this_phone_screen.dart",
-     "line": 264,
-     "action": "navigate",
-     "target": "phone-setup-progress",
-     "targetWidget": "openPhoneSetupProgress",
-     "effect": "In app: runPhoneServerAction(switchRuntime) re-runs the opencode component with the other runtime and opens the progress screen. Termux: openPhoneSetupTermux(job: switchRuntime, target).",
-     "gates": [],
-     "destructive": true
-    }
-   ],
-   "key": "this-phone-switch-sheet"
   },
   {
    "id": "this-phone-add-tools-sheet",
@@ -35735,6 +35864,752 @@
    ]
   },
   {
+   "id": "scheduled-prompt-time",
+   "title": "Time",
+   "kind": "sheet",
+   "area": "misc",
+   "file": "lib/ui/kit/kit_date_time_picker.dart",
+   "widget": "_PickerBody",
+   "presentedBy": [],
+   "line": 527,
+   "purpose": "Reuse the existing accessible kit date and time picker for recurrence and digest time.",
+   "reachedFrom": [
+    {
+     "page": "scheduled-prompts",
+     "element": "scheduled-digest-time"
+    },
+    {
+     "page": "scheduled-prompt-editor",
+     "element": "scheduled-editor-time"
+    }
+   ],
+   "gates": [],
+   "elements": []
+  },
+  {
+   "id": "linux-manager",
+   "title": "Linux on this phone",
+   "kind": "screen",
+   "area": "misc",
+   "file": "lib/ui/screens/linux_manager/linux_manager_screen.dart",
+   "widget": "LinuxManagerScreen",
+   "presentedBy": [],
+   "line": 41,
+   "purpose": "Hub for managing the app's own Ubuntu: Running, Ports, Storage, Packages, Repair and Reset, with the package job on top while one runs.",
+   "reachedFrom": [
+    {
+     "page": "termux-setup-installed",
+     "element": null
+    }
+   ],
+   "gates": [
+    "in-app host only: ThisPhoneScreen shows the row when host.kind == PhoneHostKind.inApp and the host is installed"
+   ],
+   "elements": [
+    {
+     "id": "linux-manager-job-stop",
+     "type": "button",
+     "label": "Stop installing / removing / updating",
+     "key": "linux-job-stop",
+     "file": "lib/ui/screens/linux_manager/linux_manager_common.dart",
+     "line": 155,
+     "action": "open-dialog",
+     "target": null,
+     "effect": "Names the running package job and stops it after a question.",
+     "gates": [
+      "a package job is running"
+     ],
+     "destructive": false
+    },
+    {
+     "id": "linux-manager-running",
+     "type": "list-tile",
+     "label": "Running",
+     "key": "linux-row-running",
+     "file": "lib/ui/screens/linux_manager/linux_manager_screen.dart",
+     "line": 113,
+     "action": "navigate",
+     "target": "linux-processes",
+     "effect": "Opens Running.",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "linux-manager-ports",
+     "type": "list-tile",
+     "label": "Ports",
+     "key": "linux-row-ports",
+     "file": "lib/ui/screens/linux_manager/linux_manager_screen.dart",
+     "line": 123,
+     "action": "navigate",
+     "target": "linux-ports",
+     "effect": "Opens Ports.",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "linux-manager-storage",
+     "type": "list-tile",
+     "label": "Storage",
+     "key": "linux-row-storage",
+     "file": "lib/ui/screens/linux_manager/linux_manager_screen.dart",
+     "line": 132,
+     "action": "navigate",
+     "target": "linux-storage",
+     "effect": "Opens Storage.",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "linux-manager-packages",
+     "type": "list-tile",
+     "label": "Packages",
+     "key": "linux-row-packages",
+     "file": "lib/ui/screens/linux_manager/linux_manager_screen.dart",
+     "line": 141,
+     "action": "navigate",
+     "target": "linux-packages",
+     "effect": "Opens Packages.",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "linux-manager-repair",
+     "type": "list-tile",
+     "label": "Repair Linux",
+     "key": "linux-row-repair",
+     "file": "lib/ui/screens/linux_manager/linux_manager_screen.dart",
+     "line": 150,
+     "action": "open-dialog",
+     "target": null,
+     "effect": "_repair: refused while setup or a package job runs, then a neutral question; confirming calls onRepair, which re-runs setup checks (PhoneServerAction.update).",
+     "gates": [
+      "not while setup or a package job runs"
+     ],
+     "destructive": false
+    },
+    {
+     "id": "linux-manager-reset",
+     "type": "list-tile",
+     "label": "Reset Linux",
+     "key": "linux-row-reset",
+     "file": "lib/ui/screens/linux_manager/linux_manager_screen.dart",
+     "line": 160,
+     "action": "open-dialog",
+     "target": null,
+     "effect": "resetLinux: typed-word question (Reset), removes Linux keeping projects, forgets saved in-app servers, opens phone setup.",
+     "gates": [
+      "not while setup or a package job runs"
+     ],
+     "destructive": true
+    }
+   ]
+  },
+  {
+   "id": "linux-packages",
+   "title": "Packages",
+   "kind": "screen",
+   "area": "misc",
+   "file": "lib/ui/screens/linux_manager/linux_packages_page.dart",
+   "widget": "LinuxPackagesPage",
+   "presentedBy": [],
+   "line": 28,
+   "purpose": "Installed Ubuntu packages (searchable), install by name, remove with what else would go, and Update system; all long work is the background package job.",
+   "reachedFrom": [
+    {
+     "page": "linux-manager",
+     "element": "linux-manager-packages"
+    }
+   ],
+   "gates": [
+    "in-app host only: ThisPhoneScreen shows the row when host.kind == PhoneHostKind.inApp and the host is installed"
+   ],
+   "elements": [
+    {
+     "id": "linux-packages-install",
+     "type": "list-tile",
+     "label": "Install a package",
+     "key": "linux-pkg-install",
+     "file": "lib/ui/screens/linux_manager/linux_packages_page.dart",
+     "line": 390,
+     "action": "open-dialog",
+     "target": null,
+     "effect": "_install: name dialog (validated, checked with apt), then a question, then the linux-job service.",
+     "gates": [
+      "no package job running"
+     ],
+     "destructive": false
+    },
+    {
+     "id": "linux-packages-update",
+     "type": "list-tile",
+     "label": "Update system",
+     "key": "linux-pkg-update",
+     "file": "lib/ui/screens/linux_manager/linux_packages_page.dart",
+     "line": 400,
+     "action": "open-dialog",
+     "target": null,
+     "effect": "_update: question, then the linux-job service runs apt update and upgrade (45 minute budget).",
+     "gates": [
+      "no package job running"
+     ],
+     "destructive": false
+    },
+    {
+     "id": "linux-packages-search",
+     "type": "text-field",
+     "label": "Search installed packages",
+     "key": null,
+     "file": "lib/ui/screens/linux_manager/linux_packages_page.dart",
+     "line": 418,
+     "action": "other",
+     "target": null,
+     "effect": "Filters the installed list by name.",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "linux-packages-row",
+     "type": "list-tile",
+     "label": "Package row",
+     "key": "linux-pkg-<name>",
+     "file": "lib/ui/screens/linux_manager/linux_packages_page.dart",
+     "line": 473,
+     "action": "open-sheet",
+     "target": null,
+     "effect": "Details sheet with Remove.",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "linux-packages-remove",
+     "type": "menu-item",
+     "label": "Remove <package>",
+     "key": "linux-pkg-remove-<name>",
+     "file": "lib/ui/screens/linux_manager/linux_packages_page.dart",
+     "line": 491,
+     "action": "open-dialog",
+     "target": null,
+     "effect": "_remove: asks apt what else would go, refuses when that includes something Linux needs, confirms, then runs the job.",
+     "gates": [
+      "not essential, required or setup-owned packages",
+      "no package job running"
+     ],
+     "destructive": true
+    }
+   ]
+  },
+  {
+   "id": "linux-ports",
+   "title": "Ports in Linux",
+   "kind": "screen",
+   "area": "misc",
+   "file": "lib/ui/screens/linux_manager/linux_ports_page.dart",
+   "widget": "LinuxPortsPage",
+   "presentedBy": [],
+   "line": 30,
+   "purpose": "Ports with something listening inside the app's Linux (each proven by a connection), the program that uses it, and Open preview through openDevPreview on the phone's loopback.",
+   "reachedFrom": [
+    {
+     "page": "linux-manager",
+     "element": "linux-manager-ports"
+    }
+   ],
+   "gates": [
+    "in-app host only: ThisPhoneScreen shows the row when host.kind == PhoneHostKind.inApp and the host is installed"
+   ],
+   "elements": [
+    {
+     "id": "linux-ports-row",
+     "type": "list-tile",
+     "label": "Port <n> · Open preview",
+     "key": "linux-port-<n>",
+     "file": "lib/ui/screens/linux_manager/linux_ports_page.dart",
+     "line": 245,
+     "action": "navigate",
+     "target": null,
+     "effect": "_preview: openDevPreview with DevPreviewLink(port) against the in-app server address; same rules as chat links.",
+     "gates": [
+      "not the OpenCode server or Paseo"
+     ],
+     "destructive": false
+    },
+    {
+     "id": "linux-ports-copy",
+     "type": "menu-item",
+     "label": "Copy address",
+     "key": "linux-port-copy",
+     "file": "lib/ui/screens/linux_manager/linux_ports_page.dart",
+     "line": 267,
+     "action": "copy",
+     "target": null,
+     "effect": "Copies http://127.0.0.1:<port>/.",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "linux-ports-stop",
+     "type": "menu-item",
+     "label": "Stop <program>",
+     "key": "linux-port-stop-<n>",
+     "file": "lib/ui/screens/linux_manager/linux_ports_page.dart",
+     "line": 273,
+     "action": "open-dialog",
+     "target": null,
+     "effect": "_stopOwner: confirmed stop of the program whose command names the port.",
+     "gates": [
+      "an owner is known and is not protected"
+     ],
+     "destructive": true
+    }
+   ]
+  },
+  {
+   "id": "linux-processes",
+   "title": "Running in Linux",
+   "kind": "screen",
+   "area": "misc",
+   "file": "lib/ui/screens/linux_manager/linux_processes_page.dart",
+   "widget": "LinuxProcessesPage",
+   "presentedBy": [],
+   "line": 29,
+   "purpose": "Programs running inside the app's Linux by kind (OpenCode server, Paseo, agent, dev server, other) with memory and busy or idle, refreshed every 10 seconds; named, confirmed Stop that also stops what the program started.",
+   "reachedFrom": [
+    {
+     "page": "linux-manager",
+     "element": "linux-manager-running"
+    }
+   ],
+   "gates": [
+    "in-app host only: ThisPhoneScreen shows the row when host.kind == PhoneHostKind.inApp and the host is installed"
+   ],
+   "elements": [
+    {
+     "id": "linux-processes-pull",
+     "type": "gesture",
+     "label": "[pull to refresh]",
+     "key": null,
+     "file": "lib/ui/screens/linux_manager/linux_processes_page.dart",
+     "line": 247,
+     "action": "other",
+     "target": null,
+     "effect": "Reads /proc again.",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "linux-processes-row",
+     "type": "list-tile",
+     "label": "Program row",
+     "key": "linux-proc-<pid>",
+     "file": "lib/ui/screens/linux_manager/linux_processes_page.dart",
+     "line": 359,
+     "action": "open-sheet",
+     "target": null,
+     "effect": "Opens the details sheet (what it is, facts, command and ids under Details).",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "linux-processes-copy",
+     "type": "menu-item",
+     "label": "Copy command",
+     "key": "linux-proc-copy",
+     "file": "lib/ui/screens/linux_manager/linux_processes_page.dart",
+     "line": 380,
+     "action": "copy",
+     "target": null,
+     "effect": "Copies the command line (redacted).",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "linux-processes-stop",
+     "type": "menu-item",
+     "label": "Stop <program>",
+     "key": "linux-proc-stop-<pid>",
+     "file": "lib/ui/screens/linux_manager/linux_processes_page.dart",
+     "line": 383,
+     "action": "open-dialog",
+     "target": null,
+     "effect": "_stopFromList: names the program and the helpers that stop with it, then LinuxManager.stop sends exact pid:start-time identities.",
+     "gates": [
+      "not the OpenCode server",
+      "disabled while stopping"
+     ],
+     "destructive": true
+    }
+   ]
+  },
+  {
+   "id": "linux-storage",
+   "title": "Linux storage",
+   "kind": "screen",
+   "area": "misc",
+   "file": "lib/ui/screens/linux_manager/linux_storage_page.dart",
+   "widget": "LinuxStoragePage",
+   "presentedBy": [],
+   "line": 27,
+   "purpose": "Where the space of the app's Linux goes in six categories, and the safe cleanups (package downloads, Node and download caches, old temporary files and logs, old agent versions) with the space each frees.",
+   "reachedFrom": [
+    {
+     "page": "linux-manager",
+     "element": "linux-manager-storage"
+    }
+   ],
+   "gates": [
+    "in-app host only: ThisPhoneScreen shows the row when host.kind == PhoneHostKind.inApp and the host is installed"
+   ],
+   "elements": [
+    {
+     "id": "linux-storage-clean",
+     "type": "list-tile",
+     "label": "Clear <what>",
+     "key": "linux-clean-<id>",
+     "file": "lib/ui/screens/linux_manager/linux_storage_page.dart",
+     "line": 294,
+     "action": "open-dialog",
+     "target": null,
+     "effect": "_clean: question naming what it clears and the size; LinuxManager.cleanup takes the installer slot, measures before and after and reports the freed space. Only allow-listed paths; never projects or sign-ins.",
+     "gates": [
+      "only cleanups with at least 1 KB to give back",
+      "refused while setup or a package job runs"
+     ],
+     "destructive": true
+    }
+   ]
+  },
+  {
+   "id": "scheduled-prompt-editor",
+   "title": "Schedule a prompt",
+   "kind": "screen",
+   "area": "misc",
+   "file": "lib/ui/screens/scheduling/schedule_editor_screen.dart",
+   "widget": "ScheduleEditorScreen",
+   "presentedBy": [],
+   "line": 10,
+   "purpose": "Write a prompt, choose recurrence and destination, and save a validated schedule.",
+   "reachedFrom": [
+    {
+     "page": "scheduled-prompts",
+     "element": "scheduled-create"
+    },
+    {
+     "page": "scheduled-prompts",
+     "element": "scheduled-row"
+    }
+   ],
+   "gates": [],
+   "elements": [
+    {
+     "id": "scheduled-editor-prompt",
+     "type": "text-field",
+     "label": "Prompt",
+     "key": null,
+     "file": "lib/ui/screens/scheduling/schedule_editor_screen.dart",
+     "line": 132,
+     "action": "other",
+     "target": null,
+     "effect": "Edit the user-authored scheduled prompt.",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "scheduled-editor-repeat",
+     "type": "dropdown",
+     "label": "Repeat",
+     "key": null,
+     "file": "lib/ui/screens/scheduling/schedule_editor_screen.dart",
+     "line": 140,
+     "action": "other",
+     "target": null,
+     "effect": "Choose weekdays, every N hours or once through the kit choice sheet.",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "scheduled-editor-hours",
+     "type": "text-field",
+     "label": "Hours between runs",
+     "key": null,
+     "file": "lib/ui/screens/scheduling/schedule_editor_screen.dart",
+     "line": 160,
+     "action": "other",
+     "target": null,
+     "effect": "Set an interval from one to 168 whole hours.",
+     "gates": [
+      "kind == interval"
+     ],
+     "destructive": false
+    },
+    {
+     "id": "scheduled-editor-time",
+     "type": "list-tile",
+     "label": "Time",
+     "key": null,
+     "file": "lib/ui/screens/scheduling/schedule_editor_screen.dart",
+     "line": 166,
+     "action": "open-sheet",
+     "target": "scheduled-prompt-time",
+     "effect": "Choose a weekday time or a future one-time date and time.",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "scheduled-editor-target",
+     "type": "dropdown",
+     "label": "Conversation",
+     "key": null,
+     "file": "lib/ui/screens/scheduling/schedule_editor_screen.dart",
+     "line": 192,
+     "action": "other",
+     "target": null,
+     "effect": "Choose this conversation when available, or a new conversation each run.",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "scheduled-editor-agent",
+     "type": "dropdown",
+     "label": "Agent",
+     "key": null,
+     "file": "lib/ui/screens/scheduling/schedule_editor_screen.dart",
+     "line": 203,
+     "action": "other",
+     "target": null,
+     "effect": "Capture the chosen agent, preserving the saved model.",
+     "gates": [
+      "names.isNotEmpty"
+     ],
+     "destructive": false
+    },
+    {
+     "id": "scheduled-editor-options",
+     "type": "list-tile",
+     "label": "Timing and delivery",
+     "key": null,
+     "file": "lib/ui/screens/scheduling/schedule_editor_screen.dart",
+     "line": 211,
+     "action": "other",
+     "target": null,
+     "effect": "Expand missed-run policy and timing details.",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "scheduled-editor-missed",
+     "type": "dropdown",
+     "label": "Missed runs",
+     "key": null,
+     "file": "lib/ui/screens/scheduling/schedule_editor_screen.dart",
+     "line": 214,
+     "action": "other",
+     "target": null,
+     "effect": "Choose one late catch-up run or skip missed work.",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "scheduled-editor-save",
+     "type": "button",
+     "label": "Save schedule",
+     "key": null,
+     "file": "lib/ui/screens/scheduling/schedule_editor_screen.dart",
+     "line": 239,
+     "action": "submit",
+     "target": null,
+     "effect": "Validate prompt and timing, atomically save the revision and update Android scheduling. Keep the editor open on failure.",
+     "gates": [],
+     "destructive": false
+    }
+   ]
+  },
+  {
+   "id": "scheduled-prompts",
+   "title": "Scheduled prompts",
+   "kind": "screen",
+   "area": "misc",
+   "file": "lib/ui/screens/scheduling/scheduled_prompts_screen.dart",
+   "widget": "ScheduledPromptsScreen",
+   "presentedBy": [
+    "openScheduledPrompts",
+    "openStoredScheduledPrompts"
+   ],
+   "line": 13,
+   "purpose": "Manage one profile’s timed prompts, next occurrences, run history and optional digest.",
+   "reachedFrom": [
+    {
+     "page": "chat",
+     "element": "scheduled-entry-chat"
+    },
+    {
+     "page": "project-hub",
+     "element": "scheduled-entry-project-hub"
+    }
+   ],
+   "gates": [],
+   "elements": [
+    {
+     "id": "scheduled-create",
+     "type": "icon-button",
+     "label": "Schedule a prompt",
+     "key": null,
+     "file": "lib/ui/screens/scheduling/scheduled_prompts_screen.dart",
+     "line": 116,
+     "action": "navigate",
+     "target": "scheduled-prompt-editor",
+     "effect": "Open an editor with the captured profile, project, agent and optional conversation.",
+     "gates": [
+      "platformStatus.supported"
+     ],
+     "destructive": false
+    },
+    {
+     "id": "scheduled-row",
+     "type": "list-tile",
+     "label": "{recurrence} / {next run or paused}",
+     "key": null,
+     "file": "lib/ui/screens/scheduling/scheduled_prompts_screen.dart",
+     "line": 147,
+     "action": "navigate",
+     "target": "scheduled-prompt-editor",
+     "effect": "Edit the selected schedule.",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "scheduled-pause",
+     "type": "menu-item",
+     "label": "Pause / Resume",
+     "key": null,
+     "file": "lib/ui/screens/scheduling/scheduled_prompts_screen.dart",
+     "line": 167,
+     "action": "toggle-setting",
+     "target": null,
+     "effect": "Persist enabled state and replace native timing index.",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "scheduled-delete",
+     "type": "menu-item",
+     "label": "Delete schedule",
+     "key": null,
+     "file": "lib/ui/screens/scheduling/scheduled_prompts_screen.dart",
+     "line": 174,
+     "action": "open-dialog",
+     "target": "scheduled-prompt-delete",
+     "effect": "Ask before deleting future runs and local history.",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "scheduled-options",
+     "type": "list-tile",
+     "label": "Timing and delivery",
+     "key": null,
+     "file": "lib/ui/screens/scheduling/scheduled_prompts_screen.dart",
+     "line": 192,
+     "action": "other",
+     "target": null,
+     "effect": "Expand timing, battery and notification information plus digest settings.",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "scheduled-exact",
+     "type": "button",
+     "label": "Allow exact alarms",
+     "key": null,
+     "file": "lib/ui/screens/scheduling/scheduled_prompts_screen.dart",
+     "line": 197,
+     "action": "other",
+     "target": null,
+     "effect": "Open Android exact-alarm access settings. Existing approximate scheduling remains available.",
+     "gates": [
+      "!platformStatus.exactAllowed"
+     ],
+     "destructive": false
+    },
+    {
+     "id": "scheduled-digest",
+     "type": "toggle",
+     "label": "Morning digest",
+     "key": null,
+     "file": "lib/ui/screens/scheduling/scheduled_prompts_screen.dart",
+     "line": 208,
+     "action": "toggle-setting",
+     "target": null,
+     "effect": "Persist optional digest enabled state; off by default.",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "scheduled-digest-time",
+     "type": "list-tile",
+     "label": "Time",
+     "key": null,
+     "file": "lib/ui/screens/scheduling/scheduled_prompts_screen.dart",
+     "line": 231,
+     "action": "open-sheet",
+     "target": "scheduled-prompt-time",
+     "effect": "Open the existing kit time picker and persist digest time.",
+     "gates": [
+      "digest.enabled"
+     ],
+     "destructive": false
+    },
+    {
+     "id": "scheduled-history",
+     "type": "list-tile",
+     "label": "{Started / Failed / Skipped} / {time}",
+     "key": null,
+     "file": "lib/ui/screens/scheduling/scheduled_prompts_screen.dart",
+     "line": 267,
+     "action": "navigate",
+     "target": "chat",
+     "effect": "Revalidate stored profile, schedule, project and history then open the resulting ordinary conversation.",
+     "gates": [
+      "run.sessionId != null && onOpenRun != null"
+     ],
+     "destructive": false
+    }
+   ]
+  },
+  {
+   "id": "scheduled-prompt-delete",
+   "title": "Delete this schedule?",
+   "kind": "dialog",
+   "area": "misc",
+   "file": "lib/ui/screens/scheduling/scheduled_prompts_screen.dart",
+   "widget": "showKitConfirm",
+   "presentedBy": [],
+   "line": 179,
+   "purpose": "Confirm removal of future triggers and local run history while retaining conversations already created.",
+   "reachedFrom": [
+    {
+     "page": "scheduled-prompts",
+     "element": "scheduled-delete"
+    }
+   ],
+   "gates": [],
+   "elements": [
+    {
+     "id": "scheduled-delete-confirm",
+     "type": "button",
+     "label": "Delete schedule",
+     "key": null,
+     "file": "lib/ui/screens/scheduling/scheduled_prompts_screen.dart",
+     "line": 184,
+     "action": "mutate",
+     "target": null,
+     "effect": "Delete schedule and its local history, then replace pending triggers.",
+     "gates": [],
+     "destructive": true
+    }
+   ]
+  },
+  {
    "id": "external-link-dialog",
    "title": "Open external link? / Open insecure HTTP link?",
    "kind": "dialog",
@@ -36760,6 +37635,11 @@
     "to": "embedded-model-shortcuts"
    },
    {
+    "from": "chat",
+    "element": "scheduled-entry-chat",
+    "to": "scheduled-prompts"
+   },
+   {
     "from": "chat-watching-live",
     "element": "chat-watching-live-details",
     "to": "team-agent"
@@ -37450,6 +38330,11 @@
     "to": "files"
    },
    {
+    "from": "project-hub",
+    "element": "scheduled-entry-project-hub",
+    "to": "scheduled-prompts"
+   },
+   {
     "from": "files",
     "element": "files-changes-card",
     "to": "files-changes-sheet"
@@ -37851,11 +38736,6 @@
    },
    {
     "from": "termux-setup-installed",
-    "element": "termux-setup-installed-switch-return",
-    "to": "phone-setup-progress"
-   },
-   {
-    "from": "termux-setup-installed",
     "element": "termux-setup-installed-connect",
     "to": "home-shell"
    },
@@ -37863,11 +38743,6 @@
     "from": "termux-setup-installed",
     "element": "termux-setup-installed-update",
     "to": "phone-setup-progress"
-   },
-   {
-    "from": "termux-setup-installed",
-    "element": "termux-setup-installed-switch",
-    "to": "termux-setup-switch-runtime-sheet"
    },
    {
     "from": "termux-setup-installed",
@@ -37903,11 +38778,6 @@
     "from": "termux-setup-installed",
     "element": "termux-setup-installed-remove",
     "to": "remove-from-phone-sheet"
-   },
-   {
-    "from": "termux-setup-switch-runtime-sheet",
-    "element": "termux-setup-switch-runtime-sheet-confirm",
-    "to": "phone-setup-progress"
    },
    {
     "from": "termux-processes",
@@ -38920,6 +39790,11 @@
     "to": "chat"
    },
    {
+    "from": "chats-new-chat",
+    "element": "chats-new-git-repair",
+    "to": "chats-git-repair"
+   },
+   {
     "from": "agents-section",
     "element": "agents-section-fix",
     "to": "agents-sheet"
@@ -39038,6 +39913,56 @@
     "from": "factsbook-triggers",
     "element": "factsbook-triggers-new",
     "to": "factsbook-rule-editor"
+   },
+   {
+    "from": "linux-manager",
+    "element": "linux-manager-running",
+    "to": "linux-processes"
+   },
+   {
+    "from": "linux-manager",
+    "element": "linux-manager-ports",
+    "to": "linux-ports"
+   },
+   {
+    "from": "linux-manager",
+    "element": "linux-manager-storage",
+    "to": "linux-storage"
+   },
+   {
+    "from": "linux-manager",
+    "element": "linux-manager-packages",
+    "to": "linux-packages"
+   },
+   {
+    "from": "scheduled-prompts",
+    "element": "scheduled-create",
+    "to": "scheduled-prompt-editor"
+   },
+   {
+    "from": "scheduled-prompts",
+    "element": "scheduled-row",
+    "to": "scheduled-prompt-editor"
+   },
+   {
+    "from": "scheduled-prompts",
+    "element": "scheduled-delete",
+    "to": "scheduled-prompt-delete"
+   },
+   {
+    "from": "scheduled-prompts",
+    "element": "scheduled-digest-time",
+    "to": "scheduled-prompt-time"
+   },
+   {
+    "from": "scheduled-prompts",
+    "element": "scheduled-history",
+    "to": "chat"
+   },
+   {
+    "from": "scheduled-prompt-editor",
+    "element": "scheduled-editor-time",
+    "to": "scheduled-prompt-time"
    },
    {
     "from": "chat-stash-attachments-unavailable-sheet",
@@ -39439,6 +40364,11 @@
     "from": "team-agents",
     "element": null,
     "to": "chat-watching-live"
+   },
+   {
+    "from": "chat",
+    "element": null,
+    "to": "dev-preview"
    },
    {
     "from": "chat",
@@ -39962,6 +40892,11 @@
     "element": null,
     "to": "agents-section",
     "via": "embedded"
+   },
+   {
+    "from": "termux-setup-installed",
+    "element": null,
+    "to": "linux-manager"
    }
   ]
  },
@@ -40064,6 +40999,11 @@
   {
    "file": "lib/ui/screens/chat/chat_composer_region.dart",
    "reason": "Part file of lib/ui/screens/chat_screen.dart (same screen, same library): its elements are listed under that screen's ledger entries; no separate surface.",
+   "part": "b1-chat-screen"
+  },
+  {
+   "file": "lib/ui/screens/chat/chat_dev_preview.dart",
+   "reason": "Part file of lib/ui/screens/chat_screen.dart (same screen, same library): finds the local ports a conversation named, claims a tapped local link and lists the ports under \"Preview a running app\"; the preview itself is the dev-preview page.",
    "part": "b1-chat-screen"
   },
   {
@@ -40267,6 +41207,11 @@
    "part": "j1-settings-more"
   },
   {
+   "file": "lib/ui/screens/dev_server_logs.dart",
+   "reason": "the body of the logs sheet for a dev server found running (opened from development-services and dev-preview): one showKitSheet around a searchable KitLogPanel; no screen of its own.",
+   "part": "h-termux"
+  },
+  {
    "file": "lib/ui/screens/exit_history_section.dart",
    "reason": "ExitHistorySection is the 'Recent app exits' block of App diagnostics (host page app-diagnostics), not a surface of its own.",
    "part": "j1-settings-more"
@@ -40362,6 +41307,16 @@
    "part": "j1-settings-more"
   },
   {
+   "file": "lib/ui/screens/linux_manager/linux_manager_common.dart",
+   "reason": "shared helpers and the package job panel (LinuxJobPanel) shown on the hub and Packages; its Stop is listed on the hub page",
+   "part": "q-linux-manager"
+  },
+  {
+   "file": "lib/ui/screens/linux_manager/linux_reset.dart",
+   "reason": "the Reset Linux question and flow, listed as the Reset row on the hub page",
+   "part": "q-linux-manager"
+  },
+  {
    "file": "lib/ui/screens/local_terminal_screen.dart",
    "reason": "LocalTerminalView: the \"This phone\" source of the Terminal page (terminal_screen.dart, same route), a shell in the built-in Ubuntu with its key bar and the shell list in the top bar's menu; not a page of its own (docs/design/local-terminal-2026-09-24.md).",
    "part": "f-files-review-terminal"
@@ -40397,6 +41352,16 @@
    "part": "j1-settings-more"
   },
   {
+   "file": "lib/ui/screens/scheduling/schedule_copy.dart",
+   "reason": "Localized fixed error-code mapping, with no independent surface.",
+   "part": "scheduled-prompts"
+  },
+  {
+   "file": "lib/ui/screens/scheduling/schedule_routes.dart",
+   "reason": "Capability-gated navigation and revalidated conversation routing; the destination screens are registered above.",
+   "part": "scheduled-prompts"
+  },
+  {
    "file": "lib/ui/screens/servers/profile_editor.dart",
    "reason": "Part file of lib/ui/screens/servers_screen.dart (same screen, same library): its elements are listed under that screen's ledger entries; no separate surface.",
    "part": "g-servers"
@@ -40418,6 +41383,11 @@
   },
   {
    "file": "lib/ui/screens/servers/profile_editor_steps.dart",
+   "reason": "Part file of lib/ui/screens/servers_screen.dart (same screen, same library): its elements are listed under that screen's ledger entries; no separate surface.",
+   "part": "g-servers"
+  },
+  {
+   "file": "lib/ui/screens/servers/profile_editor_trust.dart",
    "reason": "Part file of lib/ui/screens/servers_screen.dart (same screen, same library): its elements are listed under that screen's ledger entries; no separate surface.",
    "part": "g-servers"
   },
@@ -41245,6 +42215,14 @@
   {
    "part": "o-usage-and-settings",
    "note": "Added with the Usage subscriptions model and the server page; elements are not yet listed."
+  },
+  {
+   "part": "scheduled-prompts",
+   "note": "Scheduled prompt timing is approximate without Android exact-alarm access. Background acceptance is labelled Started; it does not claim AI task success."
+  },
+  {
+   "part": "scheduled-prompts",
+   "note": "This inventory is source evidence, not emulator or background execution qualification."
   }
  ]
 }

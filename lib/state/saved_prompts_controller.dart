@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'prompt_shelf.dart';
 import 'saved_prompt_safety.dart';
 
-export '../api/models.dart' show PromptAttachment;
+export '../domain/models.dart' show PromptAttachment;
 export 'prompt_shelf.dart' show StashedPrompt;
 export 'review_handoff.dart'
     show ReviewReference, ReviewReferenceKind, ReviewReferenceScope;

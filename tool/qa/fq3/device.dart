@@ -213,7 +213,8 @@ class PhoneRuntime {
   }
 
   Future<String?> version(bool oc2) async {
-    final binary = oc2 ? 'opencode2' : 'opencode';
+    if (!oc2) throw const ProbeFailure('retired_protocol');
+    const binary = 'opencode2';
     final response = await adb([
       'shell',
       'su $uid sh -c ${quote(proot('$binary --version 2>/dev/null'))}',
@@ -232,6 +233,7 @@ class PhoneRuntime {
     bool appManagedOnly = false,
     bool forceOwned = false,
   }) async {
+    if (!oc2) throw const ProbeFailure('retired_protocol');
     if (appManagedOnly && forceOwned) {
       throw const ProbeFailure('invalid_server_selection');
     }
@@ -246,10 +248,9 @@ class PhoneRuntime {
       final active = Fq3Wire(baseUrl: endpoint, password: password);
       try {
         final health = await active
-            .request('GET', oc2 ? '/api/health' : '/global/health')
+            .request('GET', '/api/health')
             .timeout(const Duration(seconds: 3));
-        if (health is Map &&
-            health['version'] == (oc2 ? '2.0.10' : '1.18.32')) {
+        if (health is Map && health['version'] == '2.0.10') {
           _forwards.add(activePort);
           lastServerKind = 'app-managed';
           return endpoint;
@@ -272,23 +273,21 @@ class PhoneRuntime {
     final devicePort = socket.port;
     await socket.close();
     final shell = StringBuffer('set -eu\n');
-    if (oc2) {
-      shell.write(
-        'unset OPENCODE_CONFIG OPENCODE_CONFIG_CONTENT\n'
-        'export XDG_DATA_HOME=/root/.oc-opencode2/data\n'
-        'export XDG_CACHE_HOME=/root/.oc-opencode2/cache\n'
-        'export XDG_STATE_HOME=/root/.oc-opencode2/state\n'
-        'export XDG_CONFIG_HOME=/root/.oc-opencode2/config\n'
-        'export OPENCODE_CONFIG_DIR=/root/.oc-opencode2/config/opencode\n'
-        'export OPENCODE_DB=/root/.oc-opencode2/data/opencode/opencode.db\n',
-      );
-    }
+    shell.write(
+      'unset OPENCODE_CONFIG OPENCODE_CONFIG_CONTENT\n'
+      'export XDG_DATA_HOME=/root/.oc-opencode2/data\n'
+      'export XDG_CACHE_HOME=/root/.oc-opencode2/cache\n'
+      'export XDG_STATE_HOME=/root/.oc-opencode2/state\n'
+      'export XDG_CONFIG_HOME=/root/.oc-opencode2/config\n'
+      'export OPENCODE_CONFIG_DIR=/root/.oc-opencode2/config/opencode\n'
+      'export OPENCODE_DB=/root/.oc-opencode2/data/opencode/opencode.db\n',
+    );
     shell.write(
       'password=\$(cat /root/.oc-builtin/server.password)\n'
       'export OPENCODE_SERVER_USERNAME=opencode\n'
       'export OPENCODE_SERVER_PASSWORD="\$password" OPENCODE_PASSWORD="\$password"\n'
       'unset password\n'
-      'exec ${oc2 ? 'opencode2' : 'opencode'} serve --hostname 127.0.0.1 --port $devicePort\n',
+      'exec opencode2 serve --hostname 127.0.0.1 --port $devicePort\n',
     );
     final wrapper =
         'umask 077; echo \$\$ > ${quote('$scratch/pid')}; '
@@ -325,7 +324,7 @@ class PhoneRuntime {
       final wire = Fq3Wire(baseUrl: endpoint, password: password);
       try {
         final health = await wire
-            .request('GET', oc2 ? '/api/health' : '/global/health')
+            .request('GET', '/api/health')
             .timeout(const Duration(seconds: 3));
         if (health is Map && health['version'] is String) return endpoint;
       } catch (_) {

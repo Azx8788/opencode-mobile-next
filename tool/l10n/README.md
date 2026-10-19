@@ -88,6 +88,12 @@ python3 tool/l10n/check_partial_locales.py [--base-ref "$BASE_COMMIT"]
   required), translate the rest, put every English key in the list and move
   the language to `check_completeness.py`'s pattern.
 
+Spanish and Simplified Chinese also carry a tier-2 set
+(`partial_locales_tier2_keys.txt`, `docs/l10n/tier2-key-set.md`): the checker
+requires it in `es` and `zh` only (`TIER2_LOCALES`), it may not overlap the core
+list, and it may only grow, like the core. To extend another language to tier 2,
+translate every key in the list, then add it to `TIER2_LOCALES`.
+
 Japanese and Chinese goldens need glyphs the test engine lacks:
 `tool/l10n/subset_cjk_fixtures.py` rebuilds the two Noto Sans CJK subsets in
 `test/fixtures/fonts/` after translations add characters.

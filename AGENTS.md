@@ -23,17 +23,22 @@ flutter analyze                 # must be clean; no new ignores
 flutter test --concurrency=1    # serial in the phone-hosted container; a workstation may use -j 3
 ```
 
+- Before every hand-back and merge: `tool/qa/preflight.sh <base>` (about 40 s:
+  commit rules, format, l10n output, QA tool tests and the repo-scanning
+  ledger/ratchet tests that caused most repeated full runs).
 - Single file: `flutter test --concurrency=1 test/offline_queue_test.dart`.
-- Fast full run: `tool/qa/run_tests_fast.sh` (4 timing-balanced shards × `--concurrency 2`, one machine_lock slot each; failing files in `build/traycer/fast-*/summary.txt`). CI runs the same runner as 6 shards.
+- Full run with the build server: `tool/qa/run_tests_split.sh` (about 13 min;
+  commit first). Goldens run on both machines (per-image limits in
+  `test/goldens/tolerances.json`), small files run in aggregates, and any
+  failure is re-run alone before it counts. Files that cannot share a process
+  go in `tool/qa/agg_exclude.txt` with a reason.
+- Fast full run on this machine only: `tool/qa/run_tests_fast.sh` (4 timing-balanced shards × `--concurrency 2`, one machine_lock slot each; failing files in `build/traycer/fast-*/summary.txt`). CI runs the same runner as 6 shards.
 - If the shell kills long runs, split the suite and run the chunks one after
   another: `find test -name '*_test.dart' | sort | split -n l/6 - "${TMPDIR:-/tmp}/chunk_"`
   (this includes nested directories and goldens).
-- Generated SDK package has its own checks: `dart analyze` and `dart test`
-  inside `packages/opencode_sdk/`.
-- Optional live-server checks (no emulator):
-  `opencode serve --port 4123 &` then
-  `dart run tool/smoke_test.dart http://127.0.0.1:4123 /server/project`;
-  `tool/prompt_test.dart` additionally needs model auth.
+- Optional live-server checks (no emulator): use the OpenCode 2 scratch probes in
+  `tool/qa/oc2_live_proof_test.dart` with an isolated data root and Basic auth.
+  Never probe the owner's live servers or print credentials.
 - Release APK off this PC: `tool/qa/vps_build_apk.sh <build-number>` builds on the
   build server with a throwaway key, then re-signs here with the real key and fails
   unless the signer is the local release key (output in `build/vps-apk/`).
@@ -54,8 +59,7 @@ flutter test --concurrency=1    # serial in the phone-hosted container; a workst
 
 ## Architecture boundaries
 
-- `lib/api/` OpenCode 1 client (generated SDK + SSE `/event`);
-  `lib/api2/` handwritten OpenCode 2 client (Basic auth, `/api` prefix,
+- `lib/api2/` handwritten OpenCode 2 client (Basic auth, `/api` prefix,
   91-event union, durable session log);
   `lib/domain/` protocol-neutral gateway (`ServerGateway`,
   `ServerOperationsGateway`, `ServerCapabilities`);
@@ -72,7 +76,7 @@ flutter test --concurrency=1    # serial in the phone-hosted container; a workst
   Gate features on `ServerCapabilities` flags, never on the flavor enum.
 - Treat as single-owner units (one editor at a time): `lib/state/connection.dart` **plus every `connection/*.dart` part file**,
   `lib/ui/screens/chat_screen.dart` **plus every `chat/*.dart` part file as one
-  library**, `lib/domain/server_gateway.dart`, `lib/api/product_repository.dart`,
+  library**, `lib/domain/server_gateway.dart`, `lib/domain/product_repository.dart`,
   `lib/main.dart`, `lib/l10n/` output, each protocol cluster, and both halves of
   any MethodChannel (`oc/termux`, `oc/voice`, `oc/camera`, `oc/background`,
   `oc/share`, `oc/byo_host_signer`).
@@ -93,8 +97,6 @@ flutter test --concurrency=1    # serial in the phone-hosted container; a workst
 
 ## Repo-specific facts
 
-- `packages/opencode_sdk/` is generated from `contracts/` via
-  `tool/sdk/generate.sh`. Never hand-edit; CI fails on drift.
 - Nothing in `lib/background/` may assume unbounded lifetime: Android 15+
   caps `dataSync` foreground services at 6 background hours per rolling 24h,
   and the battery-optimization exemption does not lift that.

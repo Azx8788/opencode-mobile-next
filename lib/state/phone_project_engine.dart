@@ -694,17 +694,21 @@ class PhoneProjectEngineController {
   }
 
   /// Native deletion is authoritative even when a stopped daemon cannot answer.
-  Future<void> deleteProfile(String profileId) {
+  /// [linuxGone]: the in-app Linux was erased, so the engine inside it is
+  /// gone too and the native cleanup has nothing left to reach; its failure
+  /// is not a failure to delete.
+  Future<void> deleteProfile(String profileId, {bool linuxGone = false}) {
     _deleted.add(profileId);
     for (final client in _gateways[profileId] ?? <PhoneEngineGateway>{}) {
       client.beginDeletion();
     }
-    return _deletions[profileId] ??= _delete(profileId).whenComplete(() {
-      _deletions.remove(profileId);
-    });
+    return _deletions[profileId] ??= _delete(profileId, linuxGone: linuxGone)
+        .whenComplete(() {
+          _deletions.remove(profileId);
+        });
   }
 
-  Future<void> _delete(String profileId) async {
+  Future<void> _delete(String profileId, {bool linuxGone = false}) async {
     if (!await store.prefs.setBool(_tombstone(profileId), true)) {
       {
         throw const PhoneEngineException('deleteFailed');
@@ -746,7 +750,11 @@ class PhoneProjectEngineController {
       await client.close();
     }
     try {
-      await bridge.delete(profileId);
+      try {
+        await bridge.delete(profileId);
+      } catch (_) {
+        if (!linuxGone) rethrow;
+      }
       _admissionRequired.remove(profileId);
       _admissionSuspended.add(profileId);
     } catch (_) {

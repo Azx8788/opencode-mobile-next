@@ -1,0 +1,32 @@
+00:00 +0: loading /home/eslam/wt/oc-app-schedule-clockqa/test/scheduled_prompt_store_test.dart
+00:00 +0: restart preserves schedules, paused state, history and opt-in digest
+00:00 +1: local run timestamps survive JSON before dispatch and completion
+00:00 +1 -1: local run timestamps survive JSON before dispatch and completion [E]
+  ScheduledPromptStoreException(invalid_run_transition)
+  package:opencode_mobile/scheduling/store.dart 213:11  ScheduledPromptStore.recordRun.<fn>
+  package:opencode_mobile/scheduling/store.dart 249:17  ScheduledPromptStore._mutate
+  
+00:00 +1 -1: advance compares local scheduled time by instant after JSON reload
+00:00 +1 -2: advance compares local scheduled time by instant after JSON reload [E]
+  Expected: true
+    Actual: <false>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/scheduled_prompt_store_test.dart 173:7         main.<fn>
+  
+00:00 +1 -2: concurrent CAS writers preserve unrelated schedule edits
+00:00 +2 -2: refused persistence and deleted-profile fence never report success
+00:00 +3 -2: corrupt or foreign-profile state is not silently overwritten
+00:00 +4 -2: delete removes visible history and profile-scoped envelope is sweepable
+00:00 +5 -2: stale schedule edits and terminal run rewrites are rejected
+00:00 +6 -2: schema drift and duplicate ids fail closed; lists are immutable
+00:00 +7 -2: advance cannot resurrect deleted or overwrite edited schedules
+00:00 +8 -2: resuming skips paused occurrences and past once requires editing
+00:00 +9 -2: same revision edits cannot overwrite a concurrent save
+00:00 +10 -2: digest claims are once per cutoff and respect concurrent disabling
+00:00 +11 -2: Some tests failed.
+
+Failing tests:
+  /home/eslam/wt/oc-app-schedule-clockqa/test/scheduled_prompt_store_test.dart: advance compares local scheduled time by instant after JSON reload
+  /home/eslam/wt/oc-app-schedule-clockqa/test/scheduled_prompt_store_test.dart: local run timestamps survive JSON before dispatch and completion

@@ -4,6 +4,7 @@ import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../agents/agents_text.dart' show agentMark;
 import '../../../domain/chat_feed.dart';
 import '../../../domain/relative_age.dart';
 import '../../../l10n/app_localizations.dart';
@@ -585,12 +586,17 @@ class _ChatsHomeScreenState extends ConsumerState<ChatsHomeScreen> {
               l10n.agentsStateCantReopen,
               KitFeedStateTone.quiet,
             ),
+            _ when item.finishedUnseen => (
+              l10n.chatsHomeDone,
+              KitFeedStateTone.done,
+            ),
             _ => (null, KitFeedStateTone.quiet),
           };
     return KitFeedItem(
       project: item.projectName,
       // The agent's name leads the meta line when it is not the default
       // OpenCode; beside another server, OpenCode's rows name theirs.
+      agentMark: item.agentLabel == null ? null : agentMark(item.agentId),
       agent:
           item.agentLabel ??
           (showAgent && servers && item.sourceLabel != null

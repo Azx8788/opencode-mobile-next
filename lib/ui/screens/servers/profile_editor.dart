@@ -228,6 +228,11 @@ class _ProfileEditorScreenState extends State<_ProfileEditorScreen> {
   /// starts with the confirmation it was saved with.
   late String? _cleartextConfirmed = widget.existing?.cleartextConfirmedOrigin;
 
+  late String? _certificatePin = widget.existing?.certificatePinSha256;
+  late String? _certificateOrigin = widget.existing?.certificatePinOrigin;
+  bool _inspectingCertificate = false;
+  String? _certificateInspectionFailure;
+
   /// Save & connect is checking the connection before it stores anything.
   bool _checkingForSave = false;
 

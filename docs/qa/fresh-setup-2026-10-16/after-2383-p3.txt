@@ -1,0 +1,20 @@
+# Build 2383, wiped Pixel_6, run p3
+booted 10:18:39
+Performing Streamed Install
+Success
+setup tapped y=1354 10:19:23
+10-16 10:19:39.809  4987  4987 I flutter : OCTRACE 15668ms setup.component id=linux
+10-16 10:21:42.438  4987  4987 I flutter : OCTRACE 122712ms setup.component id=essentials
+10-16 10:22:38.394  4987  4987 I flutter : OCTRACE 55834ms setup.component id=python
+10-16 10:23:11.905  4987  4987 I flutter : OCTRACE 33601ms setup.component id=node
+10-16 10:23:38.481  4987  4987 I flutter : OCTRACE 26781ms setup.component id=opencode
+10-16 10:23:41.786  4987  4987 I flutter : OCTRACE 3324ms setup.component id=start
+10-16 10:23:41.793  4987  4987 I flutter : OCTRACE 258006ms setup.job state=done
+Termux RUN_COMMAND log lines: 0
+
+# step changes seen on screen
+10:19:27 CHANGE Step 1 of 6, Linux base, Working;
+10:20:03 CHANGE Step 1 of 6, Linux base, Done;Step 2 of 6, Git and SSH, Working;
+10:21:56 CHANGE Step 1 of 6, Linux base, Done;Step 2 of 6, Git and SSH, Done;Step 3 of 6, Python, Working;
+10:22:51 CHANGE Step 1 of 6, Linux base, Done;Step 2 of 6, Git and SSH, Done;Step 3 of 6, Python, Done;Step 4 of 6, Node.js, Working;
+10:23:28 CHANGE Step 1 of 6, Linux base, Done;Step 2 of 6, Git and SSH, Done;Step 3 of 6, Python, Done;Step 4 of 6, Node.js, Done;Step 5 of 6, OpenCode, Working;

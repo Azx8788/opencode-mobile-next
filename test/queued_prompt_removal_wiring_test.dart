@@ -48,8 +48,18 @@ class _RemovalDisk extends InMemorySharedPreferencesStore {
 
 Map<String, Object> _seed() => {
   'oc.profiles': jsonEncode([
-    {'id': 'doomed', 'name': 'Old workstation', 'baseUrl': 'http://old'},
-    {'id': 'keeper', 'name': 'Laptop', 'baseUrl': 'http://laptop'},
+    {
+      'id': 'doomed',
+      'name': 'Old workstation',
+      'flavor': 'v2',
+      'baseUrl': 'http://old',
+    },
+    {
+      'id': 'keeper',
+      'name': 'Laptop',
+      'flavor': 'v2',
+      'baseUrl': 'http://laptop',
+    },
   ]),
   'oc.activeProfile': 'keeper',
   'oc.offlineQueue': jsonEncode([

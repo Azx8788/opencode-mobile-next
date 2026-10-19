@@ -264,14 +264,14 @@ void main() {
     expect(find.textContaining('opencode2 interface'), findsOneWidget);
   });
 
-  testWidgets('a missing directory shows the honest state, v1 naming', (
+  testWidgets('a missing directory shows the honest state, OpenCode 2 naming', (
     tester,
   ) async {
     await pumpSheet(
       tester,
       ContinueOnComputerSheet(
         command: SessionResumeCommand.build(
-          cli: SessionResumeCli.openCode1,
+          cli: SessionResumeCli.openCode2,
           sessionID: 'ses_1',
           directory: null,
         ),
@@ -284,7 +284,7 @@ void main() {
       find.textContaining('did not report a project folder'),
       findsOneWidget,
     );
-    expect(find.textContaining('the opencode interface'), findsOneWidget);
+    expect(find.textContaining('the opencode2 interface'), findsOneWidget);
   });
 
   testWidgets('an unbuildable link shows the honest state and no QR', (

@@ -3,10 +3,12 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/l10n/app_localizations_en.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/background/widget_snapshot.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:opencode_mobile/ui/kit/kit_redact.dart';
 
 Session _session(String id, {String? title, int? updated}) => Session(
   id: id,
@@ -15,7 +17,170 @@ Session _session(String id, {String? title, int? updated}) => Session(
 );
 
 void main() {
+  group('widgetAskFor', () {
+    final en = AppLocalizationsEn();
+    test('an outside write names the file and its folder', () {
+      expect(
+        widgetAskFor(
+          permission: 'external_directory',
+          patterns: const ['/root/*'],
+          tool: 'write',
+          target: '/root/outside-test.txt',
+          strings: en,
+        ),
+        {
+          'file': 'outside-test.txt',
+          'kind': 'write',
+          'q': 'Write outside this project?',
+          'path': '/root/outside-test.txt',
+          'dir': '/root',
+        },
+      );
+    });
+
+    test('a command is text: never split into a folder and a file', () {
+      final ask = widgetAskFor(
+        permission: 'external_directory',
+        patterns: const ['/root/*'],
+        tool: 'shell',
+        target: 'touch /root/outside-test.txt',
+        strings: en,
+      );
+      expect(ask['kind'], 'run');
+      expect(ask['file'], 'touch /root/outside-test.txt');
+      // The folder it reaches into comes from the request's own pattern.
+      expect(ask['dir'], '/root');
+      expect(ask.containsKey('path'), isFalse);
+    });
+
+    test('a shell ask without a seen call uses its pattern as the command', () {
+      final ask = widgetAskFor(
+        permission: 'shell',
+        patterns: const ['touch /root/x'],
+        strings: en,
+      );
+      expect(ask['kind'], 'run');
+      expect(ask['file'], 'touch /root/x');
+      expect(ask.containsKey('dir'), isFalse);
+    });
+
+    test('only a folder pattern gives a folder, never an invented file', () {
+      final ask = widgetAskFor(
+        permission: 'external_directory',
+        patterns: const ['/root/*'],
+        strings: en,
+      );
+      expect(ask['dir'], '/root');
+      expect(ask.containsKey('file'), isFalse);
+    });
+  });
+
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  test('preview excludes inline reasoning and retains the following reply', () {
+    expect(
+      safeWidgetPreview('Intro <think>private reasoning</think>Done.'),
+      'Intro Done.',
+    );
+    expect(
+      safeWidgetPreview('< THINKING >private\nreasoning< / Thinking >Reply'),
+      'Reply',
+    );
+    expect(
+      safeWidgetPreview(
+        '<think>outer<thinking>inner</thinking>private</think>Reply',
+      ),
+      'Reply',
+    );
+    expect(
+      safeWidgetPreview(
+        '<think>first</think>One<thinking>second</thinking>Two',
+      ),
+      'One Two',
+    );
+  });
+
+  test('preview hides unclosed reasoning and orphan closing prefixes', () {
+    expect(
+      safeWidgetPreview('Public reply <think>still private'),
+      'Public reply',
+    );
+    expect(safeWidgetPreview('<thinking>still private'), '');
+    expect(safeWidgetPreview('</think>done'), 'done');
+    expect(
+      safeWidgetPreview('truncated reasoning</THINKING>Real reply'),
+      'Real reply',
+    );
+  });
+
+  test('preview shows plain words, never raw Markdown', () {
+    expect(
+      safeWidgetPreview('Done — `sleep 40` completed.'),
+      'Done — sleep 40 completed.',
+    );
+    expect(
+      safeWidgetPreview(
+        '## Summary\n- **Fixed** the _bug_ in [the docs](https://x.test/a)\n'
+        '1. ~~old~~ new *step*\n```dart\nprint(1);\n```',
+      ),
+      'Summary Fixed the bug in the docs old new step print(1);',
+    );
+    expect(
+      safeWidgetPreview('snake_case_name and 2 * 3 * 4'),
+      'snake_case_name and 2 * 3 * 4',
+    );
+  });
+
+  test('project line is a real folder name or nothing', () {
+    expect(safeWidgetProject('/tmp/run/project'), '');
+    expect(safeWidgetProject('/home/me/oc_app'), 'oc_app');
+    expect(safeWidgetProject(''), '');
+  });
+
+  test('preview leaves unrelated markup and code alone', () {
+    expect(
+      safeWidgetPreview('Use `<div>` and `a < b`; <thinker> is a name.'),
+      'Use <div> and a < b; <thinker> is a name.',
+    );
+    expect(
+      safeWidgetPreview('&lt;think&gt; is escaped.'),
+      '&lt;think&gt; is escaped.',
+    );
+  });
+
+  test('bounded assistant reads use the same inline reasoning boundary', () {
+    expect(
+      safeWidgetAssistantPreview([
+        MessageWithParts(
+          info: MessageInfo(id: 'a1', sessionID: 's1', role: 'assistant'),
+          parts: [
+            Part(type: 'text', text: '<think>private</think>Final reply'),
+          ],
+        ),
+      ]),
+      'Final reply',
+    );
+  });
+
+  test('bounded read preview uses assistant prose only', () {
+    MessageWithParts message(String role, List<Part> parts) => MessageWithParts(
+      info: MessageInfo(id: role, sessionID: 's1', role: role),
+      parts: parts,
+    );
+    expect(
+      safeWidgetAssistantPreview([
+        message('assistant', [Part(type: 'text', text: 'Old reply')]),
+        message('assistant', [
+          Part(type: 'reasoning', text: 'Private reasoning'),
+          Part(type: 'tool', text: 'Private output'),
+          Part(type: 'text', text: 'Synthetic prompt', synthetic: true),
+          Part(type: 'text', text: 'Latest reply password=secret-value'),
+        ]),
+        message('user', [Part(type: 'text', text: 'Private user prompt')]),
+      ]),
+      'Latest reply password=•••',
+    );
+  });
 
   Future<(WidgetSessionSnapshot, SharedPreferences, List<int>)> harness({
     bool isAndroid = true,
@@ -30,6 +195,100 @@ void main() {
     );
     return (snapshot, prefs, refreshes);
   }
+
+  test(
+    'a permission ask carries only its question, kind, file and folder',
+    () async {
+      final (snapshot, prefs, _) = await harness();
+      KitRedact.registerKnownSecret('registered-private-secret');
+      addTearDown(KitRedact.clearKnownSecrets);
+      await snapshot.update(
+        sessions: [_session('s1')],
+        busySessions: {},
+        connected: true,
+        details: {
+          's1': {
+            'requestID': 'perm-1',
+            'ask': {
+              'kind': 'write',
+              'q': 'Write outside this project?',
+              'file': 'outside-test.txt',
+              'path': '/root/outside-test.txt',
+              'dir': '/root',
+              'toolInput': 'registered-private-secret',
+            },
+          },
+        },
+      );
+      final row =
+          (jsonDecode(
+                        prefs.getString(WidgetSessionSnapshot.prefsKey)!,
+                      )['sessions']
+                      as List)
+                  .single
+              as Map;
+      expect(row['ask'], {
+        'kind': 'write',
+        'q': 'Write outside this project?',
+        'file': 'outside-test.txt',
+        'path': '/root/outside-test.txt',
+        'dir': '/root',
+      });
+      expect(jsonEncode(row), isNot(contains('registered-private-secret')));
+    },
+  );
+
+  test(
+    'project and assistant excerpt are redacted bounded display fields',
+    () async {
+      final (snapshot, prefs, _) = await harness();
+      KitRedact.registerKnownSecret('registered-private-secret');
+      addTearDown(KitRedact.clearKnownSecrets);
+      await snapshot.update(
+        sessions: [_session('s1')],
+        busySessions: {},
+        connected: false,
+        details: {
+          's1': {
+            'project': '/private/routing/My project',
+            'model': 'big-pickle',
+            'preview':
+                'Done registered-private-secret password=synthetic-password\n'
+                'مرحبا\u061c\u200e\u200f\u202e\u2067\u0001 ${'😀' * 250}',
+            'prompt': 'user-private-text',
+            'toolInput': 'tool-private-text',
+            'reasoning': 'reasoning-private-text',
+            'error': 'error-private-text',
+          },
+        },
+      );
+      final raw = prefs.getString(WidgetSessionSnapshot.prefsKey)!;
+      final row = (jsonDecode(raw)['sessions'] as List).single as Map;
+      expect(row['project'], 'My project');
+      expect(row['model'], 'big-pickle');
+      expect((row['preview'] as String).runes.length, 240);
+      expect(row['preview'], contains('مرحبا'));
+      for (final forbidden in [
+        '/private/routing',
+        'registered-private-secret',
+        'synthetic-password',
+        'user-private-text',
+        'tool-private-text',
+        'reasoning-private-text',
+        'error-private-text',
+        '\u061c',
+        '\u200e',
+        '\u200f',
+        '\u202e',
+        '\u2067',
+        '\u0001',
+        '\n',
+      ]) {
+        expect(row['preview'], isNot(contains(forbidden)));
+        expect(raw, isNot(contains(forbidden)));
+      }
+    },
+  );
 
   test(
     'snapshot keeps routing private and profile deletion removes target',
@@ -100,7 +359,7 @@ void main() {
     );
   });
   test(
-    'writes at most four sessions with busy flags and title fallback',
+    'writes at most six sessions with busy flags and title fallback',
     () async {
       final (snapshot, prefs, refreshes) = await harness();
       await snapshot.update(
@@ -109,7 +368,9 @@ void main() {
           _session('s2', updated: 40),
           _session('s3', title: 'Refactor', updated: 30),
           _session('s4', title: 'Docs', updated: 20),
-          _session('s5', title: 'Never shown', updated: 10),
+          _session('s5', title: 'Fifth', updated: 10),
+          _session('s6', title: 'Sixth', updated: 9),
+          _session('s7', title: 'Never shown', updated: 8),
         ],
         busySessions: {'s1', 's3'},
         connected: true,
@@ -124,7 +385,7 @@ void main() {
       // profile switch opens the app normally instead of a foreign chat.
       expect(decoded['profileID'], 'server-1');
       final sessions = decoded['sessions'] as List;
-      expect(sessions, hasLength(4));
+      expect(sessions, hasLength(6));
       expect(sessions[0], {
         'id': 's1',
         'title': 'Fix auth',
@@ -291,5 +552,58 @@ void main() {
       await answer({'cleared': false});
       expect(await snapshot.clearForProfile('p1'), WidgetSnapshotClear.failed);
     });
+  });
+
+  test('conversations of other projects join the rows, plain and ordered '
+      'needs-you, running, newest', () async {
+    final (snapshot, prefs, _) = await harness();
+    await snapshot.update(
+      sessions: [_session('old', title: 'Old here', updated: 100)],
+      busySessions: {},
+      connected: true,
+      details: {
+        'old': {'project': 'here', 'preview': 'kept preview'},
+      },
+      others: const [
+        WidgetOtherConversation(
+          id: 'new',
+          title: 'UI review',
+          project: 'IPTV_King',
+          updatedAt: 900,
+          busy: false,
+          needsYou: false,
+        ),
+        WidgetOtherConversation(
+          id: 'run',
+          title: 'Running one',
+          project: 'IPTV_King',
+          updatedAt: 500,
+          busy: true,
+          needsYou: false,
+        ),
+        WidgetOtherConversation(
+          id: 'ask',
+          title: 'Needs you',
+          project: '/home/secret/dir',
+          updatedAt: 1,
+          busy: false,
+          needsYou: true,
+        ),
+      ],
+    );
+    final decoded =
+        jsonDecode(prefs.getString(WidgetSessionSnapshot.prefsKey)!) as Map;
+    final rows = (decoded['sessions'] as List).cast<Map>();
+    expect(rows.map((r) => r['id']), ['ask', 'run', 'new', 'old']);
+    expect(decoded['runningCount'], 1);
+    expect(decoded['pendingCount'], 1);
+    final foreign = rows.first;
+    expect(foreign['project'], 'dir');
+    expect(foreign.containsKey('preview'), isFalse);
+    expect(foreign.containsKey('requestID'), isFalse);
+    expect(foreign['onDemandActions'], isEmpty);
+    expect(jsonEncode(rows), isNot(contains('/home/secret')));
+    // The active controller's own row keeps its details.
+    expect(rows.last['preview'], 'kept preview');
   });
 }

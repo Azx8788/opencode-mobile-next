@@ -2,14 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart'
-    show ModelRef, SessionSelection;
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'package:opencode_mobile/domain/models.dart'
+    show ApiException, ModelRef, SessionSelection;
 import 'package:opencode_mobile/api2/gateway.dart';
 import 'package:opencode_mobile/api2/gateway_operations.dart';
 import 'package:opencode_mobile/api2/gateway_events.dart';
-import 'package:opencode_mobile/api2/gateway_mappers.dart'
-    show api2ServerCapabilities;
 import 'package:opencode_mobile/api2/models.dart';
 import 'package:opencode_mobile/api2/session_permission_policy.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
@@ -534,50 +531,6 @@ void main() {
         expect(requests.single.body, {'reply': 'once'});
         gateway.close();
       });
-    });
-  });
-
-  group('v1 gateway stays inert', () {
-    final api = OpenCodeApi(baseUrl: 'http://127.0.0.1:1');
-
-    test('capability flags are off', () {
-      expect(api.capabilities.forms, isFalse);
-      expect(api.capabilities.inbox, isFalse);
-      expect(api2ServerCapabilities.forms, isTrue);
-      expect(api2ServerCapabilities.inbox, isTrue);
-    });
-
-    test('form and inbox lists come back empty without any request', () async {
-      expect(await api.sessionForms('ses_x'), isEmpty);
-      expect(await api.pendingForms(), isEmpty);
-      expect(await api.inboxItems('ses_x'), isEmpty);
-    });
-
-    test('form and inbox mutations fail with a typed unavailable error', () {
-      expect(
-        () => api.replyForm('ses_x', 'frm_x', const {}),
-        throwsA(isA<ProductException>()),
-      );
-      expect(
-        () => api.cancelForm('ses_x', 'frm_x'),
-        throwsA(isA<ProductException>()),
-      );
-      expect(
-        () => api.formState('ses_x', 'frm_x'),
-        throwsA(isA<ProductException>()),
-      );
-      expect(
-        () => api.cancelInboxItem('ses_x', 'msg_x'),
-        throwsA(isA<ProductException>()),
-      );
-      expect(
-        () => api.steerInboxItem('ses_x', 'msg_x'),
-        throwsA(isA<ProductException>()),
-      );
-      expect(
-        () => api.queueInboxItem('ses_x', 'msg_x'),
-        throwsA(isA<ProductException>()),
-      );
     });
   });
 

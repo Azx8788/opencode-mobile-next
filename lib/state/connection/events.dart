@@ -141,21 +141,12 @@ extension _ConnectionControllerEventsImpl on ConnectionController {
       _notifyListeners();
     }
 
-    // The v1 factory stays the injected test seam (typed on OpenCodeApi);
-    // every other gateway supplies its own channel through the EventGateway
-    // interface — the v2 SSE consumer lives behind that seam.
-    stream = currentApi is OpenCodeApi
-        ? _eventStreamFactory(
-            api: currentApi,
-            onEvent: handleEvent,
-            onStatus: handleStatus,
-            onError: handleError,
-          )
-        : currentApi.openEventChannel(
-            onEvent: handleEvent,
-            onStatus: handleStatus,
-            onError: handleError,
-          );
+    stream = _eventStreamFactory(
+      api: currentApi,
+      onEvent: handleEvent,
+      onStatus: handleStatus,
+      onError: handleError,
+    );
     _events = stream;
     final owner = _connectedProfile ?? profile;
     if (owner != null) {
@@ -194,19 +185,6 @@ extension _ConnectionControllerEventsImpl on ConnectionController {
           event.type == 'session.updated') {
         _feedScheduleRefresh();
       }
-      // OpenCode 1's `/event` only carries its own folder's events. While it
-      // is down, this server-wide stream still carries them: pass them on so
-      // a running reply keeps moving instead of waiting for the 5 s list
-      // poll and the refresh at the end. Never while it is up, or every
-      // streamed word would arrive twice.
-      if (currentApi is OpenCodeApi &&
-          status != StreamStatus.connected &&
-          event.directory != null &&
-          directory != null &&
-          ConnectionController.sameDirectoryPath(event.directory, directory)) {
-        _onEvent(event);
-        return;
-      }
       if (event.type == 'installation.update-available' ||
           event.type == 'installation.updated' ||
           event.type == 'worktree.ready' ||
@@ -234,25 +212,14 @@ extension _ConnectionControllerEventsImpl on ConnectionController {
       }
     }
 
-    if (currentApi is OpenCodeApi) {
-      final factory = _globalEventStreamFactory;
-      if (factory == null) return;
-      stream = factory(
-        api: currentApi,
-        onEvent: handleEvent,
-        // The location-scoped stream owns visible connection state. A global
-        // update-notification retry must never make a healthy chat look
-        // offline.
-        onStatus: handleStatus,
-        onError: (_) {},
-      );
-    } else {
-      stream = currentApi.openGlobalEventChannel(
-        onEvent: handleEvent,
-        onStatus: handleStatus,
-        onError: (_) {},
-      );
-    }
+    final factory = _globalEventStreamFactory;
+    if (factory == null) return;
+    stream = factory(
+      api: currentApi,
+      onEvent: handleEvent,
+      onStatus: handleStatus,
+      onError: (_) {},
+    );
     _globalEvents = stream;
     _globalStreamStatus = StreamStatus.connecting;
     stream.start();

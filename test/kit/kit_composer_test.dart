@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../support/no_red.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
 import 'package:opencode_mobile/state/effects.dart';
@@ -379,7 +380,7 @@ void main() {
 
     expect(colorOf("Didn't send"), roles.text1);
     expect(colorOf('· Try again'), roles.text1);
-    expect(colorOf("Didn't send"), isNot(roles.danger));
+    expect(colorOf("Didn't send"), isNotRed);
     await tester.tap(find.text('· Try again'));
     expect(retries, 1);
   });
@@ -409,6 +410,32 @@ void main() {
     );
     expect(details.width, greaterThanOrEqualTo(48));
     expect(details.height, greaterThanOrEqualTo(48));
+  });
+
+  testWidgets('a failure with its own fix shows it in Retry\'s place', (
+    tester,
+  ) async {
+    final h = _host('');
+    var retried = 0, fixed = 0;
+    const fixKey = ValueKey('failure-fix');
+    await _pump(
+      tester,
+      _composer(
+        h,
+        failure: KitComposerFailure(
+          words: "This project's Git history can't be read.",
+          onRetry: () => retried++,
+          actionLabel: 'Repair',
+          onAction: () => fixed++,
+          actionKey: fixKey,
+        ),
+      ),
+    );
+    expect(find.text('· Repair'), findsOne);
+    expect(find.text('· Retry'), findsNothing);
+    expect(tester.getSize(find.byKey(fixKey)).height, greaterThanOrEqualTo(48));
+    await tester.tap(find.byKey(fixKey));
+    expect((fixed, retried), (1, 0));
   });
 
   testWidgets('offline: Send says it queues and still sends', (tester) async {

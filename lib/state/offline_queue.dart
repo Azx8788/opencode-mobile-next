@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../api/models.dart';
+import '../domain/models.dart';
 
 /// One prompt drafted while the server was unreachable, waiting to send.
 ///

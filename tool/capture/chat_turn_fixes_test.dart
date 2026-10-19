@@ -10,7 +10,7 @@
 // Output: docs/qa/chat-turn-fixes-2026-10-08/<before|after>-<scene>.png
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/domain/turn_stall.dart';
 import 'package:opencode_mobile/state/profiles.dart';

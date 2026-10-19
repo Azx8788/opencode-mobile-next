@@ -418,7 +418,7 @@ final class _SignInLifetime {
   AgentSignInForegroundBinding? binding;
   Object? cleanupToken;
   AgentSignInForegroundLease? lease;
-  StreamSubscription<void>? lost;
+  StreamSubscription<AgentSignInForegroundException>? lost;
   bool cancelRequested = false;
   bool nativeStartIssued = false;
   int? nativeId;
@@ -495,8 +495,8 @@ class LocalTerminalSessions extends ChangeNotifier {
         if (signIn != null) {
           try {
             _requireSignInCurrent(signIn);
-          } catch (_) {
-            _lostSignInForeground(signIn);
+          } catch (error) {
+            _lostSignInForeground(signIn, error);
             return;
           }
         }
@@ -600,12 +600,12 @@ class LocalTerminalSessions extends ChangeNotifier {
         lifetime.lease = injected.reserveAgentSignInForeground();
       }
       lifetime.lost = lifetime.lease!.lost.listen(
-        (_) => _lostSignInForeground(lifetime),
+        (cause) => _lostSignInForeground(lifetime, cause),
         onError: (Object _) => _lostSignInForeground(lifetime),
       );
       unawaited(_launchSignIn(lifetime, profileId, List<String>.of(program)));
     } catch (error) {
-      shell._failed(_signInFailure(error));
+      shell._failed(_signInFailure(error, step: 'reserve'));
       lifetime.launchDone.complete();
       unawaited(endSignIn(shell).catchError((Object _) {}));
     }
@@ -673,13 +673,16 @@ class LocalTerminalSessions extends ChangeNotifier {
     });
   }
 
-  void _lostSignInForeground(_SignInLifetime lifetime) {
+  /// The running sign-in lost its service; [cause] names what stopped it.
+  void _lostSignInForeground(_SignInLifetime lifetime, [Object? cause]) {
     if (lifetime.cancelRequested) return;
     lifetime.shell._failed(
       _signInFailure(
-        const AgentSignInForegroundException(
-          AgentSignInForegroundFailure.unavailable,
-        ),
+        cause ??
+            const AgentSignInForegroundException(
+              AgentSignInForegroundFailure.unavailable,
+            ),
+        step: 'lost',
       ),
     );
     unawaited(endSignIn(lifetime.shell).catchError((Object _) {}));
@@ -696,6 +699,7 @@ class LocalTerminalSessions extends ChangeNotifier {
     if (lifetime.lease?.active != true) {
       throw const AgentSignInForegroundException(
         AgentSignInForegroundFailure.unavailable,
+        code: 'service-inactive',
       );
     }
   }
@@ -706,6 +710,9 @@ class LocalTerminalSessions extends ChangeNotifier {
     List<String> program,
   ) async {
     var failed = false;
+    // Where a failure happened, for Details: waiting for Android to admit the
+    // sign-in, or starting its terminal.
+    var step = 'admission';
     try {
       await Future.any<void>([
         lifetime.lease!.ready,
@@ -719,6 +726,7 @@ class LocalTerminalSessions extends ChangeNotifier {
       final shell = lifetime.shell;
       final size = (shell.terminal.viewHeight, shell.terminal.viewWidth);
       lifetime.nativeStartIssued = true;
+      step = 'start';
       final info = await _backend.start(
         rows: size.$1,
         cols: size.$2,
@@ -726,13 +734,14 @@ class LocalTerminalSessions extends ChangeNotifier {
         signInProgram: program,
       );
       lifetime.nativeId = info.id;
+      step = 'started';
       _requireSignInCurrent(lifetime);
       shell._started(info, size);
       unawaited(refreshProcesses());
     } catch (error) {
       failed = true;
       if (!lifetime.cancelRequested && !_disposed) {
-        lifetime.shell._failed(_signInFailure(error));
+        lifetime.shell._failed(_signInFailure(error, step: step));
       }
     } finally {
       lifetime.launchDone.complete();
@@ -741,10 +750,23 @@ class LocalTerminalSessions extends ChangeNotifier {
     if (failed) unawaited(endSignIn(lifetime.shell).catchError((Object _) {}));
   }
 
-  static String _signInFailure(Object error) {
+  /// The words for a failed sign-in, plus a fixed code naming the [step]
+  /// (admission: Android refused to start the service; lost: it stopped
+  /// while signing in) and the cause's own code: never the platform's or the
+  /// agent's text, which can carry private paths or keys.
+  static String _signInFailure(Object error, {required String step}) {
     final reason = error is AgentSignInForegroundException
         ? error.reason
         : AgentSignInForegroundFailure.unavailable;
+    final words = _signInFailureWords(reason);
+    final code = error is AgentSignInForegroundException ? error.code : null;
+    if (reason != AgentSignInForegroundFailure.unavailable && code == null) {
+      return words;
+    }
+    return '$words\nCode: sign-in-$step${code == null ? '' : '/$code'}';
+  }
+
+  static String _signInFailureWords(AgentSignInForegroundFailure reason) {
     return switch (reason) {
       AgentSignInForegroundFailure.unsupported =>
         "Sign-in isn't ready on this phone yet.",

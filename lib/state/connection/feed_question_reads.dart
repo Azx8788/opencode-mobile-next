@@ -7,16 +7,22 @@ class _DirectoryQuestion {
     this.modern,
     ServerProfile source,
     this.generation,
-  ) : profile = ServerProfile(
-        id: source.id,
-        name: source.name,
-        baseUrl: source.baseUrl,
-        username: source.username,
-        password: source.password,
-        backend: source.backend,
-        flavor: source.flavor,
-        requiresPasswordReentry: source.requiresPasswordReentry,
-      )..cleartextConfirmedOrigin = source.cleartextConfirmedOrigin;
+  ) : profile =
+          ServerProfile(
+              id: source.id,
+              name: source.name,
+              baseUrl: source.baseUrl,
+              username: source.username,
+              password: source.password,
+              backend: source.backend,
+              flavor: source.flavor,
+              requiresOpenCode2Migration: source.requiresOpenCode2Migration,
+              openCode2HistoryPending: source.openCode2HistoryPending,
+              requiresPasswordReentry: source.requiresPasswordReentry,
+            )
+            ..cleartextConfirmedOrigin = source.cleartextConfirmedOrigin
+            ..certificatePinSha256 = source.certificatePinSha256
+            ..certificatePinOrigin = source.certificatePinOrigin;
   final PendingQuestion question;
   final bool modern;
   final ServerProfile profile;

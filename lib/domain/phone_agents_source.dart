@@ -224,3 +224,8 @@ abstract interface class PhoneAgentsSource {
   /// [phoneAgentsNeedRestart] is true.
   Future<void> closePhoneAgentsForSignInReset();
 }
+
+/// Optional recovery offered only for a verified retained local artifact.
+abstract interface class PhoneAgentRecoverySource {
+  Future<AgentPhoneCheckResult> usePreviousAgentVersion(String agentId);
+}

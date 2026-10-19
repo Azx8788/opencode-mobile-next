@@ -1,3 +1,4 @@
+import 'support/fake_server_capabilities.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:opencode_mobile/api2/gateway_mappers.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
@@ -11,14 +12,17 @@ void main() {
     expect(capabilities.mcpChatToolRefresh, isFalse);
   });
 
-  test('OpenCode 1 can connect and refresh chat connectors with OAuth', () {
-    const capabilities = ServerCapabilities.allV1;
+  test(
+    'a qualified synthetic backend can connect and refresh chat connectors with OAuth',
+    () {
+      const capabilities = testServerCapabilities;
 
-    expect(capabilities.mcpRuntimeAdds, isTrue);
-    expect(capabilities.mcpChatConnect, isTrue);
-    expect(capabilities.mcpChatOAuth, isTrue);
-    expect(capabilities.mcpChatToolRefresh, isTrue);
-  });
+      expect(capabilities.mcpRuntimeAdds, isTrue);
+      expect(capabilities.mcpChatConnect, isTrue);
+      expect(capabilities.mcpChatOAuth, isTrue);
+      expect(capabilities.mcpChatToolRefresh, isTrue);
+    },
+  );
 
   test('OpenCode 2 supports runtime chat connectors without chat OAuth', () {
     const capabilities = api2ServerCapabilities;

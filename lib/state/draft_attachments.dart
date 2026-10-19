@@ -7,7 +7,7 @@ import 'package:crypto/crypto.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
-import '../api/models.dart';
+import '../domain/models.dart';
 
 /// Small persisted metadata. Data-URL payloads live in app-private files.
 class DraftAttachmentRef {

@@ -99,8 +99,20 @@ extension _ChatNudges on _ChatScreenState {
   /// The model notice: "Using {model}, this server's default model.", with
   /// "Choose another model" when there is another to choose.
   Widget? _modelDefaultNotice(BuildContext context) {
-    final said = _modelDefaultSaid;
-    if (said == null) return null;
+    final claimed = _modelDefaultSaid;
+    if (claimed == null) return null;
+    // The notice speaks of the server's default. Once this conversation uses
+    // another model it would name one the composer chip no longer shows, so
+    // it steps aside; while it stands, it names the chip's own label.
+    final shown = _conn.displayModelForSession(widget.sessionID);
+    final standard = _conn.selectedModel;
+    if (shown != null &&
+        standard != null &&
+        (shown.providerID != standard.providerID ||
+            shown.modelID != standard.modelID)) {
+      return null;
+    }
+    final said = _presentedModelLabel ?? claimed;
     final strings = _chatL10n(context);
     final canChange = modelDefaultOf(_conn).canChange;
     void done() => _setChatState(() => _modelDefaultSaid = null);

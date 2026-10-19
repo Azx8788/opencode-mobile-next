@@ -22,6 +22,8 @@ class Api2Client {
     required String baseUrl,
     required String password,
     String username = 'opencode',
+    String? cleartextConfirmedOrigin,
+    String? certificatePinSha256,
     String? directory,
     String? workspace,
   }) : this(
@@ -29,6 +31,8 @@ class Api2Client {
            baseUrl: baseUrl,
            password: password,
            username: username,
+           cleartextConfirmedOrigin: cleartextConfirmedOrigin,
+           certificatePinSha256: certificatePinSha256,
          ),
          directory: directory,
          workspace: workspace,

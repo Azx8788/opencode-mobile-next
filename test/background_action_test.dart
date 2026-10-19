@@ -1,15 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/background/live_background.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class _ReplyApi extends OpenCodeApi {
+class _ReplyApi extends FakeServerGateway {
   _ReplyApi() : super(baseUrl: 'http://localhost');
 
   final permissionReplies = <(String, String, String)>[];

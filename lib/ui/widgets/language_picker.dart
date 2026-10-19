@@ -40,11 +40,11 @@ const int arabicTranslatedPercent = 100;
 /// when one of these drifts by more than 3 points.
 const Map<String, int> languageTranslatedPercent = {
   'ar': arabicTranslatedPercent,
-  'es': 9,
+  'es': 30,
   'ja': 9,
   'pt': 9,
   'ru': 9,
-  'zh': 9,
+  'zh': 30,
 };
 
 /// Opens the Language sheet.

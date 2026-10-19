@@ -15,8 +15,7 @@ import 'dart:convert';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/host/byo_host_signer.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
@@ -25,6 +24,8 @@ import 'package:opencode_mobile/state/profiles.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'secure_storage.dart';
+import 'catalog_gateway.dart';
+export 'catalog_gateway.dart' show catalogServerCapabilities;
 
 /// Which platform a use-case pretends to run on.
 enum FakePlatform {
@@ -65,20 +66,13 @@ class FakeProfile {
     'name': name,
     'baseUrl': url ?? 'http://$id.example:4096',
     'username': username,
+    'flavor': 'v2',
   };
 }
 
 class _NoSigner implements ByoHostSigner {
   @override
   dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
-}
-
-class _FakeApi extends OpenCodeApi {
-  _FakeApi(this._capabilities) : super(baseUrl: 'http://localhost');
-  final ServerCapabilities _capabilities;
-
-  @override
-  ServerCapabilities get capabilities => _capabilities;
 }
 
 class _FakeRepository implements ProductRepository {
@@ -103,10 +97,10 @@ class FakeApp implements SceneResource {
   static Future<FakeApp> create({
     List<FakeProfile> profiles = const [FakeProfile('main', 'Workstation')],
     bool connected = false,
-    ServerCapabilities capabilities = ServerCapabilities.allV1,
+    ServerCapabilities capabilities = catalogServerCapabilities,
     Map<String, Object> prefs = const {},
     // A fake server's transport, operations and controller (fake_gateway.dart).
-    OpenCodeApi? api,
+    ServerGateway? api,
     ProductRepository? repository,
     ConnectionController Function(ProfileStore store)? controllerFactory,
   }) async {
@@ -129,7 +123,7 @@ class FakeApp implements SceneResource {
         controllerFactory?.call(store) ?? ConnectionController(store);
     if (connected) {
       connection
-        ..api = api ?? _FakeApi(capabilities)
+        ..api = api ?? CatalogFakeGateway(capabilities: capabilities)
         ..repository = repository ?? _FakeRepository()
         ..status = StreamStatus.connected;
     }

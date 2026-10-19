@@ -6,11 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'fake_server_gateway.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart'
     show PromptDelivery, ServerGateway;
-import 'package:opencode_mobile/api/sse.dart';
+import 'fake_event_channel.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/offline_queue.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -95,7 +95,7 @@ Future<ScriptedQueueStore> scriptedDisk() async {
   return disk;
 }
 
-class FakeApi extends OpenCodeApi with CompleteMessageHistory {
+class FakeApi extends FakeServerGateway with CompleteMessageHistory {
   FakeApi() : super(baseUrl: 'http://localhost');
 
   final List<({String sessionID, String text, ModelRef? model})> prompts = [];
@@ -164,6 +164,7 @@ Future<QueueController> queueController(
         {
           'id': 'profile-2',
           'name': 'Other server',
+          'flavor': 'v2',
           'baseUrl': 'http://other.localhost',
           'username': '',
         },

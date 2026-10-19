@@ -13,8 +13,8 @@ import '../domain/phone_agent_host.dart';
 import '../builtin/agents/agent_host_cleanup.dart';
 import '../builtin/builtin_linux.dart';
 
-import '../api/models.dart' show ModelRef;
-import '../api/server_probe.dart' show ServerFlavor;
+import '../domain/models.dart' show ModelRef;
+import '../domain/server_probe.dart' show ServerFlavor;
 import '../domain/loopback_host.dart';
 import '../domain/byo_host.dart';
 import '../host/byo_host_signer.dart';
@@ -35,7 +35,7 @@ import 'session_link_bindings.dart';
 import 'agent_handoff_links.dart';
 import 'pending_command_journal.dart';
 
-export '../api/server_probe.dart' show ServerFlavor;
+export '../domain/server_probe.dart' show ServerFlavor;
 export '../domain/loopback_host.dart' show isLoopbackHost, isPrivateNetworkHost;
 export '../domain/orchestration_gateway.dart' show OrchestrationHostMode;
 
@@ -54,10 +54,14 @@ class ProfileStore {
   static const _profilesKey = 'oc.profiles';
   static const _activeKey = 'oc.activeProfile';
 
-  /// The origin the person confirmed for plain HTTP to a private network
-  /// address, per profile: `oc.cleartextOk.<profileId>`. Named by the
+  /// The origin the person confirmed for non-loopback plain HTTP,
+  /// per profile: `oc.cleartextOk.<profileId>`. Named by the
   /// `oc.<what>.<profileId>` rule so the deletion sweep removes it.
   static const cleartextConfirmedKeyPrefix = 'oc.cleartextOk.';
+
+  /// JSON containing the exact HTTPS origin and SHA-256 certificate pin.
+  /// The profile deletion sweep owns this key through its normal namespace.
+  static const certificatePinKeyPrefix = 'oc.certificatePin.';
   static const _passwordKey = 'pw.';
   static const byoHostSecretsKeyPrefix = 'oc.byoHostSecrets.';
   static const _codexTokenKey = 'oc.codexToken.';
@@ -67,6 +71,12 @@ class ProfileStore {
   /// the usage collector the app runs in In-app Ubuntu. Deleted with the
   /// profile.
   static const quotaTokenKeyPrefix = 'oc.quotaToken.';
+
+  /// Secure-storage slot (`oc.githubToken.<profileId>`) for the GitHub
+  /// sign-in the Git page hands to `git push`/`git pull` in that profile's
+  /// environment (lib/state/github_account.dart). Deleted with the profile
+  /// and by the saved sign-ins reset.
+  static const githubTokenKeyPrefix = 'oc.githubToken.';
   static const _modelKey = 'oc.model.'; // + profileId -> "providerID|modelID"
   static const _modelExplicitKey = 'oc.modelExplicit.'; // + profileId
   static const _agentKey = 'oc.agent.'; // + profileId
@@ -149,6 +159,7 @@ class ProfileStore {
         key.startsWith(_codexTokenKey) ||
         key.startsWith(teamEngineAuthKey) ||
         key.startsWith(quotaTokenKeyPrefix) ||
+        key.startsWith(githubTokenKeyPrefix) ||
         key.startsWith(phoneAgentHostSecretPrefix) ||
         key.startsWith(byoHostSecretsKeyPrefix);
     try {
@@ -258,6 +269,7 @@ class ProfileStore {
     profile.cleartextConfirmedOrigin = prefs.getString(
       '$cleartextConfirmedKeyPrefix$profileId',
     );
+    _restoreCertificatePin(profile);
     await _restoreSecret(profile);
     return profile;
   }
@@ -287,6 +299,7 @@ class ProfileStore {
       p.cleartextConfirmedOrigin = prefs.getString(
         '$cleartextConfirmedKeyPrefix${p.id}',
       );
+      _restoreCertificatePin(p);
     }
     // Independent Keystore reads can overlap. Bound the fan-out so many
     // saved servers do not flood the platform channel. Await every secret
@@ -353,6 +366,13 @@ class ProfileStore {
   }
 
   Future<void> upsert(ServerProfile profile) async {
+    // Reject malformed explicit trust before writing metadata or credentials.
+    final suppliedPin = profile.certificatePinSha256;
+    if ((suppliedPin != null &&
+            !RegExp(r'^[0-9a-fA-F]{64}$').hasMatch(suppliedPin)) ||
+        ((suppliedPin == null) != (profile.certificatePinOrigin == null))) {
+      throw ArgumentError('Invalid server certificate pin');
+    }
     final oldIds = <String>[];
     try {
       final raw = prefs.getString(_profilesKey);
@@ -432,6 +452,7 @@ class ProfileStore {
       rethrow;
     }
     await _syncCleartextConfirmation(profile);
+    await _syncCertificatePin(profile);
     profile.requiresPasswordReentry = false;
     profile.requiresCodexTokenReentry = false;
     profile.teamEngineAuth = teamEngineAuth;
@@ -473,6 +494,72 @@ class ProfileStore {
       throw StateError('Could not save the server profile');
     }
     profile.cleartextConfirmedOrigin = wanted;
+  }
+
+  ({String origin, String sha256})? _storedCertificatePin(String profileId) {
+    final raw = prefs.getString('$certificatePinKeyPrefix$profileId');
+    if (raw == null) return null;
+    try {
+      final value = jsonDecode(raw);
+      if (value is! Map ||
+          value['origin'] is! String ||
+          value['sha256'] is! String) {
+        return null;
+      }
+      final origin = value['origin'] as String;
+      final sha256 = value['sha256'] as String;
+      if (!origin.startsWith('https://') ||
+          cleartextOriginOf(origin) != origin ||
+          !RegExp(r'^[0-9a-fA-F]{64}$').hasMatch(sha256)) {
+        return null;
+      }
+      return (origin: origin, sha256: sha256.toLowerCase());
+    } on FormatException {
+      return null;
+    }
+  }
+
+  void _restoreCertificatePin(ServerProfile profile) {
+    final stored = _storedCertificatePin(profile.id);
+    if (!profile.usesAgentSocket &&
+        stored != null &&
+        stored.origin == cleartextOriginOf(profile.baseUrl)) {
+      profile.certificatePinOrigin = stored.origin;
+      profile.certificatePinSha256 = stored.sha256;
+    } else {
+      profile.certificatePinOrigin = null;
+      profile.certificatePinSha256 = null;
+    }
+  }
+
+  /// Rebuilt profiles retain their pin only at the exact approved HTTPS
+  /// origin. Moving a profile never grants the new address the old trust.
+  Future<void> _syncCertificatePin(ServerProfile profile) async {
+    final key = '$certificatePinKeyPrefix${profile.id}';
+    final stored = _storedCertificatePin(profile.id);
+    final origin = cleartextOriginOf(profile.baseUrl);
+    final wantedOrigin = profile.certificatePinOrigin ?? stored?.origin;
+    final wantedPin = profile.certificatePinSha256 ?? stored?.sha256;
+    if (profile.usesAgentSocket ||
+        origin == null ||
+        !origin.startsWith('https://') ||
+        wantedOrigin != origin ||
+        wantedPin == null) {
+      if (prefs.containsKey(key) && !await prefs.remove(key)) {
+        throw StateError('Could not save the server profile');
+      }
+      profile.certificatePinOrigin = null;
+      profile.certificatePinSha256 = null;
+      return;
+    }
+    final pin = wantedPin.toLowerCase();
+    final encoded = jsonEncode({'origin': origin, 'sha256': pin});
+    if (prefs.getString(key) != encoded &&
+        !await prefs.setString(key, encoded)) {
+      throw StateError('Could not save the server profile');
+    }
+    profile.certificatePinOrigin = origin;
+    profile.certificatePinSha256 = pin;
   }
 
   /// flutter_secure_storage reports a missing or locked keyring as a
@@ -664,6 +751,7 @@ class ProfileStore {
         await secure.delete(key: key);
       }
       await secure.delete(key: '$quotaTokenKeyPrefix$id');
+      await secure.delete(key: '$githubTokenKeyPrefix$id');
     } catch (error) {
       await _restoreProfiles(previousRaw);
       await AgentHandoffLinks.cancelDeletion(prefs, id);

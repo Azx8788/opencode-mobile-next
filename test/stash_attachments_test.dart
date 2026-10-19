@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/state/draft_attachments.dart';
 import 'package:opencode_mobile/state/prompt_shelf.dart';
 import 'package:opencode_mobile/state/review_handoff.dart';

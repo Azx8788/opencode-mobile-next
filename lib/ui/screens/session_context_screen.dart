@@ -3,9 +3,9 @@ import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 
-import '../../api/models.dart';
-import '../../api/product_repository.dart';
-import '../../api/provider_presentation.dart';
+import '../../domain/models.dart';
+import '../../domain/product_repository.dart';
+import '../../domain/provider_presentation.dart';
 import '../../domain/server_gateway.dart' show StreamStatus;
 import '../../domain/session_history.dart';
 import '../../l10n/app_localizations.dart';

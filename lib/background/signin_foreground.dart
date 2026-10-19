@@ -77,10 +77,17 @@ class _SignInForegroundState {
         await controller._invoke('getBackgroundPause'),
       );
       if (!_current(generation)) return;
-      if (!pause.supported || pause.paused) {
-        controller._applyPauseState(pause);
+      if (!pause.supported) {
+        invalidate(
+          AgentSignInForegroundFailure.unsupported,
+          code: 'pause-unreadable',
+        );
         return;
       }
+      // A durable pause (Android's time limit, an app update, the person's own
+      // Pause) stops live mode from coming back by itself. A sign-in is the
+      // person asking now, with the app in front, so it may start the service:
+      // Android allows that, and refusing left the sign-in failing at once.
       if (pause.active) {
         // Keep ownership if an earlier admitted lease still owns this service;
         // an independently running service is borrowed and never stopped here.
@@ -101,7 +108,12 @@ class _SignInForegroundState {
           status['backgroundPause'],
         );
         if (status['active'] != true || !receipt.supported || !receipt.active) {
-          invalidate(AgentSignInForegroundFailure.unavailable);
+          invalidate(
+            AgentSignInForegroundFailure.unavailable,
+            code: status['active'] != true
+                ? _notStartedCode(status['startFailure'])
+                : 'service-receipt',
+          );
           if (status['active'] == true && startedHere) {
             await _stopIfUnclaimed();
           } else {
@@ -124,7 +136,10 @@ class _SignInForegroundState {
       // A canceled or rejected startup may finish after its caller released.
       // Observe cleanup failure here, preserving ownership for a later release.
       if (_current(generation)) {
-        invalidate(AgentSignInForegroundFailure.unavailable);
+        invalidate(
+          AgentSignInForegroundFailure.unavailable,
+          code: 'service-cleanup',
+        );
       }
     } on PlatformException catch (error) {
       if (_current(generation)) {
@@ -132,16 +147,33 @@ class _SignInForegroundState {
           error.code == 'notification_denied'
               ? AgentSignInForegroundFailure.permission
               : AgentSignInForegroundFailure.unavailable,
+          // The native codes are fixed identifiers (permission_in_progress,
+          // foreground_service_failed); anything else is not repeated.
+          code: RegExp(r'^[a-z_]{1,40}$').hasMatch(error.code)
+              ? 'service-${error.code}'
+              : 'service-platform',
         );
       }
       if (startedHere) _owned = false;
     } catch (_) {
       if (_current(generation)) {
-        invalidate(AgentSignInForegroundFailure.unavailable);
+        invalidate(
+          AgentSignInForegroundFailure.unavailable,
+          code: 'service-error',
+        );
       }
       if (startedHere) _owned = false;
     }
   }
+
+  /// Why Android did not start the service, from the native side's fixed
+  /// words (BackgroundConnectionService.lastStartFailure); anything else is
+  /// not repeated.
+  static String _notStartedCode(Object? reason) => switch (reason) {
+    'refused' => 'service-refused',
+    'receiptUnsaved' => 'service-receipt-unsaved',
+    _ => 'service-not-started',
+  };
 
   /// Explicit user enable and temporary admission share one native request.
   Future<Map<String, dynamic>> invokeEnable() =>
@@ -206,22 +238,24 @@ class _SignInForegroundState {
     return controller.enabled;
   }
 
-  void invalidate(AgentSignInForegroundFailure reason) {
+  void invalidate(AgentSignInForegroundFailure reason, {String? code}) {
     ++_generation;
     for (final lease in _leases.toList()) {
-      lease._invalidate(reason);
+      lease._invalidate(reason, code: code);
     }
   }
 
-  void serviceStopped(AgentSignInForegroundFailure reason) {
+  /// [code] names what stopped it, for Details: Android's time limit, the
+  /// person's Pause, or a status read that found the service gone.
+  void serviceStopped(AgentSignInForegroundFailure reason, {String? code}) {
     ++_stopRevision;
     _owned = false;
-    invalidate(reason);
+    invalidate(reason, code: code);
   }
 
   void cancelForUser() {
     ++_stopRevision;
-    invalidate(AgentSignInForegroundFailure.cancelled);
+    invalidate(AgentSignInForegroundFailure.cancelled, code: 'live-turned-off');
   }
 
   Future<bool> disableUserClaim() async {
@@ -311,7 +345,7 @@ class _SignInForegroundLease implements AgentSignInForegroundLease {
 
   final _SignInForegroundState owner;
   final Completer<void> _ready = Completer<void>();
-  final StreamController<void> _lost = StreamController<void>.broadcast(
+  final _lost = StreamController<AgentSignInForegroundException>.broadcast(
     sync: true,
   );
   bool _valid = true;
@@ -324,7 +358,7 @@ class _SignInForegroundLease implements AgentSignInForegroundLease {
   bool get active =>
       _valid && _admitted && !owner.controller._foregroundDisposed;
   @override
-  Stream<void> get lost => _lost.stream;
+  Stream<AgentSignInForegroundException> get lost => _lost.stream;
 
   void _admit() {
     if (!_valid || _admitted) return;
@@ -333,13 +367,18 @@ class _SignInForegroundLease implements AgentSignInForegroundLease {
     _ready.complete();
   }
 
-  void _invalidate(AgentSignInForegroundFailure reason) {
+  /// Before admission the failure goes to [ready] only, with its code: a
+  /// loss signalled then too reached the terminal first and was reported as
+  /// a bare "sign-in-lost", hiding why Android refused the service.
+  void _invalidate(AgentSignInForegroundFailure reason, {String? code}) {
     if (!_valid) return;
     _valid = false;
+    final failure = AgentSignInForegroundException(reason, code: code);
     if (!_ready.isCompleted) {
-      _ready.completeError(AgentSignInForegroundException(reason));
+      _ready.completeError(failure);
+      return;
     }
-    _lost.add(null);
+    if (!_lost.isClosed) _lost.add(failure);
   }
 
   @override

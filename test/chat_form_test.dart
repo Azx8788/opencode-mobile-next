@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/api2/gateway_mappers.dart'
     show api2ServerCapabilities;
 import 'package:opencode_mobile/domain/form_request.dart' show Api2FormInfo;
@@ -18,7 +18,7 @@ import 'package:opencode_mobile/state/profiles.dart';
 import 'package:opencode_mobile/ui/screens/chat_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class _FormChatApi extends OpenCodeApi with CompleteMessageHistory {
+class _FormChatApi extends FakeServerGateway with CompleteMessageHistory {
   _FormChatApi() : super(baseUrl: 'http://localhost');
 
   // Forms are a v2 capability, and the chat now gates the renderer and the

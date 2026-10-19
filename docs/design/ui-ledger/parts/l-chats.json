@@ -265,6 +265,22 @@
             "the field is not empty"
           ],
           "destructive": false
+        },
+        {
+          "id": "chats-new-git-repair",
+          "type": "button",
+          "label": "Repair",
+          "key": "chats-new-git-repair",
+          "file": "lib/ui/screens/chats/new_chat_screen.dart",
+          "line": 390,
+          "action": "open-sheet",
+          "target": "chats-git-repair",
+          "targetWidget": "showGitRepairSheet",
+          "effect": "In Retry's place when the project's Git can't be read: opens Repair Git history.",
+          "gates": [
+            "start failed with projectGit on this phone's built-in Ubuntu"
+          ],
+          "destructive": false
         }
       ]
     },
@@ -297,6 +313,109 @@
           "line": 68,
           "action": "other",
           "effect": "Imports the conversation, then closes and opens it."
+        }
+      ]
+    },
+    {
+      "id": "chats-git-repair",
+      "title": "Repair Git history",
+      "kind": "sheet",
+      "file": "lib/ui/screens/chats/git_repair_sheet.dart",
+      "widget": "showGitRepairSheet",
+      "presentedBy": [
+        "showGitRepairSheet"
+      ],
+      "line": 14,
+      "purpose": "Repairs a project whose Git objects are links Git can't follow (from Termux's Ubuntu, or a moved folder): runs at once with its progress, then says what happened. Repaired: Start the conversation sends the kept message. Files in Termux: Allow and repair, or Repair again and Open Termux. Files gone: how many, and to clone again or restore a copy. Technical text under Details.",
+      "reachedFrom": [
+        {
+          "page": "chats-new-chat",
+          "element": "chats-new-git-repair"
+        }
+      ],
+      "gates": [
+        "Android, built-in Ubuntu, project under /root/projects, start failed with projectGit"
+      ],
+      "elements": [
+        {
+          "id": "chats-git-repair-start",
+          "type": "button",
+          "label": "Start the conversation",
+          "key": "git-repair-start",
+          "file": "lib/ui/screens/chats/git_repair_sheet.dart",
+          "line": 105,
+          "action": "dismiss",
+          "target": null,
+          "targetWidget": null,
+          "effect": "Closes the sheet; New conversation sends the message again.",
+          "gates": [
+            "repaired or nothing missing"
+          ],
+          "destructive": false
+        },
+        {
+          "id": "chats-git-repair-allow",
+          "type": "button",
+          "label": "Allow and repair",
+          "key": "git-repair-allow",
+          "file": "lib/ui/screens/chats/git_repair_sheet.dart",
+          "line": 124,
+          "action": "mutate",
+          "target": null,
+          "targetWidget": null,
+          "effect": "Asks Android for Termux's Run commands permission, then repairs again.",
+          "gates": [
+            "files in Termux, permission not given"
+          ],
+          "destructive": false
+        },
+        {
+          "id": "chats-git-repair-again",
+          "type": "button",
+          "label": "Repair again",
+          "key": "git-repair-again",
+          "file": "lib/ui/screens/chats/git_repair_sheet.dart",
+          "line": 129,
+          "action": "mutate",
+          "target": null,
+          "targetWidget": null,
+          "effect": "Runs the repair again.",
+          "gates": [
+            "Termux did not answer"
+          ],
+          "destructive": false
+        },
+        {
+          "id": "chats-git-repair-open-termux",
+          "type": "button",
+          "label": "Open Termux",
+          "key": null,
+          "file": "lib/ui/screens/chats/git_repair_sheet.dart",
+          "line": 136,
+          "action": "other",
+          "target": null,
+          "targetWidget": null,
+          "effect": "Opens the Termux app so it starts.",
+          "gates": [
+            "Termux did not answer"
+          ],
+          "destructive": false
+        },
+        {
+          "id": "chats-git-repair-close",
+          "type": "button",
+          "label": "Close",
+          "key": null,
+          "file": "lib/ui/screens/chats/git_repair_sheet.dart",
+          "line": 151,
+          "action": "dismiss",
+          "target": null,
+          "targetWidget": null,
+          "effect": "Closes the sheet; the message stays in the field.",
+          "gates": [
+            "can't repair"
+          ],
+          "destructive": false
         }
       ]
     }

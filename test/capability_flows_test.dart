@@ -94,14 +94,14 @@ void main() {
             builder: (_) => const Scaffold(
               body: KitCapabilityExplainer.row(
                 capability: 'server.oc2',
-                host: KitHost.openCode1,
+                host: KitHost.openCode2,
               ),
             ),
           );
         },
       ),
     );
-    await tester.tap(find.text('Switch to OpenCode 2').first);
+    await tester.tap(find.text('Connect OpenCode 2').first);
     await tester.pumpAndSettle();
     expect(opened.single.name, '/servers');
     final request = opened.single.arguments! as ServersRouteRequest;

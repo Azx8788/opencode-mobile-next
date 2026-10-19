@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import '../api/models.dart' show EventEnvelope;
+import '../domain/models.dart' show EventEnvelope;
 import '../domain/attention_feed.dart';
 import '../domain/session_stop.dart';
 import '../domain/team_directories.dart';

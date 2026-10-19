@@ -3,7 +3,6 @@ import 'dart:ui' show Locale;
 import '../../l10n/app_localizations.dart';
 import '../../state/move_to_opencode2.dart';
 import '../../state/profiles.dart';
-import '../../termux/bridge.dart' show TermuxRuntime;
 import '../builtin_linux.dart';
 import '../builtin_server.dart';
 import 'setup_engine.dart';
@@ -40,10 +39,10 @@ class BuiltinSetupFinisher {
     if (request.host != SetupHostKind.builtin) {
       return l10n.phoneSetupErrorCannotStart;
     }
-    final two = request.runtime == TermuxRuntime.openCode2;
+    request.runtime.requireSupported();
     final profile = await ensureBuiltinProfile(
       store,
-      flavor: two ? ServerFlavor.v2 : ServerFlavor.v1,
+      flavor: ServerFlavor.v2,
       name: l10n.phoneSetupProfileName,
       version: request.version,
       // The older setup screen's names, in either language.
@@ -52,12 +51,12 @@ class BuiltinSetupFinisher {
           lookupAppLocalizations(const Locale('en')),
           lookupAppLocalizations(const Locale('ar')),
         ])
-          for (final runtime in [words.setupRuntimeOne, words.setupRuntimeTwo])
+          for (final runtime in [words.setupRuntimeTwo])
             words.builtinServerProfileName(runtime),
       },
     );
-    // One saved server per runtime: the team turned on for the other one
-    // follows the switch.
+    // Reuse the selected migration source, including its local keys and team.
+    // Only a source without its own team may adopt an older alias's team.
     await teamFollowsRuntime(
       store,
       profile,
@@ -76,11 +75,30 @@ class BuiltinSetupFinisher {
     }
     // Running but not ours to trust (another runtime, or the app is not
     // connected to it): restarting costs seconds and removes the doubt.
-    final failure = await starter.start(profile);
+    final migrating = profile.requiresOpenCode2Migration;
+    final failure = await starter.start(
+      profile,
+      migrateLegacyHistory: migrating,
+    );
     if (failure?.problem == BuiltinStartProblem.componentRecovery) {
       return 'runtime_ownership_unknown';
     }
-    if (failure != null) return failure.reason(l10n);
+    if (failure != null) {
+      return migrating ? l10n.setupSwitchFailed : failure.reason(l10n);
+    }
+    if (migrating) {
+      profile
+        ..requiresOpenCode2Migration = false
+        ..openCode2HistoryPending = true;
+      try {
+        await store.upsert(profile);
+      } catch (_) {
+        profile
+          ..requiresOpenCode2Migration = true
+          ..openCode2HistoryPending = false;
+        return l10n.setupSwitchFailed;
+      }
+    }
     return connect(profile);
   }
 }

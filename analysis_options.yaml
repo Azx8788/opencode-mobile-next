@@ -11,10 +11,6 @@ include: package:flutter_lints/flutter.yaml
 
 analyzer:
   exclude:
-    # This is a pre-generation template, not a standalone package. generate.sh
-    # copies it into packages/opencode_sdk, then tests and analyzes it there
-    # after generating its package-specific dependencies and sources.
-    - tool/sdk/runtime/**
     - build/**
     - android/**
     - ios/**

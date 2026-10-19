@@ -21,6 +21,7 @@ enum TermuxMigrationFailure {
   sourceChanged,
   sourceBusy,
   unsupportedEntry,
+  linkedFileUnreadable,
   tooLarge,
   invalidArchive,
   checksumMismatch,

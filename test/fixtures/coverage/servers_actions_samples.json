@@ -1,14 +1,6 @@
 {
-  "source": "contracts/opencode-openapi-f12e14cf.json, @getpaseo/protocol messages.js",
+  "source": "@getpaseo/protocol messages.js",
   "wire": [
-    "oc1 DELETE /auth/{providerID}",
-    "oc1 PATCH /config",
-    "oc1 PATCH /global/config",
-    "oc1 POST /global/dispose",
-    "oc1 POST /global/upgrade",
-    "oc1 POST /instance/dispose",
-    "oc1 POST /log",
-    "oc1 PUT /auth/{providerID}",
     "paseo daemon.config.reload.request",
     "paseo daemon.update.request",
     "paseo hub.management.daemon.connect.request",

@@ -1,10 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/server_probe.dart';
-import 'package:opencode_mobile/api/sse.dart'
-    show LiveEventChannel, StreamStatus;
+import 'package:opencode_mobile/domain/models.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'package:opencode_mobile/domain/server_probe.dart';
+import 'support/fake_event_channel.dart' show LiveEventChannel, StreamStatus;
 import 'package:opencode_mobile/api2/gateway_mappers.dart'
     show api2ServerCapabilities;
 import 'package:opencode_mobile/api2/transport.dart' show Api2AuthRequired;
@@ -131,28 +129,6 @@ class _FakeV1Repository implements ProductRepository {
       throw UnimplementedError('${invocation.memberName}');
 }
 
-/// A v1 client whose health mimics meeting v2's Basic-auth gate (401).
-class _WrongFlavorV1Api extends OpenCodeApi {
-  _WrongFlavorV1Api() : super(baseUrl: 'http://127.0.0.1:1');
-
-  int healthCalls = 0;
-
-  @override
-  Future<Health> health() {
-    healthCalls += 1;
-    throw ApiException('GET /global/health failed (HTTP 401)', statusCode: 401);
-  }
-}
-
-/// A v1 client that answers but reports itself unhealthy — a truthful v1
-/// failure that must never be mistaken for a flavor problem.
-class _UnhealthyV1Api extends OpenCodeApi {
-  _UnhealthyV1Api() : super(baseUrl: 'http://127.0.0.1:1');
-
-  @override
-  Future<Health> health() async => Health(healthy: false, version: '1.18.23');
-}
-
 /// Records saves without touching the real secure-storage channel, which is
 /// unmocked in widget tests and would hang a real upsert.
 class _RecordingStore extends ProfileStore {
@@ -255,15 +231,9 @@ void main() {
   ) async {
     final gateway = _FakeV2Gateway();
     final operations = _FakeV2Operations();
-    var v1ApiBuilds = 0;
     var v2Builds = 0;
     final controller = ConnectionController(
       await _store(),
-      apiFactory: (_) {
-        v1ApiBuilds += 1;
-        return OpenCodeApi(baseUrl: 'http://127.0.0.1:1');
-      },
-      repositoryFactory: (_) => _FakeV1Repository(),
       v2GatewayFactory: (profile) {
         v2Builds += 1;
         return (gateway: gateway, operations: operations);
@@ -277,13 +247,12 @@ void main() {
     await tester.pump();
 
     expect(v2Builds, 1);
-    expect(v1ApiBuilds, 0, reason: 'a v2 profile must never build the v1 api');
     expect(controller.api, same(gateway));
     expect(controller.repository, same(operations));
     expect(gateway.healthCalls, 1);
     expect(controller.version, '0.0.0-beta-18600');
     // The event channels come from the gateway's EventGateway seam, not the
-    // v1 EventStream factory.
+    // v1 FakeEventChannel factory.
     expect(gateway.channel?.started, isTrue);
     expect(gateway.globalChannel?.started, isTrue);
     controller.dispose();
@@ -324,87 +293,6 @@ void main() {
     gateway.streamStatus!(StreamStatus.connected);
     expect(controller.passwordRejected, isFalse);
     await tester.pump();
-    controller.dispose();
-  });
-
-  testWidgets('a wrong cached flavor re-probes once and retries as v2', (
-    tester,
-  ) async {
-    final gateway = _FakeV2Gateway();
-    final v1Api = _WrongFlavorV1Api();
-    var probeCalls = 0;
-    serverProbe = ({required baseUrl, username, password}) async {
-      probeCalls += 1;
-      return const ServerProbeResult.success(
-        '0.0.0-beta-18600',
-        flavor: ServerFlavor.v2,
-      );
-    };
-    final store = await _store();
-    final controller = ConnectionController(
-      store,
-      apiFactory: (_) => v1Api,
-      repositoryFactory: (_) => _FakeV1Repository(),
-      v2GatewayFactory: (_) =>
-          (gateway: gateway, operations: _FakeV2Operations()),
-    );
-    // Disposed at the end of the body, not in tearDown: the polling
-    // fallback timer must be cancelled before the tester's invariant check.
-    addTearDown(controller.dispose);
-
-    final profile = ServerProfile(
-      id: 'was-v1',
-      name: 'Upgraded box',
-      baseUrl: 'http://127.0.0.1:1',
-      password: 'serve-password',
-    );
-    expect(profile.flavor, ServerFlavor.v1);
-    await controller.connect(profile);
-    await tester.pump();
-
-    expect(probeCalls, 1);
-    expect(profile.flavor, ServerFlavor.v2);
-    expect(profile.serverVersion, '0.0.0-beta-18600');
-    // The corrected flavor is persisted so the next connect skips detection.
-    expect(store.saved.single.flavor, ServerFlavor.v2);
-    expect(controller.api, same(gateway));
-    expect(gateway.healthCalls, 1);
-    expect(v1Api.healthCalls, 1);
-    controller.dispose();
-  });
-
-  testWidgets('an unhealthy v1 server fails closed without a re-probe', (
-    tester,
-  ) async {
-    var probeCalls = 0;
-    serverProbe = ({required baseUrl, username, password}) async {
-      probeCalls += 1;
-      return const ServerProbeResult.success(
-        '0.0.0-beta-18600',
-        flavor: ServerFlavor.v2,
-      );
-    };
-    final controller = ConnectionController(
-      await _store(),
-      apiFactory: (_) => _UnhealthyV1Api(),
-      repositoryFactory: (_) => _FakeV1Repository(),
-    );
-    // Disposed at the end of the body, not in tearDown: the polling
-    // fallback timer must be cancelled before the tester's invariant check.
-    addTearDown(controller.dispose);
-
-    await controller.connect(
-      ServerProfile(
-        id: 'sick',
-        name: 'Sick box',
-        baseUrl: 'http://127.0.0.1:1',
-      ),
-    );
-    await tester.pump();
-
-    expect(probeCalls, 0, reason: 'unhealthy is not a flavor problem');
-    expect(controller.api, isNull);
-    expect(controller.lastError, contains('unhealthy'));
     controller.dispose();
   });
 }

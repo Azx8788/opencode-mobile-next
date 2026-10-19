@@ -1,7 +1,6 @@
 // KitConfirmSheet.md "What changes" rows 1-7 and decision D22, owned by
 // kit-KitDetailsFold: the mark is the library's one header tile (neutral
-// surface3, never the accent; the danger tint only for stop, delete and
-// discard), consequences draw through KitConsequences (lost-then-info for
+// surface3, never the accent, never red, for every kind), consequences draw through KitConsequences (lost-then-info for
 // plain facts, consequenceItems as given, never both), details through the
 // public KitDetailsFold, the typed name isolated by KitBidi.ltr with no
 // literal isolate in the source, the title and body wrap at 200 %, routes
@@ -12,6 +11,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../support/no_red.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/ui/app_theme.dart';
 import 'package:opencode_mobile/ui/kit/kit.dart';
@@ -93,45 +93,49 @@ void main() {
       );
       expect(glyph.color, roles.text1);
       expect(glyph.color, isNot(roles.accent));
-      expect(glyph.color, isNot(roles.danger));
+      expect(glyph.color, isNotRed);
       final fill = filledButton(
         tester,
         'Delete conversation',
       ).style?.backgroundColor?.resolve({});
-      expect(fill, isNot(roles.dangerFill));
+      expect(fill, isNotRed);
     });
 
-    testWidgets('stop, destructive, discard: the danger tint and dangerFill', (
-      tester,
-    ) async {
+    testWidgets('stop, destructive, discard: neutral tile, strong neutral '
+        'confirm, nothing red anywhere in the question', (tester) async {
       final context = await pumpKitHost(tester);
       final tokens = KitTokens.of(context);
       final roles = tokens.roles;
-      for (final kind in [
-        KitConfirmKind.stop,
-        KitConfirmKind.destructive,
-        KitConfirmKind.discard,
-      ]) {
-        _open(tester, context, kind: kind);
+      for (final kind in KitConfirmKind.values) {
+        _open(
+          tester,
+          context,
+          kind: kind,
+          consequences: const ['Its messages are removed'],
+          typedName: kind == KitConfirmKind.destructive ? 'fox' : null,
+          details: const [],
+        );
         await tester.pumpAndSettle();
         final tile = _tile(tester, tokens);
-        expect(
-          tile.color,
-          Color.alphaBlend(
-            roles.danger.withValues(alpha: tokens.markTintAlpha),
-            tokens.sheetSurface,
-          ),
-          reason: '$kind',
-        );
+        expect(tile.color, roles.surface3, reason: '$kind');
+        // The consequences may draw the same icon; the glyph is the tile's.
         final glyph = tester.widget<Icon>(
-          find.byIcon(KitConfirmSheet.iconFor(kind)),
+          find.byIcon(KitConfirmSheet.iconFor(kind)).first,
         );
-        expect(glyph.color, roles.danger, reason: '$kind');
+        expect(glyph.color, roles.text1, reason: '$kind');
         final fill = filledButton(
           tester,
           'Delete conversation',
         ).style?.backgroundColor?.resolve({});
-        expect(fill, roles.dangerFill, reason: '$kind');
+        if (kind == KitConfirmKind.neutral) {
+          expect(fill, isNot(roles.text1), reason: '$kind');
+        } else {
+          // Safe by its confirmation, not by a colour: the strong neutral.
+          expect(fill, roles.text1, reason: '$kind');
+        }
+        final all = paintedColours(tester, find.byType(KitConfirmSheet));
+        expect(all, isNotEmpty);
+        expect(all.where(isRedHue), isEmpty, reason: '$kind paints a red');
         await tester.tap(find.byKey(const ValueKey('kit-confirm-cancel')));
         await tester.pumpAndSettle();
       }

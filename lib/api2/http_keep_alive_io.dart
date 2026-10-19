@@ -1,15 +1,47 @@
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 
-/// Retains native connections through a brief reading/navigation pause.
-void configureHttpKeepAlive(Dio dio) {
+import '../domain/server_trust.dart';
+
+/// One native client and trust decision per profile connection, never global.
+void configureHttpKeepAlive(
+  Dio dio, {
+  required String baseUrl,
+  String? cleartextConfirmedOrigin,
+  String? certificatePinSha256,
+}) {
   if (dio.httpClientAdapter case IOHttpClientAdapter adapter) {
-    // Dio 5.11.1 creates this same default client with a three-second idle
-    // timeout and no proxy override. Only the idle timeout changes here;
-    // adapter ownership, TLS/proxy defaults and force-close behavior remain.
-    adapter.createHttpClient = () =>
-        HttpClient()..idleTimeout = const Duration(seconds: 15);
+    Exception? certificateFailure;
+    adapter.createHttpClient = () => createServerHttpClient(
+      baseUrl: baseUrl,
+      cleartextConfirmedOrigin: cleartextConfirmedOrigin,
+      certificatePinSha256: certificatePinSha256,
+      onCertificateChanged: () =>
+          certificateFailure = const ServerCertificateChangedException(),
+      onCertificateInvalid: () =>
+          certificateFailure = const ServerCertificateValidityException(),
+    );
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          if (certificateFailure != null) {
+            handler.reject(
+              DioException(requestOptions: options, error: certificateFailure),
+            );
+          } else {
+            handler.next(options);
+          }
+        },
+        onError: (error, handler) {
+          // Once a peer differs, this client stays blocked until the connection
+          // is explicitly rebuilt. No concurrent retry can silently clear it.
+          handler.next(
+            certificateFailure != null
+                ? error.copyWith(error: certificateFailure)
+                : error,
+          );
+        },
+      ),
+    );
   }
 }

@@ -167,6 +167,7 @@ Future<FakeSetupEngine> pumpPhone(
   bool light = false,
   SetupProgress? progress,
   Set<String> optionalInstalled = const {},
+  int optionalFailures = 0,
   List<ServerProfile> profiles = const [],
   BuiltinLinux? linux,
   GlobalKey? boundary,
@@ -185,7 +186,9 @@ Future<FakeSetupEngine> pumpPhone(
   );
   addTearDown(controller.dispose);
   configure?.call(controller);
-  final engine = FakeSetupEngine()..optionalInstalled = optionalInstalled;
+  final engine = FakeSetupEngine()
+    ..optionalInstalled = optionalInstalled
+    ..optionalFailures = optionalFailures;
   if (progress != null) engine.emit(progress);
   final previous = PhoneSetup.engine;
   PhoneSetup.engine = engine;

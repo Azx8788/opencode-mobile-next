@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'support/fake_server_gateway.dart';
 import 'package:opencode_mobile/api2/events.dart';
 import 'package:opencode_mobile/api2/gateway_events.dart';
 import 'package:opencode_mobile/api2/gateway_mappers.dart';
@@ -26,7 +26,7 @@ class _Preferences implements SharedPreferences {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-class _EmptyHistory extends OpenCodeApi with CompleteMessageHistory {
+class _EmptyHistory extends FakeServerGateway with CompleteMessageHistory {
   _EmptyHistory() : super(baseUrl: 'http://127.0.0.1:9');
 }
 

@@ -11,8 +11,9 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'package:opencode_mobile/api2/gateway.dart';
+import 'package:opencode_mobile/api2/client.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/domain/setup_assistant.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
@@ -26,7 +27,7 @@ import 'package:opencode_mobile/ui/screens/settings/ai_setup_screen.dart';
 import 'package:opencode_mobile/ui/screens/settings_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Answers `/config` and `/mcp` like an OpenCode 1 server.
+/// Answers OpenCode 2 setup inspection endpoints.
 class _Http implements HttpClientAdapter {
   _Http(this.routes);
   final Map<String, Object?> routes;
@@ -37,21 +38,47 @@ class _Http implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async => ResponseBody.fromString(
-    jsonEncode(routes[options.path] ?? const {}),
-    routes.containsKey(options.path) ? 200 : 404,
+    jsonEncode(_body(options.uri.path)),
+    routes.containsKey(options.uri.path.replaceFirst('/api', '')) ? 200 : 404,
     headers: {
       Headers.contentTypeHeader: ['application/json'],
     },
   );
 
+  Object? _body(String path) {
+    final endpoint = path.replaceFirst('/api', '');
+    final value = routes[endpoint];
+    if (endpoint == '/config') {
+      return {
+        'data': [
+          {'type': 'document', 'info': value},
+        ],
+      };
+    }
+    if (endpoint == '/mcp' && value is Map) {
+      return {
+        'data': [
+          for (final entry in value.entries)
+            {'name': entry.key, 'status': entry.value},
+        ],
+      };
+    }
+    return value ?? const {};
+  }
+
   @override
   void close({bool force = false}) {}
 }
 
-class _Api extends OpenCodeApi {
+class _Api extends Api2Gateway {
   _Api({this.paseo = false, Map<String, Object?> routes = const {}})
-    : super(baseUrl: 'http://203.0.113.10:4747') {
-    dio.httpClientAdapter = _Http(routes);
+    : super(
+        client: Api2Client.connect(
+          baseUrl: 'https://203.0.113.10:4747',
+          password: 'test-only',
+        ),
+      ) {
+    client.transport.dio.httpClientAdapter = _Http(routes);
   }
   final bool paseo;
 
@@ -60,7 +87,7 @@ class _Api extends OpenCodeApi {
       paseo ? paseoServerCapabilities : super.capabilities;
 
   @override
-  Future<Health> health() async => Health(healthy: true, version: '1.18.32');
+  Future<Health> health() async => Health(healthy: true, version: '2.0.29');
 }
 
 class _Store extends ProfileStore {
@@ -69,7 +96,7 @@ class _Store extends ProfileStore {
   final _profile = ServerProfile(
     id: 'server',
     name: 'Laptop',
-    baseUrl: 'http://203.0.113.10:4747',
+    baseUrl: 'https://203.0.113.10:4747',
   );
 
   @override
@@ -115,14 +142,19 @@ Future<ConnectionController> _connection({
   // Setup history needs the profile saved, as it is in the app.
   SharedPreferences.setMockInitialValues({
     'oc.profiles': jsonEncode([
-      {'id': 'server', 'name': 'Laptop', 'baseUrl': 'http://203.0.113.10:4747'},
+      {
+        'id': 'server',
+        'name': 'Laptop',
+        'flavor': 'v2',
+        'baseUrl': 'https://203.0.113.10:4747',
+      },
     ]),
   });
   return ConnectionController(
       _Store(prefs: await SharedPreferences.getInstance()),
     )
     ..api = _Api(paseo: paseo, routes: routes)
-    ..version = '1.18.32'
+    ..version = '2.0.29'
     ..status = StreamStatus.connected;
 }
 
@@ -219,9 +251,13 @@ void main() {
       await tester.tap(entry);
       await tester.pumpAndSettle();
 
-      // Through the real OpenCode 1 setup adapter.
+      // Through the real OpenCode 2 setup adapter.
       expect(find.byType(AiSetupScreen), findsOneWidget);
-      expect(find.text('anthropic/claude-sonnet-4'), findsOneWidget);
+      expect(find.text('Configuration sources'), findsOneWidget);
+      expect(find.text('Settings in effect'), findsNothing);
+      await tester.tap(find.text('All sources'));
+      await tester.pumpAndSettle();
+      expect(_screenText(tester), contains('anthropic/claude-sonnet-4'));
       expect(find.text('docs'), findsOneWidget);
       expect(find.text('Connected'), findsOneWidget);
     });
@@ -293,8 +329,10 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // Open everything that folds: all settings, and every line of them.
-    await tester.tap(find.text('All settings'));
+    // Inspect every source without inventing a merged configuration.
+    expect(find.text('Configuration sources'), findsOneWidget);
+    expect(find.text('Settings in effect'), findsNothing);
+    await tester.tap(find.text('All sources'));
     await tester.pumpAndSettle();
     final showAll = find.textContaining('Show all');
     if (showAll.evaluate().isNotEmpty) {
@@ -312,7 +350,7 @@ void main() {
     expect(semantics, isNotNull);
   });
 
-  testWidgets('OpenCode 1: settings in effect, tools by urgency, suggestions, '
+  testWidgets('effective configuration: tools by urgency, suggestions, '
       'and nothing that changes the server', (tester) async {
     final gateway = _Gateway()
       ..config = {

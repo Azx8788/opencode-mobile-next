@@ -31,6 +31,8 @@ void main() {
         await directory.delete(recursive: true);
       }
     },
+    // This test starts a real Kotlin compiler on the shared build server.
+    timeout: const Timeout(Duration(minutes: 2)),
   );
 
   test(

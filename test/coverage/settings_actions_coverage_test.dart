@@ -13,8 +13,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
 import 'package:opencode_mobile/api2/client.dart';
 import 'package:opencode_mobile/api2/gateway_operations.dart';
 
@@ -106,22 +104,6 @@ void main() {
       );
       sentProven.add(key);
     }
-
-    test('OpenCode 1', () async {
-      final api = OpenCodeApi(baseUrl: wire.baseUrl);
-      final repository = SdkProductRepository(api.sdkClient);
-      Future<void> one(String key, Future<Object?> Function() call) =>
-          sends(key, call, protocol: 'OC1');
-      await one(
-        'OC1 PATCH /global/config',
-        () => repository.selectTerminalShell('fish'),
-      );
-      await one(
-        'OC1 DELETE /api/permission/saved/{id}',
-        () => repository.removeSavedPermission('perm_1'),
-      );
-      api.close();
-    });
 
     test('OpenCode 2', () async {
       final client = Api2Client.connect(

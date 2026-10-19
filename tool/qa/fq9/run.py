@@ -13,9 +13,8 @@ import re
 import subprocess
 import sys
 
-from . import background, fixture, fresh, ports, upgrade
+from . import background, fresh, ports, upgrade
 from .capture import BackgroundCapture
-from .app_runtime import RuntimeTransaction, FAIL_CODES as RUNTIME_FAIL_CODES
 from .runtime import safe_protocol_failure
 from .common import (
     CANDIDATE_BUILD,
@@ -29,13 +28,13 @@ from .common import (
 
 FAIL_CODES = (
     ports.FAIL_CODES
-    | RUNTIME_FAIL_CODES
     | upgrade.FAIL_CODES
     | background.FAIL_CODES
     | fresh.FAIL_CODES
     | frozenset(
         (
             "driver_failure",
+            "legacy_fixture_retired",
             "driver_unexpected_failure",
             "manifest_required",
             "invalid_candidate_build",
@@ -112,7 +111,7 @@ def plan(args, artifacts=None):
             ]
         if getattr(args, "seed_history_receipt", None):
             result["fixtureSeeding"] = {
-                "engineScope": "app_managed_oc1",
+                "engineScope": "retired_oc1_fixture",
                 "projectBacking": "files/projects",
                 "guestRoot": "/root/projects",
                 "manualReopenAndCleanupRequired": True,
@@ -133,7 +132,7 @@ def plan(args, artifacts=None):
             "book_30_minute_lock",
         ]
         result.update(
-            checkpointsSeconds=[300, 1800], engineScope="opencode_1_18_32_app_managed"
+            checkpointsSeconds=[300, 1800], engineScope="retired_oc1_fixture"
         )
     else:
         result["freshPlan"] = fresh.plan_fresh(
@@ -161,6 +160,8 @@ def exact_identity(actual, artifact):
 
 
 def run_locked(args, artifacts, receipt, output, *, port_factory=ports.AndroidPorts):
+    if args.case == "background" or getattr(args, "seed_history_receipt", None):
+        raise DriverFailure("legacy_fixture_retired")
     result = {
         "schema": 1,
         "case": args.case,
@@ -184,7 +185,6 @@ def run_locked(args, artifacts, receipt, output, *, port_factory=ports.AndroidPo
         turn=receipt if args.case == "background" else None,
         dedicated_avd=args.dedicated_avd,
     )
-    runtime_transaction = None
     LOCK.parent.mkdir(parents=True, exist_ok=True)
     with LOCK.open("a") as handle:
         try:
@@ -200,17 +200,6 @@ def run_locked(args, artifacts, receipt, output, *, port_factory=ports.AndroidPo
                 result["driver"] = fresh.run_fresh(device, artifacts["candidate"])
             elif args.case in ("upgrade", "stable"):
                 baseline = artifacts["stable" if args.case == "stable" else "previous"]
-                seed_output = getattr(args, "seed_history_receipt", None)
-                if seed_output is not None:
-                    if not exact_identity(device.installed_identity(), baseline):
-                        raise DriverFailure("upgrade_previous_mismatch")
-                    runtime_transaction = RuntimeTransaction(device)
-                    runtime_transaction.begin()
-                    fixture.seed_history_fixture(
-                        device, lambda value: write_private_receipt(seed_output, value)
-                    )
-                    result["historySeeded"] = True
-                    result["fixtureUsesAppProjectBacking"] = True
                 result["driver"] = upgrade.run_upgrade(
                     device,
                     baseline,
@@ -258,15 +247,6 @@ def run_locked(args, artifacts, receipt, output, *, port_factory=ports.AndroidPo
             )
             if facts is not None:
                 result["protocolFailure"] = facts
-            mismatch = getattr(device, "_runtime_mismatch", None)
-            if type(mismatch) is dict and mismatch == {
-                "expected": "opencode1",
-                "observed": "opencode2",
-            }:
-                result["runtimeMismatch"] = {
-                    "expected": "opencode1",
-                    "observed": "opencode2",
-                }
         finally:
             try:
                 device.close_protocol()
@@ -291,15 +271,6 @@ def run_locked(args, artifacts, receipt, output, *, port_factory=ports.AndroidPo
                         )
                 except Exception:
                     result.update(state="fail", restoreError="normal_restore_failed")
-            if runtime_transaction is not None:
-                try:
-                    runtime_transaction.restore()
-                except Exception:
-                    result.update(
-                        state="fail", runtimeRestoreError="runtime_restore_failed"
-                    )
-                    result.setdefault("code", "runtime_restore_failed")
-                result["runtimeTransaction"] = runtime_transaction.facts()
             result["automatedChecksPassed"] = (
                 result["state"] == "pass" and result["normalRestored"]
             )

@@ -53,9 +53,10 @@ fun main(args: Array<String>) {
                         1.0, false, null, null, emptyMap(), emptyMap()),
                 )
                 val texts = SetupRunner.Texts("channel", "title", "{percent}", "done", "stopped")
-                BuiltinLinux.interruptNextInstallerWithZeroExit = true
+                // Every attempt signalled: the zero launcher exit must still not read as done.
+                BuiltinLinux.interruptInstallersWithZeroExit = SetupStepRetry.ATTEMPTS
                 runner.start("interrupted", specs, null, texts)
-                (field(runner, "worker").get(runner) as Thread).join(5000)
+                (field(runner, "worker").get(runner) as Thread).join(30000)
                 check(!runner.running) { "interrupted installer did not terminate" }
                 val failed = JSONObject(runner.status()!!)
                 check(failed.getString("state") == "failed") { "zero launcher exit hid interrupted installation" }
@@ -67,7 +68,7 @@ fun main(args: Array<String>) {
                     "Node ran before essentials completed"
                 }
                 check(!installedCurl.exists() && !nodeStarted.exists())
-                check(BuiltinLinux.installerStarts == 1 && BuiltinLinux.installerFinishes == 1)
+                check(BuiltinLinux.installerStarts == 3 && BuiltinLinux.installerFinishes == 3)
 
                 // Continue setup on the same runner and process, without relaunch.
                 runner.start("retry", specs, null, texts)
@@ -76,6 +77,25 @@ fun main(args: Array<String>) {
                 val retried = JSONObject(runner.status()!!)
                 check(retried.getString("state") == "done") { "same-process retry failed" }
                 check(installedCurl.exists() && nodeStarted.exists()) { "retry skipped required installation" }
+                check(BuiltinLinux.installerStarts == 5 && BuiltinLinux.installerFinishes == 5)
+            }
+            "interrupted-installer-recovers" -> {
+                val installedCurl = File(dir, "installed-curl")
+                val nodeStarted = File(dir, "node-started")
+                val specs = listOf(
+                    SetupRunner.Spec("essentials", "touch '${installedCurl.path}'", false, false,
+                        1.0, false, null, null, emptyMap(), emptyMap()),
+                    SetupRunner.Spec("node", "test -f '${installedCurl.path}' && touch '${nodeStarted.path}'", false, false,
+                        1.0, false, null, null, emptyMap(), emptyMap()),
+                )
+                val texts = SetupRunner.Texts("channel", "title", "{percent}", "done", "stopped")
+                // One signalled run, then the step runs again by itself.
+                BuiltinLinux.interruptInstallersWithZeroExit = 1
+                runner.start("interrupted", specs, null, texts)
+                (field(runner, "worker").get(runner) as Thread).join(30000)
+                check(!runner.running) { "interrupted installer did not terminate" }
+                check(JSONObject(runner.status()!!).getString("state") == "done") { "a signalled step was not run again" }
+                check(installedCurl.exists() && nodeStarted.exists()) { "the rerun skipped required installation" }
                 check(BuiltinLinux.installerStarts == 3 && BuiltinLinux.installerFinishes == 3)
             }
             "paseo-checksum-failed", "paseo-launch-failed" -> {

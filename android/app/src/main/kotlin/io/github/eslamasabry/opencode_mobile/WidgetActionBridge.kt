@@ -78,9 +78,8 @@ internal object WidgetActionBridge {
     }
 
     /** Only reviewed status fields of the already privacy-safe snapshot are patched. */
-    internal fun applyActionSnapshot(context: Context, payload: Map<String, Any?>, value: Map<*, *>?) {
+    internal fun applyActionSnapshot(context: Context, payload: Map<String, Any?>, value: Map<*, *>?): Boolean =
         WidgetActionSnapshot.apply(context, payload, value)
-    }
 
     internal fun result(payload: Map<String, Any?>, status: String, error: String? = null): Map<String, Any?> =
         mutableMapOf<String, Any?>("id" to payload["id"], "action" to payload["action"], "status" to status).apply {

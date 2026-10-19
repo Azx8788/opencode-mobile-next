@@ -2,14 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../api/mcp_oauth.dart';
+import '../../domain/mcp_oauth.dart';
 import '../../l10n/app_localizations.dart';
 import '../../domain/model_display_name.dart';
 import '../../domain/server_gateway.dart'
     show ProviderRuntimeBusyException, StreamStatus;
-import '../../api/provider_presentation.dart';
+import '../../domain/provider_presentation.dart';
 import '../widgets/phone_server_card.dart' show serverDisplayName;
-import '../../api/product_repository.dart';
+import '../../domain/product_repository.dart';
 import '../../state/connection.dart';
 import '../../state/pending_auth.dart';
 import '../app_theme.dart';

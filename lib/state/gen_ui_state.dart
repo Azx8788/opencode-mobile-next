@@ -26,12 +26,20 @@ final class GenUiTarget {
 }
 
 final class _Source {
-  _Source(this.scope, this.gateway, this.endpoint, this.current, this.ready);
+  _Source(
+    this.scope,
+    this.gateway,
+    this.endpoint,
+    this.current,
+    this.ready,
+    this.beforeSend,
+  );
   final GenUiScope scope;
   final ServerGateway gateway;
   final String endpoint;
   bool Function() current;
   final bool ready;
+  Future<void> Function()? beforeSend;
 }
 
 final class _View {
@@ -76,6 +84,7 @@ final class GenUiStateController extends ChangeNotifier {
     required String endpoint,
     required bool Function() current,
     required bool ready,
+    Future<void> Function()? beforeSend,
   }) {
     final key = genUiScopeKey(scope), old = _sources[genUiScopeKey(scope)];
     if (old != null &&
@@ -89,9 +98,17 @@ final class GenUiStateController extends ChangeNotifier {
         old.endpoint == endpoint &&
         old.ready == ready) {
       old.current = current;
+      old.beforeSend = beforeSend;
       return;
     }
-    _sources[key] = _Source(scope, gateway, endpoint, current, ready);
+    _sources[key] = _Source(
+      scope,
+      gateway,
+      endpoint,
+      current,
+      ready,
+      beforeSend,
+    );
     if (ready) recoveryIncomplete = true;
   }
 
@@ -848,6 +865,19 @@ final class GenUiStateController extends ChangeNotifier {
         throw const ProductException('The connection changed.');
       }
       dispatched = true;
+    }
+
+    // The Undo window, history read and journal write can outlive a phone
+    // runtime ownership change. Ask the bound source immediately before IO.
+    try {
+      await source.beforeSend?.call();
+      _requireWaiting(card);
+      if (!identical(_sources[genUiScopeKey(card.scope)], source)) {
+        throw const ProductException('The connection changed.');
+      }
+    } catch (_) {
+      await journal.discardUnsent(dispatch);
+      rethrow;
     }
 
     try {

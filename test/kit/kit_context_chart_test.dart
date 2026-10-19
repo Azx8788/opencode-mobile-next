@@ -76,7 +76,7 @@ void main() {
     final painter = _painter(tester);
     expect(painter.colorOf(0), roles.text3);
     expect(painter.colorOf(1), roles.attention);
-    expect(painter.colorOf(2), roles.danger);
+    expect(painter.colorOf(2), roles.text1);
     expect(painter.colorOf(3), roles.accent);
   });
 

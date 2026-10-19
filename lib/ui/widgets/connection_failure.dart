@@ -7,6 +7,7 @@
 /// never that button.
 library;
 
+import '../../domain/server_probe.dart' show openCode2UpgradeCommand;
 import '../../l10n/app_localizations.dart';
 import '../../l10n/app_localizations_en.dart';
 
@@ -19,6 +20,7 @@ enum ConnectionFailureAction {
   updatePassword,
   updateToken,
   changeServer,
+  reviewCertificate,
 }
 
 class ConnectionFailure {
@@ -95,6 +97,15 @@ class ConnectionFailure {
     AppLocalizations? l10n,
   }) {
     l10n ??= AppLocalizationsEn();
+    if (error.contains('This server runs OpenCode 1')) {
+      return ConnectionFailure(
+        title: l10n.openCode1UnsupportedTitle,
+        explanation: l10n.openCode1Unsupported,
+        checks: const [openCode2UpgradeCommand],
+        primary: ConnectionFailureAction.changeServer,
+        rawError: openCode2UpgradeCommand,
+      );
+    }
     final uri = Uri.tryParse(baseUrl);
     final lower = error.toLowerCase();
     final port = uri?.hasPort == true ? uri!.port : 4096;
@@ -201,6 +212,15 @@ class ConnectionFailure {
         rawError: error,
       );
     }
+    if (lower.contains('certificate changed')) {
+      return ConnectionFailure(
+        title: l10n.serverTrustCertificateChangedTitle,
+        explanation: l10n.serverTrustCertificateChangedBody,
+        checks: [l10n.serverTrustCertificateRecheck],
+        primary: ConnectionFailureAction.reviewCertificate,
+        rawError: error,
+      );
+    }
     if (certificate) {
       return ConnectionFailure(
         title: l10n.e7ConnectionFailure20,
@@ -210,7 +230,7 @@ class ConnectionFailure {
           l10n.e7ConnectionFailure23,
           ?retried,
         ],
-        primary: ConnectionFailureAction.changeServer,
+        primary: ConnectionFailureAction.reviewCertificate,
         rawError: error,
       );
     }

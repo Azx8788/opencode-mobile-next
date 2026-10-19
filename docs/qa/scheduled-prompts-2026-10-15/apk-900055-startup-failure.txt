@@ -1,0 +1,61 @@
+--------- beginning of crash
+10-16 00:42:15.384  3574  3574 E AndroidRuntime: FATAL EXCEPTION: main
+10-16 00:42:15.384  3574  3574 E AndroidRuntime: Process: io.github.eslamasabry.opencode_mobile, PID: 3574
+10-16 00:42:15.384  3574  3574 E AndroidRuntime: java.lang.RuntimeException: Unable to get provider androidx.startup.InitializationProvider: bv: java.lang.NoSuchMethodException: androidx.work.impl.WorkDatabase_Impl.<init> []
+10-16 00:42:15.384  3574  3574 E AndroidRuntime: 	at android.app.ActivityThread.installProvider(ActivityThread.java:8297)
+10-16 00:42:15.384  3574  3574 E AndroidRuntime: 	at android.app.ActivityThread.installContentProviders(ActivityThread.java:7807)
+10-16 00:42:15.384  3574  3574 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:7488)
+10-16 00:42:15.384  3574  3574 E AndroidRuntime: 	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(Unknown Source:0)
+10-16 00:42:15.384  3574  3574 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2416)
+10-16 00:42:15.384  3574  3574 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:107)
+10-16 00:42:15.384  3574  3574 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:232)
+10-16 00:42:15.384  3574  3574 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:317)
+10-16 00:42:15.384  3574  3574 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:8705)
+10-16 00:42:15.384  3574  3574 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-16 00:42:15.384  3574  3574 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:580)
+10-16 00:42:15.384  3574  3574 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:886)
+10-16 00:42:15.384  3574  3574 E AndroidRuntime: Caused by: bv: java.lang.NoSuchMethodException: androidx.work.impl.WorkDatabase_Impl.<init> []
+10-16 00:42:15.384  3574  3574 E AndroidRuntime: 	at a9.s(r8-map-id-04f4c83c6c86e4633e291ae8d285cef6ad5033d29bb90adb0c67a70987892f9e:104)
+10-16 00:42:15.384  3574  3574 E AndroidRuntime: 	at a9.p(r8-map-id-04f4c83c6c86e4633e291ae8d285cef6ad5033d29bb90adb0c67a70987892f9e:86)
+10-16 00:42:15.384  3574  3574 E AndroidRuntime: 	at androidx.startup.InitializationProvider.onCreate(r8-map-id-04f4c83c6c86e4633e291ae8d285cef6ad5033d29bb90adb0c67a70987892f9e:57)
+10-16 00:42:15.384  3574  3574 E AndroidRuntime: 	at android.content.ContentProvider.attachInfo(ContentProvider.java:2644)
+10-16 00:42:15.384  3574  3574 E AndroidRuntime: 	at android.content.ContentProvider.attachInfo(ContentProvider.java:2613)
+10-16 00:42:15.384  3574  3574 E AndroidRuntime: 	at android.app.ActivityThread.installProvider(ActivityThread.java:8292)
+10-16 00:42:15.384  3574  3574 E AndroidRuntime: 	... 11 more
+10-16 00:42:15.384  3574  3574 E AndroidRuntime: Caused by: java.lang.NoSuchMethodException: androidx.work.impl.WorkDatabase_Impl.<init> []
+10-16 00:42:15.384  3574  3574 E AndroidRuntime: 	at java.lang.Class.getConstructor0(Class.java:3395)
+10-16 00:42:15.384  3574  3574 E AndroidRuntime: 	at java.lang.Class.getDeclaredConstructor(Class.java:3077)
+10-16 00:42:15.384  3574  3574 E AndroidRuntime: 	at m63.a(r8-map-id-04f4c83c6c86e4633e291ae8d285cef6ad5033d29bb90adb0c67a70987892f9e:528)
+10-16 00:42:15.384  3574  3574 E AndroidRuntime: 	at androidx.work.WorkManagerInitializer.b(r8-map-id-04f4c83c6c86e4633e291ae8d285cef6ad5033d29bb90adb0c67a70987892f9e:59)
+10-16 00:42:15.384  3574  3574 E AndroidRuntime: 	at a9.s(r8-map-id-04f4c83c6c86e4633e291ae8d285cef6ad5033d29bb90adb0c67a70987892f9e:90)
+10-16 00:42:15.384  3574  3574 E AndroidRuntime: 	... 16 more
+10-16 00:42:53.662  3878  3878 E AndroidRuntime: FATAL EXCEPTION: main
+10-16 00:42:53.662  3878  3878 E AndroidRuntime: Process: io.github.eslamasabry.opencode_mobile, PID: 3878
+10-16 00:42:53.662  3878  3878 E AndroidRuntime: java.lang.RuntimeException: Unable to get provider androidx.startup.InitializationProvider: bv: java.lang.NoSuchMethodException: androidx.work.impl.WorkDatabase_Impl.<init> []
+10-16 00:42:53.662  3878  3878 E AndroidRuntime: 	at android.app.ActivityThread.installProvider(ActivityThread.java:8297)
+10-16 00:42:53.662  3878  3878 E AndroidRuntime: 	at android.app.ActivityThread.installContentProviders(ActivityThread.java:7807)
+10-16 00:42:53.662  3878  3878 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:7488)
+10-16 00:42:53.662  3878  3878 E AndroidRuntime: 	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(Unknown Source:0)
+10-16 00:42:53.662  3878  3878 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2416)
+10-16 00:42:53.662  3878  3878 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:107)
+10-16 00:42:53.662  3878  3878 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:232)
+10-16 00:42:53.662  3878  3878 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:317)
+10-16 00:42:53.662  3878  3878 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:8705)
+10-16 00:42:53.662  3878  3878 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-16 00:42:53.662  3878  3878 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:580)
+10-16 00:42:53.662  3878  3878 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:886)
+10-16 00:42:53.662  3878  3878 E AndroidRuntime: Caused by: bv: java.lang.NoSuchMethodException: androidx.work.impl.WorkDatabase_Impl.<init> []
+10-16 00:42:53.662  3878  3878 E AndroidRuntime: 	at a9.s(r8-map-id-04f4c83c6c86e4633e291ae8d285cef6ad5033d29bb90adb0c67a70987892f9e:104)
+10-16 00:42:53.662  3878  3878 E AndroidRuntime: 	at a9.p(r8-map-id-04f4c83c6c86e4633e291ae8d285cef6ad5033d29bb90adb0c67a70987892f9e:86)
+10-16 00:42:53.662  3878  3878 E AndroidRuntime: 	at androidx.startup.InitializationProvider.onCreate(r8-map-id-04f4c83c6c86e4633e291ae8d285cef6ad5033d29bb90adb0c67a70987892f9e:57)
+10-16 00:42:53.662  3878  3878 E AndroidRuntime: 	at android.content.ContentProvider.attachInfo(ContentProvider.java:2644)
+10-16 00:42:53.662  3878  3878 E AndroidRuntime: 	at android.content.ContentProvider.attachInfo(ContentProvider.java:2613)
+10-16 00:42:53.662  3878  3878 E AndroidRuntime: 	at android.app.ActivityThread.installProvider(ActivityThread.java:8292)
+10-16 00:42:53.662  3878  3878 E AndroidRuntime: 	... 11 more
+10-16 00:42:53.662  3878  3878 E AndroidRuntime: Caused by: java.lang.NoSuchMethodException: androidx.work.impl.WorkDatabase_Impl.<init> []
+10-16 00:42:53.662  3878  3878 E AndroidRuntime: 	at java.lang.Class.getConstructor0(Class.java:3395)
+10-16 00:42:53.662  3878  3878 E AndroidRuntime: 	at java.lang.Class.getDeclaredConstructor(Class.java:3077)
+10-16 00:42:53.662  3878  3878 E AndroidRuntime: 	at m63.a(r8-map-id-04f4c83c6c86e4633e291ae8d285cef6ad5033d29bb90adb0c67a70987892f9e:528)
+10-16 00:42:53.662  3878  3878 E AndroidRuntime: 	at androidx.work.WorkManagerInitializer.b(r8-map-id-04f4c83c6c86e4633e291ae8d285cef6ad5033d29bb90adb0c67a70987892f9e:59)
+10-16 00:42:53.662  3878  3878 E AndroidRuntime: 	at a9.s(r8-map-id-04f4c83c6c86e4633e291ae8d285cef6ad5033d29bb90adb0c67a70987892f9e:90)
+10-16 00:42:53.662  3878  3878 E AndroidRuntime: 	... 16 more

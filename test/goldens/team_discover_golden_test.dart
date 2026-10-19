@@ -9,6 +9,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:opencode_mobile/builtin/setup/phone_setup.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
 import 'package:opencode_mobile/ui/kit/kit_motion.dart';
 import 'package:opencode_mobile/ui/screens/settings_screen.dart';
@@ -20,6 +21,7 @@ import 'package:opencode_mobile/ui/widgets/team_phone_onboarding.dart';
 import 'package:opencode_mobile/voice/device.dart';
 
 import '../../tool/capture/fixtures.dart' show captureApp, loadCaptureFonts;
+import '../support/fake_setup_engine.dart';
 import '../support/work_tab_fixture.dart';
 
 /// The owner's phone: Termux that can run a team.
@@ -89,7 +91,18 @@ Future<void> _golden(
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(loadCaptureFonts);
-  setUp(() => debugTeamPhoneRuntime = _Runtime());
+  setUp(() {
+    debugTeamPhoneRuntime = _Runtime();
+    // Nothing of the team is installed yet, as the page's inventory reads it.
+    final previousEngine = PhoneSetup.engine;
+    final previousTermux = PhoneSetup.termux;
+    PhoneSetup.engine = FakeSetupEngine();
+    PhoneSetup.termux = FakeSetupEngine();
+    addTearDown(() {
+      PhoneSetup.engine = previousEngine;
+      PhoneSetup.termux = previousTermux;
+    });
+  });
   tearDown(() {
     debugBuiltinTeam = null;
     debugTeamPhoneRuntime = null;

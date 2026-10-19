@@ -1,7 +1,7 @@
 // A reusable fake server for the screens that list or open conversations.
 //
 // The app's screens read a [ConnectionController], which talks to a server
-// through two seams: the transport ([OpenCodeApi], OpenCode 1's shape) and the
+// through two seams: the protocol-neutral [ServerGateway] and the
 // operations gateway ([ProductRepository]). This file replaces both with
 // in-memory versions over one [FakeServer], so any use-case can ask for
 // "connected to a server with this data" and never reaches the network.
@@ -18,18 +18,18 @@
 //     implement, throws NoSuchMethodError. Add a member here when a new
 //     use-case needs it.
 //
-// [capabilities] is any [ServerCapabilities]: pass [ServerCapabilities.allV1]
-// for an OpenCode 1 server, or a narrowed set to show an OpenCode 2 shape.
+// Capabilities describe the supported server actions shown by each scene.
 //
 // ignore_for_file: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
 import 'dart:async';
 
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/state/connection.dart';
 
 import 'fake_app.dart';
+import 'catalog_gateway.dart';
+export 'catalog_gateway.dart' show catalogServerCapabilities;
 
 /// The folder every fake conversation lives in unless it names another.
 const fakeProjectDirectory = '/home/dev/shopfront';
@@ -45,7 +45,7 @@ class FakeServer {
     List<PendingQuestion>? questions,
     List<WorkspaceProject>? projects,
     CatalogSnapshot? catalog,
-    this.capabilities = ServerCapabilities.allV1,
+    this.capabilities = catalogServerCapabilities,
     this.directory = fakeProjectDirectory,
   }) : sessions = sessions ?? {},
        messages = messages ?? {},
@@ -103,9 +103,11 @@ class FakeServer {
   }
 }
 
-/// OpenCode 1's transport over a [FakeServer].
-class FakeServerApi extends OpenCodeApi {
-  FakeServerApi(this.server) : super(baseUrl: 'http://localhost:4096');
+/// Protocol-neutral gateway over a [FakeServer].
+class FakeServerApi extends CatalogFakeGateway {
+  FakeServerApi(this.server) : super(capabilities: server.capabilities) {
+    directory = server.directory;
+  }
 
   final FakeServer server;
 

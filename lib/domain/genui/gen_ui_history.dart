@@ -1,4 +1,4 @@
-import '../../api/models.dart';
+import '../../domain/models.dart';
 
 /// Bounded transcript reads for recovery. Items are oldest-first within a page.
 abstract interface class GenUiHistoryGateway {

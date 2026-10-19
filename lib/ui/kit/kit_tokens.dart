@@ -60,7 +60,6 @@ class KitTokens extends ThemeExtension<KitTokens> {
     required this.technicalValue,
     required this.typedName,
     required this.accent,
-    required this.danger,
     required this.minTarget,
     required this.smallIconSize,
     required this.panelCornerRadius,
@@ -87,8 +86,7 @@ class KitTokens extends ThemeExtension<KitTokens> {
     required this.cardTitle,
   });
 
-  /// The theme's colour roles (ground, surfaces, text, accent, attention,
-  /// danger, …). Parts read colours from here.
+  /// The theme's colour roles (ground, surfaces, text, accent, attention, …). Parts read colours from here.
   final ThemeRoles roles;
 
   /// The spacing scale, smallest first (4, 8, 12, 16, 20, 24).
@@ -156,9 +154,6 @@ class KitTokens extends ThemeExtension<KitTokens> {
 
   /// The tone of a neutral question's mark.
   final Color accent;
-
-  /// The tone of a stop, delete or discard: it loses data or ends work.
-  final Color danger;
 
   /// The smallest touch target, everywhere (§8.3: never smaller on a PC).
   final double minTarget;
@@ -602,7 +597,6 @@ class KitTokens extends ThemeExtension<KitTokens> {
       technicalValue: role(KitTextRole.mono, r.text1),
       typedName: role(KitTextRole.mono, r.text1),
       accent: r.accent,
-      danger: r.danger,
       minTarget: 48,
       smallIconSize: 20,
       panelCornerRadius: 18,
@@ -680,7 +674,6 @@ class KitTokens extends ThemeExtension<KitTokens> {
     technicalValue: technicalValue,
     typedName: typedName,
     accent: accent,
-    danger: danger,
     minTarget: minTarget,
     smallIconSize: smallIconSize,
     panelCornerRadius: panelCornerRadius,
@@ -751,7 +744,6 @@ class KitTokens extends ThemeExtension<KitTokens> {
       technicalValue: s(technicalValue, other.technicalValue),
       typedName: s(typedName, other.typedName),
       accent: c(accent, other.accent),
-      danger: c(danger, other.danger),
       minTarget: d(minTarget, other.minTarget),
       smallIconSize: d(smallIconSize, other.smallIconSize),
       panelCornerRadius: d(panelCornerRadius, other.panelCornerRadius),

@@ -40,7 +40,7 @@ enum KitConfirmKind {
 ///   reason shown, until this exact name is typed.
 /// - [alternative] is a safer path ("Export first"); choosing it closes
 ///   the question (false) and runs it. A destructive one (a heavier path
-///   that asks again, "Delete everything") is drawn in `danger`.
+///   that asks again, "Delete everything") is drawn neutral like every act (never red).
 /// - [details] are technical values, folded under Details, left to right.
 /// - [action], when given, runs inside the question: the confirm shows it
 ///   is working, and a failure keeps the question open with a notice and
@@ -259,8 +259,7 @@ class _KitConfirmBody extends StatelessWidget {
 
 /// The confirmation itself (§1.2), drawn by [showKitConfirm]; also used on
 /// its own for goldens. Start-aligned on the rails: the icon on the one
-/// 44 dp header tile (neutral: `surface3`; stop, delete, discard: the danger
-/// tint), the title, the body, the consequences, the typed name, then the
+/// 44 dp header tile (always neutral: `surface3`), the title, the body, the consequences, the typed name, then the
 /// answers: the confirm, the alternative on a line of its own, and Cancel
 /// last (full width on a phone; one end-aligned row from medium, Cancel,
 /// alternative, confirm), and Details last of all.
@@ -429,13 +428,13 @@ class _KitConfirmSheetState extends State<KitConfirmSheet> {
   Widget build(BuildContext context) {
     final tokens = KitTokens.of(context);
     final l10n = _l10n(context);
-    final danger = widget.kind.isDanger;
+    final heavy = widget.kind.isDanger;
     final consequences = <KitConsequence>[
       ...?widget.consequenceItems,
       for (final (index, fact) in widget.consequences.indexed)
         KitConsequence(
           fact,
-          mark: index == 0 && danger
+          mark: index == 0 && heavy
               ? KitConsequenceMark.lost
               : KitConsequenceMark.info,
         ),
@@ -446,7 +445,7 @@ class _KitConfirmSheetState extends State<KitConfirmSheet> {
     final confirm = KitButton.primary(
       key: widget.confirmKey,
       label: widget.confirmLabel,
-      destructive: danger,
+      destructive: heavy,
       working: _working,
       expand: !wide,
       // Keeps its fill while working; a second tap is ignored.
@@ -469,7 +468,7 @@ class _KitConfirmSheetState extends State<KitConfirmSheet> {
               label: alternative.label,
               icon: alternative.icon,
               // A heavier path than the confirm ("Delete everything",
-              // which opens its own typed-name question) reads as danger.
+              // which opens its own typed-name question) reads like any other act.
               destructive: alternative.destructive,
               onPressed: alternative.onPressed == null || _working
                   ? null
@@ -509,11 +508,11 @@ class _KitConfirmSheetState extends State<KitConfirmSheet> {
             children: [
               Align(
                 alignment: AlignmentDirectional.centerStart,
-                // The accent is never a mark colour (LOOK-6); the danger
-                // tint only for stop, delete and discard (LOOK-5).
+                // The accent is never a mark colour (LOOK-6); the tile is
+                // neutral for every kind: nothing is painted red.
                 child: _KitIconTile(
                   icon: widget.icon ?? KitConfirmSheet.iconFor(widget.kind),
-                  tone: danger ? _KitTileTone.danger : _KitTileTone.neutral,
+                  tone: _KitTileTone.neutral,
                 ),
               ),
               SizedBox(height: tokens.space3),

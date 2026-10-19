@@ -11,7 +11,7 @@ class _Lease implements AgentSignInForegroundLease {
     if (!pending) admission.complete();
   }
   final admission = Completer<void>();
-  final losses = StreamController<void>.broadcast();
+  final losses = StreamController<AgentSignInForegroundException>.broadcast();
   bool held = true;
   int releases = 0;
   @override
@@ -19,7 +19,7 @@ class _Lease implements AgentSignInForegroundLease {
   @override
   bool get active => held && admission.isCompleted;
   @override
-  Stream<void> get lost => losses.stream;
+  Stream<AgentSignInForegroundException> get lost => losses.stream;
   @override
   Future<void> release() async {
     releases++;
@@ -230,7 +230,10 @@ void main() {
     );
     final shell = sessions.startSignIn('owner', ['fx', 'login']);
     await pumpEventQueue();
-    expect(shell.failure, 'Could not keep sign-in running. Try again.');
+    expect(
+      shell.failure,
+      'Could not keep sign-in running. Try again.\nCode: sign-in-admission/service-inactive',
+    );
     expect(backend.calls.where((call) => call.startsWith('sign-in ')), isEmpty);
     expect(lease.releases, 1);
     sessions.dispose();
@@ -248,7 +251,10 @@ void main() {
     );
     final shell = sessions.startSignIn('owner', ['fx', 'login']);
     await pumpEventQueue();
-    expect(shell.failure, 'Could not keep sign-in running. Try again.');
+    expect(
+      shell.failure,
+      'Could not keep sign-in running. Try again.\nCode: sign-in-start',
+    );
     expect(lease.releases, 1);
     sessions.dispose();
     await backend.close();
@@ -298,9 +304,17 @@ void main() {
       final shell = sessions.startSignIn('owner', ['fx', 'login']);
       await pumpEventQueue();
       lease.held = false;
-      lease.losses.add(null);
+      lease.losses.add(
+        const AgentSignInForegroundException(
+          AgentSignInForegroundFailure.unavailable,
+          code: 'service-gone',
+        ),
+      );
       await pumpEventQueue();
-      expect(shell.failure, 'Could not keep sign-in running. Try again.');
+      expect(
+        shell.failure,
+        'Could not keep sign-in running. Try again.\nCode: sign-in-lost/service-gone',
+      );
       expect(backend.calls, contains('remove 2'));
       expect(backend.calls, isNot(contains('remove 1')));
       expect(normal.state, LocalShellState.running);

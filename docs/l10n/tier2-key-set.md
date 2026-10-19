@@ -1,0 +1,2141 @@
+# Tier 2: the key set for Spanish and Simplified Chinese
+
+**Finish line.** Spanish (`es`) and Simplified Chinese (`zh`) carry, on top of the 668-key core ([fg5-key-set.md](fg5-key-set.md)), everything a new user meets in the first hour: **2083 messages**. Japanese, Portuguese and Russian stay at the core. A message outside both lists still reads in English. **Non-goals:** the ~6,100 remaining messages (AI Team, FactsBook, usage and quota pages, MCP and integrations catalogs, migration tools, Termux process and storage pages, diagnostics, session export and import, review workspace), any layout change, and editing English or Arabic.
+
+## How the set was chosen
+
+1. Listed every English message that is not in the core (8,249 of 8,916) and mapped each to the Dart files that use its key.
+2. Kept the keys used by the screens a new user meets in the first hour: on-phone setup and its errors, connecting to a computer (QR, address, HTTP and self-signed trust sheets, connection failures), chat (composer, steps, approvals, stop and steer, errors, attachments, drafts, queued sends), model picker, agent picker and agent checks, providers and sign-in, notifications and background settings, the widgets style window, scheduled prompts, dev preview, Settings top level and Appearance, Files and the terminal entry screens, and the kit words those screens share.
+3. Left out by rule: AI Team and project screens, FactsBook, usage and quota, MCP and integration catalogs and setup, Termux migration, processes and storage, diagnostics and crash reports, session export, import, context and relations, review and revert workspaces, tool-card bodies and the command sheet (long technical detail), file preview internals.
+4. A key shared with a left-out screen is in the set when any kept screen shows it.
+
+The list as one key per line, which the gate reads, is `tool/l10n/partial_locales_tier2_keys.txt`. `tool/l10n/check_partial_locales.py` fails when es or zh lacks any of them, when a placeholder or plural structure differs from English, and (with `--base-ref`) when the list shrinks. It may only grow: translate in both languages before adding a key.
+
+## Terms (same as the core)
+
+Spanish: tú form, conversación, agente, mensaje (prompt), borrador, Ajustes, Agregar, computadora, servidor. Chinese: 对话, 智能体, 提示词, 草稿, 设置, 服务器. Product and tool names stay in English (OpenCode, Claude Code, Codex, Paseo, Termux, Git, SSH, Node.js, AI Team, MCP, Tailscale).
+
+## Review status
+
+Written by the coding agent; placeholders and plural syntax checked mechanically, wording not yet read by a native speaker. Same reading order as the core: permission and sending words first (chat approvals, errors), then setup, then the rest.
+
+## Groups and keys
+
+### Notifications and background (146)
+
+- `appExitAtTime` — at {time}
+- `appExitCrashed` — OpenCode Mobile stopped unexpectedly {time}
+- `appExitForceStopped` — OpenCode Mobile was closed {time}
+- `appExitKeepRunning` — Keep it running
+- `appExitKilled` — Android stopped OpenCode Mobile {time}
+- `appExitLowMemory` — Android closed OpenCode Mobile {time} to free memory
+- `appExitOnDay` — on {day} at {time}
+- `appExitServerAndTeamStopped` — {what}. Your phone's OpenCode and the AI Team stopped with it; they're starting again.
+- `appExitServerAndTeamStoppedManual` — {what}. Your phone's OpenCode and the AI Team stopped with it. Start them again when you're ready.
+- `appExitServerBack` — {what}. Your phone's OpenCode stopped with it and is running again.
+- `appExitServerBackTeam` — {what}. Your phone's OpenCode and the AI Team stopped with it; OpenCode is running again.
+- `appExitServerStopped` — {what}. Your phone's OpenCode stopped with it; it's starting again.
+- `appExitServerStoppedManual` — {what}. Your phone's OpenCode stopped with it. Start it again when you're ready.
+- `appExitSwitchToPhone` — Switch to this phone
+- `backgroundPauseAppUpdated` — Background connection stopped when the app was updated {at}.
+- `backgroundPauseInterrupted` — Background connection stopped for an unknown reason.
+- `backgroundPauseOpenKeepRunning` — Open Keep running settings
+- `backgroundPauseRestricted` — Background connection paused: battery use is restricted.
+- `backgroundPauseResume` — Resume background connection
+- `backgroundPauseResumeFailed` — Couldn't resume. Open Keep running settings.
+- `backgroundPauseResumeShort` — Resume
+- `backgroundPauseResumed` — Background connection resumed.
+- `backgroundPauseResuming` — Resuming background connection…
+- `backgroundPauseTimeLimit` — Background connection paused {at} to save battery.
+- `backgroundPauseUserStopped` — Background connection stopped when the app closed {at}.
+- `commandRunning` — Starting…
+- `e7ProjectMonitorUnsupported` — Background attention is unavailable for this server. Open the conversation to review current requests.
+- `e7SettingsUi23` — Android stopped the live connection
+- `e7SettingsUi24` — Its daily limit for background data-sync work is spent, so live mode turned itself off. Turn it back on to reconnect; the limit resets within 24 hours.
+- `e7SettingsUi25` — Stay connected in the background
+- `e7SettingsUi26` — Keeps runs updating when the app is closed and notifies you when one needs you. Uses more battery and shows a persistent notification.
+- `e7SettingsUi27` — Unrestricted battery access allowed
+- `e7SettingsUi28` — Allow unrestricted battery access
+- `e7SettingsUi29` — Android may still apply its foreground-service time limit.
+- `e7SettingsUi30` — Optional. Helps preserve the live connection during Doze. Android 15+ limits data-sync background work to six hours per 24 hours.
+- `e7SettingsUi31` — Stopped by Android — tap to restart
+- `e7SettingsUi32` — Running now
+- `e7SettingsUi34` — Android stops this after 6 hours a day. The app will tell you when it does.
+- `keepRunningAllSetBody` — Android leaves the app running in the background. There is nothing else to allow on this phone.
+- `keepRunningAllSetTitle` — You're set
+- `keepRunningAutostartDetail` — Turn it on for OpenCode Mobile so the phone doesn't stop it in the background.
+- `keepRunningAutostartHuawei` — Under App launch, set OpenCode Mobile to Manage manually and turn on all three switches.
+- `keepRunningAutostartTitle` — Allow auto-start
+- `keepRunningBackgroundOppo` — In App info › Battery usage, allow background activity.
+- `keepRunningBackgroundOther` — In App info › Battery, choose Unrestricted or allow background running.
+- `keepRunningBackgroundSamsung` — In App info › Battery, choose Unrestricted, and keep the app out of Sleeping apps.
+- `keepRunningBackgroundTitle` — Allow background activity
+- `keepRunningBackgroundVivo` — In App info › Battery, allow high background power use.
+- `keepRunningBackgroundXiaomi` — In App info › Battery saver, choose No restrictions.
+- `keepRunningBatteryDetail` — Lets the app keep running while you use other apps.
+- `keepRunningBatteryDone` — Allowed
+- `keepRunningDailyLimit` — On Android 15 and newer, Android allows background syncing for about 6 hours a day, even with everything here allowed. After that the app pauses in the background until you open it.
+- `keepRunningFootnote` — If Android still closes the app, it starts your phone's OpenCode again the next time you open it.
+- `keepRunningIntro` — Your phone's OpenCode and the AI Team run inside this app, so they stop when Android closes it. On this {maker}, allow these:
+- `keepRunningLockNubia` — Open Recent apps and pull OpenCode Mobile's card down until the lock shows.
+- `keepRunningLockOther` — Open Recent apps, long-press OpenCode Mobile's card and tap the lock.
+- `keepRunningLockSamsung` — Open Recent apps, tap OpenCode Mobile's icon above its card and choose Keep open.
+- `keepRunningLockTitle` — Lock it in Recent apps
+- `keepRunningOpen` — Open
+- `keepRunningOpenFailed` — This phone has no such screen. Open Settings › Apps › OpenCode Mobile instead.
+- `keepRunningSwipeWarning` — This phone closes an app you swipe away from Recent apps, even while it works. Lock it there instead of swiping it away.
+- `keepRunningThisPhone` — phone
+- `keepRunningTitle` — Keep running in the background
+- `liveToolWorking` — Working…
+- `monitorCheckIn` — Check in on long runs
+- `monitorCheckInAfter` — Check in after
+- `monitorCheckInDetail` — Remind me when a run has been busy this long.
+- `monitorCheckInDetailForeground` — Show a reminder row when a run has been busy this long.
+- `monitorDisclosure` — Monitoring is off until you enable it for a server. Checks run about once a minute while this app is open. Background checks run no more often than every five minutes, only while Stay connected in the background is on and Android’s service is running. Android can stop that service; no remaining runtime is promised.
+- `monitorMinutes` — {minutes, plural, =1{1 minute} other{{minutes} minutes}}
+- `monitorNotifications` — Notify when attention is needed
+- `monitorOptIn` — Monitor this server
+- `monitorOptInDetail` — Check pending permissions, questions and forms in its last selected project.
+- `monitorQuiet` — Quiet hours
+- `monitorQuietEnd` — Quiet hours end
+- `monitorQuietStart` — Quiet hours start
+- `monitorSaveFailed` — Could not save monitoring settings. Try again.
+- `monitorScope` — Counts cover each server’s last selected project, not every project on that server.
+- `monitorWifiDetail` — Checks pause unless Android reports an active Wi-Fi network. VPN or unavailable network information may pause checks.
+- `notifStatusChatsWorking` — {count} conversations working
+- `notifStatusHours` — {count} h
+- `notifStatusLastReply` — Last reply {ago} ago
+- `notifStatusLastReplyNow` — Last reply just now
+- `notifStatusMinutes` — {count} min
+- `notifStatusMore` — +{count} more
+- `notifStatusNeedsYou` — {count, plural, =1{1 needs you} other{{count} need you}}
+- `notifStatusOnServer` — on {server}
+- `notifStatusOnThisPhone` — on this phone
+- `notifStatusPausedAndroidBody` — Android stops background work after 6 hours a day. Open OpenCode to keep going.
+- `notifStatusPausedAndroidTitle` — Paused · Android's background limit
+- `notifStatusPausedHotBody` — Resumes when it cools down
+- `notifStatusPausedHotTitle` — Paused · phone is hot
+- `notifStatusPausedIdleBody` — Tap to start OpenCode again
+- `notifStatusPausedIdleTitle` — Paused · nothing was running
+- `notifStatusPublicPaused` — Paused
+- `notifStatusPublicReady` — Ready
+- `notifStatusPublicReconnecting` — Reconnecting
+- `notifStatusPublicSetup` — Setting up
+- `notifStatusPublicWaiting` — Waiting
+- `notifStatusPublicWorking` — {count} working
+- `notifStatusReadyBody` — Ready when you are
+- `notifStatusReadyTitle` — Ready · nothing running
+- `notifStatusReconnectingBody` — Waiting for the connection
+- `notifStatusReconnectingGeneric` — Reconnecting
+- `notifStatusReconnectingTitle` — Reconnecting to {server}
+- `notifStatusSetupTitle` — Setup · {step} of {steps}
+- `notifStatusStillWorking` — {count} still working
+- `notifStatusTasksProgress` — {done} of {total} tasks
+- `notifStatusTriesAgainAt` — Tries again at {time}
+- `notifStatusTriesAgainSoon` — Tries again soon
+- `notifStatusWaitingCount` — {count} waiting
+- `notifStatusWaitingGeneric` — Waiting · the provider is busy
+- `notifStatusWaitingProvider` — Waiting · {provider} limit
+- `notifyBlockedMessage` — Android is not letting OpenCode notify you, so finished runs, approvals and quota alerts cannot arrive until this is fixed.
+- `notifyBlockedTitle` — Notifications are off for this app
+- `notifyDismiss` — Dismiss
+- `notifyFinishedRuns` — Finished runs
+- `notifyFinishedRunsDetail` — When a run on the connected server finishes or fails.
+- `notifyMonitorDetails` — How watching servers works
+- `notifyNoServersDetail` — Servers you save can be watched from here, so a request on one reaches you.
+- `notifyNoServersTitle` — No servers to watch
+- `notifyQuietAllDay` — Start and end are the same, so notifications stay quiet all day.
+- `notifyQuietDetail` — Silence notifications during these hours.
+- `notifyQuietEndPicker` — Set when quiet hours end
+- `notifyQuietSet` — Set
+- `notifyQuietStartPicker` — Set when quiet hours start
+- `notifyQuotaAlerts` — Usage alerts
+- `notifyQuotaAlertsDetail` — Which plans to watch, and at what level. Set in Usage › Alerts.
+- `notifyRequests` — Approvals and questions
+- `notifyRequestsDetail` — When the agent is waiting for your answer, on any monitored server.
+- `notifyRestartBackground` — Restart the live connection
+- `notifySaving` — Saving
+- `notifySectionBackground` — Background
+- `notifySectionServers` — Saved servers
+- `notifySectionWhat` — What notifies me
+- `notifySendTest` — Send a test notification
+- `notifySendTestDetail` — Confirms whether Android is actually delivering this app's notifications right now.
+- `notifySendingTest` — Sending a test notification…
+- `notifyTurnOnInAndroid` — Turn on notifications in Android
+- `notifyWifiOnly` — Check in the background on Wi-Fi only
+- `quotaBudgetOff` — Off
+- `settingsBackgroundOffFailed` — Android did not turn background mode off.
+- `settingsV3Background` — Background
+- `settingsV3Notifications` — Notifications
+- `settingsV3NotificationsAllServers` — Notifications for every server
+- `thermalGuardSettingDetail` — The team pauses with its work kept and resumes by itself once the phone cools.
+
+### Phone setup and its errors (384)
+
+- `aiteamComponentAddingTitle` — Adding {names}
+- `aiteamComponentNotice` — OpenCode and AI Team are running on this phone
+- `bootstrapFailedBody` — If your phone just restarted, unlock it, then try again.
+- `bootstrapFailedTitle` — Can't read saved servers
+- `bootstrapOpeningBody` — Reading your saved servers.
+- `bootstrapOpeningTitle` — Opening…
+- `bootstrapResetFailedBody` — Some saved sign-ins could not be removed. Try again.
+- `bootstrapResetFailedTitle` — Sign-in reset failed
+- `bootstrapResettingBody` — Keep the app open while this finishes.
+- `bootstrapResettingTitle` — Removing saved sign-ins…
+- `bootstrapStartFresh` — Start fresh
+- `bootstrapStartFreshBody` — This removes saved passwords and connection tokens from this phone and clears the selected server. Your saved servers, queued prompts and drafts are kept.
+- `bootstrapStartFreshConfirm` — Remove saved sign-ins
+- `bootstrapStartFreshTitle` — Remove saved sign-ins?
+- `builtinServerExited` — the server stopped
+- `builtinServerLogTitle` — Server log
+- `builtinServerProfileName` — This phone, built-in ({runtime})
+- `builtinServerStartFailed` — OpenCode did not answer: {reason}. Open the log to see why.
+- `builtinServerTimedOut` — no answer within {seconds} seconds
+- `e7SetupAccessibleTerminal` — Use accessible transcript and input
+- `e7SetupAndroidOnly` — Setup on this phone is Android only
+- `e7SetupAuthenticationFailed` — Authentication failed
+- `e7SetupBootstrapCleared` — Bootstrap state cleared
+- `e7SetupBridgeDetail` — Bridge detail: {detail}
+- `e7SetupCheckInstallFailed` — Could not check the installed environment.
+- `e7SetupCheckRestart` — Checking the local server before restart
+- `e7SetupCheckStorageFailed` — Could not check available storage before setup
+- `e7SetupCheckingTermux` — Checking Termux connection
+- `e7SetupChooseContinue` — Choose how to continue
+- `e7SetupCloseScanner` — Close the scanner
+- `e7SetupCodexCompleteUrl` — Enter a complete Codex server URL.
+- `e7SetupCodexCredentials` — Do not put credentials in the Codex URL.
+- `e7SetupCodexDirectory` — Enter an absolute Codex project directory.
+- `e7SetupCodexPath` — Remove the path from the Codex server URL.
+- `e7SetupCodexPlain` — ws:// works only for a server on this phone. Use a wss:// address for another computer.
+- `e7SetupCodexQuery` — Remove query parameters and fragments from the Codex URL.
+- `e7SetupCodexScheme` — Codex server URLs must use wss://, or ws:// for a local server.
+- `e7SetupCodexToken` — Enter a valid Codex connection token.
+- `e7SetupCodexUrl` — Enter a Codex server URL.
+- `e7SetupCommandFailed` — Termux command failed.
+- `e7SetupCompleteUrl` — Enter a complete server URL, such as https://server.example:4096.
+- `e7SetupConfirmUpdate` — Update managed OpenCode?
+- `e7SetupControlKeys` — Terminal control keys. Swipe horizontally for more.
+- `e7SetupCopyFailureReport` — Copy failure report
+- `e7SetupCopyTerminal` — Copy terminal selection or transcript
+- `e7SetupCredentialMismatch` — The saved server credential differs from this runtime; restore its original saved credential before returning
+- `e7SetupCredentialsRefused` — The server refused the credentials. Check the username and password.
+- `e7SetupDependenciesFailed` — Could not install the Termux dependencies
+- `e7SetupDependenciesUnusable` — Termux dependencies are still unusable after the package repair
+- `e7SetupDiagnosticsUnavailable` — Diagnostics unavailable: {detail}
+- `e7SetupDns` — That host name could not be found. Check the address spelling.
+- `e7SetupEnterUrl` — Enter a server URL.
+- `e7SetupExistingMissingCredential` — A local server exists, but its saved credential is unavailable. Run setup again to replace it safely.
+- `e7SetupExtractionFailed` — Ubuntu Base extraction did not create a usable container
+- `e7SetupFirstSetupDuration` — First-time setup can take 10–15 minutes. You can leave this screen and return; setup keeps running.
+- `e7SetupFollowLog` — Follow the server log
+- `e7SetupHidePassword` — Hide server password
+- `e7SetupHostCopied` — Copied. Run it on the server's computer.
+- `e7SetupHostDaily` — Day-to-day — run on your computer
+- `e7SetupHostInstructions` — These commands run on the computer that hosts this server — the app cannot run them for you. Copy each one into a terminal on that machine.
+- `e7SetupIdentityMismatch` — The tracked process is not the managed OpenCode server
+- `e7SetupIncludeScheme` — Include https:// or http://. Remote HTTP needs your permission.
+- `e7SetupInspectTermuxFailed` — Android could not inspect Termux.
+- `e7SetupInstallDependencies` — Installing Termux dependencies
+- `e7SetupInstallService` — Install OpenCode as a background service
+- `e7SetupInstallServiceDetail` — Official installer plus a systemd user service that survives closed terminals and reboots.
+- `e7SetupInstallUbuntu` — Installing Ubuntu environment
+- `e7SetupInstallingBeta` — Installing OpenCode 2
+- `e7SetupInstallingOpenCode` — Installing OpenCode
+- `e7SetupInstallingUbuntu` — Setting up Ubuntu
+- `e7SetupInteractiveTerminal` — Use interactive terminal
+- `e7SetupInvalidAddress` — <invalid address>
+- `e7SetupKeepAfterLogout` — Keep it running after logout
+- `e7SetupLastSetupDetail` — Last setup output: {detail}
+- `e7SetupLinuxService` — Set up OpenCode 2
+- `e7SetupLocalHttp` — An http:// address works only for this phone or a private network address such as 192.168.x.x. For anything else, pair with a code, use its https:// address, or connect with Tailscale.
+- `e7SetupLocalStopped` — The local server is stopped. Its installed files are kept.
+- `e7SetupLockFailed` — Setup manager could not claim its launch lock
+- `e7SetupManagerMissingAfterLaunch` — Setup manager is missing after launch
+- `e7SetupMissingCredential` — The saved credential for this managed server is unavailable. Run setup again to replace it safely.
+- `e7SetupMissingManager` — Setup manager is missing
+- `e7SetupModelsRefreshFailed` — OpenCode updated, but its model catalog could not be refreshed
+- `e7SetupNewTerminalDetail` — Start a shell in the active project.
+- `e7SetupNoServerAnswer` — The server did not answer. Check that it is running and that the address is right.
+- `e7SetupNoSetup` — No setup has been started
+- `e7SetupNoTerminals` — No terminal processes
+- `e7SetupNoUbuntu` — No managed Ubuntu installation found.
+- `e7SetupNotOpenCode` — The address did not answer as an OpenCode server. Check the address and try again.
+- `e7SetupObservedVersionSaveFailed` — The local server is ready, but its observed version could not be saved. Refresh setup to try again.
+- `e7SetupOpenCodeReady` — OpenCode is ready
+- `e7SetupOutputCopied` — Setup output copied.
+- `e7SetupPairAddressLong` — That pairing code lists an address far too long to be a server URL.
+- `e7SetupPairAddressMissing` — That pairing code carries no server address. Check that the server is actually listening, then run “opencode2 pair” again.
+- `e7SetupPairAddressType` — That pairing code lists an address that is not text.
+- `e7SetupPairAddressUnusable` — That pairing code contains an unusable server address.
+- `e7SetupPairInvalid` — That is not a pairing code. Run “opencode2 pair” on the server and scan or copy what it prints.
+- `e7SetupPairLong` — That is far too long to be a pairing code. Copy only the line “opencode2 pair” prints, or scan its QR code.
+- `e7SetupPairNoUrls` — That pairing code has no “urls” field, so there is no address to connect to.
+- `e7SetupPairNone` — There is no pairing code here. Run “opencode2 pair” on the server and scan or copy what it prints.
+- `e7SetupPairPasswordMissing` — That pairing code has no “password” field. It may have been truncated — scan or copy the whole code.
+- `e7SetupPairPasswordRejected` — Password rejected. Check the pairing code and try again.
+- `e7SetupPairPasswordType` — That pairing code's “password” field is not text.
+- `e7SetupPairShape` — That pairing code is the wrong shape — it should be a JSON object with “urls”, “username”, and “password”.
+- `e7SetupPairTestFailed` — The connection test failed before the server could be checked. Try another address.
+- `e7SetupPairTooMany` — That pairing code lists more addresses than this app will try. Bind the server to one interface and pair again.
+- `e7SetupPairUrlsType` — That pairing code's “urls” field is not a list of addresses.
+- `e7SetupPairUsernameType` — That pairing code's “username” field is not text.
+- `e7SetupPairingInstructions` — On your computer run “opencode2 pair”, then paste or scan the code it prints.
+- `e7SetupPasswordMissing` — The local server password is missing
+- `e7SetupPasswordNeeded` — This server requires its serve password.
+- `e7SetupPasswordRejected` — Password rejected. Copy the current "server password" line from the server output — it changes on every restart unless OPENCODE_PASSWORD is set.
+- `e7SetupPastePassword` — Paste server password
+- `e7SetupPortBusy` — The local server port is still in use; no replacement was started
+- `e7SetupPrepareRuntime` — Preparing the selected OpenCode runtime
+- `e7SetupPrepareTermux` — Preparing Termux
+- `e7SetupPreparingModels` — Getting models ready
+- `e7SetupProbeError` — Connection test failed: {detail}
+- `e7SetupProbeHttp` — The address responded, but not like an OpenCode server (HTTP {status}). Check that the URL points at opencode serve.
+- `e7SetupReadManagerFailed` — Could not read setup manager status
+- `e7SetupReadPassword` — Read the server password for this app
+- `e7SetupReadStorageFailed` — Could not read available storage before setup
+- `e7SetupReadinessTimeout` — OpenCode server did not become authenticated and ready within 30 seconds
+- `e7SetupReadingProgress` — Reading setup progress
+- `e7SetupRecordIdentityFailed` — Could not record the managed server process identity
+- `e7SetupRecoveryDisabled` — Automatic recovery disabled
+- `e7SetupRecoveryWasDisabled` — Automatic recovery was disabled
+- `e7SetupRefreshModels` — Refreshing the OpenCode model catalog
+- `e7SetupRefreshPackages` — Refreshing Termux packages
+- `e7SetupRefused` — The computer refused the connection. Check that the server is running there and that the address and port are right.
+- `e7SetupRemoveInterruptedFailed` — Could not remove the interrupted app-owned Ubuntu install
+- `e7SetupRemoveTerminal` — Remove terminal?
+- `e7SetupRemoveTerminalDetail` — This terminal record will be removed.
+- `e7SetupRepairFailed` — Could not repair the interrupted Termux package transaction
+- `e7SetupRepairPackages` — Repairing the Termux package set
+- `e7SetupReportCopied` — Failure report copied.
+- `e7SetupRepositoryFailed` — Could not select the official Termux package repository
+- `e7SetupRepositoryRefreshFailed` — Could not refresh packages.termux.dev; check the network and retry
+- `e7SetupRequireHttps` — A password is only sent to another computer over https://. Use the computer's https:// address, pair with a code, or connect with Tailscale.
+- `e7SetupRestartActiveChanged` — The local server restarted, but the active server changed. Reconnect when you are ready.
+- `e7SetupRestartFailed` — Could not restart the local server: {detail}
+- `e7SetupRestartReconnectFailed` — The local server restarted, but the app could not reconnect.
+- `e7SetupRestartServer` — Restart the server
+- `e7SetupRestartUnconfirmed` — Could not confirm this restart. Refresh its progress before retrying.
+- `e7SetupRestartingLocal` — Restarting the local server
+- `e7SetupRestartingLocalStage` — Restarting local server
+- `e7SetupResumeLive` — Resume live view
+- `e7SetupResumeSetup` — Retry — resumes where setup left off
+- `e7SetupRunningOnPhone` — OpenCode is running on this phone.
+- `e7SetupRuntimeUnavailable` — The selected OpenCode command is unavailable
+- `e7SetupSavingLocal` — Saving local server settings
+- `e7SetupSendKey` — Sends this key to the terminal
+- `e7SetupServerExit` — OpenCode server exited (code {code})
+- `e7SetupServerGroupFailed` — Managed server did not start in an isolated process group
+- `e7SetupServerStarting` — The server is starting. Try again in a moment.
+- `e7SetupSetupGroupFailed` — Setup manager did not start in an isolated process group
+- `e7SetupSetupInterrupted` — Setup stopped unexpectedly; see live output for details
+- `e7SetupSetupLost` — Lost track of the setup running in Termux
+- `e7SetupSetupQueued` — Setup queued
+- `e7SetupShowPassword` — Show server password
+- `e7SetupStartFailed` — Could not save or start the local setup: {detail}
+- `e7SetupStartInstalled` — Start installed OpenCode?
+- `e7SetupStartLocalServer` — Starting the local server
+- `e7SetupStartingLocal` — Starting local server
+- `e7SetupStartingSetup` — Starting setup in Termux
+- `e7SetupStartupExited` — OpenCode server exited during startup
+- `e7SetupStepUnavailable` — not yet available
+- `e7SetupStopBeforeUpdate` — Stop active generation before updating OpenCode.
+- `e7SetupStopTerminalDetail` — The running process and its child processes will be terminated.
+- `e7SetupStoppedLocal` — Local server stopped
+- `e7SetupStoppingLocal` — Stopping the local server
+- `e7SetupSwitchGroupFailed` — Switch manager did not start in an isolated process group
+- `e7SetupSwitchLocal` — Switching the managed local server
+- `e7SetupSwitchNotStarted` — The runtime switch did not start.
+- `e7SetupTerminalActions` — Terminal actions
+- `e7SetupTermuxUrlScheme` — Server URLs must use https://, or http:// for local Termux.
+- `e7SetupThisDevice` — This device (Termux)
+- `e7SetupTimeout` — The connection timed out. Check the address, and that the server is reachable from this phone.
+- `e7SetupUbuntuOnly` — Ubuntu is installed. OpenCode is not installed yet.
+- `e7SetupUbuntuUnavailable` — The managed Ubuntu environment is unavailable
+- `e7SetupUbuntuUnusable` — An existing Ubuntu container is not usable; setup will not delete it
+- `e7SetupUnexpectedBridge` — Termux returned an unexpected bridge response.
+- `e7SetupUnexpectedStop` — The local OpenCode server stopped unexpectedly
+- `e7SetupUnhealthy` — The server responded but reported itself unhealthy. Check its logs, then try again.
+- `e7SetupUnknownSetup` — Unknown setup state
+- `e7SetupUnreadableData` — The OpenCode 2 data location record is unreadable
+- `e7SetupUnreadablePrevious` — The previous runtime record is unreadable
+- `e7SetupUnsupportedSetup` — Setting up on the device itself works only on Android phones. On this computer, start OpenCode yourself and add it as a server.
+- `e7SetupUpdateHost` — Update OpenCode on the host
+- `e7SetupUpdateHostDetail` — When the server reports an update, Settings offers the native upgrade first; this is the host-side equivalent.
+- `e7SetupUpdateInterruption` — The server will be briefly unavailable. Active generation should be stopped first.
+- `e7SetupUpgradeFailed` — Could not complete the safe Termux package upgrade
+- `e7SetupUrlCredentials` — Do not put credentials in the URL. Use the fields below.
+- `e7SetupUrlPath` — Remove the path from the server URL. Enter only its origin.
+- `e7SetupUrlQuery` — Remove query parameters and fragments from the server URL.
+- `e7SetupUrlScheme` — Server URLs must use https:// or http://.
+- `e7SetupVerifyContinue` — Verify & continue
+- `e7SetupVerifyTermuxFailed` — Termux bridge verification failed.
+- `e7SetupVersionMissing` — OpenCode installed but did not report a version
+- `e7SetupWaitingTermux` — Waiting for Termux to respond. This can take a little while.
+- `e7WorkspaceDisconnect` — Disconnect
+- `inAppServerOwnershipRecoveryBody` — The server on this phone couldn't restart safely. In app settings, tap Force stop, then reopen the app; your conversations stay.
+- `inAppServerStartExitedBody` — OpenCode closed by itself while it was starting. Open setup to see its log, or start it again.
+- `inAppServerStartFailedBody` — Open its setup to see the server log, or try starting it again.
+- `inAppServerStartInterruptedBody` — The start stopped because the app left the screen. Start it again to continue.
+- `inAppServerStartPasswordBody` — The app could not set up OpenCode's sign-in on this phone. Start it again; if this repeats, open setup.
+- `inAppServerStartRefusedBody` — The phone did not let the app start OpenCode just now. Start it again; if this repeats, restart the phone.
+- `inAppServerStartTimedOutBody` — OpenCode did not answer within {seconds} seconds. The phone may be busy or short on memory; close other apps, then start it again.
+- `localAgentCardActionFailed` — That did not work. {detail}
+- `localAgentConnectFailed` — Could not connect to Claude Code on this phone. {detail}
+- `localAgentEntryDidNotStart` — Didn't start
+- `localAgentEntryRemoving` — Removing
+- `localAgentEntrySignedOut` — {state} · Not signed in to Claude
+- `localAgentEntryStillStarting` — Still starting · this can take a minute
+- `localAgentFailedChecksum` — The Node.js download did not match its pinned checksum, so nothing was installed. Try again; if it happens twice, something on the network is changing the file.
+- `localAgentFailedDaemon` — Claude Code stopped or does not answer. Start it again.
+- `localAgentFailedDownload` — Node.js could not be downloaded. Check the network, then try again.
+- `localAgentFailedInterrupted` — Android stopped the step before it finished. Try again; it picks up where it stopped.
+- `localAgentFailedNativeBuild` — A package needs a native module with no ready-made build for this phone. Nothing was compiled; the output below names it.
+- `localAgentFailedNoSpace` — Not enough space on this phone. {detail} Free some space, then try again.
+- `localAgentFailedPackages` — The packages could not be installed. Check the network, then try again.
+- `localAgentFailedPortInUse` — Port 6767 on this phone is already used by another program. Stop that program, then try again.
+- `localAgentFailedReason` — It stopped: {detail}
+- `localAgentFailedTimeout` — Claude Code did not answer within two minutes. The output below shows what it printed.
+- `localAgentFailedTitle` — Claude Code setup stopped
+- `localAgentFailedUnsupported` — Claude Code needs a 64-bit phone.
+- `localAgentInstalledTitle` — Claude Code is installed and stopped
+- `localAgentInstalling` — Setting up Claude Code
+- `localAgentKilled` — Android stopped Claude Code while the app was away. Nothing is lost.
+- `localAgentLeaveNote` — You can leave this screen. The install keeps going in Termux.
+- `localAgentMore` — More Claude Code actions
+- `localAgentNeedsTermuxBody` — Claude Code needs Termux for now; the in-app Linux does not run it yet. Set up Termux to use it here.
+- `localAgentNeedsUbuntuBody` — Claude Code runs inside the Ubuntu this app sets up. Finish the On this phone setup first, then come back here.
+- `localAgentNotNow` — Not now
+- `localAgentOfferBody` — Run Claude Code here with no computer. The app installs Node.js, the Paseo daemon and Claude Code into the Ubuntu it already manages, and reaches them on this phone only.
+- `localAgentOfferSize` — About 60 MB to download for Node.js, plus the packages; about 1 GB once installed. Needs 2 GB free.
+- `localAgentOfferWarning` — Android may stop Termux in the background. The battery settings that keep the OpenCode server alive keep this alive too.
+- `localAgentOpenSetup` — Open phone setup
+- `localAgentProjectBody` — Claude Code works inside one folder of the Ubuntu on this phone.
+- `localAgentProjectPathInvalid` — Enter a full path, like /root/projects/my-app.
+- `localAgentProjectPathLabel` — Or type a path inside Ubuntu
+- `localAgentProjectTitle` — Choose a project folder
+- `localAgentReadyBody` — It listens on this phone only (127.0.0.1), behind a password this app keeps.
+- `localAgentReadyTitle` — Claude Code is running on this phone
+- `localAgentRemove` — Remove from this phone
+- `localAgentSetUp` — Set up Claude Code
+- `localAgentSetUpWithTermux` — Set up with Termux
+- `localAgentSignInAlready` — I already signed in
+- `localAgentSignInBody` — Termux opens and Claude Code shows a link. Approve it in your browser, paste the code back into Termux, then return here. This app never sees or stores your Claude sign-in.
+- `localAgentSignInMissing` — No Claude sign-in was found yet.
+- `localAgentSignInOpenFailed` — Termux could not be opened. Open Termux yourself and run: {command}
+- `localAgentStartNamed` — Start Claude Code
+- `localAgentStepClaude` — Claude Code
+- `localAgentStepNode` — Node.js
+- `localAgentStepPaseo` — Paseo daemon
+- `localAgentStepSignIn` — Sign in to Claude
+- `localAgentStepStart` — Start on this phone
+- `localAgentStopNamed` — Stop Claude Code
+- `localAgentUpdate` — Update Claude Code
+- `localAgentUpdateAvailable` — An update adds the newest Claude models, such as Opus 5.5.
+- `localAgentUpdateNow` — Update
+- `localAgentVersions` — Claude Code {claude} · Paseo {paseo} · Node.js {node}
+- `phoneServerCardActionFailed` — That did not work: {reason}
+- `phoneServerCardAddTools` — Add tools (Python, AI Team…)
+- `phoneServerCardContinueSetup` — Continue setup
+- `phoneServerCardDisconnect` — Disconnect from {server}
+- `phoneServerCardErrorDetail` — Error
+- `phoneServerCardLogTitle` — Log
+- `phoneServerCardMore` — More
+- `phoneServerCardOpenTerminal` — Open terminal
+- `phoneServerCardRemove` — Remove from this phone…
+- `phoneServerCardRemoveTitle` — Remove OpenCode from this phone?
+- `phoneServerCardSetUp` — Set up
+- `phoneServerCardShowServerLog` — Show server log
+- `phoneServerCardStartOpenCode` — Start OpenCode
+- `phoneServerCardStopOpenCode` — Stop OpenCode on this phone
+- `phoneServerCardUpdate` — Update OpenCode
+- `phoneServerConnect` — Connect
+- `phoneServerForget` — Forget saved sign-in
+- `phoneServerNameInSentence` — the in-app Ubuntu
+- `phoneServerOpen` — Open
+- `phoneServerRowDetails` — Details
+- `phoneServerRowNotAnswering` — Not answering
+- `phoneServerRowNotRunning` — Not running
+- `phoneServerRowRestarting` — Restarting
+- `phoneServerStart` — Start
+- `phoneServerTermuxTitle` — Termux
+- `phoneSetupErrorCannotStart` — OpenCode is installed but is not answering. Continue setup to try again. Details show what stopped it.
+- `phoneSetupErrorChecksum` — The download of {name} was damaged. Continue to fetch it again.
+- `phoneSetupErrorInstall` — Could not install {name}
+- `phoneSetupErrorInterrupted` — Setup stopped before it finished. Continue setup to try again. Completed steps will be kept.
+- `phoneSetupErrorNoInternet` — No internet connection. Continue when you're back online.
+- `phoneSetupErrorNoSpace` — Not enough free space to install {name}. Free some storage, then continue setup.
+- `phoneSetupErrorOffline` — Could not download {name}: no internet connection
+- `phoneSetupErrorOpenCodeNoProgram` — OpenCode was downloaded, but its program was not in the download. Continue to fetch it again.
+- `phoneSetupErrorOpenCodeNoStart` — OpenCode was installed, but it did not start. Continue to try again; Details show what it said.
+- `phoneSetupErrorOpenCodeWontRun` — OpenCode was downloaded, but its program does not run on this phone. Details show what it said.
+- `phoneSetupErrorPackageRepair` — Some Linux packages need repair. Continue setup to try again. Details show what stopped it.
+- `phoneSetupNotificationChannel` — Phone setup
+- `phoneSetupNotificationDone` — OpenCode is ready on this phone
+- `phoneSetupNotificationProgress` — {percent}% done
+- `phoneSetupNotificationStopped` — Setup stopped. Open the app to continue.
+- `phoneSetupNotificationTitle` — Setting up OpenCode on this phone
+- `phoneSetupProfileName` — This phone
+- `phoneSetupStageDownloadingLinux` — Downloading Linux base
+- `phoneSetupStageStarting` — Starting OpenCode
+- `phoneSetupStageUnpackingLinux` — Unpacking Linux base
+- `phoneSetupStartApproxSize` — ~{size}
+- `phoneSetupStartTotals` — {time} · ~{size}
+- `phoneSetupUnsupportedBody` — Setting up on the device itself works only on Android phones. On your computer, run this command, then add the server here with the code it prints.
+- `phoneSetupUnsupportedTitle` — Connect a server
+- `removeFromPhoneDeleteAll` — Delete everything
+- `removeFromPhoneDeleteAllChoice` — Delete everything…
+- `removeFromPhoneDeleteAllChoiceSize` — Delete everything, freeing about {size}…
+- `removeFromPhoneDeleteBody` — OpenCode, its tools and every project on this phone are deleted, freeing about {size}. This cannot be undone.
+- `removeFromPhoneDeleteBodyUnmeasured` — OpenCode, its tools and every project on this phone are deleted. This cannot be undone.
+- `removeFromPhoneDeleteLost` — Project files not saved anywhere else are lost for good
+- `removeFromPhoneDeleteTitle` — Delete OpenCode and projects?
+- `removeFromPhoneKeepBody` — OpenCode and its tools are removed, freeing about {size}.
+- `removeFromPhoneKeepBodyUnmeasured` — OpenCode and its tools are removed.
+- `removeFromPhoneKeepConfirm` — Remove OpenCode, keep my projects
+- `removeFromPhoneKeepKept` — Your projects stay and come back when you set up again
+- `removeFromPhoneKeepKeptSize` — Your projects ({size}) stay and come back when you set up again
+- `removeFromPhoneKeepLost` — Conversations and settings inside OpenCode are deleted
+- `serverTrustCertificateValidityError` — The server certificate is expired or not yet valid. Ask the server owner to renew it or check the device clock before reconnecting.
+- `serverTrustHttpUnconfirmed` — This server uses plain HTTP, and you have not confirmed that yet. Edit the server to review and approve the HTTP warning, or use HTTPS.
+- `serverTrustInvalidPort` — Enter a server port between 1 and 65535.
+- `serverTrustPasswordRejected` — Password rejected. Check the server password and try again.
+- `serverTrustProbeFailed` — The server could not be checked. Check the address and try again.
+- `setupAppStageDownloading` — Downloading
+- `setupAppStageVerifying` — Checking the download
+- `setupProgressViewBytes` — {done} of {total}
+- `setupProgressViewCancel` — Stop setup
+- `setupProgressViewCancelled` — Setup stopped. What's finished stays installed.
+- `setupProgressViewChecking` — Checking
+- `setupProgressViewContinue` — Continue setup
+- `setupProgressViewDone` — All set
+- `setupProgressViewFailedAt` — Stopped at {name}. What went wrong is under Details.
+- `setupProgressViewFailedDuring` — Stopped during: {stage}. What went wrong is under Details.
+- `setupProgressViewFailedStep` — This step didn't finish. What went wrong is under Details.
+- `setupProgressViewFailedTitle` — Setup didn't finish
+- `setupProgressViewFailedUnknown` — Setup stopped before it finished. What went wrong is under Details.
+- `setupProgressViewGettingStarted` — Getting started…
+- `setupProgressViewInterrupted` — Setup was interrupted. What's finished is kept.
+- `setupProgressViewMinutesLeft` — {minutes, plural, =1{~1 min left} other{~{minutes} min left}}
+- `setupProgressViewNoInternet` — No internet connection — Continue when you're back online
+- `setupProgressViewNoLog` — Nothing logged yet.
+- `setupProgressViewPercent` — {percent}%
+- `setupProgressViewStageMeasured` — {stage} · {measured}
+- `setupProgressViewStarting` — Starting
+- `setupProgressViewUnderMinute` — Less than a minute
+- `setupRuntimeTwo` — OpenCode 2
+- `setupStoppedByRestart` — The phone restarted, so the local server stopped. Start it again when you need it.
+- `setupSwitchFailed` — Could not finish updating to OpenCode 2. Your saved conversations are kept. Try again.
+- `setupSwitchMissingCredential` — The saved server password could not be read. Your conversations and files are kept. Restore access to the saved password, then try again.
+- `setupSwitchPending` — The update to OpenCode 2 has not finished. Your saved conversations are kept. Try again.
+- `setupSwitchProfileName` — This phone · {runtime}
+- `teamUiPhoneContinue` — Continue
+- `teamUiPhoneOptionalTag` — Optional · experimental
+- `teamUiPhoneRetry` — Try again
+- `termuxFixAllowAccess` — Allow access to Termux
+- `termuxFixAllowOtherApps` — Allow other apps in Termux
+- `termuxFixGetCurrentTermux` — Get the current Termux
+- `termuxFixGetTermux` — Get Termux
+- `termuxFixOpenPermissions` — Open this app's permissions
+- `termuxFixOpenTermux` — Open Termux
+- `termuxFixRestart` — Restart {runtime} in Termux
+- `termuxGuideCopyOpenFailed` — Could not copy the command or open Termux.
+- `termuxGuideOpenFailed` — The command was copied, but Termux could not open. Open Termux yourself or try Copy & open Termux again.
+- `termuxOtherAppsBody` — Paste this line in Termux and press Enter, then come back here. Open Termux copies it for you.
+- `termuxOtherAppsTitle` — Allow other apps
+- `termuxProblemAccessBlocked` — Android blocked Termux access for this app. In this app's permissions, turn on “Run commands in Termux environment”.
+- `termuxProblemAccessHeard` — OpenCode is running in Termux, but this app can't reach Termux yet. Allow access and it connects.
+- `termuxProblemAccessNeeded` — This app can't reach Termux yet. Allow access so it can find OpenCode there and connect.
+- `termuxProblemAsleep` — Termux didn't answer. Android may have put it to sleep. Open Termux to wake it.
+- `termuxProblemNotAnswering` — {runtime} is set up in Termux but isn't answering. A restart usually brings it back.
+- `termuxProblemNotInstalled` — Termux isn't on this phone. Install it again, or set up the in-app server instead.
+- `termuxProblemOtherAppsOff` — Termux doesn't take commands from other apps yet. One line in Termux allows it.
+- `termuxProblemOutdated` — This Termux is too old for the app to use. Install the current Termux from F-Droid.
+- `termuxProblemUnknown` — This phone couldn't check on {runtime} in Termux. Try again in a moment.
+- `termuxRestartConfirm` — Restart
+- `thermalPausedNotice` — Your phone is hot — paused the AI Team to cool down. It resumes by itself.
+- `thermalResumedNotice` — Resumed the AI Team — your phone has cooled down.
+- `thermalStoppedNotice` — Your phone is very hot — stopped the AI Team to protect it. Its work is kept, and it starts again once the phone has cooled down.
+- `thisPhoneManage` — Manage This phone
+
+### Shared kit and app shell words (159)
+
+- `a2aTitle` — External agents
+- `agentAccountCancelled` — Sign-in cancelled
+- `agentAccountTitle` — Codex account
+- `appNewConversationFailed` — Couldn't start a new conversation
+- `builtinServerConnectFailed` — Could not connect: {reason}
+- `chatUiTheGeneratedFileIsNotAvailableFrom` — The generated file is not available from this server.
+- `commandAuthPending` — Signing in on the server… Finish any steps it asks for there. Closing this doesn't stop it.
+- `demoScreenDisclosure` — Everything here is simulated on this device. No server, provider, or files are accessed.
+- `demoScreenFinished` — That's the whole loop: a prompt, a reply and a reviewed edit.
+- `demoScreenLeave` — Leave demo
+- `demoScreenReset` — Reset demo
+- `demoScreenSimulated` — Simulated · nothing is saved
+- `demoScreenTitle` — Try it offline
+- `demoSetUpServer` — Set up your own server
+- `demoTaskInstruction` — Send the sample prompt below, then review the proposed edit.
+- `demoTaskTitle` — Try a small change
+- `draftSaveFailed` — Draft not saved. Copy your text or retry.
+- `e7AppearanceTitle` — Appearance
+- `e7LibraryAuthorizationCode` — Authorization code
+- `e7LibraryIsConnected` — {detail1} is connected
+- `e7LibraryTheSignInSourceChanged` — The sign-in source changed.
+- `e7LocaleUiConnectionChanged` — The server changed.
+- `e7SettingsUi8` — Disconnect
+- `e7SetupAuthFailed` — The server started but authentication failed.
+- `e7SetupCheckingInstall` — Checking installed environment...
+- `e7SetupFullWalkthrough` — Full walkthrough (opens in browser)
+- `e7SetupHostFirstSetup` — First-time setup — run on your computer
+- `e7SetupUsbAccess` — Reach it from this phone over USB
+- `e7SharedOpenCodeUnreachableTryAgain` — OpenCode is unreachable. Try again.
+- `e7SharedServersStartedWithOpencodeServeDoNot` — For a local connection, start OpenCode 2 on this computer. Use the password it prints:
+- `e7SharedThenAddTheServerManuallyWithUsername` — Then add the server manually with username opencode and that password.
+- `e7WorkspaceDaysAgo` — {count}d ago
+- `e7WorkspaceHoursAgo` — {count}h ago
+- `e7WorkspaceJustNow` — Just now
+- `e7WorkspaceMinutesAgo` — {count} min ago
+- `e7WorkspaceYesterday` — Yesterday
+- `effectsActivityGlow` — Glowing border while replying
+- `effectsAnimations` — Motion
+- `effectsGlowColours` — Colours
+- `effectsGlowSpeed` — Speed
+- `effectsGlowStyle` — Style
+- `effectsLiveBackground` — Live background
+- `effectsSaveFailed` — Could not save this choice on this device. Try again.
+- `effectsSection` — Effects
+- `handoffCopyCommand` — Copy command
+- `integrationsCopyCode` — Copy code
+- `integrationsFinishSignInProviderHelper` — Paste the code the sign-in page showed after you approved access.
+- `integrationsManageAccounts` — Manage {name} accounts
+- `integrationsSignedInUnusable` — Signed in, but this server can't use it
+- `keepRunningBatteryTitle` — Don't optimize battery
+- `kitCapNetworkTailscaleEnable` — Set up Tailscale
+- `kitConfirmKeepEditing` — Keep editing
+- `kitConfirmKeepRunning` — Keep running
+- `kitConfirmTypeName` — Type {name} to confirm
+- `kitConfirmTypeNameReason` — Type the name exactly as shown to turn this on.
+- `kitCopyAll` — Copy all
+- `kitCopyValue` — Copy {label}
+- `kitDetailsShowAll` — {count, plural, other{Show all {count} lines}}
+- `kitDetailsValueSpoken` — {label}: {value}
+- `kitFieldChecking` — Checking…
+- `kitFieldCount` — {count, plural, =1{1 of {max}} other{{count} of {max}}}
+- `kitFieldHideNamed` — Hide {label}
+- `kitFieldLimitReached` — Limit reached
+- `kitFieldPaste` — Paste
+- `kitFieldReplace` — Replace
+- `kitFieldSaved` — Saved
+- `kitFieldShowNamed` — Show {label}
+- `kitFieldStillChecking` — Still checking after {seconds} s
+- `kitProgressEtaHours` — {hours, plural, other{about {hours} h left}}
+- `kitProgressEtaMinutes` — {minutes, plural, other{about {minutes} min left}}
+- `kitProgressEtaSeconds` — {seconds, plural, other{about {seconds} s left}}
+- `kitProgressRowAsOf` — as of {time}
+- `kitProgressRowAtLimit` — Limit reached
+- `kitProgressRowLoading` — Loading
+- `kitProgressRowNearLimit` — Near limit
+- `kitProgressRowOther` — Other
+- `kitProgressRowPercent` — {percent} percent
+- `kitProgressStep` — Step {step} of {of}
+- `kitSearchClear` — Clear search
+- `kitSearchFilter` — Filter
+- `kitSearchFilterActive` — Filter: {name}
+- `kitSearchNoMatch` — Nothing matches {query}
+- `kitSearchNoMatchIn` — Nothing in {what} matches {query}
+- `kitSearchPartial` — {count} loaded · searching the server…
+- `kitSearchResults` — {count, plural, =0{No results} =1{1 result} other{{count} results}}
+- `kitWrapLines` — Wrap lines
+- `launchShortcutConnectionFailed` — Could not connect to the saved server. Choose or fix a server, then start a new conversation.
+- `launchShortcutNoServer` — Choose a server, then start a new conversation.
+- `launchShortcutReentry` — Enter the credentials for the saved server, then start a new conversation.
+- `launchShortcutWaiting` — Connecting to the saved server. The new conversation opens when it is ready.
+- `launchUiActivityNoServer` — Choose a server to see what needs your attention.
+- `launchUiSessionConnectionFailed` — Could not connect to the saved server. Choose or fix a server, then open the conversation from its list.
+- `launchUiSessionNoServer` — Choose a server, then open the conversation from its list.
+- `launchUiSessionOtherServer` — That shortcut belongs to another server. Connect to that server, then open the conversation from its list.
+- `launchUiSessionReentry` — Enter the credentials for the saved server, then open the conversation from its list.
+- `launchUiSessionWaiting` — Connecting to the saved server. The conversation opens when it is ready.
+- `launchUiUsageNoServer` — Save a server to see what is left on your plans.
+- `launchUiUsageSignInConnectionFailed` — Could not connect to that server to sign in. Check it in Servers, then try the widget again.
+- `launchUiUsageSignInServerGone` — That server is no longer saved, so here is your usage instead.
+- `localAgentTitle` — Claude Code on this phone
+- `markdownScrollCode` — Scroll lines
+- `markdownWrapCode` — Wrap lines
+- `openCode2UpgradeFailed` — The update could not finish safely. Your OpenCode 1 conversations and files are still on this phone, untouched. Try again when the server is idle and there is enough free space.
+- `openCode2UpgradeProgress` — Updating this phone’s server and bringing your conversations with you. Keep the app open.
+- `openCode2UpgradeTitle` — Updating to OpenCode 2
+- `openProjectIn` — In {folder}
+- `pendingAuthFailed` — Could not confirm the action. Check pending sign-ins before trying again. No new sign-in was started.
+- `phoneServerCardChecking` — Checking
+- `phoneServerCardFailedTitle` — Could not finish
+- `phoneServerCardLogEmpty` — Nothing in the log yet.
+- `phoneServerCardNotSetUp` — Not set up
+- `phoneServerCardRemoving` — Removing
+- `phoneServerCardRunning` — Running
+- `phoneServerCardSettingUp` — Setting up
+- `phoneServerCardShowProgress` — Show progress
+- `phoneServerCardStarting` — Starting
+- `phoneServerCardStopped` — Stopped
+- `phoneServerCardStopping` — Stopping
+- `phoneServerCardTitle` — In-app Ubuntu
+- `phoneServerCardVersion` — OpenCode {version}
+- `productErrorBusy` — The server is busy. Wait a moment, then try again.
+- `productErrorCertificate` — The server's security certificate isn't trusted, so the app stopped. Check the server address.
+- `productErrorComputer` — Couldn't reach your computer. Check it's on and connected, then try again.
+- `productErrorConflict` — It changed on the server in the meantime. Refresh, then try again.
+- `productErrorDetailsLabel` — Error details
+- `productErrorDevice` — Something on this device didn't work. Try again.
+- `productErrorNotFound` — The server couldn't find it. It may have been moved or deleted.
+- `productErrorRejected` — The server didn't accept the request. Try again, or report the problem.
+- `productErrorServer` — The server had a problem (error {code}). Try again in a moment.
+- `productErrorSignIn` — The server didn't accept the sign-in. Check the password in the server's settings.
+- `productErrorStagedRevert` — Review the staged revert before sending this queued prompt.
+- `productErrorStorage` — The app couldn't read or save a file on this device.
+- `productErrorTermux` — Termux didn't finish that. Check that Termux is installed and open, then try again.
+- `productErrorTimedOut` — The server took too long to answer. Try again.
+- `productErrorUnexpected` — The server's answer didn't make sense to the app. Try again, or report the problem.
+- `productErrorUnknown` — That didn't work. Details show what happened. Try again, or report the problem.
+- `productStatesActionFailedTitle` — Couldn't finish that
+- `projectFolderNameHint` — my-app
+- `refreshFailed` — Couldn’t refresh
+- `reviewTitle` — Review
+- `rootPhoneServerStartFailed` — OpenCode on this phone didn't start
+- `safetyStopOrphanBody` — Nothing is waiting on it, but whatever it was still doing is lost. It gets a polite stop, then a forced one after 5 seconds.
+- `scheduleTitle` — Scheduled prompts
+- `settingsHubGroupNotifications` — Notifications and background
+- `settingsHubUnavailableCount` — {count, plural, =1{1 setting isn't available on this server} other{{count} settings aren't available on this server}}
+- `settingsHubUnavailableWhy` — Why
+- `settingsV3ConnectTo` — Connect to {name}
+- `settingsV3ModelNewOn` — New conversations on {name}
+- `shareSessionViewsTitle` — Sync read state
+- `teamProjectTryDemo` — Try AI Team demo
+- `termuxProcsNoRestart` — It can't be started again from here.
+- `termuxProcsStopOneTitle` — Stop {name}?
+- `termuxProcsStopSemantics` — Stop {name}
+- `thermalGuardSetting` — Pause the AI Team when the phone is hot
+- `thisPhoneHistoryFailed` — Your earlier conversations could not be brought across. Their original data is still on this phone, untouched.
+- `transcriptFindReasoning` — Reasoning
+- `usageSignIn` — Sign in
+- `widgetV2Cancel` — Cancel
+- `workRefresh` — Refresh
+
+### Chat: composer, steps, approvals, stop and steer, errors (398)
+
+- `agentErrorConnectionDropped` — The connection to the model dropped.
+- `agentErrorConnectionDroppedHint` — Check the internet on the device running OpenCode. If the reply has stopped, check the conversation before sending again.
+- `agentErrorOutOfCredit` — The provider account is out of credit or quota.
+- `agentErrorOutOfCreditHint` — Top up the account, or switch to another provider or model.
+- `agentErrorProviderAuth` — The model provider needs a valid sign-in.
+- `agentErrorProviderAuthHint` — Open provider settings to sign in or replace the API key, then try again.
+- `agentErrorProviderBusy` — The model provider is overloaded right now.
+- `agentErrorProviderBusyHint` — If the reply has stopped, try again later or choose another model.
+- `agentErrorProviderUnreachable` — The server couldn’t reach the model provider.
+- `agentErrorProviderUnreachableHint` — Check the internet connection on the computer running OpenCode, then try again.
+- `agentErrorRateLimited` — The model provider is limiting how fast you can send.
+- `agentErrorRateLimitedHint` — Wait a little. If the reply has stopped, try again or choose another model.
+- `agentErrorRecovered` — The agent carried on after this.
+- `agentErrorRequestTooLarge` — This request was too large to send to the model.
+- `agentErrorRequestTooLargeHint` — Send fewer or smaller attachments, or compact the conversation, then try again.
+- `agentErrorServerDiskFull` — The computer running OpenCode is out of disk space.
+- `agentErrorServerDiskFullHint` — Free some space there, then try again.
+- `agentErrorTimedOut` — The model took too long to answer.
+- `agentErrorTimedOutHint` — If the reply has stopped, try a smaller request or another model.
+- `agentErrorUnknown` — The request could not finish.
+- `agentErrorUnknownHint` — Check the conversation before sending again. Details may help explain what happened.
+- `agentNotAnsweringPhone` — {agent} on this phone isn't answering
+- `approvalsUiSaveFailed` — Couldn’t save the approval setting: {error}
+- `backgroundWorkNoop` — No foreground subagents to background.
+- `backgroundWorkPromoted` — Subagents are continuing in the background.
+- `backgroundWorkShortcut` — Continue this work while you use the conversation · Ctrl+B
+- `chatAttachmentDocumentAttached` — {name} attached as text.
+- `chatAttachmentOfficeEmpty` — {name} has nothing in it to attach.
+- `chatAttachmentOfficeHeader` — Contents of {name}, read on the phone: values and text only, without formatting, charts or formulas.
+- `chatAttachmentOfficeTruncated` — The file was larger than a prompt can carry, so it is cut short below.
+- `chatAttachmentOfficeUnreadable` — {name} could not be read. It may be password protected, damaged, or in the older Excel or Word format; save it as .xlsx, .docx or CSV and try again.
+- `chatAttachmentSheetAttached` — {name} attached as text · {sheets, plural, =1{1 sheet} other{{sheets} sheets}}, {rows, plural, =1{1 row} other{{rows} rows}}
+- `chatAttachmentUnsupported` — Images, PDFs, text files, and Excel or Word files (.xlsx, .docx) can be attached.
+- `chatCollapseAllSteps` — Collapse all steps
+- `chatCopyCompleteReply` — Copy complete reply
+- `chatCopyReplySoFar` — Copy reply so far
+- `chatLoadingConversation` — Loading the conversation
+- `chatProjectChipSemantics` — Project {name}. Opens a menu of its files, terminal and changes.
+- `chatProjectServerChipSemantics` — Project {name} on {server}. Opens a menu of its files, terminal and changes.
+- `chatRenameEmpty` — Type a title.
+- `chatRequestAlwaysAllowCommands` — Always allow commands like this
+- `chatRequestAlwaysConfirm` — Always allow {what} in this project?
+- `chatRequestAskCommand` — Run this command?
+- `chatRequestAskDirectory` — Open this folder?
+- `chatRequestAskEdit` — Edit this file?
+- `chatRequestAskFetch` — Open this web page?
+- `chatRequestAskRead` — Read this file?
+- `chatRequestDetailAsks` — What it asks for
+- `chatRequestDetailHelper` — Helper type
+- `chatRequestDetailRange` — Part of the file
+- `chatRequestDetailRunsIn` — Runs in
+- `chatRequestReadFrom` — from line {line}
+- `chatRequestReadLines` — {count, plural, one{1 line} other{{count} lines}}
+- `chatRequestTitleFetch` — Open a web page
+- `chatRequestTitleMode` — Switch the agent's mode
+- `chatRequestTitleSearch` — Search the project
+- `chatRequestTitleSkill` — Use a skill
+- `chatRequestTitleTask` — Start a helper agent
+- `chatRequestTitleWebSearch` — Search the web
+- `chatStallConnectionLost` — The connection to the agent was lost. Stop the reply and try again once it is back.
+- `chatStallConnectionUnchecked` — Nothing has come back for a while and the connection could not be checked. Wait, or stop the reply and try again.
+- `chatStallHelperDown` — The agent's helper on this phone stopped. Stop the reply and try again.
+- `chatStallModelSlow` — The model is taking longer than usual. Wait, or stop the reply and try again.
+- `chatStartGit` — Git
+- `chatUiAgentNote` — Note
+- `chatUiAgentProblem` — Problem
+- `chatUiAgentWarning` — Warning
+- `chatUiAllMatchingRequests` — (all matching requests)
+- `chatUiAlreadyDelivered` — Already delivered
+- `chatUiAnsweredDetail` — Answered: {answer}
+- `chatUiAnyoneWithTheLinkCanViewThis` — Anyone with the link can view this conversation and its shared context. Do not share conversations containing secrets, credentials, or private files.
+- `chatUiAssistant` — Assistant
+- `chatUiAttachToPrompt` — Attach to prompt
+- `chatUiAttachmentCountLimit` — You can attach up to {count} files.
+- `chatUiAttachmentsMustTotalNoMoreThan20` — Attachments must total no more than 20 MB.
+- `chatUiChooseAnotherModelInThePickerTo` — Choose another model in the picker to build your recent list.
+- `chatUiCompactConfirmAction` — Compact conversation
+- `chatUiCompactConfirmBody` — Compact replaces earlier messages with a short summary to save space. It can't be undone.
+- `chatUiCompactConfirmTitle` — Compact this conversation?
+- `chatUiCompactSession` — Compact conversation
+- `chatUiCompactedAutomatically` — Compacted automatically to make room.
+- `chatUiCompactedFrom` — It was about {tokens} tokens long.
+- `chatUiCompactedWhenAsked` — Compacted when you asked.
+- `chatUiCompactionStarted` — Compaction started
+- `chatUiCopyMessageText` — Copy message text
+- `chatUiCopyShareLink` — Copy share link
+- `chatUiDeleteMessage` — Delete message
+- `chatUiDeleteThisMessage` — Delete this message?
+- `chatUiEachAttachmentMustBe10MBOr` — Each attachment must be 10 MB or smaller.
+- `chatUiEarlierMessageCount` — {count, plural, one{1 earlier message} other{{count} earlier messages}}
+- `chatUiError` — Error
+- `chatUiErrorDetails` — Error details
+- `chatUiExportSessionTranscript` — Export conversation transcript
+- `chatUiFile` — file
+- `chatUiFileAttached` — {filename} attached. Add your comment.
+- `chatUiFileCount` — {count, plural, one{1 file} other{{count} files}}
+- `chatUiFileLoadFailed` — Could not load this file from the OpenCode server: {error}
+- `chatUiFileSaved` — {filename} saved to your device.
+- `chatUiForkFromThisPrompt` — Fork from this prompt
+- `chatUiGeneratedFile` — Generated file
+- `chatUiImageDataIsUnavailable` — Image data is unavailable.
+- `chatUiInThisChat` — in this conversation
+- `chatUiLoadingFile` — Loading {filename}
+- `chatUiLongReasoningCollapsedInTheTranscript` — Long reasoning collapsed in the transcript
+- `chatUiMessageTimestampsHidden` — Message timestamps hidden
+- `chatUiMessageTimestampsShown` — Message timestamps shown
+- `chatUiNextTurnsModel` — Next turns in this conversation use {model}.
+- `chatUiNoAnswer` — No answer
+- `chatUiNoResultText` — The server returned no result text.
+- `chatUiNoShareLinkWasReturned` — No share link was returned
+- `chatUiOpenCodeCouldNotCompleteThisPrompt` — OpenCode could not complete this prompt.
+- `chatUiOpenCodeIsReconnectingTryAgain` — OpenCode is reconnecting. Try again.
+- `chatUiOpenCodeSession` — OpenCode conversation
+- `chatUiOpenSubagentSession` — Open subagent conversation
+- `chatUiOtherDraftsWaiting` — {count, plural, one{1 draft waiting for other servers.} other{{count} drafts waiting for other servers.}}
+- `chatUiOtherDraftsWaitingSuffix` —  · {count, plural, one{1 draft waiting for other servers} other{{count} drafts waiting for other servers}}
+- `chatUiPositionOfTotal` — {position} of {total}
+- `chatUiPreviewGeneratedImage` — Preview generated image {filename}
+- `chatUiProjectFiles` — Project files
+- `chatUiQueuedSent` — {count, plural, one{Sent 1 queued prompt} other{Sent {count} queued prompts}}
+- `chatUiReasoningExpandedInTheTranscript` — Reasoning expanded in the transcript
+- `chatUiReferenceAlreadyAdded` — @{name} is already in the prompt
+- `chatUiReferenceKeptForYourNextPromptCommands` — Reference kept for your next prompt — commands do not carry it.
+- `chatUiReferencesKeptForYourNextPromptCommands` — References kept for your next prompt — commands do not carry them.
+- `chatUiRename` — Rename
+- `chatUiRenameSession` — Rename conversation
+- `chatUiResultSourceDetails` — Server message details
+- `chatUiReviewCommentAddedToThePrompt` — Review comment added to the prompt
+- `chatUiSaveFile` — Save {filename}
+- `chatUiSelectAModelBeforeCompactingThisSession` — Select a model before compacting this conversation.
+- `chatUiServerMessage` — Server message
+- `chatUiSessionSharedCopyTheVisibleLinkManually` — Conversation shared. Copy the visible link manually.
+- `chatUiShareLinkCopied` — Share link copied
+- `chatUiShareSession` — Share conversation
+- `chatUiShareThisSession` — Share this conversation?
+- `chatUiSharedAnyoneWithTheLinkCanView` — Shared: anyone with the link can view
+- `chatUiShowAllSubagentSessions` — Show all subagent conversations
+- `chatUiSkill` — Skill ·
+- `chatUiStopSharing` — Stop sharing
+- `chatUiTheFileHasNoContentToAttach` — The file has no content to attach.
+- `chatUiTheFileHasNoContentToSave` — The file has no content to save.
+- `chatUiTheMessageAndAllOfItsParts` — The message and all of its parts are permanently removed from the conversation, so future replies no longer see them. File changes it made are not reverted.
+- `chatUiThisPromptCannotBeRestoredBecauseAn` — This prompt cannot be restored because an attachment is unavailable.
+- `chatUiThisPromptCannotBeRetriedBecauseAn` — This prompt cannot be retried because an attachment is unavailable.
+- `chatUiTitle` — Title
+- `chatUiTool` — Tool
+- `chatUiToolCardFailed` — Couldn't show this card
+- `chatUiToolShowedCard` — Showed a card
+- `chatUiTranscriptCopiedAsMarkdown` — Transcript copied as Markdown
+- `chatUiTranscriptSaved` — Transcript saved
+- `chatUiUser` — User
+- `chatUiVoiceConversationWasInterrupted` — Voice conversation was interrupted.
+- `chatUiVoiceInputIsUnavailable` — Voice input is unavailable.
+- `chatsHomeFailed` — Failed
+- `chatsHomeOnlyProject` — Showing conversations in {project} only. This server can't list all projects.
+- `chatsHomeRowWorking` — Working
+- `chatsNewSeparateCopy` — In a separate copy
+- `claudeImportTitle` — Import from Claude Code
+- `codexTextOnlyPrompt` — This server supports text only. Remove attachments before sending.
+- `commandDestination` — Conversation
+- `commandSheetAgentCommandNotSent` — {command} wasn't sent: {agent} doesn't share its commands with the app yet. Remove the / to send it as a message.
+- `commandSheetAgentFallback` — This agent
+- `commandSheetShellNotSent` — {command} wasn't sent: shell commands can't run on {agent} from the app. Remove the ! to send it as a message.
+- `composerDraftCleared` — Draft text cleared
+- `consentAlwaysAllowDecline` — Keep asking
+- `consentAlwaysAllowFailed` — The server didn't save Always allow. The request is still waiting; try again or answer it once.
+- `consentAlwaysAllowQuestion` — Asked 3 times. Always allow {what}?
+- `consentAlwaysAllowTitle` — Always allow this request?
+- `continueWithAnother` — Continue with another agent
+- `continuedGone` — This conversation is no longer available.
+- `demoNoCommands` — The demo has no commands — send the sample prompt to see a change reviewed.
+- `demoReviewChanges` — Review changes
+- `devPreviewMenu` — Preview a running app
+- `devPreviewOnPhone` — On this phone
+- `devPreviewOnServer` — On {host}
+- `devPreviewPortTitle` — Port {port}
+- `devPreviewSheetSubtitle` — Servers this conversation mentioned
+- `digestOpenConversation` — Open conversation
+- `draftAttachmentRecoveryDetail` — These saved attachments are missing, unreadable, or belong to another project: {names}. Use the available attachments and remove these from the draft, or keep the saved draft and retry later.
+- `draftAttachmentRecoveryTitle` — Some attachments need attention
+- `draftAttachmentsFailed` — Attachments need recovery or could not be saved. Retry before sending.
+- `draftClearFailed` — Could not clear the saved draft. Retry before leaving.
+- `draftKeepEditing` — Keep editing
+- `draftKeepSavedAttachments` — Keep saved draft
+- `draftLeaveAction` — Leave without saving
+- `draftLeaveCopyAction` — Copy draft and leave
+- `draftLeaveMessage` — Copy your text to keep it, or try saving again. If you leave without saving, your latest changes may be lost.
+- `draftLeaveMessageNoText` — Try saving again. If you leave without saving, your latest changes to this draft may be lost.
+- `draftLeaveRetry` — Try saving again
+- `draftLeaveStillFailing` — Still not saved. Copy your text before you leave.
+- `draftLeaveTitle` — Your draft isn't saved
+- `draftProfileRemoved` — The original server was removed. Copy your draft to keep it.
+- `draftStorageFull` — Draft storage is full. Copy your text before leaving.
+- `draftUseAvailableAttachments` — Use available attachments
+- `e7BannerReconnectingServerSemantic` — Reconnecting to {server}
+- `e7PermissionAction1` — Run a shell command
+- `e7PermissionAction2` — Edit a file
+- `e7PermissionAction3` — Read a file
+- `e7PermissionAction4` — Access an external directory
+- `e7PermissionAction5` — Continue after repeated failures
+- `e7PermissionAction6` — Permission needed
+- `e7PermissionAction7` — Use {permission}
+- `e7SettingsDisconnectTitle` — Disconnect from {server}?
+- `e7SettingsUi16` — this server
+- `e7SettingsUi22` — Android did not enable background mode.
+- `e7SetupStopLocal` — Stop local server
+- `e7WorkspaceSessionId` — Conversation {id}
+- `e7WorkspaceStopSharing` — Stop sharing
+- `firstRunNotifyAccept` — Notify me
+- `firstRunNotifyDecline` — Not now
+- `firstRunNotifyTitle` — Notify you when the agent needs you?
+- `historyCopyLoadedReply` — Copy loaded reply
+- `historyCursorExpired` — Older history changed or expired. Refresh recent history to continue.
+- `historyLoadOlder` — Load older messages
+- `historyLoadedOnly` — Only loaded messages are included. Load older history to include more.
+- `historyRefreshed` — History refreshed. Older messages remain available above.
+- `historyReload` — Refresh recent history
+- `isolatedTaskRetryOpen` — Try again
+- `kitAgentLabel` — {hasRole, select, yes{{name}, {role}, {state}} other{{name}, {state}}}
+- `kitAgentOpen` — Open {name}'s conversation
+- `kitAgentStripLabel` — Agents on this task
+- `kitCodeChanges` — {added} added, {removed} removed
+- `kitCodeShowAll` — {count, plural, other{Show all {count} lines}}
+- `kitComposerAddToTurnNote` — The agent will read this while it works.
+- `kitComposerStopAndSend` — Stop and send
+- `kitComposerStopAndSendNote` — Stops the current reply and starts again with your message.
+- `kitComposerWaitsForAgent` — Sends when {agent} answers
+- `kitContextSheetCompactNow` — Compact now
+- `kitContextSheetTitle` — Context window
+- `kitLastKnownHint` — Saved from last time. They open once the live list loads.
+- `kitLastKnownRefreshing` — {updated} · Refreshing
+- `kitMessageActions` — Message actions
+- `kitMessageNoticeFailed` — Failed
+- `kitMessageThinking` — Thinking…
+- `kitMessageThought` — Thought
+- `kitMessageThoughtForMinutes` — Thought for {count, plural, =1{1 minute} other{{count} minutes}}
+- `kitMessageThoughtForSeconds` — Thought for {count, plural, =1{1 second} other{{count} seconds}}
+- `kitMessageYou` — You said
+- `kitQueuedActions` — Message actions
+- `kitQueuedAddToTurn` — Adds to this turn
+- `kitQueuedAfterReply` — Sends after this reply
+- `kitQueuedAttachments` — {count, plural, =1{1 attachment} other{{count} attachments}}
+- `kitQueuedChecking` — Checking whether your message arrived…
+- `kitQueuedItemLabel` — Waiting message {index} of {count}: {text}. {state}
+- `kitQueuedLastChecked` — Last checked {time}.
+- `kitQueuedOffline` — Sends when you're back online
+- `kitQueuedReachedServer` — Reached the server
+- `kitQueuedStorageFull` — This phone can't safely record sends right now, so your message wasn't sent. It is kept here.
+- `kitQueuedTitle` — Waiting to send · {count}
+- `kitQueuedUncertain` — We couldn't confirm your message arrived.
+- `kitQueuedUpdate` — Update waiting
+- `kitQueuedWaiting` — Waiting to send
+- `kitReceiptActRefusedReason` — {act}: {reason}
+- `kitReceiptAt` — at {time}
+- `kitReceiptRefusedReason` — Not accepted: {reason}
+- `kitRequestAlwaysAllowLike` — Always allow requests like this
+- `kitRequestNeedsYouLabel` — Needs you
+- `kitRequestShowLess` — Show less
+- `kitRequestShowMore` — Show more
+- `kitTappableShowActions` — Show actions
+- `kitToolBackground` — Started in the background
+- `kitToolDone` — Done
+- `kitToolFailed` — Failed
+- `kitToolFor` — for {duration}
+- `kitToolNotRun` — Not run
+- `kitToolOpenConversation` — Open its conversation
+- `kitToolOpenDetails` — Open its details
+- `kitToolRetry` — Try again
+- `kitToolRunning` — Running
+- `kitToolStopped` — Stopped
+- `kitToolTookMinutes` — {count, plural, =1{1 minute} other{{count} minutes}}
+- `kitToolTookSeconds` — {count, plural, =1{1 second} other{{count} seconds}}
+- `kitToolWaiting` — Waiting
+- `kitToolWaitingForYou` — Waiting for you
+- `kitTranscriptExcerptHint` — Saved from last time. The conversation opens fully once it loads.
+- `kitTurnLiveStop` — Stop reply
+- `kitUndoFailed` — Couldn't undo. {message}
+- `kitUndoWorking` — Undoing
+- `kitVoiceDone` — Done
+- `kitVoiceElapsed` — {minutes}:{seconds}
+- `kitVoiceFailed` — Voice stopped
+- `kitVoiceLeave` — Leave voice mode
+- `kitVoiceListen` — Listen
+- `kitVoiceListening` — Listening…
+- `kitVoiceMicDenied` — The microphone is off for this app
+- `kitVoicePaused` — Paused · the agent needs you
+- `kitVoiceReadAloud` — Read replies aloud
+- `kitVoiceReadReply` — Read it aloud
+- `kitVoiceReplyReady` — The reply is ready
+- `kitVoiceSend` — Send
+- `kitVoiceSpeaking` — Reading the reply aloud
+- `kitVoiceStarting` — Getting the microphone ready…
+- `kitVoiceStopReading` — Stop reading
+- `kitVoiceTranscribing` — Writing down what you said…
+- `kitVoiceWaitingReply` — Waiting for the reply…
+- `kitWorkSeparator` —  · 
+- `localAgentRemoveBody` — Stops it and deletes Node.js, Paseo and Claude Code from Ubuntu, about 1 GB. Your projects and your Claude sign-in stay.
+- `localAgentRemoveKeep` — Keep it
+- `localAgentRemoveTitle` — Remove Claude Code from this phone?
+- `localAgentRestartBody` — Claude Code is briefly unavailable and anything it is doing right now is interrupted. Your conversations stay on the phone.
+- `localAgentRestartTitle` — Restart Claude Code on this phone?
+- `localAgentStopBody` — Anything Claude Code is doing on this phone is interrupted, and this app disconnects from it. Your projects, conversations and Claude sign-in stay; start it again to continue.
+- `localAgentStopTitle` — Stop Claude Code on this phone?
+- `mentionToolSupporting` — Point the agent at a file in this project
+- `mentionToolTitle` — File from the project
+- `messageViewContinueReply` — Continue this reply
+- `phoneScanGit` — Git
+- `photoDraftFull` — Remove an attachment first. A draft holds up to 5 files and 20 MB in total.
+- `photoOtherLocation` — Return to the photo's original server and project before adding it.
+- `photoPendingOther` — A photo is still waiting for another conversation. Add or discard it there, then try again.
+- `photoPermissionDenied` — Photo access was denied. Allow camera or photo access in Android app settings, then try again.
+- `photoStorageFailed` — The photo could not be saved on this device. Free some space and retry.
+- `photoTooLarge` — Choose a photo smaller than 10 MB.
+- `photoUnavailable` — The photo could not be opened. Try adding it again from Photo library or Take photo.
+- `phraseChipsEdit` — Edit
+- `phraseChipsHide` — Hide
+- `phraseChipsMenuLabel` — Phrase options
+- `phraseChipsRowLabel` — Quick phrases
+- `phraseChipsSend` — Send: {phrase}
+- `phraseChipsWorkingStarter` — What's the update?
+- `queuedBannerReview` — {count, plural, =1{1 draft with an unconfirmed send to review.} other{{count} drafts with an unconfirmed send to review.}}
+- `queuedReceiptDetailCommand` — Command ID
+- `queuedReceiptDetailNote` — The connection ended before we could confirm receipt.
+- `queuedReceiptDetailReceipt` — Receipt ID
+- `queuedReceiptDetailSentAt` — Sent
+- `readAloudAction` — Read reply prose
+- `readAloudOtherVoice` — Read with another voice
+- `readAloudStop` — Stop reading aloud
+- `returnBriefContinue` — Continue
+- `revertFromHere` — Undo from here
+- `revertResolveBeforeSending` — Review the staged revert, then clear it or make it permanent before sending. Your draft is kept.
+- `safetyDisconnectBody` — Live updates stop and you return to the server list. The server keeps running and nothing on it changes.
+- `safetyDisconnectBodyPhone` — Live updates stop and you return to the server list. OpenCode keeps running on this phone, using battery, until you stop it.
+- `safetyDisconnectWaiting` — {count, plural, =1{1 message waiting to send stays on this phone until you connect again.} other{{count} messages waiting to send stay on this phone until you connect again.}}
+- `safetyMcpDisconnectBody` — Agents lose its tools until you connect it again, and a tool call in progress may fail. Its configuration stays saved.
+- `safetyMcpDisconnectKeep` — Stay connected
+- `safetyMcpDisconnectTitle` — Disconnect {server}?
+- `safetyStopLocalServerBody` — Anything the agent is running on this phone is interrupted, and this app disconnects from it. Your projects and conversations stay on the phone; start the server again to continue.
+- `safetyStopLocalServerKeep` — Keep running
+- `safetyStopLocalServerTitle` — Stop the local server?
+- `safetyStopSharingBody` — The link stops working for anyone who has it. The conversation itself is not changed.
+- `safetyStopSharingKeep` — Keep sharing
+- `safetyStopSharingTitle` — Stop sharing this conversation?
+- `scheduleCreate` — Schedule a prompt
+- `serverDisconnectFrom` — Disconnect from {server}
+- `serverRowMoveQueued` — {count, plural, =1{Move 1 waiting prompt to {destination}} other{Move {count} waiting prompts to {destination}}}
+- `sessionArchiveBody` — It moves to Archived, where you can still read it.
+- `sessionArchiveTitle` — Archive “{title}”?
+- `sessionDeleteBody` — The conversation and its history are removed for good. This cannot be undone.
+- `sessionDeleteTitle` — Delete “{title}”?
+- `sessionInstructionsApplied` — The agent's conversation instructions have been updated for this step.
+- `sessionInstructionsUpdated` — Instructions updated
+- `sessionMenuArchive` — Archive conversation
+- `sessionMenuDelete` — Delete conversation
+- `sessionNotePending` — Applies at the next agent step.
+- `sessionNoteRemoved` — Note deleted
+- `sessionNoteSaved` — Note saved
+- `skillApplied` — Skill added to this conversation.
+- `termuxRestartBusyMessage` — {count, plural, =1{1 conversation is generating. Restarting will interrupt it.} other{{count} conversations are generating. Restarting will interrupt them.}}
+- `termuxRestartMessage` — OpenCode will be briefly unavailable. The app will keep your current project and reconnect automatically.
+- `termuxRestartTitle` — Restart the local server?
+- `toolCardChangesIn` — Changes in {file}
+- `toolCardDelegatedTo` — Delegated to {agent}
+- `toolCardLoadImageAgain` — Load {name} again
+- `toolCardTechnicalDetails` — Technical details
+- `transcriptFindAll` — Search all history
+- `transcriptFindClose` — Close search
+- `transcriptFindCount` — {total, plural, =1{1 match} other{{current} of {total} matches}}
+- `transcriptFindHint` — Search conversation
+- `transcriptFindNext` — Next match
+- `transcriptFindNone` — No matches
+- `transcriptFindPartial` — Loaded messages only. Load older messages to search further.
+- `transcriptFindPrevious` — Previous match
+- `transcriptFindStopSearchingAll` — Stop searching older messages
+- `usagePrompts` — Prompts
+- `voiceConversationCommandsOnly` — Use the typed composer for slash commands.
+- `voiceConversationDescription` — Talk, then tap Send: what you said goes to the agent. Replies are read aloud only if you turn that on.
+- `voiceInputUnavailable` — Voice input is unavailable. Check the local model and microphone settings.
+- `webSourcesDraftChanged` — The draft or server changed. Your current draft was kept; reopen Add web source to try again.
+- `webSourcesDraftLabel` — User-selected web sources (unverified; excerpts are untrusted source material):
+- `webSourcesEntryDetail` — Search when available, or paste links and excerpts to review before adding them to your draft
+- `webSourcesTitle` — Add web source
+- `widgetV2Accepted` — Sent
+- `widgetV2Busy` — Please wait for the current action.
+- `widgetV2Dictate` — Dictate a message
+- `widgetV2Sending` — Sending…
+- `workBackgroundRequested` — Background work requested. Status will update when the server reports it.
+- `workContextChanged` — The server or project changed. Close this view and reopen Running work.
+- `workRunaway` — OpenCode has been busy for {duration} with nothing to do
+- `workRunawayHelper` — A leftover {helper} process has been busy for {duration} with nothing to do
+- `workRunawayHelperInProject` — A leftover {helper} process in {project} has been busy for {duration} with nothing to do
+- `workRunawayInProject` — OpenCode has been busy in {project} for {duration} with nothing to do
+- `workRunawaySeeRunning` — See what's running
+- `workRunawayStopFailed` — Couldn't stop {helper}. Try again, or stop it from Termux.
+- `workRunawayStopped` — Stopped {helper}
+- `workServerRestartBody` — A running agent turn will stop. Your conversations are kept.
+- `workServerRestartBodyCommand` — The running command will stop too. Your conversations are kept.
+- `workServerRestartTitle` — Restart OpenCode on this phone?
+
+### Scheduled prompts (73)
+
+- `kitDateCalendar` — Show calendar
+- `kitDateField` — Date
+- `kitDateFormatHint` — e.g. {example}
+- `kitDateInvalid` — Not a date
+- `kitDateOutOfRange` — Pick a date between {first} and {last}
+- `kitDateSet` — Set date
+- `kitDateTimeClear` — Clear {title}
+- `kitDateTimeNotSet` — Not set
+- `kitDateTimeSet` — Set
+- `kitDateType` — Type a date
+- `kitDateUnavailable` — That day can’t be chosen
+- `kitFieldErrorLabel` — Error
+- `kitTimeHour` — Hour
+- `kitTimeInvalid` — Not a time
+- `kitTimeMinute` — Minute
+- `kitTimePeriod` — Morning or afternoon
+- `kitTimeSet` — Set time
+- `scheduleAgent` — Agent
+- `scheduleBatteryNotice` — Battery restrictions may delay schedules. Each run has a time limit; you don't need to keep the app open.
+- `scheduleBusy` — The conversation was already working.
+- `scheduleCatchUp` — Run once when available
+- `scheduleDelete` — Delete schedule
+- `scheduleDeleteBody` — Future runs and this schedule’s history will be removed. Prompts already sent stay in their conversations.
+- `scheduleDeleteNamedTitle` — Delete “{name}”?
+- `scheduleDigest` — Morning summary
+- `scheduleDigestDescription` — A notification each morning with counts of scheduled runs since the last summary.
+- `scheduleEdit` — Edit schedule
+- `scheduleEmpty` — No scheduled prompts yet
+- `scheduleEveryHours` — Every N hours
+- `scheduleEveryNHours` — Every {hours} h
+- `scheduleExactAccess` — Allow exact alarms
+- `scheduleFailed` — Failed
+- `scheduleFinished` — No more runs
+- `scheduleHistory` — Run history
+- `scheduleHours` — Hours between runs
+- `scheduleInMinutes` — in {minutes} min
+- `scheduleInterrupted` — The run was interrupted. It was not sent again.
+- `scheduleInvalid` — Enter a prompt and a future time, or an interval from 1 to 168 hours.
+- `scheduleLate` — Late
+- `scheduleMissed` — Skipped according to your missed-run choice.
+- `scheduleMissedRuns` — If a run is missed
+- `scheduleNeedsYou` — Open the conversation to answer a request.
+- `scheduleNewConversation` — New conversation each run
+- `scheduleNextRun` — Next: {time}
+- `scheduleNoHistory` — No runs yet
+- `scheduleNotificationBody` — Tap to open the conversation
+- `scheduleNotificationsOff` — Notifications are off. Results remain in run history.
+- `scheduleOnce` — Once
+- `scheduleOptions` — Timing and delivery
+- `schedulePause` — Pause
+- `schedulePaused` — Paused
+- `scheduleProject` — Project
+- `schedulePrompt` — Prompt
+- `scheduleRepeat` — When
+- `scheduleResume` — Resume
+- `scheduleRunning` — Running
+- `scheduleSave` — Save schedule
+- `scheduleSaveFailed` — Could not save this change. Try again.
+- `scheduleSkipMissed` — Skip the missed run
+- `scheduleSkipped` — Skipped
+- `scheduleStarted` — Started
+- `scheduleTarget` — Conversation
+- `scheduleTargetChanged` — The saved connection or target changed. Edit this schedule.
+- `scheduleThisConversation` — This conversation
+- `scheduleTime` — Time
+- `scheduleTimeout` — The run reached its time limit. Check the conversation.
+- `scheduleTimingNotice` — Android may delay runs. Exact alarm access improves timing; a network connection is still needed. Force-stopping the app pauses schedules until you open it again.
+- `scheduleToday` — Today, {time}
+- `scheduleTomorrow` — Tomorrow, {time}
+- `scheduleUnavailable` — The agent could not be reached.
+- `scheduleUncertain` — Delivery could not be confirmed. Check the conversation before sending again.
+- `scheduleUnsupported` — Scheduled prompts are unavailable for this connection.
+- `scheduleWeekdays` — Every weekday
+
+### Widgets style window (51)
+
+- `kitSwatchInUse` — In use
+- `kitThemePreviewCode` — final ready = true;
+- `kitThemePreviewNeedsYou` — Needs you
+- `kitThemePreviewPrimary` — Send
+- `kitThemePreviewSecondary` — Attach
+- `kitThemePreviewSegment` — On
+- `kitThemePreviewTitle` — Fix the login bug
+- `kitThemePreviewWorking` — Working · 2 min
+- `liveStyleReplyRunning` — Reply running
+- `liveStyleSelected` — {name}, selected
+- `liveStyleUse` — Use this
+- `widgetV2AccentAmber` — Amber
+- `widgetV2AccentApp` — App theme
+- `widgetV2AccentBlue` — Blue
+- `widgetV2AccentGreen` — Green
+- `widgetV2AccentLabel` — Accent colour
+- `widgetV2AccentTeal` — Teal
+- `widgetV2AccentWallpaper` — Wallpaper
+- `widgetV2AfterReplyTitle` — Send after this reply
+- `widgetV2BackgroundLabel` — Background
+- `widgetV2BackgroundSolid` — Solid
+- `widgetV2BackgroundTinted` — Tinted
+- `widgetV2BackgroundTransparent` — Transparent
+- `widgetV2ConfigureTitle` — Widget style
+- `widgetV2DictationUnavailable` — Dictation isn’t available right now. You can type instead.
+- `widgetV2InvalidRequest` — Write a message before sending.
+- `widgetV2MessageHint` — Write a message
+- `widgetV2PreviewAllow` — Allow
+- `widgetV2PreviewLabel` — Widget preview
+- `widgetV2PreviewSecond` — Write the release notes
+- `widgetV2PreviewSteer` — Steer
+- `widgetV2PreviewStep` — Editing files
+- `widgetV2PreviewStop` — Stop
+- `widgetV2PreviewTitle` — Fix the sign-in page
+- `widgetV2PreviewWorking` — Working
+- `widgetV2RestartUnavailable` — This conversation can only be changed from inside the app.
+- `widgetV2SaveStyle` — Save style
+- `widgetV2Send` — Send
+- `widgetV2SizeCard` — Medium
+- `widgetV2SizeCompact` — Small
+- `widgetV2SizeLabel` — Preview size
+- `widgetV2SizeList` — Wide
+- `widgetV2StaleRequest` — The conversation changed. Your message is still here.
+- `widgetV2SteerTitle` — Add to this turn
+- `widgetV2StyleStale` — This widget changed. Close this and try again.
+- `widgetV2StyleUnavailable` — Couldn’t save the style. Try again.
+- `widgetV2Unavailable` — The background connection is unavailable. Your message is still here.
+- `widgetV2Uncertain` — We couldn’t confirm whether this was sent. Check the conversation before sending again.
+- `widgetV2UnknownBehavior` — Waiting for conversation details…
+- `widgetV2Unsupported` — This connection can’t do that.
+- `widgetV2VoiceTitle` — New message
+
+### Connecting to a computer (QR, address, trust sheets, failures) (310)
+
+- `addServerCheckCancel` — Stop checking
+- `addServerCheckFailedPlain` — The server could not be checked. Check the address and this phone’s connection, then try again.
+- `addServerCheckSlow` — {host} has not answered yet. A slow network can take a while.
+- `addServerChecking` — Checking the connection…
+- `addServerCheckingHost` — Checking {host}…
+- `addServerCleartextConfirm` — Use it anyway
+- `addServerCleartextConfirmed` — Plain HTTP is on for this address. Anyone on this network could read what you send.
+- `addServerCleartextWarning` — This private network or Tailscale address uses plain HTTP. Your password and code travel unencrypted at the HTTP layer. Use it only on a private network you trust or through Tailscale; it is risky on public Wi-Fi.
+- `addServerConnectTo` — Connect to
+- `addServerConnectedHost` — Connected to {host}
+- `addServerConnectingHost` — Connecting to {host}…
+- `addServerManual` — Enter the address instead
+- `addServerPaste` — Paste code
+- `addServerReadyBody` — Its conversations open next. Start one, or pick up one already there.
+- `addServerReadyOpen` — Open {name}
+- `addServerReadyTitle` — {name} is connected
+- `addServerSaveAnyway` — Save anyway
+- `addServerScan` — Scan code
+- `addServerStepAddress` — Address and sign-in
+- `addServerStepCheck` — Checking
+- `addServerStepKind` — What runs there
+- `addServerStepPair` — Pair or enter the address
+- `addServerStepReady` — Ready
+- `addServerStepTailscale` — Tailscale on this phone
+- `addServerStepsLabel` — Add server progress
+- `addServerTailscaleNext` — Enter the address
+- `addServerTypeCodex` — Codex
+- `addServerTypeCodexDetail` — The Codex app-server on your computer
+- `addServerTypeOpenCode` — OpenCode on a computer
+- `addServerTypeOpenCodeDetail` — Pair with a code, or enter its address
+- `addServerTypePaseoDetail` — Through Paseo on your computer
+- `addServerUseTailscale` — Use Tailscale
+- `capsuleRemove` — Remove
+- `codexAddressHint` — wss://codex.example or ws://127.0.0.1:4500
+- `codexApprovalRecoveryNotice` — After reconnecting, review any pending approvals on your computer.
+- `codexConnectionVerified` — Connection verified. Save and connect to continue.
+- `codexDraftReconnectNotice` — Review draft stays here; nothing is sent automatically.
+- `codexProjectFolder` — Project folder on server
+- `codexTokenLabel` — Connection token
+- `codexTokenReentry` — Re-enter connection token
+- `codexTokenStorageHelp` — Stored securely on this device and sent only to this Codex server.
+- `connectStartingBody` — Your conversations are kept. This can take a minute.
+- `connectionDisplayName` — Display name (optional)
+- `connectionDisplayNameHint` — Defaults to the server host
+- `connectionEnterPassword` — Enter the password
+- `connectionEnterToken` — Enter the token
+- `connectionFailureLocalCodexBody` — A local Codex listener should answer on this phone, but nothing did.
+- `connectionFailureLoopbackBody` — The app looked for a server running on this phone and got no answer. Start that server, or reconnect the tunnel that brings one here, then try again.
+- `connectionFailureNothingAnsweredBody` — Nothing answered. Either the server is not running, or this phone cannot reach its address.
+- `connectionFailureRemoteCodexBody` — Nothing answered at the Codex endpoint.
+- `connectionFailureTailnetCheck` — This is a Tailscale address: is Tailscale on, on this phone and on the server?
+- `connectionFailureTimedOutBody` — Something is at that address, but it did not reply. Usually the network in between, not the server.
+- `connectionFailureUnknownBody` — The connection failed. What went wrong is under Details.
+- `connectionPasswordRejectedFor` — The password for {server} changed. Update it to reconnect.
+- `connectionPasswordUnreadable` — Can't read the saved password for {server}
+- `connectionPasswordUnreadableDetails` — This phone's secure storage couldn't open the password saved for this server. That can happen after the phone is restored from a backup or its screen lock is changed. The password itself was not changed: enter it again to connect.
+- `connectionReconnectTo` — Reconnect to {server}
+- `connectionReconnectingQuiet` — Reconnecting…
+- `connectionServerAddress` — Server address
+- `connectionSwitchingTo` — Switching to {target}…
+- `connectionTokenRejectedFor` — {server} rejected the connection token. Update it to reconnect.
+- `connectionTokenUnreadable` — Can't read the saved token for {server}
+- `connectionTokenUnreadableDetails` — This phone's secure storage couldn't open the token saved for this server. That can happen after the phone is restored from a backup or its screen lock is changed. The token itself was not changed: enter it again to connect.
+- `connectionTryNow` — Try now
+- `e7BannerCheckingExplanation` — What you see stays available while OpenCode is checked. Live updates resume on their own.
+- `e7BannerDetails` — Details
+- `e7BannerLost` — Connection lost
+- `e7BannerReconnectingServer` — Reconnecting to {server}…
+- `e7BannerStaleExplanation` — What you see may be stale until OpenCode is reachable again.
+- `e7BannerUpdatePassword` — Update password
+- `e7ConnectionFailure1` — Tried {attempts} times. Retrying will not start a server that is not running.
+- `e7ConnectionFailure12` — Start the Codex listener on this device.
+- `e7ConnectionFailure13` — If it is behind a tunnel, keep the tunnel running and verify its local endpoint.
+- `e7ConnectionFailure14` — Use the Codex wss:// endpoint or an active secure tunnel.
+- `e7ConnectionFailure15` — Check that the remote Codex listener is reachable from this device.
+- `e7ConnectionFailure16` — Password rejected
+- `e7ConnectionFailure17` — The server answered, but it did not accept the saved password. This happens when the server was restarted with a new password.
+- `e7ConnectionFailure18` — Run opencode2 pair on the computer and paste the new code.
+- `e7ConnectionFailure19` — If you set OPENCODE_SERVER_PASSWORD by hand, copy it again.
+- `e7ConnectionFailure2` — Connection token required
+- `e7ConnectionFailure20` — Certificate not trusted
+- `e7ConnectionFailure21` — The server is there, but this device does not trust its HTTPS certificate, so the app refused to send the password.
+- `e7ConnectionFailure22` — Use a certificate from a trusted authority, or a Tailscale Serve address.
+- `e7ConnectionFailure23` — For a self-signed certificate, edit this server and check its fingerprint before trusting it.
+- `e7ConnectionFailure24` — Nothing answered on this phone
+- `e7ConnectionFailure26` — Running OpenCode in Termux? Open Termux and check that the server is still running.
+- `e7ConnectionFailure27` — Using adb reverse or an SSH forward? Check that the tunnel is still connected, then try again.
+- `e7ConnectionFailure28` — Connecting to another computer instead? Change the server to its HTTPS address or pair again.
+- `e7ConnectionFailure29` — The server did not answer in time
+- `e7ConnectionFailure3` — This Codex server needs a connection token before the app can connect.
+- `e7ConnectionFailure31` — Are you on the same network or VPN (for example Tailscale) as the computer?
+- `e7ConnectionFailure32` — Is a firewall or captive portal blocking port {port}?
+- `e7ConnectionFailure33` — Server not reachable
+- `e7ConnectionFailure35` — Is opencode serve still running on the computer?
+- `e7ConnectionFailure36` — Are you on the same network or VPN as the computer?
+- `e7ConnectionFailure37` — Did the address change? Pair again to pick up the new one.
+- `e7ConnectionFailure38` — The server answered with an error
+- `e7ConnectionFailure39` — The server is running but reported itself unhealthy. Its own log will say why.
+- `e7ConnectionFailure4` — Open server settings and enter the Codex connection token.
+- `e7ConnectionFailure40` — Restart opencode serve and watch its output.
+- `e7ConnectionFailure41` — Check that the server version is supported by this app.
+- `e7ConnectionFailure42` — Could not connect
+- `e7ConnectionFailure44` — Is the agent server running, and is this the right address?
+- `e7ConnectionFailure45` — Is opencode serve running, and is this the right address?
+- `e7ConnectionFailure5` — Connection token rejected
+- `e7ConnectionFailure6` — The Codex server answered, but it did not accept the saved connection token.
+- `e7ConnectionFailure7` — Open server settings and enter a current Codex connection token.
+- `e7ConnectionFailure8` — Codex listener unavailable
+- `e7ConnectionFailure9` — Codex endpoint unreachable
+- `e7SettingsVersion` — Version {version}
+- `e7SetupAccountHint` — Sign in with your account
+- `e7SetupApiKeyHint` — Paste an API key
+- `e7SetupBrowserHint` — Opens a browser. If the redirect cannot reach OpenCode, paste the callback URL here.
+- `e7SetupCameraDisabled` — Camera access is turned off
+- `e7SetupCameraFailed` — The camera could not be opened
+- `e7SetupCameraFailedDetail` — Another app may be holding the camera. Pasting the pairing code works either way.
+- `e7SetupCameraNeeded` — Camera access is needed to scan
+- `e7SetupCameraPrivacy` — The camera is used only to read the QR that opencode2 pair prints, and only while this screen is open. You can paste the code instead — it does exactly the same thing.
+- `e7SetupCameraSettingsDetail` — Android will not ask again, so this has to be changed in app settings: turn on Camera, then come back. Pasting the code needs no permission at all and works right now.
+- `e7SetupCertificate` — The certificate is not trusted. Check its fingerprint before choosing whether to trust it.
+- `e7SetupCheckTermux` — On this phone
+- `e7SetupConnectFailedDetail` — Could not connect to {name}. {detail} Check the server address and credentials, then try again.
+- `e7SetupConnectingAttempt` — Connecting again (attempt {attempt})
+- `e7SetupConnectingProfile` — Connecting to {name}
+- `e7SetupConnectionFailed` — Connection failed.
+- `e7SetupDeviceCodeHint` — Uses a one-time code. Works from a phone.
+- `e7SetupDidNotConnect` — The server did not connect.
+- `e7SetupDiscard` — Discard
+- `e7SetupDiscardChanges` — Discard server changes?
+- `e7SetupEditServer` — Edit server
+- `e7SetupEmptyPairClipboard` — The clipboard is empty. Run “opencode2 pair” on the server and copy the code it prints.
+- `e7SetupEmptyPasswordHint` — Leave empty only if this server no longer uses a password.
+- `e7SetupGuidanceSaveFailed` — Could not save connection guidance. Retry saving.
+- `e7SetupHttpsHint` — Prefer HTTPS. Remote HTTP needs your permission for each server.
+- `e7SetupIsV2` — This is an OpenCode 2 server.
+- `e7SetupMissingPasswordLong` — The saved password is unavailable. Enter it again, or leave it empty only if this server no longer requires a password.
+- `e7SetupMissingPasswordShort` — The saved password is unavailable. Enter it again, or leave it empty only if this server no longer requires one.
+- `e7SetupNoCamera` — This device has no camera
+- `e7SetupNoCameraDetail` — There is nothing to scan with. Run opencode2 pair on the server, copy the code it prints, and paste it into the server editor.
+- `e7SetupNoServerGuide` — No server there yet? The setup guide shows how to start one.
+- `e7SetupOpenAppSettings` — Open app settings
+- `e7SetupOpenSetupGuide` — Open the setup guide
+- `e7SetupOpeningWorkspace` — Opening your saved project.
+- `e7SetupPaired` — Paired with {host}.
+- `e7SetupPairedChoice` — Paired with {host} — chosen from {count} addresses in the code.
+- `e7SetupPairing` — Pairing…
+- `e7SetupPairingDesktopHint` — Check that the server is running, and that the address it printed is one this machine can reach.
+- `e7SetupPairingFailed` — No address in that pairing code answered: {detail} {hint}
+- `e7SetupPairingPhoneHint` — A server bound to its own 127.0.0.1 is not reachable from this phone until you bridge it — “adb reverse tcp:PORT tcp:PORT” over USB, or an SSH forward. To reach it over the network instead, put it behind HTTPS.
+- `e7SetupPasswordRequired` — Can't read the saved password
+- `e7SetupPasswordStartupHint` — Shown when the server starts. Leave empty if it has none.
+- `e7SetupPasteInstead` — Paste it instead
+- `e7SetupPastePairing` — Paste pairing code
+- `e7SetupProbeV2` — OpenCode 2 · {version}
+- `e7SetupReenterPassword` — Re-enter password
+- `e7SetupRemoveFailed` — Could not remove {name}. The saved server and current connection were kept. Check device storage and try again. ({detail})
+- `e7SetupRemoveServer` — Remove {name}?
+- `e7SetupRemovedDisconnectFailed` — {name} was removed, but its connection could not be closed cleanly. Restart the app before connecting elsewhere. ({detail})
+- `e7SetupSaveFailed` — Could not save {name}. The existing server was left unchanged. Check device storage and try again. ({detail})
+- `e7SetupSaveToFinish` — Connected — save to finish.
+- `e7SetupSavedConnectFailed` — {name} was saved, but it could not connect. Check the server address and credentials, then try again. ({detail})
+- `e7SetupSaving` — Saving…
+- `e7SetupScanInstruction` — Point the camera at the QR code printed by opencode2 pair.
+- `e7SetupScanPairing` — Scan pairing code
+- `e7SetupServerOperation` — Server operation in progress
+- `e7SetupServerPassword` — Server password
+- `e7SetupServerUrl` — Server URL
+- `e7SetupTestConnection` — Test connection
+- `e7SetupTesting` — Testing…
+- `e7SetupTokenRequired` — Can't read the saved token
+- `e7SetupUnknownVersion` — unknown version
+- `e7SetupUnsavedProfile` — The server has not been saved.
+- `e7SetupUpdatePassword` — Update password
+- `e7SetupUsername` — Username (optional)
+- `e7SetupWhatToCheck` — What to check
+- `e7SharedHTTPIsNotEncryptedOtherDevicesOn` — HTTP is not encrypted. Other devices on the network may read or change what you send and receive.
+- `e7SharedNoAppCouldOpenThisLink` — No app could open this link.
+- `e7SharedOpenExternalLink` — Open external link?
+- `e7SharedOpenHTTPLink` — Open HTTP link
+- `e7SharedOpenInsecureHTTPLink` — Open insecure HTTP link?
+- `e7SharedOpenLink` — Open link
+- `externalLinkAddress` — Full address
+- `externalLinkBlockedBody` — This app opens only https:// links, and http:// links after you confirm.
+- `externalLinkBlockedTitle` — Link blocked
+- `externalLinkCopy` — Copy link
+- `externalLinkDontOpen` — Don't open
+- `externalLinkOpenFailedTitle` — Couldn't open link
+- `externalLinkOpensHost` — Opens {host} outside this app.
+- `firstRunAgentCodex` — Codex
+- `firstRunAgentOpenCode` — OpenCode
+- `firstRunAgentsSideBySide` — They run side by side on the same computer. Start with one, and add the others any time from the server name at the top.
+- `firstRunCommandsCodexToken` — Create the connection token before you start it:
+- `firstRunCommandsCodexUsb` — A phone on a USB cable reaches it with:
+- `firstRunCommandsPaseoNetwork` — To reach it from this phone over your private network, listen on that address and set a password:
+- `firstRunNotSameNetwork` — Not on the same network?
+- `firstRunPairingNextPaste` — Then paste the code it prints.
+- `firstRunPairingNextScan` — It shows a code. Scan it, or copy it and paste it here.
+- `firstRunPaseoTitle` — Agents through Paseo
+- `firstRunRunOnComputer` — On your computer, run:
+- `firstRunShowCommands` — Show the commands
+- `inAppServerNotRespondingBody` — Starting it again usually fixes this. Your conversations are kept.
+- `inAppServerNotRespondingTitle` — OpenCode inside the app is not answering
+- `inAppServerOpenSetup` — Open setup
+- `inAppServerStartFailedTitle` — OpenCode inside the app did not start
+- `inAppServerStarting` — Starting OpenCode inside the app…
+- `inAppServerStartingBody` — This takes a few seconds.
+- `inAppServerStoppedBody` — It stops when the app is closed for a while or updated. Your conversations are kept; start it again to continue.
+- `inAppServerStoppedTitle` — OpenCode inside the app is stopped
+- `kitQrTooLong` — This is too long for a QR code. Copy the link instead.
+- `kitScannerPaused` — Camera paused
+- `kitScannerPreview` — Camera view
+- `kitScannerSlow` — Still opening the camera
+- `kitScannerStarting` — Opening the camera…
+- `oc2DiscoveryEditorTitle` — OpenCode 2
+- `onboardingPrivateNetwork` — Reach a server over your private network
+- `onboardingSaveChanges` — Save changes
+- `onboardingSaveConnect` — Save & connect
+- `openCode1Unsupported` — This server runs OpenCode 1, which this app no longer supports. Update it to OpenCode 2.
+- `openCode1UnsupportedTitle` — Update this server
+- `pairingScannerAllowCamera` — Allow camera
+- `pairingScannerStarting` — Opening the camera…
+- `paseoAddressHint` — ws://100.64.0.1:6767 or wss://paseo.example
+- `paseoCheckNoneReady` — No agent is ready on that computer yet.
+- `paseoCheckReady` — Ready on that computer: {agents}.
+- `paseoPasswordHelp` — Set one with "paseo daemon set-password". Stored in this device's secure storage.
+- `paseoPasswordLabel` — Daemon password (optional)
+- `paseoSetupNotice` — Run "paseo start --no-relay" on the computer that has Claude Code or Pi installed. This app never uses the Paseo relay: connect on this device or over your own private network.
+- `phoneServerStartAndConnect` — Start and connect
+- `phoneServerStoppedBody` — It stops when the phone restarts or Android closes Termux to save battery. Your conversations are kept; start it again to continue.
+- `phoneServerStoppedTitle` — The server on this phone is stopped
+- `productStatesSwitchServer` — Switch server
+- `serverEditorMoreOptions` — More options
+- `serverRowDetailsTitle` — {name} details
+- `serverRowDetailsVersion` — Version
+- `serverSwitcherCurrentMenu` — Server actions
+- `serverSwitcherManage` — Manage servers
+- `serverSwitcherTitle` — Servers
+- `serverTrustCertificateAccept` — Trust this fingerprint
+- `serverTrustCertificateBody` — This connection is encrypted, but this device cannot verify the certificate’s issuer or server name. Compare this SHA-256 fingerprint with your server through a separate trusted channel and trust it only if they match; future connections will require this exact certificate.
+- `serverTrustCertificateChangedBody` — The certificate no longer matches the one you trusted, so the app blocked the connection before sending your password. This may be a renewal or an intercepted connection; re-check the fingerprint with the server owner before trusting a replacement.
+- `serverTrustCertificateChangedTitle` — The server's certificate changed
+- `serverTrustCertificateFailed` — The certificate could not be checked. Check the address and network, then try again. Nothing was trusted.
+- `serverTrustCertificateInspect` — Check certificate
+- `serverTrustCertificatePinned` — This server uses the certificate fingerprint you trusted. A different certificate will block the connection.
+- `serverTrustCertificateRecheck` — Re-check certificate
+- `serverTrustCertificateReplace` — Trust replacement certificate
+- `serverTrustCertificateTitle` — Trust this certificate?
+- `serverTrustCertificateValidity` — Valid from {from} to {to}
+- `serverTrustFingerprint` — SHA-256 fingerprint
+- `serverTrustHttpAccept` — Allow HTTP for this server
+- `serverTrustHttpPublicBody` — At this public HTTP address, your password and code travel unencrypted and others on the network can read or change them. This is risky on public Wi-Fi; prefer HTTPS or a private Tailscale connection.
+- `serverTrustHttpTitle` — Use unencrypted HTTP?
+- `serversAddOtherWays` — Or connect another way
+- `serversRemoveActiveNext` — You are connected to it: the app disconnects and shows your servers
+- `serversRemoveBody` — This phone forgets the server: its password, chosen model and agent, project and widget conversations.
+- `serversRemoveDeleteQueued` — {count, plural, =1{Remove and delete the queued prompt} other{Remove and delete {count} queued prompts}}
+- `serversRemoveDrafts` — {count, plural, =1{1 unsent draft will be deleted} other{{count} unsent drafts will be deleted}}
+- `serversRemoveQueuedChanged` — The queued prompts for {name} changed, so nothing was removed. Remove it again to see the new count.
+- `serversRemoveQueuedKept` — {count, plural, =1{1 queued prompt moves to Saved prompts} other{{count} queued prompts move to Saved prompts}}
+- `serversRemoveQueuedNotKept` — Could not move the queued prompts for {name} to Saved prompts, so nothing was removed. Delete some saved prompts or free up storage, then try again.
+- `serversRemoveQueuedUncertain` — {count, plural, =1{1 of them may already have been sent} other{{count} of them may already have been sent}}
+- `serversRemoveQueuedUnreadable` — The queued prompts for {name} cannot be read. The server and its queued prompts were kept. Try removing it again after the queue can be read.
+- `serversRemoveServerKeeps` — Nothing is deleted on the server or at your AI providers
+- `settingsV3NotConnected` — Not connected
+- `settingsV3ServerSettings` — Server settings
+- `tailscaleAddressDetail` — Paste the full HTTPS address from Tailscale Serve, or the HTTP address and port of your server on Tailscale. HTTP asks for your permission before connecting.
+- `tailscaleAddressError` — Enter a complete HTTP or HTTPS server address with its port if needed, and no path after it.
+- `tailscaleAddressLabel` — Private server address
+- `tailscaleAddressStep` — 2. Review your server address
+- `tailscaleAndroidDocs` — Read the official Android guide
+- `tailscaleAppStep` — 1. Open your private network
+- `tailscaleCheckAgain` — Check Tailscale again
+- `tailscaleChecking` — Checking for the Tailscale app…
+- `tailscaleContinue` — Continue to sign-in
+- `tailscaleEditorDetail` — Your network connection is managed in Tailscale. Test connection checks this OpenCode server, not the VPN. Enter the server’s own username and password here, not your Tailscale login. Setup help keeps these fields intact.
+- `tailscaleHelp` — Tailscale setup and recovery
+- `tailscaleInstalled` — Tailscale is installed.
+- `tailscaleIntro` — Reach OpenCode on another computer through your own Tailscale network.
+- `tailscaleMissing` — Tailscale is not installed. Install the official app, then return and check again.
+- `tailscaleOpen` — Open Tailscale
+- `tailscaleRecovery` — If the server is unreachable, check Tailscale on both devices, the address and port, and your network access rules. For a Serve address, check Serve on the server too. Correct the password if authentication is rejected, then retry Test connection.
+- `tailscaleReturned` — Welcome back. App presence was checked again; use Test connection on the next screen to check your server.
+- `tailscaleReviewDetail` — Continue only with an address you recognize. The next screen reviews your server credentials before you explicitly test or save. This app cannot confirm that an address is private from its name alone.
+- `tailscaleServeDocs` — Read the official Serve guide
+- `tailscaleServeHelp` — On the server computer, Tailscale Serve can provide private HTTPS for a local OpenCode port. Use Serve, not public Funnel. Your tailnet access rules still apply. Enabling HTTPS publishes the certificate’s device and tailnet names in a public certificate log, although access stays private. Review the official guide before changing your server.
+- `tailscaleSetupAddressHelper` — Paste the HTTPS address Tailscale Serve printed.
+- `tailscaleSetupAppTitle` — Tailscale on this phone
+- `tailscaleSetupContinueReason` — Enter your server’s address first.
+- `tailscaleSetupGetApp` — Get Tailscale
+- `tailscaleSetupNoDeviceList` — OpenCode can’t list the devices on your tailnet.
+- `tailscaleSetupOpenFailed` — Tailscale didn’t open. Open it from your launcher, then come back.
+- `tailscaleSetupToDo` — To do · {detail}
+- `tailscaleSetupVpnSupporting` — Sign in and connect. OpenCode can’t check this.
+- `tailscaleSetupVpnTitle` — Sign in and connect
+- `tailscaleTitle` — Connect with Tailscale
+- `tailscaleUnknown` — Could not check the app. Try again, or open Tailscale from your phone.
+- `tailscaleUnsupported` — This device cannot open the Android app. Set up Tailscale on this device yourself, then review your HTTPS address below.
+- `tailscaleVpnHandoff` — In Tailscale, sign in to the network that can reach your server, approve Android’s VPN prompt if asked, and turn the connection on. OpenCode cannot see or change that VPN state.
+- `teamUiAddManually` — Add manually
+- `teamUiChange` — Change
+- `teamUiEditorBody` — If this computer runs Gas City, the app can find it automatically.
+- `teamUiEditorConfigured` — AI Team host: {url}
+- `teamUiEditorTitle` — AI Team (optional)
+- `teamUiLearnHow` — Learn how
+- `updateConnectionToken` — Update token
+- `workServerBusyPhone` — OpenCode on this phone is busy
+- `workServerKeepsTrying` — The app keeps trying in the background.
+- `workServerNotAnswering` — {server} isn't answering
+- `workServerNotAnsweringPhone` — OpenCode on this phone isn't answering
+- `workServerRestart` — Restart
+
+### Files and terminal entry screens (221)
+
+- `e7SetupCommandInput` — Terminal command input
+- `e7SetupConnectionClosed` — Connection closed
+- `e7SetupDownKey` — Down arrow key
+- `e7SetupEndInputKey` — End of input, Control D
+- `e7SetupEscapeKey` — Escape key
+- `e7SetupInputDisconnected` — Input is unavailable while disconnected.
+- `e7SetupInputUnavailable` — Terminal input unavailable
+- `e7SetupInterruptKey` — Interrupt, Control C
+- `e7SetupKeyUnavailable` — Unavailable while the terminal is disconnected
+- `e7SetupLeftKey` — Left arrow key
+- `e7SetupNewTerminal` — New terminal
+- `e7SetupNoOutput` — No terminal output yet.
+- `e7SetupReconnect` — Reconnect
+- `e7SetupRenameTerminal` — Rename terminal
+- `e7SetupRightKey` — Right arrow key
+- `e7SetupSendCommand` — Send command to terminal
+- `e7SetupServerDisconnected` — The server is not connected.
+- `e7SetupTabKey` — Tab key
+- `e7SetupTerminalNumber` — Terminal {number}
+- `e7SetupTerminalSemantics` — Interactive terminal. Use the accessibility button for a readable transcript and labeled input.
+- `e7SetupTranscript` — Terminal transcript
+- `e7SetupTransportReconnecting` — The server transport is reconnecting.
+- `e7SetupUpKey` — Up arrow key
+- `fileReload` — Refresh
+- `fileSave` — Save
+- `filesAccessNeededBody` — This folder is in your phone’s shared storage and the app cannot read most of its files yet. Only hidden items show.
+- `filesAccessNeededTermuxBody` — This folder is in your phone’s shared storage and Termux cannot read most of its files yet. Only hidden items show.
+- `filesAccessNeededTitle` — Files are hidden
+- `filesCopyName` — Copy name
+- `filesLoadFailedTitle` — Couldn't open this folder
+- `filesLoadingFolder` — Opening folder…
+- `filesNoTextBody` — No file has that text. Check the spelling or try fewer words.
+- `filesNoTextTitle` — No matches
+- `filesOnlyHidden` — This folder has only hidden files and folders.
+- `filesProjectRoot` — Project root
+- `filesSearchInside` — Search inside files for "{query}"
+- `filesSearchText` — Search text in files
+- `filesSearching` — Searching…
+- `filesShowHidden` — Show hidden files
+- `filesSymbolsFailedTitle` — Couldn't search symbols
+- `filesTextFailedTitle` — Couldn't search the files
+- `filesTextHintBody` — Type a word or a phrase to see every line that has it.
+- `filesTextHintTitle` — Search inside files
+- `filesTextLimited` — Showing the first {count} matches. Type more to narrow them.
+- `filesTextMatchLine` — Line {line}
+- `filesTextSurface` — Text in files
+- `filesViewerScopeChanged` — Server changed. Close and reopen this file.
+- `folderBrowserCreateAndOpen` — Create and open
+- `folderBrowserCurrent` — Current folder: {path}
+- `folderBrowserEmptyBody` — Open it as a project, or go up one folder.
+- `folderBrowserEmptyPhoneBody` — Open it, or go up one level.
+- `folderBrowserEmptyTitle` — No folders in here
+- `folderBrowserErrorDenied` — The app isn’t allowed to read it.
+- `folderBrowserErrorFailed` — Try again, or enter its path instead.
+- `folderBrowserErrorLinked` — It is a link. Enter its path instead.
+- `folderBrowserErrorMissing` — It isn’t there any more.
+- `folderBrowserErrorNotInstalled` — Ubuntu isn’t installed in the app yet.
+- `folderBrowserErrorTimedOut` — It took too long to answer. Try again.
+- `folderBrowserErrorTitle` — This folder can’t be shown
+- `folderBrowserFirstProject` — Name your first project
+- `folderBrowserGit` — Git repository
+- `folderBrowserHintEmpty` — Empty
+- `folderBrowserHintMore` — {names}, {count} more
+- `folderBrowserHomeHere` — The home folder and the root cannot be projects. Open a folder inside.
+- `folderBrowserInternalStorage` — Internal storage
+- `folderBrowserNewProjectCreates` — Creates {path}
+- `folderBrowserNoProjectsBody` — Start one to make it here.
+- `folderBrowserNoProjectsTitle` — No projects yet
+- `folderBrowserOpen` — Open {name}
+- `folderBrowserOpenedBefore` — Opened before
+- `folderBrowserPhoneRefused` — Phone storage is off. Allow access to look here.
+- `folderBrowserPlaceLabel` — Place
+- `folderBrowserPlacePhone` — This phone
+- `folderBrowserPlaceProjects` — Project space
+- `folderBrowserProject` — OpenCode project
+- `folderBrowserProjectsHere` — Your projects live here. Tap one to open it.
+- `folderBrowserRetry` — Try again
+- `folderBrowserShowHidden` — Show hidden folders
+- `folderBrowserShowInside` — Show the folders in {name}
+- `folderBrowserSlowBody` — Folders on this phone can take up to 15 seconds to list.
+- `folderBrowserSlowTitle` — Still reading this folder
+- `folderBrowserUp` — Up one folder
+- `gestureEquivFileRowActions` — Actions for {name}
+- `kitTerminalViewKeyDash` — Dash key
+- `kitTerminalViewKeyEnd` — End key
+- `kitTerminalViewKeyHome` — Home key
+- `kitTerminalViewKeyPipe` — Pipe key
+- `kitTerminalViewKeySlash` — Slash key
+- `kitTerminalViewKeyTilde` — Tilde key
+- `kitTerminalViewShowingLast` — {count, plural, =1{Showing the last line} other{Showing the last {count} lines}}
+- `localTerminalKeyAlt` — Alt
+- `localTerminalKeyCtrl` — Control
+- `localTerminalKeyPageDown` — Page down
+- `localTerminalKeyPageUp` — Page up
+- `localTerminalKeysLabel` — Terminal keys
+- `localTerminalSourcePhone` — Built-in Linux
+- `localTerminalSourceServer` — OpenCode server
+- `openProjectChange` — Change
+- `openProjectChangeFolder` — Change folder
+- `openProjectChooseFolder` — Choose a folder
+- `openProjectSearchPhone` — Search this phone
+- `openProjectTitle` — Open a project
+- `openProjectUseFolder` — Use {name}
+- `phoneScanChecked` — {folders, plural, =1{1 folder} other{{folders} folders}} checked · {found} found
+- `phoneScanDoneIn` — {count} found in {time}
+- `phoneScanEmptyBody` — Browse folders or start a New project.
+- `phoneScanEmptyTitle` — No projects found
+- `phoneScanFirstShown` — First {count} shown
+- `phoneScanLookDeeper` — Look deeper
+- `phoneScanSearching` — Searching this phone
+- `phoneScanStop` — Stop
+- `phoneScanStopped` — Stopped after {seconds} seconds · {count} found
+- `phoneScanTitle` — Projects on this phone
+- `projectFolderEnterPath` — Enter a path
+- `projectFolderNewProject` — New project
+- `projectFolderProjectNameLabel` — Project name
+- `readerUiAddReference` — Add as reference
+- `readerUiAdded` — Added
+- `readerUiAttachPrompt` — Attach to prompt
+- `readerUiAttached` — {name} attached.
+- `readerUiAttachedReturn` — {name} attached. Return to the conversation to add your comment.
+- `readerUiChanged` — Changed
+- `readerUiChangedCount` — {count, plural, one{{count} changed file} other{{count} changed files}}
+- `readerUiCommentAdded` — Review comment added. Return to the conversation to continue.
+- `readerUiCommentCopied` — Review comment copied. Paste it into a conversation.
+- `readerUiCopyPath` — Copy path
+- `readerUiDeleted` — Deleted
+- `readerUiDisconnected` — The server is not connected.
+- `readerUiEmptyFolder` — Folder is empty
+- `readerUiIndicatorsFailed` — File change indicators could not refresh.
+- `readerUiIndicatorsUnavailable` — File change indicators are unavailable on this server.
+- `readerUiLine` — line {number}
+- `readerUiModified` — Modified
+- `readerUiNoFiles` — No files found
+- `readerUiNoSymbols` — No symbols found
+- `readerUiOpenReview` — Open in Review
+- `readerUiPathLine` — {path} · Line {line}
+- `readerUiPullRefresh` — Pull down to refresh this folder.
+- `readerUiReconnecting` — OpenCode is reconnecting.
+- `readerUiReferenceAdded` — Added {label} to the prompt
+- `readerUiReferenceDuplicate` — {label} is already on the prompt
+- `readerUiReferenceFull` — The prompt already holds {count} references
+- `readerUiSaveNamed` — Save {name}
+- `readerUiSavedDevice` — {name} saved to your device.
+- `readerUiSearchFiles` — Search files
+- `readerUiSearchSymbols` — Search symbols
+- `readerUiSelectFile` — Select a file to preview
+- `readerUiServerOrder` — Default order
+- `readerUiSourceFirst` — Source first
+- `readerUiSymbolClass` — Class
+- `readerUiSymbolConstant` — Constant
+- `readerUiSymbolConstructor` — Constructor
+- `readerUiSymbolEnum` — Enum
+- `readerUiSymbolEnummember` — Enum member
+- `readerUiSymbolEvent` — Event
+- `readerUiSymbolField` — Field
+- `readerUiSymbolFile` — File
+- `readerUiSymbolFunction` — Function
+- `readerUiSymbolInterface` — Interface
+- `readerUiSymbolMethod` — Method
+- `readerUiSymbolModule` — Module
+- `readerUiSymbolNamespace` — Namespace
+- `readerUiSymbolOperator` — Operator
+- `readerUiSymbolPackage` — Package
+- `readerUiSymbolProperty` — Property
+- `readerUiSymbolStruct` — Struct
+- `readerUiSymbolSymbol` — Symbol
+- `readerUiSymbolTypeparameter` — Type parameter
+- `readerUiSymbolVariable` — Variable
+- `readerUiSymbols` — Symbols
+- `readerUiSymbolsHint` — Find classes, functions, methods, and variables by name.
+- `readerUiSymbolsUnavailable` — Try a different name. Some language services do not support project-wide symbol search.
+- `readerUiTryFileName` — Try a different file name.
+- `readerUiWorkspaceSymbols` — Search project symbols
+- `storageAccessAllow` — Allow access to files
+- `storageTermuxAllow` — Open Termux
+- `terminalListFailedTitle` — Couldn't list the terminals
+- `terminalOpenFull` — Open all {count} lines
+- `terminalScreenConnecting` — Connecting to the terminal
+- `terminalScreenCopy` — Copy output
+- `terminalScreenCreateFailed` — Couldn't start a terminal
+- `terminalScreenDetailCommand` — Command
+- `terminalScreenDetailExit` — Exit code
+- `terminalScreenDetailFolder` — Folder
+- `terminalScreenDetailPid` — Process id
+- `terminalScreenDetails` — Terminal details
+- `terminalScreenDetailsTitle` — {name} details
+- `terminalScreenEmptyBody` — Start one in {project}.
+- `terminalScreenEmptyBodyNoProject` — Start one in this project.
+- `terminalScreenEmptyTitle` — No terminals yet
+- `terminalScreenLiveMode` — Show as live terminal
+- `terminalScreenLoading` — Loading terminals
+- `terminalScreenMenuLabel` — Actions for {name}
+- `terminalScreenNameEmpty` — Type a name.
+- `terminalScreenNameLabel` — Name
+- `terminalScreenNoTerminalNamed` — {server} doesn't share a terminal
+- `terminalScreenNoTerminalThisServer` — This server doesn't share a terminal
+- `terminalScreenNoTerminalWhy` — Terminals open here only on servers that share them.
+- `terminalScreenOpen` — Open {name}
+- `terminalScreenPaste` — Paste into {name}
+- `terminalScreenPaused` — Paused while the app is in the background
+- `terminalScreenReadableMode` — Show as readable text
+- `terminalScreenRemove` — Remove {name}
+- `terminalScreenRemoveBody` — The terminal and its output go away. This can't be undone.
+- `terminalScreenRemoveConfirm` — Remove terminal
+- `terminalScreenRemoveEnded` — {count, plural, =1{Remove 1 ended terminal} other{Remove {count} ended terminals}}
+- `terminalScreenRemoveEndedBody` — Their output goes away too. Running terminals stay.
+- `terminalScreenRemoveEndedTitle` — {count, plural, =1{Remove 1 ended terminal?} other{Remove {count} ended terminals?}}
+- `terminalScreenRemoveTitle` — Remove {name}?
+- `terminalScreenRename` — Rename {name}
+- `terminalScreenRenameConfirm` — Rename
+- `terminalScreenRowEnded` — Ended · code {code} · {command}
+- `terminalScreenRowEndedNoCode` — Ended · {command}
+- `terminalScreenRowRunning` — Running · {command}
+- `terminalScreenSourceLabel` — Where the shell runs
+- `terminalScreenStop` — Stop {name}
+- `terminalScreenStopBody` — The program and everything it started stop, and the terminal goes away. Its output can't be brought back.
+- `terminalScreenStopConfirm` — Stop terminal
+- `terminalScreenStopTitle` — Stop {name}?
+- `terminalScreenUsePhone` — Use this phone's terminal
+- `terminalShowEarlier` — {count, plural, =1{Show 1 earlier line} other{Show {count} earlier lines}}
+
+### Dev preview (15)
+
+- `devPreviewCopyAddress` — Copy address
+- `devPreviewFailedBody` — Port {port} is not responding. The app may still be starting.
+- `devPreviewFailedTitle` — Nothing is answering yet
+- `devPreviewLoading` — Loading the preview
+- `devPreviewNoHostBody` — This server's address is incomplete, so the link can't be pointed at it. Open it in a browser instead.
+- `devPreviewNoHostTitle` — Can't find that server
+- `devPreviewNoServerBody` — A link to this machine only means something on the machine running the app. Connect a server, or open the link in a browser.
+- `devPreviewNoServerTitle` — Connect a server first
+- `devPreviewOpenInBrowser` — Open in browser
+- `devPreviewReload` — Refresh page
+- `devPreviewRemoteNote` — Showing port {port} on {host}. The dev server has to listen on 0.0.0.0 (all addresses) to be reachable from this phone.
+- `devPreviewRetry` — Try again
+- `devPreviewTitle` — Preview
+- `devPreviewUnsupportedBody` — This device cannot show the page inside the app. Open it in a browser instead.
+- `devPreviewUnsupportedTitle` — Preview isn't available here
+
+### Model and agent pickers, agent checks (118)
+
+- `agentFeatureChangeFailed` — Could not change {name}. It keeps its old setting.
+- `agentFeatureChipOff` — {name}, off
+- `agentFeatureChipOn` — {name}, on
+- `agentFeatureFastChip` — Fast
+- `agentFeatureFastDetail` — Quicker replies from supported models. It costs more.
+- `agentFeatureFastTitle` — Fast mode
+- `agentFeatureSaving` — Saving…
+- `agentFeaturesLabel` — Agent settings
+- `agentFeaturesLoadFailed` — Could not load this agent's settings.
+- `agentFeaturesSheetTitle` — {agent} settings
+- `agentsActionFailed` — That didn't work on this phone. Open Details to see why.
+- `agentsAlreadyRemoved` — {agent} is already removed.
+- `agentsCheckAction` — Check {agent}
+- `agentsCheckAgentChanged` — The required agent version changed. Check this phone again.
+- `agentsCheckDownload` — Downloading {component} · {downloaded} of {total}
+- `agentsCheckDownloadUnknown` — Downloading {component} · {downloaded}
+- `agentsCheckDownloading` — Downloading {component}
+- `agentsCheckFailed` — {agent} didn't pass the check.
+- `agentsCheckHelperChanged` — The required Paseo version changed. Check the connection again.
+- `agentsCheckInstallChanged` — The phone setup changed. Check it again.
+- `agentsCheckPassed` — {agent} is ready on this phone.
+- `agentsCheckPhoneTools` — Phone tools
+- `agentsCheckPreparing` — Preparing {component}
+- `agentsCheckPrevious` — Use the previous version
+- `agentsCheckPreviousNote` — Version {version} is still on this phone. It will be checked before you use it. Your sign-in and conversations stay.
+- `agentsCheckRetry` — Try again
+- `agentsCheckRunning` — Checking {agent}…
+- `agentsCheckTitle` — Check this phone
+- `agentsCheckUpdateHelper` — Update Paseo and try again
+- `agentsFailArchitecture` — This agent doesn't match this phone's processor.
+- `agentsFailBusy` — Another setup is running. Wait for it to finish.
+- `agentsFailDaemon` — The agent connection didn't start.
+- `agentsFailHello` — Paseo did not confirm the connection. Retry to restart it and check again.
+- `agentsFailHelperVersion` — Paseo needs an update before this agent can connect. Update it and try again.
+- `agentsFailInstall` — The agent didn't install. Install it again.
+- `agentsFailInterrupted` — Setup stopped before it finished. Install it again.
+- `agentsFailNeedsSignIn` — Claude Code needs you to sign in on this phone.
+- `agentsFailStale` — This check is out of date. Run it again.
+- `agentsFailStorage` — Couldn't save this setup. Free some space and run it again.
+- `agentsFailTimeout` — The phone took too long to finish the check. Retry when it is less busy.
+- `agentsFailUnavailable` — This phone can't run this agent yet.
+- `agentsFailVersion` — The installed agent didn't pass its version check.
+- `agentsLimitReset` — {agent} plan limit reached · resets {time}
+- `agentsRemoveBody` — This removes the installed agent from this phone. Your accounts and conversations stay, and you can install it again.
+- `agentsRemoveBusy` — This agent is in use. Finish its work and try again.
+- `agentsRemoveTitle` — Remove {agent}?
+- `agentsRemoveUnconfirmed` — Couldn't confirm this agent was removed. Check this phone and try again.
+- `agentsRemoveUnsupported` — This agent can't be removed here.
+- `agentsRemoved` — {agent} removed. Freed {size}.
+- `agentsRestartAction` — Close the app
+- `agentsRestartLine` — Close and reopen the app to finish clearing sign-ins.
+- `agentsRunOnBuiltIn` — Agents run on the built-in server
+- `agentsSetupFailed` — Setup didn't finish. Install again to try once more.
+- `agentsSetupInterrupted` — Setup stopped before it finished. Install again to continue.
+- `agentsSetupSizeNote` — {size} is the agent itself. Shared parts may add more.
+- `agentsSignInBadCode` — That code is incomplete. Copy the whole code from the browser (it has a # in the middle) and paste it again.
+- `agentsSignInChecking` — Checking sign-in…
+- `agentsSignInCopyCode` — Copy code {code}
+- `agentsSignInDone` — Use {agent}
+- `agentsSignInFailed` — Sign-in didn't finish. Start it again.
+- `agentsSignInHostDown` — The agent isn't running. Resume it, then sign in.
+- `agentsSignInIntro` — {agent} signs in with its own prompts, on your own Claude account under Anthropic's terms. The app never sees your sign-in.
+- `agentsSignInIntroOther` — {agent} signs in with its own prompts, on your own account with its provider. The app never sees your sign-in.
+- `agentsSignInLimit` — {agent} plan limit reached · try again later
+- `agentsSignInOpenPage` — Open sign-in page
+- `agentsSignInPaste` — Paste
+- `agentsSignInRejected` — {agent} didn't accept that code. It may have expired or been used already. Tap Get a new code.
+- `agentsSignInStopFailed` — Sign-in could not be stopped. Keep the app open and try again.
+- `agentsSignInTerminalIntro` — {agent} opens its sign-in page. Sign in there with your Claude account, then come back. If {agent} asks for a code, copy it on the page and choose Paste.
+- `agentsSignInTerminalIntroOther` — {agent} signs in here with its own prompts. If it opens a page, sign in there and come back. If it asks for a code or key, choose Paste.
+- `agentsSignInTerminalNotYet` — {agent} isn't signed in yet. Start the sign-in again when you're ready.
+- `agentsSignInUnavailable` — Sign-in isn't ready on this phone yet
+- `agentsSignOutAction` — Sign out of {agent}
+- `agentsSignOutBody` — {agent} can't start new conversations until you sign in again.
+- `agentsSignOutFailed` — Couldn't confirm that {agent} signed out. Try again.
+- `agentsSignOutKept` — Your conversations with {agent} stay.
+- `agentsSignOutTitle` — Sign out of {agent}?
+- `agentsSignedInBody` — {agent} is ready for new conversations.
+- `agentsSignedOutLine` — {agent} signed out
+- `agentsStateLimitReset` — Plan limit reached · resets {time}
+- `agentsStateNoDownload` — No verified download yet
+- `agentsStateNotCertified` — Not certified on this version yet
+- `agentsStatePhoneCheck` — Phone check needed
+- `agentsSwitchToBuiltIn` — Switch to the built-in server
+- `e7ModelUiBasicCatalog` — This server returned a basic catalog. Capability and context details are unavailable.
+- `e7ModelUiContext` — {count} context
+- `e7ModelUiCost` — {input} in · {output} out /1M
+- `e7ModelUiDeprecated` — Deprecated
+- `e7ModelUiEffort` — {variant} · {effort} effort
+- `e7ModelUiFastModes` — Fast modes
+- `e7ModelUiListSeparator` — , 
+- `e7ModelUiNoFastModes` — No model reports an explicit fast or low-effort mode.
+- `e7ModelUiPreview` — Preview
+- `e7ModelUiProviderFallback` — a provider
+- `e7ModelUiProviderMany` — {first}, and {last}
+- `e7ModelUiProviderPair` — {first} and {last}
+- `e7ModelUiProviderReloadWaits` — {count, plural, one{The reload waits for 1 running reply to finish, because reloading would stop it.} other{The reload waits for {count} running replies to finish, because reloading would stop them.}}
+- `e7ModelUiSelectionGone` — This choice is no longer available. Refresh models and try again.
+- `e7ModelUiUnloadedProviders` — {count, plural, one{Signed in to {providers}, but the server has not loaded it yet, so its models cannot answer.} other{Signed in to {providers}, but the server has not loaded them yet, so their models cannot answer.}}
+- `e7ModelUiUnusableProviders` — {count, plural, one{Signed in to {providers}, but this server could not load that sign-in even after a reload, so its models cannot answer. Browser sign-ins for some providers, such as Anthropic and Google, do not load on this server. Add an API key under Providers instead, or pick another model.} other{Signed in to {providers}, but this server could not load those sign-ins even after a reload, so their models cannot answer. Browser sign-ins for some providers, such as Anthropic and Google, do not load on this server. Add an API key under Providers instead, or pick another model.}}
+- `localTerminalFailedBody` — Try again. If it keeps failing, Details says why.
+- `localTerminalFailedTitle` — The shell didn't start
+- `localTerminalSemantics` — Terminal on this phone. Tap to type; touch and hold to select text.
+- `localTerminalStarting` — Starting the shell
+- `modelChoiceModelSaveError` — Could not confirm the model choice. Check your selection and try again.
+- `modelChoicePartialSaveError` — Model saved. Agent choice was not confirmed. Try again.
+- `modelChoiceReloadProviders` — Reload providers
+- `modelPickerAgentUses` — Uses {model}
+- `modelPickerCopyId` — Copy model id
+- `modelPickerDetailsOutput` — Up to {count} tokens per answer
+- `modelPickerDetailsPrice` — {input} per million tokens read, {output} per million written
+- `modelScopeChanged` — The server changed. Reopen the model selector to continue.
+- `modelShortcutsNextRecent` — Next recent model
+- `modelShortcutsNoFavorite` — Mark a model as a favorite in the model picker first
+- `modelShortcutsNoRecent` — Use another model first to cycle back to it
+- `modelShortcutsPreviousRecent` — Previous recent model
+- `modelUnavailableSelection` — The conversation's model is unavailable in this catalog. Refresh models or choose another.
+- `pickerProviderNotLoaded` — {name} is saved, but the server has not loaded it yet.
+
+### Settings top level and Appearance (96)
+
+- `appearanceDisplaySection` — Display
+- `appearanceModeSystem` — System
+- `appearancePickerInUse` — In use now
+- `appearancePickerPreviewIn` — Preview in
+- `appearancePickerPreviewLabel` — Preview of {name}
+- `appearancePickerThemeApplied` — Theme set to {name}
+- `consentSaveFailed` — Your answer couldn't be saved on this phone, so nothing was changed. Try again.
+- `e7AppearanceApply` — Apply
+- `e7AppearanceDark` — Dark
+- `e7AppearanceDynamicUnavailable` — Material You colors are not available on this device.
+- `e7AppearanceFollowAndroid` — Follow Android
+- `e7AppearanceFollowSystem` — Follow system
+- `e7AppearanceLight` — Light
+- `e7AppearancePreviewHint` — Preview first. Your appearance changes only when you apply it.
+- `e7AppearanceSaveFailed` — Could not save the appearance. Your previous setting is unchanged. Try again.
+- `e7AppearanceSaving` — Saving…
+- `e7AppearanceUsesMode` — Your light or dark setting stays {mode}.
+- `e7SettingsDraftDeleteBody` — This deletes the composer text saved for {count} conversations. Nothing on the server is affected.
+- `e7SettingsDraftDeleteSummary` — Deletes composer text saved for {count} conversations
+- `e7SettingsQueueDeleteBody` — This deletes {count} unsent prompts and their attachments, for every server. They will never be sent. Nothing on the server is affected.
+- `e7SettingsQueueDeleteSummary` — Deletes all {count} unsent prompts and their attachments, for every server
+- `e7SettingsStorageSummary` — {total} of unsent work — {queued, plural, =1{1 queued prompt} other{{queued} queued prompts}} ({queueBytes}) and {drafts, plural, =1{1 draft} other{{drafts} drafts}} ({draftBytes}). Queued prompts are discarded after {days} days.
+- `e7SettingsUi12` — Stopped by Android
+- `e7SettingsUi14` — On · running now
+- `e7SettingsUi15` — On · starting
+- `e7SettingsUi69` — Light or dark
+- `e7SettingsUi70` — Theme
+- `e7SettingsUi76` — On this device
+- `e7SettingsUi77` — Storage used
+- `e7SettingsUi78` — Clear queued prompts
+- `e7SettingsUi79` — Nothing is waiting to send
+- `e7SettingsUi80` — Delete queued prompts?
+- `e7SettingsUi81` — Queued prompts deleted
+- `e7SettingsUi82` — Could not delete the queued prompts. Check device storage and try again.
+- `e7SettingsUi83` — Clear drafts
+- `e7SettingsUi84` — No saved composer text
+- `e7SettingsUi85` — Delete drafts?
+- `e7SettingsUi86` — Drafts deleted
+- `e7SettingsUi87` — Could not delete the drafts. Check device storage and try again.
+- `e7SettingsUi93` — Servers, providers, voice, files, Termux, and updates
+- `effectsActivityGlowHint` — A glowing border circles the message box while a reply is written
+- `effectsGlowColoursOne` — One colour
+- `effectsGlowColoursTwo` — Two colours
+- `effectsGlowSpeedFast` — Fast
+- `effectsGlowSpeedNormal` — Normal
+- `effectsGlowSpeedSlow` — Slow
+- `effectsGlowStyleClassic` — Classic
+- `effectsGlowStyleSoft` — Soft ring
+- `effectsLiveBackgroundHint` — A slow, soft drift of colour behind every page
+- `effectsMotionCalm` — Calm
+- `effectsMotionCalmHint` — Drawings appear, nothing keeps moving and nothing celebrates
+- `effectsMotionFull` — Full
+- `effectsMotionFullHint` — Drawings move, waiting screens breathe and finished moments celebrate
+- `effectsMotionOff` — Off
+- `effectsMotionOffHint` — Everything shows at once
+- `effectsMotionSystemOff` — Your phone’s Remove animations is on, so nothing moves whatever you choose here
+- `homeShellProjectUnavailable` — Files isn't available
+- `homeShellProjectUnavailableReason` — {server} doesn't offer files, changes or code search. Connect to an OpenCode server to use them.
+- `homeShellProjectUnavailableShort` — {server} has no project tools.
+- `liveIntensityBold` — Bold
+- `liveIntensityNormal` — Normal
+- `liveIntensitySubtle` — Subtle
+- `liveIntensityTitle` — Intensity
+- `liveStylePickerTitle` — Look
+- `mcpReconnecting` — Reconnecting
+- `privacyDeleteDraftsCount` — {count, plural, =0{Delete drafts} one{Delete 1 draft} other{Delete {count} drafts}}
+- `privacyDeleteQueuedCount` — {count, plural, =0{Delete queued prompts} one{Delete 1 queued prompt} other{Delete {count} queued prompts}}
+- `privacyDeleting` — Deleting
+- `privacySharedSection` — Shared with your server
+- `queueStorageCountUnknown` — Saved queued data could not be read. The number of queued prompts is unknown.
+- `queueStorageDiscardUnreadable` — This permanently deletes the unreadable queued prompts and their attachments from this device. Their contents and count are unknown. Nothing on the server is affected.
+- `queueStorageUnreadable` — Saved queued prompts could not be read. New prompts cannot be queued until this device data is cleared.
+- `readerUiSaveFailed` — Could not save reader preferences. Try again.
+- `reportProblemErrorBadge` — {count, plural, =1{1 error kept} other{{count} errors kept}}
+- `settingsHubDetailEmpty` — Choose a group of settings
+- `settingsHubGroupThisApp` — This app
+- `settingsHubPrivacyRow` — Privacy and data
+- `settingsHubShowReasoning` — Show reasoning
+- `settingsHubShowTimestamps` — Show time, tokens and cost
+- `settingsPhraseChipsHiddenCount` — {count, plural, =1{1 hidden phrase} other{{count} hidden phrases}}
+- `settingsPhraseChipsShowHidden` — Show hidden phrases
+- `settingsPhraseChipsTitle` — Phrase suggestions
+- `settingsV3ByServer` — By server
+- `settingsV3GroupAi` — AI
+- `settingsV3GroupChat` — Conversations
+- `settingsV3GroupConnections` — Connections
+- `settingsV3GroupHelp` — Help and about
+- `settingsV3Off` — Off
+- `settingsV3On` — On
+- `settingsV3SharingCount` — {count} of {total} share
+- `shellServerPlusOthers` — {name} +{count}
+- `textSizeDefault` — Default
+- `textSizeLarge` — Large
+- `textSizeSmall` — Small
+- `textSizeSmallest` — Smallest
+- `textSizeTitle` — Text size
+
+### Providers and sign-in (112)
+
+- `aiSetupAllSettings` — All settings
+- `aiSetupAllSources` — All sources
+- `aiSetupDefaultAgent` — Default agent
+- `aiSetupEffectiveLabel` — Settings in effect
+- `aiSetupEffectiveTerm` — What this server's conversations use, after combining its configuration files.
+- `aiSetupEmptyBody` — This server runs on its defaults, with no model chosen and no tool servers. Changes are made on the server for now.
+- `aiSetupEmptyTitle` — Nothing set up yet
+- `aiSetupErrorBody` — The server didn't answer as expected. Try again, or check the server on its settings page.
+- `aiSetupErrorTitle` — Couldn't read setup
+- `aiSetupLoading` — Reading this server's setup…
+- `aiSetupModel` — Model
+- `aiSetupNoSources` — No configuration files
+- `aiSetupNoSourcesDetail` — This server runs on its defaults.
+- `aiSetupOfflineBody` — Reconnect to {server} to read its setup.
+- `aiSetupOfflineStale` — Offline. This is {server}'s setup as last read; it updates when you reconnect.
+- `aiSetupOfflineTitle` — You're offline
+- `aiSetupPermissionRules` — {count, plural, =1{1 rule} other{{count} rules}}
+- `aiSetupPermissions` — Permissions
+- `aiSetupProviders` — Providers
+- `aiSetupRefresh` — Read this server's setup again
+- `aiSetupReviewOnly` — Review only. Changes are made on the server for now.
+- `aiSetupServerDefault` — Not set: the server picks
+- `aiSetupSignInBody` — {server} didn't accept the saved sign-in, so its setup can't be read.
+- `aiSetupSignInTitle` — Sign-in needed
+- `aiSetupSmallModel` — Small model
+- `aiSetupSourceEmpty` — {position}. Sets nothing
+- `aiSetupSourceSets` — {position}. Sets {keys}
+- `aiSetupSourceUnnamed` — Source without a file ({type})
+- `aiSetupSourcesLabel` — Configuration sources
+- `aiSetupSourcesTerm` — Listed from lowest to highest priority, as the server reports them. The app doesn't combine them.
+- `aiSetupSuggestFixDetail` — It failed to start. Fix its entry in the server's configuration, then restart the server.
+- `aiSetupSuggestFixTitle` — Check {name}'s settings
+- `aiSetupSuggestModelDetail` — No model is set, so new conversations use the server's own pick. Set “model” in the server's configuration.
+- `aiSetupSuggestModelTitle` — Choose a default model
+- `aiSetupSuggestSignInDetail` — Its tools stay off until someone signs in to it on the server.
+- `aiSetupSuggestSignInTitle` — Sign in to {name}
+- `aiSetupSuggestToolsDetail` — No MCP servers are set up. Add one in the server's configuration to give the agent more tools.
+- `aiSetupSuggestToolsTitle` — Add tool servers
+- `aiSetupSuggestionsLabel` — Suggestions
+- `aiSetupTitle` — AI setup
+- `aiSetupToolConnected` — Connected
+- `aiSetupToolFailed` — Failed
+- `aiSetupToolNeedsSignIn` — Needs sign-in
+- `aiSetupToolOff` — Off
+- `aiSetupToolUnknown` — Unknown
+- `aiSetupToolWaiting` — Waiting
+- `aiSetupToolsLabel` — Tool servers
+- `aiSetupToolsTerm` — MCP servers give the agent extra tools. Each shows whether it is working now.
+- `aiSetupTryAgain` — Try again
+- `aiSetupUnsupportedBody` — This server doesn't share its configuration with the app. Set up its models and tools on the server itself.
+- `aiSetupUnsupportedTitle` — AI setup isn't available
+- `credentialActive` — Active
+- `credentialActiveUpdated` — Active account updated from the server.
+- `credentialEmpty` — No saved accounts were reported for this provider.
+- `credentialEnvironment` — Managed by the server environment. It cannot be removed here.
+- `credentialLabel` — Account label
+- `credentialLoadFailed` — Could not refresh saved accounts. Try again.
+- `credentialMetadataOnly` — Keys stay on your server.
+- `credentialMutationFailed` — Could not confirm the account change. Refresh before retrying; the server may already have applied it.
+- `credentialProviderMissing` — This provider is no longer in the server's integration list.
+- `credentialRefresh` — Refresh accounts
+- `credentialRemoveAccountTitle` — Remove {provider} account “{name}”?
+- `credentialRemoveConfirmNamed` — Remove “{name}”
+- `credentialRename` — Rename account
+- `credentialSave` — Save label
+- `credentialScopeChanged` — The server or project changed. Close and reopen account management before making changes.
+- `credentialSheetActions` — Actions for {label}
+- `credentialSheetEmptyBody` — Sign in to {provider} again from Providers to add an account.
+- `credentialSheetInUse` — Already in use
+- `credentialSheetLabelEmpty` — Give the account a name.
+- `credentialSheetLabelInvalid` — Use up to 128 characters, without line breaks or control characters.
+- `credentialSheetLoading` — Reading saved accounts…
+- `credentialSheetRemoveBody` — Removes {label} from this server. Projects that use it will need another {provider} account.
+- `credentialSheetRemoveNamed` — Remove {label}
+- `credentialSheetRenameNamed` — Rename {label}…
+- `credentialSheetRenamed` — Renamed to {label}.
+- `credentialSheetUseNamed` — Use {label}
+- `credentialSwitchRequested` — Switch requested. This request has not yet been confirmed by a server event.
+- `credentialUnnamed` — Saved account {index}
+- `e7LibraryAuthenticationAttemptExpired` — Authentication attempt expired
+- `e7LibraryAuthenticationComplete` — Authentication complete
+- `e7LibraryAuthenticationFailed` — Authentication failed
+- `e7LibraryFinishAuthenticationInTheBrowserThenCheck` — Finish authentication in the browser, then check its status.
+- `e7LibraryReturnFromTheBrowserAndEnterThe` — Return from the browser and enter the authorization code.
+- `e7LibraryUnavailable` — Unavailable
+- `integrationsCancelSignInFor` — Cancel {provider} sign-in
+- `integrationsEnterCodeFor` — Enter code for {provider}
+- `integrationsFinishSigningIn` — Finish signing in to {provider}
+- `integrationsForgetSignInOnPhone` — Forget this sign-in on this phone
+- `integrationsOpenBrowserAgain` — Open browser again
+- `integrationsPendingNotRecoverable` — Keep this screen open until you finish: this server can't resume a sign-in after you leave.
+- `integrationsSignInComplete` — Signed in · tap to finish
+- `integrationsSignInEnded` — Sign-in ended
+- `integrationsSignInEndedDetail` — This sign-in ended before it was approved. The code may have run out or the server restarted. Nothing was added.
+- `integrationsSignInExpired` — Sign-in expired
+- `integrationsSignInFailed` — Sign-in failed
+- `integrationsSignInMayNotHaveStarted` — Sign-in may not have started
+- `integrationsSignInUncertainNext` — Check the server before you start again
+- `integrationsSignInWaiting` — Sign-in waiting
+- `integrationsSignInWaitingBrowser` — Waiting for approval in the browser
+- `integrationsSignInWaitingDetail` — Enter the code in your browser and approve. This app is waiting and finishes the sign-in by itself when you come back.
+- `integrationsStartAgain` — Start again
+- `pendingAuthDetail` — Finish signing in in the browser, then come back and finish here. The browser link isn't saved.
+- `pendingAuthExpired` — This sign-in has expired. Start a new one, or forget this one.
+- `pendingAuthForget` — Forget this sign-in
+- `pendingAuthRecoveryForgetBody` — The app stops tracking it on this device. Nothing is cancelled on the server; an unfinished sign-in there expires on its own.
+- `pendingAuthRecoveryForgetTitle` — Forget the {integration} sign-in?
+- `pendingAuthServerFailed` — The server reported that sign-in failed. Provider error details are hidden.
+- `pendingAuthStillPending` — Sign-in is still pending. No new attempt was started.
+- `pendingAuthUnsupported` — This server cannot recover earlier sign-ins. Legacy sign-ins work only while their original screen and connection remain available.
+- `serverSettingsChangeSignIn` — Change sign-in for {server}
+- `uncertainAuthDetail` — The server may have started this sign-in without confirming it. Check on the server before you start again.

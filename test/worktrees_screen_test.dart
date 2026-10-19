@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:opencode_mobile/ui/screens/worktrees_screen.dart';
@@ -120,9 +120,11 @@ class _WorktreeController extends ConnectionController {
   var created = 0;
   ServerCapabilities? capabilitiesOverride;
 
+  // The generic fixture repository implements reset; production gateways supply
+  // their own capability set independently of this confirmation-flow fixture.
   @override
   ServerCapabilities get capabilities =>
-      capabilitiesOverride ?? super.capabilities;
+      capabilitiesOverride ?? const ServerCapabilities(worktreeReset: true);
 
   @override
   Future<Session> createSession() async {

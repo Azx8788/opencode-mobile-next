@@ -130,9 +130,8 @@ set -uo pipefail
 port="$1"
 password_file="$2"
 manager="$3"
-runtime="${4:-opencode1}"
+runtime="${4:-opencode2}"
 case "$runtime" in
-  opencode1) binary=opencode ;;
   opencode2) binary=opencode2 ;;
   *) exit 64 ;;
 esac
@@ -741,10 +740,9 @@ setup() {
   local dispatcher_pid="${3:-}"
   local dispatcher_start="${4:-}"
   CURRENT_RUNTIME="${5:-$(setup_runtime)}"
-  managed_runtime >/dev/null || return 64
+  [ "$CURRENT_RUNTIME" = opencode2 ] || { echo managed-runtime-migration-required >&2; return 64; }
   if [ -z "$requested_version" ]; then
     case "$CURRENT_RUNTIME" in
-      opencode1) requested_version=1.19.0 ;;
       opencode2) requested_version=2.0.29 ;;
     esac
   fi
@@ -781,11 +779,6 @@ setup() {
   local installed_version
   installed_version=$(runtime_version 2>/dev/null)
   [ -n "$installed_version" ] || fail_setup 'OpenCode installed but did not report a version' "$CURRENT_PORT"
-  if [ "$CURRENT_RUNTIME" = opencode1 ]; then
-    write_state refreshing_models 'Refreshing the OpenCode model catalog' "$CURRENT_PORT" proot "$installed_version"
-    proot-distro login "$PROOT_NAME" -- opencode models --refresh >/dev/null ||
-      fail_setup 'OpenCode updated, but its model catalog could not be refreshed' "$CURRENT_PORT"
-  fi
   [ -s "$PASSWORD_FILE" ] || fail_setup 'The local server password is missing' "$CURRENT_PORT"
 
   stop_legacy_server "$CURRENT_PORT"
@@ -800,7 +793,7 @@ start_server() {
   local runtime health_path
   runtime=$(managed_runtime) || return 64
   case "$runtime" in
-    opencode1) health_path=/global/health ;;
+    opencode1) echo managed-runtime-migration-required >&2; return 64 ;;
     # OpenCode 2.0.4 and later answer at /api/info; the beta this app
     # installed before answered at /api/health. Either one proves readiness.
     opencode2) health_path='/api/info /api/health' ;;
@@ -964,10 +957,10 @@ switch_value() {
 }
 
 # Explicitly authorized generation change. One slot, one lock, one server.
-# The old binary/data/credential remain available for a deliberate return.
+# The original binary/data/credential remain untouched for data recovery.
 switch_runtime() {
   local target="$1" previous installed_version current
-  case "$target" in opencode1|opencode2) ;; *) return 64 ;; esac
+  [ "$target" = opencode2 ] || return 64
   CURRENT_PORT="${CURRENT_PORT:-4096}"
   local staged_password="$OC_DIR/switch-password-$CURRENT_OPERATION"
   [ -s "$staged_password" ] || return 64
@@ -992,10 +985,6 @@ switch_runtime() {
   previous=$(switch_value switch_previous)
   [ -n "$previous" ] || previous="$current"
   case "$previous" in opencode1|opencode2) ;; *) fail_setup 'The previous runtime record is unreadable' ;; esac
-  if [ "$target" = opencode1 ] && [ "$current" = opencode2 ] &&
-     [ "$(cat "$V2_DATA_MODE" 2>/dev/null || true)" != isolated ]; then
-    fail_setup 'This OpenCode 2 installation has no separate OpenCode 1 data to return to'
-  fi
   if [ -s "$OC_DIR/password-$target" ] &&
      ! cmp -s "$staged_password" "$OC_DIR/password-$target"; then
     fail_setup 'The saved profile credential differs from this runtime; restore its original saved credential before returning'
@@ -1036,7 +1025,6 @@ switch_runtime() {
     require_setup_space
     local requested_version
     case "$target" in
-      opencode1) requested_version=1.19.0 ;;
       opencode2) requested_version=2.0.29 ;;
     esac
     install_runtime "$requested_version"
@@ -1069,7 +1057,7 @@ switch_runtime() {
   SWITCH_COMMIT=1
   start_server "$installed_version"
   # Authenticated readiness is the commit point. Until this deletion, a fresh
-  # app process must display an unresolved switch and selectable return.
+  # app process must display an unresolved upgrade and offer retry.
   rm -f "$SWITCH_FILE"
 }
 
@@ -1221,9 +1209,6 @@ status() {
     # State may describe the package being staged while the old server still
     # owns the slot. Report the durable active-generation marker separately.
     printf 'runtime=%s\n' "$(managed_runtime)"
-  fi
-  if [ "$(cat "$V2_DATA_MODE" 2>/dev/null || true)" = isolated ]; then
-    printf 'switch_return=opencode1\n'
   fi
 }
 

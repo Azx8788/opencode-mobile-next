@@ -9,8 +9,7 @@
 ///
 /// It reads two variables from its environment:
 /// - `OC_REQUESTED_VERSION`: the npm version to install, never empty.
-/// - `OC_RUNTIME`: the selected `opencode1` or `opencode2`. Without a selection,
-///   preserve an existing `opencode` binary; otherwise install OpenCode 2.
+/// - `OC_RUNTIME`: must be `opencode2`; defaults to OpenCode 2.
 ///
 /// It is fed on stdin to `bash` (it uses arrays), ends with a newline, and
 /// holds no heredoc terminator of its own, so callers wrap it in
@@ -35,46 +34,24 @@ fi
 export NODE_OPTIONS="${NODE_OPTIONS:+$NODE_OPTIONS }--dns-result-order=ipv4first"
 # Project folders live here; the server starts in it instead of /root.
 mkdir -p /root/projects
-# Callers pass the chosen runtime. For direct fresh setup, choose OpenCode 2;
-# a pre-existing unrecorded OpenCode binary belongs to the older installation.
-if [ -z "${OC_RUNTIME:-}" ]; then
-  if command -v opencode >/dev/null 2>&1; then
-    OC_RUNTIME=opencode1
-  else
-    OC_RUNTIME=opencode2
-  fi
-fi
-case "$OC_RUNTIME" in
-  opencode1) command=opencode ;;
-  opencode2) command=opencode2 ;;
-  *) printf '[oc] ERROR: Unsupported managed runtime\n' >&2; exit 64 ;;
-esac
+# Only OpenCode 2 is installable. Legacy binaries/data are left untouched.
+OC_RUNTIME=${OC_RUNTIME:-opencode2}
+[ "$OC_RUNTIME" = opencode2 ] || { echo '[oc] OpenCode 1 is no longer supported' >&2; exit 64; }
+command=opencode2
 install_opencode() {
   local npm_cache
   local install_code
   local binary_package
   local binary_suffix
-  local main_package=opencode-ai
+  local main_package=@opencode/cli
   case "$(node -p 'process.arch')" in
     arm64) binary_suffix=linux-arm64 ;;
     x64) binary_suffix=linux-x64-baseline ;;
     *) printf '[oc] ERROR: OpenCode requires a 64-bit ARM or x64 Ubuntu environment\n' >&2; return 64 ;;
   esac
-  local prefix_args=()
-  if [ "$OC_RUNTIME" = opencode2 ]; then
-    # OpenCode 2 is published as @opencode/cli since 2026-09-07 (the old
-    # @opencode-ai/cli name stopped at a beta). Its package installs a command
-    # named `opencode` as well as `opencode2`, which collides with OpenCode 1's
-    # own `opencode` in the shared global prefix: npm refuses with EEXIST. So
-    # it gets a prefix of its own and only `opencode2` is linked, which keeps
-    # both runtimes installed side by side and switchable.
-    binary_package="@opencode/cli-$binary_suffix"
-    main_package=@opencode/cli
-    prefix_args=(--prefix "${OC2_PREFIX:-/opt/oc2}")
-    npm uninstall -g @opencode-ai/cli "@opencode-ai/cli-$binary_suffix" >/dev/null 2>&1 || true
-  else
-    binary_package="opencode-$binary_suffix"
-  fi
+  # Keep the new runtime separate from the original database and binary.
+  local prefix_args=(--prefix "${OC2_PREFIX:-/opt/oc2}")
+  binary_package="@opencode/cli-$binary_suffix"
   npm_cache=$(mktemp -d /tmp/opencode-mobile-npm.XXXXXX)
   # Make the compatible Ubuntu binary a required package. Optional dependency
   # failures must not silently leave postinstall trying a musl-only fallback.

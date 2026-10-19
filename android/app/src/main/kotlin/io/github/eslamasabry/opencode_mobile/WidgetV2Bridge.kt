@@ -92,6 +92,8 @@ object WidgetV2Bridge {
         val current = snapshot(context) ?: return
         if (current.optString("profileID").isBlank() || current.optString("scopeToken").isBlank()) return
         current.put("connected", false)
+        // "Offline · last seen ..." counts from the moment the live link ended.
+        current.put("lastSeenAt", System.currentTimeMillis())
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
             .putString(SNAPSHOT_KEY, current.toString()).commit()
         SessionsWidgetProvider.refreshAll(context)
@@ -99,6 +101,7 @@ object WidgetV2Bridge {
 
     internal fun clearProfile(context: Context, profileID: String): Boolean {
         if (profileID.isBlank()) return false
+        WidgetStatusScheduler.clearProfile(context, profileID)
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val editor = prefs.edit()
             .remove("flutter.oc.widgetStyle.$profileID")

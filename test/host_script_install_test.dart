@@ -1,7 +1,7 @@
 // scripts/host/ubuntu-opencode.sh installs one pinned OpenCode release and
 // checks its SHA-256 before anything is unpacked (slice-script-pins). These
 // tests run the real script with a fake `curl` (serving a small archive
-// instead of GitHub) and a fake `systemctl`, so nothing touches the network
+// instead of npm) and a fake `systemctl`, so nothing touches the network
 // or the machine's own services.
 
 @TestOn('linux')
@@ -16,7 +16,7 @@ import 'package:opencode_mobile/termux/bridge.dart';
 const _script = 'scripts/host/ubuntu-opencode.sh';
 
 final _sha256Line = RegExp(
-  r'^(    readonly OPENCODE_(X64|ARM64)_SHA256=)"[0-9a-f]{64}"$',
+  r'^(readonly OPENCODE_(X64|ARM64)_SHA256=)"[0-9a-f]{64}"$',
   multiLine: true,
 );
 
@@ -39,10 +39,10 @@ void main() {
   }
 
   /// A release archive holding one `opencode` that reports [version].
-  void buildArchive(String version, {bool older = false}) {
+  void buildArchive(String version) {
     final staging = Directory('${root.path}/staging')..createSync();
     Directory('${staging.path}/package/bin').createSync(recursive: true);
-    final member = older ? 'opencode' : 'package/bin/opencode';
+    const member = 'package/bin/opencode';
     final binary = File('${staging.path}/$member')
       ..writeAsStringSync('#!/bin/sh\necho "$version"\n');
     Process.runSync('chmod', ['755', binary.path]);
@@ -61,7 +61,7 @@ void main() {
   /// standing in for the published release it would otherwise download.
   String scriptTrustingFakeArchive() {
     final text = File(_script).readAsStringSync();
-    expect(_sha256Line.allMatches(text), hasLength(4));
+    expect(_sha256Line.allMatches(text), hasLength(2));
     final copy = File('${root.path}/ubuntu-opencode.sh')
       ..writeAsStringSync(
         text.replaceAllMapped(_sha256Line, (m) => '${m[1]}"$archiveSha"'),
@@ -79,20 +79,18 @@ void main() {
     return binary.path;
   }
 
-  ProcessResult run(String script, String command, {bool older = false}) =>
-      Process.runSync(
-        'bash',
-        [script, command],
-        environment: {
-          'HOME': home.path,
-          'TMPDIR': tmp.path,
-          'PATH': '${root.path}/bin:/usr/bin:/bin',
-          'USER': 'tester',
-          'FAKE_ROOT': root.path,
-          if (older) 'OPENCODE_RUNTIME': 'opencode',
-        },
-        includeParentEnvironment: false,
-      );
+  ProcessResult run(String script, String command) => Process.runSync(
+    'bash',
+    [script, command],
+    environment: {
+      'HOME': home.path,
+      'TMPDIR': tmp.path,
+      'PATH': '${root.path}/bin:/usr/bin:/bin',
+      'USER': 'tester',
+      'FAKE_ROOT': root.path,
+    },
+    includeParentEnvironment: false,
+  );
 
   String unitExecStart() => File(
     '${home.path}/.config/systemd/user/opencode-serve.service',
@@ -193,23 +191,28 @@ cp "$FAKE_ROOT/release.tar.gz" "$out"
         expect(tmp.listSync(), isEmpty);
       });
 
-      test('Older OpenCode remains an explicit fresh install choice', () {
-        buildArchive(TermuxRuntime.openCode1.pinnedVersion, older: true);
-        final result = run(scriptTrustingFakeArchive(), 'install', older: true);
-        expect(result.exitCode, 0, reason: '${result.stderr}');
-        expect(result.stderr, contains('Installed OpenCode 1.19.0'));
-        expect(read('curl.log'), contains('/v1.19.0/opencode-linux-'));
-      });
+      test(
+        'install refuses an existing unsupported server without changing it',
+        () {
+          final existing = existingOpenCode('1.19.0');
+          final result = run(scriptTrustingFakeArchive(), 'install');
+          expect(result.exitCode, 1);
+          expect(result.stderr, contains('no longer supports'));
+          expect(File(existing).readAsStringSync(), contains('1.19.0'));
+          expect(read('curl.log'), isEmpty);
+          expect(read('systemctl.log'), isNot(contains('enable')));
+        },
+      );
 
       test('install leaves an OpenCode that is already there alone', () {
-        final existing = existingOpenCode('1.0.0');
+        final existing = existingOpenCode('2.0.0');
 
         final result = run(scriptTrustingFakeArchive(), 'install');
 
         expect(result.exitCode, 0, reason: '${result.stderr}');
         expect(
           result.stdout,
-          contains('OpenCode is already installed: $existing'),
+          contains('OpenCode 2 is already installed: $existing'),
         );
         expect(read('curl.log'), isEmpty);
         expect(unitExecStart(), startsWith('ExecStart=$existing serve '));

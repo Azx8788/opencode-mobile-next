@@ -72,7 +72,7 @@ extension _ChatNotices on _ChatScreenState {
     if (!offer.showFor(replyCompleted: _replyCompleted)) return null;
     return _ChatStatus(
       id: 'notify-offer',
-      icon: AppIconography.inbox,
+      icon: AppIconography.notificationImportant,
       message: l10n.firstRunNotifyTitle,
       action: KitAction(
         key: const ValueKey('chat-notify-offer-accept'),
@@ -266,6 +266,11 @@ extension _ChatNotices on _ChatScreenState {
     _offlineFlushRevision = _conn.offlineFlushRevision;
     final sent = _conn.lastFlushedPromptCount;
     if (sent <= 0) return;
+    // A prompt reached the server without the event stream carrying it back
+    // (it was sent after a drop, or resent by hand). The stream is volatile,
+    // so reconcile by refetch: the prompt and any reply show up now rather
+    // than only after the chat is reopened.
+    unawaited(_load());
     final waiting = _conn.lastFlushSkippedForOtherProfiles;
     final message = StringBuffer(_chatL10n(context).chatUiQueuedSent(sent));
     if (waiting > 0) {

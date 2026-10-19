@@ -1,9 +1,10 @@
+import 'support/fake_server_capabilities.dart';
 import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/diagnostics/app_diagnostics.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -44,7 +45,7 @@ class _McpController extends ConnectionController {
   Object? reloadError;
   bool reloadReturnsDisconnected = false;
   Completer<ProductRepository?>? wake;
-  ServerCapabilities serverCapabilities = ServerCapabilities.allV1;
+  ServerCapabilities serverCapabilities = testServerCapabilities;
   ServerProfile? activeProfile;
 
   @override

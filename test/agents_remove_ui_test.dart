@@ -1,3 +1,4 @@
+import 'support/fake_server_capabilities.dart';
 // Remove agent (FA6, docs/design/BA10-contract.md): the agent's sheet offers
 // "Remove <Agent>" as a quiet destructive action only where the source can
 // remove it, asks first, shows the progress in place, then what was freed or
@@ -12,7 +13,6 @@ import 'package:opencode_mobile/domain/agent_auth_probe.dart';
 import 'package:opencode_mobile/domain/agent_catalog.dart';
 import 'package:opencode_mobile/domain/phone_agent_host.dart';
 import 'package:opencode_mobile/domain/phone_agents.dart';
-import 'package:opencode_mobile/domain/server_gateway/capabilities.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart'
     show ProductException;
 import 'package:opencode_mobile/ui/kit/kit.dart';
@@ -93,7 +93,7 @@ void main() {
             buildAgentRow(
               descriptor: AgentCatalog.builtIn.byId('fx')!,
               architecture: AgentArchitecture.x64,
-              serverCapabilities: ServerCapabilities.allV1,
+              serverCapabilities: testServerCapabilities,
               runtime: const PhoneAgentRuntime(
                 agentId: 'fx',
                 payloadPresent: true,

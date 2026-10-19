@@ -13,8 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import '../support/fake_server_gateway.dart';
 import 'package:opencode_mobile/domain/orchestration_gateway.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
@@ -408,7 +408,7 @@ void main() {
         'under its permission card', (tester) async {
       SharedPreferences.setMockInitialValues({
         'oc.profiles':
-            '[{"id":"phone","name":"Pixel","baseUrl":"http://pixel",'
+            '[{"id":"phone","name":"Pixel","flavor":"v2","baseUrl":"http://pixel",'
             '"username":""}]',
         'oc.activeProfile': 'phone',
       });
@@ -521,7 +521,7 @@ Future<void> _save(
   await connection.store.setActiveId(profile.id);
 }
 
-class _ChatApi extends OpenCodeApi with CompleteMessageHistory {
+class _ChatApi extends FakeServerGateway with CompleteMessageHistory {
   _ChatApi() : super(baseUrl: 'http://localhost');
 
   @override

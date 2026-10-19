@@ -9,7 +9,7 @@
 // and look at every changed image before committing it.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/state/automation_policy.dart';
 import 'package:opencode_mobile/state/session_auto_approval.dart';

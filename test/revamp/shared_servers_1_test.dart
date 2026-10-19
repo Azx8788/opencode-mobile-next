@@ -5,8 +5,8 @@
 // and what is sent.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import '../support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/domain/profile_monitor.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
@@ -45,7 +45,7 @@ void main() {
         SwitcherStore(prefs: await SharedPreferences.getInstance()),
         snapshots: snapshots,
       )..status = status;
-      controller.api = OpenCodeApi(baseUrl: controller.profile!.baseUrl);
+      controller.api = FakeServerGateway(baseUrl: controller.profile!.baseUrl);
       addTearDown(controller.dispose);
       await tester.pumpWidget(
         _app(

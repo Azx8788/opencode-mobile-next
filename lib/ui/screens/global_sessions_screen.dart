@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../api/product_repository.dart';
+import '../../domain/product_repository.dart';
 import '../../domain/team_directories.dart';
 import '../../feedback/bug_report.dart';
 import '../../l10n/app_localizations.dart';

@@ -6,9 +6,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/mcp_oauth.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/mcp_oauth.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:opencode_mobile/ui/kit/kit.dart';
@@ -74,7 +74,9 @@ void main() {
         ),
       ];
 
-    await tester.pumpWidget(app(await integrationsController(repository)));
+    await tester.pumpWidget(
+      app(await integrationsController(repository, withAuthorization: true)),
+    );
     await tester.pumpAndSettle();
 
     expect(find.text('Providers unavailable'), findsOneWidget);
@@ -98,7 +100,9 @@ void main() {
         ..serverError = const ProductException('MCP unavailable')
         ..resourceError = const ProductException('Resources unavailable');
 
-      await tester.pumpWidget(app(await integrationsController(repository)));
+      await tester.pumpWidget(
+        app(await integrationsController(repository, withAuthorization: true)),
+      );
       await tester.pumpAndSettle();
 
       // One primary per screen (KitScreen asserts it): one error for the
@@ -139,7 +143,9 @@ void main() {
       ..servers = const [
         McpServerInfo(name: 'remote-tools', status: 'connected'),
       ];
-    await tester.pumpWidget(app(await integrationsController(repository)));
+    await tester.pumpWidget(
+      app(await integrationsController(repository, withAuthorization: true)),
+    );
     await tester.pumpAndSettle();
 
     Future<void> tapDisconnect() async {
@@ -193,7 +199,9 @@ void main() {
         oauthState: 'mcp-state-1',
       );
 
-    await tester.pumpWidget(app(await integrationsController(repository)));
+    await tester.pumpWidget(
+      app(await integrationsController(repository, withAuthorization: true)),
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Sign in to remote-tools'));
     await tester.pump();
@@ -222,7 +230,9 @@ void main() {
         oauthState: 'mcp-state-1',
       );
 
-    await tester.pumpWidget(app(await integrationsController(repository)));
+    await tester.pumpWidget(
+      app(await integrationsController(repository, withAuthorization: true)),
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Sign in to remote-tools'));
     await tester.pump();
@@ -253,7 +263,7 @@ void main() {
 
     await tester.pumpWidget(
       app(
-        await integrationsController(repository),
+        await integrationsController(repository, withAuthorization: true),
         authorizationLauncher: (destination) async {
           opened = destination;
           return true;
@@ -321,7 +331,7 @@ void main() {
 
       await tester.pumpWidget(
         app(
-          await integrationsController(repository),
+          await integrationsController(repository, withAuthorization: true),
           authorizationLauncher: (_) async => true,
         ),
       );
@@ -385,7 +395,7 @@ void main() {
 
     await tester.pumpWidget(
       app(
-        await integrationsController(repository),
+        await integrationsController(repository, withAuthorization: true),
         authorizationLauncher: (_) async => true,
         textScale: 2,
       ),

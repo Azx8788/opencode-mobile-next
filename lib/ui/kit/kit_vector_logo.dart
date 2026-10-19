@@ -63,16 +63,20 @@ class _KitVectorLogoViewState extends State<_KitVectorLogo> {
     final svg = _svg;
     if (svg == null) return const SizedBox.shrink();
     final tokens = KitTokens.of(context);
-    return Padding(
-      // A monochrome mark fills a round tile badly edge to edge.
-      padding: const EdgeInsets.all(_inset),
-      child: SvgPicture.string(
-        svg,
-        fit: BoxFit.contain,
-        excludeFromSemantics: true,
-        colorFilter: ColorFilter.mode(tokens.roles.text1, BlendMode.srcIn),
-        errorBuilder: (context, error, stack) => const SizedBox.shrink(),
-        placeholderBuilder: (context) => const SizedBox.shrink(),
+    return ColoredBox(
+      // Covers the initials beneath: a thin mark must not show them through.
+      color: tokens.roles.surface3,
+      child: Padding(
+        // A monochrome mark fills a round tile badly edge to edge.
+        padding: const EdgeInsets.all(_inset),
+        child: SvgPicture.string(
+          svg,
+          fit: BoxFit.contain,
+          excludeFromSemantics: true,
+          colorFilter: ColorFilter.mode(tokens.roles.text1, BlendMode.srcIn),
+          errorBuilder: (context, error, stack) => const SizedBox.shrink(),
+          placeholderBuilder: (context) => const SizedBox.shrink(),
+        ),
       ),
     );
   }

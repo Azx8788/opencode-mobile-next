@@ -5,9 +5,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/api2/gateway_operations.dart';
 import 'package:opencode_mobile/api2/transport.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -89,7 +89,7 @@ class _Legacy extends ProductRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-class _Api extends OpenCodeApi {
+class _Api extends FakeServerGateway {
   _Api() : super(baseUrl: 'http://localhost');
   @override
   Future<Health> health() async => Health(healthy: true, version: 'fixture');

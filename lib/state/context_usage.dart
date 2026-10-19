@@ -1,4 +1,4 @@
-import '../api/models.dart';
+import '../domain/models.dart';
 import '../domain/server_gateway.dart';
 
 /// The conversation's context window, read from what the server already

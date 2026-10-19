@@ -1,3 +1,4 @@
+import 'support/fake_server_capabilities.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -53,13 +54,24 @@ class _OwnershipFailureLinux extends BuiltinLinux {
   }
 }
 
+/// A phone whose stop takes [work] on the test's fake clock.
+class _SlowStopPhone extends _Phone {
+  _SlowStopPhone(this.advance);
+  final void Function(Duration) advance;
+  @override
+  Future<void> stopServer() async {
+    advance(const Duration(seconds: 10));
+    await super.stopServer();
+  }
+}
+
 final _en = lookupAppLocalizations(const Locale('en'));
 
 PhoneEngineHealth _health({
   bool execution = true,
   bool boundary = true,
-  bool oc1Verified = true,
-  bool oc2 = false,
+  bool oc2Verified = true,
+  bool oc2 = true,
   bool restartRequired = false,
   String reason = '',
   String tier = 'none',
@@ -69,9 +81,8 @@ PhoneEngineHealth _health({
   engineVersion: '1',
   execution: execution,
   boundary: boundary,
-  oc1Verified: !oc2 && oc1Verified,
   oc2: oc2,
-  oc2Verified: oc2,
+  oc2Verified: oc2 && oc2Verified,
   commandActions: const {},
   restartRequired: restartRequired,
   boundaryReason: reason,
@@ -321,7 +332,7 @@ void main() {
   test('phone-team capability is opt-in and survives managed-host overlay', () {
     expect(const ServerCapabilities().phoneTeamExecution, isFalse);
     for (final capabilities in [
-      ServerCapabilities.allV1,
+      testServerCapabilities,
       api2ServerCapabilities,
     ]) {
       expect(capabilities.phoneTeamExecution, isTrue);
@@ -386,39 +397,55 @@ void main() {
     },
   );
 
-  test('setup does not borrow a supported remote profile capability', () async {
-    _mockChannels();
-    debugPlatformCapabilities = const PlatformCapabilities.android();
-    addTearDown(() => debugPlatformCapabilities = null);
-    final connection = await _connection();
-    await connection.store.upsert(
-      ServerProfile(
-        id: 'unknown',
-        name: 'Unknown phone',
-        baseUrl: 'http://127.0.0.1:4097',
-        flavor: ServerFlavor.unknown,
-      ),
+  for (final historyPending in [false, true]) {
+    test(
+      'setup does not borrow remote capabilities while phone migration is pending ($historyPending)',
+      () async {
+        _mockChannels();
+        debugPlatformCapabilities = const PlatformCapabilities.android();
+        addTearDown(() => debugPlatformCapabilities = null);
+        final connection = await _connection();
+        await connection.store.upsert(
+          ServerProfile(
+            id: 'migrating',
+            name: 'Migrating phone',
+            baseUrl: 'http://127.0.0.1:4097',
+            requiresOpenCode2Migration: !historyPending,
+            openCode2HistoryPending: historyPending,
+          ),
+        );
+        await connection.store.upsert(
+          ServerProfile(
+            id: 'remote',
+            name: 'Remote',
+            baseUrl: 'https://example.org',
+          ),
+        );
+        await connection.store.setActiveId('remote');
+        final linux = BuiltinLinux();
+        final starter = BuiltinServerStarter(linux: linux);
+        addTearDown(starter.dispose);
+        final ports = BuiltinPhoneTeamSetupPorts(
+          connection: connection,
+          linux: linux,
+          starter: starter,
+          notice: 'fixture',
+        );
+        expect(connection.capabilities.phoneTeamExecution, isTrue);
+        expect(
+          connection
+              .serverCapabilitiesFor(
+                connection.store.profiles.firstWhere(
+                  (p) => p.id == 'migrating',
+                ),
+              )
+              .phoneTeamExecution,
+          isFalse,
+        );
+        expect(ports.hasServer, isFalse);
+      },
     );
-    await connection.store.upsert(
-      ServerProfile(
-        id: 'remote',
-        name: 'Remote',
-        baseUrl: 'https://example.org',
-      ),
-    );
-    await connection.store.setActiveId('remote');
-    final linux = BuiltinLinux();
-    final starter = BuiltinServerStarter(linux: linux);
-    addTearDown(starter.dispose);
-    final ports = BuiltinPhoneTeamSetupPorts(
-      connection: connection,
-      linux: linux,
-      starter: starter,
-      notice: 'fixture',
-    );
-    expect(connection.capabilities.phoneTeamExecution, isTrue);
-    expect(ports.hasServer, isFalse);
-  });
+  }
 
   test(
     'real setup ports stop the attempted profile after selection changes',
@@ -434,7 +461,7 @@ void main() {
             id: id,
             name: id,
             baseUrl: BuiltinLinux.serverUrl,
-            flavor: id == 'oc2' ? ServerFlavor.v2 : ServerFlavor.v1,
+            flavor: ServerFlavor.v2,
           ),
         );
       }
@@ -508,7 +535,7 @@ void main() {
       // Right after the proof, OpenCode is not verified yet: the check
       // passes on the boundary and the server step waits for canExecute.
       final phone = _Phone()
-        ..started = _health(oc1Verified: false, reason: 'boundary_attested');
+        ..started = _health(oc2Verified: false, reason: 'boundary_attested');
       final flow = _flow(phone);
       await flow.run();
       expect(flow.isDone, isTrue);
@@ -553,6 +580,26 @@ void main() {
           'startServer',
         ]),
       );
+    });
+
+    test('the stop step times the work, not the wait for the yes', () async {
+      var t = DateTime(2026, 10, 15, 12);
+      final phone = _SlowStopPhone((d) => t = t.add(d))
+        ..host = const PhoneTeamHostState(serverRunning: true, terminals: 2);
+      final flow = PhoneTeamSetupController(
+        phone,
+        now: () => t,
+        delay: (_) async {},
+        readyAttempts: 2,
+      );
+      final run = flow.run();
+      await Future<void>.delayed(Duration.zero);
+      await Future<void>.delayed(Duration.zero);
+      expect(flow.phase, PhoneTeamSetupPhase.confirming);
+      t = t.add(const Duration(minutes: 2));
+      flow.answer(true);
+      await run;
+      expect(flow.took(PhoneTeamSetupStep.stop), const Duration(seconds: 10));
     });
 
     test('saying no changes nothing and ends in plain words', () async {
@@ -672,7 +719,7 @@ void main() {
           ..requireReleasedStart = true
           ..host = const PhoneTeamHostState(serverRunning: true)
           ..probed = _health(
-            oc1Verified: false,
+            oc2Verified: false,
             reason: 'unsupported_server_version',
           );
         final flow = _flow(phone);
@@ -1087,8 +1134,8 @@ void main() {
           'execution': true,
           'boundary': true,
           'boundaryTier': 'proot',
-          'oc1Verified': true,
-          'oc2': false,
+          'oc2Verified': true,
+          'oc2': true,
         },
         'commandActions': <String>[],
       }, 'p');

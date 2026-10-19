@@ -6,14 +6,14 @@
 // Regenerate deliberately:
 //   flutter test --update-goldens test/revamp/fg6_fewer_pages_golden_test.dart
 // and look at every changed image before committing it.
+import '../support/fake_server_capabilities.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/codex/gateway.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/external_agents.dart';
@@ -118,7 +118,7 @@ Future<void> _shot(
   required bool light,
   required Widget Function(ConnectionController controller) home,
   Size size = const Size(412, 915),
-  ServerCapabilities capabilities = ServerCapabilities.allV1,
+  ServerCapabilities capabilities = testServerCapabilities,
   bool asset = false,
   Future<void> Function()? act,
 }) async {

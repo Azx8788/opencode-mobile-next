@@ -301,7 +301,7 @@ class KitNotice extends StatelessWidget {
 
   /// The tone map (README D12, LOOK-4, LOOK-5): attention and failure keep
   /// their glyphs but paint in `text1`; amber is for needs-you only and
-  /// `danger` for acts that lose data only.
+  /// never red.
   static Color _tintFor(ThemeRoles roles, AppStatusTone tone) => switch (tone) {
     AppStatusTone.neutral => roles.text2,
     AppStatusTone.progress => roles.accent,

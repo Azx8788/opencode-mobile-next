@@ -155,24 +155,26 @@ void main() {
       ]),
     );
     final header = tester.getCenter(find.byIcon(AppIconography.fileText)).dx;
-    final tile = tester.getCenter(find.byIcon(AppIconography.terminal)).dx;
+    final tile = tester
+        .getCenter(find.byIcon(AppIconography.terminal).first)
+        .dx;
     final edit = tester.getCenter(find.byIcon(AppIconography.editNote)).dx;
-    final spinner = tester.getCenter(find.byType(KitStatusMark)).dx;
+    final lit = tester.getCenter(find.byIcon(AppIconography.terminal).last).dx;
     expect(tile, closeTo(header, .01));
     expect(edit, closeTo(header, .01));
-    expect(spinner, closeTo(header, .01));
+    expect(lit, closeTo(header, .01));
     expect(
       tester.getTopLeft(find.text('Ran 2 commands')).dx,
       closeTo(tester.getTopLeft(find.text('Edit')).dx, .01),
     );
   });
 
-  testWidgets('a running step shows a spinner in its node, no glyph tile', (
-    tester,
-  ) async {
+  testWidgets('a running step keeps its glyph and carries the step light, '
+      'no ring', (tester) async {
     await _pump(tester, _timeline([_shell(0, status: KitToolStatus.running)]));
-    expect(find.byType(KitStatusMark), findsOneWidget);
-    expect(find.byIcon(AppIconography.terminal), findsNothing);
+    expect(find.byType(KitStatusMark), findsNothing);
+    expect(find.byKey(const ValueKey('kit-step-light')), findsOneWidget);
+    expect(find.byIcon(AppIconography.terminal), findsOneWidget);
   });
 
   testWidgets('the rail ends at the last node, whatever is under it', (

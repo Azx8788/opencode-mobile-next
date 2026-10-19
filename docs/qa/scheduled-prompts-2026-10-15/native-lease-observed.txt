@@ -1,0 +1,7 @@
+JUnit version 4.13.2
+................................
+Time: 0.07
+
+OK (32 tests)
+
+Scheduled Android source compile passed (existing app boundaries stubbed).

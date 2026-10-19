@@ -1,1 +1,1 @@
-Run Claude Code and OpenCode on your phone. No computer, no Termux.
+Claude Code and OpenCode on your phone. No computer, no Termux.

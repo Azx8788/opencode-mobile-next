@@ -34,7 +34,7 @@ A page may carry up to 2 journey types (a primary one first).
 | id | Meaning |
 |---|---|
 | `server.any` | connected to some server |
-| `server.oc1` / `server.oc2` | an OpenCode 1 / 2 server |
+| `server.oc2` | an OpenCode 2 server; feature availability follows ServerCapabilities |
 | `server.codex` / `server.paseo` | Codex / Paseo (Claude Code, Pi) |
 | `phone.builtin` | the built-in Ubuntu installed |
 | `phone.termux` | Termux installed and allowed |

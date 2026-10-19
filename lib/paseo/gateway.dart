@@ -13,8 +13,8 @@ import 'dart:math';
 
 import 'package:crypto/crypto.dart' as crypto;
 
-import '../api/models.dart';
-import '../api/gen_ui_history_http.dart';
+import '../domain/models.dart';
+import '../domain/gen_ui_history_http.dart';
 import '../domain/agent_tools/agent_tool_adapter.dart';
 import '../domain/agent_tools/browser_claude_launch.dart';
 import '../domain/genui/gen_ui_history.dart';
@@ -258,6 +258,10 @@ class PaseoGateway extends _PaseoWorkspace
   /// Requests answered from here. A snapshot taken before the daemon applied
   /// the answer still lists the request; it must not come back as a new card.
   final _answered = <String>{};
+  // Tool calls whose permission card the person rejected. Paseo reports such
+  // a call as failed with the person's own reason as its error text, so only
+  // this record tells that apart from a real failure.
+  final _rejectedCalls = <String>{};
   final _live = <String, _PaseoLive>{};
 
   /// The released daemon (0.8.0) names a new agent itself, but a conversation
@@ -281,6 +285,11 @@ class PaseoGateway extends _PaseoWorkspace
   bool _listening = false;
   bool _recoveryDegraded = false;
   Future<void>? _recovering;
+  // The socket whose turn state the last recovery reset (a retried list
+  // read on it keeps its turns), and why the last recovery could not finish
+  // for Details: fixed [PaseoFailure] words, never daemon text.
+  int? _reconciledEpoch;
+  Object? lastRecoveryFailure;
   List<Map<String, dynamic>>? _providerEntries;
   int _providerRevision = 0;
 
@@ -665,6 +674,12 @@ class PaseoGateway extends _PaseoWorkspace
   /// session, so the conversation can be restored from the computer.
   @override
   Future<void> archiveSession(String id) => deleteSession(id);
+
+  /// Drops a conversation that never reached the daemon (a start that
+  /// failed). A conversation the daemon already has is left alone.
+  void discardDraftSession(String id) {
+    if (_drafts.contains(id)) _forget(id);
+  }
 
   @override
   Future<void> deleteSession(String id) async {
@@ -1456,43 +1471,5 @@ class PaseoGateway extends _PaseoWorkspace
   }) => _PaseoEventChannel(() async {});
 
   @override
-  void close() {
-    if (_closed) return;
-    final browserCleanup = _revokeBrowserSource(clearRequests: false);
-    _browserRequested.clear();
-    _browserRevisions.clear();
-    _closed = true;
-    _localWork.invalidate();
-    unawaited(_localWork.changes.close());
-    _listening = false;
-    _locationEpoch++;
-    _providerRevision++;
-    _retry?.cancel();
-    _retry = null;
-    _agents.clear();
-    _sessions.clear();
-    _statuses.clear();
-    _drafts.clear();
-    _draftProviders.clear();
-    _draftModels.clear();
-    _liveAgentSessions.clear();
-    _uncertain.clear();
-    _awaitingTurn.clear();
-    _turnActive.clear();
-    _permissions.clear();
-    _questions.clear();
-    _nativeQuestionChanges.add(null);
-    _nativePermissionChanges.add(null);
-    _live.clear();
-    _realIDs.clear();
-    _appIDs.clear();
-    _heldEvents.clear();
-    unawaited(_daemonEvents.cancel());
-    unawaited(_daemonDisconnects.cancel());
-    unawaited(browserCleanup.then((_) => transport.close()));
-    unawaited(_events.close());
-    unawaited(_streamStates.close());
-    unawaited(_nativeQuestionChanges.close());
-    unawaited(_nativePermissionChanges.close());
-  }
+  void close() => _closeNow();
 }

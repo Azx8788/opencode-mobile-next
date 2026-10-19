@@ -17,7 +17,11 @@ void _transportAndToolTests() {
           'status': 'modified',
         }),
       ];
-    await _pumpChat(tester, api);
+    await _pumpChat(
+      tester,
+      api,
+      repository: _FakeProductRepository(const [], vcsDiffs: api.diffs),
+    );
 
     await tester.tap(find.byTooltip('Conversation menu'));
     await tester.pumpAndSettle();
@@ -46,7 +50,11 @@ void _transportAndToolTests() {
           'status': 'modified',
         }),
       ];
-    await _pumpChat(tester, api);
+    await _pumpChat(
+      tester,
+      api,
+      repository: _FakeProductRepository(const [], vcsDiffs: api.diffs),
+    );
 
     await tester.tap(find.byTooltip('Conversation menu'));
     await tester.pumpAndSettle();
@@ -154,18 +162,10 @@ void _transportAndToolTests() {
   testWidgets('send waits for the wake-time replacement transport', (
     tester,
   ) async {
-    SharedPreferences.setMockInitialValues({});
-    final prefs = await SharedPreferences.getInstance();
     final retainedApi = _FakeOpenCodeApi();
     final replacementApi = _FakeOpenCodeApi();
-    final readyApi = Completer<OpenCodeApi?>();
-    final controller =
-        _DelayedActionController(ProfileStore(prefs: prefs), readyApi)
-          ..api = retainedApi
-          // Connected: offline sends queue instead of hitting the transport, and
-          // this test covers the wake path where the stream is already live but
-          // the action transport is still being replaced.
-          ..status = StreamStatus.connected;
+    final readyApi = Completer<FakeServerGateway?>();
+    final controller = await _controller(retainedApi, readyApi: readyApi);
     addTearDown(controller.dispose);
 
     await tester.pumpWidget(
@@ -213,7 +213,7 @@ void _transportAndToolTests() {
     final prefs = await SharedPreferences.getInstance();
     final retainedApi = _FakeOpenCodeApi()..messagesHandler = _onePrompt;
     final replacementApi = _FakeOpenCodeApi();
-    final readyApi = Completer<OpenCodeApi?>();
+    final readyApi = Completer<FakeServerGateway?>();
     final controller = _DelayedActionController(
       ProfileStore(prefs: prefs),
       readyApi,
@@ -289,7 +289,7 @@ void _transportAndToolTests() {
       final prefs = await SharedPreferences.getInstance();
       final retainedApi = _FakeOpenCodeApi();
       final replacementApi = _FakeOpenCodeApi();
-      final readyApi = Completer<OpenCodeApi?>();
+      final readyApi = Completer<FakeServerGateway?>();
       final controller = _DelayedActionController(
         ProfileStore(prefs: prefs),
         readyApi,
@@ -422,7 +422,7 @@ void _transportAndToolTests() {
       );
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
-    final readyApi = Completer<OpenCodeApi?>();
+    final readyApi = Completer<FakeServerGateway?>();
     final controller = _DelayedActionController(
       ProfileStore(prefs: prefs),
       readyApi,

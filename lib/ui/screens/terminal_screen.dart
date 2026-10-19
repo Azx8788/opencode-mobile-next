@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:xterm/xterm.dart' as xterm;
 
-import '../../api/product_repository.dart';
+import '../../domain/product_repository.dart';
 import '../../builtin/builtin_linux.dart';
 import '../../builtin/builtin_server.dart' show builtinLinuxProvider;
 import '../../builtin/local_terminal.dart';

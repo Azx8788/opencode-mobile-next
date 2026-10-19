@@ -1,9 +1,14 @@
 package io.github.eslamasabry.opencode_mobile
 
+import io.github.eslamasabry.opencode_mobile.InstallerInterruptedException
+import io.github.eslamasabry.opencode_mobile.NativeProcRace
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+
+// android.util.Log stand-in: the production monitor logs a failure's shape.
+private object Log { fun w(tag: String, message: String) = System.err.println("$tag: $message") }
 
 private data class InstallerTicket(val id: String, val observed: List<Int> = emptyList())
 private data class Drain(val server: List<Int>)
@@ -119,7 +124,11 @@ private class BuiltinLinux(private val scenario: String) {
     }
     /* PRODUCTION_MONITOR */
     /* PRODUCTION_FINISH */
-    companion object { private const val OWNERSHIP_POLL_MS = 1L }
+    companion object {
+        private const val OWNERSHIP_POLL_MS = 1L
+        private const val TAG = "OcLinux"
+        private fun failureShape(error: Throwable) = error.javaClass.simpleName
+    }
 }
 
 fun main(args: Array<String>) {

@@ -1,3 +1,4 @@
+import 'package:opencode_mobile/domain/server_gateway.dart';
 // While a request card asks for the person, the conversation does not say it
 // a second time above the card: no tool row spinning on the same command and
 // no "Waiting for you…" line. When the request is answered the step is back.
@@ -5,9 +6,9 @@ import 'support/complete_message_history.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -19,7 +20,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 const _command = 'flutter test test/checkout_test.dart';
 final _en = lookupAppLocalizations(const Locale('en'));
 
-class _Api extends OpenCodeApi with CompleteMessageHistory {
+class _Api extends FakeServerGateway with CompleteMessageHistory {
   _Api() : super(baseUrl: 'http://localhost');
 
   @override

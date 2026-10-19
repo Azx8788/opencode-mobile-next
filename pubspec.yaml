@@ -1,7 +1,7 @@
 name: opencode_mobile
 description: "OpenCode client for Android - connect to a remote opencode server or one running on-device via Termux."
 publish_to: "none"
-version: 1.4.0+54
+version: 2.0.0+55
 
 environment:
   sdk: ^3.10.0
@@ -71,8 +71,6 @@ dependencies:
   #    never constructs a controller — but the Linux bundle does resolve a
   #    package it cannot use, exactly as record and file_picker already do.
   mobile_scanner: 7.4.2
-  opencode_sdk:
-    path: packages/opencode_sdk
   path_provider: 2.1.6
   # Encoding the session handoff QR (backlog F4-S2). Pure Dart, no platform
   # plugin, no native code and no transitive dependencies; the modules are
@@ -86,8 +84,11 @@ dependencies:
   shared_preferences: ^2.3.3
   shorebird_code_push: 2.0.7
   url_launcher: ^6.3.1
+  webview_flutter: ^4.9.0
+  webview_flutter_android: ^4.10.0
   uuid: ^4.5.1
-  xterm: ^4.0.0
+  xterm:
+    path: third_party/xterm
   # Held at 1.x on purpose: 2.x returns package:material_ui ColorSchemes, which
   # are a different type from Flutter's and cannot feed ThemeData until the
   # whole app moves to material_ui. 1.9 carries the surface-role fix.
@@ -103,6 +104,7 @@ dependencies:
 dev_dependencies:
   cross_file: 0.3.5+5
   local_auth_platform_interface: 1.1.0
+  webview_flutter_platform_interface: ^2.10.0
   flutter_test:
     sdk: flutter
   integration_test:
@@ -126,6 +128,8 @@ flutter:
     # platform launcher-icon pipelines and must not be bundled.
     - assets/branding/app-icon-256.png
     - assets/branding/open-portal/mark.svg
+    # Agent and provider marks (lobe-icons, MIT): THIRD_PARTY_NOTICES.md.
+    - assets/marks/
     # AI Team on this phone (TEAM-301): the pinned download manifest for the
     # Android-built gc/bd/dolt and the opencode wrapper; a copy of
     # tool/host/aiteam-manifest-<date>.json.

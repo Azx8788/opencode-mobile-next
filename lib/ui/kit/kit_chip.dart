@@ -24,6 +24,7 @@ import 'package:intl/intl.dart' hide TextDirection;
 import '../../l10n/app_localizations.dart';
 import '../app_iconography.dart';
 import '../theme_roles.dart' show readableOn;
+import 'kit_icon.dart';
 import 'kit_motion.dart';
 import 'kit_tappable.dart';
 import 'kit_text.dart';
@@ -32,7 +33,7 @@ import 'kit_tokens.dart';
 /// Semantic severity for worded chips; neutral preserves the existing look.
 /// [active] is a worded "this is on" state: an accent-tinted pill with
 /// accent-readable words and glyph (the composer's Auto-approve chip).
-enum KitChipTone { neutral, attention, danger, active }
+enum KitChipTone { neutral, attention, active }
 
 /// The five kinds a [KitChip] can be (KitChip.md "Purpose").
 enum KitChipKind { plain, action, removable, count, summary }
@@ -54,6 +55,7 @@ class KitChip extends StatelessWidget {
     this.icon,
     this.tone = KitChipTone.neutral,
   }) : kind = KitChipKind.plain,
+       mark = null,
        onLongPress = null,
        spoken = null,
        glyph = null,
@@ -83,6 +85,7 @@ class KitChip extends StatelessWidget {
     this.glyph,
     this.liveRegion = false,
   }) : kind = KitChipKind.action,
+       mark = null,
        onRemove = null,
        count = null,
        expanded = null;
@@ -98,6 +101,7 @@ class KitChip extends StatelessWidget {
     this.icon,
     this.onPressed,
   }) : kind = KitChipKind.removable,
+       mark = null,
        onLongPress = null,
        spoken = null,
        glyph = null,
@@ -116,6 +120,7 @@ class KitChip extends StatelessWidget {
     this.onPressed,
     this.icon,
   }) : kind = KitChipKind.count,
+       mark = null,
        onLongPress = null,
        spoken = null,
        glyph = null,
@@ -133,6 +138,7 @@ class KitChip extends StatelessWidget {
     this.tone = KitChipTone.neutral,
     required VoidCallback this.onPressed,
     this.icon,
+    this.mark,
     this.expanded,
   }) : kind = KitChipKind.summary,
        onLongPress = null,
@@ -150,6 +156,10 @@ class KitChip extends StatelessWidget {
   /// the server chose is wrapped by the caller with `KitBidi.auto` (COPY-30).
   final String label;
   final IconData? icon;
+
+  /// A bundled brand mark (`assets/marks/<slug>.svg`) drawn in [icon]'s
+  /// place on a summary chip: the agent's logo. [icon] stays the fallback.
+  final String? mark;
   final VoidCallback? onPressed;
   final VoidCallback? onRemove;
   final int? count;
@@ -196,7 +206,6 @@ class KitChip extends StatelessWidget {
     final semanticColor = switch (tone) {
       KitChipTone.neutral => roles.text2,
       KitChipTone.attention => roles.attention,
-      KitChipTone.danger => roles.danger,
       KitChipTone.active => roles.accent,
     };
     // An accent chip sits on an accent-tinted pill instead of the neutral
@@ -323,13 +332,25 @@ class KitChip extends StatelessWidget {
           tint: tint,
           span: TextSpan(text: label, style: emphasized),
           textSemantics: label,
-          leading: icon == null
+          leading: mark != null
+              ? Padding(
+                  padding: EdgeInsetsDirectional.only(end: tokens.space1),
+                  child: IconTheme(
+                    data: IconThemeData(
+                      color: tone == KitChipTone.neutral
+                          ? roles.text1
+                          : toneColor,
+                    ),
+                    child: KitIcon.mark(mark!, growsWithText: true),
+                  ),
+                )
+              : icon == null
               ? null
               : startGlyph(
                   icon!,
                   tone == KitChipTone.neutral ? roles.text1 : toneColor,
                 ),
-          leadingExtent: icon == null ? 0 : glyphExtent,
+          leadingExtent: icon == null && mark == null ? 0 : glyphExtent,
           trailing: expanded == null
               ? null
               : endGlyph(

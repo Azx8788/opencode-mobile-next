@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:opencode_mobile/domain/connection_status.dart';
 import 'package:opencode_mobile/ui/app_theme.dart';
-import 'package:opencode_mobile/ui/kit/kit.dart';
 
 import '../tool/capture/fixtures.dart' show loadCaptureFonts;
 import 'support/runtime_switch_shell.dart';
@@ -48,62 +47,6 @@ void main() {
   );
 
   Finder line() => find.byKey(const ValueKey('connection-status-banner'));
-
-  testWidgets('a switch is said once, in the server pill, in every phase', (
-    tester,
-  ) async {
-    await pumpShell(tester);
-    // The confirmed switch starts the older OpenCode on this phone.
-    unawaited(shell.starter.start(phoneOne));
-    // The old server reconnects, refuses its old password, stops answering:
-    // all of it is the switch itself. One indicator, never two spinners.
-    for (final phase in [
-      ConnectionStatusPhase.reconnecting,
-      ConnectionStatusPhase.credentialsRequired,
-      ConnectionStatusPhase.notAnswering,
-      ConnectionStatusPhase.connecting,
-    ]) {
-      shell.controller.show(phase);
-      await settle(tester);
-      expect(pill('Older OpenCode'), findsOneWidget, reason: '$phase');
-      expect(pill('Switching…'), findsOneWidget, reason: '$phase');
-      expect(pill('OpenCode 2'), findsNothing, reason: '$phase');
-      expect(line(), findsNothing, reason: '$phase');
-      expect(find.textContaining('Switching to'), findsNothing);
-      expect(
-        find.textContaining('changed. Update it to reconnect.'),
-        findsNothing,
-      );
-      expect(find.textContaining("isn't answering"), findsNothing);
-      expect(find.textContaining('Reconnecting to'), findsNothing);
-    }
-    await tearDownShell(tester);
-  });
-
-  testWidgets('a page without the pill says the switch in its status line', (
-    tester,
-  ) async {
-    await pumpShell(tester);
-    unawaited(shell.starter.start(phoneOne));
-    unawaited(
-      shell.navigator.currentState!.push(
-        KitPageRoute<void>(
-          builder: (_) => const KitScreen(body: SizedBox.shrink()),
-        ),
-      ),
-    );
-    await settle(tester);
-    await tester.pump(const Duration(milliseconds: 500));
-    expect(pill('Switching…'), findsNothing);
-    expect(
-      find.descendant(
-        of: line(),
-        matching: find.text('Switching to Older OpenCode…'),
-      ),
-      findsOneWidget,
-    );
-    await tearDownShell(tester);
-  });
 
   testWidgets('a plain reconnect is said once too; a real problem keeps its '
       'line and its action', (tester) async {

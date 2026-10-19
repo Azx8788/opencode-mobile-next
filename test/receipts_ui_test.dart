@@ -1,3 +1,4 @@
+import 'support/fake_server_capabilities.dart';
 // Receipt states on a queued prompt, in the conversation it belongs to
 // (docs/design/command-receipts-contract.md): uncertain in plain words, a
 // Try again that only looks, the confirmed / still-uncertain outcomes,
@@ -8,8 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
 import 'package:opencode_mobile/domain/command_receipts.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -20,7 +21,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/complete_message_history.dart';
 
-class _ReceiptApi extends OpenCodeApi with CompleteMessageHistory {
+class _ReceiptApi extends FakeServerGateway with CompleteMessageHistory {
   _ReceiptApi() : super(baseUrl: 'http://localhost');
   bool visible = false;
   int sends = 0;
@@ -28,7 +29,7 @@ class _ReceiptApi extends OpenCodeApi with CompleteMessageHistory {
   final ids = <String>[];
 
   @override
-  ServerCapabilities get capabilities => ServerCapabilities.allV1;
+  ServerCapabilities get capabilities => testServerCapabilities;
 
   @override
   Future<Session> session(String id) async => Session(id: id);
@@ -130,6 +131,7 @@ Map<String, Object> _seed() => {
     {
       'id': 'profile-1',
       'name': 'Test',
+      'flavor': 'v2',
       'baseUrl': 'http://localhost',
       'username': '',
     },

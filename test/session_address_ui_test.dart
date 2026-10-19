@@ -128,7 +128,13 @@ void main() {
     reader = _Reader();
     lookup = _Lookup();
     await useProfiles([
-      {'id': 'saved', 'name': 'Workstation', 'baseUrl': origin, 'username': ''},
+      {
+        'id': 'saved',
+        'name': 'Workstation',
+        'flavor': 'v2',
+        'baseUrl': origin,
+        'username': '',
+      },
     ]);
   });
   tearDown(() {
@@ -379,7 +385,13 @@ void main() {
         'http://100.64.1.2:4096',
       ]) {
         await useProfiles([
-          {'id': 'p', 'name': 'P', 'baseUrl': baseUrl, 'username': ''},
+          {
+            'id': 'p',
+            'name': 'P',
+            'flavor': 'v2',
+            'baseUrl': baseUrl,
+            'username': '',
+          },
         ]);
         final offer = SessionAddressOffer.forSession(
           capabilities: on,

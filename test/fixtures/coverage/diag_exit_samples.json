@@ -52,7 +52,7 @@
             "reason": 4,
             "subReason": -1,
             "importance": 100,
-            "timestamp": -3600000,
+            "timestamp": -60000,
             "status": 0,
             "description": "MARKER-EXIT-TEXT-1"
           },

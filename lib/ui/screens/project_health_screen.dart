@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
 
-import '../../api/product_repository.dart';
+import '../../domain/product_repository.dart';
 import '../app_iconography.dart';
 import '../app_theme.dart' show AppStatusTone;
 import '../kit/kit.dart';
@@ -29,16 +29,15 @@ class ProjectHealthScreen extends StatefulWidget {
   final ServerOperationsGateway repository;
   final Future<ServerOperationsGateway?> Function()? repositoryResolver;
 
-  /// What the connected server can actually report. Defaults to the v1
-  /// superset so the screen keeps its full shape unless a caller narrows it
-  /// (`docs/opencode2-ui-design.md` §7, rows 17–19).
+  /// What the connected server can actually report. Unknown capabilities
+  /// remain unavailable until the caller supplies its verified contract.
   final ServerCapabilities capabilities;
 
   const ProjectHealthScreen({
     super.key,
     required this.repository,
     this.repositoryResolver,
-    this.capabilities = ServerCapabilities.allV1,
+    this.capabilities = const ServerCapabilities(),
   });
 
   @override

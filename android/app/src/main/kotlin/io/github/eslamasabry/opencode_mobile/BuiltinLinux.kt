@@ -387,9 +387,12 @@ class BuiltinLinux(private val context: Context) {
     }
 
     private fun drainInstaller(ticket: InstallerTicket, expectedProcess: Process? = null, launchId: String? = null) {
-        fun plan(): NativeRuntimeOwnership.Drain = if (expectedProcess == null) installerPlan(ticket) else {
-            liveInstallerPlan(ticket, expectedProcess, launchId ?: error(componentUpdateFailure))
-        }
+        fun plan(): NativeRuntimeOwnership.Drain =
+            NativeProcRace.settle(NativeProcRace.PLAN_ATTEMPTS, { Thread.sleep(PROCESS_POLL_MS) }) {
+                if (expectedProcess == null) installerPlan(ticket) else {
+                    liveInstallerPlan(ticket, expectedProcess, launchId ?: error(componentUpdateFailure))
+                }
+            }
         val deadline = SystemClock.elapsedRealtime() + OWNED_DRAIN_TIMEOUT_MS
         for (identity in plan().server) signalInstaller(identity, OsConstants.SIGTERM)
         while (plan().server.isNotEmpty() &&
@@ -566,6 +569,7 @@ class BuiltinLinux(private val context: Context) {
 
     private fun monitorInstallerOwnership(launched: Process, nonce: String, committed: InstallerTicket) {
         Thread({
+            val strikes = NativeProcRace.Strikes()
             while (installerProcess === launched) {
                 try {
                     synchronized(this@BuiltinLinux) { synchronized(installerGuard) {
@@ -575,7 +579,15 @@ class BuiltinLinux(private val context: Context) {
                         val observed = liveInstallerPlan(ticket, launched, nonce).server
                         if (observed != ticket.observed) saveInstaller(ticket.copy(observed = observed))
                     } }
+                    strikes.passed()
                 } catch (error: Throwable) {
+                    // One read can catch apt's processes mid-exit (NativeProcRace);
+                    // only a failure that stays for consecutive reads stops the install.
+                    if (!strikes.failed()) {
+                        Thread.sleep(OWNERSHIP_POLL_MS)
+                        continue
+                    }
+                    Log.w(TAG, "installer ownership check failed ${strikes.count} times: ${failureShape(error)}")
                     synchronized(this@BuiltinLinux) { synchronized(installerGuard) {
                         if (installerProcess !== launched) return@Thread
                         if (installerLaunchId != nonce) return@Thread
@@ -620,25 +632,29 @@ class BuiltinLinux(private val context: Context) {
     @Synchronized
     internal fun finishInstaller(process: Process) {
         workLeases.release(process)
-        try {
-            check(installerProcess === process) { componentUpdateFailure }
-            synchronized(installerGuard) {
-                val ticket = installerTicket() ?: error(componentUpdateFailure)
-                drainInstaller(ticket, process, installerLaunchId ?: error(componentUpdateFailure))
-                check(installerPreferences.edit().remove("ticket").commit()) { componentUpdateFailure }
-                installerProcess = null
-                installerLaunchId = null
-                // Release the slot before reporting failure: Continue setup
-                // must be able to repair the interrupted apt transaction in
-                // this same app process, without weakening the drain proof.
-                val monitorFailure = installerMonitorFailure
-                installerMonitorFailure = null
-                if (monitorFailure != null) {
-                    componentUpdatesRecovered = false
-                    throw monitorFailure
-                }
-            }
+        val monitorFailure = try {
+            drainAndReleaseInstaller(process)
         } catch (error: Throwable) { throw IllegalStateException(componentUpdateFailure, error) }
+        if (monitorFailure != null) throw InstallerInterruptedException(componentUpdateFailure, monitorFailure)
+    }
+
+    /** Drains the finished installer and frees its slot; returns the monitor's failure, if it stopped it. */
+    private fun drainAndReleaseInstaller(process: Process): Throwable? {
+        check(installerProcess === process) { componentUpdateFailure }
+        return synchronized(installerGuard) {
+            val ticket = installerTicket() ?: error(componentUpdateFailure)
+            drainInstaller(ticket, process, installerLaunchId ?: error(componentUpdateFailure))
+            check(installerPreferences.edit().remove("ticket").commit()) { componentUpdateFailure }
+            installerProcess = null
+            installerLaunchId = null
+            // Release the slot before reporting failure: Continue setup
+            // must be able to repair the interrupted apt transaction in
+            // this same app process, without weakening the drain proof.
+            val monitorFailure = installerMonitorFailure
+            installerMonitorFailure = null
+            if (monitorFailure != null) componentUpdatesRecovered = false
+            monitorFailure
+        }
     }
 
     /** proot's own path: the program a terminal session (LocalTerminal.kt) starts. */
@@ -651,9 +667,7 @@ class BuiltinLinux(private val context: Context) {
      */
     @Synchronized
     fun prootCommand(program: List<String>, agentUser: Boolean = false): List<String> {
-        check(!installingRuntime) { "Runtime installation is still running" }
-        recoverColdComponentUpdates()
-        projectStorage.prepare()
+        prepareGuestForProot()
         val agentRoot = if (agentUser) PhoneAgentPaths.prepare(context.filesDir, "linux/agent-root-view").apply {
             PhoneAgentPaths.prepare(this, "projects")
         } else null
@@ -671,15 +685,8 @@ class BuiltinLinux(private val context: Context) {
             "--bind=/sys",
             "--bind=${File(rootfs, "tmp").absolutePath}:/dev/shm",
         ) + (if (agentRoot != null) listOf("--bind=${agentRoot.absolutePath}:/root") else emptyList()) +
-            listOf("--bind=${projectStorage.projects.absolutePath}:/root/projects") + sharedStorageBinds() + fakeProcBinds + (if (protectionTier() == "proot") {
-            // PRoot exposes host proc by default. Hide native app/daemon entries
-            // rather than depending on Linux cmdline permissions alone.
-            val mask = File(home.canonicalFile, "proc/phone-engine-hidden").apply { mkdirs() }
-            check(mask.isDirectory && mask.canonicalFile == mask.absoluteFile && mask.listFiles()?.isEmpty() == true)
-            (prootMaskedPids + AndroidProcess.myPid()).sorted().flatMap {
-                listOf("--bind=${mask.absolutePath}:/proc/$it")
-            }
-        } else emptyList()) + listOf(
+            listOf("--bind=${projectStorage.projects.absolutePath}:/root/projects") +
+            sharedStorageBinds() + fakeProcBinds + procMaskBinds() + listOf(
             if (agentUser) "--cwd=/root/projects" else "--cwd=/root",
             "/usr/bin/env", "-i",
             if (agentUser) "HOME=/home/oc" else "HOME=/root",
@@ -691,6 +698,32 @@ class BuiltinLinux(private val context: Context) {
         ) + program
         workLeases.observeTerminalsSoon()
         return if (prootIsConfined && protectionTier() != "proot") protectedCommand(command) else command
+    }
+
+    private fun prepareGuestForProot() {
+        check(!installingRuntime) { "Runtime installation is still running" }
+        recoverColdComponentUpdates()
+        // After the recovery above, which may rewrite the guest's files.
+        AndroidGroupNames.apply(rootfs)
+        projectStorage.prepare()
+        // New Git objects as plain files, never link2symlink links (see
+        // BuiltinGitConfig). Best effort: a failure never blocks a launch.
+        try {
+            BuiltinGitConfig.preferRenames(rootfs)
+        } catch (error: Exception) {
+            Log.w(TAG, "Git object setting not written: ${error.javaClass.simpleName}")
+        }
+    }
+
+    private fun procMaskBinds(): List<String> {
+        if (protectionTier() != "proot") return emptyList()
+        // PRoot exposes host proc by default. Hide native app/daemon entries
+        // rather than depending on Linux cmdline permissions alone.
+        val mask = File(home.canonicalFile, "proc/phone-engine-hidden").apply { mkdirs() }
+        check(mask.isDirectory && mask.canonicalFile == mask.absoluteFile && mask.listFiles()?.isEmpty() == true)
+        return (prootMaskedPids + AndroidProcess.myPid()).sorted().flatMap {
+            listOf("--bind=${mask.absolutePath}:/proc/$it")
+        }
     }
 
     private val blockedAgentProfiles = mutableSetOf<String>()
@@ -716,6 +749,7 @@ class BuiltinLinux(private val context: Context) {
             program.drop(1).all { Regex("^[A-Za-z0-9-]{1,32}$").matches(it) }) { "That sign-in can't run here." }
         val profileHome = PhoneAgentPaths.prepare(context.filesDir, "linux/ubuntu/home/oc/.oc-profiles/$profileId")
         Os.chmod(profileHome.absolutePath, 448)
+        shareClaudeSignIn(profileId)
         val guestHome = "/home/oc/.oc-profiles/$profileId"
         val bin = File(profileHome, ".oc-bin").apply { mkdirs() }
         val opener = "#!/bin/sh\n" +
@@ -742,6 +776,22 @@ class BuiltinLinux(private val context: Context) {
     }
 
     /**
+     * One Claude sign-in for the app and the Terminal: `/home/oc/.claude`
+     * becomes a link to [profileId]'s Claude folder, and a sign-in made in the
+     * Terminal before is adopted (PhoneAgentClaudeHome). Best effort: a
+     * failure leaves the profile's own folder as it was and never blocks the
+     * launch.
+     */
+    private fun shareClaudeSignIn(profileId: String) {
+        try {
+            val steps = PhoneAgentClaudeHome.prepare(File(rootfs, "home/oc"), profileId, File(rootfs, "root"))
+            if (steps.isNotEmpty()) Log.i(TAG, "Claude sign-in folder: ${steps.joinToString()}")
+        } catch (error: Exception) {
+            Log.w(TAG, "Claude sign-in folder not shared: ${error.javaClass.simpleName}")
+        }
+    }
+
+    /**
      * Removes Claude's OAuth refresh lock (`<config dir>/.oauth_refresh.lock`,
      * an empty folder) for [profileId] when none of that profile's agent
      * processes runs: one Android stopped mid-refresh never releases it.
@@ -757,6 +807,16 @@ class BuiltinLinux(private val context: Context) {
             if (lock.delete()) Log.i(TAG, "cleared a stale agent login lock")
         }
     }
+
+    /** [profileId]'s private Paseo home, where the helper keeps its config and supervisor lock. */
+    @Synchronized
+    fun agentPaseoHome(profileId: String): File {
+        check(Regex("^[A-Za-z0-9_-]{1,80}$").matches(profileId) && profileId !in blockedAgentProfiles)
+        return PhoneAgentPaths.prepare(context.filesDir, "linux/ubuntu/home/oc/.oc-profiles/$profileId/paseo")
+    }
+
+    /** Whether a helper (ours from an earlier app process, or anything else) answers on [port]. */
+    fun agentPortAnswers(port: Int): Boolean = PaseoStaleLock.loopbackAnswers(port)
 
     /** Private agent process: fixed uid, private host home, no transcript/log. */
     @Synchronized
@@ -780,6 +840,7 @@ class BuiltinLinux(private val context: Context) {
             workLeases.foregroundGeneration() else null
         val profileHome = PhoneAgentPaths.prepare(context.filesDir, "linux/ubuntu/home/oc/.oc-profiles/$profileId")
         Os.chmod(profileHome.absolutePath, 448)
+        shareClaudeSignIn(profileId)
         val guestHome = "/home/oc/.oc-profiles/$profileId"
         // CLAUDE_HOME: Paseo's usage reader looks for Claude's sign-in there
         // (or ~/.claude), not in CLAUDE_CONFIG_DIR; without it the Usage
@@ -897,6 +958,19 @@ class BuiltinLinux(private val context: Context) {
         }
     }
 
+    /** Update only the exact profile-owned helper; Dart separately proves its agents idle. */
+    @Synchronized
+    fun requireAgentHostUpdateIdle(profile: String, process: Process?) {
+        val unowned = if (process == null) {
+            services.any { (name, service) -> name.startsWith("agent-host.") && service.process.isAlive }
+        } else {
+            services["agent-host.$profile"]?.process !== process || agentProcessProfiles[process] != profile
+        }
+        if (unowned) throw PhoneAgentHost.Failure("agent_host_unowned")
+        if (agentProcessProfiles.any { (other, _) -> other !== process && other.isAlive })
+            throw PhoneAgentHost.Failure("agent_host_busy")
+    }
+
     /** A cancelled private flow cannot report drained while captured children survive. */
     fun stopAgentProcess(process: Process) {
         if (!process.isAlive) return
@@ -973,6 +1047,8 @@ class BuiltinLinux(private val context: Context) {
         check(names.none { services[it]?.process?.isAlive == true }) {
             "Stop the agent before removing its sign-in."
         }
+        // The Terminal's ~/.claude link to this profile goes with it.
+        PhoneAgentClaudeHome.forget(File(rootfs, "home/oc"), profileId)
         erase(target)
         names.forEach { removeStoppedService(it) }
         val retained = diagnosticsPreferences.getStringSet("names", emptySet()).orEmpty() - names
@@ -2101,16 +2177,30 @@ class BuiltinLinux(private val context: Context) {
     private fun kernelIdentity(pid: Int): RuntimeProcessIdentity? {
         val visible = try { RuntimeProcessIdentity.stat(File("/proc/$pid/stat").readText()) }
             catch (_: java.io.FileNotFoundException) { null }
+            // Exited between listing and reading (ESRCH): gone, like a missing entry.
+            catch (error: java.io.IOException) { if (procGone(error)) null else throw error }
         return NativeEnginePeer.resolve(pid, visible, phoneEngine.ownedIdentity())
     }
+    private fun procGone(error: Throwable) = NativeProcRace.processGone(error,
+        { (it as? ErrnoException)?.errno }, OsConstants.ESRCH, OsConstants.ENOENT)
     private fun processUid(pid: Int): Int? {
         val entry = File("/proc/$pid")
-        return try {
-            val uid = Os.stat(entry.absolutePath).st_uid
-            if (uid != 0) uid else File(entry, "status").readLines()
-                .first { it.startsWith("Uid:") }.substringAfter(':').trim().split(Regex("\\s+"))[0].toInt()
-        } catch (error: ErrnoException) { if (error.errno == OsConstants.ENOENT) null else throw error }
-        catch (error: java.io.FileNotFoundException) { if (!entry.exists()) null else throw error }
+        val failure: Exception = try {
+            return readUid(entry)
+        } catch (error: ErrnoException) { error }
+        catch (error: java.io.FileNotFoundException) { error }
+        catch (error: java.io.IOException) { error }
+        return if (procEntryGone(failure, entry)) null else throw failure
+    }
+    private fun readUid(entry: File): Int {
+        val uid = Os.stat(entry.absolutePath).st_uid
+        return if (uid != 0) uid else File(entry, "status").readLines()
+            .first { it.startsWith("Uid:") }.substringAfter(':').trim().split(Regex("\\s+"))[0].toInt()
+    }
+    private fun procEntryGone(failure: Exception, entry: File): Boolean = when (failure) {
+        is ErrnoException -> failure.errno == OsConstants.ENOENT
+        is java.io.FileNotFoundException -> !entry.exists()
+        else -> procGone(failure)
     }
     private fun sameUidInventory(): List<RuntimeProcessIdentity> {
         val entries = File("/proc").listFiles() ?: error("ownershipUnknown")
@@ -3253,6 +3343,85 @@ class BuiltinLinux(private val context: Context) {
         }
     }
 
+    // A WorkManager occurrence owns only the exact process it creates. It does
+    // not arm restart policy or start a permanent foreground service.
+    private val scheduledPhoneProcesses = mutableMapOf<String, Process>()
+    private val scheduledPhoneLease by lazy { ScheduledPromptPhoneLease(flutterPreferences) }
+    private fun scheduledPhoneClock() = ScheduledPromptPhoneLease.Clock(
+        runCatching {
+            android.provider.Settings.Global.getInt(
+                context.contentResolver,
+                android.provider.Settings.Global.BOOT_COUNT,
+            )
+        }.getOrDefault(-1),
+        SystemClock.elapsedRealtime(), System.currentTimeMillis(),
+    )
+
+    @Synchronized
+    internal fun activeScheduledPhoneLease(): Boolean {
+        val current = services[SERVER]?.process?.takeIf { it.isAlive }
+        return (current != null && scheduledPhoneProcesses.values.any { it === current }) ||
+            scheduledPhoneLease.active(scheduledPhoneClock())
+    }
+
+    @Synchronized
+    internal fun acquireScheduledPhoneServer(
+        profile: String,
+        password: String,
+        deadlineEpochMs: Long,
+    ): Map<String, Any> {
+        require(ScheduledPromptPolicy.validId(profile))
+        check(installed && !installingRuntime && !protectedProot) { "unavailable" }
+        check(deadlineEpochMs > System.currentTimeMillis()) { "timeout" }
+        check(!activeScheduledPhoneLease()) { "unavailable" }
+        val existing = services[SERVER]?.takeIf { it.process.isAlive }
+        if (existing != null) {
+            check(scheduledPhoneProcesses.values.none { it === existing.process }) { "unavailable" }
+            check(existing.port == SERVER_DEFAULT_PORT) { "unavailable" }
+            return mapOf("started" to false, "token" to "")
+        }
+        // Do not rewrite an owner's authentication or recovery metadata. The
+        // scheduled profile must still match the private installed credential.
+        val passwordFile = File(rootfs, "root/.oc-builtin/server.password")
+        check(password.isNotEmpty() && passwordFile.isFile && passwordFile.readText().trimEnd() == password) {
+            "auth_required"
+        }
+        val recipe = NativeServerRecipe.fromRequest(mapOf("version" to 1, "profileId" to profile, "runtime" to "openCode2"),
+            profile, packageIdentity(), rootfsIdentity())
+        val token = java.util.UUID.randomUUID().toString()
+        val budget = (deadlineEpochMs - System.currentTimeMillis()).coerceIn(1L, ScheduledPromptPolicy.DART_BUDGET_MS)
+        // Ubuntu's timeout bounds the child even if the Android process dies.
+        val seconds = (budget + MILLIS_PER_SECOND - 1) / MILLIS_PER_SECOND
+        val script = recipe.restorationScript().replace(
+            "exec opencode2 serve",
+            "exec timeout --signal=TERM --kill-after=5s ${seconds}s opencode2 serve",
+        )
+        // Commit before launch: a guest can survive Android app process death.
+        // A failed/uncertain launch keeps only this bounded admission marker.
+        scheduledPhoneLease.begin(profile, token, budget, scheduledPhoneClock())
+        val process = start(script, serviceLogFile(SERVER))
+        process.outputStream.close()
+        services[SERVER] = serviceStarted(SERVER, process, SERVER_DEFAULT_PORT, null, script)
+        scheduledPhoneProcesses[token] = process
+        recordRunning()
+        // The lease watchdog is independent of Dart and its engine lifetime.
+        Thread {
+            try { Thread.sleep(budget) } catch (_: InterruptedException) { Thread.currentThread().interrupt() }
+            runCatching { releaseScheduledPhoneServer(token) }
+        }.apply { isDaemon = true; name = "scheduled-phone-watchdog"; start() }
+        return mapOf("started" to true, "token" to token)
+    }
+
+    @Synchronized
+    internal fun releaseScheduledPhoneServer(token: String) {
+        val owned = scheduledPhoneProcesses.remove(token) ?: return
+        if (services[SERVER]?.process === owned) {
+            // removeService stops only this tracked tree, never a port or pattern.
+            removeService(SERVER)
+        } else if (owned.isAlive) stopTree(owned)
+        scheduledPhoneLease.release(token)
+    }
+
     private data class StoppedServer(val script: String, val port: Int)
     private var stoppedPhoneServer: StoppedServer? = null
 
@@ -3883,31 +4052,6 @@ class BuiltinLinux(private val context: Context) {
         }
     }
 
-    /**
-     * Gives the app's Android groups (inet, everybody, its cache group…) a
-     * name in Ubuntu's /etc/group. A login shell runs `groups`, which
-     * otherwise prints "cannot find name for group ID 3003" once per group;
-     * proot-distro adds the same lines. The group ids are per install, so
-     * this is checked each time a terminal starts and costs one read.
-     */
-    fun nameAndroidGroups() {
-        val file = File(rootfs, "etc/group")
-        if (!file.isFile) return
-        val gids = try {
-            File("/proc/self/status").readLines()
-                .firstOrNull { it.startsWith("Groups:") }
-                ?.substringAfter(':')?.trim()?.split(Regex("\\s+"))
-                ?.mapNotNull { it.toIntOrNull() }
-                .orEmpty()
-        } catch (_: Exception) {
-            return
-        }
-        val existing = file.readLines().mapNotNull { it.split(':').getOrNull(2)?.toIntOrNull() }.toSet()
-        val missing = gids.filter { it !in existing }.distinct()
-        if (missing.isEmpty()) return
-        file.appendText(missing.joinToString("") { "aid_$it:x:$it:\n" })
-    }
-
     /** What proot-distro does after unpacking, trimmed to what Ubuntu needs. */
     private fun configure() {
         componentUpdatesRecovered = false
@@ -3941,6 +4085,8 @@ class BuiltinLinux(private val context: Context) {
     }
 
     companion object {
+        private const val MILLIS_PER_SECOND = 1_000L
+        private const val MAX_FAILURE_CAUSES = 6
         private const val RUN_ADMISSION_WINDOW_MS = 10_000L
         private const val SERVER_START_WAIT_MS = 3_000L
         private const val SERVER_START_POLL_MS = 25L
@@ -4034,6 +4180,24 @@ class BuiltinLinux(private val context: Context) {
             } ?: 0
         }
 
+        /**
+         * A native failure's shape for the log: exception classes and the
+         * app's own frame, never a message (it may hold a path or output).
+         */
+        internal fun failureShape(error: Throwable): String {
+            val parts = mutableListOf<String>()
+            var current: Throwable? = error
+            while (current != null && parts.size < MAX_FAILURE_CAUSES) {
+                val frame = current.stackTrace.firstOrNull { it.className.startsWith("io.github.eslamasabry") }
+                val fixed = current.message?.takeIf { it == "ownershipUnknown" }
+                val errno = (current as? ErrnoException)?.let { OsConstants.errnoName(it.errno) }
+                parts += listOfNotNull(current.javaClass.simpleName, fixed, errno,
+                    frame?.let { "${it.methodName}:${it.lineNumber}" }).joinToString(" ")
+                current = current.cause?.takeIf { it !== current }
+            }
+            return parts.joinToString(" <- ")
+        }
+
         private fun signal(pid: Int, signal: Int) {
             try {
                 Os.kill(pid, signal)
@@ -4054,9 +4218,14 @@ class BuiltinLinux(private val context: Context) {
             }
         }
 
-        /** Every process below [root], read from /proc (same app, same user). */
+        /**
+         * Every process below [root], read from /proc (same app, same user):
+         * children by parent, and orphans its proot still traces
+         * ([NativeProcessTree]).
+         */
         private fun descendants(root: Int): List<Int> {
             val parents = HashMap<Int, Int>()
+            val tracers = HashMap<Int, Int>()
             File("/proc").listFiles()?.forEach { dir ->
                 val pid = dir.name.toIntOrNull() ?: return@forEach
                 val stat = try {
@@ -4067,15 +4236,18 @@ class BuiltinLinux(private val context: Context) {
                 // "pid (comm) state ppid …"; comm may hold spaces and parens.
                 val ppid = stat.substringAfterLast(')').trim().split(' ').getOrNull(1)?.toIntOrNull()
                 if (ppid != null) parents[pid] = ppid
+                // Only an orphan (moved to init) needs its tracer read: a
+                // process with a live parent is reached through it.
+                if (ppid == 1) {
+                    val tracer = try {
+                        NativeProcessTree.tracerOf(File(dir, "status").readText())
+                    } catch (_: Exception) {
+                        null
+                    }
+                    if (tracer != null) tracers[pid] = tracer
+                }
             }
-            val found = mutableListOf<Int>()
-            var frontier = listOf(root)
-            while (frontier.isNotEmpty()) {
-                val next = parents.filter { it.value in frontier }.keys.toList()
-                found += next
-                frontier = next
-            }
-            return found
+            return NativeProcessTree.descendants(root, parents, tracers)
         }
 
         /** The /proc stand-ins of [fakeProcBinds], by file name. */

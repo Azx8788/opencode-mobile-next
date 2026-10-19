@@ -13,6 +13,7 @@ Widget _card({
   bool tokenRequired = false,
   VoidCallback? onTermux,
   VoidCallback? onPassword,
+  VoidCallback? onCertificate,
   VoidCallback? onToken,
   String url = 'http://127.0.0.1:4096',
 }) => MaterialApp(
@@ -30,12 +31,32 @@ Widget _card({
       onRetry: () {},
       onOpenTermuxSetup: onTermux,
       onUpdatePassword: onPassword,
+      onReviewCertificate: onCertificate,
       onUpdateToken: onToken,
     ),
   ),
 );
 
 void main() {
+  testWidgets('changed certificate offers review of this server', (
+    tester,
+  ) async {
+    var reviews = 0;
+    await tester.pumpWidget(
+      _card(
+        url: 'https://private.example:4099',
+        error: 'The server certificate changed.',
+        onCertificate: () => reviews++,
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text("The server's certificate changed"), findsOneWidget);
+    await tester.tap(
+      find.byKey(const ValueKey('saved-server-review-certificate')),
+    );
+    expect(reviews, 1);
+  });
+
   testWidgets(
     'unknown ownership replaces restart and setup with safe recovery',
     (tester) async {

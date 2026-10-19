@@ -1,0 +1,21 @@
+{
+  "recordedAt": "2026-10-15T19:12:42.674633+00:00",
+  "checks": {
+    "httpWithoutConsentBlocked": true,
+    "lanHttpApprovedApiInfo200": true,
+    "inspectionShowsCorrectSha256WithoutHttpOrAuth": true,
+    "untrustedSelfSignedBlockedBeforeHttpOrAuth": true,
+    "matchingPinApiInfo200": true,
+    "samePinFreshDartProcessApiInfo200": true,
+    "rotatedCertificateBlockedBeforeHttpOrAuth": true,
+    "recheckShowsNewSha256WithoutHttpOrAuth": true,
+    "explicitNewPinApiInfo200": true
+  },
+  "passed": true,
+  "cleanup": true,
+  "transport": "lib/domain/server_trust.dart createServerHttpClient",
+  "endpoint": "/api/info",
+  "server": "OpenCode 2.0.29 isolated scratch serve on port 4098",
+  "network": "PC non-loopback LAN IPv4",
+  "restartScope": "Fresh Dart process with same pin; profile persistence covered separately in Flutter tests"
+}

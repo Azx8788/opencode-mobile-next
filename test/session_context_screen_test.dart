@@ -1,10 +1,10 @@
 import 'support/complete_message_history.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -12,7 +12,7 @@ import 'package:opencode_mobile/ui/kit/kit.dart';
 import 'package:opencode_mobile/ui/screens/session_context_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class _ContextApi extends OpenCodeApi with CompleteMessageHistory {
+class _ContextApi extends FakeServerGateway with CompleteMessageHistory {
   _ContextApi() : super(baseUrl: 'http://localhost');
 
   List<MessageWithParts> messagesResult = const [];
@@ -65,7 +65,7 @@ class _ContextController extends ConnectionController {
       compactRepository;
 
   @override
-  Future<OpenCodeApi?> prepareActionTransport() async {
+  Future<FakeServerGateway?> prepareActionTransport() async {
     prepareCalls += 1;
     return actionApi;
   }

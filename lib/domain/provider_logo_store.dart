@@ -5,7 +5,10 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
+
+import 'mark_catalog.dart';
 
 /// One fetched logo response, reduced to what the store checks.
 class ProviderLogoResponse {
@@ -63,7 +66,14 @@ const Duration providerLogoRefreshAfter = Duration(days: 7);
 /// How long a failed fetch (offline, 5xx) is not retried in this session.
 const Duration _failureBackoff = Duration(minutes: 10);
 
-/// Fetch-once, keep-on-disk store for provider logos (SVG text).
+/// Provider logos (SVG text): a bundled mark first, the models.dev download
+/// as the fallback, initials (null) last.
+///
+/// A provider with a bundled mark (`assets/marks/`, see [providerMarkSlug])
+/// is answered from the app bundle with no network request. Every other
+/// provider is fetched as below.
+///
+/// Fetch-once, keep-on-disk store for the fallback logos (SVG text).
 ///
 /// A logo is fetched at most weekly per provider. A fresh cache file is
 /// returned without touching the network; a stale one is returned if the
@@ -77,7 +87,9 @@ class ProviderLogoStore {
     ProviderLogoDirectory? directory,
     DateTime Function()? now,
     String defaultLogoMd5 = modelsDevDefaultLogoMd5,
-  }) : _defaultMd5 = defaultLogoMd5,
+    Future<String> Function(String assetPath)? loadBundled,
+  }) : _loadBundled = loadBundled ?? rootBundle.loadString,
+       _defaultMd5 = defaultLogoMd5,
        _fetch = fetch ?? _dioFetch,
        _directory = directory ?? _supportLogoDirectory,
        _now = now ?? DateTime.now;
@@ -85,6 +97,7 @@ class ProviderLogoStore {
   /// The app's store.
   static final ProviderLogoStore shared = ProviderLogoStore();
 
+  final Future<String> Function(String assetPath) _loadBundled;
   final ProviderLogoFetch _fetch;
   final ProviderLogoDirectory _directory;
   final DateTime Function() _now;
@@ -101,11 +114,23 @@ class ProviderLogoStore {
     final slug = providerLogoSlug(providerID);
     if (slug == null) return Future.value(null);
     if (_resolved.containsKey(slug)) return Future.value(_resolved[slug]);
-    return _inFlight[slug] ??= _resolve(slug).whenComplete(() {
+    return _inFlight[slug] ??= _bundledOrFetched(slug).whenComplete(() {
       // A block body: returning remove()'s future would make this wait on
       // itself.
       _inFlight.remove(slug);
     });
+  }
+
+  Future<String?> _bundledOrFetched(String slug) async {
+    final mark = providerMarkSlug(slug);
+    if (mark != null) {
+      try {
+        return _remember(slug, await _loadBundled(markAssetPath(mark)));
+      } catch (_) {
+        // A mark that cannot be read falls through to the download.
+      }
+    }
+    return _resolve(slug);
   }
 
   Future<String?> _resolve(String slug) async {

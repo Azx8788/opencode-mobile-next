@@ -70,8 +70,8 @@ class KitMenuItem {
   final Key? key;
 
   /// An act that loses data or ends running work (LOOK-5): label and icon in
-  /// `danger`. Always shown last, after a divider (§4.2). What it opens
-  /// confirms or offers Undo per DATA-11; the item itself never decides.
+  /// neutral (never red). Always shown last, after a divider (§4.2). What it
+  /// opens confirms or offers Undo per DATA-11; the item itself never decides.
   final bool destructive;
 
   /// False: shown in `text3`, not selectable, with [disabledReason] as a
@@ -599,7 +599,6 @@ class _KitMenuItemTile extends StatelessWidget {
     final tokens = KitTokens.of(context);
     final roles = tokens.roles;
     final enabled = item.enabled;
-    final destructive = item.destructive;
 
     Widget? leading;
     if (hasLeadingSlot) {
@@ -614,11 +613,7 @@ class _KitMenuItemTile extends StatelessWidget {
         leading = Icon(
           item.icon,
           size: size,
-          color: !enabled
-              ? roles.text3
-              : destructive
-              ? roles.danger
-              : roles.text2,
+          color: !enabled ? roles.text3 : roles.text2,
         );
       } else {
         leading = SizedBox.square(dimension: size);
@@ -629,11 +624,7 @@ class _KitMenuItemTile extends StatelessWidget {
       );
     }
 
-    final labelTone = !enabled
-        ? KitTextTone.tertiary
-        : destructive
-        ? KitTextTone.danger
-        : KitTextTone.primary;
+    final labelTone = !enabled ? KitTextTone.tertiary : KitTextTone.primary;
 
     final content = Padding(
       padding: EdgeInsetsDirectional.symmetric(

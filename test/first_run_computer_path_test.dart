@@ -74,7 +74,6 @@ void main() {
 
   test('password commands prompt privately and pass SEC-4 unchanged', () {
     for (final entry in {
-      'OPENCODE_SERVER_PASSWORD': SetupCommands.legacyServe,
       'PASEO_PASSWORD': SetupCommands.paseoStartPrivateNetwork,
     }.entries) {
       expect(KitRedact.text(entry.value), entry.value);

@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' show Locale;
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../api/models.dart';
+import '../domain/models.dart';
 import '../platform/platform_capabilities.dart';
 import '../l10n/app_localizations.dart';
 import '../ui/kit/kit_redact.dart';
@@ -18,8 +18,9 @@ import 'widget_v2_contract.dart';
 /// notification rules (fixed copy only, no titles) protect the lock screen,
 /// where content appears without the user's choice; a home-screen widget is
 /// a surface the user explicitly placed, sized, and can remove, and it shows
-/// exactly the titles the launcher-visible app UI shows. Prompt text, tool
-/// input, file names, and server errors are never written.
+/// titles, the project display name, and a short assistant reply excerpt chosen
+/// by the owner. Excerpts are redacted and bounded before storage. User
+/// prompts, tool input/output, reasoning, raw routing and errors are excluded.
 class WidgetSessionSnapshot {
   WidgetSessionSnapshot({
     required this.prefs,
@@ -61,7 +62,7 @@ class WidgetSessionSnapshot {
   }
 
   /// At most this many sessions are ever written.
-  static const maxSessions = 4;
+  static const maxSessions = 6;
 
   static const _channel = MethodChannel('oc/background');
 
@@ -114,6 +115,7 @@ class WidgetSessionSnapshot {
     String lastProjectID = '',
     int pendingCount = 0,
     Map<String, Map<String, Object?>> details = const {},
+    List<WidgetOtherConversation> others = const [],
     List<Map<String, Object?>> teamRows = const [],
     WidgetActionResult? actionResult,
     Map<String, int> appTheme = const {},
@@ -125,40 +127,75 @@ class WidgetSessionSnapshot {
     // Share the app's presentation so dated server placeholders never leak
     // into launcher titles, then apply the launcher privacy/length limits.
     final strings = l10n ?? lookupAppLocalizations(const Locale('en'));
-    final ranked = sessions.indexed.toList()
-      ..sort((a, b) {
-        int rank(Session session) => details[session.id]?['requestID'] != null
-            ? 0
-            : busySessions.contains(session.id)
-            ? 1
-            : 2;
-        final priority = rank(a.$2).compareTo(rank(b.$2));
-        return priority == 0 ? a.$1.compareTo(b.$1) : priority;
-      });
-    final entries = [
-      for (final (_, session) in ranked.take(maxSessions))
-        {
-          'id': session.id,
-          'title': safeWidgetTitle(
-            presentedSessionTitleText(
-              session.title,
-              fallback: untitledLabel ?? strings.workspaceNewSession,
-              l10n: strings,
+    int rankOf(String id, bool needsYou) =>
+        needsYou || details[id]?['requestID'] != null
+        ? 0
+        : busySessions.contains(id)
+        ? 1
+        : 2;
+    // Rows of this connection keep their rich details; conversations of other
+    // projects and connections are plain (title, project, time, busy) and have
+    // no inline actions. With none of the latter the order is unchanged.
+    final candidates = <(int, int, int, Map<String, Object?>)>[
+      for (final (index, session) in sessions.indexed)
+        (
+          rankOf(session.id, false),
+          session.time?.updated ?? session.time?.created ?? 0,
+          index,
+          {
+            'id': session.id,
+            'title': safeWidgetTitle(
+              presentedSessionTitleText(
+                session.title,
+                fallback: untitledLabel ?? strings.workspaceNewSession,
+                l10n: strings,
+              ),
             ),
-          ),
-          'busy': busySessions.contains(session.id),
-          'updatedAt': session.time?.updated ?? session.time?.created ?? 0,
-          ..._safeWidgetDetails(details[session.id]),
-        },
+            'busy': busySessions.contains(session.id),
+            'updatedAt': session.time?.updated ?? session.time?.created ?? 0,
+            ..._safeWidgetDetails(details[session.id]),
+          },
+        ),
+      for (final (index, other) in others.indexed)
+        (
+          other.needsYou ? 0 : (other.busy ? 1 : 2),
+          other.updatedAt,
+          sessions.length + index,
+          {
+            'id': other.id,
+            'title': safeWidgetTitle(
+              presentedSessionTitleText(
+                other.title,
+                fallback: untitledLabel ?? strings.workspaceNewSession,
+                l10n: strings,
+              ),
+            ),
+            'busy': other.busy,
+            'updatedAt': other.updatedAt,
+            ..._safeWidgetDetails({'project': other.project}),
+          },
+        ),
     ];
+    candidates.sort((a, b) {
+      final byRank = a.$1.compareTo(b.$1);
+      if (byRank != 0) return byRank;
+      if (others.isNotEmpty) {
+        final byTime = b.$2.compareTo(a.$2);
+        if (byTime != 0) return byTime;
+      }
+      return a.$3.compareTo(b.$3);
+    });
+    final entries = [for (final c in candidates.take(maxSessions)) c.$4];
+    final otherRunning = others.where((o) => o.busy).length;
+    final otherNeedsYou = others.where((o) => o.needsYou).length;
     final payload = jsonEncode({
       'version': 2,
       'onDemand': ?_opaqueTarget(onDemand),
       'appTheme': appTheme,
       'scopeToken': scopeToken,
       'lastProjectID': lastProjectID,
-      'runningCount': busySessions.length,
-      'pendingCount': pendingCount,
+      'runningCount': busySessions.length + otherRunning,
+      'pendingCount': pendingCount + otherNeedsYou,
       'connected': connected,
       'profileID': profileID,
       'sessions': [
@@ -195,6 +232,8 @@ class WidgetSessionSnapshot {
             ...old,
             'onDemand': oldTarget is Map ? _opaqueTarget(oldTarget) : null,
             'connected': false,
+            // "Offline · last seen ..." counts from here.
+            'pausedAt': DateTime.now().millisecondsSinceEpoch,
           });
           if (paused != raw && await prefs.setString(prefsKey, paused)) {
             _lastWritten = paused;
@@ -287,6 +326,23 @@ class WidgetSessionSnapshot {
   }
 }
 
+/// A conversation of another project or connection, shown on the widget as a
+/// plain row: no preview, no inline actions, no paths.
+class WidgetOtherConversation {
+  const WidgetOtherConversation({
+    required this.id,
+    required this.title,
+    required this.project,
+    required this.updatedAt,
+    required this.busy,
+    required this.needsYou,
+  });
+
+  final String id, title, project;
+  final int updatedAt;
+  final bool busy, needsYou;
+}
+
 /// Only reviewed compact fields cross into launcher storage.
 Map<String, Object?> _safeWidgetDetails(Map<String, Object?>? details) {
   if (details == null) return const {};
@@ -303,9 +359,16 @@ Map<String, Object?> _safeWidgetDetails(Map<String, Object?>? details) {
     if (details['startedAt'] case final int value)
       'startedAt': value < 0 ? 0 : value,
     if (details['step'] case final String value) 'step': safeWidgetTitle(value),
+    if (details['project'] case final String value)
+      'project': safeWidgetProject(value),
+    if (details['preview'] case final String value)
+      'preview': safeWidgetPreview(value),
+    if (details['model'] case final String value)
+      'model': safeWidgetTitle(value),
     if (details['requestID'] case final String value
         when value.isNotEmpty && value.length <= 512)
       'requestID': value,
+    if (details['ask'] case final Map ask) 'ask': _safeWidgetAsk(ask),
     'steerMode':
         const {
           'steer',
@@ -337,14 +400,197 @@ Map<String, Object?> _safeWidgetDetails(Map<String, Object?>? details) {
 bool _unsafeInTitle(int c) =>
     c < 0x20 ||
     c == 0x7f ||
+    c == 0x061c ||
+    c == 0x200e ||
+    c == 0x200f ||
     (c >= 0x202a && c <= 0x202e) ||
     (c >= 0x2066 && c <= 0x2069);
 
-String safeWidgetTitle(String value) {
+String safeWidgetTitle(String value) => _safeWidgetText(value, 80);
+
+/// What a permission request says on the home screen: [kind] (run, write,
+/// read, other), the question in the app's words, the file or command, its
+/// full path and its folder. A command is never split into path parts, and a
+/// request that names only a pattern gives a folder, never an invented file.
+Map<String, Object?> widgetAskFor({
+  required String permission,
+  required List<String> patterns,
+  required AppLocalizations strings,
+  String? tool,
+  String? target,
+}) {
+  final toolName = tool?.trim().toLowerCase() ?? '';
+  final kind = switch (permission) {
+    'bash' || 'shell' => 'run',
+    'edit' || 'write' || 'multiedit' || 'patch' => 'write',
+    'read' => 'read',
+    'external_directory' => switch (toolName) {
+      'write' || 'edit' || 'multiedit' || 'patch' || 'apply_patch' => 'write',
+      'read' || 'glob' || 'grep' || 'list' || 'ls' => 'read',
+      'bash' || 'shell' => 'run',
+      _ => 'other',
+    },
+    _ => 'other',
+  };
+  final question = switch ((permission, kind)) {
+    ('external_directory', 'write') => strings.chatRequestAskOutsideWrite,
+    ('external_directory', 'read') => strings.chatRequestAskOutsideRead,
+    ('external_directory', 'run') => strings.chatRequestAskOutsideRun,
+    ('external_directory', _) => strings.chatRequestAskDirectory,
+    ('bash' || 'shell', _) => strings.chatRequestAskCommand,
+    ('read', _) => strings.chatRequestAskRead,
+    ('edit' || 'write' || 'multiedit' || 'patch', _) =>
+      strings.chatRequestAskEdit,
+    _ => strings.e7PermissionAction7(permission),
+  };
+  final first = patterns.isEmpty ? '' : patterns.first.trim();
+  final seen = target?.trim() ?? '';
+  final base = <String, Object?>{'kind': kind, 'q': safeWidgetTitle(question)};
+  // A command: the request's own pattern is the command when the call was
+  // not seen. It is text, not a path.
+  if (kind == 'run') {
+    final command = seen.isNotEmpty
+        ? seen
+        : (permission == 'external_directory' ? '' : first);
+    // An outside-the-project ask names the folder it reaches into in its pattern.
+    final folder = permission == 'external_directory'
+        ? first.replaceAll(RegExp(r'[\\/]?\*+$'), '')
+        : '';
+    return {
+      ...base,
+      if (command.isNotEmpty) 'file': safeWidgetTitle(command),
+      if (folder.isNotEmpty) 'dir': safeWidgetPath(folder),
+    };
+  }
+  if (seen.isEmpty) {
+    final folder = first.replaceAll(RegExp(r'[\\/]?\*+$'), '');
+    return {...base, if (folder.isNotEmpty) 'dir': safeWidgetPath(folder)};
+  }
+  final isPath = !seen.contains(' ') && seen.contains('/');
+  final cut = isPath ? seen.lastIndexOf('/') : -1;
+  return {
+    ...base,
+    'file': safeWidgetTitle(isPath ? seen.substring(cut + 1) : seen),
+    if (isPath) 'path': safeWidgetPath(seen),
+    if (isPath && cut > 0) 'dir': safeWidgetPath(seen.substring(0, cut)),
+  };
+}
+
+/// A file path or folder on a launcher line: the same redaction as a title,
+/// with room for a full path.
+String safeWidgetPath(String value) => _safeWidgetText(value, 160);
+
+/// The reviewed fields of a permission ask: kind, question, file, path, folder.
+Map<String, Object?> _safeWidgetAsk(Map ask) {
+  String text(String key, String Function(String) clean) =>
+      ask[key] is String ? clean(ask[key] as String) : '';
+  final kind = const {'run', 'write', 'read'}.contains(ask['kind'])
+      ? ask['kind'] as String
+      : 'other';
+  return {
+    'kind': kind,
+    'q': text('q', safeWidgetTitle),
+    'file': text('file', safeWidgetTitle),
+    'path': text('path', safeWidgetPath),
+    'dir': text('dir', safeWidgetPath),
+  };
+}
+
+/// Only a display name, even when a caller accidentally supplies a path.
+String safeWidgetProject(String value) {
+  final parts = value.split(RegExp(r'[\\/]+')).where((p) => p.isNotEmpty);
+  if (parts.isEmpty) return '';
+  final name = safeWidgetTitle(parts.last);
+  // A folder called "project" or "tmp" tells the person nothing; show no line.
+  return _genericProjectNames.contains(name.toLowerCase()) ? '' : name;
+}
+
+const _genericProjectNames = {
+  'project',
+  'projects',
+  'workspace',
+  'tmp',
+  'temp',
+  'home',
+  'root',
+  'src',
+};
+
+String safeWidgetPreview(String value) =>
+    _safeWidgetText(stripWidgetMarkdown(_withoutInlineReasoning(value)), 240);
+
+/// Plain words for a launcher line: no backticks, emphasis marks, heading or
+/// list markers, and links keep their label but not their address.
+String stripWidgetMarkdown(String value) {
+  var text = value
+      .replaceAll(RegExp(r'^\s*```[^\n]*$', multiLine: true), '')
+      .replaceAllMapped(RegExp(r'!?\[([^\]]*)\]\([^)]*\)'), (m) => m[1]!)
+      .replaceAll(RegExp(r'^\s{0,3}#{1,6}\s+', multiLine: true), '')
+      .replaceAll(RegExp(r'^\s{0,3}>\s?', multiLine: true), '')
+      .replaceAll(RegExp(r'^\s*(?:[-*+]|\d+[.)])\s+', multiLine: true), '')
+      .replaceAllMapped(RegExp(r'`+([^`]*)`+'), (m) => m[1]!)
+      .replaceAllMapped(RegExp(r'(\*\*|__|~~)(.+?)\1'), (m) => m[2]!)
+      .replaceAllMapped(
+        RegExp(r'(?<![\w*])\*(?!\s)([^*\n]+?)(?<!\s)\*(?![\w*])'),
+        (m) => m[1]!,
+      )
+      .replaceAllMapped(
+        RegExp(r'(?<![\w_])_(?!\s)([^_\n]+?)(?<!\s)_(?![\w_])'),
+        (m) => m[1]!,
+      );
+  text = text.replaceAll('`', '');
+  return text;
+}
+
+final _widgetReasoningMarker = RegExp(
+  r'<\s*(/?)\s*(?:think|thinking)\s*>',
+  caseSensitive: false,
+);
+
+/// Some providers put reasoning delimiters inside an ordinary text part.
+/// Hide complete and still-open blocks before truncating the excerpt. An
+/// orphan close may follow truncated reasoning, so discard its prefix too.
+/// This recognizes only these explicit delimiters, not arbitrary HTML/code.
+String _withoutInlineReasoning(String value) {
+  final visible = StringBuffer();
+  var depth = 0;
+  var offset = 0;
+  for (final marker in _widgetReasoningMarker.allMatches(value)) {
+    if (depth == 0) visible.write(value.substring(offset, marker.start));
+    if (marker.group(1)!.isEmpty) {
+      depth += 1;
+    } else if (depth > 0) {
+      depth -= 1;
+      if (depth == 0) visible.write(' ');
+    } else {
+      visible.clear();
+    }
+    offset = marker.end;
+  }
+  if (depth == 0) visible.write(value.substring(offset));
+  return visible.toString();
+}
+
+/// Latest assistant prose only: never user prompts, synthetic text, reasoning,
+/// tool output or message errors. Used by bounded reads as well as app display.
+String safeWidgetAssistantPreview(List<MessageWithParts> messages) {
+  for (final message in messages.reversed) {
+    if (message.info.role != 'assistant') continue;
+    final text = message.parts
+        .where((part) => part.type == 'text' && !part.synthetic)
+        .map((part) => part.text)
+        .join(' ');
+    final preview = safeWidgetPreview(text);
+    if (preview.isNotEmpty) return preview;
+  }
+  return '';
+}
+
+String _safeWidgetText(String value, int limit) {
   final safe = String.fromCharCodes(
     KitRedact.text(value).runes.map((c) => _unsafeInTitle(c) ? 0x20 : c),
   ).replaceAll(RegExp(r'\s+'), ' ').trim();
-  return String.fromCharCodes(safe.runes.take(80));
+  return String.fromCharCodes(safe.runes.take(limit));
 }
 
 /// What [WidgetSessionSnapshot.clearForProfile] actually did.

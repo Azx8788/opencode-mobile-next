@@ -200,7 +200,9 @@ void main() {
     expect(find.byKey(const ValueKey('mcp-add-manual')), findsOneWidget);
   });
 
-  path(['app mcp.connect', 'oc1 POST /mcp/{name}/connect'], (tester) async {
+  path(['app mcp.connect', 'oc2 POST /api/mcp/{server}/connect'], (
+    tester,
+  ) async {
     final repo = ToolsRepo()
       ..servers = const [McpServerInfo(name: 'notion', status: 'disabled')];
     await openTools(tester, repo, ToolsSection.mcp);

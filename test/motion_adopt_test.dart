@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/api2/models.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -91,7 +91,7 @@ List<MethodCall> _haptics(WidgetTester tester) {
   return calls;
 }
 
-class _ChatApi extends OpenCodeApi with CompleteMessageHistory {
+class _ChatApi extends FakeServerGateway with CompleteMessageHistory {
   _ChatApi() : super(baseUrl: 'http://localhost');
 
   final prompts = <String>[];
@@ -121,7 +121,7 @@ class _ChatApi extends OpenCodeApi with CompleteMessageHistory {
   }
 }
 
-Future<ConnectionController> _chatController(OpenCodeApi api) async {
+Future<ConnectionController> _chatController(ServerGateway api) async {
   // Seeded through SharedPreferences: upsert would write the password
   // through flutter_secure_storage (mocked in setUp).
   SharedPreferences.setMockInitialValues({
@@ -129,6 +129,7 @@ Future<ConnectionController> _chatController(OpenCodeApi api) async {
       {
         'id': 'profile-1',
         'name': 'Test server',
+        'flavor': 'v2',
         'baseUrl': 'http://localhost',
         'username': '',
       },

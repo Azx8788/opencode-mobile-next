@@ -103,6 +103,10 @@
     "scope": "profile",
     "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
   },
+  "oc.certificatePin.": {
+    "scope": "profile",
+    "why": "exact-origin certificate fingerprint; profile id suffix swept by profileScopedPreferenceKeys"
+  },
   "oc.chatTail.": {
     "scope": "profile",
     "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
@@ -227,6 +231,10 @@
     "scope": "profile",
     "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
   },
+  "oc.githubToken.": {
+    "scope": "profile",
+    "why": "secure-storage GitHub sign-in for the Git page; profile id is the suffix, deleted by ProfileStore.remove and swept by profileScopedPreferenceKeys"
+  },
   "oc.glassLiquidActive": {
     "scope": "other",
     "why": "retired liquid-glass guard, read for cleanup only"
@@ -254,6 +262,10 @@
   "oc.lastProject.": {
     "scope": "profile",
     "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
+  },
+  "oc.linuxReset.pending": {
+    "scope": "global",
+    "why": "one Linux per app: a confirmed Reset Linux not yet handed to phone setup, finished on the next start (linux_reset_flow.dart)"
   },
   "oc.location.": {
     "scope": "profile",
@@ -296,10 +308,6 @@
     "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
   },
   "oc.monitorRoutes.": {
-    "scope": "profile",
-    "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
-  },
-  "oc.moveToOpenCode2Dismissed.": {
     "scope": "profile",
     "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
   },
@@ -470,6 +478,14 @@
   "oc.savedPromptMigrationV1.": {
     "scope": "profile",
     "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
+  },
+  "oc.scheduleDeleted.": {
+    "scope": "profile",
+    "why": "native schedule deletion tombstone retained until profile registry removal; prevents background claim and CAS resurrection"
+  },
+  "oc.scheduledPrompts.": {
+    "scope": "profile",
+    "why": "versioned scheduled prompts, run history and optional morning digest; native CAS fences writes and profile deletion sweeps the envelope"
   },
   "oc.secure.probe": {
     "scope": "other",
@@ -642,6 +658,10 @@
   "oc.variant.": {
     "scope": "profile",
     "why": "profile id is the suffix or infix, swept by profileScopedPreferenceKeys"
+  },
+  "oc.widgetFollowup.": {
+    "scope": "profile",
+    "why": "bounded widget status tickets keyed by profile id, swept by profileScopedPreferenceKeys and cancelled on profile deletion"
   },
   "oc.widgetSessions": {
     "scope": "shared",

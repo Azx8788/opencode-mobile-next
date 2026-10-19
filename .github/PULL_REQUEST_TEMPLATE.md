@@ -44,7 +44,6 @@ saying why is a fine answer.
       `openExternalLink`
 - [ ] **Migration notes** for a changed stored format
 - [ ] **Gateway boundary**: UI talks to `lib/domain/`, not `api/` or `api2/`
-- [ ] **Generated code** in `packages/opencode_sdk/` is not hand-edited
 - [ ] **Docs**: README, CONTRIBUTING, PRIVACY, or THIRD_PARTY_NOTICES updated
       if this makes any of them untrue
 - [ ] **Dependencies**: `pubspec.lock` changed — `THIRD_PARTY_NOTICES.md`

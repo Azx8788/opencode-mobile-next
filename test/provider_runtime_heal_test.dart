@@ -1,11 +1,11 @@
+import 'support/fake_server_operations.dart';
 import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -50,7 +50,7 @@ class _StaleRuntimeServer {
       ProvidersResponse(providers: [if (openaiLoaded) _runtimeOpenAI, _zen]);
 }
 
-class _StaleRuntimeApi extends OpenCodeApi {
+class _StaleRuntimeApi extends FakeServerGateway {
   _StaleRuntimeApi(this.server) : super(baseUrl: 'http://127.0.0.1:1');
 
   final _StaleRuntimeServer server;
@@ -87,7 +87,7 @@ class _StaleRuntimeApi extends OpenCodeApi {
       Future.error(ApiException('V2 unavailable', statusCode: 404));
 }
 
-class _FakeEventStream extends EventStream {
+class _FakeEventStream extends FakeEventChannel {
   _FakeEventStream({
     required super.api,
     required super.onEvent,
@@ -102,8 +102,8 @@ class _FakeEventStream extends EventStream {
   Future<void> dispose() async {}
 }
 
-class _StaleRuntimeRepository extends SdkProductRepository {
-  _StaleRuntimeRepository(OpenCodeApi api, this.server) : super(api.sdkClient);
+class _StaleRuntimeRepository extends FakeServerOperations {
+  _StaleRuntimeRepository(super.api, this.server);
 
   final _StaleRuntimeServer server;
 

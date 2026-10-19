@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/services.dart';
@@ -133,16 +134,64 @@ final class BuiltinPhoneAgents implements PhoneAgentHost {
       _authBridgeAvailable &&
       AgentPhoneScripts.supportsSignOut(_agent(agentId));
 
-  Future<AgentAuthProbeResult> probeSignIn(String agentId) =>
-      _authCommand(agentId, logout: false);
+  /// Android runs one status check per profile at a time and refuses a
+  /// second one as "host unavailable". The agent list, the sign-in step and
+  /// the phone check all ask at once, and a refused check read as "sign in
+  /// needed". So checks wait their turn, and a check asked for while the same
+  /// agent's check runs shares its answer.
+  final _probes = <String, Future<AgentAuthProbeResult>>{};
+  Future<void> _authTurn = Future<void>.value();
 
-  Future<AgentAuthProbeResult> signOut(String agentId) =>
-      _authCommand(agentId, logout: true);
+  Future<AgentAuthProbeResult> probeSignIn(String agentId) {
+    final running = _probes[agentId];
+    if (running != null) return running;
+    late final Future<AgentAuthProbeResult> probe;
+    probe = _inAuthTurn(() => _authCommand(agentId, logout: false))
+        .whenComplete(() {
+          if (identical(_probes[agentId], probe)) _probes.remove(agentId);
+        });
+    return _probes[agentId] = probe;
+  }
+
+  /// A check asked for after the sign-out must not share an answer read
+  /// before it.
+  Future<AgentAuthProbeResult> signOut(String agentId) {
+    _probes.remove(agentId);
+    return _inAuthTurn(() => _authCommand(agentId, logout: true));
+  }
+
+  Future<T> _inAuthTurn<T>(Future<T> Function() command) {
+    final run = _authTurn.then((_) => command());
+    _authTurn = run.then<void>((_) {}, onError: (Object _) {});
+    return run;
+  }
 
   Future<AgentHelperStatus> helperStatus() async =>
       AgentHelperStatus.fromMap(await _invoke('agentHostStatus'));
 
   Future<bool?> helperRunning() async => (await helperStatus()).running;
+
+  /// The helper's own health check (`GET /api/health` on the loopback
+  /// port, which needs no password): true when it answers 200.
+  Future<bool> daemonAnswers() async {
+    if (_disposed) return false;
+    final client = HttpClient()..connectionTimeout = const Duration(seconds: 3);
+    try {
+      final request = await client
+          .getUrl(Uri.parse('http://127.0.0.1:4099/api/health'))
+          .timeout(const Duration(seconds: 3));
+      request.followRedirects = false;
+      final response = await request.close().timeout(
+        const Duration(seconds: 3),
+      );
+      await response.drain<void>().timeout(const Duration(seconds: 2));
+      return response.statusCode == HttpStatus.ok;
+    } catch (_) {
+      return false;
+    } finally {
+      client.close(force: true);
+    }
+  }
 
   Future<PhoneAgentIdleState> idleState() async {
     final raw = await _invoke('status');
@@ -436,9 +485,20 @@ final class BuiltinPhoneAgents implements PhoneAgentHost {
   }
 
   Future<void> _beginPayloadUse() async {
-    if (_disposed || _removeInFlight) {
-      throw const ProductException(
-        'An agent is being removed. Wait for it to finish and try again.',
+    // Which gate refused goes to Details (the cause names it, in fixed words).
+    final gate = _disposed
+        ? 'agent host closed'
+        : _removeInFlight
+        ? 'agent removal running'
+        : _checkInFlight
+        ? 'phone check running'
+        : _installPreparing || _installRunPending
+        ? 'agent install running'
+        : null;
+    if (gate != null) {
+      throw ProductException(
+        'Agent setup is in progress. Wait for it to finish and try again.',
+        cause: gate,
       );
     }
     _payloadUses++;
@@ -473,9 +533,11 @@ final class BuiltinPhoneAgents implements PhoneAgentHost {
             'agentId': agentId,
             'action': logout ? 'logout' : 'probe',
             'script': script,
-            'timeoutSeconds': logout ? 20 : 10,
+            'timeoutSeconds': logout ? 20 : (agentId == 'claude' ? 65 : 10),
           })
-          .timeout(Duration(seconds: logout ? 20 : 10));
+          .timeout(
+            Duration(seconds: logout ? 20 : (agentId == 'claude' ? 65 : 10)),
+          );
       if (_disposed || generation != _generation || raw is! Map) {
         return const AgentAuthProbeResult.failed(
           AgentAuthProbeError.hostUnavailable,
@@ -513,6 +575,12 @@ final class BuiltinPhoneAgents implements PhoneAgentHost {
         ...data,
       });
       return raw is Map ? Map<Object?, Object?>.from(raw) : const {};
+    } on PlatformException catch (error) {
+      throw AgentHostException(switch (error.code) {
+        'helper_update_required' => AgentHostFailure.helperVersion,
+        'agent_host_busy' || 'agent_host_unowned' => AgentHostFailure.busy,
+        _ => AgentHostFailure.unavailable,
+      }, code: AgentHostException.safeCode(error.code));
     } catch (_) {
       throw const AgentHostException(AgentHostFailure.unavailable);
     }
@@ -564,8 +632,14 @@ final class BuiltinPhoneAgents implements PhoneAgentHost {
     _installAgent = id;
     _engineListener = () {
       final value = _engine!.progress.value;
+      final current = value.components
+          .where((c) => c.id == value.current)
+          .firstOrNull;
       _progress = AgentSetupProgress(
         agentId: id,
+        downloadedBytes: current?.bytesDone,
+        totalBytes: current?.bytesTotal,
+        checkStep: _checkInFlight ? AgentPhoneCheckStep.install : null,
         phase: switch (value.state) {
           SetupState.idle => AgentSetupPhase.idle,
           SetupState.running => AgentSetupPhase.installing,
@@ -594,7 +668,9 @@ final class BuiltinPhoneAgents implements PhoneAgentHost {
   }
 
   @override
-  Future<void> install(String agentId) async {
+  Future<void> install(String agentId) => _install(agentId);
+
+  Future<void> _install(String agentId, {bool helperOnly = false}) async {
     if (_removeInFlight ||
         _installPreparing ||
         _installRunPending ||
@@ -624,7 +700,7 @@ final class BuiltinPhoneAgents implements PhoneAgentHost {
       _installRunPending = true;
       try {
         await engine.run(
-          {'agent-$agentId'},
+          {helperOnly ? 'agent-paseo' : 'agent-$agentId'},
           params: {
             'phoneAgentOwner': {'profileId': profileId, 'agentId': agentId},
             if (_installGuard.minimumFreeBytes > 0 &&
@@ -745,7 +821,10 @@ final class BuiltinPhoneAgents implements PhoneAgentHost {
 
   /// Install gate can bootstrap the daemon. Chat still uses separate resume proof.
   @override
-  Future<void> start({bool Function()? stillCurrent}) async {
+  Future<void> start({
+    bool Function()? stillCurrent,
+    bool restartIfVersionChanged = false,
+  }) async {
     if (_removeInFlight || _startInFlight) {
       throw const AgentHostException(AgentHostFailure.busy);
     }
@@ -769,6 +848,10 @@ final class BuiltinPhoneAgents implements PhoneAgentHost {
         'password': password,
         'port': 4099,
         'config': configuration(),
+        if (restartIfVersionChanged) ...{
+          'expectedHelperVersion': PaseoPhoneScripts.version,
+          'restartIfVersionChanged': true,
+        },
       });
       fence();
     } finally {
@@ -881,14 +964,74 @@ final class BuiltinPhoneAgents implements PhoneAgentHost {
   );
 
   @override
-  Future<AgentPhoneCheckResult> selfTest(String agentId) async {
-    if (_removeInFlight || _checkInFlight) {
+  Future<AgentPhoneCheckResult> selfTest(String agentId) =>
+      _phoneCheck(agentId);
+
+  Future<AgentPhoneCheckResult> usePreviousVersion(String agentId) =>
+      _phoneCheck(agentId, previous: true);
+
+  void _checkProgress(String agentId, AgentPhoneCheckStep step) {
+    _progress = AgentSetupProgress(
+      agentId: agentId,
+      phase: AgentSetupPhase.done,
+      checkStep: step,
+    );
+    if (!_changes.isClosed) _changes.add(_progress);
+  }
+
+  /// A helper update must not interrupt a conversation or a permission reply.
+  /// An incomplete/unknown snapshot refuses the restart as busy.
+  Future<PaseoGateway> _requireIdleHelper() async {
+    final gateway = PaseoGateway(
+      transport: _transport(await _password()),
+      directory: '/home/oc',
+      trackLocalWork: true,
+    );
+    try {
+      await gateway.health();
+      // This inventory covers all pages, permissions and provider subagents.
+      // Keep its event subscription alive until the update finishes so a new
+      // turn after the snapshot invalidates admission before a restart.
+      await gateway.sessions();
+      if (gateway.localWorkBusy != false) {
+        throw const AgentHostException(AgentHostFailure.busy);
+      }
+      return gateway;
+    } catch (_) {
+      gateway.close();
+      throw const AgentHostException(AgentHostFailure.busy);
+    }
+  }
+
+  Future<String?> _previousVersion(AgentDescriptor agent) async {
+    if (agent.id != 'claude') return null;
+    try {
+      final result = await _linux.runAgentSetupCheck(
+        AgentPhoneScripts.previousVersion(agent),
+        timeout: const Duration(seconds: 90),
+      );
+      return result.ok ? AgentPhoneScripts.previousClaudeRecipe.version : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<AgentPhoneCheckResult> _phoneCheck(
+    String agentId, {
+    bool previous = false,
+  }) async {
+    if (_removeInFlight || _checkInFlight || _payloadUses > 0) {
       throw const AgentHostException(AgentHostFailure.busy);
     }
     _checkInFlight = true;
     final generation = _generation;
     final completed = <AgentPhoneCheckStep>[];
     AgentArchitecture? arch;
+    String? observedHelperVersion;
+    String? retainedVersion;
+    String? activeVersion;
+    PaseoGateway? idleProbe;
+    var helperStoppedForRollback = false;
     try {
       arch = await architecture();
       if (arch == null) {
@@ -896,19 +1039,82 @@ final class BuiltinPhoneAgents implements PhoneAgentHost {
       }
       _checkGeneration(generation);
       final agent = _agent(agentId);
-      // Clear old proof before retry: a failed check never keeps a green gate.
+      final oldGate = _readGates()[agentId];
+      activeVersion =
+          oldGate is Map &&
+              oldGate['fingerprint'] == _fingerprint(agent, arch) &&
+              oldGate['activeVersion'] ==
+                  AgentPhoneScripts.previousClaudeRecipe.version &&
+              agentId == 'claude'
+          ? oldGate['activeVersion'] as String
+          : agent.recipe!.version;
+      final before = await _invoke('agentHostStatus');
+      if (before['running'] == true) {
+        idleProbe = await _requireIdleHelper();
+        _checkGeneration(generation);
+      }
+      await _invoke('agentHostPrepareUpdate');
+      _checkGeneration(generation);
+      if (previous) {
+        retainedVersion = await _previousVersion(agent);
+        _checkGeneration(generation);
+        if (retainedVersion == null) {
+          throw const AgentHostException(AgentHostFailure.version);
+        }
+        if (idleProbe != null && idleProbe.localWorkBusy != false) {
+          throw const AgentHostException(AgentHostFailure.busy);
+        }
+        await _invoke('stopAgentHost', {'guardedForUpdate': true});
+        helperStoppedForRollback = true;
+        _checkGeneration(generation);
+        final activated = await _linux.runAgentSetupCheck(
+          AgentPhoneScripts.usePreviousVersion(agent, retainedVersion),
+          timeout: const Duration(seconds: 90),
+        );
+        _checkGeneration(generation);
+        if (!activated.ok) {
+          throw AgentHostException(
+            activated.exitCode == 16
+                ? AgentHostFailure.busy
+                : AgentHostFailure.version,
+          );
+        }
+        activeVersion = retainedVersion;
+      }
+      if (!helperStoppedForRollback &&
+          idleProbe != null &&
+          idleProbe.localWorkBusy != false) {
+        throw const AgentHostException(AgentHostFailure.busy);
+      }
+      // Clear old proof only once the check has exclusive, safe admission.
       final gates = _readGates()..remove(agentId);
       await _writeGates(gates);
-      await install(agentId);
+      if (!previous && activeVersion != agent.recipe!.version) {
+        final retained = await _linux.runAgentSetupCheck(
+          AgentPhoneScripts.check(
+            agent,
+            recipeOverride: AgentPhoneScripts.previousClaudeRecipe,
+          ),
+          timeout: const Duration(seconds: 90),
+        );
+        _checkGeneration(generation);
+        if (!retained.ok) {
+          throw const AgentHostException(AgentHostFailure.version);
+        }
+      }
+      await _install(
+        agentId,
+        helperOnly: activeVersion != agent.recipe!.version,
+      );
       await _waitInstall();
       _checkGeneration(generation);
       completed.add(AgentPhoneCheckStep.install);
+      _checkProgress(agentId, AgentPhoneCheckStep.version);
       final version = await _invoke('agentHostVersion', {
         'executable': agent.recipe!.executable,
-        'version': agent.recipe!.version,
+        'version': activeVersion,
       });
-      if (version['installed'] != true ||
-          version['version'] != agent.recipe!.version) {
+      if (version['installed'] != true || version['version'] != activeVersion) {
         throw const AgentHostException(AgentHostFailure.version);
       }
       final shared = await _invoke('agentHostWorkspace');
@@ -916,61 +1122,117 @@ final class BuiltinPhoneAgents implements PhoneAgentHost {
         throw const AgentHostException(AgentHostFailure.version);
       }
       completed.add(AgentPhoneCheckStep.version);
+      _checkProgress(agentId, AgentPhoneCheckStep.daemon);
       _checkGeneration(generation);
-      await start();
+      if (!helperStoppedForRollback &&
+          idleProbe != null &&
+          idleProbe.localWorkBusy != false) {
+        throw const AgentHostException(AgentHostFailure.busy);
+      }
+      await start(restartIfVersionChanged: true);
       if ((await _invoke('agentHostStatus'))['running'] != true) {
         throw const AgentHostException(AgentHostFailure.daemon);
       }
       completed.add(AgentPhoneCheckStep.daemon);
+      _checkProgress(agentId, AgentPhoneCheckStep.hello);
       final transport = _transport(await _password());
       try {
-        // Startup is bounded; connection retries send only hello, no agent prompt.
-        // A cold PRoot start takes about 5 s on an emulator before the
-        // daemon listens; allow a slower phone up to 30 s.
+        // This is a helper handshake, never a Claude prompt or a model call.
+        // Bound total elapsed time, including individual connection timeouts.
+        final deadline = DateTime.now().add(const Duration(seconds: 60));
         var connected = false;
-        for (var attempt = 0; attempt < 60 && !connected; attempt++) {
-          if (generation != _generation || _disposed) {
-            throw const AgentHostException(AgentHostFailure.stale);
-          }
+        while (!connected && DateTime.now().isBefore(deadline)) {
+          _checkGeneration(generation);
           try {
-            await transport.connect();
+            await transport.connect().timeout(
+              deadline.difference(DateTime.now()),
+            );
             connected = true;
           } catch (_) {
-            if (attempt < 59) {
+            if (DateTime.now().isBefore(deadline)) {
               await Future<void>.delayed(const Duration(milliseconds: 500));
             }
           }
         }
-        if (!connected ||
-            transport.serverVersion != PaseoPhoneScripts.version) {
-          throw const AgentHostException(AgentHostFailure.hello);
+        if (!connected) {
+          throw const AgentHostException(AgentHostFailure.timeout);
+        }
+        final observed = transport.serverVersion;
+        observedHelperVersion =
+            observed != null &&
+                observed.length <= 64 &&
+                RegExp(
+                  r'^[0-9]+\.[0-9]+\.[0-9]+(?:-[A-Za-z0-9.-]+)?$',
+                ).hasMatch(observed)
+            ? observed
+            : null;
+        if (observedHelperVersion != PaseoPhoneScripts.version) {
+          throw const AgentHostException(AgentHostFailure.helperVersion);
         }
       } finally {
         await transport.close();
       }
-      completed.add(AgentPhoneCheckStep.hello);
-      if (generation != _generation || _disposed) {
-        throw const AgentHostException(AgentHostFailure.stale);
-      }
+      _checkGeneration(generation);
+      // Installation proof survives sign-out; signing in does not require a
+      // download or repeat qualification when the installed pair is unchanged.
       final current = _readGates();
       current[agentId] = {
         'fingerprint': _fingerprint(agent, arch),
         'architecture': arch.name,
+        'activeVersion': activeVersion,
       };
       await _writeGates(current);
+      if (agent.id == 'claude') {
+        final auth = await probeSignIn(agentId);
+        _checkGeneration(generation);
+        if (auth.state == AgentAuthProbeState.signedOut ||
+            auth.error == AgentAuthProbeError.signInExpired) {
+          throw const AgentHostException(AgentHostFailure.needsSignIn);
+        }
+        if (auth.state != AgentAuthProbeState.signedIn) {
+          throw AgentHostException(
+            auth.error == AgentAuthProbeError.timedOut
+                ? AgentHostFailure.timeout
+                : AgentHostFailure.unavailable,
+          );
+        }
+      }
+      completed.add(AgentPhoneCheckStep.hello);
       return AgentPhoneCheckResult(
         agentId: agentId,
         architecture: arch,
         passed: true,
         completed: completed,
+        observedHelperVersion: observedHelperVersion,
+        expectedHelperVersion: PaseoPhoneScripts.version,
+        details:
+            '${agent.name} $activeVersion; Paseo $observedHelperVersion. Installation and connection checked.'
+            '${agent.id == 'claude' ? ' Sign-in checked.' : ''}',
       );
     } on AgentHostException catch (error) {
+      if (!{
+        AgentHostFailure.needsSignIn,
+        AgentHostFailure.busy,
+        AgentHostFailure.stale,
+      }.contains(error.reason)) {
+        final failedAgent = catalog.byId(agentId);
+        if (failedAgent != null) {
+          retainedVersion ??= await _previousVersion(failedAgent);
+        }
+      }
       return AgentPhoneCheckResult(
         agentId: agentId,
         architecture: arch,
         passed: false,
         completed: completed,
         failure: error.reason,
+        observedHelperVersion: observedHelperVersion,
+        expectedHelperVersion: PaseoPhoneScripts.version,
+        previousVersion: retainedVersion == activeVersion
+            ? null
+            : retainedVersion,
+        details:
+            'Agent version: ${activeVersion ?? 'not checked'}. Expected Paseo: ${PaseoPhoneScripts.version}. Observed Paseo: ${observedHelperVersion ?? 'not connected'}. Check: ${error.reason.name}.',
       );
     } catch (_) {
       return AgentPhoneCheckResult(
@@ -981,6 +1243,7 @@ final class BuiltinPhoneAgents implements PhoneAgentHost {
         failure: AgentHostFailure.unavailable,
       );
     } finally {
+      idleProbe?.close();
       _checkInFlight = false;
     }
   }
@@ -1028,14 +1291,25 @@ final class BuiltinPhoneAgents implements PhoneAgentHost {
       _ => null,
     };
     final pin = _readGates()[agentId];
-    final qualified =
+    final fingerprintMatches =
         arch != null &&
         pin is Map &&
         pin['fingerprint'] == _fingerprint(agent, arch);
+    final activeVersion =
+        fingerprintMatches &&
+            agentId == 'claude' &&
+            pin['activeVersion'] ==
+                AgentPhoneScripts.previousClaudeRecipe.version
+        ? AgentPhoneScripts.previousClaudeRecipe.version
+        : agent.recipe!.version;
     final version = await _invoke('agentHostVersion', {
       'executable': agent.recipe!.executable,
-      'version': agent.recipe!.version,
+      'version': activeVersion,
     });
+    final qualified =
+        fingerprintMatches &&
+        version['installed'] == true &&
+        version['version'] == activeVersion;
     // Resume proof is supplied only by the controller's verified host load.
     return PhoneAgentRuntime(
       agentId: agentId,
@@ -1047,11 +1321,36 @@ final class BuiltinPhoneAgents implements PhoneAgentHost {
       payloadPresent: version['payloadPresent'] == true,
       hostAvailable: host['running'] == true,
       architectureQualified: qualified,
+      checkRequiredReason: qualified
+          ? null
+          : _gateChangeReason(pin, agent, arch),
       capabilities: capabilities,
       signInPhase: signIn?.inspected == true ? signIn!.phase : null,
       resetAt: signIn?.resetAt,
       stoppedInBackground: qualified && host['running'] != true,
     );
+  }
+
+  String _gateChangeReason(
+    Object? pin,
+    AgentDescriptor agent,
+    AgentArchitecture? arch,
+  ) {
+    if (pin is! Map) return 'firstCheck';
+    try {
+      final old = jsonDecode(pin['fingerprint'] as String);
+      if (old is List && old.length >= 6) {
+        if (old[1] != agent.recipe!.version) return 'agentVersion';
+        if (old[3] != PaseoPhoneScripts.version ||
+            old[4] != PaseoPhoneScripts.packageLockSha256 ||
+            old[5] != PaseoPhoneScripts.nodeVersion) {
+          return 'helperVersion';
+        }
+      }
+    } catch (_) {
+      /* Unreadable proof is never qualification. */
+    }
+    return 'installationChanged';
   }
 
   void _detachEngine() {

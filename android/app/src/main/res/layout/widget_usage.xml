@@ -46,6 +46,13 @@
         android:visibility="gone" />
 
     <LinearLayout
+        android:id="@+id/usage_rows"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center_vertical">
+    <LinearLayout
         android:id="@+id/usage_row_0"
         style="@style/WidgetUsageRow">
         <LinearLayout
@@ -218,6 +225,7 @@
             </LinearLayout>
         </LinearLayout>
         <TextView android:id="@+id/usage_detail_5" style="@style/WidgetUsageDetail" />
+    </LinearLayout>
     </LinearLayout>
 </LinearLayout>
 </FrameLayout>

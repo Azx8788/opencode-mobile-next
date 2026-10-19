@@ -301,16 +301,11 @@ void main() {
       {
         'execution': false,
         'boundary': false,
-        'oc1Verified': false,
-        'oc2': false,
+        'oc2Verified': false,
+        'oc2': true,
       },
-      {
-        'execution': false,
-        'boundary': true,
-        'oc1Verified': false,
-        'oc2': false,
-      },
-      {'execution': false, 'boundary': true, 'oc1Verified': true, 'oc2': false},
+      {'execution': false, 'boundary': true, 'oc2Verified': false, 'oc2': true},
+      {'execution': false, 'boundary': true, 'oc2Verified': true, 'oc2': true},
     ]) {
       final wire = engine.health('p1', actions: ['retryPlan'])
         ..['capabilities'] = flags;
@@ -339,7 +334,7 @@ void main() {
         result.code,
         flags['boundary'] == false
             ? 'boundaryUnverified'
-            : flags['oc1Verified'] == false
+            : flags['oc2Verified'] == false
             ? 'protocolUnverified'
             : 'engineUnavailable',
       );

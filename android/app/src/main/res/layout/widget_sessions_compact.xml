@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 2x1: a status dot and the title in whole lines. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
- android:id="@android:id/background" android:layout_width="match_parent" android:layout_height="match_parent"
- android:orientation="vertical" android:background="@drawable/widget_background" android:padding="8dp">
-<TextView android:id="@+id/widget_v2_dot" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="●" android:textSize="18sp" /><TextView android:id="@+id/widget_v2_summary" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="12sp" android:textColor="@color/widgetText" android:maxLines="2" /></LinearLayout>
+    android:id="@android:id/background" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="horizontal" android:gravity="center_vertical" android:layoutDirection="locale"
+    android:background="@drawable/widget_card_bg" android:paddingStart="14dp" android:paddingEnd="10dp">
+    <ImageView android:id="@+id/wc_dot" android:layout_width="8dp" android:layout_height="8dp"
+        android:layout_marginEnd="10dp" android:src="@drawable/widget_dot" android:importantForAccessibility="no" />
+    <TextView android:id="@+id/wc_title" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+        android:textSize="15sp" android:textStyle="bold" android:lineHeight="19sp" android:maxLines="2" android:ellipsize="end"
+        android:textDirection="firstStrong" android:gravity="start" android:textColor="@color/widgetText" />
+</LinearLayout>

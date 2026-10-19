@@ -1,3 +1,4 @@
+import 'package:opencode_mobile/termux/bridge.dart';
 // The setup prelude and component scripts, run in real shells on this
 // machine: oc_download against a local HTTP server (127.0.0.1 only) that
 // honours Range and sends slowly enough to watch, oc_apt_install against a
@@ -18,6 +19,7 @@ import 'package:opencode_mobile/l10n/app_localizations.dart';
 /// request's range to stdout, and sends [rate] bytes a second.
 const _server = r'''
 import http.server, os, re, sys, time
+dropped = False
 root, rate = sys.argv[1], int(sys.argv[2])
 class H(http.server.BaseHTTPRequestHandler):
     def log_message(self, *a): pass
@@ -31,11 +33,16 @@ class H(http.server.BaseHTTPRequestHandler):
         self.send_header('Content-Length', str(os.path.getsize(p)))
         self.end_headers()
     def do_GET(self):
+        global dropped
         p = self.path_of()
         if not p: return self.send_error(404)
         size, start = os.path.getsize(p), 0
         m = re.match(r'bytes=(\d+)-', self.headers.get('Range', ''))
         print('GET', m.group(1) if m else '-', flush=True)
+        if os.path.isfile(os.path.join(root, 'http-once')) and not dropped:
+            dropped = True
+            return self.send_error(503)
+        if os.path.isfile(os.path.join(root, 'no-range')): m = None
         if m:
             start = int(m.group(1))
             if start >= size:
@@ -57,6 +64,12 @@ class H(http.server.BaseHTTPRequestHandler):
                 try:
                     self.wfile.write(chunk); self.wfile.flush()
                 except Exception:
+                    return
+                # One truncated transfer forces curl exit 18. A second request
+                # must start at the bytes just received, not the initial offset.
+                if os.path.isfile(os.path.join(root, 'drop-once')) and not dropped:
+                    dropped = True
+                    self.close_connection = True
                     return
                 time.sleep(0.05)
 s = http.server.ThreadingHTTPServer(('127.0.0.1', 0), H)
@@ -167,6 +180,56 @@ void main() {
       final bytes = bytesLines(result.stdout as String);
       expect(bytes.first.$1, greaterThanOrEqualTo(700000));
       expect(sha256.convert(target.readAsBytesSync()).toString(), sha);
+    }, skip: skip);
+
+    test('retries a truncated response from the newest byte offset', () async {
+      server.kill();
+      requests.clear();
+      await startServer('1000000');
+      File('${www.path}/drop-once').writeAsStringSync('');
+      final target = File('${dir.path}/out/blob.bin')
+        ..parent.createSync(recursive: true)
+        ..writeAsBytesSync(blob.readAsBytesSync().sublist(0, 100000));
+      final result = await sh(
+        'oc_download http://127.0.0.1:$port/blob.bin ${target.path} $sha',
+        env: {'OC_POLL_SECONDS': '0.02', 'OC_RETRY_SECONDS': '0'},
+      );
+      expect(result.exitCode, 0, reason: '${result.stderr}');
+      expect(requests, ['GET 100000', 'GET 150000']);
+      expect(sha256.convert(target.readAsBytesSync()).toString(), sha);
+      final done = bytesLines(
+        result.stdout as String,
+      ).map((b) => b.$1).toList();
+      expect(done, orderedEquals([...done]..sort()));
+    }, skip: skip);
+
+    test(
+      'transient HTTP errors retry without discarding the partial file',
+      () async {
+        File('${www.path}/http-once').writeAsStringSync('');
+        final target = File('${dir.path}/blob.bin')
+          ..writeAsBytesSync(blob.readAsBytesSync().sublist(0, 100000));
+        final result = await sh(
+          'oc_download http://127.0.0.1:$port/blob.bin ${target.path} $sha',
+          env: {'OC_POLL_SECONDS': '0.02', 'OC_RETRY_SECONDS': '0'},
+        );
+        expect(result.exitCode, 0, reason: '${result.stderr}');
+        expect(requests, ['GET 100000', 'GET 100000']);
+        expect(sha256.convert(target.readAsBytesSync()).toString(), sha);
+      },
+      skip: skip,
+    );
+
+    test('a refused Range keeps existing bytes for the next retry', () async {
+      File('${www.path}/no-range').writeAsStringSync('');
+      final partial = blob.readAsBytesSync().sublist(0, 100000);
+      final target = File('${dir.path}/blob.bin')..writeAsBytesSync(partial);
+      final result = await sh(
+        'oc_download http://127.0.0.1:$port/blob.bin ${target.path} $sha',
+      );
+      expect(result.exitCode, 33);
+      expect(requests, ['GET 100000']);
+      expect(target.readAsBytesSync(), partial);
     }, skip: skip);
 
     test(
@@ -393,9 +456,10 @@ esac
         isNot(0),
         reason: 'a fresh setup requires pinned OC2, not installed OC1',
       );
-      final pinned = await check({'runtime': 'opencode1'});
-      expect(pinned.exitCode, 0);
-      expect((pinned.stdout as String).trim(), '1.19.0');
+      expect(
+        () => check({'runtime': 'opencode1'}),
+        throwsA(isA<TermuxBridgeException>()),
+      );
       expect((await check({'version': '1.18.30'})).exitCode, isNot(0));
       // OpenCode 2 is there but not at the pinned 2.0.10: an update is due.
       expect((await check({'runtime': 'opencode2'})).exitCode, isNot(0));
@@ -416,7 +480,7 @@ esac
     for (final params in [
       const <String, Map<String, String>>{},
       const {
-        'opencode': {'runtime': 'opencode1'},
+        'opencode': {'runtime': 'opencode2'},
       },
     ]) {
       for (final component in setupComponents(l10n, params: params)) {

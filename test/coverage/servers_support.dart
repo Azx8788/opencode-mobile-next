@@ -12,7 +12,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import '../support/fake_server_gateway.dart';
 import 'package:opencode_mobile/paseo/transport.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profile_monitor.dart'
@@ -72,7 +72,7 @@ class ServersConnection extends ConnectionController {
     bool redetectOnFailure = true,
   }) async {
     connects.add(profile);
-    api = OpenCodeApi(baseUrl: profile.baseUrl);
+    api = FakeServerGateway(baseUrl: profile.baseUrl);
   }
 }
 

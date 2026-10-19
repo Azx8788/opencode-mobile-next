@@ -1,0 +1,19 @@
+# Build 2383, fresh install, SIGTERM sent (adb root) to the installer's guest shell during Git and SSH and during Python
+setup tapped 10:24:40
+SIGTERM essentials guest=11054 proot=11050 10:25:24
+SIGTERM python guest=14326 proot=14323 10:27:47
+10-16 10:24:50.951 10892 10892 I flutter : OCTRACE 10467ms setup.component id=linux
+10-16 10:25:24.222 10892 10992 W OcLinux : setup step essentials interrupted; running it again (2 of 3)
+10-16 10:27:25.194 10892 10892 I flutter : OCTRACE 154180ms setup.component id=essentials
+10-16 10:27:47.552 10892 10992 W OcLinux : setup step python interrupted; running it again (2 of 3)
+10-16 10:28:36.003 10892 10892 I flutter : OCTRACE 71045ms setup.component id=python
+10-16 10:29:11.825 10892 10892 I flutter : OCTRACE 35607ms setup.component id=node
+10-16 10:29:42.380 10892 10892 I flutter : OCTRACE 30875ms setup.component id=opencode
+10-16 10:29:46.234 10892 10892 I flutter : OCTRACE 3564ms setup.component id=start
+10-16 10:29:46.245 10892 10892 I flutter : OCTRACE 305774ms setup.job state=done
+
+# setup.log
+80:proot info: vpid 1: terminated with signal 15
+81:==> Interrupted. Trying again (2/3)
+510:proot info: vpid 1: terminated with signal 15
+511:==> Interrupted. Trying again (2/3)

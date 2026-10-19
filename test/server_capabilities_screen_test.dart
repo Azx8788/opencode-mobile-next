@@ -1,11 +1,12 @@
+import 'support/fake_server_capabilities.dart';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/api2/gateway_mappers.dart'
     show api2ServerCapabilities;
 import 'package:opencode_mobile/codex/gateway.dart';
@@ -19,7 +20,7 @@ import 'package:opencode_mobile/ui/kit/kit.dart';
 import 'package:opencode_mobile/ui/screens/server_capabilities_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class _Api extends OpenCodeApi {
+class _Api extends FakeServerGateway {
   _Api(this._capabilities) : super(baseUrl: 'http://localhost');
 
   final ServerCapabilities _capabilities;
@@ -50,6 +51,7 @@ Future<ConnectionController> _controller(
       {
         'id': 'profile-1',
         'name': 'Workstation',
+        'flavor': 'v2',
         'baseUrl': 'http://localhost:4096',
         'username': '',
       },
@@ -188,7 +190,7 @@ void main() {
     tester,
   ) async {
     _tall(tester);
-    final controller = await _controller(ServerCapabilities.allV1);
+    final controller = await _controller(testServerCapabilities);
     addTearDown(controller.dispose);
     await tester.pumpWidget(_app(controller));
     await tester.pumpAndSettle();
@@ -412,6 +414,13 @@ void main() {
         of: _key('capability-unavailable-worktrees'),
         matching: find.textContaining('Works on', findRichText: true),
       ),
+      findsNothing,
+    );
+    expect(
+      find.descendant(
+        of: _key('capability-unavailable-usage'),
+        matching: find.textContaining('Works on', findRichText: true),
+      ),
       findsOneWidget,
     );
     expect(
@@ -427,7 +436,7 @@ void main() {
     tester,
   ) async {
     _tall(tester);
-    final controller = await _controller(ServerCapabilities.allV1);
+    final controller = await _controller(testServerCapabilities);
     addTearDown(controller.dispose);
     await tester.pumpWidget(_app(controller, focus: 'terminal'));
     await tester.pumpAndSettle();

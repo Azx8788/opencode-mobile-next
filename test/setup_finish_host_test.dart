@@ -9,6 +9,7 @@ import 'package:opencode_mobile/builtin/setup/setup_finish.dart';
 import 'package:opencode_mobile/builtin/team/builtin_team.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/profiles.dart';
+import 'package:opencode_mobile/domain/server_probe.dart';
 import 'package:opencode_mobile/termux/bridge.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -33,6 +34,18 @@ class _OwnershipLinux extends BuiltinLinux {
     'The app cannot safely identify previous work.',
     code: 'runtime_ownership_unknown',
   );
+}
+
+class _ReadyLinux extends _OwnershipLinux {
+  String? startedProfileId;
+  @override
+  Future<void> startServer(
+    String script, {
+    int port = 4097,
+    BuiltinServerRestoreRecipe? restoreRecipe,
+  }) async {
+    startedProfileId = restoreRecipe?.profileId;
+  }
 }
 
 void main() {
@@ -140,7 +153,7 @@ void main() {
       final store = ProfileStore(prefs: await SharedPreferences.getInstance());
       final older = await ensureBuiltinProfile(
         store,
-        flavor: ServerFlavor.v1,
+        flavor: ServerFlavor.v2,
         name: 'This phone',
       );
       older.orchestration = BuiltinTeam.config();
@@ -163,7 +176,96 @@ void main() {
       );
       final newer = findBuiltinProfile(store, ServerFlavor.v2)!;
       expect(BuiltinTeam.isBuiltinConfig(newer.orchestration), isTrue);
-      expect(BuiltinTeam.isBuiltinConfig(older.orchestration), isFalse);
+      expect(newer, same(older));
+      expect(BuiltinTeam.isBuiltinConfig(older.orchestration), isTrue);
     },
   );
+  for (final active in [true, false]) {
+    test(
+      'legacy source survives an earlier OC2 alias with active=$active',
+      () async {
+        SharedPreferences.setMockInitialValues({});
+        const secure = MethodChannel(
+          'plugins.it_nomads.com/flutter_secure_storage',
+        );
+        final messenger =
+            TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+        messenger.setMockMethodCallHandler(secure, (_) async => null);
+        addTearDown(() => messenger.setMockMethodCallHandler(secure, null));
+        final store = ProfileStore(
+          prefs: await SharedPreferences.getInstance(),
+        );
+        final alias = ServerProfile(
+          id: 'earlier-oc2',
+          name: 'Earlier OC2',
+          baseUrl: BuiltinLinux.serverUrl,
+          password: 'alias-secret',
+        );
+        final original = ServerProfile(
+          id: 'original-phone',
+          name: 'My phone',
+          baseUrl: BuiltinLinux.serverUrl,
+          password: 'original-secret',
+          requiresOpenCode2Migration: true,
+        );
+        await store.upsert(alias);
+        await store.upsert(original);
+        await store.prefs.setString(
+          'oc.savedDraft.original-phone',
+          'keep this draft',
+        );
+        if (active) await store.setActiveId(original.id);
+        final linux = _ReadyLinux();
+        final starter = BuiltinServerStarter(
+          linux: linux,
+          pollInterval: Duration.zero,
+        );
+        addTearDown(starter.dispose);
+        final originalProbe = serverProbe;
+        serverProbe = ({required baseUrl, username, password}) async =>
+            const ServerProbeResult.success('2.0.29');
+        addTearDown(() => serverProbe = originalProbe);
+        ServerProfile? connected;
+        final finisher = BuiltinSetupFinisher(
+          store: store,
+          starter: starter,
+          connect: (profile) async {
+            connected = profile;
+            return null;
+          },
+          isConnectedTo: (_) => false,
+          strings: () => lookupAppLocalizations(const Locale('en')),
+        );
+        expect(
+          await finisher.call(
+            const SetupFinishRequest(
+              runtime: TermuxRuntime.openCode2,
+              openCodeChanged: true,
+            ),
+          ),
+          isNull,
+        );
+        expect(connected, same(original));
+        expect(linux.startedProfileId, original.id);
+        expect(original.requiresOpenCode2Migration, isFalse);
+        expect(
+          original.openCode2HistoryPending,
+          isTrue,
+          reason:
+              'A healthy server does not prove the history import completed',
+        );
+        expect(original.password, 'original-secret');
+        expect(
+          store.prefs.getString('oc.savedDraft.original-phone'),
+          'keep this draft',
+        );
+        expect(alias.openCode2HistoryPending, isFalse);
+        expect(alias.password, 'alias-secret');
+        expect(store.profiles.map((p) => p.id), [
+          'earlier-oc2',
+          'original-phone',
+        ]);
+      },
+    );
+  }
 }

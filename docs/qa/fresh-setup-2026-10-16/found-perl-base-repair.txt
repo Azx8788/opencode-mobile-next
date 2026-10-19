@@ -1,0 +1,52 @@
+# Build 2382: SIGTERM during Git and SSH (perl-base 0.6 unpacking over 0.4); automatic retry ran, repair failed
+setup tapped 09:41:22
+watch 1756964
+SIGTERM guest vpid1 17161 09:42:02
+10-16 09:41:36.098 16995 16995 I flutter : OCTRACE 12423ms setup.component id=linux
+10-16 09:42:02.681 16995 17096 W OcLinux : setup step essentials interrupted; running it again (2 of 3)
+10-16 09:42:06.107 16995 16995 I flutter : OCTRACE 30952ms setup.component id=essentials outcome=error
+10-16 09:42:06.119 16995 16995 I flutter : OCTRACE 43404ms setup.job state=failed outcome=error
+Preparing to unpack .../perl-base_5.38.2-3.2ubuntu0.6_amd64.deb ...
+Unpacking perl-base (5.38.2-3.2ubuntu0.6) over (5.38.2-3.2ubuntu0.4) ...
+proot info: vpid 1: terminated with signal 15
+==> Interrupted. Trying again (2/3)
+[oc] Details: dpkg --audit
+The following packages are in a mess due to serious problems during
+installation.  They must be reinstalled for them (and any packages
+that depend on them) to function properly:
+ perl-base            minimal Perl system
+==> Repairing interrupted package installation
+Reading package lists...
+Building dependency tree...
+Reading state information...
+Suggested packages:
+  perl
+E: Can't find a source to download version '5.38.2-3.2ubuntu0.4' of 'perl-base:amd64'
+[oc] Details: dpkg --audit
+The following packages are in a mess due to serious problems during
+installation.  They must be reinstalled for them (and any packages
+that depend on them) to function properly:
+ perl-base            minimal Perl system
+
+[oc] Package repair could not finish. The damaged packages could not be reinstalled. Check your connection and retry setup.
+
+# Same phone data, updated to 2383, Continue setup once
+10-16 10:01:15.421 20449 20449 I flutter : OCTRACE 43404ms setup.job state=failed outcome=error
+10-16 10:03:11.148 20449 20449 I flutter : OCTRACE 87943ms setup.component id=essentials
+10-16 10:04:05.931 20449 20449 I flutter : OCTRACE 55190ms setup.component id=python
+10-16 10:04:36.722 20449 20449 I flutter : OCTRACE 30721ms setup.component id=node
+10-16 10:05:00.707 20449 20449 I flutter : OCTRACE 23742ms setup.component id=opencode
+10-16 10:05:04.273 20449 20449 I flutter : OCTRACE 3743ms setup.component id=start
+10-16 10:05:04.298 20449 20449 I flutter : OCTRACE 201346ms setup.job state=done
+1:[oc] Details: dpkg --audit
+5: perl-base            minimal Perl system
+6:==> Repairing interrupted package installation
+12:E: Can't find a source to download version '5.38.2-3.2ubuntu0.4' of 'perl-base:amd64'
+19:  perl-base
+47:Preparing to unpack .../perl-base_5.38.2-3.2ubuntu0.6_amd64.deb ...
+48:Unpacking perl-base (5.38.2-3.2ubuntu0.6) over (5.38.2-3.2ubuntu0.4) ...
+49:Setting up perl-base (5.38.2-3.2ubuntu0.6) ...
+82:==> Installing packages
+313:==> Downloading packages
+340:==> Installing packages
+503:==> Downloading Node.js 24.21.0

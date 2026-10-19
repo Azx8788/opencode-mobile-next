@@ -629,6 +629,42 @@ void _historyAndNavigationTests() {
   );
 
   testWidgets(
+    'sending from further up the conversation brings the view to the new message',
+    (tester) async {
+      final prompt = Completer<void>();
+      final api = _FakeOpenCodeApi()
+        ..promptCompleter = prompt
+        ..pageHandler = (cursor) async => ServerPage(
+          items: [for (var i = 0; i < 40; i++) historyMessage('recent-$i')],
+        );
+      await _pumpChat(tester, api);
+      await tester.pumpAndSettle();
+      final listFinder = find.byType(ScrollablePositionedList);
+      for (var i = 0; i < 4; i++) {
+        await tester.drag(listFinder, const Offset(0, 450));
+        await tester.pumpAndSettle();
+      }
+      expect(find.byKey(const ValueKey('jump-to-latest')), findsOneWidget);
+
+      await tester.enterText(find.byType(TextField), 'sent from up here');
+      await tester.pump();
+      await tester.tap(find.byTooltip('Send'));
+      // A running turn animates its live line, so the view never settles.
+      for (var i = 0; i < 12; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+
+      // The person's own words are in view without a tap on the pill.
+      final list = tester.getRect(listFinder);
+      final bubble = tester.getRect(find.text('sent from up here'));
+      expect(bubble.top, greaterThanOrEqualTo(list.top));
+      expect(bubble.bottom, lessThanOrEqualTo(list.bottom));
+      expect(find.byKey(const ValueKey('jump-to-latest')), findsNothing);
+      prompt.complete();
+    },
+  );
+
+  testWidgets(
     'paged history retains older prefix on overlapping head refresh',
     (tester) async {
       var refreshed = false;
@@ -909,9 +945,9 @@ void _historyAndNavigationTests() {
       await controller.store.prefs.setString(
         PromptPhotoStore.key,
         jsonEncode(
-          const PendingPromptPhoto(
+          PendingPromptPhoto(
             id: 'pending',
-            profileID: '',
+            profileID: controller.profile!.id,
             sessionID: 'session-1',
           ).toJson(),
         ),

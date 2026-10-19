@@ -28,7 +28,6 @@ const _toneRows = [
   (KitTextTone.secondary, 'Secondary', 'ثانوي'),
   (KitTextTone.accent, 'Accent', 'مميز'),
   (KitTextTone.success, 'Success', 'نجاح'),
-  (KitTextTone.danger, 'Danger', 'خطر'),
 ];
 
 String _sizeLabel(KitIconSize size, bool arabic) => switch (size) {

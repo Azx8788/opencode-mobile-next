@@ -743,10 +743,10 @@ void main() {
       final cases = <GenUiSetupStatus, String>{
         const GenUiSetupInstalling(): _en.cardsStatusChecking,
         GenUiSetupPartial(
-          agents: const [GenUiAgent.openCode1, GenUiAgent.openCode2],
+          agents: const [GenUiAgent.openCode2],
           reason: GenUiSetupProblem.notQualified,
         ): _en.cardsStatusPartial(
-          'OpenCode 1 and OpenCode 2',
+          'OpenCode 2',
           _en.cardsProblemNotQualified,
         ),
         GenUiSetupRestartRequired(agents: const [GenUiAgent.claude]): _en
@@ -771,8 +771,8 @@ void main() {
         GenUiSetupPartial(
           agents: const [GenUiAgent.claude],
           reason: GenUiSetupProblem.notQualified,
-          affected: const [GenUiAgent.openCode1, GenUiAgent.openCode2],
-        ): 'On for Claude Code. OpenCode 1 and OpenCode 2 haven\'t been checked '
+          affected: const [GenUiAgent.openCode2],
+        ): 'On for Claude Code. OpenCode 2 hasn\'t been checked '
             'to work with cards yet.',
         const GenUiSetupUnavailable(
           reason: GenUiSetupProblem.notQualified,
@@ -815,15 +815,6 @@ void main() {
         notQualified(_en, const [GenUiAgent.claude, GenUiAgent.openCode2]),
         "Claude Code and OpenCode 2 haven't been checked to work with cards "
         'yet.',
-      );
-      expect(
-        notQualified(_en, const [
-          GenUiAgent.claude,
-          GenUiAgent.openCode1,
-          GenUiAgent.openCode2,
-        ]),
-        "Claude Code, OpenCode 1 and OpenCode 2 haven't been checked to work "
-        'with cards yet.',
       );
       expect(
         notQualified(ar, const [GenUiAgent.openCode2]),

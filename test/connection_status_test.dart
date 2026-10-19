@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/sse.dart';
-import 'package:opencode_mobile/api/models.dart' show Health;
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'support/fake_event_channel.dart';
+import 'package:opencode_mobile/domain/models.dart' show Health;
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/domain/connection_status.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -27,7 +27,7 @@ class _Store extends ProfileStore {
   String? get activeId => selected;
 }
 
-class _PendingApi extends OpenCodeApi {
+class _PendingApi extends FakeServerGateway {
   _PendingApi() : super(baseUrl: 'http://example.invalid');
   final result = Completer<Health>();
   @override
@@ -60,7 +60,7 @@ void main() {
   testWidgets(
     'established link gets a bounded quiet window without reachability',
     (tester) async {
-      controller.api = OpenCodeApi(baseUrl: 'http://example.invalid');
+      controller.api = FakeServerGateway(baseUrl: 'http://example.invalid');
       controller.status = StreamStatus.connected;
       controller.busySessions.add('working');
       controller.status = StreamStatus.reconnecting;
@@ -82,7 +82,7 @@ void main() {
   testWidgets('a fresh connect stays visible after an established connection', (
     tester,
   ) async {
-    controller.api = OpenCodeApi(baseUrl: 'http://example.invalid');
+    controller.api = FakeServerGateway(baseUrl: 'http://example.invalid');
     controller.status = StreamStatus.connected;
     controller.status = StreamStatus.connecting;
     expect(controller.connectionStatus.visible, isTrue);
@@ -91,7 +91,7 @@ void main() {
   });
 
   testWidgets('credentials bypass the quiet reconnect window', (tester) async {
-    controller.api = OpenCodeApi(baseUrl: 'http://example.invalid');
+    controller.api = FakeServerGateway(baseUrl: 'http://example.invalid');
     controller.status = StreamStatus.connected;
     controller.status = StreamStatus.reconnecting;
     controller.passwordRejected = true;

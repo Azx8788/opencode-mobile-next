@@ -26,16 +26,32 @@ enum AgentHostFailure {
   version,
   daemon,
   hello,
+  helperVersion,
+  needsSignIn,
+  timeout,
   wrongArchitecture,
   stale,
   busy,
 }
 
 final class AgentHostException implements Exception {
-  const AgentHostException(this.reason);
+  const AgentHostException(this.reason, {this.code});
   final AgentHostFailure reason;
+
+  /// The phone's fixed failure code (`agent_host_exited`, `idle_resume_stale`,
+  /// ...), for Details only: several native refusals share one [reason].
+  final String? code;
+
+  /// [raw] when it is a plain fixed code, else null. Never free text.
+  static String? safeCode(Object? raw) =>
+      raw is String && RegExp(r'^[a-z][a-z0-9_]{0,47}$').hasMatch(raw)
+      ? raw
+      : null;
+
   @override
-  String toString() => 'AgentHostException(${reason.name})';
+  String toString() => code == null
+      ? 'AgentHostException(${reason.name})'
+      : 'AgentHostException(${reason.name}: $code)';
 }
 
 /// Safe setup progress. No shell output, provider messages or native log tail.
@@ -46,11 +62,17 @@ final class AgentSetupProgress {
     this.fraction,
     this.componentId,
     this.failure,
+    this.downloadedBytes,
+    this.totalBytes,
+    this.checkStep,
   });
   final String agentId;
   final AgentSetupPhase phase;
   final double? fraction;
   final String? componentId;
+  final int? downloadedBytes;
+  final int? totalBytes;
+  final AgentPhoneCheckStep? checkStep;
 
   /// Closed failure projection. Native/provider error text never reaches UI.
   final AgentHostFailure? failure;
@@ -65,12 +87,22 @@ final class AgentPhoneCheckResult {
     required this.passed,
     required List<AgentPhoneCheckStep> completed,
     this.failure,
+    this.observedHelperVersion,
+    this.expectedHelperVersion,
+    this.previousVersion,
+    this.details,
   }) : completed = List.unmodifiable(completed);
   final String agentId;
   final AgentArchitecture? architecture;
   final bool passed;
   final List<AgentPhoneCheckStep> completed;
   final AgentHostFailure? failure;
+  final String? observedHelperVersion;
+  final String? expectedHelperVersion;
+  final String? previousVersion;
+
+  /// Authored diagnostic facts only; never CLI output or credentials.
+  final String? details;
   bool get arm64Qualified => passed && architecture == AgentArchitecture.arm64;
 }
 

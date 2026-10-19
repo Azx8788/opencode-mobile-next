@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/draft_attachments.dart';
 import 'package:opencode_mobile/state/orchestration_store.dart';
@@ -25,6 +25,7 @@ class _Storage extends InMemorySharedPreferencesStore {
             {
               'id': id,
               'name': 'Synthetic $id',
+              'flavor': 'v2',
               'baseUrl': 'https://$id.example',
             },
         ]),
@@ -189,6 +190,7 @@ final _profileASecrets = [
   FactsBookStore.ownerKey('a'),
   FactsBookStore.outboxKey('a'),
   '${ProfileStore.quotaTokenKeyPrefix}a',
+  '${ProfileStore.githubTokenKeyPrefix}a',
   ...OrchestrationStore.secretKeys('a'),
 ];
 

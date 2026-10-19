@@ -40,6 +40,19 @@ extension _PhoneAgentBackend on _ConnectionControllerPhoneAgents {
         draftAttachmentVault: _self._draftAttachmentVault,
         promptPhotoStore: _self._promptPhotoStore,
       ).._agentBackendRecover = recoverPhoneAgentBackend;
+      // The helper's own health check: whether it answers, apart from this
+      // app's link to it (which a long tool call can leave waiting).
+      backend._agentDaemonProbe = () async {
+        if (!identical(host, _paHost) || _self._disposed) return false;
+        if (host is PhoneAgentDaemonHealthPort) {
+          return (host as PhoneAgentDaemonHealthPort).daemonAnswers();
+        }
+        final where = _paBackend?.directory;
+        if (where == null) return false;
+        final probe = await host.openGateway(where);
+        probe.close();
+        return true;
+      };
       backend._agentHelperStatusReader = () async {
         if (!identical(host, _paHost) || _self._disposed) return null;
         return phoneAgentHelperStatus();
@@ -137,9 +150,8 @@ extension _PhoneAgentBackend on _ConnectionControllerPhoneAgents {
     _paRecovering = true;
     try {
       // Only a stopped helper is started: starting replaces a running one.
-      final agent = _paHostProbeAgent;
-      final running =
-          agent != null && (await host.inspect(agent)).hostAvailable;
+      final running = await _paHelperRunning(host);
+      if (running == null) return;
       if (!running) {
         try {
           await _paStartOrdinaryHost(host, automatic: true);
@@ -164,6 +176,27 @@ extension _PhoneAgentBackend on _ConnectionControllerPhoneAgents {
       // The banner stays; its Restart tries again.
     } finally {
       _paRecovering = false;
+    }
+  }
+
+  /// Whether the helper process runs, read cheaply (the native process
+  /// table) where the host can, else from a bounded inspection (which runs
+  /// the agent's `--version`). Null when neither answered in time: nothing
+  /// is started on a guess.
+  Future<bool?> _paHelperRunning(PhoneAgentHostPort host) async {
+    try {
+      if (host is PhoneAgentLivenessPort) {
+        final running = await (host as PhoneAgentLivenessPort)
+            .helperRunning()
+            .timeout(const Duration(seconds: 5));
+        if (running != null) return running;
+      }
+      final agent = _paHostProbeAgent;
+      if (agent == null) return false;
+      return (await host.inspect(agent).timeout(const Duration(seconds: 75)))
+          .hostAvailable;
+    } catch (_) {
+      return null;
     }
   }
 

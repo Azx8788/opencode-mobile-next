@@ -186,7 +186,7 @@ void main() {
         'returned_address_error',
         _Bridge(TailscaleAppState.installed),
         light: light,
-        address: 'http://100.64.0.1:4096',
+        address: 'https://host/path',
         act: (tester) async {
           tester.binding.handleAppLifecycleStateChanged(
             AppLifecycleState.inactive,
@@ -197,7 +197,11 @@ void main() {
           await tester.pumpAndSettle();
           await tester.tap(find.text('Continue to sign-in'));
           await tester.pumpAndSettle();
-          await tester.ensureVisible(find.textContaining("won't work here"));
+          final error = find.text(
+            lookupAppLocalizations(const Locale('en')).tailscaleAddressError,
+          );
+          expect(error, findsOneWidget);
+          await tester.ensureVisible(error);
         },
       );
     });

@@ -1,3 +1,4 @@
+import 'support/fake_server_capabilities.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -5,11 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/provider_presentation.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/provider_presentation.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/domain/profile_monitor.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
@@ -31,11 +32,11 @@ import 'revamp/screen_voice_1_fixtures.dart';
 // with several, a page per server with three sections, the override count
 // and "Use my default". Assertions are about what a person reads and taps.
 
-class _Api extends OpenCodeApi {
+class _Api extends FakeServerGateway {
   _Api() : super(baseUrl: 'http://localhost');
 
   @override
-  ServerCapabilities get capabilities => ServerCapabilities.allV1;
+  ServerCapabilities get capabilities => testServerCapabilities;
 
   @override
   Future<Health> health() async => Health(healthy: true, version: '1.18.23');
@@ -62,6 +63,7 @@ Future<ConnectionController> _controller({int servers = 1}) async {
       {
         'id': 'profile-1',
         'name': 'Workstation',
+        'flavor': 'v2',
         'baseUrl': 'http://localhost:4096',
         'username': '',
       },
@@ -69,6 +71,7 @@ Future<ConnectionController> _controller({int servers = 1}) async {
         {
           'id': 'profile-2',
           'name': 'Laptop',
+          'flavor': 'v2',
           'baseUrl': 'http://laptop.example:4096',
           'username': '',
         },
@@ -76,6 +79,7 @@ Future<ConnectionController> _controller({int servers = 1}) async {
         {
           'id': 'profile-3',
           'name': 'Studio',
+          'flavor': 'v2',
           'baseUrl': 'http://studio.example:4096',
           'username': '',
         },

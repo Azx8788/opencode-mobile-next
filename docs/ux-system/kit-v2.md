@@ -1,5 +1,7 @@
 # Kit v2 (2026-09-26)
 
+> **2026-10-16 (owner, absolute): no red anywhere in the app.** There is no `danger` or `dangerFill` role, no error colour and no red tone on any text, icon, tile, chip, button, meter, diff line or terminal. Where this document or a part spec says red, danger, `dangerFill` or the error colour, read the neutral ink (`text1`; `text2` for a removed diff line). Amber (`attention`) means "needs you" and nothing else. A destructive act is made safe by its confirmation (and a typed name where one exists), never by a colour; the confirmed primary button inside a confirmation is the strong neutral fill (`text1` fill, `ground` words). `test/no_red_scan_test.dart` fails on any use of a danger or error colour, `Colors.red*` or a red-hued literal in `lib/ui`.
+
 > **2026-10-02 (owner, final):** liquid and frosted glass are removed. Wherever this document or a part spec says glass, read a plain solid surface: opaque `surface2`, hairline, token radius, at most the one elevation shadow. `KitGlass` keeps its name as that thin solid part (`docs/ux-system/kit-api/KitGlass.md`).
 
 *Specification for the next version of `lib/ui/kit/`. It is built from the Phase 1 map (`docs/ux-system/map/all.json`), the Phase 2 patterns (`journeys.json` › `patterns`), the verticals (`personas-verticals.json`), the design standard, the principles, and the ui-ux-pro-max checklist. Machine-readable twin: `kit-v2.json`. Nothing here is built yet.*
@@ -1063,7 +1065,7 @@ The same act gets the same treatment from every entry point: a swipe, a menu and
 
 ### 4.2 Destructive styling
 
-- The error colour means "this loses data or ends running work". It is never used for restart, cancel-a-pending-send, withdraw-to-draft, or a non-permanent removal (a sign-in that can be redone is `neutral`).
+- There is no error colour. Nothing is painted red. An act that loses data or ends running work keeps its `destructive` ordering meaning (last in a group or menu, apart from the frequent actions) and its confirmation; its words, glyph and tile are neutral, and its confirmed button is the strong neutral fill.
 - A destructive action is never primary on a screen. It is primary only inside a `KitConfirmSheet` of kind `destructive`, `stop` or `discard`, where the whole sheet is that act.
 - It never sits beside a frequent action (`KitActionBlock` enforces this, §2.7). In rows it sits last, after a divider, in the `KitRowMenu`.
 - Its label is a verb naming the thing: "Delete conversation", never "Delete", "OK" or "Yes". Cancel words by kind: "Keep running", "Keep editing", "Cancel".

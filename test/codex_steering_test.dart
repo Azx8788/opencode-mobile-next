@@ -1,8 +1,9 @@
+import 'support/fake_server_capabilities.dart';
 import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/codex/gateway.dart';
 import 'package:opencode_mobile/codex/transport.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
@@ -144,7 +145,7 @@ void main() {
         fixture.gateway.capabilities.withGenUi(true).promptSteering,
         isTrue,
       );
-      expect(ServerCapabilities.allV1.promptSteering, isFalse);
+      expect(testServerCapabilities.promptSteering, isFalse);
       expect(fixture.gateway.midTurnPrompt('unknown'), isNull);
 
       await fixture.gateway.promptAsync(

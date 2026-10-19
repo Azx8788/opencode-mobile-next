@@ -7,9 +7,9 @@ import 'support/complete_message_history.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart' show PromptDelivery;
 import 'package:opencode_mobile/domain/turn_stall.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -18,7 +18,7 @@ import 'package:opencode_mobile/state/review_handoff.dart';
 import 'package:opencode_mobile/ui/screens/chat_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class _Api extends OpenCodeApi with CompleteMessageHistory {
+class _Api extends FakeServerGateway with CompleteMessageHistory {
   _Api() : super(baseUrl: 'http://localhost');
 
   List<MessageWithParts> messagesResult = const [];
@@ -206,6 +206,54 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('You stopped this reply.'), findsNothing);
     });
+  });
+
+  group('a tool call the person declined', () {
+    // The server ends a rejected call as an error and the step as "aborted";
+    // neither is a failure, and neither is the person pressing Stop.
+    for (final text in [
+      'The user declined this tool call',
+      'The user rejected permission to use this specific tool call.',
+    ]) {
+      testWidgets('reads as their choice: "$text"', (tester) async {
+        final api = _Api()
+          ..messagesResult = [
+            _user('u1'),
+            MessageWithParts(
+              info: MessageInfo(
+                id: 'a1',
+                sessionID: 'session-1',
+                role: 'assistant',
+                time: MsgTime(created: 10, completed: 11),
+                errorText: 'Step interrupted',
+                errorKind: MessageErrorKind.aborted,
+              ),
+              parts: [
+                Part(
+                  id: 'a1-tool',
+                  messageID: 'a1',
+                  callID: 'call-1',
+                  type: 'tool',
+                  toolName: 'write',
+                  toolState: ToolState.fromJson({
+                    'status': 'error',
+                    'input': {'filePath': '/root/x.txt', 'content': 'hi'},
+                    'error': text,
+                  }, toolName: 'write'),
+                ),
+              ],
+            ),
+          ];
+        await _pumpChat(tester, api);
+        await tester.pumpAndSettle();
+        expect(find.text('You declined this'), findsWidgets);
+        expect(find.textContaining('Tool failed'), findsNothing);
+        expect(find.text('Failed'), findsNothing);
+        expect(find.textContaining(text), findsNothing);
+        expect(find.text('You stopped this reply.'), findsNothing);
+        expect(find.byKey(const Key('message-stopped')), findsNothing);
+      });
+    }
   });
 
   group('the agent card tool', () {

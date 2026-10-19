@@ -14,6 +14,16 @@ extension _PaseoPayloadUse on PaseoGateway {
       try {
         final acquire = _beforePayloadUse;
         if (acquire != null) await acquire();
+      } on ProductException catch (refusal) {
+        // The host's own words (app copy, never native text) say why it
+        // refused; they ride along for Details and the problem report.
+        throw PaseoFailure(
+          PaseoFailureKind.unavailable,
+          reason: [
+            'The phone refused new agent work: ${refusal.message}',
+            if (refusal.cause case final String gate) '($gate)',
+          ].join(' '),
+        );
       } catch (_) {
         // Host exceptions may carry private native detail. Keep fixed copy.
         throw PaseoFailure(PaseoFailureKind.unavailable);

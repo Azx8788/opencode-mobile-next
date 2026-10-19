@@ -349,7 +349,6 @@ void main() {
       (tester) async {
         final colours = [
           for (final option in graphiteAccents) option.dark,
-          graphiteDark.danger, // destroys or stops
           const Color(0xFFFF8A4C), // the orange teal replaced
         ];
         for (final colour in colours) {

@@ -13,6 +13,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:opencode_mobile/builtin/setup/phone_setup.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
 import 'package:opencode_mobile/ui/kit/kit.dart' show KitSkeletonRows;
 import 'package:opencode_mobile/ui/kit/kit_motion.dart';
@@ -21,6 +22,7 @@ import 'package:opencode_mobile/ui/widgets/team_host_form.dart';
 import 'package:opencode_mobile/voice/device.dart';
 
 import '../../tool/capture/fixtures.dart' show captureApp, loadCaptureFonts;
+import '../support/fake_setup_engine.dart';
 import '../support/work_tab_fixture.dart';
 
 void _mockSecureStorage(WidgetTester tester) {
@@ -97,6 +99,17 @@ Future<void> _golden(
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(loadCaptureFonts);
+  setUp(() {
+    // Nothing of the team is installed yet, as the page's inventory reads it.
+    final previousEngine = PhoneSetup.engine;
+    final previousTermux = PhoneSetup.termux;
+    PhoneSetup.engine = FakeSetupEngine();
+    PhoneSetup.termux = FakeSetupEngine();
+    addTearDown(() {
+      PhoneSetup.engine = previousEngine;
+      PhoneSetup.termux = previousTermux;
+    });
+  });
   tearDown(() {
     debugPlatformCapabilities = null;
     teamHostProbe = defaultTeamHostProbe;

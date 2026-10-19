@@ -6,10 +6,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import '../support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import '../support/fake_event_channel.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/platform/camera.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
@@ -43,7 +43,7 @@ class _Camera implements CameraPlatform {
   Future<void> openAppSettings() async {}
 }
 
-class _Api extends OpenCodeApi {
+class _Api extends FakeServerGateway {
   _Api(this.version) : super(baseUrl: 'http://203.0.113.10:4747');
   final String version;
   int checks = 0;
@@ -335,11 +335,8 @@ void main() {
       expect(find.textContaining('the way you started it'), findsOneWidget);
       expect(find.text('bash ubuntu-opencode.sh restart'), findsNothing);
       expect(find.byKey(const ValueKey('server-restart-copy')), findsNothing);
-      await tester.tap(find.byKey(const ValueKey('server-restart-script')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const ValueKey('server-restart-copy')));
-      await tester.pump();
-      expect(copied, 'bash ubuntu-opencode.sh restart');
+      expect(find.byKey(const ValueKey('server-restart-script')), findsNothing);
+      expect(copied, isNull);
       await tester.tap(find.text('I restarted it'));
       await tester.pumpAndSettle();
       expect(find.byKey(const ValueKey('server-restart-sheet')), findsNothing);
@@ -379,7 +376,7 @@ void main() {
       );
       await tester.tap(find.byKey(const Key('server-updates-tile')));
       await tester.pump();
-      expect(copied, 'opencode upgrade\nopencode models --refresh');
+      expect(copied, 'npm install -g @opencode/cli@2.0.29');
       expect(find.byType(SnackBar), findsNothing);
       await tester.pumpAndSettle();
       expect(

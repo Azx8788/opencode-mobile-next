@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
-import '../api/server_probe.dart';
+import '../domain/server_probe.dart';
 import '../platform/platform_capabilities.dart';
 import '../termux/bridge.dart';
 import '../termux/termux_reach.dart';
@@ -269,8 +269,7 @@ class TermuxRunningServer {
   bool get isStopped => state == TermuxRunningServerState.stopped;
 
   /// The profile generation that speaks to [runtime].
-  ServerFlavor get flavor =>
-      runtime == TermuxRuntime.openCode2 ? ServerFlavor.v2 : ServerFlavor.v1;
+  ServerFlavor get flavor => ServerFlavor.v2;
 }
 
 /// Reads whether the app-managed OpenCode server is running in Termux.

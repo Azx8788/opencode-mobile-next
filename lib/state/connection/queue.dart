@@ -29,6 +29,40 @@ mixin _ConnectionControllerQueue on ChangeNotifier {
   /// flush started cannot act on a prompt that is now on the wire.
   String? _queuedPromptInFlight;
 
+  // Online sends use the same durable review marker, but are not queued work
+  // while their caller is awaiting admission. Multiple chats may send at once.
+  final Set<String> _onlinePromptsInFlight = {};
+
+  /// Persist (or refresh) an online send before its composer can be cleared.
+  /// The marker never auto-flushes, including after process death.
+  Future<bool> holdOnlinePrompt(QueuedPrompt prompt) =>
+      _self._holdOnlinePrompt(prompt);
+
+  /// Recheck the deletion fence immediately before the network write.
+  bool canDispatchOnlinePrompt(String id) =>
+      _onlinePromptsInFlight.contains(id) &&
+      _self._queue.any(
+        (entry) =>
+            entry.id == id &&
+            entry.profileID == _self.profile?.id &&
+            !_self._closedQueueProfiles.contains(entry.profileID) &&
+            !_self._deletingReadProfiles.contains(entry.profileID),
+      );
+
+  /// Finish an online send. Unknown outcomes remain for explicit review;
+  /// confirmed acceptance and preflight refusals remove the marker.
+  Future<void> finishOnlinePrompt(
+    String id, {
+    required bool dispatched,
+    required bool accepted,
+    String? error,
+  }) => _self._finishOnlinePrompt(
+    id,
+    dispatched: dispatched,
+    accepted: accepted,
+    error: error,
+  );
+
   /// Queued prompts the server accepted but whose removal the store refused.
   /// In memory only: after a restart the marker alone remains, which reads
   /// as an unconfirmed send — the honest statement once this is lost.
@@ -88,7 +122,8 @@ mixin _ConnectionControllerQueue on ChangeNotifier {
   int get queuedPromptReviewCount => _self._queuedPromptReviewCount;
 
   /// Whether a flush is dispatching this entry or persisting its outcome.
-  bool queuedPromptSending(String id) => _queuedPromptInFlight == id;
+  bool queuedPromptSending(String id) =>
+      _queuedPromptInFlight == id || _onlinePromptsInFlight.contains(id);
 
   /// Whether the server accepted this entry's send but the device could not
   /// record it. Resending such an entry is a guaranteed duplicate.
@@ -332,6 +367,7 @@ extension _ConnectionControllerQueueImpl on ConnectionController {
 
   /// The body of [clearAllQueuedPrompts].
   Future<bool> _clearAllQueuedPrompts() => _serializeQueueChange(() async {
+    if (_onlinePromptsInFlight.isNotEmpty) return false;
     if (_queue.isEmpty && _queueStore.readable) return true;
     if (!await _queueStore.save(const [])) return false;
     _offlineQueue = [];
@@ -354,7 +390,10 @@ extension _ConnectionControllerQueueImpl on ConnectionController {
     if (profileID == null) return const [];
     return [
       for (final entry in _queue)
-        if (entry.profileID == profileID && entry.sessionID == sessionID) entry,
+        if (entry.profileID == profileID &&
+            entry.sessionID == sessionID &&
+            !_onlinePromptsInFlight.contains(entry.id))
+          entry,
     ];
   }
 
@@ -362,7 +401,13 @@ extension _ConnectionControllerQueueImpl on ConnectionController {
   int get _queuedPromptCount {
     final profileID = profile?.id;
     if (profileID == null) return 0;
-    return _queue.where((entry) => entry.profileID == profileID).length;
+    return _queue
+        .where(
+          (entry) =>
+              entry.profileID == profileID &&
+              !_onlinePromptsInFlight.contains(entry.id),
+        )
+        .length;
   }
 
   /// The body of [queuedPromptReviewCount].
@@ -370,7 +415,12 @@ extension _ConnectionControllerQueueImpl on ConnectionController {
     final profileID = profile?.id;
     if (profileID == null) return 0;
     return _queue
-        .where((entry) => entry.profileID == profileID && entry.dispatched)
+        .where(
+          (entry) =>
+              entry.profileID == profileID &&
+              entry.dispatched &&
+              !_onlinePromptsInFlight.contains(entry.id),
+        )
         .length;
   }
 
@@ -488,6 +538,68 @@ extension _ConnectionControllerQueueImpl on ConnectionController {
         return undo.restored;
       });
 
+  Future<bool> _holdOnlinePrompt(QueuedPrompt prompt) =>
+      _serializeQueueChange(() async {
+        if (_disposed ||
+            !prompt.dispatched ||
+            _closedQueueProfiles.contains(prompt.profileID) ||
+            _deletingReadProfiles.contains(prompt.profileID) ||
+            !store.profiles.any(
+              (p) => p.id == prompt.profileID && !p.usesAgentSocket,
+            ) ||
+            prompt.payloadBytes > OfflineQueueStore.maxEntryBytes) {
+          return false;
+        }
+        final existing = _queue.indexWhere((entry) => entry.id == prompt.id);
+        if (existing >= 0 &&
+            (!_onlinePromptsInFlight.contains(prompt.id) ||
+                _queue[existing].profileID != prompt.profileID ||
+                _queue[existing].sessionID != prompt.sessionID)) {
+          return false;
+        }
+        final next = [..._queue];
+        if (existing < 0) {
+          next.add(prompt);
+        } else {
+          next[existing] = prompt;
+        }
+        // Online journal admission must never evict somebody else's work.
+        if (OfflineQueueStore.enforceLimits(next).removed > 0) return false;
+        if (!await _queueStore.save(next)) return false;
+        _onlinePromptsInFlight.add(prompt.id);
+        _offlineQueue = next;
+        _notifyListeners();
+        return true;
+      });
+
+  Future<void> _finishOnlinePrompt(
+    String id, {
+    required bool dispatched,
+    required bool accepted,
+    String? error,
+  }) => _serializeQueueChange(() async {
+    try {
+      if (!_onlinePromptsInFlight.contains(id)) return;
+      if (accepted || !dispatched) {
+        final next = _queue.where((entry) => entry.id != id).toList();
+        if (await _queueStore.save(next)) {
+          _offlineQueue = next;
+        } else if (accepted) {
+          _queuedPromptsAcceptedUnrecorded.add(id);
+        }
+      } else if (error != null) {
+        final next = [
+          for (final entry in _queue)
+            if (entry.id == id) entry.withError(error) else entry,
+        ];
+        if (await _queueStore.save(next)) _offlineQueue = next;
+      }
+    } finally {
+      _onlinePromptsInFlight.remove(id);
+      if (!_disposed) _notifyListeners();
+    }
+  });
+
   /// The body of [queuePrompt].
   Future<bool> _queuePrompt(QueuedPrompt prompt) =>
       _serializeQueueChange(() async {
@@ -501,7 +613,14 @@ extension _ConnectionControllerQueueImpl on ConnectionController {
         // The new entry losing its own eviction pass means the queue could not
         // make room for it; say so rather than reporting a queue that silently
         // dropped what the user just wrote.
-        if (!eviction.kept.any((entry) => entry.id == prompt.id)) return false;
+        if (!eviction.kept.any((entry) => entry.id == prompt.id) ||
+            _queue.any(
+              (entry) =>
+                  queuedPromptSending(entry.id) &&
+                  !eviction.kept.any((kept) => kept.id == entry.id),
+            )) {
+          return false;
+        }
         if (!await _queueStore.save(eviction.kept)) {
           throw const OfflineQueueWriteException();
         }
@@ -514,7 +633,7 @@ extension _ConnectionControllerQueueImpl on ConnectionController {
   /// The body of [removeQueuedPrompt].
   Future<bool> _removeQueuedPrompt(String id) =>
       _serializeQueueChange(() async {
-        if (_queuedPromptInFlight == id) return false;
+        if (queuedPromptSending(id)) return false;
         final kept = _queue.where((entry) => entry.id != id).toList();
         if (kept.length == _queue.length) return true;
         if (!await _queueStore.save(kept)) {
@@ -539,7 +658,7 @@ extension _ConnectionControllerQueueImpl on ConnectionController {
       return _checkQueuedPromptReceipt(id);
     }
     final cleared = await _serializeQueueChange(() async {
-      if (_queuedPromptInFlight == id ||
+      if (queuedPromptSending(id) ||
           _queuedPromptsAcceptedUnrecorded.contains(id)) {
         return false;
       }
@@ -560,7 +679,7 @@ extension _ConnectionControllerQueueImpl on ConnectionController {
 
   /// The body of [retryQueuedPrompt].
   Future<bool> _retryQueuedPrompt(String id) async {
-    if (_queuedPromptInFlight == id) return false;
+    if (queuedPromptSending(id)) return false;
     final index = _queue.indexWhere((entry) => entry.id == id);
     if (index < 0 || _queue[index].dispatched) return false;
     _explicitQueueResends.add(id);
@@ -600,7 +719,9 @@ extension _ConnectionControllerQueueImpl on ConnectionController {
 
   /// The body of [flushOfflineQueue].
   Future<void> _flushOfflineQueue() async {
-    if (_disposed || !capabilities.offlinePromptQueue) {
+    if (_disposed ||
+        managedOpenCode2MigrationRequired ||
+        !capabilities.offlinePromptQueue) {
       return;
     }
     if (_flushingOfflineQueue) {
@@ -686,6 +807,8 @@ extension _ConnectionControllerQueueImpl on ConnectionController {
           // gets to run. Runs after model/agent prep so those preflight
           // failures stay ordinary retryable errors.
           Future<void> dispatch() async {
+            if (!allowed()) return;
+            await ensureInteractiveSendAllowed(expectedApi: currentApi);
             if (!allowed()) return;
             final marked = await _replaceQueuedPrompt(entry.id, (queued) {
               // Selection/preflight can still be cancelled. Close removal
@@ -834,6 +957,14 @@ extension _ConnectionControllerQueueImpl on ConnectionController {
               (queued) => queued.withError(error.message),
             );
             if (error.statusCode == null) stop = true;
+          }
+        } on ProductException catch (error) {
+          if (!delivered) {
+            await _replaceQueuedPrompt(
+              entry.id,
+              (queued) => queued.withError(error.toString()),
+            );
+            stop = true;
           }
         } catch (error) {
           if (!delivered) {

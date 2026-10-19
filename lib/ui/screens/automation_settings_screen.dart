@@ -456,7 +456,8 @@ class _AutomationSettingsSectionState extends State<AutomationSettingsSection> {
         leading: KitRow.icon(context, switch (kind) {
           InFlowConsentKind.batteryExemption => AppIconography.batteryWarning,
           InFlowConsentKind.makerAutoStart => AppIconography.sync,
-          InFlowConsentKind.needsYouNotifications => AppIconography.inbox,
+          InFlowConsentKind.needsYouNotifications =>
+            AppIconography.notificationImportant,
         }),
         title: switch (kind) {
           InFlowConsentKind.batteryExemption => l10n.consentRowBattery,

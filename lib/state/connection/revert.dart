@@ -25,7 +25,8 @@ mixin _ConnectionControllerRevert on ChangeNotifier {
 
   bool get supportsStagedRevert =>
       _self.repository is StagedRevertGateway ||
-      (_self.repository == null && _self.serverFlavor == ServerFlavor.v2);
+      (_self.repository == null &&
+          _self.profile?.backend == ServerBackend.openCode);
 
   int sessionHistoryRevision(String id) => _self._historyRevisions[id] ?? 0;
   bool sessionRevertSaving(String id) => _self._revertMutations.containsKey(id);
@@ -73,6 +74,8 @@ extension _ConnectionControllerRevertImpl on ConnectionController {
     final cardScope = _genUiScope;
     if (cardScope != null) _genUiState.stale(cardScope, id);
     _historyRevisions[id] = sessionHistoryRevision(id) + 1;
+    _widgetReplyPreviews[id] = '';
+    _widgetAssistantMessages.remove(id);
     final owner = _connectedProfile ?? profile;
     if (owner != null) unawaited(_sessionTailCache.removeSession(owner.id, id));
     _eventBus.add(

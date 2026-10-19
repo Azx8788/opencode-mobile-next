@@ -1,3 +1,4 @@
+import '../support/fake_server_capabilities.dart';
 // Coverage ratchets for the agents on this phone (Settings > Agents and the
 // agent sheet): what the host says about an agent, the installer's progress,
 // the phone check, a removal's result, the sign-in state and what an agent's
@@ -17,7 +18,6 @@ import 'package:opencode_mobile/domain/agent_catalog.dart';
 import 'package:opencode_mobile/domain/agent_sign_in.dart';
 import 'package:opencode_mobile/domain/phone_agent_host.dart';
 import 'package:opencode_mobile/domain/phone_agents.dart';
-import 'package:opencode_mobile/domain/server_gateway/capabilities.dart';
 import 'package:opencode_mobile/ui/kit/kit.dart';
 import 'package:opencode_mobile/ui/screens/agents/agent_sheet.dart';
 import 'package:opencode_mobile/ui/screens/agents/agent_sign_in_terminal.dart';
@@ -150,7 +150,7 @@ void main() {
       final row = buildAgentRow(
         descriptor: AgentCatalog.builtIn.byId('claude')!,
         architecture: AgentArchitecture.arm64,
-        serverCapabilities: ServerCapabilities.allV1,
+        serverCapabilities: testServerCapabilities,
         runtime: PhoneAgentRuntime(
           agentId: 'claude',
           installed: r['installed'] as bool,
@@ -201,6 +201,8 @@ void main() {
         phase: _byName(AgentSetupPhase.values, p['phase']),
         fraction: (p['fraction'] as num?)?.toDouble(),
         componentId: p['componentId'] as String?,
+        downloadedBytes: p['downloadedBytes'] as int?,
+        totalBytes: p['totalBytes'] as int?,
         failure: p['failure'] == null
             ? null
             : _byName(AgentHostFailure.values, p['failure']),

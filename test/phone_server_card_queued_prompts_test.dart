@@ -13,8 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/server_probe.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/server_probe.dart';
 import 'package:opencode_mobile/builtin/builtin_linux.dart';
 import 'package:opencode_mobile/builtin/builtin_server.dart';
 import 'package:opencode_mobile/builtin/setup/phone_setup.dart';
@@ -209,7 +209,7 @@ void main() {
   testWidgets('connected to This phone, nothing waits for it', (tester) async {
     connection
       ..queue(2)
-      ..api = OpenCodeApi(baseUrl: BuiltinLinux.serverUrl);
+      ..api = FakeServerGateway(baseUrl: BuiltinLinux.serverUrl);
     await store.setActiveId('phone');
     await mount(tester);
     expect(

@@ -1,6 +1,8 @@
 # OpenCode 2 capability gaps — product verdicts
 
-Status: **proposed** (design only; no code, no build order committed).
+Status: historical proposal. The 2026-10-15 OC1 retirement supersedes its
+implementation-status claims; revert commit and provider sign-in are now wired.
+See the [current capability and verification record](qa/oc1-decommission-2026-10-15/README.md).
 Date: 2026-08-30. Companion to `docs/opencode2-ui-design.md` (LOCKED) —
 this document extends that design language, it does not amend it.
 

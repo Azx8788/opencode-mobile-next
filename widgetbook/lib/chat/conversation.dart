@@ -6,10 +6,11 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart'
     show PendingQuestion, QuestionChoice, QuestionPrompt, StreamStatus;
 import 'package:opencode_mobile/state/connection.dart';
+import 'package:opencode_mobile/state/offline_queue.dart';
 import 'package:opencode_mobile/ui/screens/chat_screen.dart';
 import 'package:widgetbook/widgetbook.dart';
 
@@ -22,13 +23,13 @@ import 'fake_transcripts.dart';
 /// up (a dropped link, for instance).
 Widget _chat(
   FakeServer Function() server, {
-  void Function(ConnectionController connection)? tweak,
+  FutureOr<void> Function(ConnectionController connection)? tweak,
   String sessionID = chatSessionID,
 }) => FakeAppScene<FakeApp>(
   platform: FakePlatform.android,
   create: () async {
     final app = await server().connect();
-    tweak?.call(app.connection);
+    if (tweak != null) await tweak(app.connection);
     return app;
   },
   builder: (context, app) => ProviderScope(
@@ -125,6 +126,26 @@ CatalogComponent conversationScreen() => catalogComponent(
       name: 'Loading',
       builder: (_) => _chat(
         () => serverWith(_finished())..holdMessages = Completer<void>(),
+      ),
+    ),
+    WidgetbookUseCase(
+      name: 'Unconfirmed send',
+      builder: (_) => _chat(
+        () => serverWith(const [], title: 'Checkout test'),
+        tweak: (connection) async {
+          final now = DateTime.now().millisecondsSinceEpoch;
+          await connection.queuePrompt(
+            QueuedPrompt(
+              id: 'catalog_unconfirmed',
+              profileID: 'main',
+              sessionID: chatSessionID,
+              text: _ask,
+              createdAt: now,
+              dispatchedAt: now,
+              error: 'The connection closed before acknowledgement.',
+            ),
+          );
+        },
       ),
     ),
     WidgetbookUseCase(

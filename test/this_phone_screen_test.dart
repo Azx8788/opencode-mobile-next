@@ -32,7 +32,6 @@ const _shared = [
   'this-phone-detail',
   'this-phone-connect',
   'this-phone-stop',
-  'this-phone-switch',
   'this-phone-add-tools',
   'this-phone-installed',
   'this-phone-keep-running',
@@ -59,6 +58,7 @@ Set<String> _present(WidgetTester tester) => {
 
 void main() {
   setUp(() {
+    useNoTermuxJob();
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
           const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
@@ -85,7 +85,7 @@ void main() {
   }) async {
     final channel = TermuxChannelFixture()
       ..inventoryOutput =
-          'ubuntu=installed\nversion=$version\nruntime=opencode1\n'
+          'ubuntu=installed\nversion=$version\nruntime=opencode2\n'
       ..statusOutput = termuxSnapshot(phase: 'ready', version: version);
     channel.install();
     await pumpPhone(
@@ -133,7 +133,7 @@ void main() {
     tester,
   ) async {
     await inApp(tester);
-    expect(find.text(_l10n.setupRuntimeOne), findsOneWidget);
+    expect(find.text(_l10n.setupRuntimeTwo), findsOneWidget);
     expect(text(tester, 'this-phone-state'), _l10n.phoneServerCardRunning);
     expect(
       text(tester, 'this-phone-detail'),
@@ -174,25 +174,12 @@ void main() {
     await unmountPhone(tester);
   });
 
-  testWidgets('Switch to OpenCode 2: the sheet\'s button names the target', (
+  testWidgets('runtime choices are absent after decommissioning', (
     tester,
   ) async {
     await inApp(tester);
-    await tester.scrollUntilVisible(
-      find.byKey(const ValueKey('this-phone-switch')),
-      200,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.tap(find.byKey(const ValueKey('this-phone-switch')));
-    await _settle(tester);
-    expect(
-      find.descendant(
-        of: find.byKey(const ValueKey('this-phone-switch-confirm')),
-        matching: find.text('Switch to OpenCode 2'),
-      ),
-      findsOneWidget,
-    );
-    expect(find.text('Switch version'), findsNothing);
+    expect(find.byKey(const ValueKey('this-phone-switch')), findsNothing);
+    expect(find.byKey(const ValueKey('this-phone-move-line')), findsNothing);
     await unmountPhone(tester);
   });
 
@@ -200,7 +187,7 @@ void main() {
     tester,
   ) async {
     await termux(tester, scan: () async => const TermuxProcessReport([]));
-    expect(find.text(_l10n.setupRuntimeOne), findsOneWidget);
+    expect(find.text(_l10n.setupRuntimeTwo), findsOneWidget);
     expect(text(tester, 'this-phone-state'), _l10n.phoneServerCardRunning);
     expect(
       text(tester, 'this-phone-detail'),
@@ -388,7 +375,7 @@ void main() {
     ]);
     expect(engine.runParams.single, {
       ...SetupJobParams.adding({'python'}),
-      'opencode': {'runtime': 'opencode1'},
+      'opencode': {'runtime': 'opencode2'},
     });
     expect(progressOpened, 1);
     // The sheet's device look gives up after 5 s off a phone.
@@ -399,7 +386,7 @@ void main() {
   testWidgets('Termux: Update asks, then runs in phone setup\'s progress', (
     tester,
   ) async {
-    final channel = await termux(tester, version: '1.18.20');
+    final channel = await termux(tester, version: '2.0.28');
     // From here the manager reports the update running.
     channel.statusOutput = null;
     await tester.tap(find.byKey(const ValueKey('this-phone-update')));
@@ -416,7 +403,7 @@ void main() {
   testWidgets('Update is not offered when the pinned version is installed', (
     tester,
   ) async {
-    await termux(tester, version: TermuxRuntime.openCode1.pinnedVersion);
+    await termux(tester, version: TermuxRuntime.openCode2.pinnedVersion);
     expect(find.byKey(const ValueKey('this-phone-update')), findsNothing);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(seconds: 2));

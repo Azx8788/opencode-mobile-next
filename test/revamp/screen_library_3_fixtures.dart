@@ -8,10 +8,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import '../support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import '../support/fake_event_channel.dart';
 import 'package:opencode_mobile/domain/plugin_inventory.dart';
 import 'package:opencode_mobile/orchestration/adapters/gascity/gascity_probe.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -261,7 +261,7 @@ PendingAuthAttempt library3Pending() => PendingAuthAttempt(
   expiresAt: DateTime(2100).millisecondsSinceEpoch,
 );
 
-class _Api extends OpenCodeApi {
+class _Api extends FakeServerGateway {
   _Api() : super(baseUrl: 'https://laptop.example');
   @override
   ServerCapabilities get capabilities =>
@@ -293,6 +293,7 @@ Future<Library3Controller> library3Server({
       {
         'id': 'library-3',
         'name': 'Laptop',
+        'flavor': 'v2',
         'baseUrl': 'https://laptop.example',
       },
     ]),

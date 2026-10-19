@@ -8,6 +8,9 @@ key. What this gate guarantees instead:
 
 * every key in tool/l10n/partial_locales_core_keys.txt is translated in every
   one of the locales (the committed "core" set);
+* the tier-2 set (tool/l10n/partial_locales_tier2_keys.txt: what a new user
+  meets in the first hour) is translated in the locales that carry it
+  (TIER2_LOCALES: es and zh), and may only grow too;
 * that set may only grow: with --base-ref, a key the base revision listed may
   not leave the file;
 * no locale has a key English lacks, an empty or non-text message, a
@@ -27,7 +30,14 @@ import sys
 from check_completeness import InvalidInput, message_keys, read_object
 
 LOCALES = ("es", "ja", "pt", "ru", "zh")
+TIER2_LOCALES = ("es", "zh")
 CORE_REPO_PATH = "tool/l10n/partial_locales_core_keys.txt"
+TIER2_REPO_PATH = "tool/l10n/partial_locales_tier2_keys.txt"
+TIER2_HEADER = (
+    "# Tier-2 messages every locale in TIER2_LOCALES (es, zh) must carry, on top of the core set.\n"
+    "# This set may only grow: translate a message in both before adding it here. Keys here must not be in the core list.\n"
+    "# Source and reasons: docs/l10n/tier2-key-set.md. Checked by tool/l10n/check_partial_locales.py.\n"
+)
 CORE_HEADER = (
     "# Core messages every partly translated locale (es, ja, pt, ru, zh) must carry.\n"
     "# This set may only grow: translate a message in all five before adding it here.\n"
@@ -104,17 +114,19 @@ def icu_shape(message):
     return names, sorted(structure), problem
 
 
-def read_core(path):
+def read_core(path, header=CORE_HEADER, optional=False):
+    if optional and not path.exists():
+        return set()
     try:
         text = path.read_text(encoding="utf-8")
     except (OSError, UnicodeError) as error:
         raise InvalidInput(f"Cannot read {path.name}: {type(error).__name__}") from error
-    return parse_core(text)
+    return parse_core(text, header)
 
 
-def parse_core(text):
-    if not text.startswith(CORE_HEADER):
-        raise InvalidInput("Core key list needs its policy header")
+def parse_core(text, header=CORE_HEADER):
+    if not text.startswith(header):
+        raise InvalidInput("Key list needs its policy header")
     keys = []
     for line in text.splitlines():
         if not line or line.startswith("#"):
@@ -129,7 +141,7 @@ def parse_core(text):
     return set(keys)
 
 
-def core_shrink(core, base_ref):
+def core_shrink(core, base_ref, repo_path=CORE_REPO_PATH, header=CORE_HEADER):
     """Keys the base revision's core list had that this one lost."""
     revision = subprocess.run(
         ["git", "rev-parse", "--verify", "--end-of-options", f"{base_ref}^{{commit}}"],
@@ -141,21 +153,21 @@ def core_shrink(core, base_ref):
     if re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", commit) is None:
         raise InvalidInput("Core-list base reference did not resolve to a commit ID")
     listing = subprocess.run(
-        ["git", "ls-tree", "--name-only", commit, "--", CORE_REPO_PATH],
+        ["git", "ls-tree", "--name-only", commit, "--", repo_path],
         capture_output=True, text=True, check=False,
     )
     if listing.returncode:
         raise InvalidInput("Cannot inspect base revision's core list")
     if not listing.stdout.strip():
-        print("Base revision has no core list; validating the introduction.")
+        print(f"Base revision has no {repo_path}; validating the introduction.")
         return []
     previous = subprocess.run(
-        ["git", "show", f"{commit}:{CORE_REPO_PATH}"],
+        ["git", "show", f"{commit}:{repo_path}"],
         capture_output=True, text=True, check=False,
     )
     if previous.returncode:
         raise InvalidInput("Cannot read base revision's core list")
-    return sorted(parse_core(previous.stdout) - core)
+    return sorted(parse_core(previous.stdout, header) - core)
 
 
 def check_locale(english, locale_file, locale, core):
@@ -199,14 +211,20 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--l10n-dir", type=Path, default=root / "lib/l10n")
     parser.add_argument("--core", type=Path, default=root / CORE_REPO_PATH)
+    parser.add_argument("--tier2", type=Path, default=root / TIER2_REPO_PATH)
     parser.add_argument("--base-ref", help="Git commit/ref for the core-list-may-only-grow check")
     args = parser.parse_args()
     try:
         english_data = read_object(args.l10n_dir / "app_en.arb")
         english = {k: v for k, v in english_data.items() if not k.startswith("@") and isinstance(v, str)}
         core = read_core(args.core)
-        missing_from_english = sorted(core - set(english))
+        tier2 = read_core(args.tier2, TIER2_HEADER, optional=True)
+        if core & tier2:
+            raise InvalidInput("Tier-2 list repeats core keys")
+        missing_from_english = sorted((core | tier2) - set(english))
         dropped = core_shrink(core, args.base_ref) if args.base_ref is not None else []
+        if args.base_ref is not None:
+            dropped += core_shrink(tier2, args.base_ref, TIER2_REPO_PATH, TIER2_HEADER)
         # A key the app deleted from English is a retired string, not a lost
         # translation: it may leave the core list with it. A key English still
         # has may not.
@@ -220,12 +238,13 @@ def main():
         if shrink:
             print_keys("Core list may not shrink compared with the base revision", shrink)
         for locale in LOCALES:
-            problems, translated = check_locale(english, args.l10n_dir / f"app_{locale}.arb", locale, core)
+            required = core | tier2 if locale in TIER2_LOCALES else core
+            problems, translated = check_locale(english, args.l10n_dir / f"app_{locale}.arb", locale, required)
             share = 100 * translated / len(english)
             print(
                 f"Partial locale {locale}: {translated} of {len(english)} messages "
                 f"({share:.1f} %), {len(english) - translated} fall back to English, "
-                f"core {len(core)}, {sum(len(v) for v in problems.values())} problems"
+                f"core {len(core)}, tier 2 {len(tier2) if locale in TIER2_LOCALES else 0}, {sum(len(v) for v in problems.values())} problems"
             )
             for category, keys in sorted(problems.items()):
                 print_keys(f"  {locale}: {category}", keys)

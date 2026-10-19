@@ -353,7 +353,7 @@ class _KitWorkLineState extends State<KitWorkLine>
       KitWorkState.running => (
         widget.now ?? summary,
         '${l10n.kitWorkWorking}, ${widget.now ?? summary}',
-        const KitStatusMark(state: KitMarkState.working),
+        null,
       ),
       KitWorkState.waitingForYou => (
         l10n.kitWorkWaitingForYou,
@@ -403,6 +403,7 @@ class _KitWorkLineState extends State<KitWorkLine>
         other: c.other,
       ),
       mark: mark,
+      live: widget.state == KitWorkState.running && !expanded,
       expanded: expanded,
       onPressed: _toggle,
       head: hidden > 0

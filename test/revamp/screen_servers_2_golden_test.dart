@@ -17,11 +17,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
-import 'package:opencode_mobile/api2/gateway_mappers.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import '../support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import '../support/fake_event_channel.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/platform/camera.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
@@ -63,15 +62,20 @@ class _NoCamera extends _Camera {
   Future<bool> hasCamera() async => false;
 }
 
-class _Api extends OpenCodeApi {
-  _Api({this.fails = false, this.v2 = false})
+class _Api extends FakeServerGateway {
+  _Api({this.fails = false, this.limited = false})
     : super(baseUrl: 'http://192.168.1.20:4096');
   final bool fails;
-  final bool v2;
+  final bool limited;
 
   @override
-  ServerCapabilities get capabilities =>
-      v2 ? api2ServerCapabilities : super.capabilities;
+  ServerCapabilities get capabilities => limited
+      ? const ServerCapabilities(
+          remoteUpgrade: false,
+          setupConfigRead: true,
+          pluginInventory: true,
+        )
+      : super.capabilities;
 
   @override
   Future<Health> health() async {
@@ -111,13 +115,13 @@ class _Store extends ProfileStore {
 
 Future<ConnectionController> _server({
   bool fails = false,
-  bool v2 = false,
+  bool limited = false,
 }) async {
   SharedPreferences.setMockInitialValues({});
   return ConnectionController(
       _Store(prefs: await SharedPreferences.getInstance()),
     )
-    ..api = _Api(fails: fails, v2: v2)
+    ..api = _Api(fails: fails, limited: limited)
     ..repository = _Repository()
     ..version = '1.19.5'
     ..status = StreamStatus.connected;
@@ -246,28 +250,6 @@ void main() {
           );
         });
       }
-      // slice-close-security: the install command's "What this does",
-      // open: Linux only, what changes, and the pin and checksum.
-      testWidgets('install what this does', (tester) async {
-        final controller = await _server();
-        addTearDown(controller.dispose);
-        await _shot(
-          tester,
-          'servers_host_management_install_what',
-          light: light,
-          home: HostManagementScreen(controller: controller),
-          act: () async {
-            final what = find.byKey(const ValueKey('host-install-what'));
-            await tester.tap(what);
-            await tester.pumpAndSettle();
-            await tester.drag(
-              find.byType(ListView).last,
-              const Offset(0, -260),
-            );
-            await tester.pumpAndSettle();
-          },
-        );
-      });
     });
 
     group('pairing scanner ($tone)', () {
@@ -428,7 +410,7 @@ void main() {
       });
 
       testWidgets('updates gated', (tester) async {
-        final controller = await _server(v2: true);
+        final controller = await _server(limited: true);
         addTearDown(controller.dispose);
         await _shot(
           tester,

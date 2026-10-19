@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import '../api/mcp_oauth.dart';
+import '../domain/mcp_oauth.dart';
 import '../domain/mcp_catalog.dart';
 import '../domain/mcp_chat.dart';
 import '../domain/server_gateway.dart';

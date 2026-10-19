@@ -1,3 +1,4 @@
+import 'support/fake_server_operations.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -16,10 +17,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' show ProviderScope;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/domain/agent_catalog.dart';
 import 'package:opencode_mobile/domain/agent_handoff.dart' show HandoffOrigin;
 import 'package:opencode_mobile/state/agent_handoff_links.dart';
@@ -47,6 +47,8 @@ import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/phone_agent_host_port.dart';
 import 'package:opencode_mobile/state/phone_project_engine.dart';
 import 'package:opencode_mobile/state/profiles.dart';
+import 'package:opencode_mobile/ui/widgets/connection_status_banner.dart'
+    show connectionKitStatus;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../tool/capture/fixtures.dart' show captureTheme;
@@ -65,6 +67,7 @@ part 'support/phone_agents_removal_tests.dart';
 part 'support/phone_agents_idle_tests.dart';
 part 'support/phone_agents_identity_tests.dart';
 part 'support/phone_agents_cold_start_tests.dart';
+part 'support/phone_agents_link_tests.dart';
 
 const _project = '/root/projects/app';
 const _stamp = '2026-10-03T08:00:00Z';
@@ -123,7 +126,7 @@ class _OcScript {
   final questionAnswers = <(String, String, List<List<String>>)>[];
 }
 
-class _OcApi extends OpenCodeApi {
+class _OcApi extends FakeServerGateway {
   _OcApi(this.script, {this.gated = false})
     : super(baseUrl: 'http://127.0.0.1:4097');
   final _OcScript script;
@@ -183,7 +186,7 @@ class _OcApi extends OpenCodeApi {
   Future<List<FileNode>> listFiles(String path) async => const [];
 }
 
-class _Stream extends EventStream {
+class _Stream extends FakeEventChannel {
   _Stream({
     required super.api,
     required super.onEvent,
@@ -196,8 +199,8 @@ class _Stream extends EventStream {
   Future<void> dispose() async {}
 }
 
-class _OcRepo extends SdkProductRepository {
-  _OcRepo(OpenCodeApi api, this.script) : super(api.sdkClient);
+class _OcRepo extends FakeServerOperations {
+  _OcRepo(super.api, this.script);
   final _OcScript script;
   @override
   Future<ChatDefaults> loadChatDefaults() async => const ChatDefaults();
@@ -305,6 +308,15 @@ class _HostState {
 
   /// How many next connects fail like a helper Android stopped.
   int failOpens = 0;
+
+  /// The helper's own health check (`GET /api/health`) answers.
+  bool daemonAnswers = true;
+
+  /// New WebSocket links to the helper are refused.
+  bool refuseSockets = false;
+
+  /// Every socket handed out by a fresh-socket reconnect.
+  final reconnectSockets = <FakePaseoSocket>[];
 }
 
 class _DiagnosticHost extends _FakeHost implements PhoneAgentDiagnosticsPort {
@@ -476,12 +488,17 @@ class _FakeHost implements PhoneAgentHostPort, PhoneAgentAuthPort {
     final transport = PaseoTransport(
       endpoint: 'ws://127.0.0.1:4099',
       socketFactory: (_, _) async {
+        if (state.refuseSockets) {
+          throw PaseoFailure(PaseoFailureKind.disconnected);
+        }
         if (!opened || !state.freshPrivateSockets) {
           opened = true;
           return socket;
         }
         // Bounded history owns and closes a separate transport connection.
-        return FakePaseoSocket()..handlers.addAll(socket.handlers);
+        final fresh = FakePaseoSocket()..handlers.addAll(socket.handlers);
+        state.reconnectSockets.add(fresh);
+        return fresh;
       },
     );
     final gateway =
@@ -661,10 +678,12 @@ Future<_World> _world(
   bool idleSupported = false,
   bool diagnosticsSupported = false,
   bool livenessSupported = false,
+  bool healthSupported = false,
 }) async {
   final profileJson = {
     'id': 'local',
     'name': 'Phone server',
+    'flavor': 'v2',
     'baseUrl': phone ? 'http://127.0.0.1:4097' : 'http://127.0.0.1:1',
     'username': '',
   };
@@ -708,7 +727,9 @@ Future<_World> _world(
     localWakeLockEnsurer: () async {},
     phoneEngineBridge: _NoEngineBridge(),
     phoneAgentHostFactory: (profile) {
-      final host = livenessSupported
+      final host = healthSupported
+          ? _HealthHost(events, profile.id, state)
+          : livenessSupported
           ? _ColdStartHost(events, profile.id, state)
           : idleSupported
           ? _IdleHost(events, profile.id, state)
@@ -837,6 +858,7 @@ void main() {
   _phoneIdleTests();
   _phoneColdStartTests();
   _phoneIdentityTests();
+  _phoneAgentLinkTests();
 
   const dir = _project;
 
@@ -1553,6 +1575,38 @@ void main() {
       expect(c.agentAccount('claude')?.state, AgentAuthProbeState.signedOut);
       expect(c.agentAccount('claude')?.accountDisplayName, isNull);
       expect(w.events.log.where((e) => e == 'logout.claude').length, 2);
+      c.dispose();
+    },
+  );
+
+  test(
+    'a check that could not run keeps a signed-in agent signed in',
+    () async {
+      final w = await ready(null);
+      final c = w.controller;
+      w.state.auth['claude'] = const AgentAuthProbeResult(
+        state: AgentAuthProbeState.signedIn,
+      );
+      await c.refreshAgentRows();
+      AgentRow claude() => c.agentRows.firstWhere((row) => row.id == 'claude');
+      expect(claude().chatSelectable, isTrue);
+      for (final error in [
+        AgentAuthProbeError.hostUnavailable,
+        AgentAuthProbeError.timedOut,
+      ]) {
+        w.state.auth['claude'] = AgentAuthProbeResult.failed(error);
+        await c.refreshAgentRows();
+        expect(claude().chatSelectable, isTrue, reason: error.name);
+        expect(claude().fixAction, isNull, reason: error.name);
+        await c.recheckAgentSignIn('claude');
+        expect(c.agentAccount('claude')?.state, AgentAuthProbeState.signedIn);
+      }
+      // An answer from the agent itself still counts.
+      w.state.auth['claude'] = const AgentAuthProbeResult(
+        state: AgentAuthProbeState.signedOut,
+      );
+      await c.refreshAgentRows();
+      expect(claude().fixAction, PhoneAgentFixAction.signIn);
       c.dispose();
     },
   );

@@ -6,9 +6,8 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart' show CancelToken, ProgressCallback;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
-import 'package:opencode_mobile/domain/session_command_handoff.dart';
 import 'package:opencode_mobile/domain/session_handoff.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/ui/screens/active_context_screen.dart';
@@ -17,7 +16,6 @@ import 'package:opencode_mobile/ui/screens/session_export_screen.dart';
 import 'package:opencode_mobile/ui/screens/session_import_screen.dart';
 import 'package:opencode_mobile/ui/screens/session_note_screen.dart';
 import 'package:opencode_mobile/ui/screens/session_relations_screen.dart';
-import 'package:opencode_mobile/ui/widgets/session_handoff.dart';
 import 'package:opencode_mobile/ui/widgets/session_handoff_sheets.dart';
 
 import '../../fixtures.dart';
@@ -193,31 +191,6 @@ class _NoteRepository extends CaptureRepository implements SessionNoteGateway {
   Future<void> removeSessionNote(String sessionID) async => value = null;
 }
 
-class _HandoffRepository extends CaptureRepository
-    implements SessionCommandHandoffGateway {
-  _HandoffRepository({this.workspaceID});
-  final String? workspaceID;
-  @override
-  Future<Session> getSessionDetails(String id) async =>
-      sampleSessions()[checkoutSessionID]!.copyWith(
-        projectID: 'project_shopfront',
-        workspaceID: workspaceID,
-      );
-  @override
-  SessionCommandHandoff createSessionCommandHandoff({
-    required String sessionID,
-    required String? directory,
-    required String? workspaceID,
-    required String username,
-  }) => SessionCommandHandoff.openCode1(
-    serverURL: 'https://code.example.test',
-    sessionID: sessionID,
-    directory: directory,
-    workspaceID: workspaceID,
-    username: username,
-  );
-}
-
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -336,45 +309,6 @@ final kSessionMiscArea = CensusArea(
         repository: _RelationsRepository(),
       );
       kit.expectText('Subagent conversations');
-    }),
-
-    // -- continue-on-computer-sheet from a conversation list (the handoff
-    // dialog merged into it, slice-P3.11a) --------------------------------------
-    CensusShot('continue-on-computer-sheet', state: 'from-list', (kit) async {
-      final controller = await kit.connected(repository: _HandoffRepository());
-      await kit.pumpApp(
-        _backdrop('Fix flaky checkout test'),
-        controller: controller,
-      );
-      await kit.present(
-        (context) => showSessionHandoff(
-          context,
-          controller: controller,
-          sessionID: checkoutSessionID,
-          projectID: 'project_shopfront',
-        ),
-      );
-      kit.expectText('Continue on computer');
-    }),
-    CensusShot('continue-on-computer-sheet', state: 'from-list-unavailable', (
-      kit,
-    ) async {
-      final controller = await kit.connected(
-        repository: _HandoffRepository(workspaceID: 'wrk_managed'),
-      );
-      await kit.pumpApp(
-        _backdrop('Fix flaky checkout test'),
-        controller: controller,
-      );
-      await kit.present(
-        (context) => showSessionHandoff(
-          context,
-          controller: controller,
-          sessionID: checkoutSessionID,
-          projectID: 'project_shopfront',
-        ),
-      );
-      kit.expectText('Continue on computer');
     }),
 
     // -- session-export ---------------------------------------------------------------
@@ -507,7 +441,7 @@ final kSessionMiscArea = CensusArea(
           isScrollControlled: true,
           builder: (_) => ContinueOnComputerSheet(
             command: SessionResumeCommand.build(
-              cli: SessionResumeCli.openCode1,
+              cli: SessionResumeCli.openCode2,
               sessionID: checkoutSessionID,
               directory: projectDirectory,
             ),
@@ -531,7 +465,7 @@ final kSessionMiscArea = CensusArea(
           isScrollControlled: true,
           builder: (_) => ContinueOnComputerSheet(
             command: SessionResumeCommand.build(
-              cli: SessionResumeCli.openCode1,
+              cli: SessionResumeCli.openCode2,
               sessionID: checkoutSessionID,
               directory: null,
             ),

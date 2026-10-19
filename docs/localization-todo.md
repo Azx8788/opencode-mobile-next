@@ -11,11 +11,18 @@ named label literal is left under `lib/ui/**`, `lib/voice/**` or
 and it says nothing about translation quality.
 
 Since 2026-10-08 Spanish, Japanese, Brazilian Portuguese, Russian and
-Simplified Chinese also carry the first-run screens and the chat core (672
+Simplified Chinese also carry the first-run screens and the chat core (668
 messages, `docs/l10n/fg5-key-set.md`, QA record
 `docs/qa/fg5-2026-10-08/README.md`) and read English for the rest; the
-picker marks them "Partly translated". `tool/l10n/check_partial_locales.py`
-keeps their core keys complete.
+picker marks them "Partly translated". Since 2026-10-16 Spanish and Simplified
+Chinese carry a second tier, 2,083 more messages (2,750 each of 8,916): what a
+new user meets in the first hour (`docs/l10n/tier2-key-set.md`). Japanese,
+Portuguese and Russian stay at the core. `tool/l10n/check_partial_locales.py`
+keeps the core keys complete in all five and the tier-2 keys
+(`tool/l10n/partial_locales_tier2_keys.txt`) complete in es and zh. Not yet
+read by a native speaker; not left to do for these two: AI Team, FactsBook,
+usage, MCP catalogs, migration, diagnostics, session export/import, review
+screens (about 6,100 messages still fall back to English).
 
 ## Done
 

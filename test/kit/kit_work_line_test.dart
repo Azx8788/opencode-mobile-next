@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../support/no_red.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/ui/app_theme.dart';
 import 'package:opencode_mobile/ui/kit/chat/kit_work_line.dart';
@@ -228,10 +229,9 @@ void main() {
         _line(state: KitWorkState.running, now: 'Editing main.dart'),
       );
       expect(find.text('Editing main.dart'), findsOneWidget);
-      final marks = tester.widgetList<KitStatusMark>(
-        find.byType(KitStatusMark),
-      );
-      expect(marks.map((m) => m.state), [KitMarkState.working]);
+      // The step light rides the group's glyph; no ring.
+      expect(find.byType(KitStatusMark), findsNothing);
+      expect(find.byKey(const ValueKey('kit-step-light')), findsOneWidget);
     });
 
     // Owner, 2026-10-08: opened while running, the line showed the live
@@ -269,7 +269,7 @@ void main() {
         ),
       );
       expect(find.text('Editing main.dart'), findsOneWidget);
-      expect(find.byType(KitStatusMark), findsOneWidget);
+      expect(find.byKey(const ValueKey('kit-step-light')), findsOneWidget);
     });
 
     testWidgets('running without now falls back to the summary', (
@@ -325,13 +325,6 @@ void main() {
       );
       expect(find.byKey(_stepsKey), findsOneWidget);
 
-      final theme = AppTheme.dark();
-      final roles = ThemeRoles.resolve(theme);
-      final forbidden = {
-        roles.danger,
-        roles.dangerFill,
-        theme.colorScheme.error,
-      };
       final line = find.byType(KitWorkLine);
       final colours = <Color?>[
         for (final t in tester.widgetList<RichText>(
@@ -343,7 +336,7 @@ void main() {
         ))
           i.color,
       ];
-      expect(colours.where(forbidden.contains), isEmpty);
+      expect(colours.where(isRedHue), isEmpty);
     });
   });
 

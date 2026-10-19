@@ -16,9 +16,9 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import '../../test/support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart' show StreamStatus;
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -648,10 +648,10 @@ CatalogSnapshot sampleCatalog() {
 // Fakes
 // ---------------------------------------------------------------------------
 
-/// The v1 transport the captured screens talk to. Everything returns sample
+/// The protocol-neutral gateway the captured screens talk to. Everything returns sample
 /// data synchronously; prompts are accepted and forgotten, because the demo
 /// drives the reply itself through [ConnectionController.handleEventForTesting].
-class CaptureApi extends OpenCodeApi {
+class CaptureApi extends FakeServerGateway {
   CaptureApi() : super(baseUrl: 'http://localhost:4096');
 
   Map<String, Session> sessionsById = sampleSessions();

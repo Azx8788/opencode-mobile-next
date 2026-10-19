@@ -136,6 +136,11 @@ fi
 readonly VERSION
 readonly BUILD_NAME="${VERSION%%+*}"
 readonly BUILD_NUMBER="${VERSION##*+}"
+# Releases from this build number on keep Dart symbols out of libapp.so (about
+# 2 MB smaller per ABI). Older releases were built without it, and a patch must
+# be built the way its release was. Keep the trace files: build/symbols.
+readonly SPLIT_DEBUG_INFO_FROM_BUILD=55
+symbol_args=(--split-debug-info=build/symbols)
 readonly RELEASE_TAG="v${VERSION}"
 
 assert_flutter_version() {
@@ -371,6 +376,10 @@ assert_patchable_diff() {
     echo "Create a new full release; this script never enables --allow-native-diffs or --allow-asset-diffs." >&2
     exit 1
   fi
+
+  # Policy (docs/release/change-classes.md): a patch ships only a hotfix.
+  python3 tool/qa/classify_change.py "$RELEASE_TAG" HEAD --require hotfix ||
+    fail "Range $RELEASE_TAG..HEAD is not a hotfix; ship it as a fix, feature or breaking release instead."
 }
 
 if [[ "$MODE" == github ]]; then
@@ -414,6 +423,7 @@ case "$MODE" in
       --build-number "$BUILD_NUMBER"
       --flutter-version "$SHOREBIRD_FLUTTER_VERSION"
       --artifact aab
+      "${symbol_args[@]}"
     )
 
     echo "==> Validating Android App Bundle release $VERSION (no upload)"
@@ -440,6 +450,7 @@ case "$MODE" in
       --build-number "$BUILD_NUMBER"
       --flutter-version "$SHOREBIRD_FLUTTER_VERSION"
       --artifact apk
+      "${symbol_args[@]}"
     )
 
     echo "==> Validating GitHub sideload APK $VERSION (no upload)"
@@ -462,6 +473,8 @@ case "$MODE" in
   patch)
     print_patch_plan
     patch_args=(patch android --release-version "$VERSION")
+    # Patch with the same symbol setting the release was built with.
+    if (( BUILD_NUMBER >= SPLIT_DEBUG_INFO_FROM_BUILD )); then patch_args+=("${symbol_args[@]}"); fi
 
     echo "==> Validating OTA patch for exact release $VERSION (no upload)"
     shorebird "${patch_args[@]}" --dry-run

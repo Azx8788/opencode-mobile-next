@@ -1,4 +1,4 @@
-import '../../api/models.dart' show Session;
+import '../../domain/models.dart' show Session;
 import '../../domain/session_title_text.dart';
 import '../../l10n/app_localizations.dart';
 

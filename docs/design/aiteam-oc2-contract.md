@@ -7,23 +7,20 @@ only the exact server version proven in this job is admitted.
 
 Finish line: the Rust phone engine drives AI Team lanes on OC2 with the existing
 safety guarantees and the app accepts a supported in-app OC2 profile.
-Non-goals: UI changes and changes to OC1 behavior.
+Update, 2026-10-15: OC1 support has been removed by owner decision.
+Legacy engine configuration keys are read only to preserve stored setup.
 
 ## Protocol selection and driver
 
-`engine/phone/src/opencode.rs` selects a protocol once per client lifetime.
-Authenticated `/api/info` must identify the pinned OC2 server. A clearly absent
-or non-OC2 response can fall back to authenticated, pinned OC1 `/global/health`;
-authentication or transport failures cannot. An explicit unsupported OC2 version
-is rejected. Mutations never trigger protocol switching or automatic retries.
+`engine/phone/src/opencode.rs` accepts only the pinned OC2 server identified by
+authenticated `/api/info`; no response falls back to an OC1 client.
+Authentication, transport and unsupported-version failures stop execution.
+Mutations never trigger protocol switching or automatic retries.
 
-The existing OC1 implementation and tests live in `opencode1.rs`; its request,
-permission, prompt, observation and admission behavior is retained. Changes to
-that body are crate-level visibility needed by the facade. `opencode2.rs` owns
-OC2 transport and parsing. Both retain strict loopback URLs, Basic user
-`opencode`, redirect refusal, bounded responses, and static credential-safe
-errors. The running version and callable OpenAPI operations are checked before
-OC2 work; missing or changed contracts fail closed.
+`opencode2.rs` owns transport and parsing, with strict loopback URLs, Basic user
+`opencode`, redirect refusal, bounded responses, and credential-safe errors.
+The running version and callable operations are checked before work; missing
+or changed contracts fail closed. The OC1 driver has been removed.
 The schema proof is bound to the observed server PID. A changed PID requires a
 new engine client; the existing client fails closed instead of reusing stale
 proof. Completion refetch has a ten-second freshness bound and matches the
@@ -65,15 +62,14 @@ OC2-specific behavior:
 ## App integration and credentials
 
 `ServerCapabilities.phoneTeamExecution` defaults false and advertises driver
-support for OC1/OC2. Setup uses the selected in-app profile's capability, including
+support for OC2. Setup uses the selected in-app profile's capability, including
 inactive profiles, rather than a flavor condition or another profile's active
 capabilities. The native runtime still checks the exact supported version,
 operations and boundary before execution; the capability alone is not proof.
 
 Engine health distinguishes identity (`oc2`) from verification (`oc2Verified`).
 OC2 execution requires OC2 verification plus the existing boundary/execution
-flags. Missing or contradictory proofs fail closed. Older OC1 responses remain
-valid without the new optional flag.
+flags. Missing or contradictory proofs fail closed; older OC1 responses are rejected.
 
 The existing secure-storage → private server password file → native credential
 snapshot path is reused. No additional password channel argument, stored format,
@@ -83,8 +79,7 @@ restoration and preparation before native launch.
 OC2 prompt, shell, and command dispatch use the existing app admission hooks.
 They pause team work before dispatch and retain uncertainty until a fresh
 busy-to-idle reconciliation. Malformed active snapshots, stale lifecycle reads,
-and retired transports cannot fabricate idle. Existing OC1 dispatch behavior is
-unchanged. No UI file was changed.
+and retired transports cannot fabricate idle.
 
 ## What was proven live
 

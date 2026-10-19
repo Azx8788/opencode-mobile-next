@@ -48,9 +48,6 @@ List<String> _floors(String tag, ThemeRoles r) {
     7,
   );
   floor('badge text', r.onAttentionFill, r.attentionFill, 4.5);
-  floor('danger on ground', r.danger, r.ground, 4.5);
-  floor('danger on surface2', r.danger, r.surface2, 4.5);
-  floor('onDangerFill on dangerFill', r.onDangerFill, r.dangerFill, 4.5);
   floor('success on ground', r.success, r.ground, 4.5);
   for (final code in [r.codeKeyword, r.codeString, r.codeType]) {
     floor('code on surface1', code, r.surface1, 4.5);
@@ -62,12 +59,9 @@ List<String> _floors(String tag, ThemeRoles r) {
   return failures;
 }
 
-/// LOOK-39 for [accent] against a role set's attention and danger.
+/// LOOK-39 for [accent] against a role set's attention.
 List<String> _apart(String tag, Color accent, ThemeRoles r) => [
-  for (final (name, other) in [
-    ('attention', r.attention),
-    ('danger', r.danger),
-  ]) ...[
+  for (final (name, other) in [('attention', r.attention)]) ...[
     if (hueDistance(accent, other) < accentMinHueDistance)
       '$tag hue ${hueDistance(accent, other).toStringAsFixed(0)}° '
           'from $name < 30°',
@@ -94,7 +88,9 @@ void main() {
     expect(dark.colorScheme.surfaceContainerLow, roles.surface1);
     expect(dark.colorScheme.surfaceContainer, roles.surface2);
     expect(dark.colorScheme.surfaceContainerHighest, roles.surface3);
-    expect(dark.colorScheme.error, roles.danger);
+    // No red anywhere: Material's error roles are the neutral ink.
+    expect(dark.colorScheme.error, roles.text1);
+    expect(dark.colorScheme.errorContainer, roles.surface3);
     expect(themePackLabels[ThemePackId.opencode], 'Graphite');
 
     final light = AppTheme.light().extension<ThemeRoles>()!;
@@ -183,7 +179,6 @@ void main() {
       final light = graphiteLight.withAccent(option.light);
       expect(dark.surface1, graphiteDark.surface1);
       expect(dark.attention, graphiteDark.attention);
-      expect(light.danger, graphiteLight.danger);
       expect(_floors('dark ${option.name}', dark), isEmpty);
       expect(_floors('light ${option.name}', light), isEmpty);
     }
@@ -290,35 +285,27 @@ void main() {
     },
   );
 
-  test(
-    'every Graphite accent keeps clear of attention and danger (LOOK-39)',
-    () {
-      final failures = <String>[];
-      for (final option in graphiteAccents) {
-        for (final (roles, raw) in [
-          (graphiteDark, option.dark),
-          (graphiteLight, option.light),
-        ]) {
-          final tag = '${option.name}/${roles.brightness.name}';
-          failures
-            ..addAll(_apart(tag, raw, roles))
-            ..addAll(
-              _apart('$tag guarded', roles.withAccent(raw).accent, roles),
-            );
-        }
+  test('every Graphite accent keeps clear of attention (LOOK-39)', () {
+    final failures = <String>[];
+    for (final option in graphiteAccents) {
+      for (final (roles, raw) in [
+        (graphiteDark, option.dark),
+        (graphiteLight, option.light),
+      ]) {
+        final tag = '${option.name}/${roles.brightness.name}';
+        failures
+          ..addAll(_apart(tag, raw, roles))
+          ..addAll(_apart('$tag guarded', roles.withAccent(raw).accent, roles));
       }
-      expect(failures, isEmpty, reason: failures.join('\n'));
-      // The check bites: the orange that teal replaced fails it.
-      expect(
-        _apart('orange', const Color(0xFFFF8A4C), graphiteDark),
-        isNotEmpty,
-      );
-      expect(
-        _apart('orange', const Color(0xFFC2410C), graphiteLight),
-        isNotEmpty,
-      );
-    },
-  );
+    }
+    expect(failures, isEmpty, reason: failures.join('\n'));
+    // The check bites: the orange that teal replaced fails it.
+    expect(_apart('orange', const Color(0xFFFF8A4C), graphiteDark), isNotEmpty);
+    expect(
+      _apart('orange', const Color(0xFFC2410C), graphiteLight),
+      isNotEmpty,
+    );
+  });
 
   test('a disabled button reads in every pack: text3 on surface3 (R9)', () {
     // KitButton's disabled primary and secondary paint text3 on surface3.
@@ -381,10 +368,9 @@ void main() {
         );
       }
     }
-    // Attention, danger and the orange teal replaced all lose it.
+    // Attention and the orange teal replaced both lose it.
     for (final roles in [graphiteDark, graphiteLight]) {
       expect(accentKeepsMeaning(roles.attention, roles), isFalse);
-      expect(accentKeepsMeaning(roles.danger, roles), isFalse);
     }
     expect(accentKeepsMeaning(const Color(0xFFFF8A4C), graphiteDark), isFalse);
     expect(accentKeepsMeaning(const Color(0xFFC2410C), graphiteLight), isFalse);

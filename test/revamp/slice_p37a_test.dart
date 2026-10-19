@@ -4,7 +4,7 @@
 // changes; the read-only diff page keeps "1 of 2" whole right to left.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/ui/kit/kit_bidi.dart';
 import 'package:opencode_mobile/ui/screens/review_workspace.dart';

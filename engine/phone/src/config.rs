@@ -14,8 +14,10 @@ pub struct Config {
     pub guest_worker_root: String,
     pub port: u16,
     pub auth_token_file: PathBuf,
-    pub oc1_credential_file: PathBuf,
-    pub oc1_base_url: String,
+    #[serde(alias = "oc1CredentialFile")]
+    pub server_credential_file: PathBuf,
+    #[serde(alias = "oc1BaseUrl")]
+    pub server_base_url: String,
     #[serde(default)]
     pub source_roots: Vec<SourceRoot>,
     pub boundary: Boundary,
@@ -72,7 +74,7 @@ impl Config {
         self.private_root = normalize(&self.private_root)?;
         self.worker_root = normalize(&self.worker_root)?;
         self.auth_token_file = normalize(&self.auth_token_file)?;
-        self.oc1_credential_file = normalize(&self.oc1_credential_file)?;
+        self.server_credential_file = normalize(&self.server_credential_file)?;
         for root in &mut self.source_roots {
             root.host_root = normalize(&root.host_root)?;
         }
@@ -112,9 +114,9 @@ impl Config {
         if private.starts_with(&worker) || worker.starts_with(&private) {
             return Err("boundaryInvalid");
         }
-        for file in [&self.auth_token_file, &self.oc1_credential_file] {
+        for file in [&self.auth_token_file, &self.server_credential_file] {
             let canonical = fs::canonicalize(file).map_err(|_| {
-                if file == &self.oc1_credential_file {
+                if file == &self.server_credential_file {
                     "server_auth_unavailable"
                 } else {
                     "credentialsUnavailable"
@@ -135,7 +137,7 @@ impl Config {
                 return Err("credentialsInvalid");
             }
         }
-        if self.oc1_base_url != "http://127.0.0.1:4097" {
+        if self.server_base_url != "http://127.0.0.1:4097" {
             return Err("serverNotLoopback");
         }
         // Only native-parent-pinned signed receipts confer protected authority.
@@ -193,6 +195,29 @@ pub fn valid_id(id: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn persisted_server_credentials_survive_config_field_rename() {
+        for (credential_key, base_key) in [
+            ("serverCredentialFile", "serverBaseUrl"),
+            ("oc1CredentialFile", "oc1BaseUrl"),
+        ] {
+            let mut value = serde_json::json!({
+                "schemaVersion":1, "profileId":"profile", "privateRoot":"/private",
+                "workerRoot":"/workers", "guestWorkerRoot":"/root/workers", "port":0,
+                "authTokenFile":"/private/token", "sourceRoots":[],
+                "boundary":{"verified":false,"reason":"fixture"}
+            });
+            value[credential_key] = serde_json::json!("/private/credentials");
+            value[base_key] = serde_json::json!("http://127.0.0.1:4097");
+            let config: super::Config = serde_json::from_value(value).unwrap();
+            assert_eq!(
+                config.server_credential_file,
+                std::path::PathBuf::from("/private/credentials")
+            );
+            assert_eq!(config.server_base_url, "http://127.0.0.1:4097");
+        }
+    }
+
     use super::*;
     use std::os::unix::fs::PermissionsExt;
 
@@ -217,8 +242,8 @@ mod tests {
             "privateRoot":raw_base.join("private"),"workerRoot":raw_base.join("rootfs/work/new"),
             "guestWorkerRoot":"/root/aiteam/work/profile","port":0,
             "authTokenFile":raw_base.join("private/auth.token"),
-            "oc1CredentialFile":raw_base.join("private/credentials.json"),
-            "oc1BaseUrl":"http://127.0.0.1:4097","sourceRoots":[{"hostRoot":raw_base,"guestRoot":"/root/projects"}],
+            "serverCredentialFile":raw_base.join("private/credentials.json"),
+            "serverBaseUrl":"http://127.0.0.1:4097","sourceRoots":[{"hostRoot":raw_base,"guestRoot":"/root/projects"}],
             "boundary":{"verified":false,"reason":"boundary_unverified"}});
         let path = private.join("native-config.json");
         fs::write(&path, value.to_string()).unwrap();
@@ -300,8 +325,8 @@ mod tests {
             guest_worker_root: "/root/aiteam/work/profile".into(),
             port: 4098,
             auth_token_file: token,
-            oc1_credential_file: credentials,
-            oc1_base_url: "http://127.0.0.1:4097".into(),
+            server_credential_file: credentials,
+            server_base_url: "http://127.0.0.1:4097".into(),
             source_roots: vec![],
             boundary: Boundary {
                 verified: false,

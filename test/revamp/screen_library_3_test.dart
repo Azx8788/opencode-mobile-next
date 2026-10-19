@@ -5,7 +5,7 @@
 // to do; none prints a credential.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/pending_auth.dart';
 import 'package:opencode_mobile/ui/kit/kit.dart';

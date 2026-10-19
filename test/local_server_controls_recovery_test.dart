@@ -63,7 +63,8 @@ void main() {
       return {
         'exitCode': 0,
         'stdout':
-            'phase=$phase\nrunner=proot\nport=4096\noperation=$operation\n',
+            'phase=$phase\nrunner=proot\nport=4096\nruntime=opencode2\n'
+            'operation=$operation\n',
         'stderr': '',
       };
     });

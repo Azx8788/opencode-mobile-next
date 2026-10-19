@@ -3,7 +3,10 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:opencode_mobile/domain/chat_feed.dart';
 import 'package:opencode_mobile/domain/merged_chat_feed.dart';
+import 'package:opencode_mobile/domain/product_failure.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
+import 'package:opencode_mobile/paseo/transport.dart'
+    show PaseoFailure, PaseoFailureKind;
 
 ChatFeedItem _row(
   String id, {
@@ -29,6 +32,7 @@ class _Feed implements AgentChatFeedSource, ChatFeedChangeSource {
   Future<void> Function()? refresh;
   int reads = 0;
   String? lastProject;
+  Object? startError;
   @override
   Stream<void> get changes => controller.stream;
   @override
@@ -79,6 +83,7 @@ class _Feed implements AgentChatFeedSource, ChatFeedChangeSource {
     required String agentId,
     String? firstPrompt,
   }) async {
+    if (startError != null) throw startError!;
     started.add((directory, agentId));
     return 'created';
   }
@@ -314,6 +319,58 @@ void main() {
     expect(
       () => MergedChatFeed(sources: [], defaultSourceId: 'unknown'),
       throwsArgumentError,
+    );
+  });
+
+  test('a failed start keeps its cause for Details', () async {
+    // The owner's phone said only "Could not start this chat" (2026-10-17):
+    // a cause that is not app copy was dropped here.
+    first.startError = StateError('helper went away');
+    Object? thrown;
+    try {
+      await merged.startChatInSource(
+        'first',
+        '/work/project',
+        agentId: 'claude',
+      );
+    } catch (error) {
+      thrown = error;
+    }
+    expect(
+      thrown,
+      isA<ProductException>().having(
+        (e) => e.message,
+        'message',
+        'Could not start this chat. Refresh before trying again.',
+      ),
+    );
+    expect(
+      ProductFailure.from(thrown!).technicalDetails,
+      contains('helper went away'),
+    );
+  });
+
+  test('a project whose Git cannot be read keeps that failure', () async {
+    // Owner's phone, 2026-10-18: Paseo's `bad object HEAD` became "Could
+    // not start this chat. Refresh…", hiding the words and the repair.
+    first.startError = PaseoFailure(
+      PaseoFailureKind.unavailable,
+      reason:
+          'Git command failed: git status --porcelain fatal: bad object HEAD',
+    );
+    Object? thrown;
+    try {
+      await merged.startChatInSource(
+        'first',
+        '/root/projects/app',
+        agentId: 'claude',
+      );
+    } catch (error) {
+      thrown = error;
+    }
+    expect(
+      ProductFailure.from(thrown!).category,
+      ProductFailureCategory.projectGit,
     );
   });
 }

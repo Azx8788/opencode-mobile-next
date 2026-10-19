@@ -2,7 +2,12 @@
 
 **Owner request:** "I want to start planning decommissioning opencode 1."
 
-**Status:** proposal; nothing is built yet. The facts below come from a code inventory of `int/ui-batch-2026-10-14` and the npm registry on 2026-10-14.
+**Status, 2026-10-15:** Tier 2 authorized by the owner: “Kill opencode one.”
+The app has only its owner as a user; the earlier usage/upstream waiting condition
+is superseded. Implementation and qualification are tracked in the
+[decommission evidence](../qa/oc1-decommission-2026-10-15/README.md).
+
+The inventory and decisions below are retained as historical planning context.
 
 ## Where we stand
 

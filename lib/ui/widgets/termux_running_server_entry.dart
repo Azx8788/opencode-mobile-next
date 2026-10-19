@@ -319,9 +319,7 @@ class _TermuxRunningServerEntryState extends State<TermuxRunningServerEntry>
   }
 
   String _runtimeName(AppLocalizations l10n, TermuxRuntime? runtime) =>
-      runtime == TermuxRuntime.openCode2
-      ? l10n.setupRuntimeTwo
-      : l10n.setupRuntimeOne;
+      l10n.setupRuntimeTwo;
 
   @override
   Widget build(BuildContext context) {

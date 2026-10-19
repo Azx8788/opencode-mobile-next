@@ -2,19 +2,9 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
-/// Every transport must be built through `_buildTransportPair`, which picks
-/// the v1 or v2 stack from the profile's detected flavor. Calling the v1
-/// factory directly anywhere else silently downgrades an OpenCode 2
-/// connection to a v1 client whose health check can never succeed, which
-/// surfaces to the user as a rotated password.
-///
-/// This is a source guard rather than a behavioral test on purpose. The
-/// behavioral version drove the whole asynchronous rescope against a fake
-/// gateway and was unreliable, so it was deleted — and the fix it protected
-/// was reverted by a merge within a day. The failure mode here is
-/// reintroduction, not misbehavior at runtime, so the source is what to
-/// assert on.
-/// The controller library: `connection.dart` and its part files.
+/// Location changes must rebuild through the shared transport builder so
+/// profile-scoped gateway selection and injected transports stay consistent.
+/// The controller library includes connection.dart and all its part files.
 String _connectionLibrarySource() {
   final parts =
       Directory('lib/state/connection')
@@ -30,48 +20,7 @@ String _connectionLibrarySource() {
 }
 
 void main() {
-  test('only _buildTransportPair constructs the v1 transport', () {
-    final source = _connectionLibrarySource();
-    final lines = source.split('\n');
-
-    final callSites = <int>[];
-    for (var i = 0; i < lines.length; i++) {
-      if (lines[i].contains('_apiFactory(profile)')) callSites.add(i + 1);
-    }
-
-    expect(
-      callSites,
-      isNotEmpty,
-      reason: 'the v1 factory should still exist; check for a rename',
-    );
-
-    // The one legitimate call is inside _buildTransportPair itself.
-    final builderStart = lines.indexWhere(
-      (line) => line.contains('_buildTransportPair(ServerProfile profile)'),
-    );
-    expect(builderStart, isNot(-1), reason: '_buildTransportPair is missing');
-
-    var builderEnd = builderStart;
-    while (builderEnd < lines.length && lines[builderEnd] != '  }') {
-      builderEnd++;
-    }
-
-    final strays = callSites
-        .where((line) => line < builderStart + 1 || line > builderEnd + 1)
-        .toList();
-
-    expect(
-      strays,
-      isEmpty,
-      reason:
-          'the connection library calls _apiFactory(profile) outside '
-          '_buildTransportPair at line(s) ${strays.join(', ')}. A v2 profile '
-          'rebuilt on the v1 transport cannot authenticate, and the failure '
-          'looks like a wrong password. Route it through _buildTransportPair.',
-    );
-  });
-
-  test('the location rescope path uses the flavor-aware builder', () {
+  test('the location rescope path uses the shared transport builder', () {
     final source = _connectionLibrarySource();
     // _selectLocation only wraps the rescope in a performance span; the
     // body that rebuilds the transport is _selectLocationUntraced.
@@ -85,8 +34,8 @@ void main() {
       body.contains('_buildTransportPair(profile)'),
       isTrue,
       reason:
-          '_selectLocation must rebuild through _buildTransportPair so a v2 '
-          'profile keeps its v2 transport when the directory changes.',
+          '_selectLocation must rebuild through _buildTransportPair so the '
+          'profile keeps its selected transport when the directory changes.',
     );
   });
 }

@@ -1,10 +1,10 @@
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'fake_server_gateway.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 
 /// Existing non-pagination fixtures expose their transcript as one complete
 /// chronological page. Pagination-specific fakes override messagePage directly.
-mixin CompleteMessageHistory on OpenCodeApi {
+mixin CompleteMessageHistory on FakeServerGateway {
   // These compatibility fixtures model transcript reads, not receipt sends.
   // Receipt-specific fakes explicitly opt into the capability and implement
   // promptWithMessageID, so inherited production HTTP never runs in a fake.
@@ -15,7 +15,7 @@ mixin CompleteMessageHistory on OpenCodeApi {
     setupMcpInventory: true,
   );
   // Fixtures override this with their transcript. An empty default prevents
-  // falling back into OpenCodeApi.messages -> messagePage -> messages.
+  // falling back into FakeServerGateway.messages -> messagePage -> messages.
   @override
   Future<List<MessageWithParts>> messages(String id) async => const [];
 

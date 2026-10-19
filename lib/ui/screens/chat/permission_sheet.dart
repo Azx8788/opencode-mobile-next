@@ -4,7 +4,7 @@ import 'dart:ui' show PlatformDispatcher;
 import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 
-import '../../../api/models.dart';
+import '../../../domain/models.dart';
 import '../../../domain/server_gateway.dart' show PendingQuestion;
 import '../../../l10n/app_localizations.dart';
 import '../../../state/connection.dart';
@@ -236,6 +236,8 @@ KitRequestCard permissionRequestCard(
   required VoidCallback? onAllow,
   required VoidCallback? onReject,
   String? disabledReason,
+  String? toolName,
+  String? target,
   VoidCallback? onDetails,
   PermissionAnswerState? answered,
   KitRequestAlwaysAllowStep? alwaysAllow,
@@ -259,6 +261,7 @@ KitRequestCard permissionRequestCard(
     permission.permission,
     l10n: l10n,
     fallback: statement,
+    toolName: toolName,
   );
   final held = heldLabel != null && onUndo != null;
   final sending = !held && answered != null && !answered.failed;
@@ -275,7 +278,7 @@ KitRequestCard permissionRequestCard(
     // OpenCode's bash and task tools say in words what they are for.
     detail:
         detail ?? permission.message ?? _metaText(permission, 'description'),
-    summary: permissionSummary(permission),
+    summary: target ?? permissionSummary(permission),
     since: since,
     phase: held
         ? KitRequestPhase.answered

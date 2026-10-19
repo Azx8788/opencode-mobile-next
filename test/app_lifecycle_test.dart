@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/background/live_background.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/main.dart';
@@ -117,7 +117,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     final store = ProfileStore(prefs: await SharedPreferences.getInstance());
     final connection = ConnectionController(store)
-      ..api = OpenCodeApi(baseUrl: 'http://localhost')
+      ..api = FakeServerGateway(baseUrl: 'http://localhost')
       ..repository = _HomeRepository()
       ..version = 'test'
       ..status = StreamStatus.connected;

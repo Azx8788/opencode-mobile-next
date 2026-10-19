@@ -40,6 +40,17 @@ void main() {
       );
     });
 
+    test('allows an Unreleased section before the current release', () {
+      expect(
+        validate(changes: '## Unreleased\n\nPending changes.\n$changelog'),
+        isEmpty,
+      );
+      expect(
+        validate(changes: '## Unreleased\n## 1.1.0+51\n$changelog'),
+        contains(contains('CHANGELOG.md first release heading')),
+      );
+    });
+
     test('reports a build-number-only mismatch in the changelog', () {
       expect(
         validate(changes: changelog.replaceFirst(version, '1.2.0+51')),
@@ -62,7 +73,11 @@ void main() {
     });
 
     test('reports a missing or unversioned first changelog heading', () {
-      for (final changes in ['# Changelog\n', '## Unreleased\n$changelog']) {
+      for (final changes in [
+        '# Changelog\n',
+        '## Unreleased\n',
+        '## Unknown\n$changelog',
+      ]) {
         expect(validate(changes: changes), isNotEmpty);
       }
     });

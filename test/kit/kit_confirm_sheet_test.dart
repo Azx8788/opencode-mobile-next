@@ -7,6 +7,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../support/no_red.dart';
 import 'package:opencode_mobile/ui/app_theme.dart';
 import 'package:opencode_mobile/ui/kit/kit.dart';
 
@@ -144,29 +145,30 @@ void main() {
     }
   });
 
-  testWidgets('error tone only for stop, destructive and discard; never ?', (
-    tester,
-  ) async {
-    final context = await pumpKitHost(tester);
-    final theme = AppTheme.dark();
-    for (final kind in KitConfirmKind.values) {
-      await _open(tester, context, kind: kind);
-      final button = filledButton(tester, 'Delete conversation');
-      final background = button.style?.backgroundColor?.resolve({});
-      // The one red fill (visual language §5: dangerFill, only inside a
-      // confirmation).
-      final dangerFill = AppTheme.rolesOf(theme).dangerFill;
-      if (kind == KitConfirmKind.neutral) {
-        expect(background, isNot(dangerFill), reason: '$kind');
-      } else {
-        expect(background, dangerFill, reason: '$kind');
+  testWidgets(
+    'strong neutral only for stop, destructive and discard; never ?',
+    (tester) async {
+      final context = await pumpKitHost(tester);
+      final theme = AppTheme.dark();
+      for (final kind in KitConfirmKind.values) {
+        await _open(tester, context, kind: kind);
+        final button = filledButton(tester, 'Delete conversation');
+        final background = button.style?.backgroundColor?.resolve({});
+        // The strong neutral fill inside a confirmation; never red.
+        final strong = AppTheme.rolesOf(theme).text1;
+        expect(background, isNotRed, reason: '$kind');
+        if (kind == KitConfirmKind.neutral) {
+          expect(background, isNot(strong), reason: '$kind');
+        } else {
+          expect(background, strong, reason: '$kind');
+        }
+        expect(find.byIcon(AppIconography.question), findsNothing);
+        expect(find.byIcon(KitConfirmSheet.iconFor(kind)), findsOneWidget);
+        await tester.tap(find.byKey(const ValueKey('kit-confirm-cancel')));
+        await tester.pumpAndSettle();
       }
-      expect(find.byIcon(AppIconography.question), findsNothing);
-      expect(find.byIcon(KitConfirmSheet.iconFor(kind)), findsOneWidget);
-      await tester.tap(find.byKey(const ValueKey('kit-confirm-cancel')));
-      await tester.pumpAndSettle();
-    }
-  });
+    },
+  );
 
   testWidgets('the typed name enables the confirm only on an exact match', (
     tester,

@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import '../api/server_probe.dart';
+import '../domain/server_probe.dart';
 import '../builtin/builtin_linux.dart';
 import '../builtin/builtin_server.dart';
 import '../builtin/team/builtin_team.dart';

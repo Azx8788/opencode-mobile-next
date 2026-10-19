@@ -41,7 +41,22 @@ internal class UsageWidgetRenderer(private val context: Context, private val wid
                 views.setViewVisibility(detailIDs[index], if (detail.isEmpty()) View.GONE else View.VISIBLE)
             }
         }
+        val lone = shown.size == 1 && heightDp >= SPACIOUS_HEIGHT_DP &&
+            !plans[shown[0].index].first().signInOnly
+        sizeFirstRow(lone)
         return views
+    }
+
+    /** One plan in a tall widget gets larger type; the rows block is centred in the remaining
+     * height by the layout instead of a card that is half empty. Sizes are set on every render
+     * so the large type never outlives the lone plan. */
+    private fun sizeFirstRow(lone: Boolean) {
+        val (title, column, detail) = WidgetUsageStyle.usageTextSizes(lone)
+        val sp = android.util.TypedValue.COMPLEX_UNIT_SP
+        views.setTextViewTextSize(titleIDs[0], sp, title)
+        views.setTextViewTextSize(c1TextIDs[0], sp, column)
+        views.setTextViewTextSize(c2TextIDs[0], sp, column)
+        views.setTextViewTextSize(detailIDs[0], sp, detail)
     }
 
     private fun bindHeader() {
@@ -52,10 +67,10 @@ internal class UsageWidgetRenderer(private val context: Context, private val wid
         views.setTextViewText(R.id.usage_empty, NativeStrings.get(context, R.string.usage_widget_empty))
         views.setOnClickPendingIntent(R.id.usage_root, open)
         views.setOnClickPendingIntent(R.id.usage_header, open)
-        // The empty state sends the person to the settings that fill it.
+        // No measured limits yet: open Usage to read or connect a source.
         views.setOnClickPendingIntent(
             R.id.usage_empty,
-            launchIntent(SETTINGS_REQUEST_CODE, UsageWidgetProvider.LAUNCH_ACTION_USAGE_SETTINGS)
+            open
         )
     }
 
@@ -107,11 +122,12 @@ internal class UsageWidgetRenderer(private val context: Context, private val wid
             )
         )
         views.setProgressBar(barId, FULL_PERCENT, row.left, false)
-        val color = if (row.forceStale || row.authNeeded) palette.neutral else palette.usage(row.left)
-        views.setTextColor(textId, color)
+        val stale = row.forceStale || row.authNeeded
+        val (fill, track) = WidgetUsageStyle.usageBar(palette.text, palette.muted, row.left, stale)
+        views.setTextColor(textId, if (stale) palette.muted else palette.text)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            views.setColorStateList(barId, "setProgressTintList", ColorStateList.valueOf(color))
-            views.setColorStateList(barId, "setProgressBackgroundTintList", ColorStateList.valueOf(palette.muted))
+            views.setColorStateList(barId, "setProgressTintList", ColorStateList.valueOf(fill))
+            views.setColorStateList(barId, "setProgressBackgroundTintList", ColorStateList.valueOf(track))
         }
     }
 
@@ -129,9 +145,9 @@ internal class UsageWidgetRenderer(private val context: Context, private val wid
     companion object {
         private const val FLUTTER_PREFS = "FlutterSharedPreferences"
         private const val OPEN_REQUEST_CODE = 200
-        private const val SETTINGS_REQUEST_CODE = 201
         private const val FIX_REQUEST_CODE = 300
         private const val FULL_PERCENT = 100
+        private const val SPACIOUS_HEIGHT_DP = 150
 
         private val rowIDs = intArrayOf(
             R.id.usage_row_0, R.id.usage_row_1, R.id.usage_row_2,

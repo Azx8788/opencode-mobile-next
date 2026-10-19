@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../support/no_red.dart';
 import 'package:opencode_mobile/ui/app_theme.dart';
 import 'package:opencode_mobile/ui/kit/kit_icon.dart';
 import 'package:opencode_mobile/ui/kit/kit_status_mark.dart';
@@ -263,7 +264,7 @@ void main() {
           final color = tester.widget<Icon>(find.byType(Icon)).color;
           expect(color, expected[status], reason: '$status');
         }
-        expect(expected[AppStatusTone.failure], isNot(roles.danger));
+        expect(expected[AppStatusTone.failure], isNotRed);
         expect(expected[AppStatusTone.attention], isNot(roles.attention));
       },
     );
@@ -456,7 +457,7 @@ void main() {
           theme: theme,
           home: Center(
             child: IconTheme(
-              data: IconThemeData(color: roles.danger),
+              data: IconThemeData(color: roles.success),
               child: const KitIcon(
                 AppIconography.check,
                 tone: KitTextTone.accent,
@@ -478,13 +479,13 @@ void main() {
           theme: theme,
           home: Center(
             child: IconTheme(
-              data: IconThemeData(color: roles.danger),
+              data: IconThemeData(color: roles.success),
               child: const KitIcon(AppIconography.check),
             ),
           ),
         ),
       );
-      expect(tester.widget<Icon>(find.byType(Icon)).color, roles.danger);
+      expect(tester.widget<Icon>(find.byType(Icon)).color, roles.success);
 
       await tester.pumpWidget(
         MaterialApp(

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import '../api/models.dart';
+import '../domain/models.dart';
 import '../domain/server_gateway.dart';
 
 /// Where a fresh-worktree task launch currently stands.

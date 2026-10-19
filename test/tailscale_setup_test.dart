@@ -75,12 +75,12 @@ void main() {
         'computer.example.ts.net',
         'https://computer.example.ts.net:8443',
         'https://private.example',
+        'http://100.64.0.1:4096',
+        'http://localhost:4096',
       ]) {
         expect(isValidTailscaleAddress(value), isTrue, reason: value);
       }
       for (final value in [
-        'http://100.64.0.1:4096',
-        'http://localhost:4096',
         'https://a:0',
         'https://a:65536',
         'https://a:bad',
@@ -183,13 +183,16 @@ void main() {
     await _show(tester, bridge, result: (value) => result = value);
     await _tap(tester, 'Open Tailscale');
     expect(find.textContaining('didn’t open'), findsOneWidget);
-    await tester.enterText(find.byType(TextField), 'http://100.64.0.1:4096');
+    await tester.enterText(find.byType(TextField), 'https://a/path');
     await _tap(tester, 'Continue to sign-in');
     expect(result, isNull);
-    expect(find.textContaining("won't work here"), findsOneWidget);
-    await tester.enterText(find.byType(TextField), 'work.example.ts.net');
+    expect(
+      find.textContaining('Enter a complete HTTP or HTTPS server address'),
+      findsOneWidget,
+    );
+    await tester.enterText(find.byType(TextField), 'http://100.64.0.1:4096');
     await _tap(tester, 'Continue to sign-in');
-    expect(result, 'https://work.example.ts.net');
+    expect(result, 'http://100.64.0.1:4096');
   });
 
   testWidgets('late package check after dismissal is ignored', (tester) async {
@@ -215,7 +218,10 @@ void main() {
       await tester.tap(find.text('Continue to sign-in'));
       await tester.pumpAndSettle();
       expect(result, isNull);
-      expect(find.textContaining("won't work here"), findsNothing);
+      expect(
+        find.textContaining('Enter a complete HTTP or HTTPS address'),
+        findsNothing,
+      );
       await tester.enterText(find.byType(TextField), 'work.example.ts.net');
       await tester.pump();
       expect(find.text('Enter your server’s address first.'), findsNothing);

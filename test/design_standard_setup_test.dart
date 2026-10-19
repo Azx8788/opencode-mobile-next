@@ -16,7 +16,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/server_probe.dart';
+import 'package:opencode_mobile/domain/server_probe.dart';
 import 'package:opencode_mobile/builtin/builtin_linux.dart'
     show BuiltinServerRestoreRecipe;
 import 'package:opencode_mobile/builtin/setup/setup_contract.dart';

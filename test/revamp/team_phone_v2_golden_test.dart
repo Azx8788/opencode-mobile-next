@@ -158,9 +158,12 @@ class _Store extends ProfileStore {
   }
 }
 
-Future<void> _settle(WidgetTester tester) async {
+Future<void> _settle(
+  WidgetTester tester, {
+  Duration tick = const Duration(milliseconds: 100),
+}) async {
   for (var i = 0; i < 15; i++) {
-    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(tick);
   }
 }
 
@@ -188,6 +191,7 @@ Future<void> _shot(
   required ConnectionController controller,
   required Widget Function(BuildContext context) home,
   Size size = phoneSize,
+  Duration settleTick = const Duration(milliseconds: 100),
   Future<void> Function()? act,
 }) async {
   tester.view.physicalSize = size;
@@ -218,9 +222,9 @@ Future<void> _shot(
         ),
       ),
     );
-    await _settle(tester);
+    await _settle(tester, tick: settleTick);
     if (act != null) await act();
-    await _settle(tester);
+    await _settle(tester, tick: settleTick);
     expect(tester.takeException(), isNull);
     await expectLater(
       find.byKey(boundary),
@@ -240,6 +244,9 @@ void main() {
 
   setUp(() {
     debugPlatformCapabilities = const PlatformCapabilities.android();
+    final previousEngine = PhoneSetup.termux;
+    PhoneSetup.termux = FakeSetupEngine(registry: _registry);
+    addTearDown(() => PhoneSetup.termux = previousEngine);
     runtime = _Runtime();
     debugTeamPhoneRuntime = runtime;
     final messenger =
@@ -278,6 +285,61 @@ void main() {
       );
     });
   }
+
+  testWidgets('inventory proof: installed in-app AI Team intro', (
+    tester,
+  ) async {
+    final previous = PhoneSetup.engine;
+    PhoneSetup.engine = FakeSetupEngine(registry: _registry)
+      ..optionalInstalled = {'python', 'aiteam'};
+    addTearDown(() => PhoneSetup.engine = previous);
+    final controller = await _connection(inAppProfile);
+    await _shot(
+      tester,
+      'inventory_in_app_team_installed_light',
+      controller: controller,
+      home: (_) => TeamIntroScreen(
+        controller: controller,
+        deviceProbe: () async => okDevice,
+      ),
+      act: () async {
+        final en = lookupAppLocalizations(const Locale('en'));
+        expect(find.text(en.teamIntroInstalledTitle), findsOneWidget);
+        await tester.ensureVisible(find.text(en.teamIntroInstalledTitle));
+        await _settle(tester);
+      },
+    );
+    controller.dispose();
+  });
+
+  testWidgets('inventory proof: installed in-app phone tools', (tester) async {
+    final boundary = GlobalKey();
+    await pumpPhone(
+      tester,
+      home: const ThisPhoneScreen(kind: PhoneHostKind.inApp),
+      light: true,
+      boundary: boundary,
+      linux: PhoneLinux(running: true),
+      profiles: [inAppProfile],
+    );
+    PhoneSetup.engine = FakeSetupEngine(registry: _registry)
+      ..optionalInstalled = {'python', 'aiteam'};
+    setupToolsChanged.value++;
+    await _settle(tester);
+    final header = find.byKey(const ValueKey('this-phone-installed-header'));
+    await tester.ensureVisible(header);
+    await _settle(tester);
+    await tester.tap(header);
+    await _settle(tester);
+    await tester.ensureVisible(find.text('AI Team').last);
+    await _settle(tester);
+    expect(tester.takeException(), isNull);
+    await expectLater(
+      find.byKey(boundary),
+      matchesGoldenFile('goldens/inventory_in_app_tools_installed_light.png'),
+    );
+    await unmountPhone(tester);
+  });
 
   testWidgets('intro: a 32-bit phone is told why', (tester) async {
     final controller = await _connection(_termuxProfile());
@@ -320,6 +382,8 @@ void main() {
         tester,
         'team_v2_ready_turning_on${_suffix(size)}_light',
         size: size,
+        // Capture the initial stage before the periodic elapsed-time tick.
+        settleTick: Duration.zero,
         controller: controller,
         home: (_) => TeamPhoneReadyScreen(
           connection: controller,

@@ -3,28 +3,16 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
 import 'package:opencode_mobile/api2/gateway.dart';
 import 'package:opencode_mobile/domain/genui/gen_ui_history.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/paseo/gateway.dart';
 import 'package:opencode_mobile/paseo/transport.dart';
 
-Map<String, dynamic> bundle(String id) => {
-  'info': {
-    'id': id,
-    'sessionID': 'ses_1',
-    'role': 'user',
-    'time': {'created': 1},
-  },
-  'parts': <Object>[],
-};
-
 void main() {
   late HttpServer server;
   late List<Uri> requests;
   late FutureOr<void> Function(HttpRequest) respond;
-  late OpenCodeApi oc1;
   late Api2Gateway oc2;
 
   setUp(() async {
@@ -38,72 +26,17 @@ void main() {
       await request.response.close();
     });
     final base = 'http://${server.address.host}:${server.port}';
-    oc1 = OpenCodeApi(baseUrl: base)
-      ..setLocation(directory: '/work', workspace: 'w');
     oc2 = Api2Gateway.connect(baseUrl: base, password: '');
   });
   tearDown(() async {
-    oc1.close();
     oc2.close();
     await server.close(force: true);
-  });
-
-  test(
-    'OC1 bounded page preserves trusted scope and extracts only cursor',
-    () async {
-      respond = (request) {
-        if (request.uri.queryParameters['before'] == null) {
-          request.response.headers.set(
-            'link',
-            '<https://untrusted.invalid/x?before=older>; rel="next"',
-          );
-        }
-        request.response.write(jsonEncode([bundle('m1')]));
-      };
-      final page = await oc1.genUiHistoryPage('ses_1', limit: 2);
-      expect(page.items.single.info.id, 'm1');
-      expect(page.olderCursor, 'older');
-      expect(page.hasMore, isTrue);
-      await oc1.genUiHistoryPage('ses_1', cursor: page.olderCursor, limit: 2);
-      expect(requests.last.path, '/session/ses_1/message');
-      expect(requests.last.queryParameters, {
-        'directory': '/work',
-        'workspace': 'w',
-        'before': 'older',
-        'limit': '2',
-      });
-    },
-  );
-
-  test('OC1 full cursorless page retains unknown older coverage', () async {
-    respond = (request) => request.response.write(jsonEncode([bundle('m1')]));
-    final page = await oc1.genUiHistoryPage('ses_1', limit: 1);
-    expect(page.hasMore, isTrue);
-    expect(page.olderCursor, isNull);
-  });
-
-  test('OC1 rejects foreign session and over-limit response', () async {
-    respond = (request) =>
-        request.response.write(jsonEncode([bundle('m1'), bundle('m2')]));
-    await expectLater(
-      oc1.genUiHistoryPage('ses_1', limit: 1),
-      throwsA(isA<ProductException>()),
-    );
-    respond = (request) {
-      final item = bundle('m1');
-      (item['info'] as Map)['sessionID'] = 'ses_foreign';
-      request.response.write(jsonEncode([item]));
-    };
-    await expectLater(
-      oc1.genUiHistoryPage('ses_1'),
-      throwsA(isA<ProductException>()),
-    );
   });
 
   test('HTTP rejects oversized body and hides server error content', () async {
     respond = (request) => request.response.write('x' * (1024 * 1024 + 1));
     await expectLater(
-      oc1.genUiHistoryPage('ses_1'),
+      oc2.genUiHistoryPage('ses_1'),
       throwsA(isA<ProductException>()),
     );
     respond = (request) {
@@ -140,114 +73,6 @@ void main() {
     expect(end.hasMore, isFalse);
     expect(requests.last.queryParameters, {'cursor': 'opaque', 'limit': '2'});
   });
-
-  test('OC1 sparse status admits an existing idle session', () async {
-    respond = (request) => request.response.write(
-      jsonEncode(
-        request.uri.path == '/session/ses_1'
-            ? {'id': 'ses_1', 'directory': '/work'}
-            : <String, Object>{},
-      ),
-    );
-    expect(await oc1.genUiSessionIdle('ses_1'), isTrue);
-    expect(requests.map((uri) => uri.path), [
-      '/session/ses_1',
-      '/session/status',
-    ]);
-    for (final request in requests) {
-      expect(request.queryParameters, {'directory': '/work', 'workspace': 'w'});
-    }
-  });
-
-  test(
-    'OC1 valid sparse idle and explicit idle preserve busy/retry refusal',
-    () async {
-      for (final status in [null, 'idle', 'busy', 'retry']) {
-        respond = (request) => request.response.write(
-          jsonEncode(
-            request.uri.path == '/session/ses_1'
-                ? {'id': 'ses_1', 'directory': '/work'}
-                : {
-                    if (status != null) 'ses_1': {'type': status},
-                  },
-          ),
-        );
-        expect(
-          await oc1.genUiSessionIdle('ses_1'),
-          status == null || status == 'idle',
-        );
-      }
-    },
-  );
-
-  test('OC1 sparse idle rejects nonexistent or foreign sessions', () async {
-    for (final session in [
-      null,
-      <String, Object>{},
-      {'id': 'ses_foreign', 'directory': '/work'},
-      {'id': 'ses_1', 'directory': '/other'},
-    ]) {
-      respond = (request) {
-        if (request.uri.path == '/session/ses_1') {
-          if (session == null) {
-            request.response.statusCode = 404;
-          }
-          request.response.write(jsonEncode(session));
-        } else {
-          request.response.write('{}');
-        }
-      };
-      await expectLater(
-        oc1.genUiSessionIdle('ses_1'),
-        throwsA(isA<ProductException>()),
-      );
-    }
-  });
-
-  test(
-    'OC1 sparse idle rejects malformed status maps including other entries',
-    () async {
-      for (final status in [
-        null,
-        <Object>[],
-        {'ses_1': null},
-        {
-          'ses_other': {'type': 'unknown'},
-        },
-        {'ses_other': 'busy'},
-      ]) {
-        respond = (request) => request.response.write(
-          jsonEncode(
-            request.uri.path == '/session/ses_1'
-                ? {'id': 'ses_1', 'directory': '/work'}
-                : status,
-          ),
-        );
-        await expectLater(
-          oc1.genUiSessionIdle('ses_1'),
-          throwsA(isA<ProductException>()),
-        );
-      }
-    },
-  );
-
-  test(
-    'OC1 sparse idle rejects a location changed during status read',
-    () async {
-      respond = (request) {
-        if (request.uri.path == '/session/ses_1') {
-          request.response.write('{"id":"ses_1","directory":"/work"}');
-        } else {
-          oc1.setLocation(directory: '/other', workspace: 'other');
-          request.response.write('{}');
-        }
-      };
-      await expectLater(
-        oc1.genUiSessionIdle('ses_1'),
-        throwsA(isA<ProductException>()),
-      );
-    },
-  );
 
   test(
     'OC2 idle verifies existence and validates active map before absence',
@@ -317,7 +142,7 @@ void main() {
   );
 
   test('invalid limits never send a wire request', () async {
-    for (final GenUiHistoryGateway gateway in [oc1, oc2]) {
+    for (final GenUiHistoryGateway gateway in [oc2]) {
       for (final limit in [0, -1, 51]) {
         await expectLater(
           gateway.genUiHistoryPage('ses_1', limit: limit),

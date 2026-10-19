@@ -3,9 +3,10 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'package:opencode_mobile/api2/client.dart';
+import 'package:opencode_mobile/api2/gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/domain/orchestration_gateway.dart';
 import 'package:opencode_mobile/domain/phone_project_engine.dart';
@@ -19,8 +20,14 @@ import 'phone_project_engine_controller_test.dart' show NativeBridge;
 import 'phone_project_engine_gateway_test.dart' as engine;
 import 'support/stash_memory_vault.dart';
 
-class _PendingApi extends OpenCodeApi {
-  _PendingApi() : super(baseUrl: 'http://127.0.0.1:4097');
+class _PendingApi extends Api2Gateway {
+  _PendingApi()
+    : super(
+        client: Api2Client.connect(
+          baseUrl: 'http://127.0.0.1:4097',
+          password: 'test-only',
+        ),
+      );
   final gate = Completer<Health>();
   @override
   Future<Health> health() => gate.future;
@@ -171,12 +178,11 @@ void main() {
     final connection = ConnectionController(
       store,
       isIsolated: isolated,
-      apiFactory: (_) {
+      v2GatewayFactory: (_) {
         final api = _PendingApi();
         pending.add(api);
-        return api;
+        return (gateway: api, operations: _Operations());
       },
-      repositoryFactory: (_) => _Operations(),
       phoneEngineBridge: bridge ?? NativeBridge(),
       phoneEngineGatewayBuilder:
           ({required baseUrl, required profileId, required bearerToken}) =>

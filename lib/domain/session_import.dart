@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import '../api/models.dart' show Session;
+import '../domain/models.dart' show Session;
 
 abstract interface class SessionImportGateway {
   bool get sessionImportSupported;

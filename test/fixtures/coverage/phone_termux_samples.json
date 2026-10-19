@@ -80,7 +80,7 @@
           "port": 4096,
           "runner": "proot",
           "pid": 123,
-          "runtime": "opencode1",
+          "runtime": "opencode2",
           "phase": "installing_opencode",
           "message": "Fetching the OpenCode package",
           "version": "",
@@ -168,10 +168,10 @@
           "port": 4096,
           "runner": "proot",
           "pid": 123,
-          "runtime": "opencode1",
+          "runtime": "opencode2",
           "phase": "starting_server",
           "message": "Starting the server",
-          "version": "1.18.29"
+          "version": "2.0.29"
         },
         "log": "x"
       },
@@ -227,7 +227,7 @@
           "path": "version",
           "kind": "string",
           "probes": [
-            "1.18.29"
+            "2.0.29"
           ],
           "primary": false
         },
@@ -248,7 +248,7 @@
           "port": 4096,
           "runner": "proot",
           "pid": 123,
-          "runtime": "opencode1",
+          "runtime": "opencode2",
           "phase": "failed",
           "message": "OpenCode install failed",
           "version": "",
@@ -352,10 +352,10 @@
           "port": 4096,
           "runner": "proot",
           "pid": 123,
-          "runtime": "opencode1",
+          "runtime": "opencode2",
           "phase": "ready",
           "message": "OpenCode is ready",
-          "version": "1.18.29",
+          "version": "2.0.29",
           "operation": "op2",
           "operation_result": "completed"
         },
@@ -411,7 +411,7 @@
           "path": "version",
           "kind": "string",
           "probes": [
-            "1.18.29"
+            "2.0.29"
           ],
           "primary": false
         },

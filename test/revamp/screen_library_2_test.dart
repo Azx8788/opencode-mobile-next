@@ -1,3 +1,4 @@
+import '../support/fake_server_capabilities.dart';
 // Behaviour of screen-library-2's pages (wave 2b): Commands & tools explains
 // its gates instead of dropping them (P7.4), Add MCP server explains a
 // server that cannot add one and asks before discarding what was typed, and
@@ -8,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/api2/gateway_mappers.dart'
     show api2ServerCapabilities;
 import 'package:opencode_mobile/domain/external_agent.dart';
@@ -155,7 +156,7 @@ void main() {
     });
 
     testWidgets('a section can be asked for by name', (tester) async {
-      final controller = await _controller(ServerCapabilities.allV1);
+      final controller = await _controller(testServerCapabilities);
       addTearDown(controller.dispose);
       await tester.pumpWidget(
         _app(
@@ -229,7 +230,7 @@ void main() {
     });
 
     testWidgets('Save names what is missing and adds nothing', (tester) async {
-      final controller = await _controller(ServerCapabilities.allV1);
+      final controller = await _controller(testServerCapabilities);
       addTearDown(controller.dispose);
       await tester.pumpWidget(_app(McpSetupScreen(controller: controller)));
       await tester.pumpAndSettle();
@@ -243,7 +244,7 @@ void main() {
     testWidgets('Back with typed input asks before discarding it', (
       tester,
     ) async {
-      final controller = await _controller(ServerCapabilities.allV1);
+      final controller = await _controller(testServerCapabilities);
       addTearDown(controller.dispose);
       await tester.pumpWidget(_host(McpSetupScreen(controller: controller)));
       await tester.tap(find.text('Open page'));

@@ -69,9 +69,7 @@ class ReleasePipelineTest(unittest.TestCase):
         self.assertEqual(pins["openCodeVersion"], "2.0.29")
         self.assertEqual(pins["bundleVersion"], "2.0.0")
         self.assertEqual(pins["appVersions"], {})
-        legacy = pins["legacyBundles"][0]
-        self.assertEqual(legacy["openCodeVersion"], "1.18.32")
-        self.assertIn("1.1.0+51", legacy["appVersions"])
+        self.assertNotIn("legacyBundles", pins)
 
     def test_pinned_source_before_unpack(self):
         with self.assertRaisesRegex(ValueError, "upstreamChecksumMismatch"):

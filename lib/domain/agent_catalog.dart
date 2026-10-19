@@ -2,7 +2,7 @@
 /// A pinned download never proves sign-in, resume, or phone compatibility.
 library;
 
-enum AgentRoute { opencode1, opencode2, paseoNative, acpPaseo }
+enum AgentRoute { opencode2, paseoNative, acpPaseo }
 
 enum AgentArchitecture { arm64, x64 }
 
@@ -297,31 +297,6 @@ AgentCatalog _builtInCatalog() {
         ),
       ),
       entry(
-        'opencode',
-        'Older OpenCode',
-        AgentRoute.opencode1,
-        'opencode',
-        AgentSignInMethod.apiKeyHost,
-        AgentInstallRecipe(
-          version: '1.19.0',
-          executable: 'opencode',
-          artifacts: {
-            AgentArchitecture.arm64: archive(
-              '$github/anomalyco/opencode/releases/download/v1.19.0/opencode-linux-arm64.tar.gz',
-              'e9841d43d3e1a8f36ed2691592d3b8b4fb097e606c8b559a277a1b845840e26b',
-              'opencode',
-            ),
-            AgentArchitecture.x64: archive(
-              '$github/anomalyco/opencode/releases/download/v1.19.0/opencode-linux-x64-baseline.tar.gz',
-              '6334d70db3990721ea454357e9cf2573c8685524ad7769af9d52cbffb7008438',
-              'opencode',
-            ),
-          },
-          launchArgs: ['serve', '--hostname', '127.0.0.1'],
-          signInArgs: ['auth', 'login'],
-        ),
-      ),
-      entry(
         'claude',
         'Claude Code',
         AgentRoute.paseoNative,
@@ -409,6 +384,67 @@ AgentCatalog _builtInCatalog() {
         ),
         limitation:
             'Set up a provider key on the host. The old Qwen sign-in option is discontinued.',
+      ),
+      entry(
+        'kilo',
+        'Kilo',
+        AgentRoute.acpPaseo,
+        'kilo',
+        AgentSignInMethod.browserOAuthHost,
+        AgentInstallRecipe(
+          version: '7.8.3',
+          executable: 'kilo',
+          artifacts: {
+            AgentArchitecture.arm64: archive(
+              'https://registry.npmjs.org/@kilocode/cli-linux-arm64/-/cli-linux-arm64-7.8.3.tgz',
+              'bd61f03eb14053fdcaf5245eb1740455b0447fe9d6d48b4adaeea6bb4ae53a90',
+              'package/bin/kilo',
+              bytes: 63881791,
+              installedBytes: 169322640,
+            ),
+            AgentArchitecture.x64: archive(
+              'https://registry.npmjs.org/@kilocode/cli-linux-x64/-/cli-linux-x64-7.8.3.tgz',
+              '03b963726d8002ea6bee21d8db6121201e6ed8230a0e1fce8857f4c8d091333c',
+              'package/bin/kilo',
+              bytes: 64190979,
+              installedBytes: 170363008,
+            ),
+          },
+          launchArgs: ['acp'],
+          signInArgs: ['auth', 'login'],
+        ),
+        limitation:
+            'Sign in or add a provider key, then check it on your phone. Large download.',
+      ),
+      entry(
+        'cline',
+        'Cline',
+        AgentRoute.acpPaseo,
+        'cline',
+        AgentSignInMethod.browserOAuthHost,
+        AgentInstallRecipe(
+          version: '3.0.68',
+          executable: 'cline',
+          artifacts: {
+            AgentArchitecture.arm64: archive(
+              'https://registry.npmjs.org/@cline/cli-linux-arm64/-/cli-linux-arm64-3.0.68.tgz',
+              '5e0ad56ba4c494c437f6dcdc2557c165478e05e1800e1fe6f7d476e4fd4c84f2',
+              'package/bin/cline',
+              bytes: 49689972,
+              installedBytes: 130861352,
+            ),
+            AgentArchitecture.x64: archive(
+              'https://registry.npmjs.org/@cline/cli-linux-x64/-/cli-linux-x64-3.0.68.tgz',
+              'a979929090eb9a934b3907e2cf519368964d6a35e96079d6db4fc89caad98ab1',
+              'package/bin/cline',
+              bytes: 49918778,
+              installedBytes: 130434528,
+            ),
+          },
+          launchArgs: ['--acp'],
+          signInArgs: ['auth'],
+        ),
+        limitation: 'Sign in on this phone, then check it. Large download.',
       ),
       entry(
         'goose',

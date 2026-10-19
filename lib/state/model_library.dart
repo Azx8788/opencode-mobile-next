@@ -1,4 +1,4 @@
-import '../api/models.dart' show ModelRef;
+import '../domain/models.dart' show ModelRef;
 
 /// Personal model shortcuts for one server. These never choose a model for
 /// another session; selection remains the connection controller's job.

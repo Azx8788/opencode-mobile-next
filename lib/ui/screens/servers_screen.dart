@@ -5,14 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../api/product_repository.dart' show ProductException;
-import '../../api/server_probe.dart';
+import '../../domain/product_repository.dart' show ProductException;
+import '../../domain/server_probe.dart';
 import '../../builtin/builtin_server.dart' show looksLikeInAppServer;
 import '../../feedback/bug_report.dart' show openBugReport;
+import '../../domain/server_trust.dart';
+import '../../state/server_trust_probe.dart';
+import '../widgets/connection_failure.dart';
 import '../../domain/profile_monitor.dart' show ProfileAttentionSnapshot;
 import '../../l10n/app_localizations.dart';
 import '../widgets/setup_ui_messages.dart';
-import '../../platform/connection_advice.dart';
 import '../../platform/platform_capabilities.dart';
 import '../../state/connection.dart';
 import '../../state/codex_connection_probe.dart';
@@ -56,6 +58,7 @@ part 'servers/servers_actions.dart';
 part 'servers/server_rows.dart';
 part 'servers/profile_editor.dart';
 part 'servers/profile_editor_probe.dart';
+part 'servers/profile_editor_trust.dart';
 part 'servers/profile_editor_pairing.dart';
 part 'servers/profile_editor_fields.dart';
 part 'servers/profile_editor_steps.dart';
@@ -98,6 +101,11 @@ Future<CodexConnectionProbeResult> _probeSocketAgent({
 /// test can answer the connect screen's test without opening a socket.
 @visibleForTesting
 SocketAgentProbe socketAgentProbe = _probeSocketAgent;
+
+/// Certificate inspection sends no HTTP request or credentials.
+@visibleForTesting
+Future<ServerCertificateInfo> Function(String) serverCertificateInspector =
+    inspectServerCertificate;
 
 /// How long the person must stop typing before the first-run connect screen
 /// tests by itself. Long enough that an address is not probed half-typed,

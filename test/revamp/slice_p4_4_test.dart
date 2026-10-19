@@ -1,3 +1,4 @@
+import 'package:opencode_mobile/domain/server_gateway.dart';
 // slice-P4.4 One connection status. One controller-owned connection status
 // feeds the one status line every KitScreen draws; the chat's own line, the
 // team pages' lines and the app's lines (an update ready, a share waiting)
@@ -15,9 +16,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import '../support/fake_server_gateway.dart';
 import 'package:opencode_mobile/domain/connection_status.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -67,7 +67,7 @@ class _Controller extends ConnectionController {
   }
 }
 
-class _Api extends OpenCodeApi with CompleteMessageHistory {
+class _Api extends FakeServerGateway with CompleteMessageHistory {
   _Api(this.value) : super(baseUrl: 'http://localhost');
   Session value;
 

@@ -2,7 +2,7 @@
 // problem, the catalog's and the session list's carry the failure itself (for
 // Details) and say plain words.
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/state/connection.dart';
 
 import 'support/connection_sse_fixtures.dart';

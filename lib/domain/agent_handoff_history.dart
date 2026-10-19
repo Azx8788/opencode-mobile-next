@@ -1,4 +1,4 @@
-import '../api/models.dart';
+import '../domain/models.dart';
 import 'genui/gen_ui_history.dart';
 import 'server_gateway/interfaces.dart';
 

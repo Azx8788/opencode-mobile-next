@@ -150,6 +150,8 @@ class _ToolBody extends StatelessWidget {
     }
     // A shell call's error text is the output of its own command box.
     if (contract.kind == _ToolKind.shell) return _shellRerun(context);
+    // A declined call has nothing to explain: the row already says so.
+    if (state.declined) return const [];
     if (state.status == 'error') {
       return [
         // What was asked stays visible next to why it failed.

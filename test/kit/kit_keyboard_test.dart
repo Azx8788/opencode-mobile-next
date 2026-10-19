@@ -72,6 +72,51 @@ void main() {
   );
   tearDown(() => debugPlatformCapabilities = null);
 
+  testWidgets('server trust: Tab reaches acceptance and Escape grants no trust', (
+    tester,
+  ) async {
+    final context = await pumpKitHost(tester, size: _pc);
+    bool? result;
+    void openReview() {
+      result = null;
+      unawaited(
+        showKitServerTrust(
+          context,
+          origin: 'https://private.example:4099',
+          fingerprintSha256:
+              '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+          certificateChanged: true,
+        ).then((value) => result = value),
+      );
+    }
+
+    Future<void> focusAcceptance() async {
+      final accept = find.byKey(const ValueKey('server-trust-accept'));
+      for (var i = 0; i < 12 && !_focusIn(tester, accept); i++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+      }
+      expect(_focusIn(tester, accept), isTrue);
+    }
+
+    openReview();
+    await tester.pumpAndSettle();
+    expect(find.byType(KitServerTrustBody), findsOneWidget);
+    await focusAcceptance();
+    expect(result, isNull);
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pumpAndSettle();
+    expect(result, isFalse);
+    expect(find.byType(KitServerTrustBody), findsNothing);
+
+    openReview();
+    await tester.pumpAndSettle();
+    await focusAcceptance();
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pumpAndSettle();
+    expect(result, isTrue);
+  });
+
   for (final milestone in [false, true]) {
     testWidgets('team row activates with keyboard: $milestone', (tester) async {
       var calls = 0;

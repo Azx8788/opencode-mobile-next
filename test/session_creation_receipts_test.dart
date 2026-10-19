@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'support/fake_server_gateway.dart';
 import 'package:opencode_mobile/api2/client.dart';
 import 'package:opencode_mobile/api2/gateway.dart';
 import 'package:opencode_mobile/api2/models.dart';
@@ -167,22 +167,23 @@ void main() {
     },
   );
 
-  test('unsupported v1 refuses creation receipts', () async {
-    final store = await _store();
-    final gateway = OpenCodeApi(baseUrl: 'http://127.0.0.1:4097');
-    addTearDown(gateway.close);
-    final receipts = SessionCreationReceipts(
-      store: store,
-      gateway: gateway,
-      profileID: 'profile_1',
-    );
-    expect(receipts.supported, isFalse);
-    await expectLater(
-      receipts.send(commandID: 'create_1', tabID: 'tab_1'),
-      throwsA(isA<CommandReceiptException>()),
-    );
-    expect(store.prefs.getString('oc.pendingCommands.profile_1'), isNull);
-  });
+  test(
+    'an unknown transport cannot create a receipt owner or journal',
+    () async {
+      final store = await _store();
+      final gateway = FakeServerGateway(baseUrl: 'http://127.0.0.1:4097');
+      addTearDown(gateway.close);
+      expect(
+        () => SessionCreationReceipts(
+          store: store,
+          gateway: gateway,
+          profileID: 'profile_1',
+        ),
+        throwsA(isA<CommandReceiptException>()),
+      );
+      expect(store.prefs.getString('oc.pendingCommands.profile_1'), isNull);
+    },
+  );
 
   test('another tab cannot borrow the same creation command', () async {
     final store = await _store();

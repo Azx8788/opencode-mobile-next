@@ -9,7 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/ui/kit/kit.dart';
 import 'package:opencode_mobile/ui/screens/library_screen.dart';
@@ -318,7 +318,7 @@ void main() {
     },
   );
 
-  testWidgets('empty MCP state opens persistent native setup', (tester) async {
+  testWidgets('empty MCP state opens OC2 runtime setup', (tester) async {
     final controller = await integrationsController(IntegrationsRepository());
     addTearDown(controller.dispose);
 
@@ -335,8 +335,18 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(McpSetupScreen), findsOneWidget);
-    // A persistent write offers where to save it (this project or all).
-    expect(find.byKey(const ValueKey('mcp-scope')), findsOneWidget);
+    // OC2 adds to the current runtime; it cannot persist a project/global
+    // configuration through the app. The form explains that limitation.
+    expect(find.byKey(const ValueKey('mcp-scope')), findsNothing);
+    expect(find.byKey(const ValueKey('mcp-location')), findsOneWidget);
+    expect(find.text('Until server restart'), findsOneWidget);
+    expect(
+      find.text(
+        'It connects now and is gone when OpenCode restarts. '
+        'For a lasting setup, edit the server configuration.',
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets('Add › Browse the catalogue opens the MCP catalogue', (

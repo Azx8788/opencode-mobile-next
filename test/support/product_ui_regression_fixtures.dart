@@ -1,15 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'fake_event_channel.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class TestApi extends OpenCodeApi {
+class TestApi extends FakeServerGateway {
   TestApi({this.files, this.findFiles, this.contents = const {}})
     : super(baseUrl: 'http://localhost');
 
@@ -86,7 +86,7 @@ class SignalController extends ConnectionController {
 }
 
 Future<ConnectionController> regressionController({
-  OpenCodeApi? api,
+  FakeServerGateway? api,
   ProductRepository? repository,
 }) async {
   SharedPreferences.setMockInitialValues({});

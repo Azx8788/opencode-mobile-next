@@ -41,10 +41,8 @@ const kindOf = (type) => (/^bool/.test(type) ? 'boolean' : /^(int|num|double)/.t
 
 const NOT_ASKED = 'ignored: the app never asks the server for this message, so no page shows it';
 
-export function serversFamilies({ oc1File, oc2File, protocolMessages }) {
-  const S1 = loadContract(oc1File);
+export function serversFamilies({ oc2File, protocolMessages }) {
   const S2 = loadContract(oc2File);
-  const w1 = walker(S1);
   const w2 = walker(S2);
   const out = {};
 
@@ -64,9 +62,6 @@ export function serversFamilies({ oc1File, oc2File, protocolMessages }) {
   const serverInfo = objectFields(def(m.ServerInfoStatusPayloadSchema).in, ['type', 'status']);
   const providerEntry = objectFields(m.ProviderSnapshotEntrySchema, []);
   const wireSchema = {
-    'oc1.health': flat(w1, inline(oc1File, '/global/health')),
-    'oc1.path': w1.group('Path'),
-    'oc1.experimental_capabilities': w1.group('ExperimentalCapabilities'),
     'oc2.health': w2.group('ServiceHealth'),
     'oc2.info': {
       version: { kind: 'string' },
@@ -86,17 +81,10 @@ export function serversFamilies({ oc1File, oc2File, protocolMessages }) {
   const notAsked = (group, reason = NOT_ASKED) => {
     for (const p of Object.keys(wireSchema[group])) wireExcluded[`${group}.${p}`] = reason;
   };
-  notAsked('oc1.path', 'ignored: the app never asks for the server paths; the folder a person works in comes from the project they pick');
-  wireExcluded['oc1.experimental_capabilities.backgroundSubagents'] = 'ignored: read for the Tools page, not a server page; that page says in words when background helpers are missing';
   for (const g of ['paseo.daemon_status', 'paseo.pairing_offer', 'paseo.daemon_config', 'paseo.config_reload', 'paseo.available_providers', 'paseo.daemon_update']) notAsked(g);
 
   const allTrue = (prefix) => Object.fromEntries(Object.keys(serverInfo).filter((k) => k.startsWith(prefix)).map((k) => [k.slice(prefix.length), true]));
   const wireCases = [
-    {
-      id: 'oc1_health', kind: 'probe', flavor: 'oc1',
-      payload: { healthy: true, version: '1.14.52' },
-      parts: [{ group: 'oc1.health', value: { version: '1.14.52' }, probes: { version: ['1.14.52'] } }],
-    },
     {
       id: 'oc2_beta_health', kind: 'probe', flavor: 'oc2',
       payload: { healthy: true, version: '0.0.0-beta-18600', pid: 41871 },
@@ -126,7 +114,7 @@ export function serversFamilies({ oc1File, oc2File, protocolMessages }) {
   ];
   // Wire the paseo case's parts: server_info once, one provider part per entry.
   {
-    const c = wireCases[3];
+    const c = wireCases[2];
     const { status, ...info } = c.payload;
     c.parts.push({
       group: 'paseo.server_info',
@@ -152,14 +140,14 @@ export function serversFamilies({ oc1File, oc2File, protocolMessages }) {
     }
   }
 
-  out.servers_wire = { schema: wireSchema, cases: wireCases, excluded: wireExcluded, source: `${oc1File}, ${oc2File}, docs/opencode2-protocol-notes.md, @getpaseo/protocol messages.js` };
+  out.servers_wire = { schema: wireSchema, cases: wireCases, excluded: wireExcluded, source: `${oc2File}, docs/opencode2-protocol-notes.md, @getpaseo/protocol messages.js` };
 
   // ------------------------------------------------------------- profile
   const profileJson = fs.readFileSync('lib/state/profiles/models.dart', 'utf8');
   const classAt = profileJson.indexOf('class ServerProfile {');
   const toJson = profileJson.slice(profileJson.indexOf('Map<String, dynamic> toJson() => {', classAt));
   const toJsonKeys = [...toJson.slice(0, toJson.indexOf('};')).matchAll(/'(\w+)':/g)].map((x) => x[1]);
-  const expectedKeys = ['id', 'name', 'baseUrl', 'backend', 'username', 'codexDirectory', 'flavor', 'serverVersion', 'orchestration'];
+  const expectedKeys = ['id', 'name', 'baseUrl', 'backend', 'username', 'codexDirectory', 'flavor', 'requiresOpenCode2Migration', 'openCode2HistoryPending', 'serverVersion', 'orchestration'];
   if (JSON.stringify(toJsonKeys) !== JSON.stringify(expectedKeys)) {
     throw new Error(`ServerProfile.toJson keys changed (${toJsonKeys}); add the new field to tool/coverage/families/servers.mjs`);
   }
@@ -168,24 +156,22 @@ export function serversFamilies({ oc1File, oc2File, protocolMessages }) {
       id: { kind: 'string' }, name: { kind: 'string' }, baseUrl: { kind: 'string' },
       backend: { kind: 'enum', values: ['openCode', 'codex', 'paseo'] },
       username: { kind: 'string' }, codexDirectory: { kind: 'string' },
-      flavor: { kind: 'enum', values: ['v1', 'v2'] }, serverVersion: { kind: 'string' }, orchestration: { kind: 'any' },
+      requiresOpenCode2Migration: { kind: 'boolean' }, openCode2HistoryPending: { kind: 'boolean' }, flavor: { kind: 'enum', values: ['v2'] }, serverVersion: { kind: 'string' }, orchestration: { kind: 'any' },
     },
   };
-  const oc1 = { id: 'srv_oc1', name: 'Studio OpenCode', baseUrl: 'https://studio.example.net:4096', backend: 'openCode', username: 'devuser', flavor: 'v1', serverVersion: '1.14.52' };
-  const oc2 = { id: 'srv_oc2', name: 'Lab OpenCode', baseUrl: 'https://lab.example.net:4097', backend: 'openCode', username: 'opencode', flavor: 'v2', serverVersion: '2.0.10' };
-  const paseo = { id: 'srv_paseo', name: 'Build box', baseUrl: 'ws://build.example.net:6767', backend: 'paseo', username: '', codexDirectory: '/home/dev/work/shop', flavor: 'v1', serverVersion: 'Paseo daemon 0.8.0 (experimental)' };
-  const codex = { id: 'srv_codex', name: 'Codex desk', baseUrl: 'wss://codex.example.net', backend: 'codex', codexDirectory: '/home/dev/work/api', username: '', flavor: 'v1' };
-  const team = { ...oc1, id: 'srv_team', name: 'Team host', baseUrl: 'https://team.example.net:4096', orchestration: { enabled: true } };
+  const oc2 = { id: 'srv_oc2', name: 'Lab OpenCode', baseUrl: 'https://lab.example.net:4097', backend: 'openCode', username: 'opencode', flavor: 'v2', requiresOpenCode2Migration: false, openCode2HistoryPending: false, serverVersion: '2.0.10' };
+  const paseo = { id: 'srv_paseo', name: 'Build box', baseUrl: 'ws://build.example.net:6767', backend: 'paseo', username: '', codexDirectory: '/home/dev/work/shop', flavor: 'v2', serverVersion: 'Paseo daemon 0.8.0 (experimental)' };
+  const codex = { id: 'srv_codex', name: 'Codex desk', baseUrl: 'wss://codex.example.net', backend: 'codex', codexDirectory: '/home/dev/work/api', username: '', flavor: 'v2' };
+  const team = { ...oc2, id: 'srv_team', name: 'Team host', baseUrl: 'https://team.example.net:4096', orchestration: { enabled: true } };
   const pcase = (id, rec, probes, extra = {}) => ({ id, kind: 'profile', payload: rec, parts: [{ group: 'profile', value: rec, probes }], ...extra });
   out.servers_profile = {
     schema: profileSchema,
     source: 'lib/state/profiles/models.dart ServerProfile.toJson',
     cases: [
-      pcase('profile_opencode1', oc1, { id: [], name: ['Studio OpenCode'], baseUrl: ['studio.example.net:4096'], backend: ['OpenCode'], username: ['devuser'], flavor: ['OpenCode 1'], serverVersion: ['1.14.52'] }),
-      pcase('profile_opencode2', oc2, { id: [], name: ['Lab OpenCode'], baseUrl: ['lab.example.net:4097'], backend: ['OpenCode'], username: ['opencode'], flavor: ['OpenCode 2'], serverVersion: ['2.0.10'] }),
+      pcase('profile_opencode2', oc2, { id: [], name: ['Lab OpenCode'], baseUrl: ['lab.example.net:4097'], backend: ['OpenCode'], username: ['opencode'], requiresOpenCode2Migration: [], openCode2HistoryPending: [], flavor: ['OpenCode 2'], serverVersion: ['2.0.10'] }),
       pcase('profile_paseo', paseo, { id: [], name: ['Build box'], baseUrl: ['build.example.net:6767'], backend: ['Claude Code or Pi'], codexDirectory: ['/home/dev/work/shop'], serverVersion: ['0.8.0'] }),
       pcase('profile_codex', codex, { id: [], name: ['Codex desk'], baseUrl: ['codex.example.net'], backend: ['Codex'], codexDirectory: ['/home/dev/work/api'] }),
-      pcase('profile_team', team, { id: [], name: ['Team host'], baseUrl: ['team.example.net:4096'], backend: ['OpenCode'], username: ['devuser'], flavor: ['OpenCode 1'], serverVersion: ['1.14.52'], orchestration: [] }),
+      pcase('profile_team', team, { id: [], name: ['Team host'], baseUrl: ['team.example.net:4096'], backend: ['OpenCode'], username: ['opencode'], requiresOpenCode2Migration: [], openCode2HistoryPending: [], flavor: ['OpenCode 2'], serverVersion: ['2.0.10'], orchestration: [] }),
     ],
   };
 
@@ -240,7 +226,7 @@ export function serversFamilies({ oc1File, oc2File, protocolMessages }) {
     source: 'lib/domain/connection_status.dart, lib/domain/profile_monitor.dart',
     cases: [
       conn('connection_reconnecting', { ...base, phase: 'reconnecting' }, { phase: ['Reconnecting to Studio OpenCode'], profileId: [], serverName: ['Studio OpenCode'], since: [], usesToken: [], retrying: [], quiet: [], attemptRevision: [] }),
-      conn('connection_connecting', { ...base, phase: 'connecting' }, { phase: ['Connecting to Studio OpenCode'], profileId: [], serverName: ['Studio OpenCode'], since: [], usesToken: [], retrying: [], quiet: [], attemptRevision: [] }),
+      conn('connection_connecting', { ...base, phase: 'connecting' }, { phase: ['Reconnecting to Studio OpenCode'], profileId: [], serverName: ['Studio OpenCode'], since: [], usesToken: [], retrying: [], quiet: [], attemptRevision: [] }),
       conn('connection_token_rejected', { ...base, phase: 'credentialsRequired', usesToken: true }, { phase: ['rejected the connection token'], profileId: [], serverName: [], since: [], usesToken: ['Update token'], retrying: [], quiet: [], attemptRevision: [] }),
       conn('connection_password_unreadable', { ...base, phase: 'credentialsUnreadable' }, { phase: ["Can't read the saved password for Studio OpenCode"], profileId: [], serverName: ['Studio OpenCode'], since: [], usesToken: [], retrying: [], quiet: [], attemptRevision: [] }),
       conn('connection_not_answering', { ...base, phase: 'notAnswering', retrying: true }, { phase: ["Studio OpenCode isn't answering"], profileId: [], serverName: ['Studio OpenCode'], since: [], usesToken: [], retrying: [], quiet: [], attemptRevision: [] }),

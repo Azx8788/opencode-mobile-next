@@ -1463,13 +1463,13 @@
     },
     {
       "id": "host-management",
-      "title": "Run as a Linux service",
+      "title": "Set up OpenCode 2",
       "kind": "screen",
       "file": "lib/ui/screens/host_management_screen.dart",
       "widget": "HostManagementScreen",
       "presentedBy": [],
       "line": 18,
-      "purpose": "Shows the connected server's facts and copyable commands for the Ubuntu helper script (install service, linger, read password, adb reverse, status/restart/logs/update); the app never runs them.",
+      "purpose": "Shows copyable commands to install and start the pinned OpenCode 2 server on a remote computer, with optional USB forwarding; the app never runs them.",
       "reachedFrom": [
         {
           "page": "server-settings",
@@ -1487,7 +1487,7 @@
           "action": "copy",
           "target": null,
           "targetWidget": null,
-          "effect": "_HostCommandTile: Clipboard.setData(command) + 'copied' snackbar. One per command tile: Install OpenCode as a background service, Keep it running after logout, Read the server password for this app, Reach it from this phone over USB (adb reverse; only when platformCapabilities.supportsUsbHostBridge, Key host-command-adb-reverse), Service status, Restart the server, Follow the server log, Update OpenCode on the host.",
+          "effect": "KitCodeBlock copies the pinned OpenCode 2 install and foreground start command. Optional adb reverse is shown only when platformCapabilities.supportsUsbHostBridge.",
           "gates": [],
           "destructive": false,
           "file": "lib/ui/screens/host_management_screen.dart"
@@ -1501,7 +1501,7 @@
           "action": "external-link",
           "target": null,
           "targetWidget": null,
-          "effect": "launchUrl(docs/ubuntu-host.md on GitHub, LaunchMode.externalApplication).",
+          "effect": "openExternalLink opens the remote-host setup walkthrough.",
           "gates": [],
           "destructive": false
         }
@@ -1546,7 +1546,7 @@
         {
           "id": "server-settings-host-management",
           "type": "list-tile",
-          "label": "Run as a Linux service",
+          "label": "Set up OpenCode 2",
           "key": "host-management-entry",
           "line": 274,
           "action": "navigate",
@@ -2947,6 +2947,10 @@
     },
     {
       "file": "lib/ui/screens/servers/profile_editor_steps.dart",
+      "reason": "Part file of lib/ui/screens/servers_screen.dart (same screen, same library): its elements are listed under that screen's ledger entries; no separate surface."
+    },
+    {
+      "file": "lib/ui/screens/servers/profile_editor_trust.dart",
       "reason": "Part file of lib/ui/screens/servers_screen.dart (same screen, same library): its elements are listed under that screen's ledger entries; no separate surface."
     },
     {

@@ -19,7 +19,8 @@
 # Output: build number, final APK path, size, signer digest, elapsed time.
 # Differences from a PC build: signed by apksigner after the build (same key,
 # same certificate; the signature blocks are rewritten, contents are not).
-# Env: OC_VPS_HOST, OC_KEY_PROPERTIES (default: this worktree's
+# Env: OC_BUILD_ARGS (extra `flutter build apk` arguments, e.g.
+# --split-debug-info=build/symbols; empty by default), OC_VPS_HOST, OC_KEY_PROPERTIES (default: this worktree's
 # android/key.properties, else the main checkout's), ANDROID_BUILD_TOOLS.
 set -euo pipefail
 n="${1:-}"
@@ -70,7 +71,9 @@ cp \$d/key.properties ~/wt/$name/android/key.properties
 cd ~/wt/$name
 rm -rf build/app/outputs
 flutter pub get >/dev/null 2>&1
-flutter build apk --release --build-number=$n > ~/wt/$name/vps-build-$n.log 2>&1 || { tail -40 ~/wt/$name/vps-build-$n.log; exit 1; }
+# One release build at a time on the server: parallel Gradle builds from
+# several worktrees exhausted its memory (it has no swap) and killed a daemon.
+flock \$HOME/.oc-vps-apk-build.lock flutter build apk --release --build-number=$n ${OC_BUILD_ARGS:-} > ~/wt/$name/vps-build-$n.log 2>&1 || { tail -40 ~/wt/$name/vps-build-$n.log; exit 1; }
 '" >/dev/null || { ssh -o BatchMode=yes "$host" "tail -40 ~/wt/$name/vps-build-$n.log" >&2 || true; echo "vps_build_apk: server build failed" >&2; exit 1; }
 ssh -o BatchMode=yes "$host" "cat ~/wt/$name/vps-build-$n.log" > "$log" || true
 server_secs=$((SECONDS - start))

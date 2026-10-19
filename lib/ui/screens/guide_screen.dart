@@ -192,7 +192,7 @@ class GuideScreen extends StatelessWidget {
                           KitText(
                             l10n.e7SharedServersStartedWithOpencodeServeDoNot,
                           ),
-                          const Cmd(SetupCommands.legacyServe),
+                          const Cmd(SetupCommands.serve),
                           KitText(
                             l10n.e7SharedThenAddTheServerManuallyWithUsername,
                           ),
@@ -253,8 +253,8 @@ class GuideScreen extends StatelessWidget {
       'proot-distro install ubuntu\n'
       'proot-distro login ubuntu\n'
       '  apt update && apt install -y nodejs npm\n'
-      '  npm i -g opencode-ai\n'
-      '  opencode serve --hostname 127.0.0.1 --port 4096 &\n'
+      '  npm i -g @opencode/cli@2.0.29\n'
+      '  opencode2 serve --hostname 127.0.0.1 --port 4096 &\n'
       'exit';
 
   @override

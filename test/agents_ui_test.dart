@@ -1,15 +1,16 @@
+import 'support/fake_server_capabilities.dart';
 import 'dart:async';
 import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:opencode_mobile/builtin/local_terminal.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:opencode_mobile/domain/mark_catalog.dart';
 import 'package:opencode_mobile/ui/screens/agents/agent_sheet.dart';
 import 'package:opencode_mobile/domain/agent_sign_in.dart';
 import 'package:opencode_mobile/domain/agent_catalog.dart';
 import 'package:opencode_mobile/domain/chat_feed.dart';
 import 'package:opencode_mobile/domain/phone_agent_host.dart';
 import 'package:opencode_mobile/domain/phone_agents.dart';
-import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/domain/phone_agents_source.dart';
 import 'package:opencode_mobile/ui/kit/kit.dart';
 import 'package:opencode_mobile/ui/screens/agents/agents_section.dart';
@@ -264,11 +265,28 @@ void main() {
       expect(find.textContaining('Set up'), findsOneWidget);
       expect(find.text('Choose an agent'), findsNothing);
       await tester.tap(find.byKey(const ValueKey('agents-install')));
-      await tester.pumpAndSettle();
+      // The install bar is indeterminate until bytes arrive: it animates.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
       expect(agents.calls, contains('install:claude'));
       expect(find.byKey(const ValueKey('agents-progress')), findsOneWidget);
       expect(
         find.text('Installing ${KitBidi.auto('Claude Code')}…'),
+        findsOneWidget,
+      );
+      // Measured bytes name the bar, as the phone check does.
+      agents.change(
+        () => agents.progress = const AgentSetupProgress(
+          agentId: 'claude',
+          phase: AgentSetupPhase.installing,
+          downloadedBytes: 100000000,
+          totalBytes: 252000000,
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.textContaining('100 MB', findRichText: true), findsOneWidget);
+      expect(
+        find.textContaining('of \u2066252 MB', findRichText: true),
         findsOneWidget,
       );
       // Cancel stops only this job and offers Install again.
@@ -278,7 +296,9 @@ void main() {
       expect(find.byKey(const ValueKey('agents-install')), findsOneWidget);
       // Install again, and let it finish: the next step is sign-in.
       await tester.tap(find.byKey(const ValueKey('agents-install')));
-      await tester.pumpAndSettle();
+      // The install bar is indeterminate until bytes arrive: it animates.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
       agents.change(() {
         agents.progress = const AgentSetupProgress(
           agentId: 'claude',
@@ -311,6 +331,67 @@ void main() {
       expect(agents.submitted, isEmpty);
     });
 
+    // Re-check G1 (2026-10-17): the bar sat near 75% from the phase-based
+    // overall fraction, then fell to ~13% when bytes appeared.
+    testWidgets('install bar: indeterminate before bytes, never backwards, '
+        'MB line from the first count', (tester) async {
+      final agents = FakePhoneAgentsSource();
+      final host = _host(agents: agents);
+      await _newChat(tester, host);
+      await _openSheet(tester);
+      await tester.tap(find.byKey(const ValueKey('agents-choice-claude')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('agents-install')));
+      // The install bar is indeterminate until bytes arrive: it animates.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      double? bar() => tester
+          .widget<LinearProgressIndicator>(
+            find.byKey(const ValueKey('agents-progress')),
+          )
+          .value;
+      // Phase fraction only, no bytes: indeterminate, not a fake 75%.
+      agents.change(
+        () => agents.progress = const AgentSetupProgress(
+          agentId: 'claude',
+          phase: AgentSetupPhase.installing,
+          fraction: 0.75,
+        ),
+      );
+      await tester.pump();
+      expect(bar(), isNull);
+      expect(find.textContaining('Downloading'), findsNothing);
+      expect(
+        find.textContaining('Installing ', findRichText: true),
+        findsWidgets,
+      );
+      // The first byte count shows the MB line at once.
+      agents.change(
+        () => agents.progress = const AgentSetupProgress(
+          agentId: 'claude',
+          phase: AgentSetupPhase.installing,
+          fraction: 0.75,
+          downloadedBytes: 38000000,
+          totalBytes: 253000000,
+        ),
+      );
+      await tester.pump();
+      expect(find.textContaining('38 MB', findRichText: true), findsOneWidget);
+      final first = bar()!;
+      expect(first, closeTo(38 / 253, 0.01));
+      // A later, smaller reading (the next component) never lowers the bar.
+      agents.change(
+        () => agents.progress = const AgentSetupProgress(
+          agentId: 'claude',
+          phase: AgentSetupPhase.installing,
+          downloadedBytes: 5000000,
+          totalBytes: 253000000,
+        ),
+      );
+      await tester.pump();
+      expect(bar(), greaterThanOrEqualTo(first));
+    });
+
     testWidgets('a finished install that cannot move on reads rows once', (
       tester,
     ) async {
@@ -320,7 +401,9 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('agents-choice-claude')));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('agents-install')));
-      await tester.pumpAndSettle();
+      // The install bar is indeterminate until bytes arrive: it animates.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
       agents.calls.clear();
       agents.change(() {
         agents.progress = const AgentSetupProgress(
@@ -393,7 +476,9 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('agents-choice-claude')));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('agents-install')));
-      await tester.pumpAndSettle();
+      // The install bar is indeterminate until bytes arrive: it animates.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
       // The install finished and the phone is not checked yet: the check
       // runs by itself, in the same sheet.
       agents.afterCheck = () =>
@@ -442,7 +527,7 @@ void main() {
           buildAgentRow(
             descriptor: armOnly,
             architecture: AgentArchitecture.x64,
-            serverCapabilities: ServerCapabilities.allV1,
+            serverCapabilities: testServerCapabilities,
           ),
         ],
       );
@@ -464,7 +549,7 @@ void main() {
             buildAgentRow(
               descriptor: descriptor,
               architecture: AgentArchitecture.arm64,
-              serverCapabilities: ServerCapabilities.allV1,
+              serverCapabilities: testServerCapabilities,
             ),
         ],
       );
@@ -492,9 +577,16 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('agents-choice-claude')));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('agents-install')));
-      await tester.pumpAndSettle();
+      // The install bar is indeterminate until bytes arrive: it animates.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
       expect(find.byKey(const ValueKey('agents-error')), findsOneWidget);
-      expect(find.text("This phone can't run this agent yet."), findsOneWidget);
+      expect(
+        find.text(
+          "This phone can't run this agent yet. Check again, or open Details to see why.",
+        ),
+        findsOneWidget,
+      );
       // The technical text is only under Details.
       expect(find.textContaining('AgentHostException'), findsNothing);
       final details = find.byKey(const ValueKey('agents-error-details'));
@@ -777,6 +869,47 @@ void main() {
       expect(find.text('Claude Code stopped in the background'), findsNothing);
     });
 
+    testWidgets('a Resume that fails never says the phone cannot run the '
+        'agent, and Details name the phone\'s code', (tester) async {
+      final agents = await pumpHome(
+        tester,
+        script: (a) => a
+          ..lines = const [
+            PhoneAgentStatusLine(
+              agentId: 'claude',
+              agentName: 'Claude Code',
+              kind: PhoneAgentStatusLineKind.stopped,
+            ),
+          ]
+          ..resumeError = const AgentHostException(
+            AgentHostFailure.unavailable,
+            code: 'agent_host_exited',
+          ),
+      );
+      await tester.tap(
+        find.byKey(const ValueKey('agents-status-resume-claude')),
+      );
+      await tester.pumpAndSettle();
+      expect(agents.calls, contains('resume'));
+      expect(find.textContaining("can't run this agent"), findsNothing);
+      expect(
+        find.text(
+          "${KitBidi.auto('Claude Code')} didn't start again. Tap Resume to "
+          "try once more. If it still won't start, run its phone check.",
+        ),
+        findsOneWidget,
+      );
+      expect(find.textContaining('agent_host_exited'), findsNothing);
+      await tester.tap(find.text('Details'));
+      await tester.pumpAndSettle();
+      expect(
+        find.textContaining(
+          'AgentHostException(unavailable: agent_host_exited)',
+        ),
+        findsOneWidget,
+      );
+    });
+
     testWidgets('one restart offer closes the app', (tester) async {
       await pumpHome(tester, script: (a) => a.needRestart = true);
       expect(
@@ -943,6 +1076,35 @@ void main() {
         find.byKey(const ValueKey('agents-sign-in-words')),
         findsOneWidget,
       );
+      semantics.dispose();
+    });
+
+    testWidgets('Kilo and Cline are installable rows with their own marks', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      await pumpSection(
+        tester,
+        FakePhoneAgentsSource(
+          rows: [
+            agentRowFor('kilo', FakeAgentStage.notInstalled),
+            agentRowFor('cline', FakeAgentStage.notInstalled),
+          ],
+        ),
+      );
+      expect(find.textContaining('Kilo'), findsWidgets);
+      expect(find.textContaining('Cline'), findsWidgets);
+      expect(find.text('Install'), findsNWidgets(2));
+      expect(
+        find.bySemanticsLabel('Install ${KitBidi.auto('Kilo')}'),
+        findsOne,
+      );
+      expect(
+        find.bySemanticsLabel('Install ${KitBidi.auto('Cline')}'),
+        findsOne,
+      );
+      expect(agentMarkSlug('kilo'), 'kilocode');
+      expect(agentMarkSlug('cline'), 'cline');
       semantics.dispose();
     });
 

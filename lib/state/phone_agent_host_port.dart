@@ -44,6 +44,14 @@ abstract interface class PhoneAgentLivenessPort {
   Future<bool?> helperRunning();
 }
 
+/// The helper's own health check (`GET /api/health`, which needs no
+/// password): true when the helper answers it, whatever state this app's
+/// links to it are in. Only this tells "the helper isn't answering" apart
+/// from "this app's link to it is down".
+abstract interface class PhoneAgentDaemonHealthPort {
+  Future<bool> daemonAnswers();
+}
+
 abstract interface class PhoneAgentDiagnosticsPort {
   Future<AgentHelperStatus> helperStatus();
 }
@@ -60,6 +68,10 @@ abstract interface class PhoneAgentIdleHostPort {
   });
 }
 
+abstract interface class PhoneAgentRecoveryPort {
+  Future<AgentPhoneCheckResult> usePreviousVersion(String agentId);
+}
+
 abstract interface class PhoneAgentRemovalPort {
   Future<AgentRemovalResult> removeAgent(String agentId);
 }
@@ -69,12 +81,17 @@ final class BuiltinPhoneAgentHostPort
         PhoneAgentHostPort,
         PhoneAgentAuthPort,
         PhoneAgentLivenessPort,
+        PhoneAgentDaemonHealthPort,
         PhoneAgentDiagnosticsPort,
         PhoneAgentRemovalPort,
+        PhoneAgentRecoveryPort,
         PhoneAgentIdleHostPort,
         PhoneAgentGuardedStartPort {
   BuiltinPhoneAgentHostPort(this._host);
   final BuiltinPhoneAgents _host;
+  @override
+  Future<AgentPhoneCheckResult> usePreviousVersion(String agentId) =>
+      _host.usePreviousVersion(agentId);
   @override
   Future<void> startWhileCurrent({required bool Function() stillCurrent}) =>
       _host.start(stillCurrent: stillCurrent);
@@ -96,6 +113,9 @@ final class BuiltinPhoneAgentHostPort
 
   @override
   Future<bool?> helperRunning() => _host.helperRunning();
+
+  @override
+  Future<bool> daemonAnswers() => _host.daemonAnswers();
 
   @override
   Future<AgentAuthProbeResult> probeSignIn(String agentId) =>

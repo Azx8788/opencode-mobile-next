@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -20,7 +20,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:opencode_mobile/ui/app_iconography.dart';
 import 'package:opencode_mobile/ui/kit/kit.dart' show KitNav;
 
-class _ShellApi extends OpenCodeApi {
+class _ShellApi extends FakeServerGateway {
   _ShellApi() : super(baseUrl: 'http://localhost');
 
   @override

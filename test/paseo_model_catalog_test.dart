@@ -1,10 +1,10 @@
+import 'support/fake_server_capabilities.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/services.dart';
-import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/paseo/gateway.dart';
 import 'package:opencode_mobile/paseo/mappers.dart';
 import 'package:opencode_mobile/paseo/transport.dart';
@@ -197,8 +197,8 @@ void main() {
         paseoServerCapabilities.withGenUi(true).sessionModelProviderSwitching,
         isFalse,
       );
-      expect(ServerCapabilities.allV1.agentSelection, isTrue);
-      expect(ServerCapabilities.allV1.sessionModelProviderSwitching, isTrue);
+      expect(testServerCapabilities.agentSelection, isTrue);
+      expect(testServerCapabilities.sessionModelProviderSwitching, isTrue);
     },
   );
 

@@ -19,12 +19,8 @@ class ServerSettingsScreen extends StatefulWidget {
   State<ServerSettingsScreen> createState() => _ServerSettingsScreenState();
 }
 
-/// The helper script's restart, as Run as a Linux service installs it: only
-/// right for a server set up with that script, so the sheet folds it away.
-const _serverRestartCommand = 'bash ubuntu-opencode.sh restart';
-
-/// The official upgrade and model refresh, run on the server's computer.
-const _serverUpdateCommands = 'opencode upgrade\nopencode models --refresh';
+/// The pinned official upgrade, run on the server's computer.
+const _serverUpdateCommands = 'npm install -g @opencode/cli@2.0.29';
 
 /// Last good health per profile id, kept for the process: Settings and its
 /// server page paint it at once and refresh behind it.
@@ -153,7 +149,6 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen> {
       icon: AppIconography.restart,
       sheetKey: const ValueKey('server-restart-sheet'),
       body: (sheetContext) {
-        final tokens = KitTokens.of(sheetContext);
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -161,20 +156,6 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen> {
               copy.e7SettingsRestartBody(
                 version,
                 _runningVersion ?? copy.e7SettingsUi52,
-              ),
-            ),
-            SizedBox(height: tokens.space2),
-            // The app cannot tell how the server was started, so the helper
-            // script's command is a folded aside for servers set up with it,
-            // never the instruction for every server.
-            KitDetailsFold(
-              foldKey: const ValueKey('server-restart-script'),
-              label: copy.serverSettingsRestartCommandLabel,
-              child: KitCodeBlock(
-                text: _serverRestartCommand,
-                kind: KitCodeKind.command,
-                copyLabel: copy.handoffCopyCommand,
-                copyKey: const ValueKey('server-restart-copy'),
               ),
             ),
           ],

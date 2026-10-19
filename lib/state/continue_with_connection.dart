@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import '../api/models.dart';
+import '../domain/models.dart';
 import '../builtin/builtin_linux.dart';
 import '../domain/agent_catalog.dart';
 import '../domain/agent_handoff.dart';

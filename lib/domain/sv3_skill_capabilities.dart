@@ -1,6 +1,6 @@
 import 'server_gateway.dart';
 
-export '../api/models.dart' show ModelRef, SessionSelection;
+export '../domain/models.dart' show ModelRef, SessionSelection;
 
 /// SV3 capability hooks without changing the single-owner gateway library.
 extension Sv3SkillCapabilities on ServerCapabilities {

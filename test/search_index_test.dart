@@ -1,3 +1,4 @@
+import 'support/fake_server_capabilities.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -5,10 +6,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/api2/gateway_mappers.dart'
     show api2ServerCapabilities;
 import 'package:opencode_mobile/codex/gateway.dart';
@@ -53,9 +54,15 @@ const _excluded = <String, String>{
   'session-note': 'needs an open conversation',
   'session-relations': 'needs an open conversation',
   'markdown-code-reader': 'needs a code block in a transcript',
+  'dev-preview':
+      "one dev server's page; opened from a localhost link in a conversation",
   'web-sources': 'adds a source to the open conversation',
   'staged-revert': 'needs a staged revert in an open conversation',
   // Need something picked first.
+  'scheduled-prompts':
+      'needs a saved agent and selected project; opened from its project or conversation menu',
+  'scheduled-prompt-editor':
+      'needs a schedule target; opened from Scheduled prompts',
   'projects': 'a picker that returns the chosen project to Files',
   'shell-output': 'the output of one command that was just run',
   'terminal-surface': 'one terminal process; opened from Terminal',
@@ -129,7 +136,7 @@ const _excluded = <String, String>{
       'first setup finishes',
 };
 
-class _Api extends OpenCodeApi {
+class _Api extends FakeServerGateway {
   _Api(this._capabilities) : super(baseUrl: 'http://localhost');
 
   final ServerCapabilities _capabilities;
@@ -164,13 +171,14 @@ class _Repository
 }
 
 Future<ConnectionController> _controller({
-  ServerCapabilities capabilities = ServerCapabilities.allV1,
+  ServerCapabilities capabilities = testServerCapabilities,
 }) async {
   SharedPreferences.setMockInitialValues({
     'oc.profiles': jsonEncode([
       {
         'id': 'profile-1',
         'name': 'Workstation',
+        'flavor': 'v2',
         'baseUrl': 'http://localhost:4096',
         'username': '',
       },

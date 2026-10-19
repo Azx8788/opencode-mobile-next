@@ -4,14 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../api/sse.dart';
 import '../../builtin/builtin_server.dart'
     show
         BuiltinServerStarter,
         builtinLinuxProvider,
         builtinServerStarterProvider;
 import '../../domain/chat_feed.dart' show ChatFeedFilter, ChatListSourceKind;
-import '../../domain/server_gateway.dart' show ServerCapabilities;
+import '../../domain/server_gateway.dart' show ServerCapabilities, StreamStatus;
 import '../../domain/connection_status.dart';
 import '../../state/connection.dart';
 import '../../state/first_run.dart';

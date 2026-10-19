@@ -30,7 +30,6 @@ class _RecoveryPhone extends ChangeNotifier implements PhoneTeamSetupPorts {
     engineVersion: 'catalog',
     execution: true,
     boundary: true,
-    oc1Verified: false,
     oc2: true,
     oc2Verified: true,
     commandActions: {},

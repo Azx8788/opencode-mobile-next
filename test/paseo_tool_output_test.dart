@@ -2,7 +2,7 @@
 // shapes Paseo 0.9.1 sends (claude/agent.js buildToolOutput and
 // tool-call-detail-primitives.js).
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/paseo/mappers.dart';
 
 ToolState _tool(String name, Map<String, dynamic> detail) {
@@ -135,5 +135,35 @@ void main() {
     );
     final state = message!.parts.single.toolState;
     expect(state.output, isNot(contains('secret detail')));
+  });
+
+  group('a call the person declined at its permission card', () {
+    ToolState failed(Object error) => paseoItemMessage(
+      'agent-1',
+      {
+        'type': 'tool_call',
+        'callId': 'call-3',
+        'name': 'Write',
+        'status': 'failed',
+        'error': error,
+        'detail': {'type': 'write', 'filePath': 'index.html'},
+      },
+      id: 'call-3',
+      provider: 'claude',
+    )!.parts.single.toolState;
+
+    for (final error in <Object>[
+      {'message': 'Permission denied'},
+      'Permission request denied',
+      "The user doesn't want to proceed with this tool use. STOP.",
+    ]) {
+      test('reads as declined, not failed: $error', () {
+        expect(failed(error).declined, isTrue);
+      });
+    }
+
+    test('a real failure stays a failure', () {
+      expect(failed({'message': 'ENOSPC: disk full'}).declined, isFalse);
+    });
   });
 }

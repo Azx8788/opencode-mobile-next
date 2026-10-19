@@ -8,7 +8,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/interaction_defaults.dart';
@@ -94,7 +94,12 @@ void main() {
     // (7c6d009c). The seeded stores below read their profiles from memory.
     SharedPreferences.setMockInitialValues({
       'oc.profiles': jsonEncode([
-        {'id': 'phone', 'name': 'Laptop', 'baseUrl': 'http://127.0.0.1:4096'},
+        {
+          'id': 'phone',
+          'name': 'Laptop',
+          'flavor': 'v2',
+          'baseUrl': 'http://127.0.0.1:4096',
+        },
       ]),
     });
   });

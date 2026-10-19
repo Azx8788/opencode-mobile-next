@@ -18,7 +18,7 @@ LISTED = 'ignored: where this entry came from; the page shows what it is and wha
 
 # ------------------------------------------------------------------ wire
 W = {}
-for k in ['directory', 'workspaceID', 'project.id', 'project.directory']:
+for k in ['directory', 'workspaceID', 'project.id', 'project.directory', 'project.canonical']:
     W[f'location.{k}'] = 'ignored: which folder the list is for; the person is already in that project'
 W.update({
     'command.name': 'shown', 'command.description': 'shown', 'command.agent': 'shown',
@@ -41,6 +41,8 @@ W.update({
 })
 for k in ['type', 'repository', 'branch', 'path', 'description', 'hidden']:
     W[f'reference.source.{k}'] = LISTED
+W = {k: v for k, v in W.items() if k in keys('tools_wire')[1]}
+W.update({'skill.id': ID, 'skill.autoinvoke': 'ignored: server skill invocation policy; the list shows its name and content'})
 write('tools_wire', W)
 
 # -------------------------------------------------------------- registry
@@ -97,7 +99,7 @@ for k in ks:
 write('tools_paseo', P)
 
 # ------------------------------------------------------------------- web
-Wb = {f'location.{k}': 'ignored: which folder the list is for; the person is already in that project' for k in ['directory', 'workspaceID', 'project.id', 'project.directory']}
+Wb = {f'location.{k}': 'ignored: which folder the list is for; the person is already in that project' for k in ['directory', 'workspaceID', 'project.id', 'project.directory', 'project.canonical']}
 Wb.update({
     'provider.id': ID, 'provider.name': 'shown', 'response.providerID': ID,
     'result.url': 'shown', 'result.title': 'shown', 'result.content': 'shown',
@@ -113,16 +115,11 @@ write('tools_web', Wb)
 P_MCP = 'test/library_integrations_mcp_test.dart'
 P_CAT = 'test/revamp/slice_p2_4_5_test.dart'
 A = {
-    'oc1 POST /mcp': "reachable: Tools > MCP > Add MCP server (runtime add); proof: test/mcp_setup_screen_test.dart :: v2 shows its location and adds without configuration reload",
-    'oc1 PATCH /config': "reachable: Tools > MCP > Add MCP server > This project; proof: test/mcp_setup_screen_test.dart :: saves a project remote MCP with exact advanced fields",
-    'oc1 PATCH /global/config': "reachable: Tools > MCP > Add MCP server > All projects; proof: test/mcp_setup_screen_test.dart :: saves a global local MCP on a compact large-text phone",
-    'oc1 POST /mcp/{name}/connect': 'reachable: Tools > MCP > Connect <server>',
-    'oc1 POST /mcp/{name}/disconnect': f"reachable: Tools > MCP > press and hold a connected server > Disconnect (confirm); proof: {P_MCP} :: MCP Disconnect waits for the confirm sheet",
-    'oc1 POST /mcp/{name}/auth': f"reachable: Tools > MCP > Sign in to <server>; proof: {P_MCP} :: MCP authentication shows the validated destination host",
-    'oc1 POST /mcp/{name}/auth/authenticate': f"reachable: Tools > MCP > Sign in to <server>; proof: {P_MCP} :: MCP authentication shows the validated destination host",
-    'oc1 POST /mcp/{name}/auth/callback': f"reachable: Tools > MCP > finish sign-in with the callback; proof: {P_MCP} :: MCP authorization completes from a state-validated callback URL",
-    'oc1 DELETE /mcp/{name}/auth': f"reachable: Tools > MCP > cancel a sign-in in progress; proof: {P_MCP} :: MCP authorization completes from a state-validated callback URL",
-    'oc1 POST /session/{sessionID}/command': "reachable: Tools > Commands > a command > Run; proof: test/library_commands_test.dart :: new workspace creates a chat and runs without duplicate submission",
+    'oc2 PUT /api/mcp/{server}': 'reachable: Tools > MCP > Add MCP server (runtime add); proof: test/mcp_setup_screen_test.dart :: v2 shows its location and adds without configuration reload',
+    'oc2 DELETE /api/mcp/{server}': 'reachable: Tools > MCP > Remove server; proof: test/revamp/slice_p2_4_5_test.dart :: turning one off runs the MCP page removal',
+    'oc2 POST /api/mcp/{server}/connect': 'reachable: Tools > MCP > Connect server',
+    'oc2 POST /api/mcp/{server}/disconnect': 'reachable: Tools > MCP > Disconnect server; proof: test/library_integrations_mcp_test.dart :: MCP Disconnect waits for the confirm sheet',
+    'oc2 POST /api/session/{sessionID}/command': 'reachable: Tools > Commands > a command > Run; proof: test/library_commands_test.dart :: new workspace creates a chat and runs without duplicate submission',
     'paseo agent.config.apply.request': 'not offered: owner decision needed - changes how an agent on the computer is set up (profiles, models, modes); no screen offers agent settings for Claude Code or Pi yet',
 }
 for k in ['plugin.directory.install', 'plugin.disable', 'plugin.enable', 'plugin.reload', 'plugin.remove', 'plugin.rpc.invoke', 'plugin.source.install', 'plugin.source.update.apply', 'plugin.source.update']:

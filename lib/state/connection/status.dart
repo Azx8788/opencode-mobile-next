@@ -64,6 +64,37 @@ mixin _ConnectionControllerStatus on ChangeNotifier {
 
   bool get _localServerBusyQuiet => localServerBusy && !localServerBusyLong;
 
+  /// An agent backend's helper, asked over its own health check while this
+  /// link is down (set by the connection that owns the helper). The link's
+  /// own failures are no evidence the helper stopped answering: a long tool
+  /// call or a slow list read leave it healthy.
+  Future<bool> Function()? _agentDaemonProbe;
+  Timer? _agentDaemonTimer;
+  bool _agentDaemonProbing = false;
+  bool? _agentDaemonAnswers;
+
+  /// The helper's last health answer while this link is down: null when it
+  /// is not being asked (connected, not an agent backend) or not answered
+  /// yet. Read by Details.
+  bool? get agentDaemonAnswers =>
+      _agentDaemonTimer == null ? null : _agentDaemonAnswers;
+
+  /// What the agent link's last recovery could not finish, in fixed words
+  /// (never daemon text), for Details; null when nothing failed.
+  String? get agentLinkFailureDetails {
+    final gateway = _self.api;
+    final failure = gateway is PaseoGateway
+        ? gateway.lastRecoveryFailure
+        : null;
+    if (failure == null) return null;
+    if (failure is PaseoFailure) {
+      final reason = failure.reason;
+      return '${failure.errorTag}: ${failure.message}'
+          '${reason == null ? '' : ' ($reason)'}';
+    }
+    return failure.runtimeType.toString();
+  }
+
   /// A command, sub-agent or other tool of any turn is still running.
   bool get hasRunningTool => _hasRunningTool;
   bool get _hasRunningTool =>
@@ -155,7 +186,7 @@ mixin _ConnectionControllerStatus on ChangeNotifier {
   /// actually opened, not the selected one, so a switch mid-connection cannot
   /// make screens describe the wrong server.
   ServerFlavor get serverFlavor =>
-      _self._connectedProfile?.flavor ?? profile?.flavor ?? ServerFlavor.v1;
+      _self._connectedProfile?.flavor ?? profile?.flavor ?? ServerFlavor.v2;
 
   /// Feature switches for the live transport. Screens gate on these — never on
   /// [serverFlavor], which is only ever copy ("OpenCode 2 servers"). Before a
@@ -181,6 +212,7 @@ extension _ConnectionControllerStatusImpl on ConnectionController {
   void _syncConnectionStatusClock() {
     final owner = _connectedProfile ?? profile;
     _syncLocalLiveness(owner);
+    _syncAgentDaemonWatch(owner);
     if (_disposed ||
         isIsolated ||
         owner == null ||
@@ -228,6 +260,72 @@ extension _ConnectionControllerStatusImpl on ConnectionController {
     unawaited(_probeLocalAlive());
   }
 
+  /// While an agent backend's link is down, its helper's health check is
+  /// asked every five seconds. Its answer decides the line ("Reconnecting…"
+  /// or "isn't answering" with Restart), and a helper that answers gets a
+  /// fresh link without a tap.
+  void _syncAgentDaemonWatch(ServerProfile? owner) {
+    final wanted =
+        !_disposed &&
+        !isIsolated &&
+        isAgentBackend &&
+        _agentDaemonProbe != null &&
+        owner != null &&
+        status != StreamStatus.connected &&
+        !_lifecycleSuspended;
+    if (!wanted) {
+      _agentDaemonTimer?.cancel();
+      _agentDaemonTimer = null;
+      _agentDaemonAnswers = null;
+      return;
+    }
+    if (_agentDaemonTimer != null) return;
+    _agentDaemonTimer = Timer.periodic(
+      const Duration(seconds: 5),
+      (_) => unawaited(_probeAgentDaemon()),
+    );
+    unawaited(_probeAgentDaemon());
+  }
+
+  Future<void> _probeAgentDaemon() async {
+    final probe = _agentDaemonProbe;
+    if (probe == null || _agentDaemonProbing) return;
+    _agentDaemonProbing = true;
+    var answers = false;
+    try {
+      answers = await probe().timeout(const Duration(seconds: 4));
+    } catch (_) {
+      // No answer in time is not answering.
+    } finally {
+      _agentDaemonProbing = false;
+    }
+    if (_disposed || _agentDaemonTimer == null) return;
+    final was = _agentDaemonAnswers;
+    _agentDaemonAnswers = answers;
+    if (answers) _reconnectAgentLink();
+    if (was != answers) _notifyListeners();
+  }
+
+  /// The helper answers but this link is down and not coming back by
+  /// itself: no transport, a failed attempt, or one past its grace. A fresh
+  /// link is built, the way Try again would; one at a time.
+  void _reconnectAgentLink() {
+    if (_disposed ||
+        isConnected ||
+        _lifecycleSuspended ||
+        _manualReconnect != null ||
+        _lifecycleResume != null ||
+        !automationPolicy.allows(AutomationBehavior.reconnect)) {
+      return;
+    }
+    final stalled =
+        api == null ||
+        status == StreamStatus.disconnected ||
+        _connectionStatusExpired;
+    if (!stalled) return;
+    unawaited(retryConnection().catchError((Object _) {}));
+  }
+
   Future<void> _probeLocalAlive() async {
     var alive = false;
     try {
@@ -273,6 +371,12 @@ extension _ConnectionControllerStatusImpl on ConnectionController {
         ? ConnectionStatusPhase.connected
         : localServerBusyLong
         ? ConnectionStatusPhase.serverBusy
+        // An agent's helper that answers its health check (or is still being
+        // asked) is not "not answering": this link is being rebuilt.
+        : _agentDaemonTimer != null && _agentDaemonAnswers != false
+        ? (status == StreamStatus.connecting
+              ? ConnectionStatusPhase.connecting
+              : ConnectionStatusPhase.reconnecting)
         : !connectionLoading || _connectionStatusExpired
         ? ConnectionStatusPhase.notAnswering
         : status == StreamStatus.connecting
@@ -308,7 +412,7 @@ extension _ConnectionControllerStatusImpl on ConnectionController {
               switch ((_connectedProfile ?? profile)?.backend) {
                 ServerBackend.codex => codexServerCapabilities,
                 ServerBackend.paseo => paseoServerCapabilities,
-                _ => ServerCapabilities.allV1,
+                _ => api2ServerCapabilities,
               })
           .withGenUi(_genUiEffective);
 

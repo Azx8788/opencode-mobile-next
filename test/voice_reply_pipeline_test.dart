@@ -1,3 +1,4 @@
+import 'support/fake_server_capabilities.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
@@ -6,8 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
@@ -30,13 +31,13 @@ const _oldReply = 'An older reply that must stay silent.';
 const _newReply = 'The answer to what you just said.';
 const _transcript = 'A synthetic private utterance';
 
-class _Api extends OpenCodeApi with CompleteMessageHistory {
+class _Api extends FakeServerGateway with CompleteMessageHistory {
   _Api({this.correlate = true}) : super(baseUrl: 'http://localhost');
   final bool correlate;
   final dispatchedIDs = <String>[];
   @override
   ServerCapabilities get capabilities =>
-      correlate ? ServerCapabilities.allV1 : const ServerCapabilities();
+      correlate ? testServerCapabilities : const ServerCapabilities();
   @override
   String createPromptMessageID() => 'msg_fixture_own';
   @override
@@ -168,7 +169,12 @@ Future<ConnectionController> _pumpChat(
 }) async {
   SharedPreferences.setMockInitialValues({
     'oc.profiles': jsonEncode([
-      {'id': 'profile', 'name': 'Synthetic', 'baseUrl': 'http://localhost'},
+      {
+        'id': 'profile',
+        'name': 'Synthetic',
+        'flavor': 'v2',
+        'baseUrl': 'http://localhost',
+      },
     ]),
     'oc.activeProfile': 'profile',
   });

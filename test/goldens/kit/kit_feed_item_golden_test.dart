@@ -30,6 +30,14 @@ Widget _part() => KitRowGroup(
       onTap: () {},
     ),
     KitFeedItem(
+      project: 'gamma',
+      title: 'Explain the build',
+      state: 'Done',
+      stateTone: KitFeedStateTone.done,
+      time: '3 h ago',
+      onTap: () {},
+    ),
+    KitFeedItem(
       project: 'alpha',
       agent: 'Claude Code',
       title: 'Rename the settings page and move its tests next to it',

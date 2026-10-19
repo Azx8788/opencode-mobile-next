@@ -1,15 +1,21 @@
-// Integration smoke test against a real OpenCode server.
+// Integration smoke test against a real OpenCode 2 server.
+// Set OC2_LIVE_PASSWORD in the environment; never pass it on the command line.
 // Usage: dart run tool/smoke_test.dart <baseUrl> [directory] [workspace]
 import 'dart:async';
 import 'dart:io';
 
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/api2/gateway.dart';
+import 'package:opencode_mobile/domain/server_gateway.dart';
 
 Future<void> main(List<String> args) async {
-  final baseUrl = args.isNotEmpty ? args[0] : 'http://127.0.0.1:4123';
-  final api = OpenCodeApi(baseUrl: baseUrl);
+  final baseUrl = args.isNotEmpty ? args[0] : 'http://127.0.0.1:4097';
+  final password = Platform.environment['OC2_LIVE_PASSWORD'];
+  if (password == null || password.isEmpty) {
+    stderr.writeln('Set OC2_LIVE_PASSWORD for the scratch server.');
+    exitCode = 2;
+    return;
+  }
+  final api = Api2Gateway.connect(baseUrl: baseUrl, password: password);
   final directory = args.length > 1 && args[1].trim().isNotEmpty
       ? args[1].trim()
       : null;
@@ -20,7 +26,7 @@ Future<void> main(List<String> args) async {
 
   var failures = 0;
   Session? smokeSession;
-  EventStream? stream;
+  LiveEventChannel? stream;
 
   void check(String name, bool ok, [String extra = '']) {
     stdout.writeln(
@@ -41,8 +47,7 @@ Future<void> main(List<String> args) async {
     }
 
     final gotConnectedEvent = Completer<bool>();
-    stream = EventStream(
-      api: api,
+    stream = api.openEventChannel(
       onStatus: (_) {},
       onEvent: (event) {
         if (event.type == 'server.connected' &&
@@ -127,7 +132,7 @@ Future<void> main(List<String> args) async {
       final found = await api.findFile('pubspec');
       check('file search', found.isNotEmpty, found.take(2).join(', '));
     } catch (error) {
-      check('file search', false, '$error');
+      check('file search', false, '${error.runtimeType}');
     }
 
     final streamConnected = await gotConnectedEvent.future.timeout(
@@ -135,9 +140,8 @@ Future<void> main(List<String> args) async {
       onTimeout: () => false,
     );
     check('SSE event stream', streamConnected);
-  } catch (error, stackTrace) {
-    check('unexpected smoke failure', false, '$error');
-    stderr.writeln(stackTrace);
+  } catch (error) {
+    check('unexpected smoke failure', false, '${error.runtimeType}');
   } finally {
     await stream?.dispose();
     final session = smokeSession;
@@ -146,7 +150,7 @@ Future<void> main(List<String> args) async {
         await api.deleteSession(session.id);
         check('cleanup session', true);
       } catch (error) {
-        check('cleanup session', false, '$error');
+        check('cleanup session', false, '${error.runtimeType}');
       }
     }
     api.close();

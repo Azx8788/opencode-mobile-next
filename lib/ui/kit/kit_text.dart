@@ -49,7 +49,6 @@ enum KitTextTone {
   accent,
   onAccent,
   attention,
-  danger,
   success,
 }
 
@@ -342,7 +341,6 @@ class KitText extends StatelessWidget {
     KitTextTone.accent => roles.accent,
     KitTextTone.onAccent => roles.onAccent,
     KitTextTone.attention => roles.attention,
-    KitTextTone.danger => roles.danger,
     KitTextTone.success => roles.success,
   };
 

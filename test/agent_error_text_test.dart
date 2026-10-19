@@ -44,27 +44,60 @@ void main() {
   test('a recognised cause is said in plain words, with what happens next', () {
     final words = agentErrorWords(reset, en);
     expect(words.headline, 'The connection to the model dropped.');
-    expect(words.hint, contains('retries by itself'));
+    expect(words.hint, isNot(contains('retries by itself')));
     expect(words.humanized, isTrue);
     expect(words.headline, isNot(contains('ECONNRESET')));
     expect(words.headline, isNot(contains('fetch()')));
   });
 
-  test('an unknown error keeps its own words, minus the programmer talk', () {
-    final words = agentErrorWords(
-      'TypeError: Cannot read properties of undefined. For more information, '
-      'pass `verbose: true` in the second argument to fetch()',
-      en,
-    );
-    expect(words.headline, 'Cannot read properties of undefined.');
-    expect(words.hint, isNull);
-    expect(words.humanized, isFalse);
+  test('unknown failures keep technical text out of the headline', () {
+    for (final locale in [const Locale('en'), const Locale('ar')]) {
+      final strings = lookupAppLocalizations(locale);
+      final words = agentErrorWords(
+        'TypeError: Cannot read properties of undefined; api_key=private-value',
+        strings,
+      );
+      expect(words.headline, isNot(contains('TypeError')));
+      expect(words.headline, isNot(contains('undefined')));
+      expect(words.headline, isNot(contains('private-value')));
+      expect(words.hint, isNotNull);
+      expect(words.humanized, isFalse);
+    }
+  });
+
+  test('exhausted credit takes precedence over an HTTP 429', () {
     expect(
-      cleanAgentErrorText('EACCES: permission denied'),
-      'permission denied',
+      classifyAgentError('HTTP 429: insufficient_quota; check billing'),
+      AgentErrorCause.outOfCredit,
     );
-    // Nothing left after cleaning: keep what was there.
-    expect(cleanAgentErrorText('ECONNRESET:'), 'ECONNRESET:');
+  });
+
+  test('missing and rejected provider keys have a sign-in recovery', () {
+    for (final raw in [
+      '401 Unauthorized: invalid_api_key',
+      'API key is missing',
+      'Incorrect API key provided',
+      'AuthenticationError: authentication failed',
+    ]) {
+      expect(classifyAgentError(raw)?.name, 'providerAuth', reason: raw);
+      final words = agentErrorWords(raw, en);
+      expect(words.headline, 'The model provider needs a valid sign-in.');
+      expect(words.hint, contains('provider settings'));
+    }
+  });
+
+  test('terminal errors do not promise an automatic retry', () {
+    for (final raw in [
+      '429 Too Many Requests',
+      '503 Service Unavailable',
+      'ETIMEDOUT',
+      'ECONNRESET',
+    ]) {
+      expect(
+        agentErrorWords(raw, en).hint,
+        isNot(contains('retries by itself')),
+      );
+    }
   });
 
   test('every cause has Arabic wording too', () {

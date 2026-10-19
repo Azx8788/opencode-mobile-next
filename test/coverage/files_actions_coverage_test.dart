@@ -13,8 +13,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
 import 'package:opencode_mobile/api2/client.dart';
 import 'package:opencode_mobile/api2/gateway_operations.dart';
 
@@ -113,61 +111,6 @@ void main() {
       );
       sentProven.add(key);
     }
-
-    test('OpenCode 1', () async {
-      final api = OpenCodeApi(baseUrl: wire.baseUrl);
-      final repository = SdkProductRepository(api.sdkClient);
-      Future<void> one(String key, Future<Object?> Function() call) =>
-          sends(key, call, protocol: 'OC1');
-      await one(
-        'OC1 POST /experimental/worktree',
-        () => repository.createWorktree(
-          projectDirectory: '/work/shopfront',
-          name: 'shopfront-retry',
-        ),
-      );
-      await one(
-        'OC1 DELETE /experimental/worktree',
-        () => repository.removeWorktree(
-          projectDirectory: '/work/shopfront',
-          directory: '/work/shopfront-retry',
-        ),
-      );
-      await one(
-        'OC1 POST /experimental/worktree/reset',
-        () => repository.resetWorktree(
-          projectDirectory: '/work/shopfront',
-          directory: '/work/shopfront-retry',
-        ),
-      );
-      await one(
-        'OC1 POST /session/{sessionID}/revert',
-        () => repository.revertSession('ses_1', 'msg_1'),
-      );
-      await one(
-        'OC1 POST /session/{sessionID}/unrevert',
-        () => repository.restoreSession('ses_1'),
-      );
-      await one(
-        'OC1 POST /experimental/workspace',
-        () => repository.createManagedWorkspace(
-          projectDirectory: '/work/shopfront',
-          type: 'worktree',
-        ),
-      );
-      await one(
-        'OC1 POST /experimental/workspace/sync-list',
-        () => repository.syncWorkspaceList(projectDirectory: '/work/shopfront'),
-      );
-      await one(
-        'OC1 DELETE /experimental/workspace/{id}',
-        () => repository.removeManagedWorkspace(
-          projectDirectory: '/work/shopfront',
-          id: 'wrk_review',
-        ),
-      );
-      api.close();
-    });
 
     test('OpenCode 2', () async {
       final client = Api2Client.connect(

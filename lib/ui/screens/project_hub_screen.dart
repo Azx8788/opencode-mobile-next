@@ -1,3 +1,4 @@
+import 'scheduling/schedule_routes.dart';
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -616,6 +617,14 @@ class _ProjectHubState extends State<ProjectHub> {
           KitRowMenu(
             key: const ValueKey('project-hub-menu'),
             items: [
+              if (canSchedulePrompts(widget.controller))
+                KitMenuItem(
+                  label: l10n.scheduleTitle,
+                  icon: Icons.schedule,
+                  onSelected: () => unawaited(
+                    openScheduledPrompts(context, widget.controller),
+                  ),
+                ),
               if (canSwitch)
                 KitMenuItem(
                   key: const ValueKey('project-hub-switch'),

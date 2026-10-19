@@ -1,3 +1,9 @@
+export 'scheduling/entrypoint.dart' show scheduledPromptMain;
+import 'scheduling/platform.dart';
+import 'scheduling/store.dart';
+import 'scheduling/agent_connection.dart';
+import 'scheduling/open_route.dart';
+import 'ui/screens/scheduling/schedule_routes.dart';
 export 'background/widget_action_entrypoint.dart' show widgetActionMain;
 import 'ui/search/search_index.dart';
 import 'ui/screens/profile_monitor_screen.dart';
@@ -21,6 +27,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'background/live_background.dart';
 import 'builtin/app_exit_recovery.dart';
 import 'builtin/builtin_server.dart';
+import 'builtin/linux_manager/linux_reset_flow.dart';
 import 'builtin/phone_server_healing.dart';
 import 'builtin/reply_watch.dart';
 import 'builtin/setup/phone_setup.dart';
@@ -50,6 +57,7 @@ import 'domain/while_away.dart' show AutomaticActKind;
 import 'domain/team_link.dart';
 import 'state/app_locale.dart' show resolveAppLocales;
 import 'state/connection.dart';
+import 'state/managed_move.dart';
 import 'state/automation_policy.dart';
 import 'state/local_server_controls.dart';
 import 'termux/bridge.dart';
@@ -68,12 +76,15 @@ import 'ui/navigation/attention_landing.dart'
     show chatLandingPage, chatLandingRoute;
 import 'ui/navigation/chat_route.dart';
 import 'ui/screens/settings_screen.dart';
-import 'ui/widgets/product_states.dart' show productErrorText;
+import 'ui/widgets/product_states.dart'
+    show productErrorText, productErrorDetails;
 import 'ui/widgets/saved_server_connection_card.dart';
 import 'ui/widgets/session_address_sheets.dart';
 import 'ui/widgets/last_known_sessions.dart';
 import 'ui/widgets/app_connection_status.dart';
-import 'ui/widgets/phone_server_card.dart' show serverDisplayName;
+import 'ui/widgets/managed_move_view.dart';
+import 'ui/widgets/phone_server_card.dart'
+    show serverDisplayName, runPhoneServerAction, PhoneServerAction;
 import 'ui/screens/guide_screen.dart';
 import 'ui/screens/about_screen.dart';
 import 'ui/screens/home_screen.dart';
@@ -84,8 +95,15 @@ import 'ui/screens/team_conversation/team_conversation.dart'
     show TeamConversation;
 import 'ui/screens/this_phone_screen.dart';
 import 'state/phone_host.dart' show PhoneHostKind;
+import 'state/termux_host_setup.dart' show TermuxHostJob;
+import 'ui/screens/phone_setup/phone_setup_termux_screen.dart'
+    show openPhoneSetupTermux;
+import 'ui/screens/linux_manager/linux_reset.dart' show linuxResetSelection;
 import 'ui/screens/phone_setup/phone_setup_routes.dart'
-    show openPhoneSetupFromNotification, openPhoneSetupStart;
+    show
+        openPhoneSetupFromNotification,
+        openPhoneSetupProgress,
+        openPhoneSetupStart;
 import 'ui/screens/app_diagnostics_screen.dart';
 import 'manage_space_main.dart' show runManageSpaceApp;
 import 'widgets_overlay/widget_overlay_app.dart' show runWidgetOverlayApp;
@@ -96,6 +114,7 @@ part 'main_parts/launch_route.dart';
 part 'main_parts/link_routes.dart';
 part 'main_parts/alerts_and_shortcuts.dart';
 part 'main_parts/root.dart';
+part 'main_parts/schedule_route.dart';
 
 /// Android's App info › Storage › Manage space (ManageSpaceActivity): a
 /// small app of its own that guards "Clear storage".
@@ -192,6 +211,12 @@ class _OcAppState extends ConsumerState<OcApp> with WidgetsBindingObserver {
   bool _shareWaitingNoticeShown = false;
   late final LaunchShortcut _launchShortcut;
   bool _launchRouteScheduled = false;
+
+  /// A tapped scheduled-run notification waiting for its connection.
+  ScheduledOpenRoute? _pendingScheduledOpen;
+  DateTime? _pendingScheduledOpenSince;
+  Timer? _scheduledOpenTimer;
+  bool _scheduledOpenRouting = false;
   bool _launchWaitingNoticeShown = false;
   late final SessionLinkIntent _sessionLink;
   bool _linkRouteScheduled = false;
@@ -223,6 +248,9 @@ class _OcAppState extends ConsumerState<OcApp> with WidgetsBindingObserver {
     super.initState();
     unawaited(_harvestDynamicColors());
     _controller = ref.read(connProvider);
+    const ScheduledPromptsPlatform().setOpenHandler(
+      _consumeScheduledPromptOpen,
+    );
     // Every capabilities.json enable flow resolves to its page (C20), so a
     // missing capability offers "Turn it on" wherever that can happen here.
     registerCapabilityFlows(_controller);
@@ -251,6 +279,7 @@ class _OcAppState extends ConsumerState<OcApp> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       unawaited(_controller.restoreBackgroundLiveMode());
+      unawaited(_consumeScheduledPromptOpen());
     });
   }
 
@@ -262,6 +291,7 @@ class _OcAppState extends ConsumerState<OcApp> with WidgetsBindingObserver {
     switch (state) {
       case AppLifecycleState.resumed:
         unawaited(_resumeAndConsumeCodingAlert());
+        unawaited(_consumeScheduledPromptOpen());
       case AppLifecycleState.hidden:
       case AppLifecycleState.paused:
       case AppLifecycleState.detached:
@@ -284,6 +314,7 @@ class _OcAppState extends ConsumerState<OcApp> with WidgetsBindingObserver {
 
   /// Resume uses the same durable recovery budget as crash monitoring.
   Future<void> _resumeTransport() async {
+    if (_controller.managedOpenCode2MigrationRequired) return;
     final profile = _controller.profile;
     final healing = ref.read(phoneServerHealingProvider);
     if (looksLikeInAppServer(profile)) await healing.check(profile!);
@@ -351,6 +382,7 @@ class _OcAppState extends ConsumerState<OcApp> with WidgetsBindingObserver {
     _scheduleLaunchRoute();
     _scheduleSessionLinkRoute();
     _scheduleTeamLinkRoute();
+    _scheduleScheduledOpenRoute();
   }
 
   @override
@@ -493,7 +525,10 @@ class _OcAppState extends ConsumerState<OcApp> with WidgetsBindingObserver {
                   landOnFailure: chat.landOnFailure,
                   menuAction: chat.menuAction,
                 );
-                return KitPageRoute<void>(builder: (_) => page);
+                return KitPageRoute<void>(
+                  settings: settings,
+                  builder: (_) => page,
+                );
               }
               return null;
             },
@@ -519,6 +554,8 @@ class _OcAppState extends ConsumerState<OcApp> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    const ScheduledPromptsPlatform().setOpenHandler(null);
+    _scheduledOpenTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     _controller.removeListener(_controllerChanged);
     _share.pending.removeListener(_scheduleShareRoute);

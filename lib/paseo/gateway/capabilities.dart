@@ -1,6 +1,7 @@
 part of '../gateway.dart';
 
 const paseoServerCapabilities = ServerCapabilities(
+  scheduledPrompts: true,
   hostAgentProviders: true,
   hostAgentPermissionActions: true,
   // Pictures go to the agent with the message (`images`); other files do not.

@@ -199,7 +199,7 @@ Widget _type() => Padding(
       const KitText(
         'Stop removes the queued work',
         role: KitTextRole.secondary,
-        tone: KitTextTone.danger,
+        tone: KitTextTone.primary,
       ),
       const SizedBox(height: 20),
       KitButton.primary(label: 'Allow once', onPressed: () {}),

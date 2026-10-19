@@ -38,7 +38,10 @@ enum _Scene {
   // Every kind of row at once: a certified ready agent, a ready one whose
   // version is not certified, signed out and not installed ones.
   sheetMixed('agents_sheet_mixed'),
-  settingsMany('agents_settings_many');
+  settingsMany('agents_settings_many'),
+  // The new-chat screen after choosing Claude Code: the agent chip wears its
+  // own mark.
+  newChatClaude('agents_new_chat_chip');
 
   const _Scene(this.name);
   final String name;
@@ -54,7 +57,10 @@ Future<void> _mount(
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
-  final many = scene == _Scene.sheetMixed || scene == _Scene.settingsMany;
+  final many =
+      scene == _Scene.sheetMixed ||
+      scene == _Scene.settingsMany ||
+      scene == _Scene.newChatClaude;
   final agents = FakePhoneAgentsSource(
     available: scene != _Scene.settingsBuiltIn,
     rows: many
@@ -152,6 +158,7 @@ Future<void> _mount(
     _Scene.sheetInstall ||
     _Scene.sheetError ||
     _Scene.sheetMixed ||
+    _Scene.newChatClaude ||
     _Scene.sheetSignIn => const NewChatScreen(),
     _Scene.homeStatus || _Scene.homeResume => const ChatsHomeScreen(),
     _Scene.settingsBuiltIn => const AgentsScreen(),
@@ -175,6 +182,8 @@ Future<void> _mount(
     case _Scene.sheetList || _Scene.sheetMixed:
       await tester.tap(find.byKey(const ValueKey('chats-new-agent')));
     case _Scene.sheetInstall:
+      // A real install reports bytes, so the bar is determinate and settles.
+      agents.installBytes = (101000000, 253000000);
       await tester.tap(find.byKey(const ValueKey('chats-new-agent')));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('agents-choice-claude')));
@@ -192,6 +201,10 @@ Future<void> _mount(
       await tester.pumpAndSettle();
       await tester.tap(find.text('Details'));
     case _Scene.sheetSignIn:
+      await tester.tap(find.byKey(const ValueKey('chats-new-agent')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('agents-choice-claude')));
+    case _Scene.newChatClaude:
       await tester.tap(find.byKey(const ValueKey('chats-new-agent')));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('agents-choice-claude')));

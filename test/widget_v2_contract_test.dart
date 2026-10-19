@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/background/widget_snapshot.dart';
 import 'package:opencode_mobile/background/widget_v2_contract.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
@@ -107,7 +107,7 @@ void main() {
     final controller = ConnectionController(store)
       ..api = gateway
       ..status = StreamStatus.connected
-      ..directory = '/private/project'
+      ..directory = '/private/atlas'
       ..sessionsById['s1'] = Session(id: 's1', title: 'Example');
     controller.adoptConnectedProfileForTesting(store.saved);
     controller.busySessions.add('s1');
@@ -135,6 +135,179 @@ void main() {
       'text': 'Adjust the approach',
     };
   }
+
+  test(
+    'assistant reply events publish a preview without app navigation',
+    () async {
+      final h = await harness();
+      Map row() =>
+          (jsonDecode(
+                        h.prefs.getString(WidgetSessionSnapshot.prefsKey)!,
+                      )['sessions']
+                      as List)
+                  .first
+              as Map;
+      void message(String role, String id) =>
+          h.controller.handleEventForTesting(
+            EventEnvelope(
+              type: 'message.updated',
+              properties: {
+                'info': {'id': id, 'sessionID': 's1', 'role': role},
+              },
+            ),
+          );
+      void part(
+        String id,
+        String type,
+        String text, {
+        bool synthetic = false,
+      }) => h.controller.handleEventForTesting(
+        EventEnvelope(
+          type: 'message.part.updated',
+          properties: {
+            'sessionID': 's1',
+            'part': {
+              'id': 'part1',
+              'messageID': id,
+              'type': type,
+              'text': text,
+              'synthetic': synthetic,
+            },
+          },
+        ),
+      );
+      message('user', 'u1');
+      part('u1', 'text', 'Never expose this prompt');
+      message('assistant', 'a1');
+      part('a1', 'reasoning', 'Never expose this reasoning');
+      part('a1', 'text', 'Synthetic content', synthetic: true);
+      await Future<void>.delayed(Duration.zero);
+      expect(row()['preview'], '');
+      expect(row()['project'], 'atlas');
+      part('a1', 'text', 'The checks passed. password=secret-value');
+      await Future<void>.delayed(Duration.zero);
+      expect(row()['preview'], 'The checks passed. password=•••');
+      // Reply survives an idle transition while the live timer is cleared.
+      h.controller.busySessions.clear();
+      h.controller.notifyListeners();
+      await Future<void>.delayed(Duration.zero);
+      expect(row()['preview'], 'The checks passed. password=•••');
+      expect(row()['startedAt'], 0);
+      message('assistant', 'a2');
+      part('a1', 'text', 'Late old reply must not replace current reply');
+      part('a2', 'text', 'Latest reply');
+      await Future<void>.delayed(Duration.zero);
+      expect(row()['preview'], 'Latest reply');
+      h.controller.handleEventForTesting(
+        EventEnvelope(
+          type: 'session.revert.staged',
+          properties: {
+            'sessionID': 's1',
+            'revert': {'messageID': 'u1'},
+          },
+        ),
+      );
+      await Future<void>.delayed(Duration.zero);
+      expect(row()['preview'], '');
+      await h.controller.disconnect();
+      h.controller.api = h.gateway;
+      h.controller.status = StreamStatus.connected;
+      h.controller.adoptConnectedProfileForTesting(
+        h.controller.store.profiles.first,
+      );
+      h.controller.sessionsById['s1'] = Session(id: 's1', title: 'Example');
+      h.controller.notifyListeners();
+      await Future<void>.delayed(Duration.zero);
+      expect(row()['preview'], '');
+    },
+  );
+
+  test(
+    'tool updates publish generic widget step without tool inputs',
+    () async {
+      final h = await harness();
+      h.controller.handleEventForTesting(
+        EventEnvelope(
+          type: 'message.part.updated',
+          properties: {
+            'part': {
+              'id': 'tool1',
+              'sessionID': 's1',
+              'type': 'tool',
+              'tool': 'bash',
+              'state': {
+                'status': 'running',
+                'input': {'command': 'private command'},
+              },
+            },
+          },
+        ),
+      );
+      await Future<void>.delayed(Duration.zero);
+      final raw = h.prefs.getString(WidgetSessionSnapshot.prefsKey)!;
+      final row = (jsonDecode(raw)['sessions'] as List).first as Map;
+      expect(row['preview'], ConnectionController.toolSentence('bash'));
+      expect(raw, isNot(contains('private command')));
+    },
+  );
+
+  test('the conversations widget names the model, never its raw id', () async {
+    final h = await harness();
+    Map row() =>
+        (jsonDecode(
+                      h.prefs.getString(WidgetSessionSnapshot.prefsKey)!,
+                    )['sessions']
+                    as List)
+                .first
+            as Map;
+    h.controller.selectedModel = ModelRef(
+      providerID: 'zen',
+      modelID: 'll-alpha-free',
+    );
+    h.controller.notifyListeners();
+    await Future<void>.delayed(Duration.zero);
+    expect(row().containsKey('model'), isFalse, reason: 'no name known yet');
+    expect(
+      h.prefs.getString(WidgetSessionSnapshot.prefsKey),
+      isNot(contains('ll-alpha-free')),
+    );
+    h.controller.rememberModelName('zen', 'll-alpha-free', 'LL Alpha Free');
+    h.controller.notifyListeners();
+    await Future<void>.delayed(Duration.zero);
+    expect(row()['model'], 'LL Alpha Free');
+  });
+
+  test('a request that names only its call learns the tool and file', () async {
+    final h = await harness();
+    h.controller.handleEventForTesting(
+      EventEnvelope(
+        type: 'message.part.updated',
+        properties: {
+          'part': {
+            'id': 'p1',
+            'sessionID': 's1',
+            'type': 'tool',
+            'tool': 'write',
+            'callID': 'call_1',
+            'state': {
+              'status': 'running',
+              'input': {'filePath': '/root/outside-test.txt', 'content': 'hi'},
+            },
+          },
+        },
+      ),
+    );
+    final request = PermissionRequest(
+      id: 'per_1',
+      sessionID: 's1',
+      permission: 'external_directory',
+      patterns: const ['/root/*'],
+      tool: PermissionTool(messageID: 'msg_1', callID: 'call_1'),
+    );
+    final call = h.controller.permissionToolCall(request);
+    expect(call?.tool, 'write');
+    expect(call?.target, '/root/outside-test.txt');
+  });
 
   test('malformed actions cannot enter background dispatch', () {
     expect(WidgetAction.fromPlatform({'id': 'tap', 'action': 'stop'}), isNull);
@@ -166,7 +339,7 @@ void main() {
                 )!,
               )
               as Map;
-      expect(target['directory'], '/private/project');
+      expect(target['directory'], '/private/atlas');
       expect(target['scopeToken'], snapshot['scopeToken']);
       expect(
         safeWidgetTitle('password=synthetic-password\nTitle'),

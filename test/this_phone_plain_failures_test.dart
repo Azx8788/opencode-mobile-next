@@ -39,7 +39,7 @@ final _termuxProfile = ServerProfile(
   name: 'This phone',
   baseUrl: TermuxBridge.managedServerUrl,
   password: 'synthetic-test-secret',
-  serverVersion: '1.18.29',
+  serverVersion: '2.0.29',
 );
 
 Future<void> _settle(WidgetTester tester, {int frames = 10}) async {
@@ -73,11 +73,11 @@ void main() {
   Future<TermuxChannelFixture> termux(
     WidgetTester tester, {
     required String status,
-    String version = '1.18.29',
+    String version = '2.0.29',
   }) async {
     final channel = TermuxChannelFixture()
       ..inventoryOutput =
-          'ubuntu=installed\nversion=$version\nruntime=opencode1\n'
+          'ubuntu=installed\nversion=$version\nruntime=opencode2\n'
       ..statusOutput = status;
     channel.install();
     await pumpPhone(
@@ -182,7 +182,7 @@ void main() {
       status: termuxSnapshot(
         phase: 'failed',
         message: 'OpenCode server exited (code 137)',
-        version: '1.18.29',
+        version: '2.0.29',
         extra: 'failure_kind=crash\n',
       ),
     );
@@ -191,7 +191,7 @@ void main() {
     expect(find.byKey(const ValueKey('this-phone-state')), findsNothing);
     expect(
       _text(tester, 'this-phone-failure'),
-      "Older OpenCode didn't start. Start it again; Details below says what went "
+      "OpenCode 2 didn't start. Start it again; Details below says what went "
       'wrong.',
     );
     expect(find.text('Start again'), findsOneWidget);
@@ -218,12 +218,12 @@ void main() {
       status: termuxSnapshot(
         phase: 'failed',
         message: 'Could not install the Termux dependencies',
-        version: '1.18.29',
+        version: '2.0.29',
       ),
     );
     expect(
       _text(tester, 'this-phone-failure'),
-      "Installing Older OpenCode didn't finish. Install it again; your "
+      "Installing OpenCode 2 didn't finish. Install it again; your "
       'conversations are kept.',
     );
     expect(
@@ -273,12 +273,12 @@ void main() {
   testWidgets('the Update question has no engine words', (tester) async {
     await termux(
       tester,
-      version: '1.18.20',
-      status: termuxSnapshot(phase: 'ready', version: '1.18.20'),
+      version: '2.0.20',
+      status: termuxSnapshot(phase: 'ready', version: '2.0.20'),
     );
     await tester.tap(find.byKey(const ValueKey('this-phone-update')));
     await _settle(tester);
-    expect(find.text('Update Older OpenCode?'), findsOneWidget);
+    expect(find.text('Update OpenCode 2?'), findsOneWidget);
     expect(find.textContaining('managed'), findsNothing);
     expect(find.textContaining('generation'), findsNothing);
     expect(find.textContaining('Your conversations are kept.'), findsOneWidget);
@@ -287,7 +287,7 @@ void main() {
 
   testWidgets('an install already at the pinned version says Up to date, '
       'with no Update', (tester) async {
-    final pinned = TermuxRuntime.openCode1.pinnedVersion;
+    final pinned = TermuxRuntime.openCode2.pinnedVersion;
     await termux(
       tester,
       version: pinned,

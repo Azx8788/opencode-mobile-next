@@ -1,9 +1,9 @@
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -15,7 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// files-file-viewer-sheet → the kit's one viewer): a row's actions are its
 /// KitRowMenu (long-press, right-click, semantic actions) instead of a per-row
 /// "..." button and a bespoke sheet; a file opens in KitViewer.
-class _FilesApi extends OpenCodeApi {
+class _FilesApi extends FakeServerGateway {
   _FilesApi() : super(baseUrl: 'http://localhost');
 
   @override

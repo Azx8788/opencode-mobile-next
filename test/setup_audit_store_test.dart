@@ -40,7 +40,12 @@ void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues({
       'oc.profiles': jsonEncode([
-        {'id': 'audit', 'name': 'Audit', 'baseUrl': 'http://localhost:4096'},
+        {
+          'id': 'audit',
+          'name': 'Audit',
+          'flavor': 'v2',
+          'baseUrl': 'http://localhost:4096',
+        },
       ]),
     });
     prefs = await SharedPreferences.getInstance();

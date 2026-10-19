@@ -60,9 +60,13 @@ final class PhoneAgentRuntime {
     this.signInPhase,
     this.stoppedInBackground = false,
     this.resetAt,
+    this.checkRequiredReason,
   });
 
   final String agentId;
+
+  /// Closed reason: firstCheck, agentVersion, helperVersion, installationChanged.
+  final String? checkRequiredReason;
   final bool installed;
 
   /// Fresh authored installation files exist, independently of version health.
@@ -96,6 +100,7 @@ final class AgentRow {
     this.resumeLabel,
     this.resumeNote,
     this.resetAt,
+    this.checkRequiredReason,
     this.hasPartialPayload = false,
   });
 
@@ -104,6 +109,7 @@ final class AgentRow {
   final String iconKey;
   final PhoneAgentStatus status;
   final String statusMessage;
+  final String? checkRequiredReason;
   final PhoneAgentFixAction? fixAction;
   final bool setupVisible;
   final bool chatVisible;
@@ -198,6 +204,7 @@ AgentRow buildAgentRow({
     hasPartialPayload: fact?.payloadPresent == true && fact?.installed == false,
     capabilities: noProof,
     hiddenReason: reason,
+    checkRequiredReason: fact?.checkRequiredReason,
     resumeLabel: fact?.capabilities.resumeVerified == true
         ? null
         : agentResumeUnverifiedLabel,

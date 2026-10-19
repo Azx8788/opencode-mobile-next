@@ -14,6 +14,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../support/no_red.dart';
 import 'package:opencode_mobile/ui/app_theme.dart';
 import 'package:opencode_mobile/ui/kit/kit.dart';
 import 'package:opencode_mobile/ui/kit/scenes/folders_open_scene.dart';
@@ -342,9 +343,9 @@ void main() {
               );
             }
             expect(
-              _sameHue(c, roles.danger),
+              isRedHue(c),
               isFalse,
-              reason: '$name ($packName) paints danger red: $c',
+              reason: '$name ($packName) paints red: $c',
             );
           }
         });

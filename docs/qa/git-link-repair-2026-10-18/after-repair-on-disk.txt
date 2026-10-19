@@ -1,0 +1,8 @@
+ledger object links left: 0
+total 24
+drwxr-xr-x  2 u0_a192 u0_a192 4096 2026-10-18 11:08 .
+drwxr-xr-x 13 u0_a192 u0_a192 4096 2026-10-18 10:03 ..
+-rw-------  1 u0_a192 u0_a192   62 2026-10-18 11:08 6ddbf03d93d8bcfa28ab051f762fab89261e8e
+drwx------ 2 u0_a192 u0_a192 4096 2026-10-18 11:08 git-repair
+9bc2537 Add average
+ffa1eff First version

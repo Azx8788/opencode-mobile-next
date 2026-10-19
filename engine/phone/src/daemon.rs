@@ -56,11 +56,12 @@ pub async fn serve(config: Config, pins: Option<LaunchPins>) -> Result<(), &'sta
     if token.len() != 64 || !token.iter().all(u8::is_ascii_hexdigit) {
         return Err("authInvalid");
     }
-    let raw = fs::read(&config.oc1_credential_file).map_err(|_| "serverCredentialsUnavailable")?;
+    let raw =
+        fs::read(&config.server_credential_file).map_err(|_| "serverCredentialsUnavailable")?;
     let credentials: ServerCredentials =
         serde_json::from_slice(&raw).map_err(|_| "serverCredentialsInvalid")?;
     let server = OpenCodeClient::new(
-        &config.oc1_base_url,
+        &config.server_base_url,
         &credentials.username,
         &credentials.password,
     )
@@ -300,7 +301,6 @@ async fn health(State(e): State<Shared>) -> Json<Value> {
     Json(
         json!({"schemaVersion":1,"engineVersion":env!("CARGO_PKG_VERSION"),"profileId":e.config.profile_id,"boundaryTier":tier,
         "capabilities":{"execution":execution_enabled(&e),"boundary":verified_tier.is_some(),"boundaryTier":tier,
-            "oc1Verified":protocol["capabilities"]["oc2"] != true && protocol["pinnedVersion"] == true && protocol["openapiVerified"] == true,
             "oc2":protocol["capabilities"]["oc2"] == true,
             "oc2Verified":protocol["capabilities"]["oc2"] == true && protocol["pinnedVersion"] == true && protocol["openapiVerified"] == true},
         "commandActions":command_actions(&e),"boundaryReason":if verified_tier.is_some() {"boundary_attested"} else if e.boundary.is_some() {"attestation_rejected"} else {e.config.boundary.reason.as_str()},
@@ -721,7 +721,7 @@ async fn reconcile(e: Shared) {
             }
         }
         if tokio::time::Instant::now() >= next_verify {
-            let protocol = e.server.verify().await.unwrap_or_else(|error| json!({"capabilities":{"executionDriver":false,"execution":false,"oc2":e.server.is_oc2()},"error":error.code(),"blockers":[error.code()]}));
+            let protocol = e.server.verify().await.unwrap_or_else(|error| json!({"capabilities":{"executionDriver":false,"execution":false,"oc2":true},"error":error.code(),"blockers":[error.code()]}));
             let retry_delay = protocol_retry_delay(&protocol);
             if let Ok(mut value) = e.protocol.lock() {
                 *value = protocol;
@@ -1419,7 +1419,7 @@ async fn task_pipeline(e: &Engine, job: &Value) -> Result<(), &'static str> {
     )
     .await?;
     if planner {
-        let plan = structured_output_for_protocol(&output, e.server.is_oc2())?;
+        let plan = structured_server_output(&output)?;
         validate_plan(&plan, repo)?;
         patch(e, id, "running", json!({"stage":"completed","plan":plan}))?;
         return Ok(());
@@ -1486,7 +1486,7 @@ async fn check_and_merge(e: &Engine, job: &Value, session: &str) -> Result<(), &
     )
     .await?;
     let checked = await_completion(e, id, "checker", &directory, &checker).await?;
-    let verification = structured_output_for_protocol(&checked, e.server.is_oc2())?;
+    let verification = structured_server_output(&checked)?;
     let passed = validate_check(&verification, &job["criteria"])?;
     patch(
         e,
@@ -1635,7 +1635,7 @@ async fn resume_job(e: &Engine, job: &Value) -> Result<(), &'static str> {
         return Err("boundaryUnavailable");
     }
     if role == "planner" {
-        let plan = structured_output_for_protocol(&observed, e.server.is_oc2())?;
+        let plan = structured_server_output(&observed)?;
         validate_plan(&plan, job["repoId"].as_str().ok_or("repoInvalid")?)?;
         patch(e, id, "resuming", json!({"stage":"completed","plan":plan}))?;
         return Ok(());
@@ -1646,7 +1646,7 @@ async fn resume_job(e: &Engine, job: &Value) -> Result<(), &'static str> {
         patch(e, id, "resuming", json!({"stage":"running"}))?;
         return check_and_merge(e, job, session).await;
     }
-    let checked = structured_output_for_protocol(&observed, e.server.is_oc2())?;
+    let checked = structured_server_output(&observed)?;
     if !validate_check(&checked, &job["criteria"])? {
         patch(e, id, "resuming", json!({"stage":"checking"}))?;
         patch(
@@ -1839,10 +1839,9 @@ fn strict_json(text: &str) -> Result<Value, &'static str> {
     parser.end().map_err(|_| "structuredOutputInvalid")?;
     Ok(value.0)
 }
-fn structured_output_for_protocol(value: &Value, is_oc2: bool) -> Result<Value, &'static str> {
+fn structured_server_output(value: &Value) -> Result<Value, &'static str> {
     match structured_output(value) {
         Ok(parsed) => return Ok(parsed),
-        Err(reason) if !is_oc2 => return Err(reason),
         Err(_) => {}
     }
     // OC2 can successfully finish with an inspection summary followed by an
@@ -2099,17 +2098,14 @@ mod tests {
             let observed = observed.clone();
             async move {
                 if request.method() != axum::http::Method::GET { observed.fetch_add(1, Ordering::SeqCst); }
-                match request.uri().path() {
-                    "/api/info" => return StatusCode::NOT_FOUND.into_response(),
-                    "/global/health" => return Json(json!({"healthy":true,"version":"1.18.32"})).into_response(),
-                    _ => {}
-                }
-                assert_eq!(request.uri().query(), Some("directory=%2Froot%2Fprojects%2Ffresh"));
                 let body = match request.uri().path() {
-                    "/config" => json!({"provider":{"fixture":{"apiKey":"never-return-this-secret"}}}),
-                    "/provider" if connected => json!({"connected":["zai-coding-plan"],"default":{"zai-coding-plan":"glm-5.3"},"all":[{"id":"zai-coding-plan","models":{"glm-5.3":{"id":"glm-5.3"}}}]}),
-                    "/provider" => json!({"connected":[],"default":{},"all":[]}),
-                    _ => panic!("model resolution must only read config/provider"),
+                    "/api/info" => json!({"version":"2.0.29","pid":1,"urls":[],"paths":{"tmp":"/tmp"}}),
+                    "/openapi.json" => serde_json::from_str(include_str!("../tests/fixtures/oc2-2.0.29-driver-openapi.json")).unwrap(),
+                    "/api/model/default" => {
+                        assert_eq!(request.uri().query(), Some("location%5Bdirectory%5D=%2Froot%2Fprojects%2Ffresh"));
+                        json!({"location":{"directory":"/root/projects/fresh"},"data": if connected { json!({"providerID":"zai-coding-plan","id":"glm-5.3","enabled":true}) } else { Value::Null }})
+                    },
+                    _ => panic!("model resolution must only read info/schema/default model"),
                 };
                 Json(body).into_response()
             }
@@ -2282,17 +2278,20 @@ mod tests {
                 if request.method() != axum::http::Method::GET { writes.fetch_add(1, Ordering::SeqCst); }
                 if failure.swap(false, Ordering::SeqCst) { return (StatusCode::SERVICE_UNAVAILABLE, Json(json!({}))).into_response(); }
                 let body = match request.uri().path() {
-                    "/global/health" => json!({"healthy":true,"version":"1.18.32"}),
-                    "/session/ses_test" => json!({"id":"ses_test","directory":"/root/projects/poll"}),
-                    "/session/status" => json!({}),
-                    "/session/ses_test/message" => {
+                    "/api/info" => json!({"version":"2.0.29","pid":1,"urls":[],"paths":{"tmp":"/tmp"}}),
+                    "/openapi.json" => serde_json::from_str(include_str!("../tests/fixtures/oc2-2.0.29-driver-openapi.json")).unwrap(),
+                    "/api/session/ses_test" => json!({"data":{"id":"ses_test","location":{"directory":"/root/projects/poll"},"outcome":"succeeded","time":{"idle":3}}}),
+                    "/api/session/active" => json!({"data":{}}),
+                    "/api/session/ses_test/message" => {
                         let index = counts.fetch_add(1, Ordering::SeqCst);
-                        if complete && index > 0 { json!([
-                            {"info":{"id":"msg_u","sessionID":"ses_test","role":"user"},"parts":[]},
-                            {"info":{"id":"msg_a","sessionID":"ses_test","role":"assistant","parentID":"msg_u","finish":"stop","time":{"completed":1},"cost":0.2},"parts":[{"type":"text","text":"completed proof"}]}
-                        ]) } else { json!([]) }
+                        json!({"data":if complete && index > 0 { json!([
+                            {"id":"msg_1","sessionID":"ses_test","type":"user"},
+                            {"id":"msg_2","sessionID":"ses_test","type":"assistant","finish":"stop","time":{"completed":2},"cost":0.2,"content":[{"type":"text","text":"completed proof"}]},
+                            {"id":"msg_3","sessionID":"ses_test","type":"idle","outcome":"succeeded","time":{"created":3}}
+                        ]) } else { json!([]) },"cursor":{}})
                     },
-                    "/permission" | "/question" => json!([]),
+                    "/api/session/ses_test/permission" | "/api/session/ses_test/inbox" => json!({"data":[]}),
+                    "/api/form" => json!({"location":{"directory":"/root/projects/poll"},"data":[]}),
                     _ => json!({}),
                 };
                 Json(body).into_response()
@@ -2312,8 +2311,8 @@ mod tests {
             observed_failure_reason(&json!({"state":"failed","reason":"modelNotConfigured"})),
             "modelNotConfigured"
         );
-        // OC1 has no reason field and retains its existing behavior. Unknown
-        // strings, raw provider errors, and nonfailed hints cannot escape.
+        // Missing reasons, unknown strings, raw provider errors, and nonfailed
+        // hints cannot escape.
         for observation in [
             json!({"state":"failed"}),
             json!({"state":"failed","reason":"provider.auth"}),
@@ -2513,24 +2512,32 @@ mod tests {
         let mut e = attested_fixture(root.path(), "proot");
         let posts = Arc::new(AtomicUsize::new(0));
         let writes = posts.clone();
+        let session = Arc::new(Mutex::new(
+            json!({"id":"ses_two","location":{"directory":"/root/work/parallel"},"agent":"build","model":{"providerID":"zai","id":"glm-5.3"}}),
+        ));
+        let instruction = Arc::new(Mutex::new(Value::Null));
         let app = Router::new().fallback(move |request: Request| {
             let writes = writes.clone();
+            let session = session.clone();
+            let instruction = instruction.clone();
             async move {
-                if request.uri().path() == "/global/health" {
-                    return Json(json!({"healthy":true,"version":"1.18.32"})).into_response();
-                }
-                if request.method() == axum::http::Method::PATCH {
-                    let body = axum::body::to_bytes(request.into_body(), 65536)
-                        .await
-                        .unwrap();
-                    let value: Value = serde_json::from_slice(&body).unwrap();
-                    return Json(json!({"id":"ses_two","permission":value["permission"]}))
-                        .into_response();
-                }
-                if request.method() == axum::http::Method::POST {
-                    writes.fetch_add(1, Ordering::SeqCst);
-                }
-                StatusCode::NO_CONTENT.into_response()
+                let path=request.uri().path().to_owned();
+                let method=request.method().clone();
+                let body = axum::body::to_bytes(request.into_body(), 65536).await.unwrap();
+                let value: Value = serde_json::from_slice(&body).unwrap_or(Value::Null);
+                let response = match (method.as_str(), path.as_str()) {
+                    ("GET", "/api/info") => json!({"version":"2.0.29","pid":1,"urls":[],"paths":{"tmp":"/tmp"}}),
+                    ("GET", "/openapi.json") => serde_json::from_str(include_str!("../tests/fixtures/oc2-2.0.29-driver-openapi.json")).unwrap(),
+                    ("GET", "/api/session/active") => json!({"data":{}}),
+                    ("GET", "/api/session/ses_two") => json!({"data":session.lock().unwrap().clone()}),
+                    ("PATCH", "/api/session/ses_two") => { session.lock().unwrap()["permissions"] = value["permissions"].clone(); return StatusCode::NO_CONTENT.into_response(); },
+                    ("PUT", "/api/experimental/session/ses_two/instructions/entries/aiteam-role") => { *instruction.lock().unwrap()=value["value"].clone(); return StatusCode::NO_CONTENT.into_response(); },
+                    ("GET", "/api/experimental/session/ses_two/instructions/entries") => json!({"data":[{"key":"aiteam-role","value":instruction.lock().unwrap().clone()}]}),
+                    ("POST", "/api/session/ses_two/prompt") => { writes.fetch_add(1, Ordering::SeqCst); json!({"data":{"id":"msg_prompt","sessionID":"ses_two","type":"user"}}) },
+                    ("POST", "/api/session/ses_two/agent" | "/api/session/ses_two/model") => return StatusCode::NO_CONTENT.into_response(),
+                    _ => return StatusCode::NOT_FOUND.into_response(),
+                };
+                Json(response).into_response()
             }
         });
         let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
@@ -2860,8 +2867,8 @@ mod tests {
             guest_worker_root: "/root/aiteam/work/profile".into(),
             port: 4098,
             auth_token_file: private.join("auth.token"),
-            oc1_credential_file: private.join("credentials"),
-            oc1_base_url: "http://127.0.0.1:4097".into(),
+            server_credential_file: private.join("credentials"),
+            server_base_url: "http://127.0.0.1:4097".into(),
             source_roots: vec![],
             boundary: crate::config::Boundary {
                 verified: false,
@@ -3252,14 +3259,10 @@ mod tests {
             .collect::<Vec<_>>(), "findings":[]});
         let text = include_str!("../tests/fixtures/oc2_checker_summary_verdict.txt");
         assert_eq!(
-            structured_output_for_protocol(&json!({"text":text}), false),
-            Err("structuredOutputInvalid")
-        );
-        assert_eq!(
             structured_output(&json!({"text":text})),
             Err("structuredOutputInvalid")
         );
-        let parsed = structured_output_for_protocol(&json!({"text":text}), true).unwrap();
+        let parsed = structured_server_output(&json!({"text":text})).unwrap();
         assert_eq!(parsed, verdict);
         assert_eq!(validate_check(&parsed, &criteria), Ok(true));
     }
@@ -3269,17 +3272,14 @@ mod tests {
         let criterion = "The example contains literal {braces}, [brackets], and \"quotes\".";
         let verdict =
             json!({"findings":[],"criterionResults":[{"criterion":criterion,"status":"met"}]});
-        let parsed = structured_output_for_protocol(
-            &json!({"text":format!("Inspection complete.\n\n{verdict}")}),
-            true,
-        )
-        .unwrap();
+        let parsed =
+            structured_server_output(&json!({"text":format!("Inspection complete.\n\n{verdict}")}))
+                .unwrap();
         assert_eq!(validate_check(&parsed, &json!([criterion])), Ok(true));
         // Parsing an unrelated object is never acceptance authority: the
         // unchanged checker schema and exact original criteria still decide.
-        let unrelated = structured_output_for_protocol(
+        let unrelated = structured_server_output(
             &json!({"text":"An unrelated example follows.\n\n{\"example\":true}"}),
-            true,
         )
         .unwrap();
         assert_eq!(
@@ -3312,7 +3312,7 @@ mod tests {
             "Verification complete. All checks passed.".into(),
             format!("{}\n\n{verdict}", "x".repeat(1024 * 1024)),
         ] {
-            assert_eq!(structured_output_for_protocol(&json!({"text":text}), true), Err("structuredOutputInvalid"));
+            assert_eq!(structured_server_output(&json!({"text":text})), Err("structuredOutputInvalid"));
         }
     }
 

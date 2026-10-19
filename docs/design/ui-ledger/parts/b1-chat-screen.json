@@ -817,6 +817,71 @@
      "destructive": false
     }
    ]
+  },
+  {
+   "id": "dev-preview",
+   "title": "Preview",
+   "kind": "screen",
+   "file": "lib/ui/screens/dev_preview_screen.dart",
+   "widget": "DevPreviewScreen",
+   "presentedBy": [
+    "openDevPreview"
+   ],
+   "line": 74,
+   "purpose": "Shows a dev server's page (the one a conversation linked as localhost:PORT) inside the app: the phone's own loopback, or the connected server's host with the same port. One origin only; other addresses leave through openExternalLink.",
+   "reachedFrom": [
+    {
+     "page": "chat",
+     "element": null,
+     "trigger": "tapping a localhost, 127.0.0.1, 0.0.0.0 or [::1] link with a port in a message (KitLinkScope claim), or choosing a port under \"Preview a running app\" in the conversation menu"
+    }
+   ],
+   "gates": [
+    "the link parses as a local dev-server link (DevPreviewLink.parse)",
+    "a saved server with a host is connected, else a plain alert explains",
+    "a web view exists on the platform (Android, iOS); elsewhere the screen offers the browser"
+   ],
+   "elements": [
+    {
+     "id": "dev-preview-reload",
+     "type": "icon-button",
+     "label": "Refresh page",
+     "key": "dev-preview-reload",
+     "line": 118,
+     "action": "other",
+     "target": null,
+     "targetWidget": null,
+     "effect": "Reloads the page in the web view.",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "dev-preview-browser",
+     "type": "icon-button",
+     "label": "Open in browser",
+     "key": "dev-preview-browser",
+     "line": 125,
+     "action": "external-link",
+     "target": null,
+     "targetWidget": null,
+     "effect": "Hands the page's current address to openExternalLink (confirmation first).",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "dev-preview-copy",
+     "type": "icon-button",
+     "label": "Copy address",
+     "key": "dev-preview-copy",
+     "line": 127,
+     "action": "copy",
+     "target": null,
+     "targetWidget": null,
+     "effect": "Copies the page's current address.",
+     "gates": [],
+     "destructive": false
+    }
+   ]
   }
  ],
  "notPages": [
@@ -979,6 +1044,10 @@
   {
    "file": "lib/ui/screens/chat/chat_handoff_link.dart",
    "reason": "Part file of lib/ui/screens/chat_screen.dart (same screen, same library): the quiet \"Continue with…\" link line in the conversation and its open and forget actions; a row of the chat page, and the sheet it comes from is a separate surface."
+  },
+  {
+   "file": "lib/ui/screens/chat/chat_dev_preview.dart",
+   "reason": "Part file of lib/ui/screens/chat_screen.dart (same screen, same library): finds the local ports a conversation named, claims a tapped local link and lists the ports under \"Preview a running app\"; the preview itself is the dev-preview page."
   }
  ],
  "notes": [

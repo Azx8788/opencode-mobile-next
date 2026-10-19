@@ -9,8 +9,6 @@
 ///   binaries (see docs/qa/f4-session-handoff/README.md for the exact
 ///   `--help` output):
 ///
-///   - OpenCode 1 (`opencode 1.18.25`): `opencode [project]` with
-///     `-s, --session  session id to continue`.
 ///   - OpenCode 2 (`opencode2 v0.0.0-beta-19086` and `beta-19242`, identical):
 ///     `opencode2 <subcommand> [flags] [<directory>]` with
 ///     `--session, -s string  Session ID to continue`.
@@ -24,7 +22,7 @@ library;
 /// Which command-line product resumes the session. Mirrors the server's
 /// product generation; a server that has no CLI counterpart (for example a
 /// Codex backend) is not offered a command at all.
-enum SessionResumeCli { openCode1, openCode2 }
+enum SessionResumeCli { openCode2 }
 
 /// Why a resume command could not be built. Each reason maps to honest copy
 /// in the sheet rather than a guessed command.
@@ -61,7 +59,6 @@ class SessionResumeCommand {
   String get binary => binaryFor(cli);
 
   static String binaryFor(SessionResumeCli cli) => switch (cli) {
-    SessionResumeCli.openCode1 => 'opencode',
     SessionResumeCli.openCode2 => 'opencode2',
   };
 

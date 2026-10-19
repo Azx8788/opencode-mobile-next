@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -8,10 +9,13 @@ import '../../l10n/app_localizations.dart';
 import '../desktop/desktop_interaction.dart';
 import '../theme_roles.dart';
 import 'kit_buttons.dart';
+import 'kit_copy.dart';
 import 'kit_layout.dart';
+import 'kit_motion.dart';
 import 'kit_redact.dart';
 import 'kit_text.dart';
 import 'kit_tokens.dart';
+import 'kit_terminal_links.dart';
 import 'terminal_key_bar.dart';
 
 /// The terminal (kit v2 §9.2), one surface in two forms.
@@ -44,8 +48,8 @@ import 'terminal_key_bar.dart';
 /// copies it through `KitCopy.copy`.
 class KitTerminalView extends StatelessWidget {
   /// A live session. The view fills its box. The key bar sits under it on
-  /// touch and is left out with a fine pointer on a wide window (a hardware
-  /// keyboard), where the view takes hardware keys only.
+  /// mobile devices, including tablets with a mouse. A wide desktop window
+  /// leaves the bar out and takes hardware keys only.
   const KitTerminalView.live({
     super.key,
     required xterm.Terminal this.terminal,
@@ -177,7 +181,7 @@ class KitTerminalView extends StatelessWidget {
       foreground: roles.text1,
       background: roles.ground,
       black: roles.surface3,
-      red: roles.danger,
+      red: roles.text1,
       green: roles.success,
       yellow: roles.codeString,
       blue: roles.codeType,
@@ -185,7 +189,7 @@ class KitTerminalView extends StatelessWidget {
       cyan: roles.codeType,
       white: roles.text2,
       brightBlack: roles.text3,
-      brightRed: roles.danger,
+      brightRed: roles.text1,
       brightGreen: roles.success,
       brightYellow: roles.codeString,
       brightBlue: roles.codeType,
@@ -229,45 +233,53 @@ class KitTerminalView extends StatelessWidget {
   Widget _live(BuildContext context, xterm.Terminal terminal) {
     final tokens = KitTokens.of(context);
     final roles = tokens.roles;
-    // A fine pointer on a wide window means a hardware keyboard: no key
-    // bar, and keys only from it. A desktop build always takes hardware
+    // A mouse says nothing about whether a tablet has a physical keyboard.
+    // Keep its IME and extra keys available. Desktop builds take hardware
     // keys only, so a keystroke never arrives twice (key event and IME).
-    final hardware =
-        KitLayout.finePointer(context) && KitLayout.windowOf(context).isWide;
-    final hardwareOnly = hardware || desktopInteractions;
-    final keys = hardware ? null : this.keys;
-    final view = Semantics(
-      container: true,
-      label: semanticsLabel,
-      // A screen reader cannot read a character grid; the host offers the
-      // accessible transcript.
-      child: ExcludeSemantics(
-        child: Directionality(
-          textDirection: TextDirection.ltr,
-          child: xterm.TerminalView(
-            terminal,
-            key: viewKey,
-            controller: controller,
-            scrollController: scrollController,
-            focusNode: focusNode,
-            autofocus: autofocus,
-            autoResize: true,
-            theme: themeOf(roles),
-            textStyle: xterm.TerminalStyle.fromTextStyle(
-              KitText.styleFor(KitTextRole.mono),
+    final hardwareOnly = desktopInteractions;
+    final keys = hardwareOnly && KitLayout.windowOf(context).isWide
+        ? null
+        : this.keys;
+    final view = _KitTerminalOscHost(
+      terminal: terminal,
+      child: Semantics(
+        container: true,
+        label: semanticsLabel,
+        // A screen reader cannot read a character grid; the host offers the
+        // accessible transcript.
+        child: ExcludeSemantics(
+          child: Directionality(
+            textDirection: TextDirection.ltr,
+            child: xterm.TerminalView(
+              terminal,
+              key: viewKey,
+              controller: controller,
+              scrollController: scrollController,
+              focusNode: focusNode,
+              autofocus: autofocus,
+              autoResize: true,
+              theme: themeOf(roles),
+              textStyle: xterm.TerminalStyle.fromTextStyle(
+                KitText.styleFor(KitTextRole.mono),
+              ),
+              // The face grows with the person's text size up to 2x: beyond
+              // it, 40 columns no longer fit a phone (A11Y-8).
+              textScaler: MediaQuery.textScalerOf(
+                context,
+              ).clamp(maxScaleFactor: KitTokens.terminalMaxTextScale),
+              padding: EdgeInsets.all(tokens.space2),
+              keyboardType: TextInputType.text,
+              keyboardAppearance: roles.brightness,
+              deleteDetection: true,
+              hardwareKeyboardOnly: hardwareOnly,
+              readOnly: readOnly,
+              onKeyEvent: _onKey,
+              onTapUp: (details, cell) {
+                final url = KitTerminalLinks.urlAt(terminal, cell);
+                if (url == null) return;
+                unawaited(showKitTerminalLinkSheet(context, url));
+              },
             ),
-            // The face grows with the person's text size up to 2x: beyond
-            // it, 40 columns no longer fit a phone (A11Y-8).
-            textScaler: MediaQuery.textScalerOf(
-              context,
-            ).clamp(maxScaleFactor: KitTokens.terminalMaxTextScale),
-            padding: EdgeInsets.all(tokens.space2),
-            keyboardType: TextInputType.text,
-            keyboardAppearance: roles.brightness,
-            deleteDetection: true,
-            hardwareKeyboardOnly: hardwareOnly,
-            readOnly: readOnly,
-            onKeyEvent: _onKey,
           ),
         ),
       ),
@@ -683,5 +695,123 @@ abstract final class KitTerminalText {
     }
     emit(line.substring(at));
     return spans.isEmpty ? [const TextSpan(text: '')] : spans;
+  }
+}
+
+/// Listens for OSC 52 clipboard writes from the shown session and says so.
+///
+/// Only a mounted (foreground) view listens; the handler it replaced is put
+/// back when it goes away. A copy shows "Copied to clipboard" over the top
+/// of the terminal for two seconds.
+class _KitTerminalOscHost extends StatefulWidget {
+  const _KitTerminalOscHost({required this.terminal, required this.child});
+
+  final xterm.Terminal terminal;
+  final Widget child;
+
+  @override
+  State<_KitTerminalOscHost> createState() => _KitTerminalOscHostState();
+}
+
+class _KitTerminalOscHostState extends State<_KitTerminalOscHost> {
+  void Function(String, List<String>)? _previous;
+  Timer? _hide;
+  bool _shown = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _attach(widget.terminal);
+  }
+
+  @override
+  void didUpdateWidget(_KitTerminalOscHost old) {
+    super.didUpdateWidget(old);
+    if (old.terminal != widget.terminal) {
+      _detach(old.terminal);
+      _attach(widget.terminal);
+    }
+  }
+
+  void _attach(xterm.Terminal terminal) {
+    _previous = terminal.onPrivateOSC;
+    terminal.onPrivateOSC = (code, args) {
+      if (code == '52') {
+        _copy(args);
+      } else {
+        _previous?.call(code, args);
+      }
+    };
+  }
+
+  void _detach(xterm.Terminal terminal) {
+    terminal.onPrivateOSC = _previous;
+  }
+
+  void _copy(List<String> args) {
+    final text = KitTerminalOsc52.parse(args);
+    if (text == null) return;
+    if (!mounted) return;
+    unawaited(KitCopy.copy(context, text, redact: false));
+    _hide?.cancel();
+    setState(() => _shown = true);
+    _hide = Timer(KitMotion.terminalCopiedNote, () {
+      if (mounted) setState(() => _shown = false);
+    });
+  }
+
+  @override
+  void dispose() {
+    _hide?.cancel();
+    _detach(widget.terminal);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = KitTokens.of(context);
+    final l10n = lookupAppLocalizations(Localizations.localeOf(context));
+    return Stack(
+      fit: StackFit.passthrough,
+      children: [
+        widget.child,
+        Positioned(
+          top: tokens.space3,
+          left: 0,
+          right: 0,
+          child: IgnorePointer(
+            child: AnimatedOpacity(
+              opacity: _shown ? 1 : 0,
+              duration: KitMotion.standard,
+              child: Center(
+                child: Semantics(
+                  liveRegion: true,
+                  label: _shown ? l10n.terminalCopiedToClipboard : '',
+                  child: ExcludeSemantics(
+                    child: DecoratedBox(
+                      key: const ValueKey('terminal-copied-toast'),
+                      decoration: ShapeDecoration(
+                        color: tokens.roles.surface3,
+                        shape: const StadiumBorder(),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: tokens.space3,
+                          vertical: tokens.space2,
+                        ),
+                        child: KitText(
+                          l10n.terminalCopiedToClipboard,
+                          role: KitTextRole.secondary,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }

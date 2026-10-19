@@ -54,6 +54,7 @@ class PhoneConnection extends ConnectionController {
     String profileId, {
     QueuedPromptRemovalPlan? queuedPrompts,
     bool keepQueuedPrompts = false,
+    bool linuxGone = false,
   }) async {
     deleted.add(profileId);
     (store as PhoneStore).saved.removeWhere((p) => p.id == profileId);

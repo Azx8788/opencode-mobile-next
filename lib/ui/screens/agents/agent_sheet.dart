@@ -57,6 +57,8 @@ class _AgentSheetState extends ConsumerState<AgentSheet> {
   // One advance per finished install: a row that cannot move on yet must not
   // re-read the phone on every rebuild.
   bool _doneHandled = false;
+  // Highest bar value shown for the running install.
+  double _barFloor = 0;
   bool _signInKicked = false;
   // The agent's own sign-out is running (up to 20 seconds). The frame holds
   // its signed-in layout until it ends, so a failed attempt never flashes the
@@ -163,7 +165,7 @@ class _AgentSheetState extends ConsumerState<AgentSheet> {
         try {
           await agents.resumeAgentHost();
         } catch (error) {
-          _fail(error);
+          _failResume(error, id);
         }
       case null:
         // A real blocker: say exactly what it is.
@@ -190,6 +192,16 @@ class _AgentSheetState extends ConsumerState<AgentSheet> {
   void _fail(Object error) {
     if (!mounted) return;
     final failure = agentFailure(AppLocalizations.of(context), error);
+    setState(() => _notice = failure);
+  }
+
+  void _failResume(Object error, String? id) {
+    if (!mounted) return;
+    final failure = agentResumeFailure(
+      AppLocalizations.of(context),
+      error,
+      KitBidi.auto(_name(id)),
+    );
     setState(() => _notice = failure);
   }
 
@@ -277,19 +289,36 @@ class _AgentSheetState extends ConsumerState<AgentSheet> {
     }
   }
 
-  Future<void> _runCheck() async {
+  Future<void> _runCheck({bool previous = false}) async {
     final id = _agentId;
     if (id == null || _checking) return;
     setState(() {
       _checking = true;
       _check = null;
+      _notice = null;
     });
     final AgentPhoneCheckResult result;
     try {
-      result = await _agents.runAgentPhoneCheck(id);
+      final agents = _agents;
+      result = previous && agents is PhoneAgentRecoverySource
+          ? await (agents as PhoneAgentRecoverySource).usePreviousAgentVersion(
+              id,
+            )
+          : await agents.runAgentPhoneCheck(id);
     } catch (error) {
-      if (mounted) setState(() => _checking = false);
-      _fail(error);
+      if (!mounted) return;
+      setState(() {
+        _checking = false;
+        _check = AgentPhoneCheckResult(
+          agentId: id,
+          architecture: null,
+          passed: false,
+          completed: const [],
+          failure: error is AgentHostException
+              ? error.reason
+              : AgentHostFailure.unavailable,
+        );
+      });
       return;
     }
     if (!mounted) return;
@@ -352,7 +381,7 @@ class _AgentSheetState extends ConsumerState<AgentSheet> {
     try {
       await _agents.resumeAgentHost();
     } catch (error) {
-      _fail(error);
+      _failResume(error, _agentId);
     }
   }
 
@@ -488,7 +517,11 @@ class _AgentSheetState extends ConsumerState<AgentSheet> {
     Widget choosable(ChatAgentChoice choice) => KitRow(
       key: ValueKey('agents-choice-${choice.agentId}'),
       title: KitBidi.auto(choice.name),
-      leading: KitRowIcon(agentIcon(choice.iconKey), current: choice.selected),
+      leading: KitRowIcon(
+        agentIcon(choice.iconKey),
+        mark: agentMark(choice.iconKey),
+        current: choice.selected,
+      ),
       supporting: TextSpan(
         text: choice.row == null
             ? l10n.agentsStateReady
@@ -504,7 +537,7 @@ class _AgentSheetState extends ConsumerState<AgentSheet> {
     Widget notYet(AgentRow row) => KitRow.unavailable(
       key: ValueKey('agents-choice-${row.id}'),
       title: KitBidi.auto(row.name),
-      leading: KitRowIcon(agentIcon(row.iconKey)),
+      leading: KitRowIcon(agentIcon(row.iconKey), mark: agentMark(row.iconKey)),
       reason: agentPickerLine(l10n, row),
       chip: agentFixChip(
         l10n,
@@ -615,7 +648,31 @@ class _AgentSheetState extends ConsumerState<AgentSheet> {
         if (mounted) unawaited(_advance());
       });
     }
-    final fraction = progress.fraction;
+    // Measured bytes name what the bar shows ("x MB of y MB", as the phone
+    // check does); without them the bar says only that it is installing.
+    final all = progress.totalBytes;
+    // The first byte count (or only a total) already shows the MB line.
+    final done = progress.downloadedBytes ?? (all != null ? 0 : null);
+    // The bar is measured bytes or indeterminate, never the phase-based
+    // overall fraction (it read ~75% before any bytes, then fell to ~13%),
+    // and it never moves backwards while this install runs.
+    if (!installing) _barFloor = 0;
+    final measured = agentInstallBarFraction(done: done, total: all);
+    final fraction = measured == null
+        ? null
+        : (_barFloor = measured > _barFloor ? measured : _barFloor);
+    final installCaption = done == null
+        ? l10n.agentsInstalling(KitBidi.auto(name))
+        : all == null
+        ? l10n.agentsCheckDownloadUnknown(
+            KitBidi.auto(name),
+            agentFreedSize(done),
+          )
+        : l10n.agentsCheckDownload(
+            KitBidi.auto(name),
+            agentFreedSize(done),
+            agentFreedSize(all),
+          );
     return KitSheet(
       handle: false,
       step: AgentSheetStep.setup,
@@ -666,12 +723,12 @@ class _AgentSheetState extends ConsumerState<AgentSheet> {
               progress: fraction == null
                   ? KitProgress.waiting(
                       key: const ValueKey('agents-progress'),
-                      caption: l10n.agentsInstalling(KitBidi.auto(name)),
+                      caption: installCaption,
                     )
                   : KitProgress.known(
                       fraction.clamp(0.0, 1.0),
                       key: const ValueKey('agents-progress'),
-                      caption: l10n.agentsInstalling(KitBidi.auto(name)),
+                      caption: installCaption,
                     ),
             ),
           if (interrupted)
@@ -700,6 +757,13 @@ class _AgentSheetState extends ConsumerState<AgentSheet> {
     final l10n = AppLocalizations.of(context);
     final name = _name(_agentId);
     final failed = _check != null && !_check!.passed;
+    final needsSignIn = _check?.failure == AgentHostFailure.needsSignIn;
+    final helperUpdate = _check?.failure == AgentHostFailure.helperVersion;
+    final previous = failed && _agents is PhoneAgentRecoverySource
+        ? _check?.previousVersion
+        : null;
+    final progress = _agents.agentSetupProgress;
+    final reason = _row(_agentId)?.checkRequiredReason;
     return KitSheet(
       handle: false,
       step: AgentSheetStep.check,
@@ -709,16 +773,52 @@ class _AgentSheetState extends ConsumerState<AgentSheet> {
       primary: failed
           ? KitAction(
               key: const ValueKey('agents-check-again'),
-              label: l10n.agentsCheckAction(KitBidi.auto(name)),
-              onPressed: () => unawaited(_runCheck()),
+              label: needsSignIn
+                  ? l10n.agentsSignInAction(KitBidi.auto(name))
+                  : helperUpdate
+                  ? l10n.agentsCheckUpdateHelper
+                  : l10n.agentsCheckRetry,
+              onPressed: needsSignIn
+                  ? () => _enter(AgentSheetStep.signIn)
+                  : () => unawaited(_runCheck()),
             )
           : null,
+      secondary: previous == null
+          ? null
+          : KitAction(
+              key: const ValueKey('agents-check-previous'),
+              label: l10n.agentsCheckPrevious,
+              onPressed: () => unawaited(_runCheck(previous: true)),
+            ),
       tertiary: _checking ? const [] : _removeAction(_agentId ?? ''),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          AgentPhoneCheckView(agent: name, result: _check),
+          if (_checking && reason != null && reason != 'firstCheck')
+            Padding(
+              padding: EdgeInsets.only(bottom: KitTokens.of(context).space3),
+              child: KitText(
+                agentRowLine(l10n, _row(_agentId)!),
+                tone: KitTextTone.secondary,
+              ),
+            ),
+          AgentPhoneCheckView(
+            agent: name,
+            result: _check,
+            progress: _checking && progress.agentId == _agentId
+                ? progress
+                : null,
+          ),
+          if (previous != null)
+            Padding(
+              padding: EdgeInsets.only(top: KitTokens.of(context).space3),
+              child: KitText(
+                l10n.agentsCheckPreviousNote(KitBidi.ltr(previous)),
+                role: KitTextRole.secondary,
+                tone: KitTextTone.secondary,
+              ),
+            ),
           _noticeLine(context),
         ],
       ),

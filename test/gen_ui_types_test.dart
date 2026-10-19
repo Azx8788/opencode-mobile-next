@@ -73,7 +73,7 @@ void main() {
       const GenUiSetupInstalling(),
       GenUiSetupOn(agents: [GenUiAgent.claude]),
       GenUiSetupPartial(
-        agents: [GenUiAgent.openCode1],
+        agents: [GenUiAgent.openCode2],
         reason: GenUiSetupProblem.runtimeMissing,
       ),
       GenUiSetupRestartRequired(agents: []),

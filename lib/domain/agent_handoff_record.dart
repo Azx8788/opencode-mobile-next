@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import '../api/models.dart';
+import '../domain/models.dart';
 import '../ui/kit/kit_redact.dart';
 
 /// A bounded, credential-masked transfer of the conversation already loaded.

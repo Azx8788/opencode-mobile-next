@@ -2,7 +2,7 @@ export 'host_agent_providers.dart';
 export 'agent_features.dart';
 export 'host_daemon_update.dart';
 export 'provider_conversation_import.dart';
-export '../api/models.dart' show Session;
+export '../domain/models.dart' show Session;
 export 'managed_shell.dart';
 export 'session_note.dart';
 export 'session_export.dart';

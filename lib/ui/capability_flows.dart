@@ -72,7 +72,7 @@ Map<String, KitEnableFlowHandler> capabilityFlowHandlers(
     KitEnableFlows.addServerPaseo: (context, request) =>
         _addServer(context, request, backend: ServerBackend.paseo),
     KitEnableFlows.serverGeneration: (context, request) =>
-        _switchGeneration(context, request, phone: phone),
+        _openOpenCodeSetup(context, request, phone: phone),
     KitEnableFlows.modelSignIn: (context, _) => _signIn(context, controller),
     // The team page: its intro and turn-on while the team is off (P3.4).
     KitEnableFlows.teamTurnOn: (context, _) =>
@@ -151,9 +151,8 @@ Future<void> _addServer(
   ).pushNamed('/servers', arguments: ServersRouteRequest.add(backend: backend));
 }
 
-/// OpenCode 2: on this phone it is the This phone card's switch; on a
-/// computer, Add server finds which generation answers.
-Future<void> _switchGeneration(
+/// Open the managed phone setup or connect a compatible computer server.
+Future<void> _openOpenCodeSetup(
   BuildContext context,
   KitEnableRequest request, {
   required bool phone,

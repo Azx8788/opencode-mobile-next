@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:crypto/crypto.dart';
 
 import '../api2/models.dart' show Api2FormInfo;
-import '../api/models.dart';
+import '../domain/models.dart';
 import '../domain/profile_monitor.dart';
 import '../domain/attention_feed.dart';
 import 'automation_policy.dart';

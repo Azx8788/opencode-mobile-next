@@ -22,6 +22,19 @@ mixin _ConnectionControllerAlerts on ChangeNotifier {
   /// Android notification only; pruned lazily against [busySessions].
   final Map<String, String> _runningToolDetail = {};
 
+  /// The tool and the file or command of recent tool calls, by call id, so a
+  /// request that names only its call ("outside this project") can say what
+  /// the call does even where its conversation is not open. At most 64.
+  final Map<String, ({String tool, String? target})> _toolCalls = {};
+
+  /// What the tool call behind [request] does, when it was seen on the way.
+  ({String tool, String? target})? permissionToolCall(
+    PermissionRequest request,
+  ) {
+    final callID = request.tool?.callID;
+    return callID == null || callID.isEmpty ? null : _toolCalls[callID];
+  }
+
   /// When each busy session was first seen busy (elapsed time on the status).
   final Map<String, DateTime> _busySince = {};
 

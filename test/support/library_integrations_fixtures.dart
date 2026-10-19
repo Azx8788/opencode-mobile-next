@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:opencode_mobile/api/mcp_oauth.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/mcp_oauth.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -191,9 +191,22 @@ class IntegrationsRepository implements ProductRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+/// Authorization scenarios may opt into the scripted repository capabilities.
+class _IntegrationsController extends ConnectionController {
+  _IntegrationsController(super.store, {required this.withAuthorization});
+
+  final bool withAuthorization;
+
+  @override
+  ServerCapabilities get capabilities => withAuthorization
+      ? const ServerCapabilities(mcpOAuth: true, providerRuntimeRefresh: true)
+      : super.capabilities;
+}
+
 Future<ConnectionController> integrationsController(
-  ProductRepository repository,
-) async {
+  ProductRepository repository, {
+  bool withAuthorization = false,
+}) async {
   SharedPreferences.setMockInitialValues({});
   final preferences = await SharedPreferences.getInstance();
   final store = ProfileStore(prefs: preferences);
@@ -205,7 +218,7 @@ Future<ConnectionController> integrationsController(
     ),
   );
   await store.setActiveId('integrations-test');
-  return ConnectionController(store)
+  return _IntegrationsController(store, withAuthorization: withAuthorization)
     ..repository = repository
     ..status = StreamStatus.connected;
 }

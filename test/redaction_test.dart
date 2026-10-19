@@ -255,10 +255,26 @@ Future<void> _settleTimers(WidgetTester tester) =>
 /// Verbatim copies of the person's own content (SEC-13): path -> count and
 /// why the copied text is theirs.
 const _verbatimOwnContent = <String, (int, String)>{
+  'lib/ui/kit/kit_terminal_links.dart': (
+    1,
+    'Copy link copies the address the person tapped in their own terminal '
+        'output; masking would break the link they asked to copy',
+  ),
+  'lib/ui/kit/kit_terminal_view.dart': (
+    1,
+    'OSC 52 copies the text the person\'s own terminal program asked to put '
+        'on the clipboard (their shell, their content)',
+  ),
   'lib/ui/screens/agents/agent_sign_in_terminal.dart': (
     1,
     'Copy code copies the one-time device code the agent printed for the '
         'person to type on its sign-in page; masked it would not work (FA1)',
+  ),
+  'lib/ui/screens/linux_manager/linux_ports_page.dart': (
+    1,
+    'Copy address copies the localhost address of a port the person is '
+        'inspecting in their own Linux (127.0.0.1:port); a masked address '
+        'would not open',
   ),
   'lib/ui/kit/kit_one_time_code.dart': (
     1,

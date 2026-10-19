@@ -19,7 +19,6 @@ import 'kit_motion_still.dart';
 const _hostColumns = <String, KitHost>{
   'builtin': KitHost.thisPhone,
   'termux': KitHost.termux,
-  'oc1Computer': KitHost.openCode1,
   'oc2Computer': KitHost.openCode2,
   'codex': KitHost.codex,
   'paseo': KitHost.paseo,
@@ -158,7 +157,7 @@ void main() {
 
     test('every matrix capability has equal supported and partly sets', () {
       expect(KitCapabilities.all, hasLength(_matrix.length));
-      expect(_matrix, hasLength(35));
+      expect(_matrix, hasLength(34));
       for (final row in _matrix) {
         final id = row['capability'] as String;
         final hosts = row['hosts'] as Map<String, dynamic>;
@@ -396,7 +395,7 @@ void main() {
       expect(why, contains('computers with OpenCode'));
       expect(
         KitCapabilityExplainer.hostsLineOf(_context, 'voice.model'),
-        'Works on \u2068this phone\u2069, \u2068computers with OpenCode\u2069, '
+        'Works on \u2068this phone\u2069, \u2068computers with OpenCode 2\u2069, '
         '\u2068Codex\u2069 and \u2068Paseo\u2069',
       );
       // The server name is isolated beside its host word (COPY-30).

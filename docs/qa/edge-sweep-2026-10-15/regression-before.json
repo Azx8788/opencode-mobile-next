@@ -1,0 +1,49 @@
+{
+  "before_fix_runs": [
+    {
+      "slice": "error wording",
+      "baseline_production": "2e98e684f",
+      "method": "New regressions against original production files; current localization available to compile new expectations.",
+      "failures": [
+        "00:00 +1 -1: a recognised cause is said in plain words, with what happens next",
+        "00:00 +1 -2: unknown failures keep technical text out of the headline",
+        "00:00 +1 -3: exhausted credit takes precedence over an HTTP 429",
+        "00:00 +1 -4: missing and rejected provider keys have a sign-in recovery",
+        "00:00 +1 -5: terminal errors do not promise an automatic retry"
+      ]
+    },
+    {
+      "slice": "setup recovery",
+      "baseline_production": "2e98e684f",
+      "method": "New regressions against original production files; current localization available to compile new expectations.",
+      "failures": [
+        "test/setup_engine_test.dart: the start step a failed start fails the job in plain words",
+        "test/setup_engine_test.dart: errors in plain words unexpected setup start diagnostics redact credentials",
+        "test/setup_engine_test.dart: errors in plain words native storage admission explains how to resume",
+        "test/setup_engine_test.dart: errors in plain words SIGTERM and SIGKILL mean interrupted without guessing the cause",
+        "test/setup_progress_report_test.dart: en storage keeps recovery visible and raw cause in Details",
+        "test/setup_progress_report_test.dart: en signal keeps recovery visible and raw cause in Details",
+        "test/setup_progress_report_test.dart: en start keeps recovery visible and raw cause in Details",
+        "test/setup_progress_report_test.dart: en checksum keeps recovery visible and raw cause in Details",
+        "test/setup_progress_report_test.dart: ar storage keeps recovery visible and raw cause in Details",
+        "test/setup_progress_report_test.dart: ar signal keeps recovery visible and raw cause in Details",
+        "test/setup_progress_report_test.dart: ar start keeps recovery visible and raw cause in Details",
+        "test/setup_progress_report_test.dart: ar checksum keeps recovery visible and raw cause in Details",
+        "test/kit/kit_terminal_view_test.dart"
+      ]
+    },
+    {
+      "slice": "send and tablet",
+      "baseline_production": "2e98e684f",
+      "method": "New regressions against original production files; current localization available to compile new expectations.",
+      "failures": [
+        "test/offline_queue_test.dart: online Send keeps its draft when the durable marker is refused",
+        "test/offline_queue_test.dart: online Send persists a review marker before acknowledgement",
+        "test/offline_queue_test.dart: double Send while offline storage is pending queues once",
+        "test/offline_queue_test.dart: a lost online acknowledgement stays in review after restart",
+        "test/kit/kit_terminal_view_test.dart: the live view an Android tablet with a mouse keeps touch terminal input"
+      ]
+    }
+  ],
+  "harness_note": "First tablet attempt had a missing gestures import. That compilation failure is not defect evidence; the corrected second attempt failed on the missing tablet key bar."
+}

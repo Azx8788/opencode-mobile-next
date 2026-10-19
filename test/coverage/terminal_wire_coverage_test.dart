@@ -1,15 +1,10 @@
 // Coverage ratchet for what a server answers the terminal screens (see
 // paseo_coverage_support.dart for the rules): the terminal list and the shell
-// choices, read by the app's real OpenCode 1 repository over a local port
-// (and, for the list, by the OpenCode 2 gateway: both must read the same
-// terminal), and drawn by the real Terminal page and Settings > Default shell.
+// choices, read by the app's OpenCode 2 gateway over a local port and
+// drawn by the real Terminal page and Settings > Default shell.
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api2/client.dart';
-import 'package:opencode_mobile/api2/gateway_operations.dart';
-import 'package:opencode_mobile/api2/transport.dart';
-import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/ui/kit/kit.dart';
 import 'package:opencode_mobile/ui/screens/settings_screen.dart';
 import 'package:opencode_mobile/ui/screens/terminal_screen.dart';
@@ -19,9 +14,6 @@ import '../goldens/kit/kit_gallery.dart' show loadKitGalleryFonts;
 import 'paseo_coverage_support.dart';
 import 'servers_support.dart';
 import 'tools_support.dart';
-
-String _show(TerminalProcess p) =>
-    '${p.id}|${p.title}|${p.command}|${p.arguments}|${p.directory}|${p.running}|${p.pid}|${p.exitCode}';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -55,41 +47,17 @@ void main() {
       if (variant['kind'] == 'pty_list') {
         final list = payload['list'] as List;
         repo.terminals = await readFromWire(tester, {
-          '/pty': list,
+          '/api/pty': {'data': list},
         }, (r) => r.listTerminals());
-        // OpenCode 2 sends the same terminals in its envelope.
-        final v2 = await tester.runAsync(() async {
-          final transport = Api2Transport(
-            baseUrl: 'http://127.0.0.1:1',
-            password: '',
-          );
-          transport.dio.httpClientAdapter = WireAdapter(
-            (options) => wireJson({
-              'data': list,
-              'location': {
-                'directory': '/work/shop',
-                'workspaceID': 'wrk_main',
-                'project': {'id': 'prj_shop', 'directory': '/work/shop'},
-              },
-            }),
-          );
-          final gateway = Api2OperationsGateway(
-            client: Api2Client(transport: transport),
-          );
-          final read = await gateway.listTerminals();
-          transport.dio.close(force: true);
-          return read;
-        });
-        expect(
-          [for (final p in v2!) _show(p)],
-          [for (final p in repo.terminals) _show(p)],
-          reason: 'OpenCode 1 and 2 read the same terminals',
-        );
         home = (c) => TerminalScreen(controller: c, page: true);
       } else {
         repo.shellSettings = await readFromWire(tester, {
-          '/pty/shells': payload['shells'],
-          '/global/config': payload['config'],
+          '/api/config/shell': {'data': payload['shells']},
+          '/api/config': {
+            'data': [
+              {'type': 'document', 'info': payload['config']},
+            ],
+          },
         }, (r) => r.loadTerminalShellSettings());
         home = (c) => Material(
           child: KitScreen(

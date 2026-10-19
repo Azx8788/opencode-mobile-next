@@ -15,7 +15,7 @@ def write(name, d):
 ID = 'ignored: an internal id the app uses to match records; nothing a person reads'
 FOLDER = 'ignored: which folder the list is for; the person is already in that project'
 
-W = {f'location.{k}': FOLDER for k in ['directory', 'workspaceID', 'project.id', 'project.directory']}
+W = {f'location.{k}': FOLDER for k in ['directory', 'workspaceID', 'project.id', 'project.directory', 'project.canonical']}
 W.update({
     'pty.id': ID, 'pty.title': 'shown', 'pty.command': 'shown', 'pty.status': 'shown', 'pty.exitCode': 'shown',
     'pty.args[]': 'shown', 'pty.cwd': 'shown', 'pty.pid': 'shown',
@@ -60,14 +60,10 @@ P_MIG = 'test/termux_migration_ui_test.dart'
 P_LOC = 'test/local_terminal_screen_test.dart'
 P_ACC = 'test/terminal_accessibility_test.dart'
 A = {
-    'oc1 POST /pty': 'reachable: Terminal > New terminal',
-    'oc1 POST /api/pty': 'reachable: Terminal > New terminal',
-    'oc1 PUT /pty/{ptyID}': 'reachable: Terminal > a terminal > Rename',
-    'oc1 PUT /api/pty/{ptyID}': 'reachable: Terminal > a terminal > Rename',
-    'oc1 DELETE /pty/{ptyID}': 'reachable: Terminal > menu > Remove ended terminals; proof: test/terminal_close_gone_test.dart :: OpenCode 2: closing a terminal that is already gone succeeds',
-    'oc1 DELETE /api/pty/{ptyID}': 'reachable: Terminal > menu > Remove ended terminals; proof: test/terminal_close_gone_test.dart :: OpenCode 2: closing a terminal that is already gone succeeds',
-    'oc1 POST /pty/{ptyID}/connect-token': f'reachable: Terminal > open a terminal; proof: {P_ACC} :: terminal reconnect resumes from its cursor without replaying transcript',
-    'oc1 POST /api/pty/{ptyID}/connect-token': f'reachable: Terminal > open a terminal; proof: {P_ACC} :: terminal reconnect resumes from its cursor without replaying transcript',
+    'oc2 POST /api/pty': 'reachable: Terminal > New terminal',
+    'oc2 PUT /api/pty/{ptyID}': 'reachable: Terminal > a terminal > Rename',
+    'oc2 DELETE /api/pty/{ptyID}': 'reachable: Terminal > menu > Remove ended terminals; proof: test/terminal_close_gone_test.dart :: OpenCode 2: closing a terminal that is already gone succeeds',
+    'oc2 POST /api/pty/{ptyID}/connect-token': f'reachable: Terminal > open a terminal; proof: {P_ACC} :: terminal reconnect resumes from its cursor without replaying transcript',
     'paseo create_terminal_request': 'not offered: a Claude Code or Pi server has no terminal tab; the app has no Paseo terminal screen',
     'paseo kill_terminal_request': 'not offered: a Claude Code or Pi server has no terminal tab; the app has no Paseo terminal screen',
     'paseo terminal.rename.request': 'not offered: a Claude Code or Pi server has no terminal tab; the app has no Paseo terminal screen',

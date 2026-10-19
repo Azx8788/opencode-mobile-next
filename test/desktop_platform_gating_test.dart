@@ -1,3 +1,4 @@
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'support/complete_message_history.dart';
 
 import 'dart:convert';
@@ -6,9 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -26,7 +26,7 @@ import 'package:opencode_mobile/ui/screens/settings_screen.dart';
 import 'package:opencode_mobile/ui/screens/phone_setup/phone_setup_termux_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class _FakeApi extends OpenCodeApi with CompleteMessageHistory {
+class _FakeApi extends FakeServerGateway with CompleteMessageHistory {
   _FakeApi() : super(baseUrl: 'http://localhost');
 
   @override
@@ -51,6 +51,7 @@ Future<ConnectionController> _chatController() async {
       {
         'id': 'profile-1',
         'name': 'Test server',
+        'flavor': 'v2',
         'baseUrl': 'http://localhost',
         'username': '',
       },
@@ -422,8 +423,13 @@ void main() {
       await pumpHost(tester);
       expect(find.byKey(const Key('host-command-adb-reverse')), findsNothing);
       expect(find.textContaining('adb reverse'), findsNothing);
-      // The host commands that do apply are untouched.
-      expect(find.text('Service status'), findsOneWidget);
+      // Desktop keeps the supported OC2 setup command.
+      expect(
+        find.byKey(const ValueKey('host-command-install')),
+        findsOneWidget,
+      );
+      expect(find.text('Install and start OpenCode 2'), findsOneWidget);
+      expect(find.text('Service status'), findsNothing);
     });
   });
 

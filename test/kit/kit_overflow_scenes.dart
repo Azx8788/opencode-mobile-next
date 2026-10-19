@@ -628,6 +628,79 @@ final kitOverflowScenes = <KitOverflowScene>[
       onAccent: (_) {},
     ),
   ),
+  // Immutable warning content: exercise both HTTP risk levels and both
+  // certificate decisions through the actual sheet, including its actions.
+  for (final privateNetwork in [false, true])
+    KitOverflowScene(
+      const ['KitServerTrustBody', 'showKitServerTrust'],
+      privateNetwork ? 'private-http' : 'default',
+      host: KitOverflowHost.modal,
+      open: (context, _) => showKitServerTrust(
+        context,
+        origin: privateNetwork
+            ? 'http://workstation.example-tailnet.ts.net:4098'
+            : 'http://development-server.example.com:4098',
+        privateNetwork: privateNetwork,
+      ),
+    ),
+  for (final certificateChanged in [false, true])
+    KitOverflowScene(
+      const ['KitServerTrustBody', 'showKitServerTrust'],
+      certificateChanged ? 'certificate-changed' : 'certificate',
+      host: KitOverflowHost.modal,
+      open: (context, _) => showKitServerTrust(
+        context,
+        origin: 'https://development-server.example.com:4098',
+        fingerprintSha256:
+            '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+        certificateChanged: certificateChanged,
+        validFrom: DateTime.utc(2026, 10, 15),
+        validTo: DateTime.utc(2027, 10, 15),
+      ),
+    ),
+  KitOverflowScene(
+    const ['KitLinkScope'],
+    'default',
+    build: (_, c) => KitLinkScope(
+      claim: (_, _) => false,
+      child: KitText(
+        c.t(
+          'Links in this text go through the safe gate',
+          'الروابط في هذا النص تمر عبر البوابة الآمنة',
+        ),
+      ),
+    ),
+  ),
+  KitOverflowScene(
+    const ['KitWebPreview'],
+    'default',
+    build: (_, c) => SizedBox(
+      height: 400,
+      child: KitWebPreview(
+        origin: Uri.parse('http://127.0.0.1:5173/'),
+        controller: KitWebPreviewController(),
+        supported: false,
+        onLeave: (_) {},
+        unsupportedAction: KitAction(
+          label: c.t('Open in the browser', 'فتح في المتصفح'),
+          onPressed: _noop,
+        ),
+      ),
+    ),
+  ),
+  // A very long address with no spaces, the case the sheet exists for.
+  KitOverflowScene(
+    const ['showKitTerminalLinkSheet'],
+    'default',
+    host: KitOverflowHost.modal,
+    open: (context, _) => showKitTerminalLinkSheet(
+      context,
+      'https://claude.com/cai/oauth/authorize?code=true&client_id='
+      '9d1c250a-e61b-44d9-88ed-5944d1962f5e&response_type=code&redirect_uri='
+      'https%3A%2F%2Fplatform.claude.com%2Foauth%2Fcode%2Fcallback&scope='
+      'org%3Acreate_api_key+user%3Aprofile+user%3Ainference',
+    ),
+  ),
 ];
 
 Iterable<KitOverflowScene> _testsDScenes(List<KitOverflowScene> scenes) =>

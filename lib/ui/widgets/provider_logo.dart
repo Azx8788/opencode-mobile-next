@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../../domain/provider_logo_store.dart';
-import '../../api/provider_presentation.dart';
+import '../../domain/provider_presentation.dart';
 import '../app_theme.dart';
 import '../kit/kit_image.dart';
 

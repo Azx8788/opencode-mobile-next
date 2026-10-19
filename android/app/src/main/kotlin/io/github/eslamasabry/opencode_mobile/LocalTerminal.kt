@@ -225,7 +225,6 @@ class LocalTerminal private constructor(private val context: Context) {
         return synchronized(linux) {
             synchronized(this) {
                 check(linux.installed) { "Ubuntu is not installed in the app yet" }
-                linux.nameAndroidGroups()
                 val signIn = signInProfile?.let {
                     linux.agentSignInCommand(it, signInProgram ?: listOf("claude", "auth", "login", "--claudeai"))
                 }

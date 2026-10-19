@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
 
-import '../../api/models.dart';
+import '../../domain/models.dart';
 import 'session_title.dart';
 
 /// One session in the family the chat belongs to: the parent that delegated,

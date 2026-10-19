@@ -55,27 +55,23 @@ void main() {
     }
   });
 
-  test(
-    'iOS CI watches path dependencies and bundled policy/license assets',
-    () {
-      final workflow = File(
-        '.github/workflows/ios-quality.yml',
-      ).readAsStringSync();
-      for (final input in [
-        'packages/opencode_sdk/**',
-        'LICENSES/**',
-        'shorebird.yaml',
-        'PRIVACY.md',
-        'THIRD_PARTY_NOTICES.md',
-      ]) {
-        expect(
-          '- "$input"'.allMatches(workflow),
-          hasLength(2),
-          reason: '$input must be covered in both PR and push path filters',
-        );
-      }
-    },
-  );
+  test('iOS CI watches bundled policy and license assets', () {
+    final workflow = File(
+      '.github/workflows/ios-quality.yml',
+    ).readAsStringSync();
+    for (final input in [
+      'LICENSES/**',
+      'shorebird.yaml',
+      'PRIVACY.md',
+      'THIRD_PARTY_NOTICES.md',
+    ]) {
+      expect(
+        '- "$input"'.allMatches(workflow),
+        hasLength(2),
+        reason: '$input must be covered in both PR and push path filters',
+      );
+    }
+  });
 
   test(
     'all declared iOS app icons exist at exact size without an alpha channel',

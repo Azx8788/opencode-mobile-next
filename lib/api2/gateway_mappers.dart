@@ -1,13 +1,13 @@
 /// Pure mapping functions from OpenCode 2 wire types (`lib/api2/models.dart`)
 /// onto the app's protocol-neutral domain value classes
 /// (`lib/domain/server_gateway.dart` + the v1-shaped classes in
-/// `lib/api/models.dart` that the UI renders).
+/// `lib/domain/models.dart` that the UI renders).
 ///
 /// Everything in here is side-effect free so it can be unit tested against
 /// the captured fixtures in `test/fixtures/api2/`.
 library;
 
-import '../api/models.dart';
+import '../domain/models.dart';
 import '../domain/server_gateway.dart';
 import 'models.dart';
 import 'transport.dart';
@@ -39,6 +39,10 @@ import 'transport.dart';
 ///   reset, legacy question requests — replaced by forms, wired in a later
 ///   slice).
 const ServerCapabilities api2ServerCapabilities = ServerCapabilities(
+  scheduledPrompts: true,
+  // `POST /api/shell` (protocol notes §10, contracts beta-18600): the Git
+  // page runs git with the server's own sign-in. Not yet proven live.
+  remoteShell: true,
   promptSteering: true,
   // Stable 2.0.29 permission contract; the native engine independently probes
   // the running version, operations and effective policy before execution.

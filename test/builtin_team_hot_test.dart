@@ -1,9 +1,8 @@
 // AI Team starts fast on a phone (docs/qa/team-hot-2026-09-26): an agent's
 // cold OpenCode start is given time instead of being cut off and started
 // again, a team made by an earlier version gets that on its next start,
-// the agents' `opencode` skips the per-folder npm install and the model
-// list fetch, and the supervisor's own start lines are read back.
-import 'dart:convert';
+// the agents use OpenCode 2 without fetching models again or changing project
+// package files, and the supervisor's own start lines are read back.
 import 'dart:io';
 
 import 'package:flutter/services.dart';
@@ -146,7 +145,7 @@ void main() {
       // A git folder already, so the worktree step is skipped.
       Directory('$worktree/.git').createSync();
       // The real OpenCode stands in as a program that says how it was run.
-      fake = '${root.path}/opencode';
+      fake = '${root.path}/opencode2';
       File(fake).writeAsStringSync(
         '#!/bin/sh\n'
         'echo "args=\$*"\n'
@@ -156,7 +155,7 @@ void main() {
       wrapper = '${root.path}/wrapper';
       File(wrapper).writeAsStringSync(
         AiTeamScripts.agentWrapperScript.replaceAll(
-          '/usr/local/bin/opencode',
+          '/usr/local/bin/opencode2',
           fake,
         ),
       );
@@ -164,16 +163,6 @@ void main() {
     });
 
     tearDown(() => root.deleteSync(recursive: true));
-
-    void serverHasPlugin(String version) {
-      final plugin = Directory(
-        '$home/.config/opencode/node_modules/@opencode-ai/plugin',
-      )..createSync(recursive: true);
-      File('${plugin.path}/package.json').writeAsStringSync(
-        '{\n  "name": "@opencode-ai/plugin",\n  "version": "$version",\n'
-        '  "type": "module"\n}\n',
-      );
-    }
 
     ProcessResult run() => Process.runSync(
       wrapper,
@@ -183,59 +172,33 @@ void main() {
       includeParentEnvironment: false,
     );
 
-    /// OpenCode 1.18's own rule (packages/core/src/npm.ts, Npm.install):
-    /// no install when `node_modules` exists and every declared package is
-    /// in `package-lock.json`'s root.
-    bool openCodeSkipsInstall(String dir) {
-      if (!Directory('$dir/node_modules').existsSync()) return false;
-      final pkg =
-          jsonDecode(File('$dir/package.json').readAsStringSync()) as Map;
-      final lock =
-          jsonDecode(File('$dir/package-lock.json').readAsStringSync()) as Map;
-      final declared = {
-        ...((pkg['dependencies'] as Map?) ?? const {}).keys,
-        '@opencode-ai/plugin',
-      };
-      final locked =
-          (((lock['packages'] as Map)[''] as Map)['dependencies'] as Map).keys;
-      return declared.every(locked.contains);
-    }
-
-    test('a new work folder uses the server\'s plugin package instead of '
-        'installing it, and the model list is not fetched again', () {
-      serverHasPlugin('1.18.29');
-      final result = run();
-      expect(result.exitCode, 0, reason: '${result.stderr}');
-      expect('${result.stdout}', contains('args=acp'));
-      expect('${result.stdout}', contains('models_fetch_off=1'));
-      final dir = '$worktree/.opencode';
-      expect(
-        Link('$dir/node_modules').targetSync(),
-        '$home/.config/opencode/node_modules',
-      );
-      expect(
-        File('$dir/node_modules/@opencode-ai/plugin/package.json').existsSync(),
-        isTrue,
-      );
-      expect(
-        (jsonDecode(File('$dir/package.json').readAsStringSync())
-            as Map)['dependencies'],
-        {'@opencode-ai/plugin': '1.18.29'},
-      );
-      expect(openCodeSkipsInstall(dir), isTrue);
-      // None of it is ever committed by the agent.
-      expect(
-        File('$dir/.gitignore').readAsLinesSync(),
-        containsAll(['node_modules', 'package.json', 'package-lock.json']),
-      );
-      // The next start finds it and leaves it alone.
-      final lock = File('$dir/package-lock.json').readAsStringSync();
-      expect(run().exitCode, 0);
-      expect(File('$dir/package-lock.json').readAsStringSync(), lock);
-    });
+    test(
+      'launches OpenCode 2 without fetching models or rewriting packages',
+      () {
+        final result = run();
+        expect(result.exitCode, 0, reason: '${result.stderr}');
+        expect('${result.stdout}', contains('args=acp'));
+        expect('${result.stdout}', contains('models_fetch_off=1'));
+        expect(File('$worktree/.opencode/package.json').existsSync(), isFalse);
+        expect(
+          File('$worktree/.opencode/package-lock.json').existsSync(),
+          isFalse,
+        );
+        expect(
+          FileSystemEntity.typeSync(
+            '$worktree/.opencode/node_modules',
+            followLinks: false,
+          ),
+          FileSystemEntityType.notFound,
+        );
+        expect(
+          File('$worktree/.opencode/plugins/gascity.js').readAsStringSync(),
+          'export default {}\n',
+        );
+      },
+    );
 
     test('a project\'s own .opencode with a package.json is not touched', () {
-      serverHasPlugin('1.18.29');
       const own = '{"dependencies": {"left-pad": "1.3.0"}}\n';
       File('$worktree/.opencode/package.json').writeAsStringSync(own);
       final result = run();
@@ -251,20 +214,6 @@ void main() {
       expect(
         File('$worktree/.opencode/package-lock.json').existsSync(),
         isFalse,
-      );
-    });
-
-    test('without the server\'s package OpenCode installs as before', () {
-      final result = run();
-      expect(result.exitCode, 0, reason: '${result.stderr}');
-      expect('${result.stdout}', contains('args=acp'));
-      expect(File('$worktree/.opencode/package.json').existsSync(), isFalse);
-      expect(
-        FileSystemEntity.typeSync(
-          '$worktree/.opencode/node_modules',
-          followLinks: false,
-        ),
-        FileSystemEntityType.notFound,
       );
     });
 

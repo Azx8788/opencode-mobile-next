@@ -9,15 +9,6 @@ bool _isLoopbackUrl(String value) {
   return uri != null && isLoopbackHost(uri.host);
 }
 
-OpenCodeApi _createApi(ServerProfile profile) => OpenCodeApi(
-  baseUrl: profile.baseUrl,
-  username: profile.username,
-  password: profile.password,
-);
-
-ProductRepository _createRepository(OpenCodeApi api) =>
-    SdkProductRepository(api.sdkClient);
-
 /// Production wiring for an OpenCode 2 profile: one Basic-auth transport
 /// and client shared by both gateway halves. Direct OC2 uses `opencode`;
 /// an authenticated BYO tunnel uses its per-phone identity at the proxy.
@@ -28,6 +19,11 @@ _createV2GatewayPair(ServerProfile profile) {
     baseUrl: profile.baseUrl,
     password: profile.password,
     username: profile.transientTransport ? profile.username : 'opencode',
+    cleartextConfirmedOrigin: profile.cleartextConfirmedOrigin,
+    certificatePinSha256:
+        profile.certificatePinOrigin == cleartextOriginOf(profile.baseUrl)
+        ? profile.certificatePinSha256
+        : null,
   );
   return (
     gateway: Api2Gateway(client: client),
@@ -55,29 +51,26 @@ _createPaseoGatewayPair(ServerProfile profile) {
   return (gateway: gateway, operations: gateway);
 }
 
-EventStream _createEventStream({
-  required OpenCodeApi api,
+LiveEventChannel _createEventStream({
+  required ServerGateway api,
   required void Function(EventEnvelope event) onEvent,
   required void Function(StreamStatus status) onStatus,
   void Function(Object error)? onError,
-}) => EventStream(
-  api: api,
+}) => api.openEventChannel(
   onEvent: onEvent,
   onStatus: onStatus,
   onError: onError,
 );
 
-EventStream _createGlobalEventStream({
-  required OpenCodeApi api,
+LiveEventChannel _createGlobalEventStream({
+  required ServerGateway api,
   required void Function(EventEnvelope event) onEvent,
   required void Function(StreamStatus status) onStatus,
   void Function(Object error)? onError,
-}) => EventStream(
-  api: api,
+}) => api.openGlobalEventChannel(
   onEvent: onEvent,
   onStatus: onStatus,
   onError: onError,
-  global: true,
 );
 
 bool _suggestsWrongFlavor(Object error) =>
@@ -109,8 +102,28 @@ mixin _ConnectionControllerConnect on ChangeNotifier {
     bool redetectOnFailure = true,
   }) => _self._connect(profile, redetectOnFailure: redetectOnFailure);
 
+  /// Legacy managed data must be imported before any transport can run.
+  bool get managedOpenCode2MigrationRequired {
+    final owner = _connectedProfile ?? _self.profile;
+    return owner != null &&
+        (owner.requiresOpenCode2Migration || owner.openCode2HistoryPending) &&
+        owner.backend == ServerBackend.openCode &&
+        (TermuxBridge.managesServerUrl(owner.baseUrl) ||
+            BuiltinLinux.managesServerUrl(owner.baseUrl));
+  }
+
   bool get managedRuntimeMismatch =>
       _self.lastError == ConnectionController.managedRuntimeMismatchMessage;
+
+  /// Confirms the copied history before the phone can leave upgrade mode.
+  /// A failed/unknown response retains the durable pending marker.
+  Future<bool> confirmManagedOpenCode2Migration({
+    Duration timeout = const Duration(minutes: 3),
+    Duration pollInterval = const Duration(seconds: 1),
+  }) => _self._confirmManagedOpenCode2Migration(
+    timeout: timeout,
+    pollInterval: pollInterval,
+  );
 
   /// Prepares the app-owned local server for an explicitly confirmed runtime
   /// switch. This checks work observed by this app, not server-wide idleness.
@@ -125,17 +138,22 @@ mixin _ConnectionControllerConnect on ChangeNotifier {
   /// Capabilities for setup, including profiles that are not connected yet.
   /// A live gateway is authoritative only for the exact selected profile.
   ServerCapabilities serverCapabilitiesFor(ServerProfile candidate) {
+    // An OC2 health response does not prove the copied conversations finished
+    // importing. Setup must not start AI Team before that durable proof.
+    if (candidate.backend == ServerBackend.openCode &&
+        (candidate.requiresOpenCode2Migration ||
+            candidate.openCode2HistoryPending) &&
+        (BuiltinLinux.managesServerUrl(candidate.baseUrl) ||
+            TermuxBridge.managesServerUrl(candidate.baseUrl))) {
+      return const ServerCapabilities();
+    }
     if (_connectedProfile?.id == candidate.id && _self.api != null) {
       return _self.api!.capabilities;
     }
     if (candidate.backend != ServerBackend.openCode) {
       return const ServerCapabilities();
     }
-    return switch (candidate.flavor) {
-      ServerFlavor.v1 => ServerCapabilities.allV1,
-      ServerFlavor.v2 => api2ServerCapabilities,
-      _ => const ServerCapabilities(),
-    };
+    return api2ServerCapabilities;
   }
 
   /// Marks [profile] as the connected one without a transport, so tests can
@@ -154,6 +172,11 @@ mixin _ConnectionControllerConnect on ChangeNotifier {
   Future<ServerGateway?> prepareActionTransport() =>
       _self._prepareActionTransport();
 
+  /// Call after asynchronous preparation, immediately before starting work.
+  /// A schedule-owned phone process must stay bounded to its own run.
+  Future<void> ensureInteractiveSendAllowed({ServerGateway? expectedApi}) =>
+      _self._ensureInteractiveSendAllowed(expectedApi: expectedApi);
+
   /// Returns the product repository paired with the wake-reconciled API.
   ///
   /// Retained screens must resolve this after [prepareActionTransport]
@@ -163,6 +186,40 @@ mixin _ConnectionControllerConnect on ChangeNotifier {
 }
 
 extension _ConnectionControllerConnectImpl on ConnectionController {
+  Future<void> _ensureInteractiveSendAllowed({
+    ServerGateway? expectedApi,
+  }) async {
+    final transport = expectedApi ?? api;
+    final owner = _connectedProfile ?? profile;
+    bool current() =>
+        !_disposed &&
+        identical(api, transport) &&
+        (_connectedProfile ?? profile)?.id == owner?.id &&
+        (_connectedProfile ?? profile)?.baseUrl == owner?.baseUrl;
+    if (!current()) {
+      throw const ProductException(
+        'The connection changed. Reopen the session and try again.',
+      );
+    }
+    await _ensureScheduledPhoneSendAllowed(owner);
+    if (!current()) {
+      throw const ProductException(
+        'The connection changed. Reopen the session and try again.',
+      );
+    }
+  }
+
+  Future<void> _ensureScheduledPhoneSendAllowed(ServerProfile? owner) async {
+    if (!looksLikeInAppServer(owner)) return;
+    final bool active;
+    try {
+      active = await const ScheduledPromptsPlatform().activePhoneLease();
+    } catch (_) {
+      throw ProductException(_shellStrings().schedulePhoneCheckFailed);
+    }
+    if (active) throw ProductException(_shellStrings().schedulePhoneBusy);
+  }
+
   String _profilesSignature() => [
     for (final profile in store.profiles)
       '${profile.id}\u0000${profile.name}\u0000${profile.flavor.name}'
@@ -194,9 +251,7 @@ extension _ConnectionControllerConnectImpl on ConnectionController {
     );
   }
 
-  /// Constructs the transport pair for [profile]'s cached flavor. The two
-  /// v1 factories stay the injected test seams; v2 goes through
-  /// [_v2GatewayFactory].
+  /// Constructs one transport and operations pair for the selected backend.
   ({ServerGateway gateway, ServerOperationsGateway operations})
   _buildTransportPair(ServerProfile profile) {
     if (isIsolated) {
@@ -210,28 +265,29 @@ extension _ConnectionControllerConnectImpl on ConnectionController {
     if (profile.backend == ServerBackend.paseo) {
       return _paseoGatewayFactory(profile);
     }
-    if (profile.flavor == ServerFlavor.v2) {
-      final pair = _v2GatewayFactory(profile);
-      final v2Api = pair.gateway;
-      if (v2Api is Api2Gateway &&
-          BuiltinLinux.managesServerUrl(profile.baseUrl)) {
-        v2Api.beforeSessionDispatch = (id) =>
-            _beforePhoneChatDispatch(profile, v2Api, id);
-        v2Api.sessionDispatchSettled = (id) {
-          if (identical(api, v2Api)) _phoneChatDispatchSettled(id);
-        };
-      }
-      return pair;
+    final injected = _apiFactory;
+    final ({ServerGateway gateway, ServerOperationsGateway operations}) pair;
+    if (injected != null) {
+      final gateway = injected(profile);
+      pair = (
+        gateway: gateway,
+        operations:
+            _repositoryFactory?.call(gateway) ??
+            _v2GatewayFactory(profile).operations,
+      );
+    } else {
+      pair = _v2GatewayFactory(profile);
     }
-    final v1Api = _apiFactory(profile);
-    if (BuiltinLinux.managesServerUrl(profile.baseUrl)) {
-      v1Api.beforeSessionDispatch = (id) =>
-          _beforePhoneChatDispatch(profile, v1Api, id);
-      v1Api.sessionDispatchSettled = (id) {
-        if (identical(api, v1Api)) _phoneChatDispatchSettled(id);
+    final gateway = pair.gateway;
+    if (gateway is Api2Gateway &&
+        BuiltinLinux.managesServerUrl(profile.baseUrl)) {
+      gateway.beforeSessionDispatch = (id) =>
+          _beforePhoneChatDispatch(profile, gateway, id);
+      gateway.sessionDispatchSettled = (id) {
+        if (identical(api, gateway)) _phoneChatDispatchSettled(id);
       };
     }
-    return (gateway: v1Api, operations: _repositoryFactory(v1Api));
+    return pair;
   }
 
   /// The body of [connect].
@@ -261,6 +317,33 @@ extension _ConnectionControllerConnectImpl on ConnectionController {
     if (_connectedProfile?.id != profile.id) _resetTurnStalls();
     if (isIsolated) {
       throw StateError('An isolated session cannot connect to a server.');
+    }
+    if (profile.requiresOpenCode2Migration &&
+        profile.backend == ServerBackend.openCode &&
+        (TermuxBridge.managesServerUrl(profile.baseUrl) ||
+            BuiltinLinux.managesServerUrl(profile.baseUrl))) {
+      final generation = _beginGeneration(
+        preserveConnectionAttempt: preserveConnectionAttempt,
+      );
+      _retireTransport();
+      _clearLocationData();
+      directory = null;
+      workspace = null;
+      locationRevision += 1;
+      passwordRejected = false;
+      _connectedProfile = profile;
+      status = StreamStatus.disconnected;
+      lastError = ConnectionController.managedRuntimeMismatchMessage;
+      lastFailure = null;
+      try {
+        await _writeActiveProfile(generation, profile.id);
+      } catch (_) {
+        lastError =
+            'The move to OpenCode 2 could not be prepared safely. '
+            'Your existing conversations have not been changed. Try again.';
+      }
+      if (!_disposed && generation == _generation) _notifyListeners();
+      return;
     }
     final previousProfile = _connectedProfile ?? this.profile;
     if (previousProfile != null &&
@@ -361,6 +444,18 @@ extension _ConnectionControllerConnectImpl on ConnectionController {
         throw ApiException('Server health check reported unhealthy');
       }
       _acceptRunningServerVersion(health.version);
+      // A remote owner upgrades their own server. Once OC2 health is proven,
+      // retire only its legacy metadata marker, without any phone-side import.
+      if (profile.requiresOpenCode2Migration &&
+          !BuiltinLinux.managesServerUrl(profile.baseUrl) &&
+          !TermuxBridge.managesServerUrl(profile.baseUrl)) {
+        profile.requiresOpenCode2Migration = false;
+        try {
+          await store.upsert(profile);
+        } catch (_) {
+          profile.requiresOpenCode2Migration = true;
+        }
+      }
     } catch (e) {
       if (!_isCurrent(generation, currentApi)) return;
       _noteAuthFailure(e);
@@ -433,11 +528,8 @@ extension _ConnectionControllerConnectImpl on ConnectionController {
     );
   }
 
-  /// What a connection without a saved folder loads: conversations and
-  /// waiting requests first, then the one-time provider runtime refresh and
-  /// the catalog, which only the model list needs (the refresh alone held
-  /// the phone's first connect for 7.5 s). OpenCode 1 answers on one
-  /// thread, so asking in this order keeps the small reads in front.
+  /// Loads conversations and waiting requests before the provider catalog,
+  /// keeping the first useful reads ahead of the slower model inventory.
   Future<void> _loadAfterConnect({
     required int generation,
     required ServerGateway currentApi,
@@ -470,8 +562,7 @@ extension _ConnectionControllerConnectImpl on ConnectionController {
         error is Api2AuthRequired ||
         (error is ApiException &&
             error.statusCode == 401 &&
-            (_connectedProfile?.flavor == ServerFlavor.v2 ||
-                (_connectedProfile?.usesAgentSocket ?? false)))) {
+            _connectedProfile != null)) {
       passwordRejected = true;
       final rejectedProfile = _connectedProfile;
       if (rejectedProfile?.usesAgentSocket ?? false) {
@@ -487,11 +578,28 @@ extension _ConnectionControllerConnectImpl on ConnectionController {
   Future<ServerProbeResult?> _redetectFlavor(ServerProfile profile) async {
     if (profile.usesAgentSocket) return null;
     try {
-      final result = await serverProbe(
+      final result = await probeTrustedServerConnection(
         baseUrl: profile.baseUrl,
         username: profile.username,
         password: profile.password,
+        cleartextConfirmedOrigin: profile.cleartextConfirmedOrigin,
+        certificatePinSha256:
+            profile.certificatePinOrigin == cleartextOriginOf(profile.baseUrl)
+            ? profile.certificatePinSha256
+            : null,
       );
+      if (result.unsupportedLegacy) {
+        passwordRejected = false;
+        if (BuiltinLinux.managesServerUrl(profile.baseUrl) ||
+            TermuxBridge.managesServerUrl(profile.baseUrl)) {
+          profile.requiresOpenCode2Migration = true;
+          await store.upsert(profile);
+          return const ServerProbeResult.failure(
+            ConnectionController.managedRuntimeMismatchMessage,
+          );
+        }
+        return result;
+      }
       final detected = result.flavor;
       if (detected == ServerFlavor.unknown || detected == profile.flavor) {
         return null;
@@ -517,12 +625,58 @@ extension _ConnectionControllerConnectImpl on ConnectionController {
     }
   }
 
+  Future<bool> _confirmManagedOpenCode2Migration({
+    required Duration timeout,
+    required Duration pollInterval,
+  }) async {
+    final owner = _connectedProfile ?? profile;
+    if (owner == null || owner.requiresOpenCode2Migration) return false;
+    if (!owner.openCode2HistoryPending) return true;
+    final operations = repository;
+    if (operations is! HistoryMigrationGateway) return false;
+    final reporter = operations as HistoryMigrationGateway;
+    final generation = _generation;
+    final watch = Stopwatch()..start();
+    while (!_disposed &&
+        generation == _generation &&
+        _connectedProfile?.id == owner.id &&
+        watch.elapsed <= timeout) {
+      try {
+        final result = await reporter.historyMigrationStatus().timeout(
+          const Duration(seconds: 15),
+        );
+        if (_disposed || generation != _generation) return false;
+        if (result?.phase == HistoryMigrationPhase.completed) {
+          owner.openCode2HistoryPending = false;
+          try {
+            await store.upsert(owner);
+          } catch (_) {
+            owner.openCode2HistoryPending = true;
+            return false;
+          }
+          _notifyListeners();
+          unawaited(flushOfflineQueue());
+          return true;
+        }
+        if (result == null || result.phase == HistoryMigrationPhase.error) {
+          return false;
+        }
+      } catch (_) {
+        return false;
+      }
+      if (watch.elapsed >= timeout) return false;
+      await Future<void>.delayed(pollInterval);
+    }
+    return false;
+  }
+
   /// The body of [prepareManagedRuntimeSwitch].
   Future<void> _prepareManagedRuntimeSwitch() async {
     bool isManagedLocal(ServerProfile? value) =>
         value != null &&
         value.backend == ServerBackend.openCode &&
-        TermuxBridge.managesServerUrl(value.baseUrl);
+        (TermuxBridge.managesServerUrl(value.baseUrl) ||
+            BuiltinLinux.managesServerUrl(value.baseUrl));
 
     Set<String> managedIDs() => {
       for (final value in store.profiles)
@@ -663,6 +817,12 @@ extension _ConnectionControllerConnectImpl on ConnectionController {
     // reload that follows a wake keeps running behind it.
     await (_lifecycleTransportReady ?? resume);
     if (_disposed || _lifecycleSuspended) return null;
+    if (managedOpenCode2MigrationRequired) {
+      throw ApiException(
+        'Your conversations are still being moved to OpenCode 2. '
+        'Wait for the move to finish before sending.',
+      );
+    }
     final owner = _connectedProfile;
     if (owner != null && BuiltinLinux.managesServerUrl(owner.baseUrl)) {
       try {

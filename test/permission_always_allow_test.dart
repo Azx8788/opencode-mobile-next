@@ -5,8 +5,8 @@ import 'support/complete_message_history.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
 import 'package:opencode_mobile/codex/gateway.dart'
     show codexServerCapabilities;
 import 'package:opencode_mobile/domain/server_gateway.dart';
@@ -15,7 +15,7 @@ import 'package:opencode_mobile/state/profiles.dart';
 import 'package:opencode_mobile/ui/screens/chat_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class _FakeOpenCodeApi extends OpenCodeApi with CompleteMessageHistory {
+class _FakeOpenCodeApi extends FakeServerGateway with CompleteMessageHistory {
   _FakeOpenCodeApi({this.noStandingGrants = false})
     : super(baseUrl: 'http://localhost');
 

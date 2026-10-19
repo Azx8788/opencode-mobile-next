@@ -8,10 +8,10 @@ import 'package:flutter/semantics.dart' show CustomSemanticsAction;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:opencode_mobile/ui/kit/kit.dart';
@@ -21,7 +21,7 @@ import 'package:opencode_mobile/ui/widgets/tool_card.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class _TranscriptApi extends OpenCodeApi with CompleteMessageHistory {
+class _TranscriptApi extends FakeServerGateway with CompleteMessageHistory {
   _TranscriptApi() : super(baseUrl: 'http://localhost');
 
   List<MessageWithParts> Function()? messagesBuilder;

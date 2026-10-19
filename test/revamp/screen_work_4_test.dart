@@ -1,3 +1,4 @@
+import '../support/fake_server_capabilities.dart';
 // Behaviour of screen-work-4's rebuilt pages (wave 2b): Projects with its
 // row menu and in-dialog rename, and the isolated task sheet's staged wait.
 // Development services has its own file (test/development_services_screen_
@@ -6,7 +7,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -92,7 +93,7 @@ class ProjectsController extends ConnectionController {
   String? failSwitch;
 
   @override
-  ServerCapabilities get capabilities => ServerCapabilities.allV1;
+  ServerCapabilities get capabilities => testServerCapabilities;
 
   @override
   Future<ServerOperationsGateway?> prepareActionRepository() async => projects;

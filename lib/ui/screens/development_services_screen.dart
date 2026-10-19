@@ -3,12 +3,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../domain/dev_preview.dart';
 import '../../domain/development_service.dart';
 import '../../domain/server_gateway.dart';
 import '../../feedback/bug_report.dart' show openFailedJobReport;
 import '../../l10n/app_localizations.dart';
 import '../../state/connection.dart';
 import '../../state/development_service_store.dart';
+import '../../state/detected_dev_servers.dart';
+import '../../state/dev_server_scan.dart';
 import '../../state/development_services.dart';
 import '../app_theme.dart';
 import '../kit/kit_buttons.dart';
@@ -17,7 +20,9 @@ import '../kit/kit_icon_button.dart';
 import '../kit/kit_log_panel.dart';
 import '../kit/kit_notice.dart';
 import '../kit/kit_row.dart';
+import '../kit/kit_redact.dart';
 import '../kit/kit_row_parts.dart';
+import '../kit/kit_section_label.dart';
 import '../kit/kit_screen.dart';
 import '../kit/kit_sheet.dart';
 import '../kit/kit_state_view.dart';
@@ -28,6 +33,8 @@ import '../kit/kit_top_bar.dart';
 import '../kit/kit_undo.dart';
 import '../kit/motion/kit_refresh.dart';
 import '../widgets/external_link.dart';
+import 'dev_preview_screen.dart';
+import 'dev_server_logs.dart';
 import '../widgets/product_states.dart' show productErrorText;
 
 /// Development services (map pages `development-services`, `-editor-sheet`,
@@ -38,8 +45,16 @@ import '../widgets/product_states.dart' show productErrorText;
 /// Stop, Restart and Forget ask first; Remove offers Undo unless a command
 /// may still be running, when it asks and says so.
 class DevelopmentServicesScreen extends StatefulWidget {
-  const DevelopmentServicesScreen({super.key, required this.controller});
+  const DevelopmentServicesScreen({
+    super.key,
+    required this.controller,
+    this.runOnPhone,
+  });
   final ConnectionController controller;
+
+  /// Test seam: runs a script in the in-app Linux. Null uses the phone
+  /// itself when the connected server is the phone, else nothing.
+  final Future<PhoneRunResult> Function(String script)? runOnPhone;
 
   @override
   State<DevelopmentServicesScreen> createState() =>
@@ -51,6 +66,8 @@ class _DevelopmentServicesScreenState extends State<DevelopmentServicesScreen>
   late final Object _scope;
   late final String _profileID;
   late final DevelopmentServices _model;
+  late final DetectedDevServers _detected;
+  int _ticks = 0;
   bool _invalid = false;
   bool _foreground = true;
   Timer? _timer;
@@ -103,7 +120,16 @@ class _DevelopmentServicesScreenState extends State<DevelopmentServicesScreen>
         return gateway;
       },
     );
+    _detected = detectedDevServersFor(
+      connection,
+      isCurrent: () => _current && _foreground,
+      runOnPhone: widget.runOnPhone,
+      ownedShellIds: () => {
+        for (final service in _model.services) ?service.run?.shellID,
+      },
+    );
     _model.addListener(_changed);
+    _detected.addListener(_changed);
     connection.addListener(_connectionChanged);
     WidgetsBinding.instance.addObserver(this);
     scheduleMicrotask(_refresh);
@@ -112,7 +138,10 @@ class _DevelopmentServicesScreenState extends State<DevelopmentServicesScreen>
 
   void _armTimer() {
     _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 5), (_) => _refresh());
+    _timer = Timer.periodic(
+      const Duration(seconds: 5),
+      (_) => _refresh(force: false),
+    );
   }
 
   void _changed() {
@@ -124,18 +153,24 @@ class _DevelopmentServicesScreenState extends State<DevelopmentServicesScreen>
       _invalid = true;
       _timer?.cancel();
       _model.invalidateRuntime();
+      _detected.invalidate();
     } else if (_connectionRevision != widget.controller.connectionRevision ||
         _status != widget.controller.status) {
       _connectionRevision = widget.controller.connectionRevision;
       _status = widget.controller.status;
       _model.invalidateRuntime();
+      _detected.invalidate();
       if (_status == StreamStatus.connected) scheduleMicrotask(_refresh);
     }
     _changed();
   }
 
-  Future<void> _refresh() async {
-    if (_current && _foreground) await _model.refresh();
+  Future<void> _refresh({bool force = true}) async {
+    if (!(_current && _foreground)) return;
+    await _model.refresh();
+    // Looking for servers started some other way costs a script on the
+    // phone, so the timer does it every other tick.
+    if ((force || _ticks++ % 2 == 0) && _current) await _detected.refresh();
   }
 
   @override
@@ -156,6 +191,8 @@ class _DevelopmentServicesScreenState extends State<DevelopmentServicesScreen>
     WidgetsBinding.instance.removeObserver(this);
     widget.controller.removeListener(_connectionChanged);
     _model.removeListener(_changed);
+    _detected.removeListener(_changed);
+    _detected.dispose();
     _model.dispose();
     super.dispose();
   }
@@ -338,6 +375,243 @@ class _DevelopmentServicesScreenState extends State<DevelopmentServicesScreen>
     if (_current) unawaited(openExternalLink(context, service.url));
   }
 
+  // --- Preview and ports --------------------------------------------------
+
+  /// Ports a saved command that is running listens on: the ones its own
+  /// output printed, and the one in its address.
+  List<int> _savedPorts(DevelopmentService service) {
+    if (!_isRunning(service)) return const [];
+    final ports = <int>{};
+    if (service.run?.shellID case final id?) {
+      ports.addAll(_detected.portsForShell(id));
+    }
+    final uri = Uri.tryParse(service.url);
+    if (uri != null && uri.hasPort && uri.port > 0 && uri.port < 65536) {
+      ports.add(uri.port);
+    }
+    return ports.toList()..sort();
+  }
+
+  Future<void> _preview(int port, {VoidCallback? onLogs}) {
+    final profile = widget.controller.profile;
+    return openDevPreview(
+      context,
+      DevPreviewLink(port: port),
+      serverBaseUrl: profile?.baseUrl,
+      leased: profile?.transientTransport ?? false,
+      onLogs: onLogs,
+    );
+  }
+
+  Widget? _pair(Widget? first, Widget? second) {
+    if (first == null) return second;
+    if (second == null) return first;
+    return Row(mainAxisSize: MainAxisSize.min, children: [first, second]);
+  }
+
+  Widget _previewButton(String name, int port, {VoidCallback? onLogs}) =>
+      KitIconButton(
+        key: ValueKey('development-service-preview-$port'),
+        icon: AppIconography.browser,
+        tooltip: _l10n.servicesOpenPreviewNamed(name),
+        onPressed: () => unawaited(_preview(port, onLogs: onLogs)),
+      );
+
+  // --- Servers found running ------------------------------------------------
+
+  Future<void> _stopFound(DetectedServer server) async {
+    if (!_current) return;
+    final l = _l10n;
+    await showKitConfirm(
+      context,
+      title: l.servicesStopFoundTitle(_foundName(server)),
+      body: l.servicesStopFoundHint,
+      confirmLabel: l.servicesStopConfirm,
+      kind: KitConfirmKind.stop,
+      icon: AppIconography.stop,
+      confirmKey: const ValueKey('development-services-confirm'),
+      action: () => _detected.stop(server),
+    );
+  }
+
+  String _foundName(DetectedServer server) {
+    if (server.name.isNotEmpty) return KitRedact.text(server.name);
+    final port = server.firstPort;
+    return port == null
+        ? KitRedact.text(server.command)
+        : _l10n.devPreviewPortTitle('$port');
+  }
+
+  /// A command line may carry a token or password in its arguments: it is
+  /// shown masked, and a command that needed masking is never saved (the
+  /// store is plain preferences).
+  bool _hasSecret(DetectedServer server) =>
+      KitRedact.text(server.command) != server.command;
+
+  void _foundLogs(DetectedServer server) {
+    if (!_current) return;
+    final l = _l10n;
+    final running = !server.canStop
+        ? null
+        : KitAction(
+            label: l.servicesStop,
+            icon: AppIconography.stop,
+            onPressed: () {
+              Navigator.of(context).pop();
+              unawaited(_stopFound(server));
+            },
+          );
+    unawaited(
+      showDevServerLogs(
+        context,
+        title: _foundName(server),
+        read: () => _detected.readLog(server),
+        unavailable: server.hasLogs ? null : l.servicesLogsUnavailable,
+        primary: running,
+      ),
+    );
+  }
+
+  bool _alreadySaved(DetectedServer server) =>
+      _model.services.any((s) => s.command.trim() == server.command.trim());
+
+  Future<void> _saveFound(DetectedServer server) async {
+    if (!_canRegister || !server.canSave) return;
+    final taken = {
+      for (final s in _model.services) s.name.trim().toLowerCase(),
+    };
+    var name = _foundName(server);
+    if (name.length > 70) name = name.substring(0, 70);
+    var candidate = name;
+    for (var n = 2; taken.contains(candidate.toLowerCase()); n++) {
+      candidate = '$name $n';
+    }
+    final port = server.firstPort;
+    await _model.register(
+      DevelopmentService(
+        id: DevelopmentServices.newID(),
+        name: candidate,
+        command: server.command.trim(),
+        directory: _model.directory,
+        workspace: _model.workspace,
+        url: port == null ? '' : 'http://localhost:$port',
+      ),
+    );
+  }
+
+  List<KitMenuItem> _foundMenu(AppLocalizations l, DetectedServer server) {
+    return [
+      for (final port in server.ports)
+        KitMenuItem(
+          key: ValueKey('development-found-preview-$port'),
+          label: server.ports.length == 1
+              ? l.servicesOpenPreview
+              : l.servicesPreviewPort('$port'),
+          icon: AppIconography.browser,
+          onSelected: () =>
+              unawaited(_preview(port, onLogs: () => _foundLogs(server))),
+        ),
+      KitMenuItem(
+        key: ValueKey('development-found-logs-${server.id}'),
+        label: l.servicesLogs,
+        icon: AppIconography.text,
+        onSelected: () => _foundLogs(server),
+      ),
+      if (server.canStop)
+        KitMenuItem(
+          key: ValueKey('development-found-stop-${server.id}'),
+          label: l.servicesStop,
+          icon: AppIconography.stop,
+          onSelected: () => unawaited(_stopFound(server)),
+        ),
+      if (server.canSave && !_alreadySaved(server) && !_hasSecret(server))
+        KitMenuItem(
+          key: ValueKey('development-found-save-${server.id}'),
+          label: l.servicesSaveCommand,
+          icon: AppIconography.save,
+          enabled: _canRegister,
+          onSelected: () => unawaited(_saveFound(server)),
+        ),
+      if (server.command.isNotEmpty)
+        KitMenuItem.copy(
+          label: l.servicesCopy,
+          text: () => KitRedact.text(server.command),
+        ),
+    ];
+  }
+
+  Widget _foundRow(AppLocalizations l, DetectedServer server) {
+    final name = _foundName(server);
+    final menu = _foundMenu(l, server);
+    final port = server.firstPort;
+    final ports = server.ports.isEmpty
+        ? l.servicesNoPortYet
+        : l.servicesPorts(server.ports.length, server.ports.join(', '));
+    return KitRow(
+      key: ValueKey('development-found-${server.id}'),
+      leading: const KitRowIcon(AppIconography.processor, current: true),
+      title: name,
+      supporting: TextSpan(
+        children: [
+          TextSpan(text: l.servicesRunning),
+          TextSpan(text: ' · $ports'),
+        ],
+      ),
+      supportingMaxLines: 2,
+      below: server.command.isEmpty
+          ? null
+          : KitText.mono(KitRedact.text(server.command), cut: KitMonoCut.end),
+      trailing: _pair(
+        port == null
+            ? null
+            : _previewButton(name, port, onLogs: () => _foundLogs(server)),
+        server.canStop
+            ? KitIconButton(
+                key: ValueKey('development-found-stop-button-${server.id}'),
+                icon: AppIconography.stop,
+                tooltip: l.servicesStopNamed(name),
+                onPressed: () => unawaited(_stopFound(server)),
+              )
+            : null,
+      ),
+      menu: menu,
+      menuLabel: name,
+      onTap: () => _foundLogs(server),
+    );
+  }
+
+  List<Widget> _foundSection(AppLocalizations l, KitTokens tokens) {
+    final servers = _detected.servers;
+    final remote = !_detected.canScanProcesses;
+    // The look in Linux failed: said quietly, never an empty silence (N1-4).
+    final phoneFailed = !remote && _detected.scanned && _detected.error != null;
+    if (servers.isEmpty &&
+        !phoneFailed &&
+        !(remote && _detected.scanned && _supported)) {
+      return const [];
+    }
+    return [
+      if (servers.isNotEmpty) ...[
+        SizedBox(height: tokens.sectionGap),
+        KitSectionLabel(l.servicesAlsoRunning),
+        KitRowGroup(
+          margin: EdgeInsets.zero,
+          children: [for (final server in servers) _foundRow(l, server)],
+        ),
+      ],
+      SizedBox(height: tokens.space2),
+      KitText(
+        key: const ValueKey('development-services-also-hint'),
+        remote
+            ? l.servicesAlsoServerHint
+            : phoneFailed
+            ? l.servicesAlsoPhoneFailed
+            : l.servicesAlsoPhoneHint,
+        role: KitTextRole.secondary,
+      ),
+    ];
+  }
+
   // --- Logs ---------------------------------------------------------------
 
   static List<KitLogLine> _linesOf(String? text) {
@@ -448,25 +722,32 @@ class _DevelopmentServicesScreenState extends State<DevelopmentServicesScreen>
           ),
           SizedBox(height: tokens.space3),
         ],
-        KitLogPanel(
-          lines: lines,
-          title: l.servicesLogs,
-          live: status == DevelopmentServiceStatus.running,
-          ended: stopped ? KitLogEnd(exitCode: _model.exitCode(service)) : null,
-          emptyText: l.servicesLogEmpty,
-          onRefresh: stopped ? null : () => _model.readLogs(service.id),
-          // A failed run (nonzero exit, timeout, killed) is reported from
-          // the log it failed with (P8.4).
-          headerAction: _model.failedReport(service.id) == null
-              ? null
-              : KitAction(
-                  key: ValueKey('development-service-report-${service.id}'),
-                  label: l.failedJobReport,
-                  icon: AppIconography.bug,
-                  onPressed: _model.busy
-                      ? null
-                      : () => _report(context, service),
-                ),
+        SizedBox(
+          height: MediaQuery.sizeOf(context).height * .6,
+          child: KitLogPanel(
+            lines: lines,
+            size: KitLogSize.fill,
+            searchable: true,
+            title: l.servicesLogs,
+            live: status == DevelopmentServiceStatus.running,
+            ended: stopped
+                ? KitLogEnd(exitCode: _model.exitCode(service))
+                : null,
+            emptyText: l.servicesLogEmpty,
+            onRefresh: stopped ? null : () => _model.readLogs(service.id),
+            // A failed run (nonzero exit, timeout, killed) is reported from
+            // the log it failed with (P8.4).
+            headerAction: _model.failedReport(service.id) == null
+                ? null
+                : KitAction(
+                    key: ValueKey('development-service-report-${service.id}'),
+                    label: l.failedJobReport,
+                    icon: AppIconography.bug,
+                    onPressed: _model.busy
+                        ? null
+                        : () => _report(context, service),
+                  ),
+          ),
         ),
       ],
     );
@@ -580,6 +861,7 @@ class _DevelopmentServicesScreenState extends State<DevelopmentServicesScreen>
         SizedBox(height: tokens.space2),
         KitText(l.servicesStatusHint, role: KitTextRole.secondary),
       ],
+      ..._foundSection(l, tokens),
       SizedBox(height: tokens.sectionGap),
       KitDetailsFold(
         values: [
@@ -632,6 +914,20 @@ class _DevelopmentServicesScreenState extends State<DevelopmentServicesScreen>
           enabled: !_model.busy,
           onSelected: () => unawaited(_logs(service)),
         ),
+      for (final port in _savedPorts(service))
+        KitMenuItem(
+          key: ValueKey('development-service-menu-preview-$port'),
+          label: _savedPorts(service).length == 1
+              ? l.servicesOpenPreview
+              : l.servicesPreviewPort('$port'),
+          icon: AppIconography.browser,
+          onSelected: () => unawaited(
+            _preview(
+              port,
+              onLogs: tracked ? () => unawaited(_logs(service)) : null,
+            ),
+          ),
+        ),
       if (safeExternalLinkUri(service.url) != null)
         KitMenuItem(
           key: ValueKey('development-service-visit-${service.id}'),
@@ -668,7 +964,8 @@ class _DevelopmentServicesScreenState extends State<DevelopmentServicesScreen>
     final code = _model.exitCode(service);
     final menu = _menu(l, service, status);
     final tracked = service.run != null && !service.run!.stopped;
-    final Widget? trailing = _isRunning(service)
+    final ports = _savedPorts(service);
+    final Widget? action = _isRunning(service)
         ? KitIconButton(
             key: ValueKey('development-service-stop-${service.id}'),
             icon: AppIconography.stop,
@@ -683,6 +980,16 @@ class _DevelopmentServicesScreenState extends State<DevelopmentServicesScreen>
             onPressed: () => unawaited(_start(service)),
           )
         : null;
+    final Widget? trailing = _pair(
+      ports.isEmpty
+          ? null
+          : _previewButton(
+              service.name,
+              ports.first,
+              onLogs: tracked ? () => unawaited(_logs(service)) : null,
+            ),
+      action,
+    );
     return KitRow(
       key: ValueKey('development-service-${service.id}'),
       leading: KitRowIcon(AppIconography.processor, current: running),
@@ -692,6 +999,10 @@ class _DevelopmentServicesScreenState extends State<DevelopmentServicesScreen>
           TextSpan(text: _statusWord(l, status)),
           if (code != null && status == DevelopmentServiceStatus.stopped)
             TextSpan(text: ' · ${l.servicesExit(code)}'),
+          if (ports.isNotEmpty)
+            TextSpan(
+              text: ' · ${l.servicesPorts(ports.length, ports.join(', '))}',
+            ),
           TextSpan(text: ' · ${KitBidi.ltr(service.command)}'),
         ],
       ),

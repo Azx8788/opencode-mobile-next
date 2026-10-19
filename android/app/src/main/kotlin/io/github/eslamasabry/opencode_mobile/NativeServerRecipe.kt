@@ -9,7 +9,7 @@ internal data class NativeServerRecipe(
 ) {
     init {
         require(PROFILE.matches(profileId)) { SAFE_ERROR }
-        require(runtime == "openCode1" || runtime == "openCode2") { SAFE_ERROR }
+        require(runtime == "openCode2") { SAFE_ERROR }
         require(packageVersion > 0L) { SAFE_ERROR }
         require(ROOTFS.matches(rootfsGeneration)) { SAFE_ERROR }
     }
@@ -27,7 +27,7 @@ internal data class NativeServerRecipe(
 
     /** Only app-authored commands are reconstructed; the private password stays in Ubuntu. */
     fun restorationScript(): String {
-        val isolated = if (runtime == "openCode2") {
+        val isolated =
             "mkdir -p /root/.oc-opencode2/data/opencode /root/.oc-opencode2/cache " +
                 "/root/.oc-opencode2/state /root/.oc-opencode2/config/opencode\n" +
                 "unset OPENCODE_CONFIG OPENCODE_CONFIG_CONTENT\n" +
@@ -37,14 +37,18 @@ internal data class NativeServerRecipe(
                 "export XDG_CONFIG_HOME=/root/.oc-opencode2/config\n" +
                 "export OPENCODE_CONFIG_DIR=/root/.oc-opencode2/config/opencode\n" +
                 "export OPENCODE_DB=/root/.oc-opencode2/data/opencode/opencode.db\n"
-        } else ""
-        val binary = if (runtime == "openCode2") "opencode2" else "opencode"
+        val binary = "opencode2"
         return "set -eu\n" +
             "mkdir -p /root/projects\n" +
             "cd /root/projects\n" +
             "[ -s /root/.oc-builtin/server.password ] || { " +
             "echo '$SAFE_ERROR' >&2; exit 78; }\n" +
             isolated +
+            // A process death during the first history copy must return to the
+            // app's migration flow, never start OC2 with an empty database.
+            "if [ -e /root/.local/share/opencode/opencode.db ] && " +
+            "[ ! -f /root/.oc-opencode2/data/opencode/opencode.db ]; then " +
+            "echo 'Open the app to finish moving your conversations.' >&2; exit 74; fi\n" +
             "password=\$(cat /root/.oc-builtin/server.password)\n" +
             "export OPENCODE_SERVER_USERNAME=opencode\n" +
             "export OPENCODE_SERVER_PASSWORD=\"\$password\"\n" +

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import '../api/models.dart';
+import '../domain/models.dart';
 import '../diagnostics/perf_trace.dart';
 import '../domain/agent_catalog.dart';
 import '../domain/chat_feed.dart';
@@ -360,6 +360,8 @@ class PaseoChatFeedSource implements AgentChatFeedSource, ChatFeedChangeSource {
     String? modelId,
   }) async {
     _checkDirectory(directory);
+    String? startedDraft;
+    var started = false;
     try {
       final providers = await PerfTrace.span(
         'agent.start.providers',
@@ -377,6 +379,7 @@ class PaseoChatFeedSource implements AgentChatFeedSource, ChatFeedChangeSource {
         'agent.start.session',
         gateway.createSession,
       );
+      startedDraft = session.id;
       _checkDirectory(directory);
       gateway.seedDraftProviderForSession(session.id, provider);
       _draftProviders[session.id] = provider;
@@ -399,6 +402,7 @@ class PaseoChatFeedSource implements AgentChatFeedSource, ChatFeedChangeSource {
       _checkDirectory(directory);
       // The chat opens on a fresh gateway, which knows the agent only by the
       // daemon's id; a draft's app id is local to this gateway.
+      started = true;
       return gateway.daemonSessionId(session.id);
     } on ProductException {
       rethrow;
@@ -408,6 +412,15 @@ class PaseoChatFeedSource implements AgentChatFeedSource, ChatFeedChangeSource {
         'Could not start this chat. Refresh before trying again.',
         cause: error,
       );
+    } finally {
+      // A start that failed leaves no row. The text the person typed stays in
+      // the new-chat field, so nothing needs a draft row to keep it. A
+      // conversation the daemon already has is not a draft and is kept.
+      final draft = startedDraft;
+      if (!started && draft != null) {
+        gateway.discardDraftSession(draft);
+        _draftProviders.remove(draft);
+      }
     }
   }
 

@@ -1,3 +1,4 @@
+import 'scheduling/schedule_routes.dart';
 import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
@@ -17,15 +18,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import '../../api/models.dart';
-import '../../api/provider_presentation.dart';
-import '../../api/product_repository.dart';
-import '../../api/server_probe.dart' show ServerFlavor;
-import '../../api/sse.dart';
+import '../../domain/models.dart';
+import '../../domain/connection_status.dart' show ConnectionStatusPhase;
+import '../../domain/server_gateway.dart' show StreamStatus;
+import '../../domain/provider_presentation.dart';
+import '../../domain/product_repository.dart';
+
 import '../../domain/agent_catalog.dart' show AgentCatalog;
 import '../../domain/chat_feed.dart'
     show ChatFeedItem, isTemporaryProjectDirectory;
 import '../../domain/command_receipts.dart';
+import '../../domain/dev_preview.dart';
+import 'dev_preview_screen.dart';
+import 'dev_server_logs.dart';
+import '../../state/detected_dev_servers.dart';
+import '../../state/dev_server_scan.dart';
 import '../../domain/mobile_tool_view.dart';
 import '../../domain/model_display_name.dart';
 import '../../domain/prompt_attachment.dart';
@@ -225,6 +232,7 @@ part 'chat/question_sheet.dart';
 part 'chat/chat_commands.dart';
 part 'chat/chat_command_actions.dart';
 part 'chat/chat_session_menu.dart';
+part 'chat/chat_dev_preview.dart';
 part 'chat/chat_top_bar.dart';
 part 'chat/chat_transcript.dart';
 part 'chat/chat_composer_region.dart';
@@ -431,7 +439,7 @@ class _ChatScreenState extends State<ChatScreen>
     // A watched session is someone else's: no draft of the person's.
     if (!_conn.isIsolated && !_watching && widget.initialText.isEmpty) {
       final draft = _conn.sessionDraft(widget.sessionID);
-      if (draft != null) {
+      if (draft != null && !_waitsAsUnconfirmed(draft)) {
         _composer.text = draft;
         _composer.selection = TextSelection.collapsed(offset: draft.length);
       }

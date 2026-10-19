@@ -6,6 +6,7 @@
 // samples in the shared test/kit_motion_test.dart (G8x) stay as they are.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../support/no_red.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/ui/app_theme.dart';
 import 'package:opencode_mobile/ui/kit/kit.dart';
@@ -259,7 +260,7 @@ void main() {
       );
       final color = iconColorIn(tester, find.byType(KitStatusMark));
       expect(color, roles.text1);
-      expect(color, isNot(roles.danger));
+      expect(color, isNotRed);
     });
 
     testWidgets('working paints accent', (tester) async {
@@ -504,9 +505,6 @@ void main() {
         onAttentionFill: base.onAttentionFill,
         attentionSurface: base.attentionSurface,
         attentionLine: base.attentionLine,
-        danger: base.danger,
-        dangerFill: base.dangerFill,
-        onDangerFill: base.onDangerFill,
         success: base.success,
         scrim: base.scrim,
         codeKeyword: base.codeKeyword,

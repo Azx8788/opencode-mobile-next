@@ -67,7 +67,7 @@ export function gascityTeamFamily(contract) {
       agents: [
         u(use, 'AgentResponse', agentWorker),
         u(use, 'AgentResponse', agentIdle, { probes: { display_name: ['Claude Code'] } }),
-        u(use, 'AgentResponse', agentOff, { probes: { state: ['Crashed'], display_name: ['Claude Code'] } }),
+        u(use, 'AgentResponse', agentOff, { probes: { state: ['Stopped'], display_name: ['Claude Code'] } }),
       ],
       sessions: [u(use, 'SessionResponse', session), SKIP(use, 'SessionResponse', mayorSession, 'id', 'kind', 'template', 'state', 'session_name', 'provider', 'display_name', 'model', 'running', 'rig', 'created_at', 'last_active', 'attached', 'configured_named_session')],
       beads: [u(use, 'Bead', task, { probes: { dependencies: ['sf-11'] } }), u(use, 'Bead', blocked, { probes: { is_blocked: ['Blocked'], dependencies: ['sf-12'] } })],

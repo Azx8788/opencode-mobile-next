@@ -5,7 +5,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/domain/agent_tools/agent_tool_adapter.dart';
 import 'package:opencode_mobile/domain/connector_search_result.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';

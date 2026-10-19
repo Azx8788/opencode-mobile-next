@@ -1,4 +1,4 @@
-import '../api/models.dart';
+import '../domain/models.dart';
 import '../ui/kit/kit_redact.dart';
 import 'draft_attachments.dart';
 import 'prompt_photos.dart';

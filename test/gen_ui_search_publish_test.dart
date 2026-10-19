@@ -52,8 +52,8 @@ void main() {
         'b' * 64,
       );
       expect(await directory.list().length, 1);
-      final root = await managed('root/.oc-genui/openCode1');
-      expect(await publish(agent: GenUiAgent.openCode1), isTrue);
+      final root = await managed('root/.oc-genui/openCode2');
+      expect(await publish(agent: GenUiAgent.openCode2), isTrue);
       expect(await File('${root.path}/enabled.search.json').exists(), isTrue);
     },
   );

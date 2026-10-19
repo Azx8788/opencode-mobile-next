@@ -281,7 +281,7 @@ extension _ChatHistory on _ChatScreenState {
           if (error != null)
             KitText(
               productErrorText(error),
-              tone: KitTextTone.danger,
+              tone: KitTextTone.primary,
               textAlign: TextAlign.center,
             ),
           KitButton.secondary(

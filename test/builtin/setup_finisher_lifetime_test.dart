@@ -7,11 +7,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/server_probe.dart';
+import 'package:opencode_mobile/domain/server_probe.dart';
 import 'package:opencode_mobile/builtin/builtin_linux.dart';
 import 'package:opencode_mobile/builtin/builtin_server.dart';
 import 'package:opencode_mobile/builtin/setup/phone_setup.dart';
 import 'package:opencode_mobile/builtin/setup/setup_engine.dart';
+import 'package:opencode_mobile/builtin/setup/setup_finish.dart';
+import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/main.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -48,6 +50,7 @@ class _Connection extends ConnectionController {
 
 class _Linux extends BuiltinLinux {
   int starts = 0;
+  int admissionExitCode = 0;
 
   // BB5 reports native idle work; this lifetime fake must not open a real channel.
   @override
@@ -67,7 +70,7 @@ class _Linux extends BuiltinLinux {
   Future<BuiltinLinuxRunResult> run(
     String script, {
     Duration timeout = const Duration(minutes: 2),
-  }) async => const BuiltinLinuxRunResult(exitCode: 0, output: '');
+  }) async => BuiltinLinuxRunResult(exitCode: admissionExitCode, output: '');
 
   @override
   Future<void> startServer(
@@ -85,6 +88,62 @@ class _Linux extends BuiltinLinux {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  for (final admissionExit in [0, 74]) {
+    test(
+      'legacy setup keeps profile identity and requires history proof ($admissionExit)',
+      () async {
+        SharedPreferences.setMockInitialValues({
+          'oc.localDraft.owner': 'keep this draft',
+        });
+        final prefs = await SharedPreferences.getInstance();
+        final store = _Store(prefs: prefs);
+        final original = ServerProfile(
+          id: 'owner',
+          name: 'My phone',
+          baseUrl: BuiltinLinux.serverUrl,
+          password: 'synthetic-only',
+          requiresOpenCode2Migration: true,
+        );
+        store.saved.add(original);
+        final linux = _Linux()..admissionExitCode = admissionExit;
+        final starter = BuiltinServerStarter(linux: linux);
+        addTearDown(starter.dispose);
+        serverProbe = ({required baseUrl, username, password}) async =>
+            const ServerProbeResult.success('2.0.29', flavor: ServerFlavor.v2);
+        addTearDown(() => serverProbe = probeServerConnection);
+        var connected = false;
+        final finish = BuiltinSetupFinisher(
+          store: store,
+          starter: starter,
+          connect: (profile) async {
+            connected = true;
+            expect(profile.id, 'owner');
+            expect(profile.openCode2HistoryPending, isTrue);
+            return null;
+          },
+          isConnectedTo: (_) => false,
+          strings: () => lookupAppLocalizations(const Locale('en')),
+        );
+        final result = await finish(
+          const SetupFinishRequest(
+            host: SetupHostKind.builtin,
+            runtime: TermuxRuntime.openCode2,
+            openCodeChanged: true,
+            version: '2.0.29',
+          ),
+        );
+        expect(store.saved.single.id, 'owner');
+        expect(prefs.getString('oc.localDraft.owner'), 'keep this draft');
+        expect(connected, admissionExit == 0);
+        expect(linux.starts, admissionExit == 0 ? 1 : 0);
+        expect(original.requiresOpenCode2Migration, admissionExit != 0);
+        expect(original.openCode2HistoryPending, admissionExit == 0);
+        expect(result, admissionExit == 0 ? isNull : isNotNull);
+      },
+    );
+  }
+
   testWidgets('the setup finisher still works after the shell that attached '
       'it was replaced', (tester) async {
     SharedPreferences.setMockInitialValues({});
@@ -126,7 +185,7 @@ void main() {
     final error = await finish(
       const SetupFinishRequest(
         host: SetupHostKind.builtin,
-        runtime: TermuxRuntime.openCode1,
+        runtime: TermuxRuntime.openCode2,
         openCodeChanged: false,
         version: null,
       ),

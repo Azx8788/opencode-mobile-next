@@ -522,6 +522,9 @@ class PhoneTeamSetupController extends ChangeNotifier {
       return false;
     }
     _phase = PhoneTeamSetupPhase.running;
+    // The wait for the person's answer is not work: the step's time starts
+    // at the yes.
+    _began[PhoneTeamSetupStep.stop] = _now();
     _emit();
     try {
       _serverStopped = true;

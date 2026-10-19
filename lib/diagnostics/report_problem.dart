@@ -165,7 +165,7 @@ class ReportProblem extends ChangeNotifier {
           stack: '',
         ),
       );
-      if (next.length > maxEntries) next.removeAt(0);
+      if (next.length > maxEntries) _evictOne(next);
     }
     if (!added) return;
     _commit(next);
@@ -229,16 +229,25 @@ class ReportProblem extends ChangeNotifier {
     'entries': [for (final entry in entries) entry.toJson()],
   };
 
+  /// Makes room by dropping the oldest timing; an error, exit or thermal
+  /// event goes only when no timing is left. Timings arrive several times a
+  /// second (each Linux status read is one), so a shared oldest-first ring
+  /// lost a failure within about a minute, before anyone could report it.
+  static void _evictOne(List<ProblemEvent> events) {
+    final timing = events.indexWhere(
+      (event) => event.kind == ProblemEventKind.timing,
+    );
+    events.removeAt(timing < 0 ? 0 : timing);
+  }
+
   void _commit(List<ProblemEvent> candidates) {
-    final next = candidates
-        .skip(
-          candidates.length > maxEntries ? candidates.length - maxEntries : 0,
-        )
-        .map((event) => event._redacted())
-        .toList();
+    final next = candidates.map((event) => event._redacted()).toList();
+    while (next.length > maxEntries) {
+      _evictOne(next);
+    }
     var bytes = utf8.encode(jsonEncode(_snapshot(next)));
     while (bytes.length > maxBytes && next.isNotEmpty) {
-      next.removeAt(0);
+      _evictOne(next);
       bytes = utf8.encode(jsonEncode(_snapshot(next)));
     }
     try {

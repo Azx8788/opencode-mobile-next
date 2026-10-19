@@ -3,6 +3,39 @@ part of '../this_phone_screen.dart';
 /// The details half of This phone (log, reply speed, performance values,
 /// installed list), split out to keep the screen file small.
 extension _ThisPhoneDetails on _ThisPhoneScreenState {
+  Future<void> _readInstalled() async {
+    final engine = _hostEngine();
+    if (engine == null) return;
+    // Reads can overlap (the page's first read, then one when a job ends):
+    // only the newest answer counts, or an old slow read puts back a list
+    // from before the tools were added.
+    final read = ++_installedReads;
+    // One more try after a moment: the check shares the phone's task slot,
+    // and right after setup ends (a Reset, an added tool) its last step can
+    // still hold it, which showed "Could not check" on a working Linux.
+    for (var attempt = 1; attempt <= 2; attempt++) {
+      try {
+        final installed = await engine.installedOptional();
+        if (mounted && read == _installedReads) {
+          _installedOptional = installed;
+          _installedFailed = false;
+          _changed();
+        }
+        return;
+      } catch (_) {
+        if (!mounted || read != _installedReads) return;
+        if (attempt < 2) {
+          await Future<void>.delayed(const Duration(milliseconds: 1500));
+          if (!mounted || read != _installedReads) return;
+          continue;
+        }
+        // Keep the previous inventory; a failed probe does not remove tools.
+        _installedFailed = true;
+        _changed();
+      }
+    }
+  }
+
   /// The technical truth, last and folded (KIT-33): the server's log in
   /// the one log view (KIT-31), titled by the server it comes from so it
   /// does not repeat "Details".
@@ -111,6 +144,18 @@ extension _ThisPhoneDetails on _ThisPhoneScreenState {
   /// on either host. What every setup installs, then the optional tools the
   /// host's checks find (Python, AI Team, voice typing and more).
   Widget _installed(BuildContext context, AppLocalizations l10n) {
+    if (_installedOptional == null) {
+      if (_installedFailed) {
+        return KitNotice(
+          message: l10n.e7SetupCheckInstallFailed,
+          actions: [KitAction(label: l10n.commonRetry, onPressed: _load)],
+        );
+      }
+      return KitRow(
+        title: l10n.thisPhoneInstalled,
+        supporting: TextSpan(text: l10n.phoneSetupStartChecking),
+      );
+    }
     final names = <String>[];
     final engine = _hostEngine();
     final optional = _installedOptional ?? const <String>{};

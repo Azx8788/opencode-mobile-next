@@ -229,6 +229,7 @@ jobs:
             --build-number "$BUILD_NUMBER" \
             --flutter-version "$SHOREBIRD_FLUTTER_VERSION" \
             --artifact apk \
+            --split-debug-info=build/symbols \
             --dry-run
           python3 tool/release/check_apk_size.py \
             --apk build/app/outputs/flutter-apk/app-release.apk \
@@ -263,7 +264,28 @@ jobs:
             --build-number "$BUILD_NUMBER" \
             --flutter-version "$SHOREBIRD_FLUTTER_VERSION" \
             --artifact apk \
+            --split-debug-info=build/symbols \
             --dry-run
+
+      # The universal APK above is the Shorebird release of record (patches are
+      # keyed to its per-architecture libapp.so files). The smaller per-ABI APKs
+      # are made from it by deleting the other ABIs' libraries: every kept file
+      # is byte-identical, so Shorebird patches still apply to them. They are
+      # signed with the same key; see tool/release/split_apk_by_abi.py.
+      - name: Derive per-ABI APKs from the universal APK
+        env:
+          OC_KS: ${{ runner.temp }}/opencode-release.jks
+          OC_KS_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          OC_KS_PASS: ${{ secrets.RELEASE_STORE_PASSWORD }}
+          OC_KEY_PASS: ${{ secrets.RELEASE_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          mkdir -p build/abi-apks
+          for abi in arm64-v8a armeabi-v7a; do
+            python3 tool/release/split_apk_by_abi.py \
+              --apk build/app/outputs/flutter-apk/app-release.apk \
+              --abi "$abi" --out "build/abi-apks/$abi.apk"
+          done
 
       - name: Remove the signing identity
         if: always()
@@ -297,7 +319,18 @@ jobs:
           grep -q "versionName='$name'" <<<"$badging" || { echo "::error::versionName mismatch: $badging"; exit 1; }
           mkdir -p dist
           cp "$apk" "dist/opencode-mobile-$version.apk"
-          (cd dist && sha256sum "opencode-mobile-$version.apk" > SHA256SUMS)
+          for abi in arm64-v8a armeabi-v7a; do
+            split="build/abi-apks/$abi.apk"
+            test -s "$split"
+            split_signers="$("$tools/apksigner" verify --print-certs "$split" |
+              sed -En 's/^Signer #[0-9]+ certificate SHA-256 digest:[[:space:]]*//p' | tr '[:lower:]' '[:upper:]' | sort -u)"
+            [ "$split_signers" = "$SIDELOAD_CERT_SHA256" ] || { echo "::error::$abi APK signer $split_signers is not the sideload lineage"; exit 1; }
+            split_badging="$("$tools/aapt" dump badging "$split")"
+            grep -q "versionCode='$code'" <<<"$split_badging" || { echo "::error::$abi versionCode mismatch"; exit 1; }
+            grep -q "^native-code: '$abi'$" <<<"$split_badging" || { echo "::error::$abi APK has unexpected native code"; exit 1; }
+            cp "$split" "dist/opencode-mobile-$version-$abi.apk"
+          done
+          (cd dist && sha256sum opencode-mobile-"$version"*.apk > SHA256SUMS)
           {
             echo "## opencode-mobile-$version.apk"
             echo
@@ -376,6 +409,17 @@ jobs:
             echo '```'
           } >> dist/RELEASE_NOTES.md
 
+      # Dart stack traces from this build are unreadable without these files
+      # (`flutter symbolize -d build/symbols -i <trace>`); keep them per release.
+      - name: Upload Dart debug symbols
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: opencode-mobile-symbols-${{ github.sha }}
+          path: build/symbols/
+          if-no-files-found: error
+          retention-days: 400
+
       - name: Upload signed APK
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -398,11 +442,11 @@ jobs:
               --title "OpenCode Mobile $version" \
               --notes-file dist/RELEASE_NOTES.md
             gh release upload "$GITHUB_REF_NAME" \
-              "dist/opencode-mobile-$version.apk" dist/SHA256SUMS --clobber
+              dist/opencode-mobile-"$version"*.apk dist/SHA256SUMS --clobber
           else
             gh release create "$GITHUB_REF_NAME" \
               --verify-tag --draft --prerelease=false \
               --title "OpenCode Mobile $version" \
               --notes-file dist/RELEASE_NOTES.md \
-              "dist/opencode-mobile-$version.apk" dist/SHA256SUMS
+              dist/opencode-mobile-"$version"*.apk dist/SHA256SUMS
           fi

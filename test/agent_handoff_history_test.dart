@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/domain/agent_handoff_history.dart';
 import 'package:opencode_mobile/domain/genui/gen_ui_history.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';

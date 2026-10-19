@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../api/models.dart';
+import '../../domain/models.dart';
 import '../../domain/server_gateway.dart';
 import '../../domain/staged_revert_message_count.dart';
 import '../widgets/session_title.dart' show presentedSessionTitleText;

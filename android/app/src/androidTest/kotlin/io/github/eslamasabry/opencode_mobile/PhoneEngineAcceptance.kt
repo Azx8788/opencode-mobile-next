@@ -253,7 +253,7 @@ class PhoneEngineAcceptance : Instrumentation() {
             requireSafe(linux.serverRunning, "in_app_server_exited")
             val health = engine("GET", "/v1/health").body
             val capabilities = health.getJSONObject("capabilities")
-            capabilities.optBoolean("boundary") && capabilities.optBoolean("execution") && capabilities.optBoolean("oc1Verified")
+            listOf("boundary", "execution", "oc2Verified").all { capabilities.optBoolean(it) }
         }
         emit("PASS", currentStep)
 

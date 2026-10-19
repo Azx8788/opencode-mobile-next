@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
 import 'package:opencode_mobile/api2/models.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -17,7 +17,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// A v2-flavored fake: forms/inbox capabilities on, inbox mutations
 /// recorded, prompts recording their delivery mode.
-class _V2ChatApi extends OpenCodeApi with CompleteMessageHistory {
+class _V2ChatApi extends FakeServerGateway with CompleteMessageHistory {
   _V2ChatApi() : super(baseUrl: 'http://localhost');
 
   final prompts = <({String text, PromptDelivery? delivery})>[];
@@ -70,7 +70,7 @@ class _V2ChatApi extends OpenCodeApi with CompleteMessageHistory {
 }
 
 /// A v1 fake: no inbox capability, so the composer keeps its lone Stop.
-class _V1ChatApi extends OpenCodeApi with CompleteMessageHistory {
+class _V1ChatApi extends FakeServerGateway with CompleteMessageHistory {
   _V1ChatApi() : super(baseUrl: 'http://localhost');
 
   final prompts = <({String text, PromptDelivery? delivery})>[];
@@ -94,7 +94,7 @@ class _V1ChatApi extends OpenCodeApi with CompleteMessageHistory {
   }
 }
 
-Future<ConnectionController> _controller(OpenCodeApi api) async {
+Future<ConnectionController> _controller(ServerGateway api) async {
   // Seed the profile through SharedPreferences rather than
   // ProfileStore.upsert: upsert writes the password through
   // flutter_secure_storage, whose platform channel never answers inside
@@ -104,6 +104,7 @@ Future<ConnectionController> _controller(OpenCodeApi api) async {
       {
         'id': 'profile-1',
         'name': 'Test server',
+        'flavor': 'v2',
         'baseUrl': 'http://localhost',
         'username': '',
       },
@@ -210,6 +211,30 @@ void main() {
     expect(find.text('Waiting to send'), findsOneWidget);
     expect(find.text('Sends after this reply'), findsOneWidget);
     expect(find.text('Adds to this turn'), findsOneWidget);
+  });
+
+  testWidgets('unknown queued errors stay in redacted Details', (tester) async {
+    final controller = await _controller(_V1ChatApi());
+    addTearDown(controller.dispose);
+    const secret = 'sk-live-hidden-provider-credential-123456';
+    await controller.queuePrompt(
+      const QueuedPrompt(
+        id: 'unknown-error',
+        profileID: 'profile-1',
+        sessionID: 'session-1',
+        text: 'Keep this prompt',
+        createdAt: 1,
+        error:
+            'Unexpected backend sentinel failure. Authorization: Bearer $secret',
+      ),
+    );
+    await _pumpChat(tester, controller);
+    expect(find.textContaining('sentinel failure'), findsNothing);
+    expect(find.textContaining(secret), findsNothing);
+    await tester.tap(find.text('Details').first);
+    await _settle(tester);
+    expect(find.textContaining('sentinel failure'), findsOneWidget);
+    expect(find.textContaining(secret), findsNothing);
   });
 
   group('a queued message the server refused', () {

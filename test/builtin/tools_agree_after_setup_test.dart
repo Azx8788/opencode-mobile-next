@@ -121,6 +121,43 @@ void main() {
     },
   );
 
+  testWidgets('a failed refresh keeps Python until removal is confirmed', (
+    tester,
+  ) async {
+    final engine = await pumpPhone(
+      tester,
+      home: const ThisPhoneScreen(kind: PhoneHostKind.inApp),
+      linux: PhoneLinux(running: true),
+      profiles: [inAppProfile],
+      optionalInstalled: {'python'},
+    );
+    final installed = find.descendant(
+      of: find.byKey(const ValueKey('this-phone-installed')),
+      matching: find.textContaining('Python'),
+    );
+    expect(installed, findsWidgets);
+    final failed = Completer<void>();
+    engine.optionalGate = failed.future;
+    setupToolsChanged.value++;
+    await tester.pump(const Duration(milliseconds: 100));
+    failed.completeError(
+      const BuiltinLinuxException('Another task is running'),
+    );
+    for (var i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(installed, findsWidgets);
+
+    engine.optionalGate = null;
+    engine.optionalInstalled = {};
+    setupToolsChanged.value++;
+    for (var i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(installed, findsNothing);
+    await unmountPhone(tester);
+  });
+
   testWidgets('Settings > AI Team reads the phone again when a job ends', (
     tester,
   ) async {

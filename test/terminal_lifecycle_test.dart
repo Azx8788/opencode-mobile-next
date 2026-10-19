@@ -2,12 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/terminal_command_gateway.dart';
 import 'package:opencode_mobile/api2/client.dart';
 import 'package:opencode_mobile/api2/terminal_command_gateway.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/domain/terminal_lifecycle.dart';
-import 'package:opencode_sdk/opencode_sdk.dart' as sdk;
 
 class _RealHttpOverrides extends HttpOverrides {}
 
@@ -50,128 +48,106 @@ Future<void> _withServer(
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  for (final v2 in [false, true]) {
-    test(
-      '${v2 ? 'v2' : 'v1'} reruns reported command in a new scoped PTY',
-      () async {
-        final requests = <({String method, Uri uri, dynamic body})>[];
-        await _withServer(
-          (request) async {
-            requests.add((
-              method: request.method,
-              uri: request.uri,
-              body: jsonDecode(await utf8.decoder.bind(request).join()),
-            ));
-            request.response.headers.contentType = ContentType.json;
-            request.response.write(
-              jsonEncode(v2 ? {'data': _response} : _response),
+  group('OpenCode 2', () {
+    test('reruns reported command in a new scoped PTY', () async {
+      final requests = <({String method, Uri uri, dynamic body})>[];
+      await _withServer(
+        (request) async {
+          requests.add((
+            method: request.method,
+            uri: request.uri,
+            body: jsonDecode(await utf8.decoder.bind(request).join()),
+          ));
+          request.response.headers.contentType = ContentType.json;
+          request.response.write(jsonEncode({'data': _response}));
+          await request.response.close();
+        },
+        (baseUrl) async {
+          final client = Api2Client.connect(
+            baseUrl: baseUrl,
+            password: 'fake-test-password',
+            directory: '/project',
+            workspace: 'workspace-test',
+          );
+          try {
+            final TerminalCommandGateway gateway = Api2TerminalCommandGateway(
+              client,
             );
-            await request.response.close();
-          },
-          (baseUrl) async {
-            final sdkClient = sdk.OpencodeSdk(basePathOverride: baseUrl);
-            final client = Api2Client.connect(
-              baseUrl: baseUrl,
-              password: 'fake-test-password',
-              directory: '/project',
-              workspace: 'workspace-test',
+            final result = await gateway.rerunTerminalCommand(_ended);
+            expect(result.id, 'pty_new');
+            expect(result.running, isTrue);
+            expect(result.arguments, _ended.arguments);
+            expect(requests, hasLength(1));
+            final request = requests.single;
+            expect(request.method, 'POST');
+            expect(request.uri.path, '/api/pty');
+            expect(request.uri.queryParameters, {
+              'location[directory]': '/project',
+              'location[workspace]': 'workspace-test',
+            });
+            expect(request.body, {
+              'command': _ended.command,
+              'args': _ended.arguments,
+              'cwd': _ended.directory,
+              'title': _ended.title,
+            });
+            expect(
+              const ServerCapabilities(
+                terminal: true,
+              ).supportsTerminalCommandRerun(gateway),
+              isTrue,
             );
-            try {
-              final TerminalCommandGateway gateway = v2
-                  ? Api2TerminalCommandGateway(client)
-                  : SdkTerminalCommandGateway(
-                      sdkClient,
-                      directory: '/project',
-                      workspace: 'workspace-test',
-                    );
-              final result = await gateway.rerunTerminalCommand(_ended);
-              expect(result.id, 'pty_new');
-              expect(result.running, isTrue);
-              expect(result.arguments, _ended.arguments);
-              expect(requests, hasLength(1));
-              final request = requests.single;
-              expect(request.method, 'POST');
-              expect(request.uri.path, v2 ? '/api/pty' : '/pty');
-              expect(request.uri.queryParameters, {
-                if (v2)
-                  'location[directory]': '/project'
-                else
-                  'directory': '/project',
-                if (v2)
-                  'location[workspace]': 'workspace-test'
-                else
-                  'workspace': 'workspace-test',
-              });
-              expect(request.body, {
-                'command': _ended.command,
-                'args': _ended.arguments,
-                'cwd': _ended.directory,
-                'title': _ended.title,
-              });
-              expect(
-                const ServerCapabilities().supportsTerminalCommandRerun(
-                  gateway,
-                ),
-                isTrue,
-              );
-              expect(
-                const ServerCapabilities(
-                  terminal: false,
-                ).supportsTerminalCommandRerun(gateway),
-                isFalse,
-              );
-            } finally {
-              sdkClient.dio.close(force: true);
-              client.close();
-            }
-          },
-        );
-      },
-    );
+            expect(
+              const ServerCapabilities(
+                terminal: false,
+              ).supportsTerminalCommandRerun(gateway),
+              isFalse,
+            );
+          } finally {
+            client.close();
+          }
+        },
+      );
+    });
 
-    test(
-      '${v2 ? 'v2' : 'v1'} failed response is sanitized and never retried',
-      () async {
-        var requests = 0;
-        await _withServer(
-          (request) async {
-            requests++;
-            await request.drain<void>();
-            request.response.statusCode = 500;
-            request.response.write('fake-sensitive-server-detail');
-            await request.response.close();
-          },
-          (baseUrl) async {
-            final sdkClient = sdk.OpencodeSdk(basePathOverride: baseUrl);
-            final client = Api2Client.connect(
-              baseUrl: baseUrl,
-              password: 'fake-test-password',
-              directory: '/project',
+    test('failed response is sanitized and never retried', () async {
+      var requests = 0;
+      await _withServer(
+        (request) async {
+          requests++;
+          await request.drain<void>();
+          request.response.statusCode = 500;
+          request.response.write('fake-sensitive-server-detail');
+          await request.response.close();
+        },
+        (baseUrl) async {
+          final client = Api2Client.connect(
+            baseUrl: baseUrl,
+            password: 'fake-test-password',
+            directory: '/project',
+          );
+          try {
+            final TerminalCommandGateway gateway = Api2TerminalCommandGateway(
+              client,
             );
-            try {
-              final TerminalCommandGateway gateway = v2
-                  ? Api2TerminalCommandGateway(client)
-                  : SdkTerminalCommandGateway(sdkClient, directory: '/project');
-              await expectLater(
-                gateway.rerunTerminalCommand(_ended),
-                throwsA(
-                  isA<ProductException>().having(
-                    (error) => error.message,
-                    'safe failure',
-                    'Could not confirm the rerun. Refresh terminals before trying again.',
-                  ),
+            await expectLater(
+              gateway.rerunTerminalCommand(_ended),
+              throwsA(
+                isA<ProductException>().having(
+                  (error) => error.message,
+                  'safe failure',
+                  'Could not confirm the rerun. Refresh terminals before trying again.',
                 ),
-              );
-              expect(requests, 1);
-            } finally {
-              sdkClient.dio.close(force: true);
-              client.close();
-            }
-          },
-        );
-      },
-    );
-  }
+              ),
+            );
+            expect(requests, 1);
+          } finally {
+            client.close();
+          }
+        },
+      );
+    });
+  });
 
   test('missing facet and missing wire timing stay unavailable', () {
     const capabilities = ServerCapabilities();

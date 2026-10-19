@@ -4601,12 +4601,6 @@ abstract class AppLocalizations {
   /// **'Its earlier send was never confirmed; it may already be in the conversation.'**
   String get queuedDiscardUnconfirmedMessage;
 
-  /// Older OpenCode server, still selectable
-  ///
-  /// In en, this message translates to:
-  /// **'Older OpenCode'**
-  String get setupRuntimeOne;
-
   /// OpenCode server used for new installs
   ///
   /// In en, this message translates to:
@@ -4874,19 +4868,19 @@ abstract class AppLocalizations {
   /// No description provided for @tailscaleAddressLabel.
   ///
   /// In en, this message translates to:
-  /// **'Private HTTPS server address'**
+  /// **'Private server address'**
   String get tailscaleAddressLabel;
 
   /// No description provided for @tailscaleAddressDetail.
   ///
   /// In en, this message translates to:
-  /// **'Use the full HTTPS origin printed by Tailscale Serve, such as https://computer.tailnet-name.ts.net. Keep any HTTPS port it prints. A short device name or a raw HTTP port may not provide a valid certificate.'**
+  /// **'Paste the full HTTPS address from Tailscale Serve, or the HTTP address and port of your server on Tailscale. HTTP asks for your permission before connecting.'**
   String get tailscaleAddressDetail;
 
   /// No description provided for @tailscaleAddressError.
   ///
   /// In en, this message translates to:
-  /// **'That address won\'t work here. Copy the https:// address Tailscale Serve shows on your computer and paste it as it is, with nothing added after it.'**
+  /// **'Enter a complete HTTP or HTTPS server address with its port if needed, and no path after it.'**
   String get tailscaleAddressError;
 
   /// No description provided for @tailscaleReviewDetail.
@@ -4928,7 +4922,7 @@ abstract class AppLocalizations {
   /// No description provided for @tailscaleRecovery.
   ///
   /// In en, this message translates to:
-  /// **'If the server is unreachable, check Tailscale on both devices, the full HTTPS name and port, Serve on the server, and your network’s access rules. A VPN or DNS conflict may also prevent access. Keep HTTPS enabled. Correct the server password if authentication is rejected, then retry Test connection.'**
+  /// **'If the server is unreachable, check Tailscale on both devices, the address and port, and your network access rules. For a Serve address, check Serve on the server too. Correct the password if authentication is rejected, then retry Test connection.'**
   String get tailscaleRecovery;
 
   /// No description provided for @tailscaleEditorDetail.
@@ -5873,65 +5867,11 @@ abstract class AppLocalizations {
   /// **'OpenCode 2'**
   String get oc2DiscoveryEditorTitle;
 
-  /// No description provided for @setupSwitchConfirmTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Switch to {runtime}?'**
-  String setupSwitchConfirmTitle(String runtime);
-
-  /// No description provided for @setupSwitchConfirmDetail.
-  ///
-  /// In en, this message translates to:
-  /// **'Stops this phone’s server and running tasks. Conversations, provider settings and credentials stay separate; project files and configuration are shared. You can switch back.'**
-  String get setupSwitchConfirmDetail;
-
-  /// No description provided for @setupSwitchToTwoDetail.
-  ///
-  /// In en, this message translates to:
-  /// **'Stops this phone’s server and running tasks, then starts OpenCode 2. Your conversations come with you and AI Team keeps working. You can switch back.'**
-  String get setupSwitchToTwoDetail;
-
-  /// No description provided for @moveToOpenCode2Title.
-  ///
-  /// In en, this message translates to:
-  /// **'Move to OpenCode 2'**
-  String get moveToOpenCode2Title;
-
-  /// No description provided for @moveToOpenCode2Detail.
-  ///
-  /// In en, this message translates to:
-  /// **'Your conversations come with you. AI Team keeps working.'**
-  String get moveToOpenCode2Detail;
-
-  /// No description provided for @moveToOpenCode2NotNow.
-  ///
-  /// In en, this message translates to:
-  /// **'Not now'**
-  String get moveToOpenCode2NotNow;
-
-  /// No description provided for @moveToOpenCode2NotNowSemantics.
-  ///
-  /// In en, this message translates to:
-  /// **'Not now: stay on the older OpenCode'**
-  String get moveToOpenCode2NotNowSemantics;
-
-  /// This phone › Switch runtime sheet: the confirm button, naming the target runtime.
-  ///
-  /// In en, this message translates to:
-  /// **'Switch to {runtime}'**
-  String setupSwitchConfirm(String runtime);
-
   /// No description provided for @setupSwitchPending.
   ///
   /// In en, this message translates to:
-  /// **'The runtime switch has not finished. Retry the selected runtime or return to the previous one. Your saved runtime data is retained.'**
+  /// **'The update to OpenCode 2 has not finished. Your saved conversations are kept. Try again.'**
   String get setupSwitchPending;
-
-  /// No description provided for @setupSwitchReturn.
-  ///
-  /// In en, this message translates to:
-  /// **'Return to {runtime}'**
-  String setupSwitchReturn(String runtime);
 
   /// No description provided for @setupSwitchRetry.
   ///
@@ -5942,14 +5882,8 @@ abstract class AppLocalizations {
   /// No description provided for @setupSwitchFailed.
   ///
   /// In en, this message translates to:
-  /// **'Could not finish switching runtimes. Check the setup output, then retry or return to the previous runtime.'**
+  /// **'Could not finish updating to OpenCode 2. Your saved conversations are kept. Try again.'**
   String get setupSwitchFailed;
-
-  /// No description provided for @setupSwitchLegacyTwo.
-  ///
-  /// In en, this message translates to:
-  /// **'This OpenCode 2 installation keeps its existing data. Switching it to OpenCode 1 is not available.'**
-  String get setupSwitchLegacyTwo;
 
   /// No description provided for @setupSwitchProfileName.
   ///
@@ -5960,7 +5894,7 @@ abstract class AppLocalizations {
   /// No description provided for @setupSwitchMissingCredential.
   ///
   /// In en, this message translates to:
-  /// **'The saved credential for the previous runtime is unavailable. Its data is retained; restore the saved server before returning.'**
+  /// **'The saved server password could not be read. Your conversations and files are kept. Restore access to the saved password, then try again.'**
   String get setupSwitchMissingCredential;
 
   /// No description provided for @setupSwitchProgressTitle.
@@ -6092,7 +6026,7 @@ abstract class AppLocalizations {
   /// Connection recovery guidance shown in lib/ui/widgets/connection_failure.dart
   ///
   /// In en, this message translates to:
-  /// **'For a self-signed certificate, install it on this device first.'**
+  /// **'For a self-signed certificate, edit this server and check its fingerprint before trusting it.'**
   String get e7ConnectionFailure23;
 
   /// Connection recovery guidance shown in lib/ui/widgets/connection_failure.dart
@@ -6323,6 +6257,18 @@ abstract class AppLocalizations {
   /// **'What you see may be stale until OpenCode is reachable again.'**
   String get e7BannerStaleExplanation;
 
+  /// Connection Details while a conversation with a phone agent (Claude Code) is reconnecting to its helper.
+  ///
+  /// In en, this message translates to:
+  /// **'What you see stays available while {agent} is checked. Live updates resume on their own.'**
+  String e7BannerCheckingExplanationAgent(String agent);
+
+  /// Connection Details when a conversation with a phone agent (Claude Code) can't reach its helper.
+  ///
+  /// In en, this message translates to:
+  /// **'What you see may be stale until {agent} is reachable again.'**
+  String e7BannerStaleExplanationAgent(String agent);
+
   /// Shared app interface: Three steps to your first session
   ///
   /// In en, this message translates to:
@@ -6404,7 +6350,7 @@ abstract class AppLocalizations {
   /// Shared app interface: Pairing works when the address the server prints is one this device can reach. If it is not, expose the server through an HTTPS reverse proxy or an encrypted tunnel and add the resulting https:// URL by hand. Remote HTTP is intentionally blocked.
   ///
   /// In en, this message translates to:
-  /// **'Pairing works when the address the server prints is one this device can reach. If it is not, expose the server through an HTTPS reverse proxy or an encrypted tunnel and add the resulting https:// URL by hand. Remote HTTP is intentionally blocked.'**
+  /// **'Pairing works when this device can reach the server address. A remote HTTP address asks for your permission before sending the password. Prefer HTTPS or a private Tailscale connection.'**
   String get e7SharedPairingWorksWhenTheAddressTheServer;
 
   /// Shared app interface: Older servers without pairing
@@ -6416,7 +6362,7 @@ abstract class AppLocalizations {
   /// Shared app interface: Servers started with `opencode serve` do not print a pairing code. Start them on loopback with a password:
   ///
   /// In en, this message translates to:
-  /// **'Servers started with “opencode serve” do not print a pairing code. Start them on loopback with a password:'**
+  /// **'For a local connection, start OpenCode 2 on this computer. Use the password it prints:'**
   String get e7SharedServersStartedWithOpencodeServeDoNot;
 
   /// Shared app interface: Then add the server manually with username opencode and that password.
@@ -7538,7 +7484,7 @@ abstract class AppLocalizations {
   /// Settings and appearance user interface.
   ///
   /// In en, this message translates to:
-  /// **'Run as a Linux service'**
+  /// **'Set up OpenCode 2'**
   String get e7SettingsUi65;
 
   /// Settings and appearance user interface.
@@ -11954,7 +11900,7 @@ abstract class AppLocalizations {
   /// Setup journey: https hint.
   ///
   /// In en, this message translates to:
-  /// **'https:// for other computers; http:// only on this device or a private network.'**
+  /// **'Prefer HTTPS. Remote HTTP needs your permission for each server.'**
   String get e7SetupHttpsHint;
 
   /// Setup journey: observed version save failed.
@@ -12359,12 +12305,6 @@ abstract class AppLocalizations {
   /// **'Up arrow key'**
   String get e7SetupUpKey;
 
-  /// Setup journey: v1 limited.
-  ///
-  /// In en, this message translates to:
-  /// **'This app targets OpenCode 2; some features are unavailable on v1 servers.'**
-  String get e7SetupV1Limited;
-
   /// Setup journey: connect.
   ///
   /// In en, this message translates to:
@@ -12488,7 +12428,7 @@ abstract class AppLocalizations {
   /// Setup journey: linux service.
   ///
   /// In en, this message translates to:
-  /// **'Run as a Linux service'**
+  /// **'Set up OpenCode 2'**
   String get e7SetupLinuxService;
 
   /// Setup journey: pairing desktop hint.
@@ -12893,12 +12833,6 @@ abstract class AppLocalizations {
   /// **'OpenCode 2 · {version}'**
   String e7SetupProbeV2(String version);
 
-  /// Setup journey: probe v1.
-  ///
-  /// In en, this message translates to:
-  /// **'OpenCode 1 · {version} — limited feature set'**
-  String e7SetupProbeV1(String version);
-
   /// Setup journey: pair none.
   ///
   /// In en, this message translates to:
@@ -13022,7 +12956,7 @@ abstract class AppLocalizations {
   /// Setup journey: include scheme.
   ///
   /// In en, this message translates to:
-  /// **'Include https://. Plain http:// works only on this device or a private network address.'**
+  /// **'Include https:// or http://. Remote HTTP needs your permission.'**
   String get e7SetupIncludeScheme;
 
   /// Setup journey: complete url.
@@ -13034,7 +12968,7 @@ abstract class AppLocalizations {
   /// Setup journey: url scheme.
   ///
   /// In en, this message translates to:
-  /// **'Server URLs must use https://, or http:// for a local server.'**
+  /// **'Server URLs must use https:// or http://.'**
   String get e7SetupUrlScheme;
 
   /// Setup journey: termux url scheme.
@@ -13094,7 +13028,7 @@ abstract class AppLocalizations {
   /// Setup journey: certificate.
   ///
   /// In en, this message translates to:
-  /// **'The server’s TLS certificate was rejected. Use a certificate this phone trusts.'**
+  /// **'The certificate is not trusted. Check its fingerprint before choosing whether to trust it.'**
   String get e7SetupCertificate;
 
   /// Setup journey: unhealthy.
@@ -13294,12 +13228,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The local server port is still in use; no replacement was started'**
   String get e7SetupPortBusy;
-
-  /// Setup journey: no return data.
-  ///
-  /// In en, this message translates to:
-  /// **'This OpenCode 2 installation has no separate OpenCode 1 data to return to'**
-  String get e7SetupNoReturnData;
 
   /// Setup journey: credential mismatch.
   ///
@@ -19183,7 +19111,7 @@ abstract class AppLocalizations {
   /// What to expect or do after a dropped model connection
   ///
   /// In en, this message translates to:
-  /// **'Usually brief, and OpenCode retries by itself. If it keeps happening, check the internet on the computer running OpenCode.'**
+  /// **'Check the internet on the device running OpenCode. If the reply has stopped, check the conversation before sending again.'**
   String get agentErrorConnectionDroppedHint;
 
   /// Plain-language error headline: provider timeout
@@ -19195,7 +19123,7 @@ abstract class AppLocalizations {
   /// What to expect or do after a provider timeout
   ///
   /// In en, this message translates to:
-  /// **'OpenCode retries by itself. A smaller request or another model may be faster.'**
+  /// **'If the reply has stopped, try a smaller request or another model.'**
   String get agentErrorTimedOutHint;
 
   /// Plain-language error headline: DNS failure, refused connection or no network on the server
@@ -19231,7 +19159,7 @@ abstract class AppLocalizations {
   /// What to expect after a rate limit
   ///
   /// In en, this message translates to:
-  /// **'It retries by itself after a short wait.'**
+  /// **'Wait a little. If the reply has stopped, try again or choose another model.'**
   String get agentErrorRateLimitedHint;
 
   /// Plain-language error headline: provider overloaded or unavailable
@@ -19243,7 +19171,7 @@ abstract class AppLocalizations {
   /// What to expect or do when the provider is overloaded
   ///
   /// In en, this message translates to:
-  /// **'It retries by itself. Another model may answer sooner.'**
+  /// **'If the reply has stopped, try again later or choose another model.'**
   String get agentErrorProviderBusyHint;
 
   /// Plain-language error headline: billing or quota exhausted
@@ -19714,6 +19642,18 @@ abstract class AppLocalizations {
   /// **'Step 1 of 3: install. Then name a project and start a conversation. You can leave the app. We\'ll notify you when it\'s ready.'**
   String get phoneSetupProgressFirstSetupNote;
 
+  /// Under the setup checklist when notifications are not allowed: setup continues in the background but nothing will notify the person
+  ///
+  /// In en, this message translates to:
+  /// **'You can leave the app. Setup keeps going. Open OpenCode again to see how far it got.'**
+  String get phoneSetupProgressLeaveHintQuiet;
+
+  /// First-setup variant of the quiet hint, used when notifications are not allowed
+  ///
+  /// In en, this message translates to:
+  /// **'Step 1 of 3: install. Then name a project and start a conversation. You can leave the app. Setup keeps going. Open OpenCode again to see how far it got.'**
+  String get phoneSetupProgressFirstSetupNoteQuiet;
+
   /// Title of the confirmation before cancelling phone setup
   ///
   /// In en, this message translates to:
@@ -19738,7 +19678,7 @@ abstract class AppLocalizations {
   /// **'Keep going'**
   String get phoneSetupProgressKeepGoing;
 
-  /// Label above the OpenCode 1 / OpenCode 2 choice
+  /// Label for the managed OpenCode runtime
   ///
   /// In en, this message translates to:
   /// **'Which OpenCode'**
@@ -19933,7 +19873,7 @@ abstract class AppLocalizations {
   /// Setup error when the phone ran out of storage
   ///
   /// In en, this message translates to:
-  /// **'Not enough free space to install {name}'**
+  /// **'Not enough free space to install {name}. Free some storage, then continue setup.'**
   String phoneSetupErrorNoSpace(String name);
 
   /// Setup error when the last step could not start or connect to OpenCode
@@ -19945,7 +19885,7 @@ abstract class AppLocalizations {
   /// Setup error when nothing can start the server (no app shell)
   ///
   /// In en, this message translates to:
-  /// **'OpenCode is installed, but the app could not start it here.'**
+  /// **'OpenCode is installed but is not answering. Continue setup to try again. Details show what stopped it.'**
   String get phoneSetupErrorCannotStart;
 
   /// Title of the server log sheet
@@ -20704,7 +20644,7 @@ abstract class AppLocalizations {
   /// **'Continue'**
   String get phoneSetupOpenWelcomeContinue;
 
-  /// The in-app server's name when OpenCode 1 and OpenCode 2 are both set up on this phone, e.g. 'This phone · OpenCode 2'
+  /// The managed in-app server name, for example 'This phone · OpenCode 2'
   ///
   /// In en, this message translates to:
   /// **'{name} · {runtime}'**
@@ -22870,11 +22810,11 @@ abstract class AppLocalizations {
   /// **'What to allow so your phone doesn\'t close the app'**
   String get keepRunningRowSubtitle;
 
-  /// Keep running screen intro; maker is the phone's manufacturer name
+  /// Keep running screen intro; says this phone, never the maker's name (a maker can be a brand like Google)
   ///
   /// In en, this message translates to:
-  /// **'Your phone\'s OpenCode and the AI Team run inside this app, so they stop when Android closes it. On this {maker}, allow these:'**
-  String keepRunningIntro(String maker);
+  /// **'Your phone\'s OpenCode and the AI Team run inside this app, so they stop when Android closes it. On this phone, allow these:'**
+  String get keepRunningIntro;
 
   /// Keep running: warning on phones that force-stop on swipe
   ///
@@ -24862,6 +24802,12 @@ abstract class AppLocalizations {
   /// **'Failed'**
   String get kitToolFailed;
 
+  /// KitToolRow: the word for a step the person declined
+  ///
+  /// In en, this message translates to:
+  /// **'You declined this'**
+  String get kitToolDeclined;
+
   /// KitToolRow: the word for a step stopped by the person or the server
   ///
   /// In en, this message translates to:
@@ -25030,18 +24976,6 @@ abstract class AppLocalizations {
   /// **'Add a server to start working with an agent.'**
   String get kitCapServerAnyOffer;
 
-  /// KitCapabilityExplainer: the name of the capability "server.oc1", shown as the title of the dimmed row or the missing state
-  ///
-  /// In en, this message translates to:
-  /// **'OpenCode 1 server'**
-  String get kitCapServerOc1Title;
-
-  /// KitCapabilityExplainer: why the capability "server.oc1" is missing, in one sentence (the dimmed row's supporting line and the missing state's body)
-  ///
-  /// In en, this message translates to:
-  /// **'Needs this phone\'s own server or a computer running OpenCode 1.'**
-  String get kitCapServerOc1Why;
-
   /// KitCapabilityExplainer: the name of the capability "server.oc2", shown as the title of the dimmed row or the missing state
   ///
   /// In en, this message translates to:
@@ -25051,13 +24985,13 @@ abstract class AppLocalizations {
   /// KitCapabilityExplainer: why the capability "server.oc2" is missing, in one sentence (the dimmed row's supporting line and the missing state's body)
   ///
   /// In en, this message translates to:
-  /// **'Needs a server running OpenCode 2. This phone\'s server can switch to it.'**
+  /// **'Needs a server running OpenCode 2.'**
   String get kitCapServerOc2Why;
 
   /// KitCapabilityExplainer: the button that starts the flow turning "server.oc2" on (a verb, COPY-8)
   ///
   /// In en, this message translates to:
-  /// **'Switch to OpenCode 2'**
+  /// **'Connect OpenCode 2'**
   String get kitCapServerOc2Enable;
 
   /// KitCapabilityExplainer: the one-sentence turn-on offer for "server.oc2" at the moment of need, beside its button and "Not now"
@@ -25669,12 +25603,6 @@ abstract class AppLocalizations {
   /// KitCapabilityExplainer: a place a capability can run, read after "on" ("isn't available on …", "Works on …")
   ///
   /// In en, this message translates to:
-  /// **'computers with OpenCode 1'**
-  String get kitHostOpenCode1;
-
-  /// KitCapabilityExplainer: a place a capability can run, read after "on" ("isn't available on …", "Works on …")
-  ///
-  /// In en, this message translates to:
   /// **'computers with OpenCode 2'**
   String get kitHostOpenCode2;
 
@@ -25696,7 +25624,7 @@ abstract class AppLocalizations {
   /// **'the offline demo'**
   String get kitHostDemo;
 
-  /// KitCapabilityExplainer: both OpenCode 1 and OpenCode 2 computers, when a capability works on both, read after "on"
+  /// KitCapabilityExplainer: computers running OpenCode 2, read after "on"
   ///
   /// In en, this message translates to:
   /// **'computers with OpenCode'**
@@ -26623,7 +26551,7 @@ abstract class AppLocalizations {
   /// Restart sheet: the fold that holds the helper script's restart command, for servers set up with it
   ///
   /// In en, this message translates to:
-  /// **'Set up with the Linux service script?'**
+  /// **'Start OpenCode 2 on this computer'**
   String get serverSettingsRestartCommandLabel;
 
   /// Restart sheet primary: closes and checks the server again
@@ -32309,7 +32237,7 @@ abstract class AppLocalizations {
   /// Add server: under an http:// address on the network, which is refused. Never suggests a public relay.
   ///
   /// In en, this message translates to:
-  /// **'A computer on your network needs an https:// address. Tailscale gives it a private one that only your devices can reach.'**
+  /// **'Remote HTTP needs your explicit permission. Prefer HTTPS or a private Tailscale connection.'**
   String get addServerRemoteHttpAdvice;
 
   /// Add server: action that opens the Tailscale step from the http:// advice.
@@ -34487,7 +34415,7 @@ abstract class AppLocalizations {
   /// Run as a Linux service page: its title, naming the server (four words at most, glossary G28).
   ///
   /// In en, this message translates to:
-  /// **'Linux service for {server}'**
+  /// **'OpenCode on {server}'**
   String hostServiceTitle(String server);
 
   /// Run as a Linux service page: the one line under the top bar.
@@ -35168,7 +35096,7 @@ abstract class AppLocalizations {
   /// **'Unknown'**
   String get aiSetupToolUnknown;
 
-  /// AI setup: section label of an OpenCode 1 server's combined (effective) configuration
+  /// AI setup: section label for a gateway reporting combined effective configuration
   ///
   /// In en, this message translates to:
   /// **'Settings in effect'**
@@ -36771,7 +36699,7 @@ abstract class AppLocalizations {
   /// This phone: the line under the status when OpenCode 2 stopped importing the chats from OpenCode 1; the server's own text is under Details
   ///
   /// In en, this message translates to:
-  /// **'Your earlier conversations could not be brought across. They are still safe in OpenCode 1.'**
+  /// **'Your earlier conversations could not be brought across. Their original data is still on this phone, untouched.'**
   String get thisPhoneHistoryFailed;
 
   /// Add server: a connection check failed before the server could answer (a socket or TLS error); the raw error is under Details.
@@ -37194,7 +37122,7 @@ abstract class AppLocalizations {
   /// **'Set up the in-app server first.'**
   String get migrationNeedsBuiltin;
 
-  /// Moving from Termux to the in-app server: why setup comes first; runtime is 'OpenCode 1' or 'OpenCode 2'.
+  /// Moving from Termux to the in-app server: why OpenCode 2 setup comes first.
   ///
   /// In en, this message translates to:
   /// **'Your projects move into OpenCode inside this app, so it needs setting up. Setup installs Linux and {runtime}, then this continues here.'**
@@ -37259,6 +37187,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Links, sockets and Git worktrees can\'t be copied. Remove them in Termux and try again, or copy that project by hand.'**
   String get migrationUnsupportedFilesFix;
+
+  /// Moving from Termux to the in-app server: failure: a Git object link points at a Termux-private file that could not be read.
+  ///
+  /// In en, this message translates to:
+  /// **'Some of this project\'s Git history can\'t be read in Termux, so it can\'t be moved safely.'**
+  String get migrationLinkedFileUnreadable;
+
+  /// Moving from Termux to the in-app server: way forward for unreadable Git object links.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Termux, run git fsck in that project to see what is missing, then try again. Nothing was changed on your phone.'**
+  String get migrationLinkedFileUnreadableFix;
 
   /// Moving from Termux to the in-app server: failure: an item is too big.
   ///
@@ -41906,7 +41846,7 @@ abstract class AppLocalizations {
   /// Add server: warning under a plain http:// address on a private network (192.168.x.x, 10.x.x.x, .local). Must be confirmed before saving or checking.
   ///
   /// In en, this message translates to:
-  /// **'This address uses plain HTTP. On this network, others could read your password and conversations. Use Tailscale or HTTPS if you can.'**
+  /// **'This private network or Tailscale address uses plain HTTP. Your password and code travel unencrypted at the HTTP layer. Use it only on a private network you trust or through Tailscale; it is risky on public Wi-Fi.'**
   String get addServerCleartextWarning;
 
   /// Add server: action that confirms plain HTTP to a private network address; remembered for that server.
@@ -42809,6 +42749,18 @@ abstract class AppLocalizations {
   /// **'The conversation didn\'t start. Your message is still here.'**
   String get chatsNewFailed;
 
+  /// New chat: title of the Details alert after starting a conversation failed
+  ///
+  /// In en, this message translates to:
+  /// **'The conversation didn\'t start'**
+  String get chatsNewFailedTitle;
+
+  /// New chat: line in the failure Details alert saying the technical text below is also kept for Report a problem
+  ///
+  /// In en, this message translates to:
+  /// **'Report a problem includes these details.'**
+  String get chatsNewFailedReportHint;
+
   /// Bottom navigation label and title of the first tab: every conversation across projects, with what needs the person and what is running as filters.
   ///
   /// In en, this message translates to:
@@ -43034,8 +42986,14 @@ abstract class AppLocalizations {
   /// Phone check failure
   ///
   /// In en, this message translates to:
-  /// **'This phone can\'t run this agent yet.'**
+  /// **'This phone can\'t run this agent yet. Check again, or open Details to see why.'**
   String get agentsFailUnavailable;
+
+  /// A Resume of an installed agent that Android or the idle policy stopped did not start it. The agent ran before, so this never says the phone can't run it.
+  ///
+  /// In en, this message translates to:
+  /// **'{agent} didn\'t start again. Tap Resume to try once more. If it still won\'t start, run its phone check.'**
+  String agentsResumeFailed(String agent);
 
   /// Phone check failure
   ///
@@ -43067,10 +43025,10 @@ abstract class AppLocalizations {
   /// **'The agent connection didn\'t start.'**
   String get agentsFailDaemon;
 
-  /// Phone check failure
+  /// Phone agent check: actionable status, recovery or download progress
   ///
   /// In en, this message translates to:
-  /// **'The agent started but didn\'t answer.'**
+  /// **'Paseo did not confirm the connection. Retry to restart it and check again.'**
   String get agentsFailHello;
 
   /// Phone check failure
@@ -44417,6 +44375,12 @@ abstract class AppLocalizations {
   /// **'Background connection stopped for an unknown reason.'**
   String get backgroundPauseInterrupted;
 
+  /// battery-pause (FD3): App-wide notice when the phone restarted while the background connection was running.
+  ///
+  /// In en, this message translates to:
+  /// **'Background connection stopped when the phone restarted.'**
+  String get backgroundPauseDeviceRestarted;
+
   /// battery-pause (FD3): Notice action that starts the background connection again.
   ///
   /// In en, this message translates to:
@@ -44729,7 +44693,7 @@ abstract class AppLocalizations {
   /// **'Cancel sign-in?'**
   String get connectorCardCancelTitle;
 
-  /// Suggested-connector card: what cancelling sign-in does on OpenCode 1 (saved sign-in is cleared).
+  /// Suggested-connector card: what cancelling sign-in does when the server clears saved sign-in.
   ///
   /// In en, this message translates to:
   /// **'{name} stops waiting, and its saved sign-in is cleared. You would sign in again to use it.'**
@@ -46078,6 +46042,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t reach your computer. Check it\'s on and connected, then try again.'**
   String get productErrorComputer;
+
+  /// Failure words when the agent host's Git cannot read the project (bad object, not a repository) and the app can't repair it there; the daemon's reason goes under Details
+  ///
+  /// In en, this message translates to:
+  /// **'This project\'s Git history can\'t be read, so the conversation couldn\'t start. Restore the project from a copy, or clone it again.'**
+  String get productErrorProjectGit;
 
   /// KitImageGallery: the position of the shown picture in the conversation, under its name
   ///
@@ -51440,7 +51410,7 @@ abstract class AppLocalizations {
   /// Permission card: the ask for a folder outside the project
   ///
   /// In en, this message translates to:
-  /// **'Open this folder?'**
+  /// **'Work outside this project?'**
   String get chatRequestAskDirectory;
 
   /// Permission card: the ask for fetching a web page
@@ -52949,23 +52919,2807 @@ abstract class AppLocalizations {
   /// **'Some Linux packages need repair. Continue setup to try again. Details show what stopped it.'**
   String get phoneSetupErrorPackageRepair;
 
-  /// Release setup recovery and safe runtime switching copy.
+  /// Phone agent check: actionable status, recovery or download progress
   ///
   /// In en, this message translates to:
-  /// **'OpenCode 2 already has its own conversations. Older OpenCode conversations stay in Older OpenCode. Switching is unavailable while both have conversations. Stay on Older OpenCode to keep using these conversations.'**
-  String get setupSwitchSeparateHistoryDetail;
+  /// **'Claude Code is installed. Sign in to your Claude account to use it.'**
+  String get agentsFailNeedsSignIn;
 
-  /// Release setup recovery and safe runtime switching copy.
+  /// Phone agent check: actionable status, recovery or download progress
   ///
   /// In en, this message translates to:
-  /// **'Could not check your conversations safely. Stay on Older OpenCode and try again.'**
-  String get setupSwitchHistoryUnavailableDetail;
+  /// **'Paseo needs an update before this agent can connect. Update it and try again.'**
+  String get agentsFailHelperVersion;
 
-  /// Release setup recovery and safe runtime switching copy.
+  /// Phone agent check: actionable status, recovery or download progress
   ///
   /// In en, this message translates to:
-  /// **'Stay on Older OpenCode'**
-  String get setupSwitchStay;
+  /// **'The phone took too long to finish the check. Retry when it is less busy.'**
+  String get agentsFailTimeout;
+
+  /// Phone agent check: actionable status, recovery or download progress
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get agentsCheckRetry;
+
+  /// Phone agent check: actionable status, recovery or download progress
+  ///
+  /// In en, this message translates to:
+  /// **'Update Paseo and try again'**
+  String get agentsCheckUpdateHelper;
+
+  /// Phone agent check: actionable status, recovery or download progress
+  ///
+  /// In en, this message translates to:
+  /// **'Use the previous version'**
+  String get agentsCheckPrevious;
+
+  /// Technical: retained version value so the person can identify the verified version before switching back; account and conversation data stay intact
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version} is still on this phone. It will be checked before you use it. Your sign-in and conversations stay.'**
+  String agentsCheckPreviousNote(String version);
+
+  /// Phone agent check: actionable status, recovery or download progress
+  ///
+  /// In en, this message translates to:
+  /// **'The required agent version changed. Check this phone again.'**
+  String get agentsCheckAgentChanged;
+
+  /// Phone agent check: actionable status, recovery or download progress
+  ///
+  /// In en, this message translates to:
+  /// **'The required Paseo version changed. Check the connection again.'**
+  String get agentsCheckHelperChanged;
+
+  /// Phone agent check: actionable status, recovery or download progress
+  ///
+  /// In en, this message translates to:
+  /// **'The phone setup changed. Check it again.'**
+  String get agentsCheckInstallChanged;
+
+  /// Phone agent check: actionable status, recovery or download progress
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading {component} · {downloaded} of {total}'**
+  String agentsCheckDownload(String component, String downloaded, String total);
+
+  /// Phone agent check: actionable status, recovery or download progress
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading {component} · {downloaded}'**
+  String agentsCheckDownloadUnknown(String component, String downloaded);
+
+  /// Phone agent check: actionable status, recovery or download progress
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading {component}'**
+  String agentsCheckDownloading(String component);
+
+  /// Phone check: preparing shared helper tools without a measured download size
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing {component}'**
+  String agentsCheckPreparing(String component);
+
+  /// Phone check: preparing shared helper tools without a measured download size
+  ///
+  /// In en, this message translates to:
+  /// **'Phone tools'**
+  String get agentsCheckPhoneTools;
+
+  /// No description provided for @phoneSetupErrorInterrupted.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup stopped before it finished. Continue setup to try again. Completed steps will be kept.'**
+  String get phoneSetupErrorInterrupted;
+
+  /// No description provided for @agentErrorProviderAuth.
+  ///
+  /// In en, this message translates to:
+  /// **'The model provider needs a valid sign-in.'**
+  String get agentErrorProviderAuth;
+
+  /// No description provided for @agentErrorProviderAuthHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Open provider settings to sign in or replace the API key, then try again.'**
+  String get agentErrorProviderAuthHint;
+
+  /// No description provided for @agentErrorUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'The request could not finish.'**
+  String get agentErrorUnknown;
+
+  /// No description provided for @agentErrorUnknownHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the conversation before sending again. Details may help explain what happened.'**
+  String get agentErrorUnknownHint;
+
+  /// No description provided for @serverTrustHttpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Use unencrypted HTTP?'**
+  String get serverTrustHttpTitle;
+
+  /// No description provided for @serverTrustHttpPublicBody.
+  ///
+  /// In en, this message translates to:
+  /// **'At this public HTTP address, your password and code travel unencrypted and others on the network can read or change them. This is risky on public Wi-Fi; prefer HTTPS or a private Tailscale connection.'**
+  String get serverTrustHttpPublicBody;
+
+  /// No description provided for @serverTrustHttpAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow HTTP for this server'**
+  String get serverTrustHttpAccept;
+
+  /// No description provided for @serverTrustCertificateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trust this certificate?'**
+  String get serverTrustCertificateTitle;
+
+  /// No description provided for @serverTrustCertificateBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This connection is encrypted, but this device cannot verify the certificate’s issuer or server name. Compare this SHA-256 fingerprint with your server through a separate trusted channel and trust it only if they match; future connections will require this exact certificate.'**
+  String get serverTrustCertificateBody;
+
+  /// No description provided for @serverTrustCertificateChangedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The server\'s certificate changed'**
+  String get serverTrustCertificateChangedTitle;
+
+  /// No description provided for @serverTrustCertificateChangedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The certificate no longer matches the one you trusted, so the app blocked the connection before sending your password. This may be a renewal or an intercepted connection; re-check the fingerprint with the server owner before trusting a replacement.'**
+  String get serverTrustCertificateChangedBody;
+
+  /// No description provided for @serverTrustCertificateInspect.
+  ///
+  /// In en, this message translates to:
+  /// **'Check certificate'**
+  String get serverTrustCertificateInspect;
+
+  /// No description provided for @serverTrustCertificateRecheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-check certificate'**
+  String get serverTrustCertificateRecheck;
+
+  /// No description provided for @serverTrustCertificateAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Trust this fingerprint'**
+  String get serverTrustCertificateAccept;
+
+  /// No description provided for @serverTrustCertificateReplace.
+  ///
+  /// In en, this message translates to:
+  /// **'Trust replacement certificate'**
+  String get serverTrustCertificateReplace;
+
+  /// No description provided for @serverTrustCertificatePinned.
+  ///
+  /// In en, this message translates to:
+  /// **'This server uses the certificate fingerprint you trusted. A different certificate will block the connection.'**
+  String get serverTrustCertificatePinned;
+
+  /// No description provided for @serverTrustCertificateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The certificate could not be checked. Check the address and network, then try again. Nothing was trusted.'**
+  String get serverTrustCertificateFailed;
+
+  /// No description provided for @serverTrustFingerprint.
+  ///
+  /// In en, this message translates to:
+  /// **'SHA-256 fingerprint'**
+  String get serverTrustFingerprint;
+
+  /// No description provided for @serverTrustInvalidPort.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a server port between 1 and 65535.'**
+  String get serverTrustInvalidPort;
+
+  /// No description provided for @serverTrustHttpUnconfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'This server uses plain HTTP, and you have not confirmed that yet. Edit the server to review and approve the HTTP warning, or use HTTPS.'**
+  String get serverTrustHttpUnconfirmed;
+
+  /// No description provided for @serverTrustProbeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The server could not be checked. Check the address and try again.'**
+  String get serverTrustProbeFailed;
+
+  /// No description provided for @serverTrustPasswordRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Password rejected. Check the server password and try again.'**
+  String get serverTrustPasswordRejected;
+
+  /// No description provided for @serverTrustCertificateValidity.
+  ///
+  /// In en, this message translates to:
+  /// **'Valid from {from} to {to}'**
+  String serverTrustCertificateValidity(String from, String to);
+
+  /// No description provided for @serverTrustCertificateValidityError.
+  ///
+  /// In en, this message translates to:
+  /// **'The server certificate is expired or not yet valid. Ask the server owner to renew it or check the device clock before reconnecting.'**
+  String get serverTrustCertificateValidityError;
+
+  /// Dev-server preview: screen title
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get devPreviewTitle;
+
+  /// Dev-server preview: reload the page
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh page'**
+  String get devPreviewReload;
+
+  /// Dev-server preview: open the current address in the phone's browser
+  ///
+  /// In en, this message translates to:
+  /// **'Open in browser'**
+  String get devPreviewOpenInBrowser;
+
+  /// Dev-server preview: copy the current address
+  ///
+  /// In en, this message translates to:
+  /// **'Copy address'**
+  String get devPreviewCopyAddress;
+
+  /// Dev-server preview: loading bar label for screen readers
+  ///
+  /// In en, this message translates to:
+  /// **'Loading the preview'**
+  String get devPreviewLoading;
+
+  /// Dev-server preview: the page could not be reached
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is answering yet'**
+  String get devPreviewFailedTitle;
+
+  /// Dev-server preview: why the page is empty and what to do; port is the number as text
+  ///
+  /// In en, this message translates to:
+  /// **'Port {port} is not responding. The app may still be starting.'**
+  String devPreviewFailedBody(String port);
+
+  /// Dev-server preview: reload after a failure
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get devPreviewRetry;
+
+  /// Technical: dev-server preview note shown when the link was pointed at the connected server's address; 0.0.0.0 is the all-addresses setting the dev server needs
+  ///
+  /// In en, this message translates to:
+  /// **'Showing port {port} on {host}. The dev server has to listen on 0.0.0.0 (all addresses) to be reachable from this phone.'**
+  String devPreviewRemoteNote(String port, String host);
+
+  /// Dev-server preview: link tapped with no saved server connected
+  ///
+  /// In en, this message translates to:
+  /// **'Connect a server first'**
+  String get devPreviewNoServerTitle;
+
+  /// Technical: dev-server preview, explanation for a local link when no server is connected
+  ///
+  /// In en, this message translates to:
+  /// **'A link to this machine only means something on the machine running the app. Connect a server, or open the link in a browser.'**
+  String get devPreviewNoServerBody;
+
+  /// Dev-server preview: the connected server's address has no host
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t find that server'**
+  String get devPreviewNoHostTitle;
+
+  /// Dev-server preview: explanation when the host is missing
+  ///
+  /// In en, this message translates to:
+  /// **'This server\'s address is incomplete, so the link can\'t be pointed at it. Open it in a browser instead.'**
+  String get devPreviewNoHostBody;
+
+  /// Dev-server preview: this device cannot show a web view
+  ///
+  /// In en, this message translates to:
+  /// **'Preview isn\'t available here'**
+  String get devPreviewUnsupportedTitle;
+
+  /// Dev-server preview: explanation on desktop
+  ///
+  /// In en, this message translates to:
+  /// **'This device cannot show the page inside the app. Open it in a browser instead.'**
+  String get devPreviewUnsupportedBody;
+
+  /// Conversation menu: opens the list of dev servers this conversation mentioned
+  ///
+  /// In en, this message translates to:
+  /// **'Preview a running app'**
+  String get devPreviewMenu;
+
+  /// Conversation menu: hint under Preview
+  ///
+  /// In en, this message translates to:
+  /// **'Open a dev server this conversation mentioned'**
+  String get devPreviewMenuHint;
+
+  /// Dev-server preview: subtitle of the port list
+  ///
+  /// In en, this message translates to:
+  /// **'Servers this conversation mentioned'**
+  String get devPreviewSheetSubtitle;
+
+  /// Dev-server preview: one port in the list; port is the number as text
+  ///
+  /// In en, this message translates to:
+  /// **'Port {port}'**
+  String devPreviewPortTitle(String port);
+
+  /// Dev-server preview: the port's server runs on the phone itself
+  ///
+  /// In en, this message translates to:
+  /// **'On this phone'**
+  String get devPreviewOnPhone;
+
+  /// Dev-server preview: the port's server is on the connected server
+  ///
+  /// In en, this message translates to:
+  /// **'On {host}'**
+  String devPreviewOnServer(String host);
+
+  /// No description provided for @openCode1UnsupportedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update this server'**
+  String get openCode1UnsupportedTitle;
+
+  /// No description provided for @openCode1Unsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'This server runs OpenCode 1, which this app no longer supports. Update it to OpenCode 2.'**
+  String get openCode1Unsupported;
+
+  /// No description provided for @openCode2UpgradeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Updating to OpenCode 2'**
+  String get openCode2UpgradeTitle;
+
+  /// No description provided for @openCode2UpgradeProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Updating this phone’s server and bringing your conversations with you. Keep the app open.'**
+  String get openCode2UpgradeProgress;
+
+  /// No description provided for @openCode2UpgradeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The update could not finish safely. Your OpenCode 1 conversations and files are still on this phone, untouched. Try again when the server is idle and there is enough free space.'**
+  String get openCode2UpgradeFailed;
+
+  /// No description provided for @openCode2HostInstall.
+  ///
+  /// In en, this message translates to:
+  /// **'Install and start OpenCode 2'**
+  String get openCode2HostInstall;
+
+  /// No description provided for @openCode2HostInstallDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Requires Node.js and npm. Starts on this computer only and prints its password. Keep this terminal open.'**
+  String get openCode2HostInstallDetail;
+
+  /// No description provided for @schedulePhoneBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'A scheduled prompt is using the phone server. Try again when it finishes.'**
+  String get schedulePhoneBusy;
+
+  /// No description provided for @schedulePhoneCheckFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The phone server could not be checked. Try again.'**
+  String get schedulePhoneCheckFailed;
+
+  /// No description provided for @scheduleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled prompts'**
+  String get scheduleTitle;
+
+  /// No description provided for @scheduleCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule a prompt'**
+  String get scheduleCreate;
+
+  /// No description provided for @scheduleEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit schedule'**
+  String get scheduleEdit;
+
+  /// No description provided for @schedulePrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Prompt'**
+  String get schedulePrompt;
+
+  /// No description provided for @scheduleTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversation'**
+  String get scheduleTarget;
+
+  /// No description provided for @scheduleThisConversation.
+  ///
+  /// In en, this message translates to:
+  /// **'This conversation'**
+  String get scheduleThisConversation;
+
+  /// No description provided for @scheduleNewConversation.
+  ///
+  /// In en, this message translates to:
+  /// **'New conversation each run'**
+  String get scheduleNewConversation;
+
+  /// No description provided for @scheduleAgent.
+  ///
+  /// In en, this message translates to:
+  /// **'Agent'**
+  String get scheduleAgent;
+
+  /// No description provided for @scheduleWeekdays.
+  ///
+  /// In en, this message translates to:
+  /// **'Every weekday'**
+  String get scheduleWeekdays;
+
+  /// No description provided for @scheduleEveryHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Every N hours'**
+  String get scheduleEveryHours;
+
+  /// No description provided for @scheduleOnce.
+  ///
+  /// In en, this message translates to:
+  /// **'Once'**
+  String get scheduleOnce;
+
+  /// No description provided for @scheduleRepeat.
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get scheduleRepeat;
+
+  /// No description provided for @scheduleTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get scheduleTime;
+
+  /// No description provided for @scheduleHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Hours between runs'**
+  String get scheduleHours;
+
+  /// No description provided for @scheduleNextRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Next: {time}'**
+  String scheduleNextRun(String time);
+
+  /// No description provided for @scheduleSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save schedule'**
+  String get scheduleSave;
+
+  /// No description provided for @schedulePause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get schedulePause;
+
+  /// No description provided for @scheduleResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get scheduleResume;
+
+  /// No description provided for @scheduleDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete schedule'**
+  String get scheduleDelete;
+
+  /// No description provided for @scheduleHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Run history'**
+  String get scheduleHistory;
+
+  /// No description provided for @scheduleStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Started'**
+  String get scheduleStarted;
+
+  /// No description provided for @scheduleRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Running'**
+  String get scheduleRunning;
+
+  /// No description provided for @scheduleFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get scheduleFailed;
+
+  /// No description provided for @scheduleSkipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped'**
+  String get scheduleSkipped;
+
+  /// No description provided for @scheduleLate.
+  ///
+  /// In en, this message translates to:
+  /// **'Late'**
+  String get scheduleLate;
+
+  /// No description provided for @schedulePaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get schedulePaused;
+
+  /// No description provided for @scheduleFinished.
+  ///
+  /// In en, this message translates to:
+  /// **'No more runs'**
+  String get scheduleFinished;
+
+  /// No description provided for @scheduleMissedRuns.
+  ///
+  /// In en, this message translates to:
+  /// **'If a run is missed'**
+  String get scheduleMissedRuns;
+
+  /// No description provided for @scheduleCatchUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Run once when available'**
+  String get scheduleCatchUp;
+
+  /// No description provided for @scheduleSkipMissed.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip the missed run'**
+  String get scheduleSkipMissed;
+
+  /// No description provided for @scheduleTimingNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Android may delay runs. Exact alarm access improves timing; a network connection is still needed. Force-stopping the app pauses schedules until you open it again.'**
+  String get scheduleTimingNotice;
+
+  /// No description provided for @scheduleExactAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow exact alarms'**
+  String get scheduleExactAccess;
+
+  /// No description provided for @scheduleBatteryNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery restrictions may delay schedules. Each run has a time limit; you don\'t need to keep the app open.'**
+  String get scheduleBatteryNotice;
+
+  /// No description provided for @scheduleDigest.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning summary'**
+  String get scheduleDigest;
+
+  /// No description provided for @scheduleDigestDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'A notification each morning with counts of scheduled runs since the last summary.'**
+  String get scheduleDigestDescription;
+
+  /// No description provided for @scheduleEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No scheduled prompts yet'**
+  String get scheduleEmpty;
+
+  /// No description provided for @scheduleNoHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'No runs yet'**
+  String get scheduleNoHistory;
+
+  /// No description provided for @scheduleUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled prompts are unavailable for this connection.'**
+  String get scheduleUnsupported;
+
+  /// No description provided for @scheduleSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save this change. Try again.'**
+  String get scheduleSaveFailed;
+
+  /// No description provided for @scheduleNeedsYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the conversation to answer a request.'**
+  String get scheduleNeedsYou;
+
+  /// No description provided for @scheduleBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'The conversation was already working.'**
+  String get scheduleBusy;
+
+  /// No description provided for @scheduleUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The server could not be reached. Check that it is running and this phone can reach it.'**
+  String get scheduleUnavailable;
+
+  /// No description provided for @scheduleSignInAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'The server needs its password again. Open the server and sign in before the next run.'**
+  String get scheduleSignInAgain;
+
+  /// No description provided for @scheduleAllowHttp.
+  ///
+  /// In en, this message translates to:
+  /// **'This server uses plain HTTP and is not allowed yet. Open the server and allow HTTP before the next run.'**
+  String get scheduleAllowHttp;
+
+  /// No description provided for @scheduleAgentFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The agent stopped with an error. Open the conversation to see what happened.'**
+  String get scheduleAgentFailed;
+
+  /// No description provided for @scheduleCertificateChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'The server\'s certificate changed. Open the server to check it before the next run.'**
+  String get scheduleCertificateChanged;
+
+  /// No description provided for @scheduleCertificateInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'The server\'s certificate is expired or not yet valid. Open the server to check it before the next run.'**
+  String get scheduleCertificateInvalid;
+
+  /// No description provided for @scheduleTargetChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'The saved connection or target changed. Edit this schedule.'**
+  String get scheduleTargetChanged;
+
+  /// No description provided for @scheduleInterrupted.
+  ///
+  /// In en, this message translates to:
+  /// **'The run was interrupted. It was not sent again.'**
+  String get scheduleInterrupted;
+
+  /// No description provided for @scheduleTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'The run reached its time limit. Check the conversation.'**
+  String get scheduleTimeout;
+
+  /// No description provided for @scheduleUncertain.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery could not be confirmed. Check the conversation before sending again.'**
+  String get scheduleUncertain;
+
+  /// No description provided for @scheduleMissed.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped according to your missed-run choice.'**
+  String get scheduleMissed;
+
+  /// No description provided for @scheduleInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a prompt and a future time, or an interval from 1 to 168 hours.'**
+  String get scheduleInvalid;
+
+  /// No description provided for @scheduleOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Timing and delivery'**
+  String get scheduleOptions;
+
+  /// No description provided for @scheduleNotificationsOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are off. Results remain in run history.'**
+  String get scheduleNotificationsOff;
+
+  /// No description provided for @scheduleDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Future runs and this schedule’s history will be removed. Prompts already sent stay in their conversations.'**
+  String get scheduleDeleteBody;
+
+  /// No description provided for @scheduleNotificationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled prompt started'**
+  String get scheduleNotificationTitle;
+
+  /// No description provided for @scheduleNotificationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to open the conversation'**
+  String get scheduleNotificationBody;
+
+  /// No description provided for @scheduleDigestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your scheduled runs'**
+  String get scheduleDigestTitle;
+
+  /// No description provided for @scheduleDigestBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{started} started · {failed} failed · {skipped} skipped'**
+  String scheduleDigestBody(int started, int failed, int skipped);
+
+  /// No description provided for @scheduleDefaultAgent.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved agent'**
+  String get scheduleDefaultAgent;
+
+  /// No description provided for @scheduleProject.
+  ///
+  /// In en, this message translates to:
+  /// **'Project'**
+  String get scheduleProject;
+
+  /// No description provided for @scheduleDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this schedule?'**
+  String get scheduleDeleteTitle;
+
+  /// No description provided for @scheduleToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today, {time}'**
+  String scheduleToday(String time);
+
+  /// No description provided for @scheduleTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow, {time}'**
+  String scheduleTomorrow(String time);
+
+  /// No description provided for @scheduleInMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'in {minutes} min'**
+  String scheduleInMinutes(String minutes);
+
+  /// No description provided for @scheduleEveryNHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Every {hours} h'**
+  String scheduleEveryNHours(String hours);
+
+  /// No description provided for @scheduleDeleteNamedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete “{name}”?'**
+  String scheduleDeleteNamedTitle(String name);
+
+  /// Body of the upgrade page while the automatic OpenCode 1 to 2 move runs
+  ///
+  /// In en, this message translates to:
+  /// **'Moving your conversations to OpenCode 2…'**
+  String get openCode2MoveProgress;
+
+  /// Body of the upgrade page while the move waits and retries
+  ///
+  /// In en, this message translates to:
+  /// **'The phone is still getting ready. Trying again shortly (attempt {retry} of {total}).'**
+  String openCode2MoveRetrying(int retry, int total);
+
+  /// Upgrade failure: the phone server never answered
+  ///
+  /// In en, this message translates to:
+  /// **'The server on this phone was not ready. Your OpenCode 1 conversations and files are still on this phone, untouched. Try again in a minute.'**
+  String get openCode2MoveFailedNotReady;
+
+  /// Upgrade failure: two separate histories exist
+  ///
+  /// In en, this message translates to:
+  /// **'OpenCode 2 on this phone already has its own conversations, so the move stopped to protect both. Nothing was changed.'**
+  String get openCode2MoveFailedSeparateHistory;
+
+  /// Upgrade failure: the move stopped part-way
+  ///
+  /// In en, this message translates to:
+  /// **'The move stopped before it finished, often because the phone is low on free space or the server is busy. Your OpenCode 1 conversations and files are still on this phone, untouched.'**
+  String get openCode2MoveFailedStopped;
+
+  /// Upgrade failure: history import not confirmed
+  ///
+  /// In en, this message translates to:
+  /// **'OpenCode 2 did not confirm that your conversations arrived. Your OpenCode 1 conversations and files are still on this phone, untouched.'**
+  String get openCode2MoveFailedNotConfirmed;
+
+  /// Title of the sheet opened by tapping a web address in the terminal.
+  ///
+  /// In en, this message translates to:
+  /// **'Link in the terminal'**
+  String get terminalLinkTitle;
+
+  /// Button: opens the tapped terminal link in the browser.
+  ///
+  /// In en, this message translates to:
+  /// **'Open link'**
+  String get terminalLinkOpen;
+
+  /// Button: copies the tapped terminal link.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy link'**
+  String get terminalLinkCopy;
+
+  /// Brief note over the terminal when the program copied text to the clipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied to clipboard'**
+  String get terminalCopiedToClipboard;
+
+  /// Permission card: a file write beyond the project folder
+  ///
+  /// In en, this message translates to:
+  /// **'Write outside this project?'**
+  String get chatRequestAskOutsideWrite;
+
+  /// Permission card: a read beyond the project folder
+  ///
+  /// In en, this message translates to:
+  /// **'Read outside this project?'**
+  String get chatRequestAskOutsideRead;
+
+  /// Permission card: a command that works beyond the project folder
+  ///
+  /// In en, this message translates to:
+  /// **'Run a command outside this project?'**
+  String get chatRequestAskOutsideRun;
+
+  /// Setup stage when an install step was interrupted and the app runs it again by itself
+  ///
+  /// In en, this message translates to:
+  /// **'Interrupted. Trying again'**
+  String get phoneSetupStageRetrying;
+
+  /// This phone (in-app host): the row that opens the Linux manager.
+  ///
+  /// In en, this message translates to:
+  /// **'Linux'**
+  String get linuxMgrRow;
+
+  /// This phone: supporting line of the Linux row.
+  ///
+  /// In en, this message translates to:
+  /// **'What runs, ports, storage and packages of the Ubuntu inside this app'**
+  String get linuxMgrRowDetail;
+
+  /// Linux manager: page title.
+  ///
+  /// In en, this message translates to:
+  /// **'Linux on this phone'**
+  String get linuxMgrTitle;
+
+  /// Linux manager: row for the running programs.
+  ///
+  /// In en, this message translates to:
+  /// **'Running'**
+  String get linuxMgrRunning;
+
+  /// Linux manager: supporting line of Running.
+  ///
+  /// In en, this message translates to:
+  /// **'What runs inside Linux, and stopping it'**
+  String get linuxMgrRunningDetail;
+
+  /// Linux manager: row for listening ports.
+  ///
+  /// In en, this message translates to:
+  /// **'Ports'**
+  String get linuxMgrPorts;
+
+  /// Linux manager: supporting line of Ports.
+  ///
+  /// In en, this message translates to:
+  /// **'What is listening, and previewing it'**
+  String get linuxMgrPortsDetail;
+
+  /// Linux manager: row for the space breakdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Storage'**
+  String get linuxMgrStorage;
+
+  /// Linux manager: supporting line of Storage.
+  ///
+  /// In en, this message translates to:
+  /// **'Where the space goes, and clearing caches'**
+  String get linuxMgrStorageDetail;
+
+  /// Linux manager: row for installed packages.
+  ///
+  /// In en, this message translates to:
+  /// **'Packages'**
+  String get linuxMgrPackages;
+
+  /// Linux manager: supporting line of Packages.
+  ///
+  /// In en, this message translates to:
+  /// **'Installed software: install, remove and update'**
+  String get linuxMgrPackagesDetail;
+
+  /// Linux manager: the repair row and its confirm button.
+  ///
+  /// In en, this message translates to:
+  /// **'Repair Linux'**
+  String get linuxMgrRepair;
+
+  /// Linux manager: supporting line of Repair.
+  ///
+  /// In en, this message translates to:
+  /// **'Checks Linux, OpenCode and your tools and fixes what is broken. Your projects are not touched.'**
+  String get linuxMgrRepairDetail;
+
+  /// Linux manager: repair question title.
+  ///
+  /// In en, this message translates to:
+  /// **'Repair Linux?'**
+  String get linuxMgrRepairTitle;
+
+  /// Linux manager: repair question body.
+  ///
+  /// In en, this message translates to:
+  /// **'Checks Linux, OpenCode and the tools you added, and installs again anything that is missing or broken. It needs a connection and can take several minutes.'**
+  String get linuxMgrRepairBody;
+
+  /// Linux manager: repair question, a kept item.
+  ///
+  /// In en, this message translates to:
+  /// **'Your projects and sign-ins are not touched'**
+  String get linuxMgrRepairKept;
+
+  /// Linux manager: the reset row and its confirm button.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Linux'**
+  String get linuxMgrReset;
+
+  /// Linux manager: supporting line of Reset.
+  ///
+  /// In en, this message translates to:
+  /// **'Start again from a fresh Ubuntu. Your projects stay.'**
+  String get linuxMgrResetDetail;
+
+  /// Linux manager: reset question title.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Linux?'**
+  String get linuxMgrResetTitle;
+
+  /// Linux manager: reset question body.
+  ///
+  /// In en, this message translates to:
+  /// **'Linux is erased and set up again from scratch. This cannot be undone.'**
+  String get linuxMgrResetBody;
+
+  /// Linux manager: reset question, a lost item.
+  ///
+  /// In en, this message translates to:
+  /// **'Installed packages and tools: OpenCode, Python, AI Team, voice typing'**
+  String get linuxMgrResetLostTools;
+
+  /// Linux manager: reset question, a lost item.
+  ///
+  /// In en, this message translates to:
+  /// **'Agent sign-ins and their settings'**
+  String get linuxMgrResetLostSignIns;
+
+  /// Linux manager: reset question, a lost item.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversations kept by the server on this phone'**
+  String get linuxMgrResetLostChats;
+
+  /// Linux manager: reset question, a kept item.
+  ///
+  /// In en, this message translates to:
+  /// **'Your projects stay on the phone'**
+  String get linuxMgrResetKept;
+
+  /// Linux manager: the word to type to confirm a reset (shown in the confirm field).
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get linuxMgrResetWord;
+
+  /// Linux manager: the installer slot is taken.
+  ///
+  /// In en, this message translates to:
+  /// **'Another task is using Linux right now. Wait a moment and try again.'**
+  String get linuxMgrProblemBusy;
+
+  /// Linux manager: phone setup is running.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup is running. Wait until it finishes.'**
+  String get linuxMgrProblemSetup;
+
+  /// Linux manager: a package job is running.
+  ///
+  /// In en, this message translates to:
+  /// **'A package task is running. Wait until it finishes.'**
+  String get linuxMgrProblemJob;
+
+  /// Linux manager: Linux cannot be reached.
+  ///
+  /// In en, this message translates to:
+  /// **'Linux is not set up or is not answering. Open This phone to set it up.'**
+  String get linuxMgrProblemUnavailable;
+
+  /// Linux manager: a short act failed.
+  ///
+  /// In en, this message translates to:
+  /// **'That did not finish. Try again.'**
+  String get linuxMgrProblemFailed;
+
+  /// Linux manager: a page could not load.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read Linux'**
+  String get linuxMgrLoadFailedTitle;
+
+  /// Linux manager: processes page title.
+  ///
+  /// In en, this message translates to:
+  /// **'Running in Linux'**
+  String get linuxMgrProcTitle;
+
+  /// Linux manager: processes header, count and total memory.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 program} other{{count} programs}} · {memory}'**
+  String linuxMgrProcSummary(int count, String memory);
+
+  /// Linux manager: a process kind.
+  ///
+  /// In en, this message translates to:
+  /// **'OpenCode server'**
+  String get linuxMgrKindServer;
+
+  /// Linux manager: a process kind.
+  ///
+  /// In en, this message translates to:
+  /// **'Paseo'**
+  String get linuxMgrKindPaseo;
+
+  /// Linux manager: a process kind.
+  ///
+  /// In en, this message translates to:
+  /// **'Agent'**
+  String get linuxMgrKindAgent;
+
+  /// Linux manager: a process kind.
+  ///
+  /// In en, this message translates to:
+  /// **'Dev server'**
+  String get linuxMgrKindDev;
+
+  /// Linux manager: a process kind.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get linuxMgrKindOther;
+
+  /// Linux manager: what the server process is.
+  ///
+  /// In en, this message translates to:
+  /// **'The OpenCode server this app talks to. Stop it from This phone, not from here.'**
+  String get linuxMgrAboutServer;
+
+  /// Linux manager: what the Paseo process is.
+  ///
+  /// In en, this message translates to:
+  /// **'Paseo runs coding agents on this phone. Stopping it ends the agents it started.'**
+  String get linuxMgrAboutPaseo;
+
+  /// Linux manager: what an agent process is.
+  ///
+  /// In en, this message translates to:
+  /// **'A coding agent or part of AI Team. Stopping it ends its work in progress.'**
+  String get linuxMgrAboutAgent;
+
+  /// Linux manager: what a dev server is.
+  ///
+  /// In en, this message translates to:
+  /// **'A program that serves your project while you build it. Start it again from the project when you need it.'**
+  String get linuxMgrAboutDev;
+
+  /// Linux manager: what another process is.
+  ///
+  /// In en, this message translates to:
+  /// **'A program running inside Linux. Stopping it ends it; nothing restarts it.'**
+  String get linuxMgrAboutOther;
+
+  /// Linux manager: the protected server row.
+  ///
+  /// In en, this message translates to:
+  /// **'Managed from This phone'**
+  String get linuxMgrProtected;
+
+  /// Linux manager: stop question title.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop {name}?'**
+  String linuxMgrStopTitle(String name);
+
+  /// Linux manager: stop question body.
+  ///
+  /// In en, this message translates to:
+  /// **'It ends now and nothing restarts it. Unsaved work in it is lost.'**
+  String get linuxMgrStopBody;
+
+  /// Linux manager: stop question, the helpers that stop too.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 program it started stops with it} other{{count} programs it started stop with it}}'**
+  String linuxMgrStopHelpers(int count);
+
+  /// Linux manager: stop button and menu item.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop {name}'**
+  String linuxMgrStopLabel(String name);
+
+  /// Linux manager: stopping state.
+  ///
+  /// In en, this message translates to:
+  /// **'Stopping…'**
+  String get linuxMgrStopping;
+
+  /// Linux manager: result of a stop.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Stopped 1 program} other{Stopped {count} programs}}'**
+  String linuxMgrStopped(int count);
+
+  /// Linux manager: part of a stop result.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} had to be forced'**
+  String linuxMgrStopForced(int count);
+
+  /// Linux manager: part of a stop result.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} would not stop'**
+  String linuxMgrStopRemaining(int count);
+
+  /// Linux manager: part of a stop result.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} had already changed and was left alone'**
+  String linuxMgrStopChanged(int count);
+
+  /// Linux manager: title of a stop result with leftovers.
+  ///
+  /// In en, this message translates to:
+  /// **'Not everything stopped'**
+  String get linuxMgrNotStoppedTitle;
+
+  /// Linux manager: empty processes list.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is running in Linux'**
+  String get linuxMgrProcEmpty;
+
+  /// Linux manager: empty processes list, body.
+  ///
+  /// In en, this message translates to:
+  /// **'OpenCode and your tools start when you use them.'**
+  String get linuxMgrProcEmptyBody;
+
+  /// Linux manager: copy a process command.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy command'**
+  String get linuxMgrCopyCommand;
+
+  /// Linux manager: ports page title.
+  ///
+  /// In en, this message translates to:
+  /// **'Ports in Linux'**
+  String get linuxMgrPortsTitle;
+
+  /// Linux manager: a listening port.
+  ///
+  /// In en, this message translates to:
+  /// **'Port {port}'**
+  String linuxMgrPortRow(int port);
+
+  /// Linux manager: what uses a port.
+  ///
+  /// In en, this message translates to:
+  /// **'Used by {name}'**
+  String linuxMgrPortUsedBy(String name);
+
+  /// Linux manager: a port whose program cannot be named.
+  ///
+  /// In en, this message translates to:
+  /// **'Program not known'**
+  String get linuxMgrPortUnknown;
+
+  /// Linux manager: a port reachable only here.
+  ///
+  /// In en, this message translates to:
+  /// **'Only on this phone'**
+  String get linuxMgrPortLocal;
+
+  /// Linux manager: a port reachable from the network.
+  ///
+  /// In en, this message translates to:
+  /// **'Open to other devices on your network'**
+  String get linuxMgrPortAll;
+
+  /// Linux manager: a port that cannot be previewed.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a web page'**
+  String get linuxMgrPortNotPage;
+
+  /// Linux manager: open the dev preview for a port.
+  ///
+  /// In en, this message translates to:
+  /// **'Open preview'**
+  String get linuxMgrPortPreview;
+
+  /// Linux manager: accessibility label of the preview action.
+  ///
+  /// In en, this message translates to:
+  /// **'Open preview of port {port}'**
+  String linuxMgrPortPreviewNamed(int port);
+
+  /// Linux manager: copy the address of a port.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy address'**
+  String get linuxMgrPortCopy;
+
+  /// Linux manager: ports page note.
+  ///
+  /// In en, this message translates to:
+  /// **'Only ports this phone can open are listed.'**
+  String get linuxMgrPortsNote;
+
+  /// Linux manager: no ports.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is listening'**
+  String get linuxMgrPortsEmpty;
+
+  /// Linux manager: no ports, body.
+  ///
+  /// In en, this message translates to:
+  /// **'When a dev server starts, its port shows up here.'**
+  String get linuxMgrPortsEmptyBody;
+
+  /// Linux manager: storage page title.
+  ///
+  /// In en, this message translates to:
+  /// **'Linux storage'**
+  String get linuxMgrStorageTitle;
+
+  /// Linux manager: total measured size.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} used inside Linux'**
+  String linuxMgrStorageTotal(String size);
+
+  /// Linux manager: storage category.
+  ///
+  /// In en, this message translates to:
+  /// **'Linux itself'**
+  String get linuxMgrCatBase;
+
+  /// Linux manager: storage category detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Ubuntu and its system files'**
+  String get linuxMgrCatBaseDetail;
+
+  /// Linux manager: storage category.
+  ///
+  /// In en, this message translates to:
+  /// **'Package downloads'**
+  String get linuxMgrCatPackages;
+
+  /// Linux manager: storage category detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloaded packages and package lists'**
+  String get linuxMgrCatPackagesDetail;
+
+  /// Linux manager: storage category.
+  ///
+  /// In en, this message translates to:
+  /// **'Node and caches'**
+  String get linuxMgrCatTools;
+
+  /// Linux manager: storage category detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Node, npm and setup downloads'**
+  String get linuxMgrCatToolsDetail;
+
+  /// Linux manager: storage category.
+  ///
+  /// In en, this message translates to:
+  /// **'Agents and OpenCode'**
+  String get linuxMgrCatAgents;
+
+  /// Linux manager: storage category detail.
+  ///
+  /// In en, this message translates to:
+  /// **'OpenCode, Paseo, Claude Code, AI Team and their saved settings'**
+  String get linuxMgrCatAgentsDetail;
+
+  /// Linux manager: storage category.
+  ///
+  /// In en, this message translates to:
+  /// **'Projects'**
+  String get linuxMgrCatProjects;
+
+  /// Linux manager: storage category detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Your work. Never cleared from here.'**
+  String get linuxMgrCatProjectsDetail;
+
+  /// Linux manager: storage category.
+  ///
+  /// In en, this message translates to:
+  /// **'Temporary files and logs'**
+  String get linuxMgrCatTemp;
+
+  /// Linux manager: storage category detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Scratch files and program logs'**
+  String get linuxMgrCatTempDetail;
+
+  /// Linux manager: section of cleanups.
+  ///
+  /// In en, this message translates to:
+  /// **'Free up space'**
+  String get linuxMgrFreeUp;
+
+  /// Linux manager: a cleanup.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear package downloads'**
+  String get linuxMgrCleanApt;
+
+  /// Linux manager: cleanup detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Linux downloads them again if it needs them'**
+  String get linuxMgrCleanAptDetail;
+
+  /// Linux manager: a cleanup.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Node and download caches'**
+  String get linuxMgrCleanTools;
+
+  /// Linux manager: cleanup detail.
+  ///
+  /// In en, this message translates to:
+  /// **'npm and setup downloads, fetched again when needed'**
+  String get linuxMgrCleanToolsDetail;
+
+  /// Linux manager: a cleanup.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear old temporary files and logs'**
+  String get linuxMgrCleanTemp;
+
+  /// Linux manager: cleanup detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Files untouched for a day and logs older than a week'**
+  String get linuxMgrCleanTempDetail;
+
+  /// Linux manager: a cleanup.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove old agent versions'**
+  String get linuxMgrCleanAgents;
+
+  /// Linux manager: cleanup detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Paseo versions that are no longer in use'**
+  String get linuxMgrCleanAgentsDetail;
+
+  /// Linux manager: cleanup question body.
+  ///
+  /// In en, this message translates to:
+  /// **'About {size} comes back. This cannot be undone, and nothing you made is touched.'**
+  String linuxMgrCleanBody(String size);
+
+  /// Linux manager: cleanup question, a kept item.
+  ///
+  /// In en, this message translates to:
+  /// **'Projects, sign-ins and settings stay'**
+  String get linuxMgrCleanKept;
+
+  /// Linux manager: result of a cleanup.
+  ///
+  /// In en, this message translates to:
+  /// **'Freed {size}'**
+  String linuxMgrCleanDone(String size);
+
+  /// Linux manager: result of a cleanup that freed nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'There was nothing to clear'**
+  String get linuxMgrCleanNothing;
+
+  /// Linux manager: no cleanup has anything to give back.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to clear right now'**
+  String get linuxMgrCleanNone;
+
+  /// Linux manager: loading label for storage.
+  ///
+  /// In en, this message translates to:
+  /// **'Measuring…'**
+  String get linuxMgrMeasuring;
+
+  /// Linux manager: packages page title.
+  ///
+  /// In en, this message translates to:
+  /// **'Packages'**
+  String get linuxMgrPkgTitle;
+
+  /// Linux manager: installed package count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 package installed} other{{count} packages installed}}'**
+  String linuxMgrPkgCount(int count);
+
+  /// Linux manager: search field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Search installed packages'**
+  String get linuxMgrPkgSearch;
+
+  /// Linux manager: search with no result.
+  ///
+  /// In en, this message translates to:
+  /// **'No installed package matches that'**
+  String get linuxMgrPkgNoMatch;
+
+  /// Linux manager: expand the list.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all {count} packages'**
+  String linuxMgrPkgShowAll(int count);
+
+  /// Linux manager: update row and confirm button.
+  ///
+  /// In en, this message translates to:
+  /// **'Update system'**
+  String get linuxMgrPkgUpdate;
+
+  /// Linux manager: update row detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Refreshes the package lists and installs available updates'**
+  String get linuxMgrPkgUpdateDetail;
+
+  /// Linux manager: update question title.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Linux packages?'**
+  String get linuxMgrPkgUpdateTitle;
+
+  /// Linux manager: update question body.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloads the latest updates and installs them. It uses your connection, can take several minutes, and stops by itself after 45 minutes.'**
+  String get linuxMgrPkgUpdateBody;
+
+  /// Linux manager: install row and sheet title.
+  ///
+  /// In en, this message translates to:
+  /// **'Install a package'**
+  String get linuxMgrPkgInstall;
+
+  /// Linux manager: install row detail.
+  ///
+  /// In en, this message translates to:
+  /// **'By name, for example htop'**
+  String get linuxMgrPkgInstallDetail;
+
+  /// Linux manager: install field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Package name'**
+  String get linuxMgrPkgName;
+
+  /// Linux manager: install field helper.
+  ///
+  /// In en, this message translates to:
+  /// **'Ubuntu package names, separated by spaces'**
+  String get linuxMgrPkgNameHelper;
+
+  /// Linux manager: install field error.
+  ///
+  /// In en, this message translates to:
+  /// **'Use only lower case letters, digits and + - . in each name'**
+  String get linuxMgrPkgNameInvalid;
+
+  /// Linux manager: install sheet, check the names.
+  ///
+  /// In en, this message translates to:
+  /// **'Check'**
+  String get linuxMgrPkgCheck;
+
+  /// Linux manager: install check result.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is already installed'**
+  String linuxMgrPkgAlready(String name);
+
+  /// Linux manager: install check result.
+  ///
+  /// In en, this message translates to:
+  /// **'No package named {name}. Update system refreshes the list of packages.'**
+  String linuxMgrPkgUnknown(String name);
+
+  /// Linux manager: install question title.
+  ///
+  /// In en, this message translates to:
+  /// **'Install {names}?'**
+  String linuxMgrPkgInstallTitle(String names);
+
+  /// Linux manager: install question body.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloads from Ubuntu and installs. It uses your connection.'**
+  String get linuxMgrPkgInstallBody;
+
+  /// Linux manager: install button.
+  ///
+  /// In en, this message translates to:
+  /// **'Install {names}'**
+  String linuxMgrPkgInstallLabel(String names);
+
+  /// Linux manager: remove menu item and button.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name}'**
+  String linuxMgrPkgRemove(String name);
+
+  /// Linux manager: remove question title.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name}?'**
+  String linuxMgrPkgRemoveTitle(String name);
+
+  /// Linux manager: remove question body.
+  ///
+  /// In en, this message translates to:
+  /// **'It is removed from Linux. Your projects are not touched.'**
+  String get linuxMgrPkgRemoveBody;
+
+  /// Linux manager: remove question, a lost item.
+  ///
+  /// In en, this message translates to:
+  /// **'Also removed: {list}'**
+  String linuxMgrPkgAlsoRemoved(String list);
+
+  /// Linux manager: a package that cannot be removed.
+  ///
+  /// In en, this message translates to:
+  /// **'Linux or your tools need it. Tools are removed from This phone.'**
+  String get linuxMgrPkgLocked;
+
+  /// Linux manager: removal refused.
+  ///
+  /// In en, this message translates to:
+  /// **'Removing it would also remove {list}, which Linux needs.'**
+  String linuxMgrPkgBlockedPlan(String list);
+
+  /// Linux manager: working label while planning a removal.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking what it would remove…'**
+  String get linuxMgrPkgChecking;
+
+  /// Linux manager: running job title.
+  ///
+  /// In en, this message translates to:
+  /// **'Installing {names}'**
+  String linuxMgrJobInstalling(String names);
+
+  /// Linux manager: running job title.
+  ///
+  /// In en, this message translates to:
+  /// **'Removing {names}'**
+  String linuxMgrJobRemoving(String names);
+
+  /// Linux manager: running job title.
+  ///
+  /// In en, this message translates to:
+  /// **'Updating Linux packages'**
+  String get linuxMgrJobUpdating;
+
+  /// Linux manager: running job note.
+  ///
+  /// In en, this message translates to:
+  /// **'It keeps going if you leave this page.'**
+  String get linuxMgrJobKeepsGoing;
+
+  /// Linux manager: stop the install job.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop installing {names}'**
+  String linuxMgrJobStopInstall(String names);
+
+  /// Linux manager: stop the remove job.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop removing {names}'**
+  String linuxMgrJobStopRemove(String names);
+
+  /// Linux manager: stop the update job.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop updating'**
+  String get linuxMgrJobStopUpdate;
+
+  /// Linux manager: stop job question body.
+  ///
+  /// In en, this message translates to:
+  /// **'It stops now. A half-finished package is repaired the next time you run a package task.'**
+  String get linuxMgrJobStopBody;
+
+  /// Linux manager: job result.
+  ///
+  /// In en, this message translates to:
+  /// **'Installed {names}'**
+  String linuxMgrJobDoneInstall(String names);
+
+  /// Linux manager: job result.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed {names}'**
+  String linuxMgrJobDoneRemove(String names);
+
+  /// Linux manager: job result.
+  ///
+  /// In en, this message translates to:
+  /// **'Linux packages are up to date'**
+  String get linuxMgrJobDoneUpdate;
+
+  /// Linux manager: job failed.
+  ///
+  /// In en, this message translates to:
+  /// **'That did not finish. Nothing you made was touched. Try again; it carries on where it stopped.'**
+  String get linuxMgrJobFailed;
+
+  /// Linux manager: job hit its time budget.
+  ///
+  /// In en, this message translates to:
+  /// **'It took longer than 45 minutes and stopped itself. Run it again to continue.'**
+  String get linuxMgrJobTimedOut;
+
+  /// Linux manager: job was interrupted.
+  ///
+  /// In en, this message translates to:
+  /// **'It stopped before it finished, for example when the app was closed. Run it again to continue.'**
+  String get linuxMgrJobInterrupted;
+
+  /// Notification text while an install job runs.
+  ///
+  /// In en, this message translates to:
+  /// **'Installing Linux packages'**
+  String get linuxMgrJobNoticeInstall;
+
+  /// Notification text while a remove job runs.
+  ///
+  /// In en, this message translates to:
+  /// **'Removing Linux packages'**
+  String get linuxMgrJobNoticeRemove;
+
+  /// Notification text while an update job runs.
+  ///
+  /// In en, this message translates to:
+  /// **'Updating Linux packages'**
+  String get linuxMgrJobNoticeUpdate;
+
+  /// Linux manager: dismiss a finished job notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get linuxMgrJobDismiss;
+
+  /// Linux manager: stop the install job, question title.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop installing {names}?'**
+  String linuxMgrJobStopInstallTitle(String names);
+
+  /// Linux manager: stop the remove job, question title.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop removing {names}?'**
+  String linuxMgrJobStopRemoveTitle(String names);
+
+  /// Linux manager: stop the update job, question title.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop updating Linux packages?'**
+  String get linuxMgrJobStopUpdateTitle;
+
+  /// Linux manager: cleanup question title.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear package downloads?'**
+  String get linuxMgrCleanAptAsk;
+
+  /// Linux manager: cleanup question title.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Node and download caches?'**
+  String get linuxMgrCleanToolsAsk;
+
+  /// Linux manager: cleanup question title.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear old temporary files and logs?'**
+  String get linuxMgrCleanTempAsk;
+
+  /// Linux manager: cleanup question title.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove old agent versions?'**
+  String get linuxMgrCleanAgentsAsk;
+
+  /// Log panel: the search field's label
+  ///
+  /// In en, this message translates to:
+  /// **'Search this output'**
+  String get kitLogSearch;
+
+  /// Log panel: stop scrolling to new lines
+  ///
+  /// In en, this message translates to:
+  /// **'Pause following'**
+  String get kitLogPause;
+
+  /// Log panel: scroll to new lines again
+  ///
+  /// In en, this message translates to:
+  /// **'Follow new output'**
+  String get kitLogFollow;
+
+  /// Log panel search: go to the earlier match
+  ///
+  /// In en, this message translates to:
+  /// **'Previous match'**
+  String get kitLogPreviousMatch;
+
+  /// Log panel search: go to the later match
+  ///
+  /// In en, this message translates to:
+  /// **'Next match'**
+  String get kitLogNextMatch;
+
+  /// Development services: heading for servers found running that are not saved commands
+  ///
+  /// In en, this message translates to:
+  /// **'Also running'**
+  String get servicesAlsoRunning;
+
+  /// Development services: how running servers outside the saved list are found
+  ///
+  /// In en, this message translates to:
+  /// **'Found by the ports they listen on, however they were started.'**
+  String get servicesAlsoPhoneHint;
+
+  /// Development services: what a remote server can show
+  ///
+  /// In en, this message translates to:
+  /// **'This server lists the commands it is running. A server started in a terminal on it is not found here.'**
+  String get servicesAlsoServerHint;
+
+  /// Development services: the port or ports a server listens on; ports is the numbers as text
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Port {ports}} other{Ports {ports}}}'**
+  String servicesPorts(int count, String ports);
+
+  /// Development services: a running command with no listening port seen
+  ///
+  /// In en, this message translates to:
+  /// **'No port found yet'**
+  String get servicesNoPortYet;
+
+  /// Development services: open the dev preview for a server
+  ///
+  /// In en, this message translates to:
+  /// **'Open preview'**
+  String get servicesOpenPreview;
+
+  /// Development services: the preview button of the named server
+  ///
+  /// In en, this message translates to:
+  /// **'Preview {name}'**
+  String servicesOpenPreviewNamed(String name);
+
+  /// Development services menu: preview one of several ports
+  ///
+  /// In en, this message translates to:
+  /// **'Preview port {port}'**
+  String servicesPreviewPort(String port);
+
+  /// Development services: keep a running server's command as a saved command
+  ///
+  /// In en, this message translates to:
+  /// **'Save as command'**
+  String get servicesSaveCommand;
+
+  /// Development services: confirm stopping a found server
+  ///
+  /// In en, this message translates to:
+  /// **'Stop {name}?'**
+  String servicesStopFoundTitle(String name);
+
+  /// Development services: what stopping a found server does
+  ///
+  /// In en, this message translates to:
+  /// **'This ends the program on the machine it runs on. Anything it has not saved is lost.'**
+  String get servicesStopFoundHint;
+
+  /// Development services: why a found program has no logs
+  ///
+  /// In en, this message translates to:
+  /// **'This program was not started from this app, so its output is not kept where the app can read it. Choose Save as command on its row, stop this one, then start the saved command here to see its logs.'**
+  String get servicesLogsUnavailable;
+
+  /// Development services: stopping a found server failed
+  ///
+  /// In en, this message translates to:
+  /// **'It did not stop. Try again, or stop it from the Terminal.'**
+  String get servicesStopFailed;
+
+  /// Preview list: a server found running; name is its short name
+  ///
+  /// In en, this message translates to:
+  /// **'Running now: {name}'**
+  String devPreviewRunningNow(String name);
+
+  /// Preview list: nothing mentioned and nothing listening
+  ///
+  /// In en, this message translates to:
+  /// **'No running apps found'**
+  String get devPreviewNoneFound;
+
+  /// Linux manager: alert title when the phone refused a reset before erasing anything.
+  ///
+  /// In en, this message translates to:
+  /// **'Linux was not reset'**
+  String get linuxMgrResetNotErasedTitle;
+
+  /// Linux manager: alert body when a reset was refused before erasing; says nothing changed and what to do.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing was erased. Close the terminals and stop what runs in Linux, then try again.'**
+  String get linuxMgrResetNotErasedBody;
+
+  /// Linux manager: label of the technical value under Details of a refused reset.
+  ///
+  /// In en, this message translates to:
+  /// **'Error code'**
+  String get linuxMgrResetDetailsLabel;
+
+  /// Linux manager: alert title after a reset erased Linux and setup started, when some saved data of the old server could not be cleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Setting Linux up again'**
+  String get linuxMgrResetCleanupTitle;
+
+  /// After Linux was erased: one saved in-app server the app could not forget at all; name is the server's name.
+  ///
+  /// In en, this message translates to:
+  /// **'“{name}” from before the reset could not be forgotten and is still saved.'**
+  String linuxMgrResetForgetFailed(String name);
+
+  /// After Linux was erased: what of one saved in-app server could not be deleted; what lists the leftovers.
+  ///
+  /// In en, this message translates to:
+  /// **'From before the reset, “{name}” still has saved: {what}.'**
+  String linuxMgrResetLeft(String name, String what);
+
+  /// Part of the list of what a reset could not forget: the saved server entry itself.
+  ///
+  /// In en, this message translates to:
+  /// **'its saved connection'**
+  String get linuxMgrResetLeftConnection;
+
+  /// Development services: the look for running servers in the in-app Linux did not finish; it retries on its own
+  ///
+  /// In en, this message translates to:
+  /// **'Could not check what else runs in Linux right now. It is checked again in a few seconds.'**
+  String get servicesAlsoPhoneFailed;
+
+  /// Linux manager: one program row stands for several helper processes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} processes'**
+  String linuxMgrProcGroupCount(int count);
+
+  /// New conversation: failure words when the project's Git can't be read and the app can repair it (Repair follows)
+  ///
+  /// In en, this message translates to:
+  /// **'Git history can\'t be read.'**
+  String get gitRepairFailureWords;
+
+  /// New conversation: the action on a Git failure that repairs the project's Git history, in Retry's place
+  ///
+  /// In en, this message translates to:
+  /// **'Repair'**
+  String get gitRepairAction;
+
+  /// Title of the sheet that repairs a project's Git history
+  ///
+  /// In en, this message translates to:
+  /// **'Repair Git history'**
+  String get gitRepairTitle;
+
+  /// Repair sheet: title while the repair runs
+  ///
+  /// In en, this message translates to:
+  /// **'Repairing {project}…'**
+  String gitRepairWorking(String project);
+
+  /// Repair sheet: first step
+  ///
+  /// In en, this message translates to:
+  /// **'Looking for missing Git files…'**
+  String get gitRepairLooking;
+
+  /// Repair sheet: replacing broken links with the files found on the phone
+  ///
+  /// In en, this message translates to:
+  /// **'Putting back {done} of {total} Git files…'**
+  String gitRepairRestoring(int done, int total);
+
+  /// Repair sheet: Termux copies the missing files back
+  ///
+  /// In en, this message translates to:
+  /// **'Copying {done} of {total} Git files from Termux…'**
+  String gitRepairAskingTermux(int done, int total);
+
+  /// Repair sheet: last step, Git checks the project
+  ///
+  /// In en, this message translates to:
+  /// **'Checking the project with Git…'**
+  String get gitRepairChecking;
+
+  /// Repair sheet: success title
+  ///
+  /// In en, this message translates to:
+  /// **'{project} is repaired'**
+  String gitRepairDoneTitle(String project);
+
+  /// Repair sheet: success body
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 Git file is back, and Git can read the project again.} other{{count} Git files are back, and Git can read the project again.}}'**
+  String gitRepairDoneBody(int count);
+
+  /// Repair sheet: no broken links were found and Git reads the project
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing was missing'**
+  String get gitRepairHealthyTitle;
+
+  /// Repair sheet: body when nothing needed repair
+  ///
+  /// In en, this message translates to:
+  /// **'Git can read {project} now.'**
+  String gitRepairHealthyBody(String project);
+
+  /// Repair sheet: after success, closes and sends the first message again
+  ///
+  /// In en, this message translates to:
+  /// **'Start the conversation'**
+  String get gitRepairStart;
+
+  /// Repair sheet: the files are in Termux and the app may not run commands there yet
+  ///
+  /// In en, this message translates to:
+  /// **'Files are in Termux'**
+  String get gitRepairTermuxNotAllowedTitle;
+
+  /// Repair sheet: what Allow does
+  ///
+  /// In en, this message translates to:
+  /// **'Allow the app to run commands in Termux, and it copies them back.'**
+  String get gitRepairTermuxNotAllowedBody;
+
+  /// Repair sheet: asks for Termux's Run commands permission, then repairs
+  ///
+  /// In en, this message translates to:
+  /// **'Allow and repair'**
+  String get gitRepairAllow;
+
+  /// Repair sheet: Termux did not run the copy
+  ///
+  /// In en, this message translates to:
+  /// **'Termux didn\'t answer'**
+  String get gitRepairTermuxNoAnswerTitle;
+
+  /// Repair sheet: way forward when Termux did not answer
+  ///
+  /// In en, this message translates to:
+  /// **'Open Termux once so it starts, come back here, and repair again.'**
+  String get gitRepairTermuxNoAnswerBody;
+
+  /// Repair sheet: runs the repair again
+  ///
+  /// In en, this message translates to:
+  /// **'Repair again'**
+  String get gitRepairAgain;
+
+  /// Repair sheet: opens the Termux app
+  ///
+  /// In en, this message translates to:
+  /// **'Open Termux'**
+  String get gitRepairOpenTermux;
+
+  /// Repair sheet: some files are gone for good
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t repair {project}'**
+  String gitRepairCannotTitle(String project);
+
+  /// Repair sheet: files that can't be found anywhere, and the way forward
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 Git file isn\'t on this phone any more. Clone the project again from where it\'s hosted, or restore a copy.} other{{count} Git files aren\'t on this phone any more. Clone the project again from where it\'s hosted, or restore a copy.}}'**
+  String gitRepairMissingBody(int count);
+
+  /// Repair sheet: nothing was missing but Git still refuses the project
+  ///
+  /// In en, this message translates to:
+  /// **'Git still can\'t read it. Clone the project again from where it\'s hosted, or restore a copy.'**
+  String get gitRepairStillBrokenBody;
+
+  /// Repair sheet: the folder is not a Git project in the in-app Linux
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t repair this folder'**
+  String get gitRepairNotRepositoryTitle;
+
+  /// Repair sheet: why the folder can't be repaired
+  ///
+  /// In en, this message translates to:
+  /// **'Only Git projects in the in-app Linux\'s projects folder can be repaired here.'**
+  String get gitRepairNotRepositoryBody;
+
+  /// Repair sheet: closes the sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get gitRepairClose;
+
+  /// Git page error: the folder is not a Git repository
+  ///
+  /// In en, this message translates to:
+  /// **'This folder isn’t a Git repository.'**
+  String get gitProblemNotARepository;
+
+  /// Git page error: git is not installed in the project's environment
+  ///
+  /// In en, this message translates to:
+  /// **'Git isn’t installed where this project lives. Install it there, then try again.'**
+  String get gitProblemGitMissing;
+
+  /// Git page error: the project folder does not exist
+  ///
+  /// In en, this message translates to:
+  /// **'The project folder wasn’t found. It may have been moved or deleted.'**
+  String get gitProblemFolderMissing;
+
+  /// Git page error: the command bridge (in-app Linux, Termux or server) is not ready
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t reach the place this project lives. Check that it’s running, then try again.'**
+  String get gitProblemEnvironmentUnavailable;
+
+  /// Git page error: the server has no command endpoint
+  ///
+  /// In en, this message translates to:
+  /// **'This server can’t run Git commands for the app.'**
+  String get gitProblemServerCannotRunCommands;
+
+  /// Git page error: git's answer was cut off because it was too long
+  ///
+  /// In en, this message translates to:
+  /// **'There are too many changes to read here. Commit or clean up some files, then try again.'**
+  String get gitProblemOutputTooLarge;
+
+  /// Git page error: the command timed out
+  ///
+  /// In en, this message translates to:
+  /// **'Git took too long to answer. Try again.'**
+  String get gitProblemTimedOut;
+
+  /// Git page error: git refuses the folder (dubious ownership)
+  ///
+  /// In en, this message translates to:
+  /// **'Git won’t work in this folder because another user owns it. Fix the folder’s owner on that device.'**
+  String get gitProblemUnsafeRepository;
+
+  /// Git page error: index.lock is held by another git process
+  ///
+  /// In en, this message translates to:
+  /// **'Another Git command is using this repository. Wait for it to finish, then try again.'**
+  String get gitProblemRepositoryLocked;
+
+  /// Git page error: pull on a branch with no upstream
+  ///
+  /// In en, this message translates to:
+  /// **'This branch isn’t linked to a branch on the remote yet. Push it first.'**
+  String get gitProblemNoUpstream;
+
+  /// Git page error: push with no remote configured
+  ///
+  /// In en, this message translates to:
+  /// **'This repository has no remote to push to. Add one on that device first.'**
+  String get gitProblemNoRemote;
+
+  /// Git page error: HEAD is detached
+  ///
+  /// In en, this message translates to:
+  /// **'You’re not on a branch. Switch to a branch first.'**
+  String get gitProblemDetachedHead;
+
+  /// Git page error: pull --ff-only failed because history diverged
+  ///
+  /// In en, this message translates to:
+  /// **'The remote and this branch both have new commits, so they can’t be combined automatically. Merge or rebase on that device.'**
+  String get gitProblemCannotFastForward;
+
+  /// Git page error: push rejected as non-fast-forward
+  ///
+  /// In en, this message translates to:
+  /// **'The remote has commits this branch doesn’t have. Pull first, then push again.'**
+  String get gitProblemPushRejected;
+
+  /// Git page error: local changes block pull or branch switch
+  ///
+  /// In en, this message translates to:
+  /// **'Your uncommitted changes would be overwritten. Commit or discard them first.'**
+  String get gitProblemLocalChangesBlock;
+
+  /// Git page error: authentication needed and the app cannot hand over a GitHub sign-in here (Termux or a server)
+  ///
+  /// In en, this message translates to:
+  /// **'The remote needs you to sign in. Set up Git sign-in where this project lives, then try again.'**
+  String get gitProblemAuthRequired;
+
+  /// Git page error: authentication needed where the app offers GitHub sign-in
+  ///
+  /// In en, this message translates to:
+  /// **'The remote needs you to sign in. Sign in to GitHub, then try again.'**
+  String get gitProblemAuthRequiredSignIn;
+
+  /// Git page error: GitHub rejected the token the app handed over
+  ///
+  /// In en, this message translates to:
+  /// **'GitHub didn’t accept your sign-in. Sign in to GitHub again.'**
+  String get gitProblemGitHubTokenRejected;
+
+  /// Git page error: 403 / permission denied
+  ///
+  /// In en, this message translates to:
+  /// **'Your account can’t push to this repository. Ask its owner for access.'**
+  String get gitProblemNoPermission;
+
+  /// Git page error: network failure talking to the remote
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t reach the remote. Check the internet connection, then try again.'**
+  String get gitProblemNetwork;
+
+  /// Git page error: remote repository not found
+  ///
+  /// In en, this message translates to:
+  /// **'The remote repository wasn’t found, or your account can’t see it.'**
+  String get gitProblemRemoteNotFound;
+
+  /// Git page error: commit with no files selected
+  ///
+  /// In en, this message translates to:
+  /// **'Choose at least one file to commit.'**
+  String get gitProblemNothingSelected;
+
+  /// Git page error: commit with an empty message
+  ///
+  /// In en, this message translates to:
+  /// **'Write a message that describes the commit.'**
+  String get gitProblemEmptyMessage;
+
+  /// Git page error: nothing to commit
+  ///
+  /// In en, this message translates to:
+  /// **'There’s nothing to commit in the files you chose.'**
+  String get gitProblemNothingToCommit;
+
+  /// Git page error: user.name/user.email not set
+  ///
+  /// In en, this message translates to:
+  /// **'Git needs your name and email to make a commit. Add them, then try again.'**
+  String get gitProblemIdentityMissing;
+
+  /// Git page error: GPG/SSH commit signing failed
+  ///
+  /// In en, this message translates to:
+  /// **'Git couldn’t sign the commit. Check commit signing on that device.'**
+  String get gitProblemSigningFailed;
+
+  /// Git page error: a git hook refused the commit or push
+  ///
+  /// In en, this message translates to:
+  /// **'A check in this repository stopped the action. Details shows what it said.'**
+  String get gitProblemHookRejected;
+
+  /// Git page error: invalid branch name
+  ///
+  /// In en, this message translates to:
+  /// **'That isn’t a valid branch name. Avoid spaces and characters like ~ ^ : ? * ['**
+  String get gitProblemInvalidBranchName;
+
+  /// Git page error: branch already exists
+  ///
+  /// In en, this message translates to:
+  /// **'A branch with that name already exists.'**
+  String get gitProblemBranchExists;
+
+  /// Git page error: branch not found
+  ///
+  /// In en, this message translates to:
+  /// **'That branch wasn’t found.'**
+  String get gitProblemBranchNotFound;
+
+  /// Git page error: unmerged files block the action
+  ///
+  /// In en, this message translates to:
+  /// **'Some files have conflicts. Resolve them on that device first.'**
+  String get gitProblemConflicts;
+
+  /// Git page error: a merge/rebase/cherry-pick is half-done
+  ///
+  /// In en, this message translates to:
+  /// **'A merge or rebase isn’t finished. Finish or cancel it on that device first.'**
+  String get gitProblemOperationInProgress;
+
+  /// Git page error: discard refused for an unmerged file
+  ///
+  /// In en, this message translates to:
+  /// **'Files with conflicts can’t be discarded here.'**
+  String get gitProblemCannotDiscardConflict;
+
+  /// Git page error: unrecognised git failure
+  ///
+  /// In en, this message translates to:
+  /// **'Git couldn’t finish. Details shows what it said.'**
+  String get gitProblemUnknown;
+
+  /// Git page: no connection
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to a server to see its Git changes.'**
+  String get gitUnavailableNotConnected;
+
+  /// Git page: no project folder open
+  ///
+  /// In en, this message translates to:
+  /// **'Open a project to see its Git changes.'**
+  String get gitUnavailableNoProject;
+
+  /// Git page: the server cannot run commands (OpenCode 1, Codex, Paseo)
+  ///
+  /// In en, this message translates to:
+  /// **'This server can’t run Git for the app. Use Git on that computer instead.'**
+  String get gitUnavailableServerCannotRun;
+
+  /// Git page empty state title: folder is not a repository
+  ///
+  /// In en, this message translates to:
+  /// **'Not a Git repository'**
+  String get gitNotRepositoryTitle;
+
+  /// Git page empty state body: folder is not a repository
+  ///
+  /// In en, this message translates to:
+  /// **'This project folder doesn’t use Git yet.'**
+  String get gitNotRepositoryBody;
+
+  /// Git page: working tree is clean (title)
+  ///
+  /// In en, this message translates to:
+  /// **'No changes'**
+  String get gitCleanTitle;
+
+  /// Git page: working tree is clean (body)
+  ///
+  /// In en, this message translates to:
+  /// **'Everything is committed.'**
+  String get gitCleanBody;
+
+  /// Git page branch line: HEAD is detached
+  ///
+  /// In en, this message translates to:
+  /// **'Not on a branch'**
+  String get gitDetachedHead;
+
+  /// Git page branch line: branch has no upstream
+  ///
+  /// In en, this message translates to:
+  /// **'Not pushed yet'**
+  String get gitNotPushedYet;
+
+  /// Git page: the branch has no commits
+  ///
+  /// In en, this message translates to:
+  /// **'No commits yet'**
+  String get gitNoCommitsYet;
+
+  /// Git page branch line: commits ahead of upstream
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 commit to push} other{{count} commits to push}}'**
+  String gitAhead(int count);
+
+  /// Git page branch line: commits behind upstream
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 commit to pull} other{{count} commits to pull}}'**
+  String gitBehind(int count);
+
+  /// Git page banner: a merge is half-done
+  ///
+  /// In en, this message translates to:
+  /// **'Merge not finished'**
+  String get gitOperationMerge;
+
+  /// Git page banner: a rebase is half-done
+  ///
+  /// In en, this message translates to:
+  /// **'Rebase not finished'**
+  String get gitOperationRebase;
+
+  /// Git page banner: a cherry-pick is half-done
+  ///
+  /// In en, this message translates to:
+  /// **'Cherry-pick not finished'**
+  String get gitOperationCherryPick;
+
+  /// Git page banner: a revert is half-done
+  ///
+  /// In en, this message translates to:
+  /// **'Revert not finished'**
+  String get gitOperationRevert;
+
+  /// Git page note on Termux and servers: the app does not send its GitHub sign-in
+  ///
+  /// In en, this message translates to:
+  /// **'Push and pull use the Git sign-in already set up where this project lives.'**
+  String get gitUsesOwnSignIn;
+
+  /// Git file kind
+  ///
+  /// In en, this message translates to:
+  /// **'Added'**
+  String get gitChangeAdded;
+
+  /// Git file kind
+  ///
+  /// In en, this message translates to:
+  /// **'Modified'**
+  String get gitChangeModified;
+
+  /// Git file kind
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted'**
+  String get gitChangeDeleted;
+
+  /// Git file kind
+  ///
+  /// In en, this message translates to:
+  /// **'Renamed'**
+  String get gitChangeRenamed;
+
+  /// Git file kind
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get gitChangeCopied;
+
+  /// Git file kind
+  ///
+  /// In en, this message translates to:
+  /// **'Type changed'**
+  String get gitChangeTypeChanged;
+
+  /// Git file kind: untracked file
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get gitChangeUntracked;
+
+  /// Git file kind: unmerged file
+  ///
+  /// In en, this message translates to:
+  /// **'Conflict'**
+  String get gitChangeConflicted;
+
+  /// Git page button: git pull --ff-only
+  ///
+  /// In en, this message translates to:
+  /// **'Pull'**
+  String get gitActionPull;
+
+  /// Git page button: git push
+  ///
+  /// In en, this message translates to:
+  /// **'Push'**
+  String get gitActionPush;
+
+  /// Git page button: commit the selected files
+  ///
+  /// In en, this message translates to:
+  /// **'Commit'**
+  String get gitActionCommit;
+
+  /// Git page button: switch to another branch
+  ///
+  /// In en, this message translates to:
+  /// **'Switch branch'**
+  String get gitActionSwitchBranch;
+
+  /// Git page button: create a branch and switch to it
+  ///
+  /// In en, this message translates to:
+  /// **'New branch'**
+  String get gitActionCreateBranch;
+
+  /// Git page button: discard one file's changes
+  ///
+  /// In en, this message translates to:
+  /// **'Discard changes'**
+  String get gitActionDiscard;
+
+  /// Git page button: read the repository again
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get gitActionRefresh;
+
+  /// Git page button: save user.name and user.email for this repository
+  ///
+  /// In en, this message translates to:
+  /// **'Save name and email'**
+  String get gitActionSaveIdentity;
+
+  /// Git page busy line
+  ///
+  /// In en, this message translates to:
+  /// **'Pulling…'**
+  String get gitBusyPull;
+
+  /// Git page busy line
+  ///
+  /// In en, this message translates to:
+  /// **'Pushing…'**
+  String get gitBusyPush;
+
+  /// Git page busy line
+  ///
+  /// In en, this message translates to:
+  /// **'Committing…'**
+  String get gitBusyCommit;
+
+  /// Git page busy line
+  ///
+  /// In en, this message translates to:
+  /// **'Switching branch…'**
+  String get gitBusySwitchBranch;
+
+  /// Git page busy line
+  ///
+  /// In en, this message translates to:
+  /// **'Creating the branch…'**
+  String get gitBusyCreateBranch;
+
+  /// Git page busy line
+  ///
+  /// In en, this message translates to:
+  /// **'Discarding changes…'**
+  String get gitBusyDiscard;
+
+  /// Git page busy line
+  ///
+  /// In en, this message translates to:
+  /// **'Checking for changes…'**
+  String get gitBusyRefresh;
+
+  /// Git page busy line
+  ///
+  /// In en, this message translates to:
+  /// **'Saving…'**
+  String get gitBusySaveIdentity;
+
+  /// Git page result: nothing to pull or push
+  ///
+  /// In en, this message translates to:
+  /// **'Already up to date.'**
+  String get gitDoneUpToDate;
+
+  /// Git page result: pull brought commits
+  ///
+  /// In en, this message translates to:
+  /// **'Pulled the latest commits.'**
+  String get gitDonePulled;
+
+  /// Git page result: push worked
+  ///
+  /// In en, this message translates to:
+  /// **'Pushed.'**
+  String get gitDonePushed;
+
+  /// Git page result: first push set the upstream
+  ///
+  /// In en, this message translates to:
+  /// **'Pushed. This branch now follows the one on the remote.'**
+  String get gitDonePushedTracking;
+
+  /// Git page result: commit made; placeholder is the short commit id
+  ///
+  /// In en, this message translates to:
+  /// **'Committed {commit}.'**
+  String gitDoneCommitted(String commit);
+
+  /// Git page result
+  ///
+  /// In en, this message translates to:
+  /// **'Switched branch.'**
+  String get gitDoneSwitched;
+
+  /// Git page result
+  ///
+  /// In en, this message translates to:
+  /// **'Created the branch and switched to it.'**
+  String get gitDoneCreated;
+
+  /// Git page result
+  ///
+  /// In en, this message translates to:
+  /// **'Changes discarded.'**
+  String get gitDoneDiscarded;
+
+  /// Git page result
+  ///
+  /// In en, this message translates to:
+  /// **'Saved your name and email for this repository.'**
+  String get gitDoneIdentitySaved;
+
+  /// Git page confirm title before discarding one file; placeholder is the file name
+  ///
+  /// In en, this message translates to:
+  /// **'Discard changes to {file}?'**
+  String gitDiscardConfirmTitle(String file);
+
+  /// Git page confirm body before discarding one file
+  ///
+  /// In en, this message translates to:
+  /// **'Its changes are deleted from this device. This can’t be undone.'**
+  String get gitDiscardConfirmBody;
+
+  /// Git page commit message field hint
+  ///
+  /// In en, this message translates to:
+  /// **'Describe what changed'**
+  String get gitCommitMessageHint;
+
+  /// Git page new-branch field hint
+  ///
+  /// In en, this message translates to:
+  /// **'Branch name'**
+  String get gitBranchNameHint;
+
+  /// Git page identity form field: user.name
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get gitIdentityName;
+
+  /// Git page identity form field: user.email
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get gitIdentityEmail;
+
+  /// Git page button: start GitHub device sign-in
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to GitHub'**
+  String get gitHubSignIn;
+
+  /// Git page button: forget the GitHub sign-in on this device
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out of GitHub'**
+  String get gitHubSignOut;
+
+  /// Git page: GitHub account line; placeholder is the GitHub user name
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in to GitHub as {login}'**
+  String gitHubSignedInAs(String login);
+
+  /// GitHub sign-in: requesting a device code
+  ///
+  /// In en, this message translates to:
+  /// **'Getting a sign-in code…'**
+  String get gitHubRequestingCode;
+
+  /// GitHub sign-in: instruction above the user code
+  ///
+  /// In en, this message translates to:
+  /// **'Enter this code on GitHub to finish signing in.'**
+  String get gitHubEnterCode;
+
+  /// GitHub sign-in button: opens github.com/login/device
+  ///
+  /// In en, this message translates to:
+  /// **'Open GitHub'**
+  String get gitHubOpenGitHub;
+
+  /// GitHub sign-in button: copies the user code
+  ///
+  /// In en, this message translates to:
+  /// **'Copy code'**
+  String get gitHubCopyCode;
+
+  /// GitHub sign-in: polling
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for you to finish on GitHub…'**
+  String get gitHubWaiting;
+
+  /// GitHub sign-in: reading the account name
+  ///
+  /// In en, this message translates to:
+  /// **'Finishing sign-in…'**
+  String get gitHubFinishing;
+
+  /// GitHub sign-in button: stop waiting
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get gitHubCancel;
+
+  /// GitHub sign-out confirm body
+  ///
+  /// In en, this message translates to:
+  /// **'The app forgets your GitHub sign-in on this device. To remove its access completely, revoke it on GitHub too.'**
+  String get gitHubSignOutBody;
+
+  /// Opens GitHub's authorized apps page
+  ///
+  /// In en, this message translates to:
+  /// **'Manage access on GitHub'**
+  String get gitHubManageAccess;
+
+  /// Git page note: SSH remotes are pushed over HTTPS for that one command
+  ///
+  /// In en, this message translates to:
+  /// **'Pushes to GitHub use this sign-in over HTTPS. Your SSH settings don’t change.'**
+  String get gitHubPushOverHttps;
+
+  /// GitHub sign-in error: device code expired
+  ///
+  /// In en, this message translates to:
+  /// **'The code expired before it was entered. Sign in again to get a new one.'**
+  String get gitHubProblemExpired;
+
+  /// GitHub sign-in error: access denied
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-in was cancelled on GitHub.'**
+  String get gitHubProblemDenied;
+
+  /// GitHub sign-in error: device flow disabled for the OAuth app
+  ///
+  /// In en, this message translates to:
+  /// **'GitHub sign-in isn’t switched on for this app yet.'**
+  String get gitHubProblemDisabled;
+
+  /// GitHub sign-in error: network
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t reach GitHub. Check the internet connection, then try again.'**
+  String get gitHubProblemNetwork;
+
+  /// GitHub sign-in error: stored token rejected or expired
+  ///
+  /// In en, this message translates to:
+  /// **'Your GitHub sign-in ended. Sign in again.'**
+  String get gitHubProblemTokenRejected;
+
+  /// GitHub sign-in error: unexpected response
+  ///
+  /// In en, this message translates to:
+  /// **'GitHub sent an answer the app didn’t understand. Try again.'**
+  String get gitHubProblemUnexpected;
 }
 
 class _AppLocalizationsDelegate

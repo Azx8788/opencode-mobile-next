@@ -5,7 +5,6 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:opencode_mobile/domain/phone_project_engine.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
 import 'package:opencode_mobile/orchestration/adapters/inapp/phone_engine_gateway.dart';
 import 'package:opencode_mobile/ui/kit/kit_redact.dart';
 import 'package:opencode_mobile/state/team_project_controller.dart';
@@ -50,8 +49,8 @@ Map<String, Object?> health(
   'capabilities': <String, Object?>{
     'execution': execution,
     'boundary': execution,
-    'oc1Verified': execution,
-    'oc2': false,
+    'oc2Verified': execution,
+    'oc2': true,
   },
   'commandActions': actions,
 };
@@ -118,7 +117,6 @@ void main() {
           engineVersion: 'test',
           execution: false,
           boundary: true,
-          oc1Verified: false,
           oc2: false,
           commandActions: const {},
           boundaryReason: 'boundary_attested',
@@ -142,7 +140,6 @@ void main() {
           final wire = health('p1', execution: execution);
           (wire['capabilities'] as Map<String, Object?>).addAll({
             'boundary': boundary,
-            'oc1Verified': false,
             'oc2': true,
             'oc2Verified': verified,
           });
@@ -153,7 +150,7 @@ void main() {
       }
     }
     final legacy = health('p1', execution: true);
-    (legacy['capabilities'] as Map)['oc2'] = true;
+    (legacy['capabilities'] as Map).remove('oc2Verified');
     expect(PhoneEngineHealth.fromJson(legacy, 'p1').canExecute, isFalse);
   });
 
@@ -170,9 +167,8 @@ void main() {
 
   test('contradictory protocol proofs cannot enable execution', () {
     for (final proof in [
-      {'oc2': true, 'oc1Verified': true, 'oc2Verified': true},
-      {'oc2': false, 'oc1Verified': true, 'oc2Verified': true},
-      {'oc2': false, 'oc1Verified': false, 'oc2Verified': true},
+      {'oc2': false, 'oc2Verified': true},
+      {'oc2': true, 'oc2Verified': false},
     ]) {
       final wire = health('p1', execution: true);
       (wire['capabilities'] as Map<String, Object?>).addAll(proof);
@@ -188,7 +184,6 @@ void main() {
       for (final verified in [false, true]) {
         final wire = health('p1', execution: true, actions: ['promote']);
         (wire['capabilities'] as Map<String, Object?>).addAll({
-          'oc1Verified': false,
           'oc2': true,
           'oc2Verified': verified,
         });
@@ -795,78 +790,6 @@ void main() {
       );
       expect(adapter.requests, hasLength(1));
       await client.close();
-    },
-  );
-  test(
-    'actual OC1 prompt, correlated prompt, shell and slash run the dispatch fence',
-    () async {
-      final order = <String>[];
-      final api = OpenCodeApi(baseUrl: 'http://127.0.0.1:4097');
-      api.dio.httpClientAdapter = FakeEngineAdapter((r) async {
-        order.add('wire:${r.path}');
-        return r.path.endsWith('/command')
-            ? jsonBody({}, 503)
-            : jsonBody(null, 204);
-      });
-      api.beforeSessionDispatch = (id) async {
-        order.add('fence:$id');
-      };
-      api.sessionDispatchSettled = (id) {
-        order.add('settled:$id');
-      };
-      await api.promptAsync('s1', text: 'person prompt');
-      await api.promptWithMessageID(
-        's1',
-        messageID: api.createPromptMessageID(),
-        text: 'correlated',
-      );
-      await api.shell('s1', command: 'pwd', agent: 'build');
-      await expectLater(
-        api.slashCommand('s1', 'help', ''),
-        throwsA(isA<ApiException>()),
-      );
-      expect(order.where((v) => v.startsWith('fence:')), hasLength(4));
-      expect(order.where((v) => v.startsWith('settled:')), hasLength(4));
-      for (var i = 0; i < order.length; i += 3) {
-        expect(order[i], 'fence:s1');
-        expect(order[i + 1], startsWith('wire:'));
-        expect(order[i + 2], 'settled:s1');
-      }
-      api.close();
-    },
-  );
-  test(
-    'a fence failure occurs before any OpenCode request or settlement callback',
-    () async {
-      final adapter = FakeEngineAdapter((_) async => jsonBody(null, 204));
-      final api = OpenCodeApi(baseUrl: 'http://127.0.0.1:4097');
-      api.dio.httpClientAdapter = adapter;
-      var settled = false;
-      api.beforeSessionDispatch = (_) async {
-        throw const PhoneEngineException('engineStopFailed');
-      };
-      api.sessionDispatchSettled = (_) {
-        settled = true;
-      };
-      await expectLater(
-        api.promptAsync('s1', text: 'not dispatched'),
-        throwsA(safeError('engineStopFailed')),
-      );
-      expect(adapter.requests, isEmpty);
-      expect(settled, isFalse);
-      api.close();
-    },
-  );
-  test(
-    'malformed OC1 status cannot become a synthetic idle admission',
-    () async {
-      final api = OpenCodeApi(baseUrl: 'http://127.0.0.1:4097');
-      api.dio.httpClientAdapter = FakeEngineAdapter(
-        (_) async => jsonBody({'person': {}}),
-      );
-      final statuses = await api.sessionStatuses();
-      expect(statuses['person'], 'unknown');
-      api.close();
     },
   );
   test(

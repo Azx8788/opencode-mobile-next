@@ -1,4 +1,4 @@
-import '../api/models.dart';
+import '../domain/models.dart';
 import '../domain/server_gateway.dart';
 
 /// Words that may reach the notification shade, kept safe.
@@ -64,12 +64,20 @@ String firstReplyLine(List<MessageWithParts> messages, {int maxLength = 140}) {
     if (message.info.role != 'assistant') continue;
     for (final part in message.parts) {
       if (part.type != 'text' || part.synthetic) continue;
-      for (final line in part.text.split('\n')) {
-        final trimmed = line.replaceFirst(RegExp(r'^[#>*\-\s`]+'), '').trim();
-        if (trimmed.isNotEmpty) {
-          return redactForNotification(trimmed, maxLength: maxLength);
-        }
+      final lines = [
+        for (final line in part.text.split('\n'))
+          line.replaceFirst(RegExp(r'^[#>*\-\s`]+'), '').trim(),
+      ].where((line) => line.isNotEmpty).toList();
+      if (lines.isEmpty) continue;
+      var chosen = lines.first;
+      if (chosen.endsWith(':')) {
+        // A line that introduces a list is not a summary by itself: read it
+        // with the first item, or drop the colon when nothing follows.
+        chosen = lines.length > 1
+            ? '$chosen ${lines[1]}'
+            : chosen.substring(0, chosen.length - 1).trimRight();
       }
+      return redactForNotification(chosen, maxLength: maxLength);
     }
   }
   return '';

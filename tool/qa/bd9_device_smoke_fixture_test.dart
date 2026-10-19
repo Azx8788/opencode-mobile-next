@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/api2/gateway.dart';
+import 'package:opencode_mobile/api2/gateway_operations.dart';
 import 'package:opencode_mobile/diagnostics/perf_trace.dart';
 
 import '../../integration_test/bd9_device_smoke_fixture.dart';
@@ -18,15 +18,15 @@ void main() {
   tearDown(() => fixture.close());
 
   test(
-    'real API and SDK parse health and the global conversation inventory',
+    'OpenCode 2 parses health and the global conversation inventory',
     () async {
-      final api = OpenCodeApi(baseUrl: fixture.baseUrl);
+      final api = Api2Gateway.connect(baseUrl: fixture.baseUrl, password: '');
       addTearDown(api.close);
       expect((await api.health()).healthy, isTrue);
       final sessions = await api.sessions();
       // A folder-local row must not mask a missing global-inventory fetch.
       expect(sessions, isEmpty);
-      final repository = SdkProductRepository(api.sdkClient);
+      final repository = Api2OperationsGateway(client: api.client);
       final global = await repository.listGlobalSessions();
       expect(global.items.single.session.id, Bd9DeviceSmokeFixture.sessionID);
       expect(global.items.single.session.title, Bd9DeviceSmokeFixture.title);
@@ -34,10 +34,7 @@ void main() {
         global.items.single.projectDirectory,
         Bd9DeviceSmokeFixture.directory,
       );
-      expect(
-        fixture.reads,
-        containsAll(['/global/health', '/session', '/experimental/session']),
-      );
+      expect(fixture.reads, containsAll(['/api/health', '/api/session']));
       expect(fixture.refusedWrites, isEmpty);
     },
   );
@@ -48,7 +45,7 @@ void main() {
       final client = HttpClient();
       addTearDown(() => client.close(force: true));
       final request = await client.postUrl(
-        Uri.parse('${fixture.baseUrl}/session/model/prompt'),
+        Uri.parse('${fixture.baseUrl}/api/session/model/prompt'),
       );
       request.write('{"prompt":"test-only"}');
       final response = await request.close();
@@ -56,7 +53,7 @@ void main() {
       expect(jsonDecode(await utf8.decoder.bind(response).join()), {
         'error': 'read_only_fixture',
       });
-      expect(fixture.refusedWrites, {'/session/model/prompt'});
+      expect(fixture.refusedWrites, {'/api/session/model/prompt'});
     },
   );
 

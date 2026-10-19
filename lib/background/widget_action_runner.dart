@@ -4,8 +4,7 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../api/models.dart';
-import '../api/opencode_api.dart';
+import '../domain/models.dart';
 import '../api2/client.dart';
 import '../api2/gateway.dart';
 import '../domain/server_gateway.dart';
@@ -23,7 +22,16 @@ String widgetProfileFingerprint(ServerProfile profile) => sha256
 
 /// Stable server user-message identity, never the text of that message.
 String? widgetRunMarker(Iterable<MessageWithParts> messages) {
-  final users = messages.where((m) => m.info.role == 'user').toList();
+  // OC2 timeline records (including stable's terminal `idle` record) use
+  // role=user in the protocol-neutral transcript, distinguished by v2: parts.
+  // They are not new prompts and must not invalidate a completed turn.
+  final users = messages
+      .where(
+        (m) =>
+            m.info.role == 'user' &&
+            !m.parts.any((part) => part.type.startsWith('v2:')),
+      )
+      .toList();
   if (users.isEmpty) return null;
   users.sort(
     (a, b) => (a.info.time?.created ?? 0).compareTo(b.info.time?.created ?? 0),
@@ -52,7 +60,7 @@ typedef WidgetActionTransportFactory =
       bool team,
     );
 
-WidgetActionTransport _createTransport(
+WidgetActionTransport createWidgetActionTransport(
   ServerProfile p,
   Map<String, dynamic> descriptor,
   bool team,
@@ -73,24 +81,24 @@ WidgetActionTransport _createTransport(
   // Socket approvals are scoped to the original connection, and their cached
   // busy state cannot establish a cold run identity. Do not reconstruct them.
   if (p.backend != ServerBackend.openCode ||
+      p.requiresOpenCode2Migration ||
       p.transientTransport ||
       p.requiresPasswordReentry ||
       p.cleartextUnconfirmed) {
     throw const _Refused('unsupported');
   }
-  final ServerGateway gateway = p.flavor == ServerFlavor.v2
-      ? Api2Gateway(
-          client: Api2Client.connect(
-            baseUrl: p.baseUrl,
-            password: p.password,
-            username: 'opencode',
-          ),
-        )
-      : OpenCodeApi(
-          baseUrl: p.baseUrl,
-          username: p.username,
-          password: p.password,
-        );
+  final ServerGateway gateway = Api2Gateway(
+    client: Api2Client.connect(
+      baseUrl: p.baseUrl,
+      password: p.password,
+      username: 'opencode',
+      cleartextConfirmedOrigin: p.cleartextConfirmedOrigin,
+      certificatePinSha256:
+          p.certificatePinOrigin == cleartextOriginOf(p.baseUrl)
+          ? p.certificatePinSha256
+          : null,
+    ),
+  );
   gateway.setLocation(
     directory: descriptor['directory'] as String?,
     workspace: descriptor['workspace'] as String?,
@@ -98,8 +106,8 @@ WidgetActionTransport _createTransport(
   return WidgetActionTransport(gateway: gateway);
 }
 
-/// One explicit launcher tap. No controller, event subscription, polling,
-/// runtime start, reconnect retry or background preference write is involved.
+/// One explicit launcher tap, including bounded status reconciliation. No
+/// controller, runtime start, reconnect retry or background preference write.
 class WidgetActionRunner {
   WidgetActionRunner({
     required this.loadProfile,
@@ -107,13 +115,17 @@ class WidgetActionRunner {
     required this.isCurrent,
     WidgetActionTransportFactory? createTransport,
     DateTime Function()? now,
-  }) : createTransport = createTransport ?? _createTransport,
+    this.statusSettleTimeout = const Duration(seconds: 5),
+    this.statusPollInterval = const Duration(milliseconds: 250),
+  }) : createTransport = createTransport ?? createWidgetActionTransport,
        now = now ?? DateTime.now;
   final Future<ServerProfile?> Function(String) loadProfile;
   final Future<Map<String, dynamic>?> Function(WidgetAction, String) loadTarget;
   final Future<bool> Function(WidgetAction, String) isCurrent;
   final WidgetActionTransportFactory createTransport;
   final DateTime Function() now;
+  final Duration statusSettleTimeout;
+  final Duration statusPollInterval;
   final Map<String, Future<Map<String, Object?>>> _requests = {};
   bool _cancelled = false;
   WidgetActionTransport? _transport;
@@ -214,6 +226,8 @@ class WidgetActionRunner {
         return fn().timeout(Duration(milliseconds: remaining));
       }
 
+      bool? serverBusy;
+      String? runMarker = row['runMarker'] as String?;
       if (teamAction) {
         final team = transport.team;
         if (team is PhoneEngineGateway) team.beforeCommand = guard;
@@ -288,6 +302,11 @@ class WidgetActionRunner {
             )) {
               throw const _Refused('staleRequest');
             }
+            // Capture a server turn identity before acknowledging permission;
+            // delayed read-only checks must never settle a newer turn.
+            runMarker = widgetRunMarker(
+              await read(() => gateway.messages(action.sessionID)),
+            );
             await guard();
             await mutate(
               () => gateway.respondPermission(
@@ -318,9 +337,45 @@ class WidgetActionRunner {
           default:
             throw const _Refused('unsupported');
         }
+        // Acknowledgement does not mean the turn ended, even for abort. Read
+        // server truth through the same gateway before closing the cold socket.
+        // Leave time for native settlement within its existing 30-second lease.
+        final budget = (deadlineEpochMs - now().millisecondsSinceEpoch - 500)
+            .clamp(0, statusSettleTimeout.inMilliseconds);
+        final elapsed = Stopwatch()..start();
+        while (elapsed.elapsedMilliseconds < budget) {
+          await guard();
+          final remaining = budget - elapsed.elapsedMilliseconds;
+          if (remaining <= 0) break;
+          Map<String, String> statuses;
+          try {
+            statuses = await gateway.sessionStatuses().timeout(
+              Duration(milliseconds: remaining),
+            );
+          } catch (_) {
+            // The command was acknowledged. A failed read cannot make it
+            // retryable, nor prove idle. Keep the last state, visibly detached.
+            break;
+          }
+          await guard();
+          final status = statuses[action.sessionID];
+          if (status == null || status == 'idle') {
+            serverBusy = false;
+            break;
+          }
+          if (status != 'busy' && status != 'retry') break;
+          serverBusy = true;
+          final delay = (budget - elapsed.elapsedMilliseconds).clamp(
+            0,
+            statusPollInterval.inMilliseconds,
+          );
+          if (delay <= 0) break;
+          await Future<void>.delayed(Duration(milliseconds: delay));
+        }
       }
       await guard();
       final updated = Map<String, dynamic>.from(snapshot);
+      updated['connected'] = false;
       updated['sessions'] = [
         for (final old in rows)
           if (identical(old, row))
@@ -329,14 +384,16 @@ class WidgetActionRunner {
                 if (!(const {'allowOnce', 'reject'}.contains(action.action) &&
                     entry.key == 'requestID'))
                   entry.key: entry.value,
-              if (action.action == 'stop') ...{
+              'busy': ?serverBusy,
+              'runMarker': ?runMarker,
+              if (serverBusy == false) ...{
                 'busy': false,
                 'startedAt': 0,
                 'step': '',
               },
               'onDemandActions': [
                 if (const {'allowOnce', 'reject'}.contains(action.action) &&
-                    old['busy'] == true &&
+                    (serverBusy ?? old['busy']) == true &&
                     old['runMarker'] is String &&
                     (old['onDemandActions'] as List).contains('stop'))
                   'stop',

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 
-import '../../../api/models.dart' show ApiException;
+import '../../../domain/models.dart' show ApiException;
 import '../../../domain/form_request.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../state/connection.dart';

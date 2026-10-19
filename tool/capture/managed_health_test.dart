@@ -26,7 +26,7 @@ void main() {
         expect((call.arguments as Map)['script'], TermuxBridge.statusScript());
         return {
           'exitCode': 0,
-          'stdout': 'phase=ready\nversion=1.18.29\nrunner=proot\npid=123\n',
+          'stdout': 'phase=ready\nversion=2.0.29\nrunner=proot\npid=123\n',
           'stderr': '',
         };
       });

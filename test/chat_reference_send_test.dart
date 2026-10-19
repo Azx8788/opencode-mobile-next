@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -18,7 +18,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Records what the composer actually asked the server to do, so a test can
 /// tell a slash command apart from a plain prompt that merely starts with a
 /// slash.
-class _RecordingApi extends OpenCodeApi with CompleteMessageHistory {
+class _RecordingApi extends FakeServerGateway with CompleteMessageHistory {
   _RecordingApi() : super(baseUrl: 'http://localhost');
 
   final List<String> prompts = [];
@@ -94,6 +94,7 @@ Future<ConnectionController> _controller(_RecordingApi api) async {
       {
         'id': 'profile-1',
         'name': 'Test server',
+        'flavor': 'v2',
         'baseUrl': 'http://localhost',
         'username': '',
       },
@@ -247,11 +248,11 @@ void main() {
     expect(handoff.referencesFor('session-1'), isEmpty);
   });
 
-  testWidgets('a failed send gives the reference text back to the composer', (
+  testWidgets('a failed dispatched send keeps the reference text for review', (
     tester,
   ) async {
     final api = _RecordingApi()
-      ..promptFailure = ApiException('server refused', statusCode: 500);
+      ..promptFailure = ApiException('server refused', statusCode: 400);
     final controller = await _controller(api);
     addTearDown(controller.dispose);
     final handoff = await _pumpChat(tester, controller);
@@ -261,13 +262,15 @@ void main() {
     await _type(tester, 'Explain this hunk');
     await _send(tester);
 
-    // The send failed with a declared server error, so the text — the
-    // reference block included — comes back rather than disappearing.
-    final restored = _composerText(tester);
+    // Even an HTTP failure does not prove that no work started. Preserve
+    // the reference with the review marker instead of inviting a blind retry.
+    final queued = controller.queuedPromptsFor('session-1').single;
+    final restored = queued.text;
     expect(restored, contains('Explain this hunk'));
     expect(restored, contains('`lib/client.dart`'));
     expect(restored, contains('+new request'));
-    expect(controller.queuedPromptsFor('session-1'), isEmpty);
+    expect(queued.dispatched, isTrue);
+    expect(_composerText(tester), isEmpty);
   });
 
   testWidgets('composing offline queues the prompt with its references', (
@@ -295,7 +298,7 @@ void main() {
     controller.dispose();
   });
 
-  testWidgets('a transport failure queues the reference text for retry', (
+  testWidgets('a transport failure keeps the reference text for review', (
     tester,
   ) async {
     final api = _RecordingApi()
@@ -310,6 +313,7 @@ void main() {
     await _send(tester);
 
     final queued = controller.queuedPromptsFor('session-1').single;
+    expect(queued.dispatched, isTrue);
     expect(queued.text, contains('Retry me'));
     expect(queued.text, contains('`lib/client.dart`'));
     expect(queued.text, contains('+new request'));

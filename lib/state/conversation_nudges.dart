@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import '../api/models.dart';
+import '../domain/models.dart';
 import 'nudges.dart';
 
 /// Everything the conversation nudges need to know, read from existing state

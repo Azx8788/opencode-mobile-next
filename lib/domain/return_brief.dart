@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import '../api/models.dart';
+import '../domain/models.dart';
 
 /// What a session in the brief is waiting for, in the order the app answers
 /// them (a permission outranks a question outranks a form).

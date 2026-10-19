@@ -1,3 +1,4 @@
+import 'fake_server_capabilities.dart';
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -11,7 +12,6 @@ import 'package:opencode_mobile/domain/phone_agents.dart';
 import 'package:opencode_mobile/domain/phone_agents_source.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart'
     show ProductException;
-import 'package:opencode_mobile/domain/server_gateway/capabilities.dart';
 
 /// How far an agent is, for [agentRowFor].
 enum FakeAgentStage {
@@ -36,7 +36,7 @@ AgentRow agentRowFor(String id, FakeAgentStage stage) {
   return buildAgentRow(
     descriptor: descriptor,
     architecture: AgentArchitecture.arm64,
-    serverCapabilities: ServerCapabilities.allV1,
+    serverCapabilities: testServerCapabilities,
     runtime: PhoneAgentRuntime(
       agentId: id,
       installed: installed,
@@ -63,7 +63,7 @@ AgentRow agentRowForPhase(String id, AgentSignInPhase phase) {
   return buildAgentRow(
     descriptor: descriptor,
     architecture: AgentArchitecture.arm64,
-    serverCapabilities: ServerCapabilities.allV1,
+    serverCapabilities: testServerCapabilities,
     runtime: PhoneAgentRuntime(
       agentId: id,
       installed: true,
@@ -92,6 +92,10 @@ class FakePhoneAgentsSource extends ChangeNotifier
     agentId: '',
     phase: AgentSetupPhase.idle,
   );
+
+  /// Downloaded and total bytes the next install reports; null leaves the
+  /// size unknown (the bar is indeterminate and never settles).
+  (int, int)? installBytes;
   final checks = <String, AgentPhoneCheckResult>{};
   final signIn = <String, AgentSignInState>{};
   Uri? url;
@@ -213,6 +217,8 @@ class FakePhoneAgentsSource extends ChangeNotifier
       agentId: agentId,
       phase: AgentSetupPhase.installing,
       fraction: .4,
+      downloadedBytes: installBytes?.$1,
+      totalBytes: installBytes?.$2,
     );
     notifyListeners();
   }
@@ -244,9 +250,14 @@ class FakePhoneAgentsSource extends ChangeNotifier
     return result;
   }
 
+  /// Thrown by the next Resume, which then leaves the stopped line in place.
+  Object? resumeError;
+
   @override
   Future<void> resumeAgentHost() async {
     calls.add('resume');
+    final error = resumeError;
+    if (error != null) throw error;
     lines = [
       for (final line in lines)
         if (line.kind != PhoneAgentStatusLineKind.stopped) line,

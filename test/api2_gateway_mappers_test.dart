@@ -1,8 +1,9 @@
+import 'support/fake_server_capabilities.dart';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/api2/gateway_mappers.dart';
 import 'package:opencode_mobile/api2/models.dart';
 import 'package:opencode_mobile/api2/transport.dart';
@@ -26,9 +27,9 @@ void main() {
       expect(caps.mcpOAuth, isFalse);
       expect(caps.mcpConfigWrites, isFalse);
       expect(caps.mcpRuntimeAdds, isTrue);
-      expect(ServerCapabilities.allV1.mcpConfigWrites, isTrue);
+      expect(testServerCapabilities.mcpConfigWrites, isTrue);
       // OC1 POST /mcp adds runtime connectors without rewriting config.
-      expect(ServerCapabilities.allV1.mcpRuntimeAdds, isTrue);
+      expect(testServerCapabilities.mcpRuntimeAdds, isTrue);
       expect(caps.sessionShare, isFalse);
       expect(caps.sessionArchive, isFalse);
       expect(caps.sessionTodos, isFalse);

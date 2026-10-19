@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../support/no_red.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
 import 'package:opencode_mobile/ui/app_theme.dart';
@@ -447,7 +448,7 @@ void main() {
         tester.getSize(divider).width,
         tester.getSize(find.byType(Material).last).width,
       );
-      expect(_titleColor(tester, 'Delete'), _tokens(tester).roles.danger);
+      expect(_titleColor(tester, 'Delete'), isNotRed);
     });
 
     testWidgets('10: hover paints the next surface step; focus paints the '
@@ -854,7 +855,7 @@ void main() {
       );
       final roles = _tokens(tester).roles;
       expect(panel.color, roles.surface3);
-      expect(panel.color, isNot(roles.danger));
+      expect(panel.color, isNotRed);
       expect(
         tester.widget<Icon>(find.byIcon(AppIconography.archive)).color,
         roles.text1,

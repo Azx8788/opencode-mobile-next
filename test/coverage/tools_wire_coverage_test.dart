@@ -60,35 +60,6 @@ void main() {
             '/api/reference': payload,
           }, (r) => r.listReferences());
           section = ToolsSection.references;
-        case '/experimental/tool':
-          final p = payload as Map;
-          final read = await readFromWire(
-            tester,
-            {
-              '/experimental/tool': p['tools'],
-              '/experimental/tool/ids': p['ids'],
-              '/experimental/capabilities': p['capabilities'],
-            },
-            (r) async => (
-              await r.listCodingTools(providerID: 'anthropic', modelID: 'opus'),
-              await r.listCodingToolIDs(),
-              await r.loadExperimentalCapabilities(),
-            ),
-          );
-          repo.tools = read.$1;
-          repo.toolIds = read.$2;
-          repo.experimental = read.$3;
-          section = ToolsSection.tools;
-        case '/mcp':
-          repo.servers = await readFromWire(tester, {
-            '/mcp': payload,
-          }, (r) => r.listMcpServers());
-          section = ToolsSection.mcp;
-        case '/experimental/resource':
-          repo.resources = await readFromWire(tester, {
-            '/experimental/resource': payload,
-          }, (r) => r.listMcpResources());
-          section = ToolsSection.mcp;
         default:
           throw StateError('no screen for $endpoint');
       }

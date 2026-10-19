@@ -1,5 +1,5 @@
 {
-  "source": "contracts/opencode-openapi-f12e14cf.json",
+  "source": "contracts/opencode2-openapi-beta-18600.json",
   "schema": {
     "location": [
       {
@@ -16,6 +16,10 @@
       },
       {
         "path": "project.directory",
+        "kind": "string"
+      },
+      {
+        "path": "project.canonical",
         "kind": "string"
       }
     ],
@@ -82,134 +86,11 @@
         "path": "expires_in",
         "kind": "number"
       }
-    ],
-    "event_created": [
-      {
-        "path": "id",
-        "kind": "string"
-      },
-      {
-        "path": "properties.info.id",
-        "kind": "string"
-      },
-      {
-        "path": "properties.info.title",
-        "kind": "string"
-      },
-      {
-        "path": "properties.info.command",
-        "kind": "string"
-      },
-      {
-        "path": "properties.info.args[]",
-        "kind": "string"
-      },
-      {
-        "path": "properties.info.cwd",
-        "kind": "string"
-      },
-      {
-        "path": "properties.info.status",
-        "kind": "enum"
-      },
-      {
-        "path": "properties.info.pid",
-        "kind": "number"
-      },
-      {
-        "path": "properties.info.exitCode",
-        "kind": "number"
-      }
-    ],
-    "event_updated": [
-      {
-        "path": "id",
-        "kind": "string"
-      },
-      {
-        "path": "properties.info.id",
-        "kind": "string"
-      },
-      {
-        "path": "properties.info.title",
-        "kind": "string"
-      },
-      {
-        "path": "properties.info.command",
-        "kind": "string"
-      },
-      {
-        "path": "properties.info.args[]",
-        "kind": "string"
-      },
-      {
-        "path": "properties.info.cwd",
-        "kind": "string"
-      },
-      {
-        "path": "properties.info.status",
-        "kind": "enum"
-      },
-      {
-        "path": "properties.info.pid",
-        "kind": "number"
-      },
-      {
-        "path": "properties.info.exitCode",
-        "kind": "number"
-      }
-    ],
-    "event_exited": [
-      {
-        "path": "id",
-        "kind": "string"
-      },
-      {
-        "path": "properties.id",
-        "kind": "string"
-      },
-      {
-        "path": "properties.exitCode",
-        "kind": "number"
-      }
-    ],
-    "event_deleted": [
-      {
-        "path": "id",
-        "kind": "string"
-      },
-      {
-        "path": "properties.id",
-        "kind": "string"
-      }
     ]
   },
   "excluded": {
     "ticket.ticket": "ignored: a one-time pass the app uses to open the live connection; it is never shown",
-    "ticket.expires_in": "ignored: a one-time pass the app uses to open the live connection; it is never shown",
-    "event_created.id": "ignored: the event only tells the app the list changed; it reads the list again and shows that",
-    "event_created.properties.info.id": "ignored: the event only tells the app the list changed; it reads the list again and shows that",
-    "event_created.properties.info.title": "ignored: the event only tells the app the list changed; it reads the list again and shows that",
-    "event_created.properties.info.command": "ignored: the event only tells the app the list changed; it reads the list again and shows that",
-    "event_created.properties.info.args[]": "ignored: the event only tells the app the list changed; it reads the list again and shows that",
-    "event_created.properties.info.cwd": "ignored: the event only tells the app the list changed; it reads the list again and shows that",
-    "event_created.properties.info.status": "ignored: the event only tells the app the list changed; it reads the list again and shows that",
-    "event_created.properties.info.pid": "ignored: the event only tells the app the list changed; it reads the list again and shows that",
-    "event_created.properties.info.exitCode": "ignored: the event only tells the app the list changed; it reads the list again and shows that",
-    "event_updated.id": "ignored: the event only tells the app the list changed; it reads the list again and shows that",
-    "event_updated.properties.info.id": "ignored: the event only tells the app the list changed; it reads the list again and shows that",
-    "event_updated.properties.info.title": "ignored: the event only tells the app the list changed; it reads the list again and shows that",
-    "event_updated.properties.info.command": "ignored: the event only tells the app the list changed; it reads the list again and shows that",
-    "event_updated.properties.info.args[]": "ignored: the event only tells the app the list changed; it reads the list again and shows that",
-    "event_updated.properties.info.cwd": "ignored: the event only tells the app the list changed; it reads the list again and shows that",
-    "event_updated.properties.info.status": "ignored: the event only tells the app the list changed; it reads the list again and shows that",
-    "event_updated.properties.info.pid": "ignored: the event only tells the app the list changed; it reads the list again and shows that",
-    "event_updated.properties.info.exitCode": "ignored: the event only tells the app the list changed; it reads the list again and shows that",
-    "event_exited.id": "ignored: the event only tells the app the list changed; it reads the list again and shows that",
-    "event_exited.properties.id": "ignored: the event only tells the app the list changed; it reads the list again and shows that",
-    "event_exited.properties.exitCode": "ignored: the event only tells the app the list changed; it reads the list again and shows that",
-    "event_deleted.id": "ignored: the event only tells the app the list changed; it reads the list again and shows that",
-    "event_deleted.properties.id": "ignored: the event only tells the app the list changed; it reads the list again and shows that"
+    "ticket.expires_in": "ignored: a one-time pass the app uses to open the live connection; it is never shown"
   },
   "cases": [
     {
@@ -268,6 +149,13 @@
         {
           "key": "location.project.directory",
           "path": "project.directory",
+          "kind": "string",
+          "probes": [],
+          "primary": false
+        },
+        {
+          "key": "location.project.canonical",
+          "path": "project.canonical",
           "kind": "string",
           "probes": [],
           "primary": false

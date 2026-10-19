@@ -99,7 +99,8 @@ a hostile server on a shared network can answer with anything.
   - Credentials the server returns are masked before display, copy or logs
     (`lib/ui/kit/kit_redact.dart`, see scenario 8).
   - Redirects are not followed on clients that carry credentials
-    (`followRedirects: false` in `lib/paseo/transport.dart`,
+    (`followRedirects: false` in `lib/api2/transport.dart`,
+    `lib/paseo/transport.dart`,
     `lib/state/termux_running_server.dart`,
     `lib/orchestration/adapters/inapp/phone_engine_gateway.dart`;
     `isCleartextRemoteBase` in `lib/domain/loopback_host.dart` documents why),
@@ -107,48 +108,54 @@ a hostile server on a shared network can answer with anything.
 - **Gap:** the user approves a *description* of a command written by the
   server's agent. A compromised server can describe something other than what
   it will run; nothing on the phone can verify that.
-- **Gap:** there is no server identity pinning. Anyone who can present a valid
-  certificate for the host name (or any server at a confirmed private HTTP
-  address) is the server.
+- **Identity:** OpenCode 2 self-signed HTTPS can use a person-approved SHA-256
+  leaf-certificate pin, bound to one profile and exact HTTPS origin in
+  `oc.certificatePin.<profileId>`. TLS inspection sends no HTTP or credentials.
+  A pinned client uses its own trust context and checks the fingerprint and
+  validity dates before HTTP/authentication, including when a replacement
+  certificate has a publicly trusted issuer. An identity change blocks and
+  offers re-check; a new pin needs another explicit choice. Unpinned HTTPS
+  keeps normal PKI validation. Changing origin or deleting the profile removes
+  its pin (`lib/domain/server_trust.dart`, `lib/state/profiles.dart`).
+- **Gap:** first-use fingerprint approval is only as trustworthy as the
+  person's independent verification. A pin replaces PKI chain/hostname checks
+  for that origin, not the need to establish who owns the initial certificate.
+  Plain HTTP has no certificate identity to pin.
 
-### 4. LAN or Wi-Fi attacker (MITM), including private-network HTTP
+### 4. LAN or Wi-Fi attacker (MITM), including explicitly approved HTTP
 
 - **Mitigations:**
-  - HTTPS is required for everything except two cases
-    (`validateServerProfileUrl` in `lib/state/profiles.dart`):
-    loopback (`isLoopbackHost`: `localhost`, `127.0.0.1`, `::1`) and, new, a
-    **private network address** (`isPrivateNetworkHost` in
-    `lib/domain/loopback_host.dart`: 10/8, 172.16/12, 192.168/16, 169.254/16,
-    IPv6 fc00::/7 and fe80::/10, and `*.local`).
-  - Plain HTTP to a private address is refused until the person confirms it
-    for that exact origin: `serverUrlNeedsCleartextConfirmation`,
-    `cleartextOriginOf`, stored under `oc.cleartextOk.<profileId>`
-    (`ProfileStore.cleartextConfirmedKeyPrefix`). Changing the address asks
-    again; an unconfirmed profile will not connect
-    (`cleartextUnconfirmedMessage`).
-  - Credentials are never sent over HTTP to a public address: with a username
-    or password set, `validateServerProfileUrl` returns "HTTPS is required
-    outside this device".
-  - Credentials in the URL, query strings, fragments and paths are rejected.
-  - A VPN is not an exception: LAN and CGNAT (`100.64.0.0/10`) addresses
-    still need HTTPS or the confirmation
-    ([connectivity-private-networks.md](../connectivity-private-networks.md)).
-- **Gap:** after the confirmation, the password (Basic auth) and the whole
-  conversation, including permission requests, cross the LAN in clear text. An
-  attacker on that network can read them, and can alter responses, which
-  includes forging a permission card. The confirmation is a consent, not a
-  protection. Prefer Tailscale Serve or a reverse proxy with a trusted
-  certificate.
-- **Gap:** Android's platform layer is open: `usesCleartextTraffic="false"` is
-  set, but `network_security_config.xml` has
-  `<base-config cleartextTrafficPermitted="true" />` because Android cannot
-  express address ranges. The Dart validator is the only gate. A bug in
-  `isPrivateNetworkHost` or a code path that builds a client without the
-  validator would permit cleartext to anywhere. The tests in
-  `test/private_network_cleartext_test.dart` and
-  `test/setup_ui_messages_test.dart` are the safeguard.
-- **Gap:** mDNS names (`*.local`) are accepted as "private" but are trivially
-  spoofable on the same network.
+  - OpenCode 2 accepts explicit HTTP origins on private, Tailscale and public
+    hosts, but every non-loopback origin requires per-profile consent before
+    probing or sending Basic credentials. Loopback remains `localhost`,
+    `127.0.0.1` or `::1`. Bare remote addresses default to HTTPS and no failed
+    HTTPS connection silently downgrades.
+  - Consent binds the exact origin under `oc.cleartextOk.<profileId>` through
+    `serverUrlNeedsCleartextConfirmation` and `cleartextOriginOf`; changing
+    origin asks again and profile deletion removes it. Pairing/QR credentials
+    follow the same gate. Private ranges and Tailscale use softer warning
+    wording, not an exemption from consent.
+  - Public HTTP with Basic auth is blocked without that explicit choice.
+    Credentials in the URL, query strings, fragments, paths and invalid ports
+    are rejected (`lib/state/profiles/validation.dart`).
+  - OpenCode 2 clients bind transport trust to the exact origin and refuse
+    redirects. Self-signed HTTPS uses the pre-authentication pin checks above;
+    ordinary unpinned HTTPS retains normal PKI validation. Codex, Paseo, AI
+    Team orchestration and quota reads retain their existing transport rules.
+- **Gap:** after HTTP consent, the password, code and conversation, including
+  permission requests, travel unencrypted at the application layer. Anyone
+  able to observe or alter that network traffic can read credentials or forge
+  responses. A private network or Tailscale can limit exposure, but consent
+  itself provides no encryption; public Wi-Fi is especially risky.
+- **Gap:** Android's static `network_security_config.xml` permits base cleartext
+  because arbitrary user-entered runtime origins and IP ranges cannot be
+  enumerated in its domain policy. Dart's origin-bound consent and transport
+  checks enforce the boundary. A new client that bypasses them would weaken
+  that boundary. Coverage includes `test/server_trust_profiles_test.dart`,
+  `test/server_trust_test.dart` and
+  `test/private_network_cleartext_test.dart`.
+- **Gap:** mDNS names (`*.local`) and private-range labels affect warning copy;
+  they do not authenticate a server and can be spoofed on the same network.
 
 ### 5. Notification and lock-screen approvals (a tap that was not meant)
 

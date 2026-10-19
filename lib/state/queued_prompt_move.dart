@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import '../api/models.dart';
+import '../domain/models.dart';
 import '../ui/kit/kit_redact.dart';
 import 'offline_queue.dart';
 import 'queued_prompt_removal.dart';

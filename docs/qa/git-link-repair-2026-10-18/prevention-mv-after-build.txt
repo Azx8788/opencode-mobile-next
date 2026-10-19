@@ -1,0 +1,3 @@
+git status after mv:
+8688289 one
+links in moved-after objects: 0

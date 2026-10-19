@@ -1,14 +1,15 @@
+import 'fake_server_operations.dart';
 import 'dart:async';
 
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'fake_event_channel.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ControlledApi extends OpenCodeApi {
+class ControlledApi extends FakeServerGateway {
   ControlledApi(this.label) : super(baseUrl: 'http://127.0.0.1:1');
 
   final String label;
@@ -81,7 +82,7 @@ class ControlledApi extends OpenCodeApi {
   }
 }
 
-class FakeEventStream extends EventStream {
+class FakeEventStream extends FakeEventChannel {
   FakeEventStream({
     required super.api,
     required super.onEvent,
@@ -107,8 +108,8 @@ class FakeEventStream extends EventStream {
   void emit(EventEnvelope value) => onEvent(value);
 }
 
-class TestRepository extends SdkProductRepository {
-  TestRepository(OpenCodeApi api) : super(api.sdkClient);
+class TestRepository extends FakeServerOperations {
+  TestRepository(super.api);
 
   @override
   Future<ChatDefaults> loadChatDefaults() async => const ChatDefaults();

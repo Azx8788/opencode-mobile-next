@@ -10,15 +10,15 @@
 // app's real fonts at DPR 1. Regenerate deliberately:
 //   flutter test --update-goldens test/revamp/queued_prompt_move_test.dart
 // and look at every changed image before committing it.
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import '../support/fake_server_gateway.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
 import 'package:opencode_mobile/state/offline_queue.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -101,20 +101,20 @@ List<ServerProfile> _profiles() => [
     id: 'laptop',
     name: 'Laptop',
     baseUrl: 'http://localhost',
-    flavor: ServerFlavor.v1,
+    flavor: ServerFlavor.v2,
   ),
   ServerProfile(
     id: 'studio',
     name: 'Studio Mac',
     baseUrl: 'https://studio.example.net:4096',
-    flavor: ServerFlavor.v1,
+    flavor: ServerFlavor.v2,
     serverVersion: '1.18.29',
   ),
   ServerProfile(
     id: 'desk',
     name: 'Desk',
     baseUrl: 'https://desk.example.net:4096',
-    flavor: ServerFlavor.v1,
+    flavor: ServerFlavor.v2,
   ),
 ];
 
@@ -128,7 +128,7 @@ class _Store extends ProfileStore {
   String? get activeId => activeProfile;
 }
 
-class _Api extends OpenCodeApi with CompleteMessageHistory {
+class _Api extends FakeServerGateway with CompleteMessageHistory {
   _Api() : super(baseUrl: 'http://localhost');
   @override
   Future<List<MessageWithParts>> messages(String id) async => [];

@@ -1,4 +1,4 @@
-import '../api/models.dart';
+import '../domain/models.dart';
 import 'server_gateway.dart';
 
 export 'agent_handoff_record.dart';

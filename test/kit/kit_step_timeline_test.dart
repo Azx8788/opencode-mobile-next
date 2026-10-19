@@ -373,7 +373,7 @@ void main() {
       );
     });
 
-    testWidgets('the step in progress shows the spinner in its node', (
+    testWidgets('the step in progress carries the one live light', (
       tester,
     ) async {
       await _pump(
@@ -397,10 +397,10 @@ void main() {
         reduceMotion: false,
       );
       await tester.pump(const Duration(milliseconds: 100));
-      // The one spinner is the running step's node: nothing moves round a tile.
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-      expect(find.byType(KitStatusMark), findsOneWidget);
-      expect(find.byKey(const ValueKey('kit-step-light')), findsNothing);
+      // The step keeps its glyph; no spinner, no status mark (KitStepLight).
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+      expect(find.byType(KitStatusMark), findsNothing);
+      expect(find.byKey(const ValueKey('kit-step-light')), findsOneWidget);
     });
 
     testWidgets('failed and waiting steps show their state on the rail', (
@@ -425,8 +425,9 @@ void main() {
       );
       expect(find.text('Failed'), findsOneWidget);
       expect(find.text('Waiting for you'), findsOneWidget);
-      // Failed settles on its mark; waiting shows its ring.
-      expect(find.byType(KitStatusMark), findsNWidgets(2));
+      // Failed settles on its mark; waiting holds a filled attention outline.
+      expect(find.byType(KitStatusMark), findsOneWidget);
+      expect(find.byKey(const ValueKey('kit-step-light')), findsOneWidget);
     });
 
     testWidgets('the same row outside a timeline is unchanged', (tester) async {

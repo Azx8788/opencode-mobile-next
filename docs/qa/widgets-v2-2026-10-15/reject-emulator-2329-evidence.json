@@ -1,0 +1,227 @@
+{
+  "build_number": 2329,
+  "apk_sha256": "d1f04a57176e2515750df24205185bd7dd38bca0556cd8b1f72c8f6623a82796",
+  "server": "OpenCode 2 stable 2.0.29",
+  "device": "emulator-5554 / Pixel_6 / Android 14 API 34",
+  "actions": [
+    {
+      "action": "reject",
+      "before": {
+        "server_status": "running",
+        "server_pending": 1,
+        "native": {
+          "stay_connected": false,
+          "connected": false,
+          "runningCount": 1,
+          "pendingCount": 1,
+          "row": {
+            "title": "Widget Reject Proof",
+            "busy": true,
+            "startedAt": 1792101509795,
+            "onDemandActions": [
+              "allowOnce",
+              "reject",
+              "stop"
+            ]
+          },
+          "followup_tickets": 0
+        },
+        "foreground_service_running": false,
+        "screenshot": "reject-emulator-reject-before.png",
+        "app_process_absent": true
+      },
+      "samples": [
+        {
+          "capture_started_seconds": 0.0,
+          "screenshot": "reject-emulator-reject-after.png",
+          "server_status": "idle",
+          "server_pending": 0,
+          "native": {
+            "stay_connected": false,
+            "connected": false,
+            "runningCount": 0,
+            "pendingCount": 0,
+            "row": {
+              "title": "Widget Reject Proof",
+              "busy": false,
+              "startedAt": null,
+              "onDemandActions": []
+            },
+            "followup_tickets": 0
+          },
+          "foreground_service_running": false
+        },
+        {
+          "capture_started_seconds": 6.0,
+          "screenshot": "reject-emulator-reject-6s.png",
+          "server_status": "idle",
+          "server_pending": 0,
+          "native": {
+            "stay_connected": false,
+            "connected": false,
+            "runningCount": 0,
+            "pendingCount": 0,
+            "row": {
+              "title": "Widget Reject Proof",
+              "busy": false,
+              "startedAt": null,
+              "onDemandActions": []
+            },
+            "followup_tickets": 0
+          },
+          "foreground_service_running": false
+        }
+      ]
+    },
+    {
+      "action": "allow",
+      "before": {
+        "server_status": "running",
+        "server_pending": 1,
+        "native": {
+          "stay_connected": false,
+          "connected": false,
+          "runningCount": 1,
+          "pendingCount": 1,
+          "row": {
+            "title": "Widget Allow Proof",
+            "busy": true,
+            "startedAt": 1792101584031,
+            "onDemandActions": [
+              "allowOnce",
+              "reject",
+              "stop"
+            ]
+          },
+          "followup_tickets": 0
+        },
+        "foreground_service_running": false,
+        "screenshot": "reject-emulator-allow-before.png",
+        "app_process_absent": true
+      },
+      "samples": [
+        {
+          "capture_started_seconds": 0.0,
+          "screenshot": "reject-emulator-allow-after.png",
+          "server_status": "running",
+          "server_pending": 0,
+          "native": {
+            "stay_connected": false,
+            "connected": false,
+            "runningCount": 1,
+            "pendingCount": 1,
+            "row": {
+              "title": "Widget Allow Proof",
+              "busy": true,
+              "startedAt": 1792101584031,
+              "onDemandActions": [
+                "allowOnce",
+                "reject",
+                "stop"
+              ]
+            },
+            "followup_tickets": 0
+          },
+          "foreground_service_running": true
+        },
+        {
+          "capture_started_seconds": 6.0,
+          "screenshot": "reject-emulator-allow-6s.png",
+          "server_status": "running",
+          "server_pending": 0,
+          "native": {
+            "stay_connected": false,
+            "connected": false,
+            "runningCount": 1,
+            "pendingCount": 0,
+            "row": {
+              "title": "Widget Allow Proof",
+              "busy": true,
+              "startedAt": 1792101584031,
+              "onDemandActions": [
+                "stop"
+              ]
+            },
+            "followup_tickets": 1
+          },
+          "foreground_service_running": false,
+          "app_process_absent_after_6s_kill": true
+        },
+        {
+          "capture_started_seconds": 20.0,
+          "screenshot": "reject-emulator-2329-allow-20s.png",
+          "server_status": "idle",
+          "server_pending": 0,
+          "native": {
+            "stay_connected": false,
+            "connected": false,
+            "runningCount": 1,
+            "pendingCount": 0,
+            "row": {
+              "title": "Widget Allow Proof",
+              "busy": true,
+              "startedAt": 1792101584031,
+              "onDemandActions": [
+                "stop"
+              ]
+            },
+            "followup_tickets": 1
+          },
+          "foreground_service_running": false
+        },
+        {
+          "capture_started_seconds": 40.0,
+          "screenshot": "reject-emulator-2329-allow-40s.png",
+          "server_status": "idle",
+          "server_pending": 0,
+          "native": {
+            "stay_connected": false,
+            "connected": false,
+            "runningCount": 1,
+            "pendingCount": 0,
+            "row": {
+              "title": "Widget Allow Proof",
+              "busy": true,
+              "startedAt": 1792101584031,
+              "onDemandActions": [
+                "stop"
+              ]
+            },
+            "followup_tickets": 1
+          },
+          "foreground_service_running": false
+        },
+        {
+          "capture_started_seconds": 65.0,
+          "screenshot": "reject-emulator-2329-allow-65s.png",
+          "server_status": "idle",
+          "server_pending": 0,
+          "native": {
+            "stay_connected": false,
+            "connected": false,
+            "runningCount": 0,
+            "pendingCount": 0,
+            "row": {
+              "title": "Widget Allow Proof",
+              "busy": false,
+              "startedAt": null,
+              "onDemandActions": []
+            },
+            "followup_tickets": 0
+          },
+          "foreground_service_running": false
+        }
+      ]
+    }
+  ],
+  "workmanager_after_settlement": {
+    "state_counts": [
+      [
+        3,
+        3
+      ]
+    ],
+    "remaining_runnable_followups": 0
+  },
+  "usage_visual_data": "Explicitly labelled fixture; not live account quota evidence"
+}

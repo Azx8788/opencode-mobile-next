@@ -55,9 +55,7 @@ open class WidgetRouteActivity : Activity() {
 
     private fun ownsWidget(id: Int): Boolean {
         val provider = AppWidgetManager.getInstance(this).getAppWidgetInfo(id)?.provider
-        return provider != null && provider.packageName == packageName && provider.className in setOf(
-            SessionsWidgetProvider::class.java.name, UsageWidgetProvider::class.java.name,
-        )
+        return provider != null && provider.packageName == packageName && provider.className in WidgetProviders.allNames
     }
 
     @Deprecated("Android activity result compatibility API")

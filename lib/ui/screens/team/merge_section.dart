@@ -461,13 +461,13 @@ class _TeamMergeSectionState extends State<TeamMergeSection> {
             missing.pending ? l10n.teamUiMergePending : (missing.detail ?? ''),
           ),
           key: const ValueKey('team-merge-disabled-reason'),
-          tone: missing.pending ? KitTextTone.secondary : KitTextTone.danger,
+          tone: missing.pending ? KitTextTone.secondary : KitTextTone.primary,
         );
       } else if (blocking != null) {
         note(
           l10n.teamUiMergeBoundary(blocking.text),
           key: const ValueKey('team-merge-boundary'),
-          tone: KitTextTone.danger,
+          tone: KitTextTone.primary,
         );
       }
     }
@@ -492,7 +492,7 @@ class _TeamMergeSectionState extends State<TeamMergeSection> {
         text,
         key: const ValueKey('team-merge-approve-receipt'),
         tone: switch (approveRecord.status) {
-          MutationStatus.rejected => KitTextTone.danger,
+          MutationStatus.rejected => KitTextTone.primary,
           MutationStatus.confirmed => KitTextTone.success,
           _ => KitTextTone.secondary,
         },
@@ -658,7 +658,7 @@ class _Changes extends StatelessWidget {
     final removed = KitText.styleOf(
       context,
       KitTextRole.secondary,
-      tone: KitTextTone.danger,
+      tone: KitTextTone.primary,
     );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -7,7 +7,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
 import 'package:opencode_mobile/state/automation_policy.dart';
@@ -39,12 +39,14 @@ Map<String, Object> _profiles() => {
     {
       'id': 'profile-1',
       'name': 'Workstation',
+      'flavor': 'v2',
       'baseUrl': 'http://192.168.1.20:4096',
       'username': '',
     },
     {
       'id': 'profile-2',
       'name': 'Studio',
+      'flavor': 'v2',
       'baseUrl': 'http://192.168.1.30:4096',
       'username': '',
     },

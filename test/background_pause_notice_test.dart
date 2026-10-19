@@ -131,6 +131,8 @@ void main() {
         BackgroundPauseReason.appUpdated: _en.backgroundPauseAppUpdated(
           'at 3:10 PM',
         ),
+        BackgroundPauseReason.deviceRestarted:
+            _en.backgroundPauseDeviceRestarted,
         BackgroundPauseReason.interrupted: _en.backgroundPauseInterrupted,
       };
       for (final MapEntry(key: reason, value: words) in cases.entries) {

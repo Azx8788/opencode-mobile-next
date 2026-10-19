@@ -55,7 +55,7 @@ export function phoneFamilies() {
 
   const running = base('job_run', {
     state: 'running', current: 'node', logTail: 'node: fetching the package index',
-    params: { _job: { first: '1' }, opencode: { runtime: 'opencode1', version: '1.18.32' } },
+    params: { _job: { first: '1' }, opencode: { runtime: 'opencode2', version: '2.0.29' } },
     components: {
       linux: comp('done', { stage: 'Ready', version: '24.04.5', startedAt: T0, endedAt: T0 + 9000 }),
       essentials: comp('done', { startedAt: T0 + 9000, endedAt: T0 + 20000 }),
@@ -78,7 +78,7 @@ export function phoneFamilies() {
     state, current: 'opencode', logTail: '',
     components: {
       linux: comp('done'), essentials: comp('done'), python: comp('done'), node: comp('done', { version: '22.11.0' }),
-      opencode: comp(state === 'done' ? 'done' : 'pending', state === 'done' ? { version: '1.18.32' } : {}),
+      opencode: comp(state === 'done' ? 'done' : 'pending', state === 'done' ? { version: '2.0.29' } : {}),
       start: comp(state === 'done' ? 'done' : 'pending'),
     },
   });
@@ -97,7 +97,7 @@ export function phoneFamilies() {
     cases: [
       jcase('job_running_download', running, { job: { state: ['Setting up OpenCode on this phone'], logTail: ['node: fetching the package index'], 'order[]': ['Linux base', 'Node.js', 'Start OpenCode'], 'params._job.first': ['Step 1 of 3'], 'params.opencode.runtime': [], 'params.opencode.version': [] }, components: compsOf(running, runBy) }),
       jcase('job_failed_offline', failed, { job: { state: ["Setup didn't finish"], errorCode: ['Could not install OpenCode'], error: [], logTail: ['curl: (6) Could not resolve host'] }, components: compsOf(failed, failBy) }),
-      ...[['done', 'All set'], ['interrupted', "Setup was interrupted"], ['cancelled', 'Setup stopped']].map(([s, word]) => { const r = states(s); return jcase(`job_${s}`, r, { job: { state: [word] }, components: compsOf(r, s === 'done' ? { node: { version: ['22.11.0'] }, opencode: { version: ['1.18.32'] } } : {}) }); }),
+      ...[['done', 'All set'], ['interrupted', "Setup was interrupted"], ['cancelled', 'Setup stopped']].map(([s, word]) => { const r = states(s); return jcase(`job_${s}`, r, { job: { state: [word] }, components: compsOf(r, s === 'done' ? { node: { version: ['22.11.0'] }, opencode: { version: ['2.0.29'] } } : {}) }); }),
       jcase('job_on_termux', termux, { job: { state: ['Adding AI Team'], 'params._job.adding': ['Adding AI Team'] }, components: compsOf(termux, { opencode: { stage: ['Installing'], percent: ['40%'] } }) }),
     ],
   };
@@ -177,7 +177,7 @@ export function phoneFamilies() {
   const instSchema = {
     progress: {
       phase: { kind: 'enum', values: ['idle', 'installing', 'done', 'interrupted', 'failed'] }, fraction: { kind: 'number' },
-      componentId: { kind: 'string' },
+      componentId: { kind: 'string' }, downloadedBytes: { kind: 'number' }, totalBytes: { kind: 'number' },
       failure: { kind: 'enum', values: ['unavailable', 'storage', 'install', 'interrupted', 'version', 'daemon', 'hello', 'wrongArchitecture', 'stale', 'busy'] },
     },
   };
@@ -185,7 +185,7 @@ export function phoneFamilies() {
   out.phone_agent_install = {
     schema: instSchema, excluded: {}, source: 'lib/domain/phone_agent_host.dart (AgentSetupProgress)',
     cases: [
-      inst('install_running', { phase: 'installing', fraction: 0.4, componentId: 'linux' }, { phase: ['Installing Codex'], fraction: ['[bar 40%]'] }),
+      inst('install_running', { phase: 'installing', fraction: 0.4, componentId: 'linux', downloadedBytes: 40000000, totalBytes: 100000000 }, { phase: ['Downloading Codex'], downloadedBytes: ['[bar 40%]', '40 MB'], totalBytes: ['100 MB'] }),
       inst('install_waiting', { phase: 'installing' }, { phase: ['Installing Codex'] }),
       inst('install_interrupted', { phase: 'interrupted' }, { phase: ['Setup stopped before it finished'] }),
       inst('install_failed_storage', { phase: 'failed', failure: 'storage' }, { phase: ['Free some space'], failure: ['Free some space'] }),
@@ -262,20 +262,20 @@ export function phoneFamilies() {
       phase: { kind: 'enum', values: ['queued', 'preparing', 'installing_dependencies', 'installing_ubuntu', 'installing_opencode', 'refreshing_models', 'restarting', 'starting_server', 'ready', 'failed', 'idle'] },
       message: { kind: 'string' }, port: { kind: 'number' }, runner: { kind: 'string' }, version: { kind: 'string' }, pid: { kind: 'number' },
       started_at: { kind: 'number' }, operation: { kind: 'string' }, operation_result: { kind: 'string' },
-      failure_kind: { kind: 'string' }, runtime: { kind: 'enum', values: ['opencode1', 'opencode2'] },
+      failure_kind: { kind: 'string' }, runtime: { kind: 'enum', values: ['opencode2'] },
       switch_previous: { kind: 'string' }, switch_target: { kind: 'string' }, switch_phase: { kind: 'string' }, switch_return: { kind: 'string' },
     },
     log: { output: { kind: 'string' } },
   };
   const tx = (id, status, log, probes, logProbes = {}) => mk(id, 'termux', { status, log }, [['status', status, probes], ['log', { output: log }, { output: logProbes.output ?? [] }]]);
-  const txBase = { port: 4096, runner: 'proot', pid: 123, runtime: 'opencode1' };
+  const txBase = { port: 4096, runner: 'proot', pid: 123, runtime: 'opencode2' };
   out.phone_termux = {
     schema: txSchema, excluded: {}, source: 'lib/termux/bridge_models.dart (TermuxSetupStatus, the manager status script)',
     cases: [
       tx('termux_installing', { ...txBase, phase: 'installing_opencode', message: 'Fetching the OpenCode package', version: '', started_at: 'NOW-90' }, 'x', { phase: ['Updating this phone'], message: ['Fetching the OpenCode package'], started_at: ['elapsed'] }),
-      tx('termux_starting', { ...txBase, phase: 'starting_server', message: 'Starting the server', version: '1.18.29' }, 'x', { phase: ['Updating this phone'], message: ['Starting the server'], version: ['1.18.29'] }),
+      tx('termux_starting', { ...txBase, phase: 'starting_server', message: 'Starting the server', version: '2.0.29' }, 'x', { phase: ['Updating this phone'], message: ['Starting the server'], version: ['2.0.29'] }),
       tx('termux_failed', { ...txBase, phase: 'failed', message: 'OpenCode install failed', version: '', failure_kind: 'crash', operation: 'op1', operation_result: 'failed' }, '[oc] ERROR: npm could not install', { phase: ["Setup didn't finish"], message: ['OpenCode install failed'] }, { output: ['npm could not install'] }),
-      tx('termux_ready', { ...txBase, phase: 'ready', message: 'OpenCode is ready', version: '1.18.29', operation: 'op2', operation_result: 'completed' }, '', { phase: ['All set'], version: ['1.18.29'] }),
+      tx('termux_ready', { ...txBase, phase: 'ready', message: 'OpenCode is ready', version: '2.0.29', operation: 'op2', operation_result: 'completed' }, '', { phase: ['All set'], version: ['2.0.29'] }),
       tx('termux_switch', { ...txBase, runtime: 'opencode2', phase: 'restarting', message: 'Switching to OpenCode 2', version: '2.0.10', switch_previous: 'opencode1', switch_target: 'opencode2', switch_phase: 'switching', switch_return: 'opencode1' }, 'x', { runtime: ['OpenCode 2'], message: ['Switching to OpenCode 2'], switch_target: ['OpenCode 2'] }),
     ],
   };

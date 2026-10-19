@@ -87,28 +87,23 @@ void main() {
         'SessionsWidgetProvider.kt',
         'SessionWidgetRenderer.kt',
         'SessionWidgetRow.kt',
+        'WidgetCopy.kt',
       ])
         File('$_kotlin$name').readAsStringSync(),
     ].join('\n');
     expect(widget, isNot(contains('"Untitled conversation"')));
     expect(widget, isNot(contains('-> "now"')));
     for (final resource in [
-      // The v2 widget shows a status line and actions, not per-session rows,
-      // so the untitled/time-ago labels moved with the rows to the usage
-      // widget; what this one says must still be a resource.
-      'widget_empty',
-      'widget_v2_summary',
-      'widget_v2_offline',
-      'widget_v2_working',
-      'widget_v2_tasks',
+      // What the conversations widget says must be a resource.
+      'widget_v2_empty',
+      'widget_v2_offline_seen',
+      'widget_v2_ago_min',
+      'widget_v2_ask_followup',
+      'widget_v2_new_in',
+      'widget_v2_count_working',
       'widget_v2_voice',
-      'widget_v2_configure',
     ]) {
-      expect(
-        widget,
-        contains('NativeStrings.get(context, R.string.$resource'),
-        reason: resource,
-      );
+      expect(widget, contains('R.string.$resource'), reason: resource);
     }
   });
 

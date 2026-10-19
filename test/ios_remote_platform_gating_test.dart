@@ -1,13 +1,12 @@
 import 'dart:convert';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
 import 'package:opencode_mobile/background/attention_tile_snapshot.dart';
 import 'package:opencode_mobile/background/live_background.dart';
 import 'package:opencode_mobile/background/pinned_session_shortcuts.dart';
@@ -34,18 +33,8 @@ import 'support/complete_message_history.dart';
 
 // Controller and isolated-screen regressions, not main()/AppBootstrap.load()
 // coverage or evidence of a working iOS runner. Remote responses stay in memory.
-class _RemoteApi extends OpenCodeApi with CompleteMessageHistory {
-  _RemoteApi() : super(baseUrl: 'https://remote.example') {
-    // No omitted fixture method may fall through to a real HTTP request.
-    dio.interceptors.add(
-      InterceptorsWrapper(
-        onRequest: (options, handler) {
-          unexpectedRequests.add(options.path);
-          handler.reject(DioException(requestOptions: options));
-        },
-      ),
-    );
-  }
+class _RemoteApi extends FakeServerGateway with CompleteMessageHistory {
+  _RemoteApi() : super(baseUrl: 'https://remote.example');
 
   final unexpectedRequests = <String>[];
   final prompts = <(String, String)>[];
@@ -119,6 +108,7 @@ _remoteState() async {
       {
         'id': 'profile-1',
         'name': 'Remote workstation',
+        'flavor': 'v2',
         'baseUrl': 'https://remote.example',
         'username': '',
       },
@@ -492,8 +482,12 @@ void main() {
     'iOS settings omit background services without hiding privacy controls',
     (tester) async {
       final state = await _remoteState();
-      await tester.binding.setSurfaceSize(const Size(500, 1400));
-      addTearDown(() => tester.binding.setSurfaceSize(null));
+      // A real 500 dp window, so MediaQuery agrees with the layout: a
+      // surface-only size left MediaQuery at 800 and let a trailing value
+      // claim 400 dp of a 448 dp row.
+      addTearDown(tester.view.reset);
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(500, 1400);
       await tester.pumpWidget(
         _screen(state.controller, SettingsScreen(controller: state.controller)),
       );

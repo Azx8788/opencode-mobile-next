@@ -7,6 +7,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../support/no_red.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/orchestration/models/work.dart';
 import 'package:opencode_mobile/state/team_board.dart';
@@ -375,7 +376,7 @@ void main() {
         tester,
         find.byKey(const ValueKey('card')),
       ).map((c) => c.$2);
-      expect(colours, isNot(contains(_n(_r(tester).danger))));
+      expect(colours.where(isRedHue), isEmpty);
       expect(colours, isNot(contains(_n(_r(tester).attention))));
       expect(find.text(flag.label), findsOneWidget);
     }

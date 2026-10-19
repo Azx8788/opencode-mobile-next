@@ -802,4 +802,36 @@ void main() {
       });
     });
   });
+
+  testWidgets(
+    'with the keyboard open the AM/PM control stays whole above the button',
+    (tester) async {
+      await _fixed(() async {
+        final context = await _host(tester, size: const Size(412, 760));
+        tester.view.viewInsets = const FakeViewPadding(bottom: 330);
+        addTearDown(tester.view.resetViewInsets);
+        await tester.pumpAndSettle();
+        await _open<DateTime>(
+          tester,
+          () => showKitDateTimePicker(
+            context,
+            title: 'Time',
+            initial: DateTime(2026, 10, 3, 5, 20),
+          ),
+        );
+        tester
+            .widget<EditableText>(find.byType(EditableText).first)
+            .focusNode
+            .requestFocus();
+        await tester.pumpAndSettle();
+        final period = tester.getRect(find.byType(KitSegmented<DayPeriod>));
+        final actions = tester.getRect(
+          find.byKey(const ValueKey('kit-sheet-actions')),
+        );
+        expect(period.height, greaterThan(30), reason: 'not squeezed');
+        expect(period.bottom, lessThanOrEqualTo(actions.top + 0.5));
+        expect(period.top, greaterThan(0));
+      });
+    },
+  );
 }

@@ -14,6 +14,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'support/no_red.dart';
 import 'package:opencode_mobile/domain/orchestration_gateway.dart';
 import 'package:opencode_mobile/orchestration/adapters/gascity/gascity_control.dart';
 import 'package:opencode_mobile/state/orchestration.dart';
@@ -168,9 +169,7 @@ void main() {
       await pumpSheet(tester, team, 'req-safe');
       final approve = find.byKey(const ValueKey('team-gate-approve'));
       final deny = find.byKey(const ValueKey('team-gate-deny'));
-      final error = AppTheme.dark().colorScheme.error;
-      // The one red fill is dangerFill (visual language §5).
-      final fill = AppTheme.rolesOf(AppTheme.dark()).dangerFill;
+      final fill = AppTheme.rolesOf(AppTheme.dark()).text1;
       // The safe approve is the plain primary; deny takes the error tone.
       // Design standard §2: approve is the kit's primary, deny its
       // secondary (tonal, error-coloured), no longer an outlined button.
@@ -186,7 +185,7 @@ void main() {
           )
           .style!;
       // Denying is not destructive: the neutral tone, no red.
-      expect(denyStyle.foregroundColor?.resolve({}), isNot(error));
+      expect(denyStyle.foregroundColor?.resolve({}), isNotRed);
 
       // Deny sends at once, as on the card (slice-P4.1c): saying no loses
       // nothing, so no second step.
@@ -201,7 +200,7 @@ void main() {
       await team.stop();
     });
 
-    testWidgets('a destructive approve is two-step in the error tone', (
+    testWidgets('a destructive approve is two-step in the strong neutral', (
       tester,
     ) async {
       final (team, gateway) = await boot(
@@ -209,8 +208,8 @@ void main() {
       );
       await pumpSheet(tester, team, 'req-destroy');
       final approve = find.byKey(const ValueKey('team-gate-approve'));
-      // The one red fill is dangerFill (visual language §5).
-      final fill = AppTheme.rolesOf(AppTheme.dark()).dangerFill;
+      // The destructive confirm is the strong neutral fill, never red.
+      final fill = AppTheme.rolesOf(AppTheme.dark()).text1;
       expect(
         tester
             .widget<FilledButton>(

@@ -132,8 +132,8 @@
             "first": "1"
           },
           "opencode": {
-            "runtime": "opencode1",
-            "version": "1.18.32"
+            "runtime": "opencode2",
+            "version": "2.0.29"
           }
         },
         "components": {
@@ -733,7 +733,7 @@
           "opencode": {
             "state": "done",
             "weight": 20,
-            "version": "1.18.32"
+            "version": "2.0.29"
           },
           "start": {
             "state": "done",
@@ -884,7 +884,7 @@
           "path": "version",
           "kind": "string",
           "probes": [
-            "1.18.32"
+            "2.0.29"
           ],
           "primary": false
         },

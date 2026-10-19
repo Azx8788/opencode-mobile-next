@@ -1,12 +1,11 @@
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/domain/server_gateway.dart' show ServerGateway;
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/state/automation_policy.dart';
 import 'package:opencode_mobile/domain/while_away.dart';
 import 'package:opencode_mobile/state/offline_queue.dart';
@@ -626,6 +625,266 @@ void main() {
       );
     },
   );
+
+  test(
+    'active online markers cannot be discarded, resent, or cleared',
+    () async {
+      final controller = await queueController(FakeApi());
+      addTearDown(controller.dispose);
+      expect(
+        await controller.holdOnlinePrompt(
+          queuedEntry('online', dispatchedAt: 1),
+        ),
+        isTrue,
+      );
+      expect(controller.queuedPromptsFor('session-1'), isEmpty);
+      expect(await controller.removeQueuedPrompt('online'), isFalse);
+      expect(await controller.resendQueuedPrompt('online'), isFalse);
+      expect(await controller.retryQueuedPrompt('online'), isFalse);
+      expect(await controller.clearAllQueuedPrompts(), isFalse);
+      await controller.finishOnlinePrompt(
+        'online',
+        dispatched: true,
+        accepted: false,
+      );
+      expect(
+        controller.queuedPromptsFor('session-1').single.dispatched,
+        isTrue,
+      );
+    },
+  );
+
+  test(
+    'profile deletion fences online sends and late cleanup cannot restore them',
+    () async {
+      final controller = await queueController(FakeApi());
+      addTearDown(controller.dispose);
+      expect(
+        await controller.holdOnlinePrompt(
+          queuedEntry('online', dispatchedAt: 1),
+        ),
+        isTrue,
+      );
+      final disk = await scriptedDisk();
+      expect(controller.canDispatchOnlinePrompt('online'), isTrue);
+      final deletion = controller.deleteProfileAndLocalData('profile-1');
+      expect(
+        controller.canDispatchOnlinePrompt('online'),
+        isFalse,
+        reason: 'admission closes synchronously before deletion awaits',
+      );
+      expect(
+        await controller.holdOnlinePrompt(queuedEntry('late', dispatchedAt: 1)),
+        isFalse,
+      );
+      final result = await deletion;
+      expect(result.failures, isEmpty);
+      expect(result.removedQueuedPrompts, 1);
+      expect(await disk.onDisk(), isEmpty);
+      await controller.finishOnlinePrompt(
+        'online',
+        dispatched: true,
+        accepted: true,
+      );
+      expect(controller.canDispatchOnlinePrompt('online'), isFalse);
+      expect(controller.totalQueuedPromptCount, 0);
+      expect(await disk.onDisk(), isEmpty);
+    },
+  );
+
+  test('accepted online send with failed cleanup cannot be resent', () async {
+    final controller = await queueController(FakeApi());
+    addTearDown(controller.dispose);
+    expect(
+      await controller.holdOnlinePrompt(queuedEntry('online', dispatchedAt: 1)),
+      isTrue,
+    );
+    final disk = await scriptedDisk();
+    disk.defaultOutcome = false;
+    await controller.finishOnlinePrompt(
+      'online',
+      dispatched: true,
+      accepted: true,
+    );
+    expect(controller.queuedPromptsFor('session-1').single.dispatched, isTrue);
+    expect(controller.queuedPromptAcceptedUnrecorded('online'), isTrue);
+    expect(await controller.resendQueuedPrompt('online'), isFalse);
+    expect((await disk.onDisk()).single.dispatched, isTrue);
+  });
+
+  testWidgets(
+    'online Send keeps its draft when the durable marker is refused',
+    (tester) async {
+      final api = FakeApi();
+      final controller = await queueController(api);
+      addTearDown(controller.dispose);
+      await pumpChat(tester, controller);
+      final disk = await scriptedDisk();
+      disk.defaultOutcome = false;
+      await tester.enterText(
+        find.byKey(const Key('chat-composer-field')),
+        'Keep me on this phone',
+      );
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('chat-send-button')));
+      for (var i = 0; i < 8; i++) {
+        await tester.pump();
+      }
+      expect(api.prompts, isEmpty);
+      expect(
+        tester.widget<TextField>(find.byType(TextField)).controller?.text,
+        'Keep me on this phone',
+      );
+      expect(controller.queuedPromptsFor('session-1'), isEmpty);
+    },
+  );
+
+  testWidgets('online Send persists a review marker before acknowledgement', (
+    tester,
+  ) async {
+    final api = FakeApi();
+    final controller = await queueController(api);
+    addTearDown(controller.dispose);
+    await pumpChat(tester, controller);
+    final disk = await scriptedDisk();
+    final acknowledgement = Completer<void>();
+    api.beforePrompt = () => acknowledgement.future;
+    await tester.enterText(
+      find.byKey(const Key('chat-composer-field')),
+      'Recover me after process death',
+    );
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('chat-send-button')));
+    for (var i = 0; i < 8; i++) {
+      await tester.pump();
+    }
+    final saved = (await disk.onDisk()).single;
+    expect(saved.text, 'Recover me after process death');
+    expect(saved.dispatched, isTrue);
+    expect(
+      controller.queuedPromptsFor('session-1'),
+      isEmpty,
+      reason: 'the active online marker must not appear as another draft',
+    );
+    final restarted = await restartQueueController(api);
+    addTearDown(restarted.dispose);
+    expect(restarted.queuedPromptsFor('session-1').single.dispatched, isTrue);
+    await restarted.flushOfflineQueue();
+    expect(api.prompts, isEmpty);
+    acknowledgement.complete();
+    for (var i = 0; i < 8; i++) {
+      await tester.pump();
+    }
+    expect(api.prompts, hasLength(1));
+    expect(await disk.onDisk(), isEmpty);
+  });
+
+  testWidgets('editing during online marker storage keeps the newer draft', (
+    tester,
+  ) async {
+    final api = FakeApi();
+    final controller = await queueController(api);
+    addTearDown(controller.dispose);
+    await pumpChat(tester, controller);
+    final disk = await scriptedDisk();
+    final write = Completer<bool>();
+    disk.plan.add(write.future);
+    final field = find.byKey(const Key('chat-composer-field'));
+    await tester.enterText(field, 'The prompt I sent');
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('chat-send-button')));
+    await tester.pump();
+    expect(disk.queueWritesRequested, 1);
+    await tester.enterText(field, 'My newer draft');
+    write.complete(true);
+    for (var i = 0; i < 8; i++) {
+      await tester.pump();
+    }
+    expect(api.prompts.single.text, 'The prompt I sent');
+    expect(
+      tester.widget<TextField>(find.byType(TextField)).controller?.text,
+      'My newer draft',
+    );
+  });
+
+  testWidgets('double Send while offline storage is pending queues once', (
+    tester,
+  ) async {
+    final api = FakeApi();
+    final controller = await queueController(
+      api,
+      status: StreamStatus.disconnected,
+    );
+    addTearDown(controller.dispose);
+    await pumpChat(tester, controller);
+    final disk = await scriptedDisk();
+    final write = Completer<bool>();
+    disk.plan.add(write.future);
+    await tester.enterText(
+      find.byKey(const Key('chat-composer-field')),
+      'Send only once',
+    );
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('chat-send-button')));
+    await tester.pump();
+    expect(disk.queueWritesRequested, 1);
+    await tester.tap(find.byKey(const Key('chat-send-button')));
+    await tester.pump();
+    write.complete(true);
+    for (var i = 0; i < 8; i++) {
+      await tester.pump();
+    }
+    expect(controller.queuedPromptsFor('session-1'), hasLength(1));
+    expect(disk.queueWritesRequested, 1);
+    expect(api.prompts, isEmpty);
+  });
+
+  testWidgets('a lost online acknowledgement stays in review after restart', (
+    tester,
+  ) async {
+    final api = FakeApi();
+    final controller = await queueController(api);
+    addTearDown(controller.dispose);
+    var dispatched = 0;
+    api.beforePrompt = () async {
+      dispatched += 1;
+    };
+    const secret = 'sk-live-online-send-private-value-123456';
+    api.promptPlan.add(
+      ApiException(
+        'connection closed after send\nAuthorization: Bearer $secret',
+      ),
+    );
+    await pumpChat(tester, controller);
+    await tester.enterText(
+      find.byKey(const Key('chat-composer-field')),
+      'Do not send twice',
+    );
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('chat-send-button')));
+    for (var i = 0; i < 8; i++) {
+      await tester.pump();
+    }
+    expect(dispatched, 1);
+    final queued = controller.queuedPromptsFor('session-1').single;
+    expect(queued.dispatched, isTrue);
+    expect(queued.error, isNot(contains(secret)));
+    expect(queued.error, contains('connection closed after send'));
+    expect(find.text('Queued — will send when reconnected'), findsNothing);
+    await controller.flushOfflineQueue();
+    expect(dispatched, 1);
+    await tester.pumpWidget(const SizedBox.shrink());
+    controller.dispose();
+    final restored = await restartQueueController(api);
+    addTearDown(restored.dispose);
+    expect(restored.queuedPromptsFor('session-1').single.dispatched, isTrue);
+    expect(
+      restored.queuedPromptsFor('session-1').single.error,
+      isNot(contains(secret)),
+    );
+    await restored.flushOfflineQueue();
+    expect(dispatched, 1);
+  });
 
   testWidgets('a failed dispatched prompt queues its captured selection', (
     tester,

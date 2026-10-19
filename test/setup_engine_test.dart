@@ -364,16 +364,16 @@ void main() {
     });
 
     test(
-      'pre-job installed Ubuntu preserves OC1 without explicit selection',
+      'pre-job installed Ubuntu installs OC2 without a legacy install path',
       () async {
         await engine.run(const {});
         expect(
           spec(linux, 'start')['data'],
-          containsPair('runtime', 'opencode1'),
+          containsPair('runtime', 'opencode2'),
         );
         expect(
           spec(linux, 'opencode')['script'],
-          contains(OpenCodePins.v1Arm64.sha256),
+          contains(OpenCodePins.v2Arm64.sha256),
         );
       },
     );
@@ -406,7 +406,7 @@ void main() {
         await engine.run(const {});
         expect(
           spec(linux, 'start')['data'],
-          containsPair('runtime', 'opencode1'),
+          containsPair('runtime', 'opencode2'),
         );
       },
     );
@@ -442,11 +442,11 @@ void main() {
           await engine.run(const {});
           expect(
             spec(linux, 'start')['data'],
-            containsPair('runtime', 'opencode1'),
+            containsPair('runtime', 'opencode2'),
           );
           expect(
             spec(linux, 'opencode')['script'],
-            contains(OpenCodePins.v1Arm64.sha256),
+            contains(OpenCodePins.v2Arm64.sha256),
           );
         },
       );
@@ -481,17 +481,22 @@ void main() {
       expect(spec(linux, 'essentials')['version'], '2.43.0');
       expect(spec(linux, 'node')['script'], startsWith(setupPrelude));
       expect(spec(linux, 'node')['script'], contains('oc_download'));
+      // An interrupted step runs again by itself; its row says so in the
+      // person's language (SetupStepRetry.kt).
+      expect(spec(linux, 'node')['labels'], {
+        'retry': en.phoneSetupStageRetrying,
+      });
       // The pinned native program, not npm (slice-builtin-opencode-pin).
       expect(
         spec(linux, 'opencode')['script'],
         withSetupPrelude(
-          SetupScripts.openCodeNativeInstall(TermuxRuntime.openCode1),
+          SetupScripts.openCodeNativeInstall(TermuxRuntime.openCode2),
         ),
       );
       expect(spec(linux, 'start')['step'], isTrue);
       expect(spec(linux, 'start')['data'], {
         'requiredFreeBytes': '300000000',
-        'runtime': 'opencode1',
+        'runtime': 'opencode2',
         'openCodeChanged': 'true',
       });
 
@@ -576,7 +581,7 @@ void main() {
         },
       );
       expect(linux.started.last['params'], {
-        'opencode': {'runtime': 'opencode1'},
+        'opencode': {'runtime': 'opencode2'},
       });
     });
 
@@ -587,7 +592,7 @@ void main() {
       await engine.run(const {}, params: SetupJobParams.firstSetup);
       expect(linux.started.single['params'], {
         ...SetupJobParams.firstSetup,
-        'opencode': {'runtime': 'opencode1'},
+        'opencode': {'runtime': 'opencode2'},
       });
       expect(engine.progress.value.firstSetup, isTrue);
 
@@ -606,7 +611,7 @@ void main() {
       await restarted.run(const {});
       expect(linux.started.last['params'], {
         ...SetupJobParams.firstSetup,
-        'opencode': {'runtime': 'opencode1'},
+        'opencode': {'runtime': 'opencode2'},
       });
       expect(restarted.progress.value.firstSetup, isTrue);
     });
@@ -687,11 +692,11 @@ void main() {
       expect(spec(linux, 'opencode')['skipped'], isNot(isTrue));
       expect(
         spec(linux, 'opencode')['script'],
-        contains(OpenCodePins.v1Arm64.sha256),
+        contains(OpenCodePins.v2Arm64.sha256),
       );
       expect(spec(linux, 'start')['data'], {
         'requiredFreeBytes': '300000000',
-        'runtime': 'opencode1',
+        'runtime': 'opencode2',
         'openCodeChanged': 'true',
       });
       // The check that failed is the native one, not a version print.
@@ -750,10 +755,7 @@ void main() {
         final openCode = components.singleWhere((c) => c['id'] == 'opencode');
         final start = components.singleWhere((c) => c['id'] == 'start');
         expect(openCode['script'], contains(OpenCodePins.v2Arm64.sha256));
-        expect(
-          openCode['script'],
-          isNot(contains(OpenCodePins.v1Arm64.sha256)),
-        );
+        expect(openCode['script'], isNot(contains('opencode-ai@')));
         expect(start['data'], containsPair('runtime', 'opencode2'));
       });
     }
@@ -777,7 +779,7 @@ void main() {
     });
 
     for (final state in ['done', 'interrupted']) {
-      test('a $state legacy job without runtime stays on OC1', () async {
+      test('a $state legacy job resumes on OC2', () async {
         linux.job = {
           'jobId': 'legacy',
           'state': state,
@@ -790,14 +792,14 @@ void main() {
         await engine.run(const {});
         expect(
           spec(linux, 'opencode')['script'],
-          contains(OpenCodePins.v1Arm64.sha256),
+          contains(OpenCodePins.v2Arm64.sha256),
         );
         expect(
           spec(linux, 'start')['data'],
-          containsPair('runtime', 'opencode1'),
+          containsPair('runtime', 'opencode2'),
         );
         expect(linux.started.single['params'], {
-          'opencode': {'runtime': 'opencode1'},
+          'opencode': {'runtime': 'opencode2'},
         });
       });
     }
@@ -837,7 +839,7 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 30));
       engine.progress.removeListener(listener);
       expect(finishes, hasLength(1));
-      expect(finishes.single.runtime, TermuxRuntime.openCode1);
+      expect(finishes.single.runtime, TermuxRuntime.openCode2);
       expect(finishes.single.openCodeChanged, isFalse);
       expect(linux.steps.single, containsPair('ok', true));
       expect(engine.progress.value.state, SetupState.done);
@@ -850,8 +852,9 @@ void main() {
       linux.advance('start', {});
       await pumpUntil(() => engine.progress.value.state == SetupState.failed);
       final start = engine.progress.value.components.last;
-      expect(start.error, en.phoneSetupErrorStart('the server stopped'));
+      expect(start.error, en.phoneSetupErrorCannotStart);
       expect(engine.progress.value.error, start.error);
+      expect(engine.progress.value.logTail, contains('the server stopped'));
       expect(engine.progress.value.canContinue, isTrue);
     });
 
@@ -918,6 +921,21 @@ void main() {
         expect(engine.progress.value.state, SetupState.cancelled);
       },
     );
+  });
+
+  test('a finished job held in memory goes when Linux and its job are gone '
+      '(Reset Linux, N1-5)', () async {
+    linux.job = jsonDecode(recordedInterrupted) as Map<String, Object?>;
+    linux.job!['state'] = 'done';
+    await engine.restore();
+    expect(engine.progress.value.state, SetupState.done);
+    // Reset erased Ubuntu, and setup.json with it.
+    linux
+      ..job = null
+      ..installed = false;
+    await engine.restore();
+    expect(engine.progress.value.state, SetupState.idle);
+    expect(engine.progress.value.jobId, isNull);
   });
 
   test('restore reads an interrupted job after a restart', () async {
@@ -1193,6 +1211,33 @@ void main() {
   });
 
   group('errors in plain words', () {
+    test('unexpected setup start diagnostics redact credentials', () async {
+      engine.dispose();
+      engine = ChannelSetupEngine(
+        linux: linux,
+        strings: () => en,
+        components: (_, _) =>
+            throw StateError('setup failed password=synthetic-private-value'),
+      );
+      final printed = <String>[];
+      final previousPrint = debugPrint;
+      debugPrint = (String? message, {int? wrapWidth}) {
+        printed.add(message ?? '');
+      };
+      try {
+        await engine.run(const {});
+      } finally {
+        debugPrint = previousPrint;
+      }
+      expect(printed.join('\n'), contains('setup: start failed'));
+      expect(printed.join('\n'), isNot(contains('synthetic-private-value')));
+      expect(engine.progress.value.state, SetupState.failed);
+      expect(
+        engine.progress.value.error,
+        isNot(contains('synthetic-private-value')),
+      );
+    });
+
     test('pre-output failure Details redact credentials', () {
       final progress = progressFromRecord(
         const SetupJobRecord(
@@ -1241,6 +1286,50 @@ void main() {
 
     SetupJobComponent failed(String error) =>
         SetupJobComponent(id: 'node', state: 'failed', error: error);
+
+    test('native storage admission explains how to resume', () {
+      final text = describeSetupFailure(
+        failed(
+          'There is not enough free space on this phone. '
+          'Free some storage and try again.',
+        ),
+        '',
+        'Node.js',
+        en,
+      );
+      expect(text.component, en.phoneSetupErrorNoSpace('Node.js'));
+      expect(text.job, text.component);
+    });
+
+    test('SIGTERM and SIGKILL mean interrupted without guessing the cause', () {
+      for (final reason in [
+        'proot info: vpid 1: terminated with signal 15',
+        'proot info: vpid 1: terminated with signal 9',
+        'process stopped: SIGTERM',
+      ]) {
+        final text = describeSetupFailure(
+          failed('The setup step could not finish. Try again.'),
+          reason,
+          'Python',
+          en,
+        );
+        expect(text.component, en.phoneSetupErrorInterrupted);
+        expect(text.job, text.component);
+      }
+    });
+
+    test('old signal output does not mislabel a later failure', () {
+      final text = describeSetupFailure(
+        failed('exit 1'),
+        [
+          'proot info: vpid 1: terminated with signal 15',
+          ...List.filled(16, 'working'),
+        ].join('\n'),
+        'Python',
+        en,
+      );
+      expect(text.component, en.phoneSetupErrorInstall('Python'));
+    });
 
     test('a download without internet names the part and the cause', () {
       for (final tail in [

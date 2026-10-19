@@ -99,13 +99,24 @@ void main() {
     expect(f.checks.join(' '), isNot(contains('Nothing answered')));
   });
 
+  test('a changed certificate blocks and asks for explicit review', () {
+    final f = d(
+      'The server certificate changed.',
+      url: 'https://private.example',
+    );
+    expect(f.title, "The server's certificate changed");
+    expect(f.primary, ConnectionFailureAction.reviewCertificate);
+    expect(f.explanation, contains('before sending your password'));
+    expect(f.checks, contains('Re-check certificate'));
+  });
+
   test('certificate problems name the certificate', () {
     final f = d(
       'Health check failed: certificate not trusted',
       url: 'https://dev.tail.net',
     );
     expect(f.title, 'Certificate not trusted');
-    expect(f.primary, ConnectionFailureAction.changeServer);
+    expect(f.primary, ConnectionFailureAction.reviewCertificate);
   });
 
   test('remote host refusing is "not reachable" with network checks', () {

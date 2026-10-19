@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/domain/genui/gen_ui.dart';
 import 'package:opencode_mobile/domain/genui/gen_ui_history.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
@@ -140,6 +140,92 @@ void main() {
     delayed.dispose();
     await state.journal.drained;
   });
+
+  test(
+    'late admission blocks held answer without an uncertain send marker',
+    () async {
+      var leased = false;
+      var checks = 0;
+      state.register(
+        scope,
+        gateway,
+        endpoint: 'endpoint-digest',
+        current: () => true,
+        ready: true,
+        beforeSend: () async {
+          checks++;
+          if (leased) throw const ProductException('Phone is in scheduled use');
+        },
+      );
+      final current = card();
+      final answer = state.answer(current, const GenUiConfirmAnswer(true), []);
+      expect(checks, 0);
+      leased = true;
+      final rejected = expectLater(
+        answer,
+        throwsA(
+          isA<ProductException>().having(
+            (error) => error.message,
+            'admission reason',
+            'Phone is in scheduled use',
+          ),
+        ),
+      );
+      await delayed.flush();
+      await rejected;
+      expect(gateway.sent, 0);
+      expect(checks, 1);
+      expect(
+        state.journal.read('phone').every((entry) => entry.dispatchID == null),
+        isTrue,
+      );
+      expect(state.delivery(current), GenUiDeliveryState.failed);
+      leased = false;
+      final retry = state.answer(current, const GenUiConfirmAnswer(true), []);
+      await delayed.flush();
+      await retry;
+      expect(gateway.sent, 1);
+      expect(checks, 2);
+    },
+  );
+
+  test(
+    'source replacement during final admission never sends old answer',
+    () async {
+      final gate = Completer<void>();
+      final entered = Completer<void>();
+      state.register(
+        scope,
+        gateway,
+        endpoint: 'endpoint-digest',
+        current: () => true,
+        ready: true,
+        beforeSend: () {
+          entered.complete();
+          return gate.future;
+        },
+      );
+      final answer = state.answer(card(), const GenUiConfirmAnswer(true), []);
+      final rejected = expectLater(answer, throwsA(isA<ProductException>()));
+      final flushing = delayed.flush();
+      await entered.future;
+      state.register(
+        scope,
+        Gateway(),
+        endpoint: 'replacement-endpoint',
+        current: () => true,
+        ready: true,
+      );
+      gate.complete();
+      await flushing;
+      await rejected;
+      expect(gateway.sent, 0);
+      expect(
+        state.journal.read('phone').every((entry) => entry.dispatchID == null),
+        isTrue,
+      );
+    },
+  );
 
   test('qualified authoritative parts only; source and revision isolation', () {
     final original = card();

@@ -36,6 +36,7 @@ void main() {
     'confirmed-start',
     'reason-eleven',
     'app-update',
+    'device-restart',
   ]) {
     test('native background receipt: $scenario', skip: skip, () async {
       final result = await Process.run('java', [

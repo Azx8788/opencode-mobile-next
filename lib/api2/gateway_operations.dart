@@ -2,7 +2,7 @@
 /// [ServerOperationsGateway]: everything the product screens drive beyond
 /// the live transport in `gateway.dart`.
 ///
-/// Extends the v1 [ProductRepository] base so every operation with no v2
+/// Extends the protocol-neutral [ProductRepository] base so every operation with no v2
 /// endpoint keeps the exact graceful "unavailable on this server"
 /// [ProductException] the UI already renders; only genuinely supported
 /// operations are overridden with real v2 calls.
@@ -14,10 +14,11 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart' show CancelToken, Options, ProgressCallback;
 
-import '../api/mcp_oauth.dart';
-import '../api/models.dart';
-import '../api/product_repository.dart' show ProductRepository;
+import '../domain/mcp_oauth.dart';
+import '../domain/models.dart';
+import '../domain/product_repository.dart' show ProductRepository;
 import '../domain/server_gateway.dart';
+import '../domain/server_trust.dart';
 import '../ui/kit/kit_redact.dart';
 import '../domain/parallel_requests.dart';
 import '../domain/session_title_text.dart';
@@ -182,4 +183,25 @@ class _Api2TerminalChannel implements TerminalChannel {
 
   @override
   Future<void> close() => _socket.close();
+}
+
+/// WebSocket.connect does not disable redirects itself. It needs only openUrl
+/// from this client; keeping the upgrade on this origin also protects tickets.
+class _TerminalTrustHttpClient implements HttpClient {
+  final HttpClient _inner;
+  _TerminalTrustHttpClient(this._inner);
+
+  @override
+  Future<HttpClientRequest> openUrl(String method, Uri url) async {
+    final request = await _inner.openUrl(method, url);
+    request.followRedirects = false;
+    request.maxRedirects = 0;
+    return request;
+  }
+
+  @override
+  void close({bool force = false}) => _inner.close(force: force);
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

@@ -214,9 +214,7 @@ void _composerAndErrorTests() {
     tester,
   ) async {
     final api = _FakeOpenCodeApi();
-    SharedPreferences.setMockInitialValues({});
-    final prefs = await SharedPreferences.getInstance();
-    final controller = _StaticCatalogController(ProfileStore(prefs: prefs))
+    final controller = _StaticCatalogController(await _profileStore())
       ..api = api
       ..status = StreamStatus.connected
       ..catalog = const CatalogSnapshot(
@@ -625,11 +623,11 @@ void _composerAndErrorTests() {
   );
 
   testWidgets(
-    'failed send removes optimism, restores input, and blocks repeats',
+    'uncertain send removes optimism, retains review, and blocks repeats',
     (tester) async {
       final prompt = Completer<void>();
       final api = _FakeOpenCodeApi()..promptCompleter = prompt;
-      await _pumpChat(tester, api);
+      final controller = await _pumpChat(tester, api);
 
       await tester.enterText(find.byType(TextField), 'try once');
       await tester.pump();
@@ -645,11 +643,15 @@ void _composerAndErrorTests() {
       expect(find.text('try once'), findsOneWidget);
       expect(
         tester.widget<TextField>(find.byType(TextField)).controller?.text,
-        'try once',
+        isEmpty,
+      );
+      expect(
+        controller.queuedPromptsFor('session-1').single.dispatched,
+        isTrue,
       );
       expect(
         find.text(
-          "That didn't work. Details show what happened. Try again, or report the problem.",
+          'It may already have reached OpenCode. Sending again can duplicate it.',
         ),
         findsOneWidget,
       );
@@ -912,7 +914,8 @@ void _composerAndErrorTests() {
           ),
         ], created: 2),
       ];
-    final controller = await _pumpChat(tester, api);
+    final controller = await _controller(api, staticCatalog: true);
+    await _pumpChat(tester, api, controller: controller);
     controller.selectedVariant = 'fast';
 
     await _runSheetCommand(tester, 'retry');

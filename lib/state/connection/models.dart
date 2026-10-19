@@ -83,8 +83,7 @@ mixin _ConnectionControllerModels on ChangeNotifier {
 
   bool get serverOwnsSessionSelection =>
       _self.api is SessionSelectionGateway ||
-      (_self.api == null &&
-          (_self.isAgentBackend || _self.serverFlavor == ServerFlavor.v2));
+      (_self.api == null && (_self.profile != null));
 
   SessionSelection selectionForSession(String sessionID) =>
       _self._selectionForSession(sessionID);
@@ -311,6 +310,7 @@ extension _ConnectionControllerModelsImpl on ConnectionController {
         'The connection changed. Reopen the session and try again.',
       );
     }
+    await ensureInteractiveSendAllowed(expectedApi: expectedApi);
   }
 
   Future<void> _mutateSessionSelection(

@@ -1163,6 +1163,45 @@ class KitShellControls extends StatelessWidget {
   }
 }
 
+/// The tail of a server name that tells servers on one host apart: the
+/// ":port" and whatever follows it ("(secure)", " +2").
+final _kitServerNameTail = RegExp(r':\d+(?:\s.*)?$');
+
+/// The server's name on one line. When it is too long the host is cut with an
+/// ellipsis, never the port: "Computer at 10.0…:4443 (secure)".
+Widget _kitServerNameLine(String server) {
+  final match = _kitServerNameTail.firstMatch(server);
+  if (match == null || match.start == 0) {
+    return KitText(
+      KitBidi.auto(server),
+      role: KitTextRole.rowTitle,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+  return Row(
+    key: const ValueKey('kit-shell-server-name'),
+    mainAxisSize: MainAxisSize.min,
+    textDirection: TextDirection.ltr,
+    children: [
+      Flexible(
+        child: KitText(
+          server.substring(0, match.start),
+          role: KitTextRole.rowTitle,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
+      KitText(
+        match.group(0)!,
+        role: KitTextRole.rowTitle,
+        maxLines: 1,
+        softWrap: false,
+      ),
+    ],
+  );
+}
+
 /// The pill's look: the state mark, the server's name, its status word and
 /// the switcher chevron (which never mirrors: it points down).
 class _KitServerPillContent extends StatelessWidget {
@@ -1187,7 +1226,7 @@ class _KitServerPillContent extends StatelessWidget {
       AppStatusTone.progress => roles.accent,
       AppStatusTone.ok => roles.success,
       AppStatusTone.attention => roles.attention,
-      AppStatusTone.failure => roles.danger,
+      AppStatusTone.failure => roles.text1,
     };
     final Widget mark = tone == AppStatusTone.progress
         ? KitStatusMark(state: KitMarkState.working, label: status)
@@ -1271,18 +1310,20 @@ class _KitServerPillContent extends StatelessWidget {
 
         final statusWidth = widthOf(statusText, KitTextRole.caption);
         final largeText = scaler.scale(1) >= 1.3;
+        // The port is never what gives way: when the status word and the
+        // name's port tail do not fit together, the status goes below.
+        final tail = _kitServerNameTail.firstMatch(server)?.group(0);
+        final tailWidth = tail == null
+            ? 0.0
+            : widthOf(tail, KitTextRole.rowTitle) + tokens.space3;
         final stack =
             statusWidth + tokens.minTarget > constraints.maxWidth ||
+            (tail != null && statusWidth + tailWidth > constraints.maxWidth) ||
             (largeText &&
                 statusWidth +
                         widthOf(KitBidi.auto(server), KitTextRole.rowTitle) >
                     constraints.maxWidth);
-        final name = KitText(
-          KitBidi.auto(server),
-          role: KitTextRole.rowTitle,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        );
+        final name = _kitServerNameLine(server);
         if (stack && tone == AppStatusTone.ok) {
           // Connected is left to the green dot (the pill's semantics still
           // say it): one line, the name cut with an ellipsis.

@@ -26,7 +26,7 @@ The size limits apply to a phone at 412×915 with text size 1.0.
 - Rare settings go at the bottom or on a sub-page, never in the first view.
 
 ## 4. Colour
-- The accent colour is for the main action and for amounts that are fine. Amber means "needs you" only. **Red is never used. [auto]**
+- The accent colour is for the main action and for amounts that are fine. Amber means "needs you" only. **Red is never used: no danger role, no error colour, no red literal, no red tint, not even on destructive confirmations (their confirm button is the strong neutral fill). [auto]** (`test/no_red_scan_test.dart`)
 - Cards only for things you tap. A group of settings is one section, not a card per row.
 
 ## 5. Nothing cut off

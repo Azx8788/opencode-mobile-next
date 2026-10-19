@@ -1,6 +1,6 @@
 // Sample conversations for the chat use-cases: invented, about a fictional
 // "shopfront" project. Nothing private.
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 
 import '../fakes/fake_gateway.dart';
@@ -232,7 +232,7 @@ FakeServer serverWith(
   busy: {if (busy) chatSessionID},
   permissions: permissions,
   questions: questions,
-  capabilities: capabilities ?? ServerCapabilities.allV1,
+  capabilities: capabilities ?? catalogServerCapabilities,
 );
 
 /// The agent's task list: [done] of six finished, the next one in progress.

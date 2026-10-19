@@ -32,9 +32,8 @@ class _KitHandle extends StatelessWidget {
 
 /// The tone of the one header tile [_KitIconTile] draws (§5 Sheets).
 /// [KitSheet] uses [neutral] and [attention]; the confirm part (kit_confirm_
-/// sheet.dart) uses [neutral] and [danger] (LOOK-5: danger only inside a
-/// confirmation).
-enum _KitTileTone { neutral, attention, danger }
+/// sheet.dart) uses [neutral] only (never red).
+enum _KitTileTone { neutral, attention }
 
 /// The one 44 dp header tile (§5 Sheets, new private seam): a rounded square
 /// with a centred glyph, excluded from semantics — the title beside it (or,
@@ -63,13 +62,6 @@ class _KitIconTile extends StatelessWidget {
           tokens.sheetSurface,
         ),
         roles.attention,
-      ),
-      _KitTileTone.danger => (
-        Color.alphaBlend(
-          roles.danger.withValues(alpha: tokens.markTintAlpha),
-          tokens.sheetSurface,
-        ),
-        roles.danger,
       ),
     };
     return ExcludeSemantics(

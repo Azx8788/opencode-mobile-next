@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart'
+import 'package:opencode_mobile/domain/models.dart'
     show ProviderInfo, ProvidersResponse;
 import 'package:opencode_mobile/domain/agent_account.dart';
 import 'package:opencode_mobile/domain/provider_usage.dart';

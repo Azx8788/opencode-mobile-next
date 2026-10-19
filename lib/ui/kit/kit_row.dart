@@ -8,6 +8,7 @@ import 'kit_bidi.dart';
 import 'kit_buttons.dart';
 import 'kit_chip.dart';
 import 'kit_divider.dart';
+import 'kit_icon.dart';
 import 'kit_menu.dart';
 import 'kit_motion.dart';
 import 'kit_row_parts.dart' show KitRowMenu;
@@ -169,9 +170,10 @@ class KitRow extends StatelessWidget {
   /// [disabledReason] says why (STATE-8).
   final bool enabled;
 
-  /// Deletes or ends something (LOOK-5): title in `danger`. The act
-  /// confirms first or offers Undo per DATA-11 (K2 §4.1); this flag decides
-  /// neither. In a [KitRowGroup] it sits last, after a divider.
+  /// Deletes or ends something (LOOK-5): the title stays neutral, never red
+  /// (owner rule); the confirmation guards the act. The act confirms first
+  /// or offers Undo per DATA-11 (K2 §4.1); this flag decides neither. In a
+  /// [KitRowGroup] it sits last, after a divider.
   final bool destructive;
 
   /// The row's rarer actions (KIT-28): opened by long-press, right-click,
@@ -235,8 +237,16 @@ class KitRow extends StatelessWidget {
   /// A leading icon in its tile (visual language §4): 30 dp of `surface3`
   /// with 9 dp corners, the icon in `text1` unless [color] is given. In a
   /// disabled or unavailable row the glyph turns `text3`.
-  static Widget icon(BuildContext context, IconData icon, {Color? color}) =>
-      _KitRowIconTile(icon: icon, color: color);
+  ///
+  /// [mark] names a bundled brand mark (`assets/marks/<slug>.svg`, an agent's
+  /// logo); it is drawn in the glyph's place, same size and colour, and
+  /// [icon] stays as the fallback for an unknown agent.
+  static Widget icon(
+    BuildContext context,
+    IconData icon, {
+    Color? color,
+    String? mark,
+  }) => _KitRowIconTile(icon: icon, color: color, mark: mark);
 
   /// A round icon badge for a row that starts something: [accent] tints the
   /// circle and the glyph with the accent (the row's main act), otherwise a
@@ -298,8 +308,6 @@ class KitRow extends StatelessWidget {
 
     final titleColor = dimmed
         ? roles.text3
-        : destructive
-        ? roles.danger
         : titleAccent
         ? roles.accent
         : null;
@@ -402,6 +410,8 @@ class KitRow extends StatelessWidget {
                 ],
               ),
             ),
+            // The text never runs into what trails it ("UnrestrictedOpen").
+            if (trailing != null) SizedBox(width: tokens.space2),
             if (trailing != null)
               // A trailing value never pushes the title off the row: it
               // gets at most half the window (A11Y-8, G6: no overflow at
@@ -593,11 +603,13 @@ class _KitRowIconTile extends StatelessWidget {
   const _KitRowIconTile({
     required this.icon,
     this.color,
+    this.mark,
     this.round = false,
     this.accent = false,
   });
 
   final IconData icon;
+  final String? mark;
   final Color? color;
   final bool round;
   final bool accent;
@@ -619,15 +631,21 @@ class _KitRowIconTile extends StatelessWidget {
               : BorderRadius.circular(tokens.iconTileRadius),
         ),
         child: Center(
-          child: Icon(
-            icon,
-            size: tokens.iconSize(context, tokens.smallIconSize),
-            color: dimmed
+          child: () {
+            final size = tokens.iconSize(context, tokens.smallIconSize);
+            final tint = dimmed
                 ? tokens.roles.text3
                 : accent
                 ? tokens.roles.accent
-                : color ?? tokens.roles.text1,
-          ),
+                : color ?? tokens.roles.text1;
+            final slug = mark;
+            return slug == null
+                ? Icon(icon, size: size, color: tint)
+                : IconTheme(
+                    data: IconThemeData(color: tint),
+                    child: KitIcon.mark(slug, growsWithText: true),
+                  );
+          }(),
         ),
       ),
     );
@@ -715,7 +733,7 @@ class KitRowValue extends StatelessWidget {
     : count = null;
 
   /// A count badge instead of a value: the number in a small pill whose
-  /// digits take the danger colour ("3" errors kept), "99+" above 99.
+  /// digits take the strong neutral ("3" errors kept), "99+" above 99.
   /// [value] is what it means in words ("3 errors kept"): the badge's
   /// semantics, so the number is never colour alone (STATE-9). A count
   /// of 0 or less shows only the chevron.
@@ -788,7 +806,7 @@ class KitRowValue extends StatelessWidget {
 
 /// [KitRowValue.count]'s pill: at least `KitTokens.badgeHeight` /
 /// `badgeMinWidth` and growing with its clamped text (A11Y-8,
-/// `KitTokens.badgeTextScaleMax`), `surface2` with the digits in `danger`.
+/// `KitTokens.badgeTextScaleMax`), `surface2` with the digits in `text1`.
 class _KitCountPill extends StatelessWidget {
   const _KitCountPill(this.text);
 
@@ -815,7 +833,7 @@ class _KitCountPill extends StatelessWidget {
         text,
         textScaler: scaler,
         style: KitText.styleOf(context, KitTextRole.caption).copyWith(
-          color: tokens.roles.danger,
+          color: tokens.roles.text1,
           fontWeight: FontWeight.w600,
           fontFeatures: const [FontFeature.tabularFigures()],
         ),

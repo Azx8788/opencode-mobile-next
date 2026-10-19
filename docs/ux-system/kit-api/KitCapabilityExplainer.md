@@ -38,7 +38,6 @@ It also provides the widgets that say so in place: a dimmed row, a state, or an 
 enum KitHost {
   thisPhone,   // builtin: OpenCode in the app's own Linux
   termux,      // a Termux-managed server on this phone
-  openCode1,   // oc1Computer
   openCode2,   // oc2Computer
   codex,
   paseo,

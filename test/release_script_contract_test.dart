@@ -18,20 +18,16 @@ void main() {
     ], workingDirectory: cwd);
   });
 
-  test(
-    'release script enforces the fail-closed publish contract',
-    () async {
-      final result = await releaseScript;
+  test('release script enforces the fail-closed publish contract', () async {
+    final result = await releaseScript;
 
-      expect(
-        result.exitCode,
-        0,
-        reason: 'stdout:\n${result.stdout}\nstderr:\n${result.stderr}',
-      );
-      expect(result.stdout, contains('PASS: release script safety contract'));
-    },
-    timeout: const Timeout(Duration(minutes: 2)),
-  );
+    expect(
+      result.exitCode,
+      0,
+      reason: 'stdout:\n${result.stdout}\nstderr:\n${result.stderr}',
+    );
+    expect(result.stdout, contains('PASS: release script safety contract'));
+  }, timeout: const Timeout(Duration(minutes: 2)));
 
   test(
     'GitHub publication verifies source, quality and signed draft assets',

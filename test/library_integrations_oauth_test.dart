@@ -6,7 +6,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/ui/kit/kit.dart';
 import 'package:opencode_mobile/ui/widgets/provider_logo.dart';
 
@@ -70,7 +70,9 @@ void main() {
           ),
         ];
 
-      await tester.pumpWidget(app(await integrationsController(repository)));
+      await tester.pumpWidget(
+        app(await integrationsController(repository, withAuthorization: true)),
+      );
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('connect-provider-cloud')));
       await tester.pumpAndSettle();
@@ -161,7 +163,9 @@ void main() {
           ),
         ];
 
-      await tester.pumpWidget(app(await integrationsController(repository)));
+      await tester.pumpWidget(
+        app(await integrationsController(repository, withAuthorization: true)),
+      );
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('connect-provider-cloud')));
       await tester.pumpAndSettle();
@@ -245,7 +249,7 @@ void main() {
 
       await tester.pumpWidget(
         app(
-          await integrationsController(repository),
+          await integrationsController(repository, withAuthorization: true),
           authorizationLauncher: (_) async => true,
         ),
       );
@@ -310,7 +314,10 @@ void main() {
           connectionCount: 0,
         ),
       ];
-    final controller = await integrationsController(repository);
+    final controller = await integrationsController(
+      repository,
+      withAuthorization: true,
+    );
     addTearDown(controller.dispose);
 
     await tester.pumpWidget(
@@ -376,7 +383,7 @@ void main() {
 
     await tester.pumpWidget(
       app(
-        await integrationsController(repository),
+        await integrationsController(repository, withAuthorization: true),
         authorizationLauncher: (_) async => true,
       ),
     );
@@ -432,7 +439,10 @@ void main() {
           connectionCount: 0,
         ),
       ];
-    final controller = await integrationsController(repository);
+    final controller = await integrationsController(
+      repository,
+      withAuthorization: true,
+    );
     addTearDown(controller.dispose);
     CatalogModel model(String id, String providerID) => CatalogModel(
       id: id,
@@ -557,7 +567,10 @@ void main() {
         state: IntegrationAuthState.complete,
       )
       ..providerRefreshError = const ProductException('Refresh failed');
-    final controller = await integrationsController(repository);
+    final controller = await integrationsController(
+      repository,
+      withAuthorization: true,
+    );
     addTearDown(controller.dispose);
 
     await tester.pumpWidget(

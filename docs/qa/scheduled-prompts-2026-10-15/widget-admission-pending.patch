@@ -1,0 +1,18 @@
+--- a/lib/state/connection/widgets.dart
++++ b/lib/state/connection/widgets.dart
+@@ -277,6 +277,7 @@
+               result = refuse('invalidRequest');
+               break;
+             }
++            await ensureInteractiveSendAllowed(expectedApi: gateway);
+             await gateway.promptAsync(
+               action.sessionID,
+               text: action.text,
+@@ -306,6 +307,7 @@
+           if (!current()) break; // Creation may have committed: never replay.
+           sessionsById[session.id] = session;
+           _sessionInventoryIDs.add(session.id);
++          await ensureInteractiveSendAllowed(expectedApi: gateway);
+           await gateway.promptAsync(
+             session.id,
+             text: action.text,

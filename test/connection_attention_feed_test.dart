@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/sse.dart' show StreamStatus;
+import 'package:opencode_mobile/domain/models.dart';
+import 'package:opencode_mobile/domain/server_gateway.dart' show StreamStatus;
 import 'package:opencode_mobile/state/attention_feed.dart';
 import 'package:opencode_mobile/state/automation_policy.dart';
 import 'package:opencode_mobile/state/connection.dart';

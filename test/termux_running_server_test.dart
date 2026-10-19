@@ -8,8 +8,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/server_probe.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/server_probe.dart';
 import 'package:opencode_mobile/builtin/setup/phone_setup.dart';
 import 'package:opencode_mobile/builtin/setup/setup_engine.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
@@ -38,7 +38,7 @@ class _Connection extends ConnectionController {
     bool redetectOnFailure = true,
   }) async {
     attempted.add(profile);
-    api = OpenCodeApi(baseUrl: profile.baseUrl);
+    api = FakeServerGateway(baseUrl: profile.baseUrl);
   }
 }
 
@@ -461,7 +461,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(
         find.textContaining(
-          'Older OpenCode is set up in Termux but isn\'t answering.',
+          'OpenCode 2 is set up in Termux but isn\'t answering.',
         ),
         findsOneWidget,
       );
@@ -769,7 +769,7 @@ void main() {
         ),
       );
       expect(find.text('Termux'), findsOneWidget);
-      expect(find.text('Older OpenCode · Stopped'), findsOneWidget);
+      expect(find.text('OpenCode 2 · Stopped'), findsOneWidget);
       expect(key('connect'), findsNothing);
       // Nothing to restart or stop: no menu offers them.
       expect(key('menu'), findsNothing);
@@ -779,7 +779,7 @@ void main() {
       await tester.pumpAndSettle();
       // Starting loses nothing, so it does not ask first.
       expect(restarts, 1);
-      expect(find.text('Older OpenCode · Running'), findsOneWidget);
+      expect(find.text('OpenCode 2 · Running'), findsOneWidget);
       expect(key('connect'), findsOneWidget);
     });
 
@@ -883,10 +883,7 @@ void main() {
           onManage: () => managed++,
         );
         // The current mark: the word leads the row's line.
-        expect(
-          find.text('Connected · Older OpenCode · Running'),
-          findsOneWidget,
-        );
+        expect(find.text('Connected · OpenCode 2 · Running'), findsOneWidget);
         expect(
           find.byKey(const ValueKey('kit-row-current-mark')),
           findsOneWidget,

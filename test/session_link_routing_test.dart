@@ -6,10 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/domain/session_handoff.dart';
 import 'package:opencode_mobile/main.dart';
@@ -43,7 +43,7 @@ class _MemoryProfileStore extends ProfileStore {
 
 /// A connected v1 transport that counts everything a link must never do:
 /// creating a session or sending a prompt.
-class _LinkApi extends OpenCodeApi with CompleteMessageHistory {
+class _LinkApi extends FakeServerGateway with CompleteMessageHistory {
   _LinkApi({super.baseUrl = 'http://localhost:4096'});
 
   int created = 0;
@@ -133,7 +133,7 @@ class _LinkRepository implements ProductRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-class _FakeEventStream extends EventStream {
+class _FakeEventStream extends FakeEventChannel {
   _FakeEventStream({
     required super.api,
     required super.onEvent,
@@ -636,7 +636,12 @@ void main() {
     await store.prefs.setString(
       'oc.profiles',
       jsonEncode([
-        {'id': 'server-1', 'name': 'Local', 'baseUrl': _addressOrigin},
+        {
+          'id': 'server-1',
+          'name': 'Local',
+          'flavor': 'v2',
+          'baseUrl': _addressOrigin,
+        },
       ]),
     );
     await SessionLinkBindings.forProfile(store.prefs, 'server-1').save(

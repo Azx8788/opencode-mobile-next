@@ -166,6 +166,17 @@ extension _ConnectionControllerSessionEventsImpl on ConnectionController {
         final info = props['info'];
         if (info is Map<String, dynamic>) {
           final msg = MessageInfo.fromJson(info);
+          if (msg.role == 'assistant') {
+            if (_widgetAssistantMessages.length >= 64 &&
+                !_widgetAssistantMessages.containsKey(msg.sessionID)) {
+              _widgetAssistantMessages.remove(
+                _widgetAssistantMessages.keys.first,
+              );
+            }
+            _widgetAssistantMessages[msg.sessionID] = msg.id;
+          } else if (msg.role == 'user') {
+            _widgetAssistantMessages.remove(msg.sessionID);
+          }
           if (msg.role == 'user' && msg.id.isNotEmpty) {
             _widgetRunMarkers[msg.sessionID] = msg.id;
           }
@@ -197,20 +208,30 @@ extension _ConnectionControllerSessionEventsImpl on ConnectionController {
       case 'message.removed':
         final sid = props['sessionID']?.toString();
         if (sid != null && sid.isNotEmpty) {
+          _widgetReplyPreviews[sid] = '';
+          _widgetAssistantMessages.remove(sid);
           _markSessionChanged(sid);
+          _notifyListeners();
           unawaited(_refreshOneSession(sid));
         }
         break;
 
       case 'message.part.updated':
-        // Parsed only as far as the ongoing notification needs; the chat
-        // screen builds the full part from the event bus below. Deliberately
-        // no notifyListeners: every streamed delta lands here.
+        // Whole assistant text parts refresh the launcher preview; raw deltas
+        // stay in the chat event bus. Tool details remain generic fixed copy.
         final part = props['part'];
+        if (part is Map) {
+          final sid =
+              (part['sessionID'] ?? props['sessionID'])?.toString() ?? '';
+          if (sid.isNotEmpty && _observeWidgetReply(part, sid)) {
+            _notifyListeners();
+          }
+        }
         if (part is Map && part['type'] == 'tool') {
           final sid = part['sessionID']?.toString() ?? '';
           final state = part['state'];
           final toolStatus = state is Map ? state['status']?.toString() : null;
+          _noteToolCall(part);
           if (sid.isNotEmpty && toolStatus != null) {
             final before = _runningToolDetail[sid];
             var planChanged = false;
@@ -233,11 +254,33 @@ extension _ConnectionControllerSessionEventsImpl on ConnectionController {
               _runningToolDetail.remove(sid);
             }
             if (planChanged || _runningToolDetail[sid] != before) {
-              _publishLiveStatus();
+              _notifyListeners();
             }
           }
         }
         break;
+    }
+  }
+
+  void _noteToolCall(Map part) {
+    final callID = part['callID']?.toString() ?? '';
+    final tool = part['tool']?.toString() ?? '';
+    final state = part['state'];
+    final input = state is Map ? state['input'] : null;
+    if (callID.isEmpty || tool.isEmpty || input is! Map) return;
+    String? target;
+    for (final key in const ['filePath', 'file_path', 'path', 'command']) {
+      final value = input[key];
+      if (value is String && value.trim().isNotEmpty) {
+        target = value;
+        break;
+      }
+    }
+    target ??= _toolCalls.remove(callID)?.target;
+    _toolCalls.remove(callID);
+    _toolCalls[callID] = (tool: tool, target: target);
+    while (_toolCalls.length > 64) {
+      _toolCalls.remove(_toolCalls.keys.first);
     }
   }
 

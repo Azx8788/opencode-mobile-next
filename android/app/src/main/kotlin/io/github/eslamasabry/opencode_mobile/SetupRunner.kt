@@ -255,13 +255,13 @@ class SetupRunner private constructor(private val context: Context) {
                     when {
                         spec.native -> runNative(spec, component)
                         spec.step -> waitForStep(spec, component)
-                        else -> runScript(spec, component)
+                        else -> runScriptRetrying(spec, component)
                     }
                 } catch (error: SetupPersistenceException) {
                     throw error
                 } catch (e: Throwable) {
                     // Agent process exceptions can include private home paths.
-                    Log.e(BuiltinLinux.TAG, "setup component failed")
+                    Log.e(BuiltinLinux.TAG, "setup component failed: ${BuiltinLinux.failureShape(e)}")
                     if (NativeRuntimeOwnership.isUnknownFailure(e)) NativeRuntimeOwnership.UNKNOWN_CODE
                     else "The setup step could not finish. Try again."
                 }
@@ -367,6 +367,31 @@ class SetupRunner private constructor(private val context: Context) {
         return null
     }
 
+    /**
+     * [runScript], run again (up to [SetupStepRetry.ATTEMPTS] times) when it
+     * was interrupted rather than failed, so a stop the person did not ask
+     * for never needs Continue setup or a force stop. The row says so.
+     */
+    private fun runScriptRetrying(spec: Spec, component: SetupComponentStatus): String? {
+        var attempt = 1
+        while (true) {
+            try {
+                val failure = runScript(spec, component)
+                if (!SetupStepRetry.again(attempt, cancelled, SetupStepRetry.interrupted(failure))) return failure
+            } catch (error: InstallerInterruptedException) {
+                if (!SetupStepRetry.again(attempt, cancelled, interrupted = true)) throw error
+            }
+            attempt++
+            Log.w(
+                BuiltinLinux.TAG,
+                "setup step ${spec.id} interrupted; running it again ($attempt of ${SetupStepRetry.ATTEMPTS})",
+            )
+            val label = spec.labels["retry"] ?: "Interrupted. Trying again"
+            logLine("==> $label ($attempt/${SetupStepRetry.ATTEMPTS})")
+            event(component, SetupProtocol.Event.Stage(label))
+        }
+    }
+
     private fun runScript(spec: Spec, component: SetupComponentStatus): String? {
         if (!linux.installed) return "The Linux base is not installed"
         val script = spec.script ?: return "No script for ${spec.id}"
@@ -417,7 +442,7 @@ class SetupRunner private constructor(private val context: Context) {
             synchronized(lock) { process = null }
         }
         return if (cancelled) "cancelled"
-        else if (code == 0 && completion.exitCode != 0) "The setup step could not finish. Try again."
+        else if (code == 0 && completion.exitCode != 0) SetupStepRetry.missingResult(last)
         else installerFailure(spec, component, code, last)
     }
 

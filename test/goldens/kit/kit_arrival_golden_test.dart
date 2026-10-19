@@ -22,6 +22,9 @@ Widget _effects() => Builder(
             leading: KitRow.icon(context, icon),
             title: title,
             supporting: detail,
+            // Four lines: at text 2.0 the row's value gap leaves this caption
+            // needing four, and the shot must show it whole.
+            supportingMaxLines: 4,
             value: true,
             onChanged: (_) {},
           ),

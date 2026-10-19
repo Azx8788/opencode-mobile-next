@@ -145,10 +145,8 @@ extension _ServersActions on _ServersScreenState {
       onManage: _openTermuxSetup,
       onConnect: (profile) => _connect(profile, detectedRunning: true),
       onOpenSaved: (p) => unawaited(openServerPage(context, connection, p.id)),
-      onEnterCredentials: (server, existing) => _enterPhoneCredentials(
-        existing: existing,
-        openCode2: server.flavor == ServerFlavor.v2,
-      ),
+      onEnterCredentials: (server, existing) =>
+          _enterPhoneCredentials(existing: existing, openCode2: true),
     );
     // Under the Termux server's row, once: the move to the in-app server.
     return Column(
@@ -186,7 +184,7 @@ extension _ServersActions on _ServersScreenState {
               Localizations.localeOf(context),
             ).e7SetupThisDevice,
             baseUrl: TermuxBridge.managedServerUrl,
-            flavor: openCode2 ? ServerFlavor.v2 : ServerFlavor.v1,
+            flavor: ServerFlavor.v2,
           );
       profile
         ..username = 'opencode'
@@ -207,18 +205,9 @@ extension _ServersActions on _ServersScreenState {
     );
   }
 
-  /// [detectedRunning] means the caller already knows which managed runtime
-  /// is live and chose its profile, so the runtime-choice detour is moot.
+  /// [detectedRunning] lets saved credential edits reconnect the live server.
   Future<void> _connect(ServerProfile p, {bool detectedRunning = false}) async {
     if (_busy) return;
-    if (!detectedRunning &&
-        _needsManagedRuntimeChoice(
-          p,
-          ref.read(bootstrapProvider).store.profiles,
-        )) {
-      await _openTermuxSetup();
-      return;
-    }
     if (p.requiresPasswordReentry || p.requiresCodexTokenReentry) {
       await _edit(
         existing: p,

@@ -387,27 +387,7 @@ extension _ConnectionControllerLocationsImpl on ConnectionController {
 
   /// The body of [disposeFolderInstance].
   Future<void> _disposeFolderInstance(String directory) async {
-    final profile = _connectedProfile;
-    if (profile == null ||
-        isIsolated ||
-        profile.backend != ServerBackend.openCode ||
-        profile.flavor == ServerFlavor.v2) {
-      return;
-    }
-    // Through the one transport builder, like every other connection here.
-    final pair = _buildTransportPair(profile);
-    final gateway = pair.gateway
-      ..setLocation(
-        directory: ConnectionController.normalizeDirectoryPath(directory),
-        workspace: null,
-      );
-    try {
-      if (gateway is OpenCodeApi) await gateway.disposeInstance();
-    } catch (_) {
-      // See above: the open reports anything that is really wrong.
-    } finally {
-      gateway.close();
-    }
+    // OpenCode 2 refreshes location state itself. No legacy instance endpoint.
   }
 
   /// The body of [recentLocations].

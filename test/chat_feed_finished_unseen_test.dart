@@ -1,9 +1,9 @@
 // The Conversations list's "Done" signal: an idle OpenCode 2 session whose
 // last run finished after this device last opened it.
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/domain/chat_feed.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -30,7 +30,7 @@ Future<ConnectionController> _controller({int idle = 100}) async {
           ProfileStore(prefs: await SharedPreferences.getInstance()),
         )
         ..repository = _Repository()
-        ..api = OpenCodeApi(baseUrl: 'http://localhost')
+        ..api = FakeServerGateway(baseUrl: 'http://localhost')
         ..directory = '/work';
   controller.sessionsById['ses_1'] = _session(idle: idle);
   addTearDown(controller.dispose);

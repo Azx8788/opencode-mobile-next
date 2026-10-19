@@ -1,10 +1,11 @@
+import 'support/fake_server_capabilities.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/domain/command_receipts.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -12,7 +13,7 @@ import 'package:opencode_mobile/state/offline_queue.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'support/complete_message_history.dart';
 
-class _ReceiptApi extends OpenCodeApi with CompleteMessageHistory {
+class _ReceiptApi extends FakeServerGateway with CompleteMessageHistory {
   _ReceiptApi() : super(baseUrl: 'http://localhost');
   bool lostResponse = true;
   bool visible = true;
@@ -23,7 +24,7 @@ class _ReceiptApi extends OpenCodeApi with CompleteMessageHistory {
   final ids = <String>[];
   @override
   ServerCapabilities get capabilities =>
-      supported ? ServerCapabilities.allV1 : const ServerCapabilities();
+      supported ? testServerCapabilities : const ServerCapabilities();
   @override
   Future<Session> session(String id) async => Session(id: id);
   @override
@@ -110,6 +111,7 @@ void main() {
         {
           'id': 'profile-1',
           'name': 'Test',
+          'flavor': 'v2',
           'baseUrl': 'http://localhost',
           'username': '',
         },

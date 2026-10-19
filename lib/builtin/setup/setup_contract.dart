@@ -354,7 +354,7 @@ class SetupProgress {
       ended && (!previous.ended || previous.jobId != jobId);
 }
 
-/// Bumped whenever a setup job ends, however it ends: what it installed is
+/// Bumped whenever a setup job ends or a removal attempts mutation: what is
 /// on the phone for good, so the pages that list installed tools read it
 /// again (This phone, Settings > AI Team). A separate signal from the
 /// engine's progress, which only a watched engine keeps polling for.
@@ -448,7 +448,9 @@ abstract class SetupEngine {
   /// read that never answers does not keep its timeout timer alive.
   Future<void> restore({SetupReadScope? scope});
 
-  /// Ids of optional components that are installed now.
+  /// Ids of optional components that are installed now, from the host's
+  /// component checks, independent of the last job's selection. An unavailable
+  /// or incomplete probe throws; callers must not interpret it as absence.
   Future<Set<String>> installedOptional();
 }
 

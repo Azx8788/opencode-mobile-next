@@ -17,7 +17,7 @@ import 'dart:math';
 
 import 'package:crypto/crypto.dart';
 
-import '../api/models.dart';
+import '../domain/models.dart';
 import '../domain/loopback_host.dart';
 import 'tested_versions.dart';
 import '../orchestration/adapters/gascity/gascity_probe.dart'
@@ -91,7 +91,7 @@ class PaseoFailure extends ApiException {
           PaseoFailureKind.newChatRequired => 409,
           _ => null,
         },
-        errorTag: 'Paseo${kind.name}',
+        errorTag: 'Paseo ${kind.name}',
       );
 }
 

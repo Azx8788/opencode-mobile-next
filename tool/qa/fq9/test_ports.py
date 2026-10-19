@@ -521,151 +521,14 @@ class PortTests(unittest.TestCase):
                     p._connect("opencode2")
                 self.assertEqual(calls, ["/api/health"])
 
-    def live(
-        self,
-        *,
-        new_prompt=False,
-        retry=False,
-        command="sleep 120",
-        wrong_owner=False,
-        pending=False,
-    ):
-        receipt = dict(
-            engine="opencode",
-            directory="/root/projects/fq9-fixture",
-            sessions=[
-                dict(id="ses_1", title="fq9-fixture-background", promptID="msg_1")
-            ],
-        )
-        p = self.port(turn=receipt)
-        p._uid = 10217
-        p._socket = "123456"
-        p._runtime_version = "1.18.32"
-        history = [
-            dict(
-                info=dict(id="msg_1", role="user", sessionID="ses_1"),
-                parts=[dict(type="text", text="FQ9_BACKGROUND_FIXTURE")],
-            ),
-            dict(
-                info=dict(
-                    id="msg_2", role="assistant", sessionID="ses_1", parentID="msg_1"
-                ),
-                parts=[
-                    dict(
-                        type="tool",
-                        tool="bash",
-                        sessionID="ses_1",
-                        messageID="foreign" if wrong_owner else "msg_2",
-                        callID="call_1",
-                        state=dict(status="completed", input=dict(command=command)),
-                    )
-                ],
-            ),
-        ]
-        if new_prompt:
-            history.append(
-                dict(info=dict(id="msg_new", role="user", sessionID="ses_1"), parts=[])
-            )
-        p._session_history = lambda *args: history
-        p.protocol = (
-            lambda method, path, **kw: ([{"sessionID": "ses_1"}] if pending else [])
-            if path in ("/permission", "/question")
-            else {"ses_1": {"type": "retry" if retry else "busy"}}
-        )
-        p._main_process = lambda: ("123", "999")
-        p.text = lambda *args, **kw: (
-            "  0: 0100007F:1001 0:0 0A 0:0 0:0 0 10217 0 123456 1"
-            if args[0:2] == ("shell", "cat")
-            else f"NotificationRecord(a: pkg={PACKAGE} id=4747)\n channel=opencode_live_connection flags=0x62"
-        )
-        p.services = (
-            lambda: f"  * ServiceRecord{{a u0 {PACKAGE}/.BuiltinServerService}}\n isForeground=true\n  * ServiceRecord{{b u0 {PACKAGE}/.BackgroundConnectionService}}\n isForeground=true"
-        )
-        p.app_visible = lambda: True
-        return p
 
-    def test_live_busy_inference_gap_requires_actual_owned_tool_progress(self):
-        snapshot = self.live().live_snapshot()
-        self.assertTrue(snapshot["turnActive"])
-        self.assertEqual(snapshot["progressCounter"], 1)
-        self.assertFalse(self.live(retry=True).live_snapshot()["turnActive"])
-        self.assertFalse(self.live(pending=True).live_snapshot()["turnActive"])
 
-    def test_45_minute_fixture_uses_persisted_ticks_and_explicit_timeout(self):
-        from .live_fixture import COMMAND, TIMEOUT_MS
 
-        p = self.live(command=COMMAND)
-        history = p._session_history(None, None)
-        history[0]["parts"][0]["text"] = "FQ9_BACKGROUND_FIXTURE_V2"
-        state = history[1]["parts"][0]["state"]
-        state.update(status="running", metadata={"output": "FQ9_TICK:1\nFQ9_TICK:2\n"})
-        state["input"]["timeout"] = TIMEOUT_MS
-        snapshot = p.live_snapshot()
-        self.assertTrue(snapshot["turnActive"])
-        self.assertEqual(snapshot["progressCounter"], 2)
-        state["input"]["timeout"] = 120000
-        with self.assertRaisesRegex(DriverFailure, "live_fixture_command_invalid"):
-            p.live_snapshot()
 
-    def test_pending_unparsed_tool_is_not_ready_instead_of_an_invalid_command(self):
-        p = self.live()
-        state = p._session_history(None, None)[1]["parts"][0]["state"]
-        state.update(status="pending", input={})
-        snapshot = p.live_snapshot()
-        self.assertFalse(snapshot["turnActive"])
-        self.assertEqual(snapshot["progressCounter"], 0)
 
-    def test_live_new_prompt_foreign_part_and_unbounded_command_refused(self):
-        for kw, code in [
-            ({"new_prompt": True}, "live_prompt_mismatch"),
-            ({"wrong_owner": True}, "live_scope_mismatch"),
-            ({"command": "sleep 120; echo sensitive"}, "live_fixture_command_invalid"),
-        ]:
-            with self.subTest(kw=kw), self.assertRaisesRegex(DriverFailure, code):
-                self.live(**kw).live_snapshot()
 
-    def test_live_oc2_cannot_be_certified_from_lagging_http_history(self):
-        p = self.port(turn={"engine": "opencode2"})
-        with self.assertRaisesRegex(DriverFailure, "live_oc2_observation_unavailable"):
-            p.live_snapshot()
 
-    def test_cleanup_revalidates_scope_before_abort_and_delete(self):
-        p = self.live()
-        calls = []
-        p._session_history = lambda *args: (_ for _ in ()).throw(
-            DriverFailure("history_scope_mismatch")
-        )
-        p.protocol = lambda *args, **kw: calls.append(args)
-        with self.assertRaisesRegex(DriverFailure, "history_scope_mismatch"):
-            p.cleanup_turn()
-        self.assertEqual(calls, [])
 
-    def test_cleanup_never_aborts_a_newer_prompt_in_our_fixture_row(self):
-        p = self.live(new_prompt=True)
-        calls = []
-        p.protocol = lambda *args, **kwargs: calls.append(args)
-        with self.assertRaisesRegex(DriverFailure, "owned_turn_cleanup_failed"):
-            p.cleanup_turn()
-        self.assertEqual(calls, [])
-
-    def test_cleanup_rechecks_newer_prompt_after_abort_before_delete(self):
-        p = self.live()
-        initial = p._session_history(None, None)
-        changed = self.live(new_prompt=True)._session_history(None, None)
-        reads = iter([initial, changed])
-        p._session_history = lambda *args: next(reads)
-        calls = []
-
-        def protocol(method, path, **kwargs):
-            calls.append((method, path))
-            return True if method == "POST" else {"ses_1": {"type": "idle"}}
-
-        p.protocol = protocol
-        with self.assertRaisesRegex(DriverFailure, "owned_turn_cleanup_failed"):
-            p.cleanup_turn()
-        self.assertEqual(
-            calls, [("POST", "/session/ses_1/abort"), ("GET", "/session/status")]
-        )
 
     def test_failed_forward_removal_remains_retryable_and_never_echoes_password(self):
         p = self.port()
@@ -741,76 +604,8 @@ class PortTests(unittest.TestCase):
             with self.assertRaisesRegex(DriverFailure, "background_app_still_visible"):
                 p.home()
 
-    def discovery(self, *, duplicate=False, ready=True):
-        p = self.live()
-        p._connect = lambda engine: None
-        session = {
-            "id": "ses_1",
-            "title": "fq9-fixture-background",
-            "directory": "/root/projects/fq9-fixture",
-        }
-        catalog = (
-            [session, session]
-            if duplicate
-            else [
-                session,
-                {
-                    "id": "ses_foreign",
-                    "title": "private title",
-                    "directory": session["directory"],
-                },
-            ]
-        )
-        p.protocol = lambda *args, **kw: catalog
-        snapshot = {
-            key: True
-            for key in (
-                "ownedTurn",
-                "appManaged",
-                "appVisible",
-                "appAlive",
-                "serverAlive",
-                "foregroundService",
-                "ongoingNotification",
-                "turnActive",
-            )
-        }
-        snapshot.update(progressCounter=1, completed=False, failed=False)
-        if not ready:
-            snapshot["turnActive"] = False
-        p.live_snapshot = lambda: snapshot
-        return p
 
-    def test_read_only_fixture_discovery_exports_only_owned_public_ids(self):
-        value = self.discovery().find_live_receipt("/root/projects/fq9-fixture")
-        self.assertEqual(
-            value,
-            {
-                "engine": "opencode",
-                "directory": "/root/projects/fq9-fixture",
-                "sessions": [
-                    {
-                        "id": "ses_1",
-                        "title": "fq9-fixture-background",
-                        "promptID": "msg_1",
-                    }
-                ],
-            },
-        )
-        self.assertNotIn("private", repr(value))
 
-    def test_discovery_refuses_duplicate_titles_or_unready_turn(self):
-        for options, code in [
-            ({"duplicate": True}, "live_fixture_not_unique"),
-            ({"ready": False}, "live_fixture_not_ready"),
-        ]:
-            with (
-                self.subTest(options=options),
-                self.assertRaisesRegex(DriverFailure, code),
-            ):
-                self.discovery(**options).find_live_receipt(
-                    "/root/projects/fq9-fixture"
-                )
 
 
 if __name__ == "__main__":

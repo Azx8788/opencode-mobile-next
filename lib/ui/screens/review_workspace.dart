@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../api/models.dart';
+import '../../domain/models.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state/interaction_defaults.dart';
 import '../../state/review_handoff.dart';

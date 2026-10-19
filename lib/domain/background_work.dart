@@ -1,4 +1,4 @@
-import '../api/models.dart';
+import '../domain/models.dart';
 import 'server_gateway.dart';
 
 /// Promotion belongs to the active, blocking tool call, not every busy

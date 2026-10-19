@@ -4,9 +4,9 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/command_receipt_transport.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'package:opencode_mobile/domain/command_receipt_transport.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
 import 'package:opencode_mobile/api2/client.dart';
 import 'package:opencode_mobile/api2/gateway.dart';
 import 'package:opencode_mobile/domain/command_receipts.dart';
@@ -45,8 +45,10 @@ MessageWithParts _message({
   parts: [Part(id: 'part_1', messageID: id, type: 'text', text: text)],
 );
 
-class _V1 extends OpenCodeApi {
-  _V1({this.enabled = true}) : super(baseUrl: 'http://127.0.0.1:4096');
+class _CorrelatedGateway extends FakeServerGateway
+    implements CorrelatedPromptGateway {
+  _CorrelatedGateway({this.enabled = true})
+    : super(baseUrl: 'http://127.0.0.1:4096');
   final bool enabled;
   bool closed = false;
   final cursors = <String?>[];
@@ -139,11 +141,11 @@ class _Http implements HttpClientAdapter {
 }
 
 void main() {
-  group('v1 receipt lookup', () {
-    late _V1 gateway;
+  group('correlated gateway receipt lookup', () {
+    late _CorrelatedGateway gateway;
     late CommandReceiptTransport transport;
     setUp(() {
-      gateway = _V1();
+      gateway = _CorrelatedGateway();
       transport = CommandReceiptTransport(gateway);
       addTearDown(gateway.close);
     });
@@ -198,7 +200,7 @@ void main() {
     });
 
     test('capability false refuses dispatch and performs no lookup', () async {
-      final unsupported = _V1(enabled: false);
+      final unsupported = _CorrelatedGateway(enabled: false);
       addTearDown(unsupported.close);
       final transport = CommandReceiptTransport(unsupported);
       expect(transport.supported, isFalse);

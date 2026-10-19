@@ -9,12 +9,13 @@
 // Regenerate deliberately:
 //   flutter test --update-goldens test/revamp/slice_p2_4_5_golden_test.dart
 // and look at every changed image before committing it.
+import '../support/fake_server_capabilities.dart';
 import 'package:dio/dio.dart' show CancelToken;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/api2/gateway_mappers.dart'
     show api2ServerCapabilities;
 import 'package:opencode_mobile/domain/setup_registry.dart';
@@ -341,7 +342,7 @@ void main() {
   });
 
   testWidgets('manual form, local command', (tester) async {
-    final controller = await _server(caps: ServerCapabilities.allV1);
+    final controller = await _server(caps: testServerCapabilities);
     addTearDown(controller.dispose);
     await _shot(
       tester,

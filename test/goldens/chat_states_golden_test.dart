@@ -11,7 +11,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/state/first_run.dart';
 import 'package:opencode_mobile/ui/screens/chat_screen.dart';
@@ -199,7 +199,7 @@ void main() {
       );
     });
 
-    testWidgets('chat · send error · $mode', (tester) async {
+    testWidgets('chat · unconfirmed send · $mode', (tester) async {
       await _golden(
         tester,
         'chat_send_error',
@@ -219,7 +219,7 @@ void main() {
           await tester.pump();
           await tester.tap(find.byTooltip('Send'));
           await _frames(tester);
-          expect(find.text("Your message wasn't sent"), findsOneWidget);
+          expect(find.textContaining('Not confirmed yet'), findsOneWidget);
         },
       );
     });

@@ -1,0 +1,74 @@
+{
+  "sourceRevision": "0500dfba22bbe678cb4a27dc5c56b44ab1b8be60",
+  "flutterVersion": "3.47.1",
+  "flutterRunner": "tool/qa/vps_test.sh",
+  "remoteConcurrency": 1,
+  "localDartLock": "OC_TEST_SLOTS=1 tool/qa/machine_lock.sh",
+  "focused": {
+    "files": [
+      "test/coverage/servers_wire_coverage_test.dart",
+      "test/first_run_welcome_test.dart",
+      "test/tailscale_setup_test.dart",
+      "test/perf_trace_test.dart",
+      "test/kit/kit_server_trust_test.dart",
+      "test/kit_motion_test.dart",
+      "test/text_scale_overflow_test.dart",
+      "test/goldens/servers_motion_golden_test.dart",
+      "test/goldens/settings_golden_test.dart",
+      "test/revamp/screen_servers_1_test.dart",
+      "test/server_trust_test.dart",
+      "test/api2_transport_trust_test.dart",
+      "test/server_trust_profiles_test.dart",
+      "test/add_server_steps_test.dart",
+      "test/private_network_cleartext_test.dart"
+    ],
+    "counts": {
+      "success": 418
+    },
+    "durationMilliseconds": 334683,
+    "passed": true
+  },
+  "warningOverflow": {
+    "files": [
+      "test/text_scale_overflow_matrix_0_test.dart",
+      "test/text_scale_overflow_matrix_1_test.dart",
+      "test/text_scale_overflow_matrix_2_test.dart",
+      "test/text_scale_overflow_matrix_3_test.dart",
+      "test/text_scale_overflow_matrix_4_test.dart",
+      "test/text_scale_overflow_matrix_5_test.dart"
+    ],
+    "counts": {
+      "success": 4
+    },
+    "durationMilliseconds": 74802,
+    "passed": true,
+    "testFilter": "KitServerTrustBody",
+    "combinations": 216
+  },
+  "analyzer": {
+    "passed": true,
+    "result": "No issues found",
+    "seconds": 23.3
+  },
+  "generatedLocalizations": {
+    "passed": true,
+    "languagesEdited": [
+      "en",
+      "ar"
+    ]
+  },
+  "preflight": {
+    "command": "tool/qa/preflight.sh HEAD~4",
+    "sourceRevision": "0500dfba22bbe678cb4a27dc5c56b44ab1b8be60",
+    "passed": true,
+    "featureCommitsChecked": 4,
+    "changedDartFilesFormatted": 63,
+    "pythonTests": 809,
+    "pythonSkipped": 2,
+    "remoteFlutterTests": 161
+  },
+  "fullSuitePassed": false,
+  "androidDeviceQualified": false,
+  "localApkBuild": false,
+  "pushed": false
+}

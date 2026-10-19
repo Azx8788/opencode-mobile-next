@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -25,7 +25,7 @@ const _secure = MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
 const _reply = 'A synthetic reply for reading.';
 const _transcript = 'A synthetic private utterance';
 
-class _Api extends OpenCodeApi with CompleteMessageHistory {
+class _Api extends FakeServerGateway with CompleteMessageHistory {
   _Api() : super(baseUrl: 'http://localhost');
   final prompts = <String>[];
 
@@ -80,7 +80,12 @@ Future<ConnectionController> _pumpChat(
   if (!keepPreferences) {
     SharedPreferences.setMockInitialValues({
       'oc.profiles': jsonEncode([
-        {'id': 'profile', 'name': 'Synthetic', 'baseUrl': 'http://localhost'},
+        {
+          'id': 'profile',
+          'name': 'Synthetic',
+          'flavor': 'v2',
+          'baseUrl': 'http://localhost',
+        },
       ]),
       'oc.activeProfile': 'profile',
     });

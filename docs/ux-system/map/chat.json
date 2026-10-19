@@ -783,12 +783,10 @@
   "module": "chat",
   "chrome": "sheet-header:confirm (icon + centred title, showConfirmSheet)",
   "needs": [
-   "server.oc1",
    "server.oc2"
   ],
   "whenMissing": {
-   "server.oc1": "hidden: offlinePromptQueue false on Codex/Paseo, so nothing queues",
-   "server.oc2": "same as OC1 (queue supported)"
+   "server.oc2": "explains: OpenCode 2 supports this flow; other agents use their advertised capabilities"
   },
   "personas": [
    "remote-lead",
@@ -889,12 +887,10 @@
   "module": "chat",
   "chrome": "sheet-header:confirm (icon + centred title, showConfirmSheet)",
   "needs": [
-   "server.oc1",
    "server.oc2"
   ],
   "whenMissing": {
-   "server.oc1": "hidden on Codex/Paseo (no queue)",
-   "server.oc2": "same as OC1 (queue supported)"
+   "server.oc2": "explains: OpenCode 2 supports this flow; other agents use their advertised capabilities"
   },
   "personas": [
    "remote-lead",
@@ -1081,14 +1077,14 @@
   "module": "chat",
   "chrome": "sheet-header:confirm (icon + centred title, showConfirmSheet)",
   "needs": [
-   "server.oc1",
    "server.oc2",
-   "perm.camera"
+   "perm.camera",
+   "flag:promptAttachments"
   ],
   "whenMissing": {
-   "server.oc1": "explains: text-only note 'codexTextOnlyPrompt' on Codex/Paseo (promptAttachments false)",
    "perm.camera": "system prompt from image_picker; no in-app explanation",
-   "server.oc2": "same as OC1 (attachments supported)"
+   "server.oc2": "explains: OpenCode 2 supports this flow; other agents use their advertised capabilities",
+   "flag:promptAttachments": "hidden: available only when the server advertises this capability"
   },
   "personas": [
    "phone-only",
@@ -1203,12 +1199,8 @@
   ],
   "module": "chat",
   "chrome": "sheet-header:confirm (icon + centred title, showConfirmSheet)",
-  "needs": [
-   "server.oc1"
-  ],
-  "whenMissing": {
-   "server.oc1": "hidden: sessionShare false on OC2, Codex, Paseo (menu row and /share absent)"
-  },
+  "needs": [],
+  "whenMissing": {},
   "personas": [
    "remote-lead",
    "tinkerer"
@@ -1296,7 +1288,8 @@
    "lib/ui/screens/chat_screen.dart:3777",
    "lib/ui/screens/workspace_screen.dart:1673",
    "docs/qa/screen-census/b1-chat-screen/chat-share-confirm-sheet.png"
-  ]
+  ],
+  "availability": "Retired with OpenCode 1 support on 2026-10-15; this historical design record does not describe an available control."
  },
  {
   "pageId": "session-menu-sheet",
@@ -1915,12 +1908,8 @@
   ],
   "module": "chat",
   "chrome": "sheet-header:confirm (icon + centred title, showConfirmSheet)",
-  "needs": [
-   "server.oc1"
-  ],
-  "whenMissing": {
-   "server.oc1": "hidden: messageDelete false on OC2, Codex, Paseo"
-  },
+  "needs": [],
+  "whenMissing": {},
   "personas": [
    "tinkerer"
   ],
@@ -1991,7 +1980,8 @@
    "lib/ui/screens/chat_screen.dart:4439",
    "lib/ui/widgets/confirm_sheet.dart:10",
    "docs/qa/screen-census/b2-chat-screen/chat-delete-message-sheet.png"
-  ]
+  ],
+  "availability": "Retired with OpenCode 1 support on 2026-10-15; this historical design record does not describe an available control."
  },
  {
   "pageId": "chat-revert-confirm-sheet",
@@ -2005,12 +1995,8 @@
   ],
   "module": "chat",
   "chrome": "sheet-header:confirm (icon + centred title, showConfirmSheet)",
-  "needs": [
-   "server.oc1"
-  ],
-  "whenMissing": {
-   "server.oc1": "hidden: OC2 goes to stage-revert-sheet; sessionRevert false on Codex/Paseo"
-  },
+  "needs": [],
+  "whenMissing": {},
   "personas": [
    "remote-lead",
    "tinkerer"
@@ -2107,7 +2093,8 @@
    "lib/state/connection.dart:8468",
    "docs/qa/screen-census/b2-chat-screen/chat-revert-confirm-sheet.png",
    "docs/ux-system/owner-verdicts-2026-09-26.json#chat-revert-confirm-sheet"
-  ]
+  ],
+  "availability": "Retired with OpenCode 1 support on 2026-10-15; this historical design record does not describe an available control."
  },
  {
   "pageId": "chat-run-shell-dialog",
@@ -2122,12 +2109,12 @@
   "module": "terminal",
   "chrome": "dialog",
   "needs": [
-   "server.oc1",
-   "server.oc2"
+   "server.oc2",
+   "flag:terminal"
   ],
   "whenMissing": {
-   "server.oc1": "hidden: terminal false on Codex/Paseo (menu row absent)",
-   "server.oc2": "same as OC1 (terminal supported)"
+   "server.oc2": "explains: OpenCode 2 supports this flow; other agents use their advertised capabilities",
+   "flag:terminal": "hidden: available only when the server advertises this capability"
   },
   "personas": [
    "tinkerer",
@@ -3349,12 +3336,10 @@
   "module": "chat",
   "chrome": "chat status line",
   "needs": [
-   "server.oc1",
    "server.oc2"
   ],
   "whenMissing": {
-   "server.oc1": "hidden on Codex/Paseo (projectManagement false: no child sessions)",
-   "server.oc2": "same as OC1 (projectManagement true)"
+   "server.oc2": "explains: OpenCode 2 supports this flow; other agents use their advertised capabilities"
   },
   "personas": [
    "team-delegator",
@@ -3452,12 +3437,8 @@
   ],
   "module": "chat",
   "chrome": "chat status line",
-  "needs": [
-   "server.oc1"
-  ],
-  "whenMissing": {
-   "server.oc1": "hidden: sessionShare false on OC2, Codex, Paseo"
-  },
+  "needs": [],
+  "whenMissing": {},
   "personas": [
    "remote-lead"
   ],
@@ -3528,7 +3509,8 @@
    "lib/ui/screens/chat/chat_states.dart:262",
    "lib/ui/screens/chat_screen.dart:3821",
    "docs/qa/screen-census/c-chat-compose/embedded-shared-session-banner.png"
-  ]
+  ],
+  "availability": "Retired with OpenCode 1 support on 2026-10-15; this historical design record does not describe an available control."
  },
  {
   "pageId": "embedded-pending-sends-strip",
@@ -5042,12 +5024,8 @@
   ],
   "module": "chat",
   "chrome": "composer (attention slot above it)",
-  "needs": [
-   "server.oc1"
-  ],
-  "whenMissing": {
-   "server.oc1": "hidden: legacyQuestionRequests false on OC2 (forms instead), Codex, Paseo"
-  },
+  "needs": [],
+  "whenMissing": {},
   "personas": [
    "remote-lead",
    "team-delegator"
@@ -5133,7 +5111,8 @@
    "lib/ui/screens/chat_screen.dart:6875",
    "lib/api2/gateway_mappers.dart:69",
    "docs/qa/screen-census/d-chat-sheets/embedded-question-attention-card--inline.png"
-  ]
+  ],
+  "availability": "Retired with OpenCode 1 support on 2026-10-15; this historical design record does not describe an available control."
  },
  {
   "pageId": "permission-sheet",
@@ -5287,12 +5266,10 @@
   "module": "chat",
   "chrome": "dialog",
   "needs": [
-   "server.oc1",
    "server.oc2",
    "server.paseo"
   ],
   "whenMissing": {
-   "server.oc1": "shown",
    "server.oc2": "shown",
    "server.paseo": "shown (persistentPermissionGrants true)"
   },
@@ -5371,12 +5348,8 @@
   ],
   "module": "chat",
   "chrome": "sheet-header:small ('Todo list'; lost on empty)",
-  "needs": [
-   "server.oc1"
-  ],
-  "whenMissing": {
-   "server.oc1": "hidden: sessionTodos false on OC2, Codex, Paseo — the plan is invisible there outside the transcript"
-  },
+  "needs": [],
+  "whenMissing": {},
   "personas": [
    "remote-lead",
    "team-delegator"
@@ -5476,7 +5449,8 @@
    "lib/api2/gateway_mappers.dart:50",
    "docs/qa/screen-census/d-chat-sheets/todos-sheet--loaded.png",
    "docs/ux-system/owner-verdicts-2026-09-26.json#todos-sheet"
-  ]
+  ],
+  "availability": "Retired with OpenCode 1 support on 2026-10-15; this historical design record does not describe an available control."
  },
  {
   "pageId": "timeline-sheet",
@@ -6306,12 +6280,8 @@
   ],
   "module": "chat",
   "chrome": "none (inside request cards)",
-  "needs": [
-   "server.oc1"
-  ],
-  "whenMissing": {
-   "server.oc1": "hidden: legacy questions only on OC1"
-  },
+  "needs": [],
+  "whenMissing": {},
   "personas": [
    "remote-lead",
    "team-delegator"
@@ -6392,7 +6362,8 @@
    "lib/ui/widgets/question_options.dart:134",
    "lib/ui/screens/team/team_needs_you.dart",
    "docs/qa/screen-census/d-chat-sheets/embedded-question-options--multi-select.png"
-  ]
+  ],
+  "availability": "Retired with OpenCode 1 support on 2026-10-15; this historical design record does not describe an available control."
  },
  {
   "pageId": "embedded-return-brief-panel-status-dialog",

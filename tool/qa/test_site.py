@@ -144,7 +144,10 @@ class StaticSiteTest(unittest.TestCase):
 
     def test_page_has_no_javascript_or_embedded_rendering_dependency(self):
         for tag in ('script', 'iframe', 'object', 'embed', 'base'):
-            self.assertFalse(self.document.tags(tag), f'Unexpected active/embedded tag: {tag}')
+            found = self.document.tags(tag)
+            if tag == 'script':  # JSON-LD is data, not executable script
+                found = [e for e in found if e.attrs.get('type') != 'application/ld+json']
+            self.assertFalse(found, f'Unexpected active/embedded tag: {tag}')
         for element in self.document.elements:
             for key, value in element.attrs.items():
                 self.assertFalse(key.lower().startswith('on'), f'Inline event handler: {key}')

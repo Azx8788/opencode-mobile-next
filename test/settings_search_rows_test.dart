@@ -1,3 +1,5 @@
+import 'package:opencode_mobile/domain/server_gateway.dart';
+import 'support/fake_server_capabilities.dart';
 // P9.4 "Search that finds any setting": the shared index upgrade as a
 // person uses it. Rows inside pages are found by their own words (animations,
 // heat, crash, battery), with one typo, in either language; the retired
@@ -8,10 +10,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart' show Health;
-import 'package:opencode_mobile/api/sse.dart';
-import 'package:opencode_mobile/domain/server_gateway.dart'
-    show ServerCapabilities;
+import 'package:opencode_mobile/domain/models.dart' show Health;
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -29,7 +28,7 @@ final _en = lookupAppLocalizations(const Locale('en'));
 
 /// Answers the hub's health check without a network.
 class _Api extends SystemApi {
-  _Api() : super(ServerCapabilities.allV1);
+  _Api() : super(testServerCapabilities);
 
   @override
   Future<Health> health() async => Health(healthy: true, version: '1.18.23');
@@ -44,6 +43,7 @@ Future<ConnectionController> _controller({bool termux = true}) async {
       {
         'id': 'profile-1',
         'name': 'Workstation',
+        'flavor': 'v2',
         'baseUrl': 'http://localhost:4096',
         'username': '',
       },
@@ -51,6 +51,7 @@ Future<ConnectionController> _controller({bool termux = true}) async {
         {
           'id': 'profile-2',
           'name': 'This phone',
+          'flavor': 'v2',
           'baseUrl': 'http://127.0.0.1:4096',
           'username': '',
         },

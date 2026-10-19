@@ -1,317 +1,159 @@
-//! Protocol-selecting phone driver. Selection is pinned for this client lifetime.
-pub use crate::opencode1::{validate_model, GlobalStatusObservation, ProtocolError};
-use crate::{opencode1, opencode2};
-use reqwest::Method;
-use serde_json::Value;
-use tokio::sync::OnceCell;
+//! OpenCode 2 phone driver and protocol-neutral input validation.
+pub use crate::opencode2::OpenCode2Client as OpenCodeClient;
+use std::{collections::BTreeSet, fmt};
 
-pub struct OpenCodeClient {
-    oc1: opencode1::OpenCodeClient,
-    oc2: opencode2::OpenCode2Client,
-    protocol: OnceCell<bool>,
-}
-impl OpenCodeClient {
-    pub fn new(url: &str, username: &str, password: &str) -> Result<Self, ProtocolError> {
-        Ok(Self {
-            oc1: opencode1::OpenCodeClient::new(url, username, password)?,
-            oc2: opencode2::OpenCode2Client::new(url, username, password)?,
-            protocol: OnceCell::new(),
-        })
-    }
-    /// Selected protocol identity survives verification or transport failure.
-    pub fn is_oc2(&self) -> bool {
-        self.protocol.get().copied().unwrap_or(false)
-    }
-    async fn oc2(&self) -> Result<bool, ProtocolError> {
-        self.protocol
-            .get_or_try_init(|| async {
-                match self.oc1.request(Method::GET, "/api/info", None, None).await {
-                    Ok(info) if info.get("version").is_some() => {
-                        opencode2::validate_info(&info)?;
-                        Ok(true)
-                    }
-                    Ok(_) => self.recognize_oc1().await,
-                    Err(e) if matches!(e.code(), "protocol_unavailable" | "invalid_response") => {
-                        self.recognize_oc1().await
-                    }
-                    Err(e) => Err(e),
-                }
-            })
-            .await
-            .copied()
-    }
-    async fn recognize_oc1(&self) -> Result<bool, ProtocolError> {
-        let health = self
-            .oc1
-            .request(Method::GET, "/global/health", None, None)
-            .await?;
-        opencode1::validate_health(&health)?;
-        Ok(false)
-    }
-    pub async fn verify(&self) -> Result<Value, ProtocolError> {
-        if self.oc2().await? {
-            self.oc2.verify().await
-        } else {
-            self.oc1.verify().await
-        }
-    }
-    pub async fn resolve_model(
-        &self,
-        directory: &str,
-        requested: &str,
-    ) -> Result<String, ProtocolError> {
-        if !requested.is_empty() {
-            validate_model(requested)?;
-            return Ok(requested.into());
-        }
-        if self.oc2().await? {
-            self.oc2.resolve_model(directory, requested).await
-        } else {
-            self.oc1.resolve_model(directory, requested).await
-        }
-    }
-    pub async fn chat_admission(&self, ids: &[String]) -> Result<bool, ProtocolError> {
-        if self.oc2().await? {
-            Err(ProtocolError("global_status_unavailable"))
-        } else {
-            self.oc1.chat_admission(ids).await
-        }
-    }
-    pub async fn person_directory_status(
-        &self,
-        dirs: &[String],
-        ids: &[String],
-    ) -> Result<bool, ProtocolError> {
-        opencode1::known_directories(dirs)?;
-        opencode1::validate_team_ids(ids)?;
-        if self.oc2().await? {
-            self.oc2.person_directory_status(dirs, ids).await
-        } else {
-            self.oc1.person_directory_status(dirs, ids).await
-        }
-    }
-    pub async fn global_status_observer(&self) -> Result<GlobalStatusObserver, ProtocolError> {
-        if self.oc2().await? {
-            self.oc2
-                .global_status_observer()
-                .await
-                .map(GlobalStatusObserver::Oc2)
-        } else {
-            self.oc1
-                .global_status_observer()
-                .await
-                .map(GlobalStatusObserver::Oc1)
-        }
-    }
-    pub async fn create_session(
-        &self,
-        directory: &str,
-        title: &str,
-    ) -> Result<String, ProtocolError> {
-        if self.oc2().await? {
-            self.oc2.create_session(directory, title).await
-        } else {
-            self.oc1.create_session(directory, title).await
-        }
-    }
-    pub async fn prompt(
-        &self,
-        directory: &str,
-        id: &str,
-        role: &str,
-        model: &str,
-        instructions: &str,
-        text: &str,
-        readonly: bool,
-    ) -> Result<Value, ProtocolError> {
-        opencode1::validate_session_id(id)?;
-        opencode1::prompt_body(role, model, instructions, text, readonly)?;
-        if self.oc2().await? {
-            self.oc2
-                .prompt(directory, id, role, model, instructions, text, readonly)
-                .await
-        } else {
-            self.oc1
-                .prompt(directory, id, role, model, instructions, text, readonly)
-                .await
-        }
-    }
-    pub async fn observe(&self, directory: &str, id: &str) -> Result<Value, ProtocolError> {
-        opencode1::validate_session_id(id)?;
-        if self.oc2().await? {
-            self.oc2.observe(directory, id).await
-        } else {
-            self.oc1.observe(directory, id).await
-        }
-    }
-    pub async fn abort(&self, directory: &str, id: &str) -> Result<(), ProtocolError> {
-        opencode1::validate_session_id(id)?;
-        if self.oc2().await? {
-            self.oc2.abort(directory, id).await
-        } else {
-            self.oc1.abort(directory, id).await
-        }
+const MAX_STATUS_DIRECTORIES: usize = 64;
+
+/// Contains a static, credential-safe code only. Never wraps a server body/error.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct ProtocolError(pub(crate) &'static str);
+
+impl ProtocolError {
+    pub fn code(&self) -> &'static str {
+        self.0
     }
 }
-pub enum GlobalStatusObserver {
-    Oc1(opencode1::GlobalStatusObserver),
-    Oc2(opencode2::GlobalStatusObserver),
+impl fmt::Display for ProtocolError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.0)
+    }
 }
-impl GlobalStatusObserver {
-    pub fn connected(&self) -> bool {
-        match self {
-            Self::Oc1(v) => v.connected(),
-            Self::Oc2(v) => v.connected(),
-        }
+impl std::error::Error for ProtocolError {}
+
+/// Metadata only; never includes raw event bodies, retry messages, or errors.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum GlobalStatusObservation {
+    Status {
+        directory: String,
+        session_id: String,
+        busy: bool,
+    },
+    Other,
+}
+
+pub(crate) fn validate_directory(directory: &str) -> Result<(), ProtocolError> {
+    if !directory.starts_with('/') || directory.contains('\0') || directory.len() > 4096 {
+        return Err(ProtocolError("person_directory_unknown"));
     }
-    pub fn observed_non_team_busy(&self, ids: &[String]) -> Result<bool, ProtocolError> {
-        match self {
-            Self::Oc1(v) => v.observed_non_team_busy(ids),
-            Self::Oc2(v) => v.observed_non_team_busy(ids),
-        }
+    Ok(())
+}
+
+pub(crate) fn known_directories(directories: &[String]) -> Result<Vec<&str>, ProtocolError> {
+    if directories.is_empty() || directories.len() > MAX_STATUS_DIRECTORIES {
+        return Err(ProtocolError("person_directory_unknown"));
     }
-    pub async fn next(&mut self) -> Result<GlobalStatusObservation, ProtocolError> {
-        match self {
-            Self::Oc1(v) => v.next().await,
-            Self::Oc2(v) => v.next().await,
-        }
+    let mut known = BTreeSet::new();
+    for directory in directories {
+        validate_directory(directory)?;
+        known.insert(directory.as_str());
     }
+    Ok(known.into_iter().collect())
+}
+
+pub(crate) fn validate_team_ids(ids: &[String]) -> Result<(), ProtocolError> {
+    for id in ids {
+        validate_session_id(id)?;
+    }
+    Ok(())
+}
+
+pub(crate) fn validate_session_id(id: &str) -> Result<(), ProtocolError> {
+    if !id.starts_with("ses")
+        || id.len() > 128
+        || id.len() < 4
+        || !id.bytes().all(|c| c.is_ascii_alphanumeric() || c == b'_')
+    {
+        return Err(ProtocolError("invalid_session"));
+    }
+    Ok(())
+}
+
+/// Empty selection requests the server default; explicit models stay validated.
+pub fn validate_model(model: &str) -> Result<(), ProtocolError> {
+    model_selection(model).map(|_| ())
+}
+
+pub(crate) fn model_selection(model: &str) -> Result<Option<(&str, &str)>, ProtocolError> {
+    if model.is_empty() {
+        return Ok(None);
+    }
+    let (provider, model) = model
+        .split_once('/')
+        .ok_or(ProtocolError("invalid_model"))?;
+    if provider.is_empty()
+        || model.is_empty()
+        || provider.chars().any(char::is_whitespace)
+        || model.chars().any(char::is_whitespace)
+    {
+        return Err(ProtocolError("invalid_model"));
+    }
+    Ok(Some((provider, model)))
+}
+
+pub(crate) fn validate_prompt(
+    role: &str,
+    model: &str,
+    instructions: &str,
+    text: &str,
+    readonly: bool,
+) -> Result<(), ProtocolError> {
+    if !matches!(role, "planner" | "worker" | "checker")
+        || (matches!(role, "planner" | "checker") && !readonly)
+        || instructions.is_empty()
+        || text.is_empty()
+    {
+        return Err(ProtocolError("invalid_role"));
+    }
+    validate_model(model)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use axum::{extract::Request, response::IntoResponse, Router};
-    #[tokio::test]
-    async fn oc1_release_pins_verify_actual_identity_and_current_contract() {
-        for (version, source) in [
-            ("1.18.32", "545f51d26cc39a907d2867492d498d9607ea5fa4"),
-            ("1.19.0", "733b2c627e5aec39cb33cc22373bdce33053ef2c"),
-        ] {
-            let doc: Value = serde_json::from_str(if version == "1.19.0" {
-                include_str!("../tests/fixtures/oc1-1.19.0-driver-openapi.json")
-            } else {
-                include_str!("../../../contracts/opencode-openapi-f12e14cf.json")
-            })
-            .unwrap();
-            let router = Router::new().fallback(move |request: Request| {
-                let doc = doc.clone();
-                async move {
-                    match request.uri().path() {
-                        "/global/health" => {
-                            axum::Json(serde_json::json!({"healthy":true,"version":version}))
-                                .into_response()
-                        }
-                        "/doc" => axum::Json(doc).into_response(),
-                        _ => axum::response::Html("<!doctype html><html></html>").into_response(),
-                    }
-                }
-            });
-            let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
-            let addr = listener.local_addr().unwrap();
-            let task = tokio::spawn(async move { axum::serve(listener, router).await.unwrap() });
-            let client =
-                OpenCodeClient::new(&format!("http://{addr}"), "opencode", "fixture-only").unwrap();
-            let result = client.verify().await;
-            task.abort();
-            let verified = result.unwrap_or_else(|error| panic!("{version}: {error}"));
-            assert_eq!(verified["version"], version);
-            assert_eq!(verified["sourceRevision"], source);
-            assert_eq!(verified["openapiVerified"], true);
-            assert!(!client.is_oc2());
+
+    #[test]
+    fn server_access_stays_loopback_only_with_explicit_credentials() {
+        for url in ["http://127.0.0.1:4097", "http://[::1]:4097"] {
+            assert!(OpenCodeClient::new(url, "opencode", "fixture-only").is_ok());
         }
+        for url in [
+            "https://127.0.0.1:4097",
+            "http://example.com",
+            "http://localhost",
+            "http://127.0.0.1/path",
+            "http://127.0.0.1?token=secret",
+            "http://user:secret@127.0.0.1",
+            "http://127.0.0.1/#fragment",
+        ] {
+            assert!(matches!(
+                OpenCodeClient::new(url, "opencode", "fixture-only"),
+                Err(ProtocolError("invalid_server"))
+            ));
+        }
+        assert!(OpenCodeClient::new("http://127.0.0.1", "other", "fixture-only").is_err());
+        assert!(OpenCodeClient::new("http://127.0.0.1", "opencode", "").is_err());
     }
 
     #[tokio::test]
-    async fn oc1_release_pin_requires_healthy_supported_server_and_current_schema() {
-        for (health, doc, expected) in [
-            (
-                serde_json::json!({"healthy":true,"version":"1.19.1"}),
-                serde_json::json!({}),
-                "unsupported_server_version",
-            ),
-            (
-                serde_json::json!({"healthy":false,"version":"1.19.0"}),
-                serde_json::json!({}),
-                "unsupported_server_version",
-            ),
-            (
-                serde_json::json!({"healthy":true,"version":"1.19.0"}),
-                serde_json::json!({}),
-                "openapi_unconfirmed",
-            ),
-        ] {
-            let router = Router::new().fallback(move |request: Request| {
-                let body = if request.uri().path() == "/global/health" {
-                    health.clone()
-                } else {
-                    doc.clone()
-                };
-                async move { axum::Json(body) }
-            });
-            let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
-            let addr = listener.local_addr().unwrap();
-            let task = tokio::spawn(async move { axum::serve(listener, router).await.unwrap() });
-            let client =
-                OpenCodeClient::new(&format!("http://{addr}"), "opencode", "fixture-only").unwrap();
-            let result = client.verify().await;
-            task.abort();
-            assert_eq!(result.unwrap_err().code(), expected);
-        }
-    }
-
-    #[tokio::test]
-    async fn selected_oc2_identity_survives_failed_schema_verification() {
-        let router=Router::new().fallback(|request: Request| async move {
-            if request.uri().path()=="/api/info" {axum::Json(serde_json::json!({"version":"2.0.29","pid":1,"urls":[],"paths":{"tmp":"/tmp"}})).into_response()}
-            else {axum::Json(serde_json::json!({})).into_response()}
-        });
-        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
-        let addr = listener.local_addr().unwrap();
-        let task = tokio::spawn(async move { axum::serve(listener, router).await.unwrap() });
-        let client =
-            OpenCodeClient::new(&format!("http://{addr}"), "opencode", "fixture-only").unwrap();
-        assert!(!client.is_oc2());
-        assert_eq!(
-            client.verify().await.unwrap_err().code(),
-            "openapi_unconfirmed"
-        );
-        assert!(client.is_oc2());
-        task.abort();
-    }
-    #[tokio::test]
-    async fn oc1_spa_fallback_requires_recognized_pinned_health() {
-        let router = Router::new().fallback(|request: Request| async move {
-            if request.uri().path() == "/global/health" {
-                axum::Json(serde_json::json!({"healthy":true,"version":"1.18.32"})).into_response()
-            } else {
-                axum::response::Html("<!doctype html><html></html>").into_response()
-            }
-        });
-        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
-        let addr = listener.local_addr().unwrap();
-        let task = tokio::spawn(async move { axum::serve(listener, router).await.unwrap() });
-        let client =
-            OpenCodeClient::new(&format!("http://{addr}"), "opencode", "fixture-only").unwrap();
-        assert!(!client.oc2().await.unwrap());
-        assert!(!client.is_oc2());
-        task.abort();
-    }
-    #[tokio::test]
-    async fn detection_never_falls_back_on_auth_or_explicit_unsupported_version() {
+    async fn unsupported_servers_never_receive_legacy_requests() {
         use std::sync::{Arc, Mutex};
-        for (status, body, fallback) in [
+        for (status, body, expected) in [
             (
                 reqwest::StatusCode::UNAUTHORIZED,
                 serde_json::json!({}),
-                false,
+                "authentication_failed",
             ),
             (
                 reqwest::StatusCode::OK,
-                serde_json::json!({"version":"2.0.28","pid":1,"urls":[],"paths":{"tmp":"/tmp"}}),
-                false,
+                serde_json::json!({"version":"1.19.0"}),
+                "unsupported_server_version",
             ),
-            (reqwest::StatusCode::NOT_FOUND, serde_json::json!({}), true),
+            (
+                reqwest::StatusCode::NOT_FOUND,
+                serde_json::json!({}),
+                "protocol_unavailable",
+            ),
         ] {
             let calls = Arc::new(Mutex::new(Vec::<String>::new()));
             let seen = calls.clone();
@@ -319,14 +161,8 @@ mod tests {
                 let seen = seen.clone();
                 let body = body.clone();
                 async move {
-                    let path = request.uri().path().to_owned();
-                    seen.lock().unwrap().push(path.clone());
-                    if path == "/api/info" {
-                        (status, axum::Json(body)).into_response()
-                    } else {
-                        axum::Json(serde_json::json!({"healthy":true,"version":"1.18.32"}))
-                            .into_response()
-                    }
+                    seen.lock().unwrap().push(request.uri().path().to_owned());
+                    (status, axum::Json(body)).into_response()
                 }
             });
             let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
@@ -334,35 +170,10 @@ mod tests {
             let task = tokio::spawn(async move { axum::serve(listener, router).await.unwrap() });
             let client =
                 OpenCodeClient::new(&format!("http://{addr}"), "opencode", "fixture-only").unwrap();
-            let result = client.oc2().await;
-            if fallback {
-                assert_eq!(result.unwrap(), false);
-                let before = calls.lock().unwrap().len();
-                assert!(!client.oc2().await.unwrap());
-                assert_eq!(
-                    calls.lock().unwrap().len(),
-                    before,
-                    "pinned selection must not rediscover protocol"
-                );
-            } else {
-                assert!(result.is_err());
-            }
-            assert_eq!(
-                calls.lock().unwrap().iter().any(|p| p == "/global/health"),
-                fallback
-            );
+            assert_eq!(client.verify().await.unwrap_err().code(), expected);
+            assert_eq!(*calls.lock().unwrap(), vec!["/api/info"]);
             task.abort();
         }
-        let closed = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
-        let address = closed.local_addr().unwrap();
-        drop(closed);
-        let client =
-            OpenCodeClient::new(&format!("http://{address}"), "opencode", "fixture-only").unwrap();
-        assert_eq!(
-            client.oc2().await.unwrap_err().code(),
-            "transport_unavailable"
-        );
-        assert!(client.protocol.get().is_none());
     }
     #[tokio::test]
     async fn local_preflight_never_requires_network_or_protocol_detection() {
@@ -434,6 +245,5 @@ mod tests {
                 .code(),
             "person_directory_unknown"
         );
-        assert!(client.protocol.get().is_none());
     }
 }

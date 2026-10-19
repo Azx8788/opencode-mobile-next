@@ -17,17 +17,5 @@
       "sha256": "0af39e75dbdfacc20f8f531ef35fb4dcc0b44c08084203518614272f232283ae"
     }
   },
-  "appVersions": {},
-  "legacyBundles": [
-    {
-      "openCodeVersion": "1.18.32",
-      "bundleVersion": "1.1.0",
-      "appVersions": {
-        "1.1.0+51": {
-          "amd64": "014d92fefcbb520af55af5bf6e3290715c47030f0c1a9b4aa5c91ddc44ff9118",
-          "arm64": "691396beda4d71cb5c5cbd43951260e56d67fb5b3543a39a8be8dd46a757def0"
-        }
-      }
-    }
-  ]
+  "appVersions": {}
 }

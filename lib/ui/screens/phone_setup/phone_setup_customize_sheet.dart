@@ -45,7 +45,7 @@ Future<Set<String>?> showSetupCustomizeSheet(
       registry: installableComponents(engine.registry),
       addMode: addMode,
       selected: selected,
-      installedOptional: addMode ? engine.installedOptional() : null,
+      loadInstalledOptional: addMode ? engine.installedOptional : null,
       framed: true,
     ),
   );
@@ -58,6 +58,7 @@ class SetupCustomizeSheet extends StatefulWidget {
     this.addMode = false,
     this.selected,
     this.installedOptional,
+    this.loadInstalledOptional,
     this.deviceProbe,
     this.linux,
     this.framed = false,
@@ -79,6 +80,10 @@ class SetupCustomizeSheet extends StatefulWidget {
   /// once and locks its switches until the answer is in.
   final Future<Set<String>>? installedOptional;
 
+  /// Production inventory reader. Read again when setup changes the tools;
+  /// [installedOptional] remains available for callers with a fixed snapshot.
+  final Future<Set<String>> Function()? loadInstalledOptional;
+
   /// The device info the pre-flight check reads (P0.8): CPU ABI, free space
   /// and total RAM. Defaults to [voiceDevicePlatform.getDeviceInfo], already
   /// collected for voice; tests stand in for the `oc/voice` channel.
@@ -95,6 +100,8 @@ class SetupCustomizeSheet extends StatefulWidget {
 class _SetupCustomizeSheetState extends State<SetupCustomizeSheet> {
   late Set<String> _chosen;
   Set<String>? _installed;
+  int _inventoryRead = 0;
+  bool _inventoryFailed = false;
   VoiceDeviceInfo? _device;
 
   /// What each app-side component offers this phone, once it has answered;
@@ -126,22 +133,13 @@ class _SetupCustomizeSheetState extends State<SetupCustomizeSheet> {
     }
     if (widget.addMode) {
       _chosen = {...?widget.selected};
-      final pending = widget.installedOptional;
-      if (pending == null) {
-        _installed = const {};
+      if (widget.loadInstalledOptional != null) {
+        setupToolsChanged.addListener(_readInstalled);
+        unawaited(_readInstalled());
+      } else if (widget.installedOptional != null) {
+        unawaited(_readInstalled());
       } else {
-        unawaited(
-          pending.then(
-            (installed) {
-              if (mounted) setState(() => _installed = installed);
-            },
-            // Unknown is treated as "nothing installed": the engine's check
-            // scripts skip whatever turns out to be there anyway.
-            onError: (Object _) {
-              if (mounted) setState(() => _installed = const {});
-            },
-          ),
-        );
+        _installed = const {};
       }
     } else {
       _chosen = {
@@ -153,8 +151,41 @@ class _SetupCustomizeSheetState extends State<SetupCustomizeSheet> {
     }
   }
 
-  bool _isInstalled(String id) =>
-      (_installed?.contains(id) ?? false) || (_offers[id]?.installed ?? false);
+  Future<void> _readInstalled() async {
+    final read = ++_inventoryRead;
+    if (_inventoryFailed) setState(() => _inventoryFailed = false);
+    try {
+      final installed =
+          await (widget.loadInstalledOptional?.call() ??
+              widget.installedOptional!);
+      if (!mounted || read != _inventoryRead) return;
+      setState(() {
+        _installed = Set.of(installed);
+        _chosen.removeAll(installed);
+      });
+    } catch (_) {
+      if (!mounted || read != _inventoryRead) return;
+      setState(() => _inventoryFailed = true);
+    }
+  }
+
+  @override
+  void dispose() {
+    setupToolsChanged.removeListener(_readInstalled);
+    super.dispose();
+  }
+
+  bool _isInstalled(String id) {
+    if (widget.addMode && widget.loadInstalledOptional != null) {
+      // The engine includes app-side tools. A stale offer must not undo a
+      // refreshed inventory after removal.
+      return _installed?.contains(id) ?? false;
+    }
+    // Fixed-snapshot fixtures may supply app-side installation through the
+    // offer independently, as first setup also does.
+    return (_installed?.contains(id) ?? false) ||
+        (_offers[id]?.installed ?? false);
+  }
 
   Future<void> _ask(String id, SetupAppComponent app) async {
     SetupAppOffer? offer;
@@ -196,7 +227,15 @@ class _SetupCustomizeSheetState extends State<SetupCustomizeSheet> {
         confirmKey: ValueKey(
           'phone-setup-customize-remove-${component.id}-confirm',
         ),
-        action: app.remove,
+        action: () async {
+          try {
+            await app.remove();
+          } finally {
+            // Even a failed removal may have changed files. Every inventory
+            // consumer must ask the engine again after the attempt ends.
+            setupToolsChanged.value++;
+          }
+        },
       );
       if (removed && mounted) await _ask(component.id, app);
     } finally {
@@ -344,6 +383,15 @@ class _SetupCustomizeSheetState extends State<SetupCustomizeSheet> {
               role: KitTextRole.title,
             ),
           ),
+        ),
+      if (_inventoryFailed)
+        KitNotice(
+          message: l10n.e7SetupCheckInstallFailed,
+          icon: AppIconography.warning,
+          actions: [
+            if (widget.loadInstalledOptional != null)
+              KitAction(label: l10n.commonRetry, onPressed: _readInstalled),
+          ],
         ),
       // What is always installed first, then what the person chooses: the
       // locks say "Required" once per row and nothing else repeats it.

@@ -1,13 +1,14 @@
+import 'support/fake_server_operations.dart';
 import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/diagnostics/app_diagnostics.dart';
 import 'package:opencode_mobile/diagnostics/perf_trace.dart';
 import 'package:opencode_mobile/main.dart';
@@ -16,7 +17,7 @@ import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class _Api extends OpenCodeApi {
+class _Api extends FakeServerGateway {
   _Api() : super(baseUrl: 'https://100.64.0.1:4096');
 
   final healthResult = Completer<Health>();
@@ -49,8 +50,8 @@ class _Api extends OpenCodeApi {
       Future.error(ApiException('V2 unavailable', statusCode: 404));
 }
 
-class _Operations extends SdkProductRepository {
-  _Operations(OpenCodeApi api) : super(api.sdkClient);
+class _Operations extends FakeServerOperations {
+  _Operations(super.api);
 
   @override
   Future<ChatDefaults> loadChatDefaults() async => const ChatDefaults();
@@ -63,7 +64,7 @@ class _Operations extends SdkProductRepository {
   Future<List<IntegrationInfo>> listIntegrations() async => const [];
 }
 
-class _Events extends EventStream {
+class _Events extends FakeEventChannel {
   _Events({
     required super.api,
     required super.onEvent,
@@ -102,6 +103,7 @@ void main() {
         {
           'id': 'perf',
           'name': 'Performance fixture',
+          'flavor': 'v2',
           'baseUrl': 'https://100.64.0.1:4096',
           'username': '',
         },

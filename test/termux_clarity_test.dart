@@ -10,8 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/server_probe.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/server_probe.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -39,7 +39,7 @@ class _Connection extends ConnectionController {
     bool redetectOnFailure = true,
   }) async {
     attempted.add(profile);
-    api = OpenCodeApi(baseUrl: profile.baseUrl);
+    api = FakeServerGateway(baseUrl: profile.baseUrl);
   }
 }
 
@@ -535,7 +535,11 @@ void main() {
       expect(phone.methods, contains('requestRunCommandAccess'));
       // Granted: the page reads Termux and its acts come back.
       expect(find.text(_l10n.termuxProblemAccessNeeded), findsNothing);
-      expect(find.byKey(const ValueKey('this-phone-switch')), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('this-phone-add-tools')),
+        findsOneWidget,
+      );
+      expect(find.byKey(const ValueKey('this-phone-switch')), findsNothing);
       await unmountPhone(tester);
     });
   });

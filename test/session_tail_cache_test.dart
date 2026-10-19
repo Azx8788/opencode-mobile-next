@@ -1,12 +1,12 @@
+import 'support/fake_server_operations.dart';
 import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -15,7 +15,7 @@ import 'package:opencode_mobile/state/session_tail_cache.dart';
 import 'package:opencode_mobile/ui/kit/kit_redact.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class _Api extends OpenCodeApi {
+class _Api extends FakeServerGateway {
   _Api() : super(baseUrl: 'https://fixture.invalid');
   final result = Completer<ServerPage<MessageWithParts>>();
   int reads = 0;
@@ -43,7 +43,12 @@ void main() {
         .setMockMethodCallHandler(secure, (_) async => null);
     SharedPreferences.setMockInitialValues({
       'oc.profiles': jsonEncode([
-        {'id': 'one', 'name': 'One', 'baseUrl': 'https://fixture.invalid'},
+        {
+          'id': 'one',
+          'name': 'One',
+          'flavor': 'v2',
+          'baseUrl': 'https://fixture.invalid',
+        },
       ]),
       'oc.activeProfile': 'one',
     });
@@ -103,7 +108,7 @@ void main() {
     final api = _Api();
     final controller = ConnectionController(store, isIsolated: true)
       ..api = api
-      ..repository = SdkProductRepository(api.sdkClient)
+      ..repository = FakeServerOperations(api)
       ..status = StreamStatus.connected;
     controller.adoptConnectedProfileForTesting(store.profiles.first);
     final warm = controller.prefetchSessionTail('session');
@@ -129,7 +134,7 @@ void main() {
     final api = _Api();
     final controller = ConnectionController(store, isIsolated: true)
       ..api = api
-      ..repository = SdkProductRepository(api.sdkClient)
+      ..repository = FakeServerOperations(api)
       ..status = StreamStatus.connected;
     controller.adoptConnectedProfileForTesting(store.profiles.first);
     final pending = controller.loadSessionTail('session');
@@ -153,7 +158,7 @@ void main() {
       final api = _Api();
       final controller = ConnectionController(store, isIsolated: true)
         ..api = api
-        ..repository = SdkProductRepository(api.sdkClient)
+        ..repository = FakeServerOperations(api)
         ..status = StreamStatus.connected;
       controller.adoptConnectedProfileForTesting(store.profiles.first);
       final prefetch = controller.prefetchSessionTail('session');

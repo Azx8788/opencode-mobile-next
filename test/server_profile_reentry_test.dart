@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/server_probe.dart';
+import 'package:opencode_mobile/domain/server_probe.dart';
 import 'package:opencode_mobile/main.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -152,13 +152,14 @@ Widget _serversApp(
 );
 
 /// Removing a server first waits for the home-screen widget, launcher
-/// shortcut and tile writes; their channels have no handler in a widget test
-/// and would never answer, so they answer here.
+/// shortcut, tile and scheduled-prompt cancellation writes; their channels
+/// have no handler in a widget test and would never answer, so they answer here.
 void _answerDeviceSurfaces(WidgetTester tester) {
   final messenger = tester.binding.defaultBinaryMessenger;
   for (final channel in const [
     MethodChannel('oc/background'),
     MethodChannel('oc/shortcut'),
+    MethodChannel('oc/scheduled_prompts'),
   ]) {
     messenger.setMockMethodCallHandler(channel, (_) async => null);
     addTearDown(() => messenger.setMockMethodCallHandler(channel, null));

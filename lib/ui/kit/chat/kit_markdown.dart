@@ -23,6 +23,7 @@ import '../kit_chip.dart';
 import '../kit_code_block.dart';
 import '../kit_divider.dart';
 import '../kit_image.dart';
+import '../kit_link_scope.dart';
 import '../kit_layout.dart';
 import '../kit_tappable.dart';
 import '../kit_text.dart';
@@ -1307,7 +1308,7 @@ class _KitMdTextState extends State<_KitMdText> {
   ) {
     if (!scope.interactive) return TextSpan(text: label);
     final recognizer = TapGestureRecognizer()
-      ..onTap = () => openExternalLink(context, url);
+      ..onTap = () => KitLinkScope.open(context, url);
     _recognizers.add(recognizer);
     return TextSpan(
       text: label,

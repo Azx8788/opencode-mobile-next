@@ -141,20 +141,31 @@ extension _ChatSessionMenu on _ChatScreenState {
       (message) =>
           message.info.role == 'user' && !message.info.id.startsWith('local-'),
     );
-    return sessionMenuItems(
-      _chatL10n(context),
-      SessionMenuOffer.of(
-        _conn.capabilities,
-        shared: shared,
-        // An agent on this phone is reachable from this phone only.
-        savedServer: _conn.profile != null && !_conn.isAgentBackend,
-        compact: _supportsSessionCompact,
-        timeline: _messages.isNotEmpty,
-        hasPrompt: hasPrompt,
+    return [
+      if (canSchedulePrompts(_conn))
+        KitMenuItem(
+          label: _chatL10n(context).scheduleCreate,
+          icon: Icons.schedule,
+          onSelected: () => unawaited(
+            openScheduledPrompts(context, _conn, sessionId: widget.sessionID),
+          ),
+        ),
+      ...sessionMenuItems(
+        _chatL10n(context),
+        SessionMenuOffer.of(
+          _conn.capabilities,
+          shared: shared,
+          // An agent on this phone is reachable from this phone only.
+          savedServer: _conn.profile != null && !_conn.isAgentBackend,
+          compact: _supportsSessionCompact,
+          timeline: _messages.isNotEmpty,
+          hasPrompt: hasPrompt,
+          preview: _devPreviewOffered(),
+        ),
+        shortcuts: true,
+        onSelected: (action) => unawaited(_runSessionMenuAction(action)),
       ),
-      shortcuts: true,
-      onSelected: (action) => unawaited(_runSessionMenuAction(action)),
-    );
+    ];
   }
 
   Future<void> _runSessionMenuAction(SessionMenuAction action) async {
@@ -170,6 +181,8 @@ extension _ChatSessionMenu on _ChatScreenState {
         await _openRunningWork();
       case SessionMenuAction.details:
         await _showContext();
+      case SessionMenuAction.preview:
+        await _chooseDevPreview();
       case SessionMenuAction.share:
         if (_conn.capabilities.sessionShare) await _share();
       case SessionMenuAction.unshare:
@@ -252,9 +265,8 @@ extension _ChatSessionMenu on _ChatScreenState {
   }
 
   /// F4-S1: the terminal command that resumes this session on the computer
-  /// running the server. The CLI name follows the server's product
-  /// generation (the only thing the flavor is used for here — copy), the
-  /// availability follows [ServerCapabilities.cliSessionResume]. The sheet
+  /// running the server. Availability follows
+  /// [ServerCapabilities.cliSessionResume]. The sheet
   /// only offers a copy; Export lives in the conversation menu. When the
   /// server did not report the folder, the sheet offers a reload: the
   /// conversation and its details are fetched again and the sheet reopens
@@ -262,9 +274,7 @@ extension _ChatSessionMenu on _ChatScreenState {
   Future<void> _continueOnComputer() async {
     final session = _conn.sessionsById[widget.sessionID];
     final command = SessionResumeCommand.build(
-      cli: _conn.serverFlavor == ServerFlavor.v2
-          ? SessionResumeCli.openCode2
-          : SessionResumeCli.openCode1,
+      cli: SessionResumeCli.openCode2,
       sessionID: widget.sessionID,
       directory: session?.directory ?? _conn.directory,
       workspaceID: session?.workspaceID ?? _conn.workspace,
@@ -437,15 +447,7 @@ extension _ChatSessionMenu on _ChatScreenState {
           // OpenCode 2 has no per-conversation diff: what it answers for
           // "this chat" is the uncommitted changes, which is its own view
           // already. Two views showing the same thing is one too many.
-          loadDiffs: _conn.serverFlavor == ServerFlavor.v2
-              ? null
-              : () async {
-                  final api = await _conn.prepareActionTransport();
-                  if (api == null) {
-                    throw ProductException(reconnecting);
-                  }
-                  return api.diff(widget.sessionID);
-                },
+          loadDiffs: null,
           loadWorkingTreeDiffs: () async {
             final repository = await _conn.prepareActionRepository();
             if (repository == null) {

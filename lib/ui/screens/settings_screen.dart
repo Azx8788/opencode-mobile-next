@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' show ProviderScope;
 
-import '../../api/models.dart';
-import '../../api/product_repository.dart';
-import '../../api/provider_presentation.dart';
+import '../../domain/models.dart';
+import '../../domain/product_repository.dart';
+import '../../domain/provider_presentation.dart';
 import '../../background/live_background.dart';
 import '../../builtin/builtin_server.dart' show looksLikeInAppServer;
 import '../../builtin/setup/phone_setup.dart';

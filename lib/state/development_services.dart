@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 
 import '../diagnostics/failed_job_report.dart';
+import '../domain/ansi_text.dart';
 import '../domain/development_service.dart';
 import '../domain/managed_shell.dart';
 import 'development_service_store.dart';
@@ -359,11 +360,7 @@ class DevelopmentServices extends ChangeNotifier {
     }
     var text = tail.text;
     if (text.length > 65536) text = text.substring(text.length - 65536);
-    logs[id] = text
-        .replaceAll(RegExp(r'\x1B\][^\x07]*(?:\x07|\x1B\\)'), '')
-        .replaceAll(RegExp(r'\x1B\[[0-?]*[ -/]*[@-~]'), '')
-        .replaceAll('\r\n', '\n')
-        .replaceAll('\r', '\n');
+    logs[id] = withoutTerminalCodes(text);
     _logSources[id] = shell;
   });
 

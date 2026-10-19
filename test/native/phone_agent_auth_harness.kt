@@ -55,7 +55,7 @@ private fun request(
     val script = File(fixtures, "$agent-$action.txt").readText()
         .replace("/home/oc/.oc-profiles/$PROFILE", "/home/oc/.oc-profiles/$profile")
     return mapOf("profileId" to profile, "agentId" to agent, "action" to action,
-        "script" to script, "timeoutSeconds" to if (action == "probe") 10 else 20)
+        "script" to script, "timeoutSeconds" to if (action != "probe") 20 else if (agent == "claude") 65 else 10)
 }
 
 private fun failure(result: Map<String, Any?>, code: String) {
@@ -156,6 +156,18 @@ private fun processTreeScenario(scenario: String) {
         "tree-missing-identity" -> {
             check(!tree.stop(child)) { "Unknown root identity was declared drained" }
             check(signals.isEmpty())
+        }
+        "tree-new-task-from-earlier-owner" -> {
+            // The in-app server (an earlier task) starts children during the probe.
+            val server = PhoneAgentAuthProcessIdentity(140, unrelated.pid, "server-start", 'S')
+            val worker = PhoneAgentAuthProcessIdentity(150, server.pid, "worker-start", 'S')
+            records = listOf(unrelated, server, worker)
+            child.alive = false
+            check(tree.stop(child)) { "A task started by an earlier owner kept the probe from draining" }
+            check(signals.none { it.first == server.pid || it.first == worker.pid }) {
+                "A task of an earlier owner was signalled"
+            }
+            check(records == listOf(unrelated, server, worker))
         }
         "tree-inventory-failure" -> {
             unreadable = true
@@ -382,6 +394,15 @@ fun main(args: Array<String>) {
             now = 10_000_000_000L
             check(deadline.executionMillis() == 0L && deadline.drainNanos() == 0L)
         }
+        "deadline-absolute-claude-probe" -> {
+            var now = 0L
+            val deadline = PhoneAgentAuthDeadline(65) { now }
+            check(deadline.executionMillis() == 62600L && deadline.drainNanos() == 2_000_000_000L)
+            now = 15_000_000_000L
+            check(deadline.executionMillis() == 47600L)
+            now = 65_000_000_000L
+            check(deadline.executionMillis() == 0L && deadline.drainNanos() == 0L)
+        }
         "deadline-absolute-logout" -> {
             var now = 0L
             val deadline = PhoneAgentAuthDeadline(20) { now }
@@ -404,13 +425,15 @@ fun main(args: Array<String>) {
         }
         "tree-dead-root", "tree-pid-reuse", "tree-zombie", "tree-unconfirmed-drain",
         "tree-missing-identity", "tree-inventory-failure", "tree-root-only-then-orphan",
-        "tree-signal-reuse", "tree-failed-start-unknown" -> processTreeScenario(scenario)
+        "tree-signal-reuse", "tree-failed-start-unknown",
+        "tree-new-task-from-earlier-owner" -> processTreeScenario(scenario)
         "request-admission" -> {
             val parsed = checkNotNull(PhoneAgentAuthRequest.parse(valid))
             check(parsed.profileId == PROFILE && parsed.agentId == "claude" && parsed.action == "probe")
-            check(parsed.timeoutSeconds == 10L && parsed.script == valid["script"])
+            check(parsed.timeoutSeconds == 65L && parsed.script == valid["script"])
             for (agent in listOf("claude", "codex", "gemini", "qwen", "goose", "omp-acp", "fx")) {
-                check(PhoneAgentAuthRequest.parse(request(fixtures, agent)) != null)
+                check(PhoneAgentAuthRequest.parse(request(fixtures, agent))?.timeoutSeconds ==
+                    if (agent == "claude") 65L else 10L)
             }
             for (agent in listOf("claude", "fx")) {
                 val logout = checkNotNull(PhoneAgentAuthRequest.parse(request(fixtures, agent, "logout")))
@@ -424,7 +447,7 @@ fun main(args: Array<String>) {
                 valid + ("profileId" to "a".repeat(81)), valid + ("profileId" to 5),
                 valid + ("agentId" to "opencode"), valid + ("agentId" to "opencode2"),
                 valid + ("agentId" to "unknown"), valid + ("action" to "delete"),
-                valid + ("timeoutSeconds" to 20), valid + ("timeoutSeconds" to 10.0),
+                valid + ("timeoutSeconds" to 10), valid + ("timeoutSeconds" to 20), valid + ("timeoutSeconds" to 65.0),
                 valid + ("timeoutSeconds" to "10"), valid + ("script" to "echo '$PRIVATE'"),
                 valid + ("script" to "a".repeat(65537)),
                 valid + ("script" to (valid["script"] as String).replace("signedIn", PRIVATE)),
@@ -530,7 +553,7 @@ fun main(args: Array<String>) {
             val probe = PhoneAgentAuthProbe(start = { _, _ -> child }, stop = {
                 check(it === child); it.destroy(); drained = true; true
             }, waitFor = { process, seconds ->
-                check(process === child && seconds == 10L)
+                check(process === child && seconds == 65L)
                 check(consumed.await(3, TimeUnit.SECONDS)) { "Capture did not consume the overflowing output" }
                 false
             })

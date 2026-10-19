@@ -9,7 +9,7 @@ String? releaseVersionFromPubspec(String pubspec) {
 
 /// Returns actionable discrepancies between the three release metadata files.
 ///
-/// The changelog's first level-two heading must be the current release. The
+/// After an optional Unreleased section, the first heading names the release. The
 /// versioned release notes must start with the exact public release header.
 List<String> validateReleaseMetadata({
   required String pubspec,
@@ -22,10 +22,14 @@ List<String> validateReleaseMetadata({
   }
 
   final issues = <String>[];
-  final topHeading = RegExp(
+  final headings = RegExp(
     r'^## (.+)$',
     multiLine: true,
-  ).firstMatch(changelog)?.group(1)?.trim();
+  ).allMatches(changelog).map((match) => match.group(1)!.trim()).toList();
+  if (headings.isNotEmpty && headings.first == 'Unreleased') {
+    headings.removeAt(0);
+  }
+  final topHeading = headings.isEmpty ? null : headings.first;
   final topVersion = topHeading == null
       ? null
       : RegExp(

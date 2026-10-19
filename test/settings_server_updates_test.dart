@@ -2,10 +2,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/background/live_background.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/offline_queue.dart';
@@ -16,7 +16,7 @@ import 'package:opencode_mobile/ui/screens/settings_screen.dart';
 import 'package:opencode_mobile/ui/screens/saved_permissions_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class _HealthyApi extends OpenCodeApi {
+class _HealthyApi extends FakeServerGateway {
   _HealthyApi() : super(baseUrl: 'http://127.0.0.1:4096');
 
   @override

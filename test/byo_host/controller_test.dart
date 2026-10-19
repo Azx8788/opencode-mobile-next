@@ -99,7 +99,7 @@ class FakeRunner implements ByoHostSshRunner {
   }
 
   String bundleVersion = '1.1.0';
-  String openCodeVersion = '1.18.32';
+  String openCodeVersion = '2.0.29';
 
   ByoHostDescriptor get descriptor => ByoHostDescriptor(
     hostId: hostId,
@@ -147,7 +147,7 @@ void main() {
   late ByoHostController controller;
   final bundle = ByoHostBundle(
     version: '1.1.0',
-    openCodeVersion: '1.18.32',
+    openCodeVersion: '2.0.29',
     artifacts: {
       'x64': ByoHostArtifact(
         url: 'https://example.invalid/bundle.tar.gz',
@@ -239,7 +239,7 @@ void main() {
       await add();
       final profile = controller.connectedProfile(name: 'My machine');
       expect(profile.baseUrl, 'http://127.0.0.1:19001');
-      expect(profile.flavor, ServerFlavor.v1);
+      expect(profile.flavor, ServerFlavor.v2);
       expect(profile.password, store.secrets!.deviceToken);
       expect(
         jsonEncode(store.record!.toJson()),

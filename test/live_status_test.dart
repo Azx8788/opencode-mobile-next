@@ -2,7 +2,7 @@ import 'dart:ui' show Locale;
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/background/live_background.dart';
 import 'package:opencode_mobile/background/notification_status.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';

@@ -8,7 +8,7 @@ library;
 
 import 'dart:convert';
 
-import '../api/models.dart';
+import '../domain/models.dart';
 import '../domain/server_gateway.dart' show ProductException;
 import 'transport.dart';
 
@@ -35,9 +35,59 @@ List<Map<String, String>> paseoImages(List<PromptAttachment> attachments) {
         'That picture is too large to send. Choose a smaller one.',
       );
     }
-    images.add({'data': data, 'mimeType': match.group(1)!});
+    // Paseo's Claude adapter forwards an image to Claude only when its type is
+    // one of these four (providers/claude/agent.js, isImageMimeType) and drops
+    // any other without a word. Claude also refuses bytes whose real format
+    // differs from the declared type. So the type sent is the one the bytes
+    // really are, and an unsupported picture is refused here, in words.
+    final declared = match.group(1)!.toLowerCase();
+    final type =
+        _sniffImageType(data) ??
+        (declared == 'image/jpg' ? 'image/jpeg' : declared);
+    if (!_claudeImageTypes.contains(type)) {
+      throw const ProductException(
+        'That picture type can\'t be sent. Use a PNG, JPEG, GIF or WebP picture.',
+      );
+    }
+    images.add({'data': data, 'mimeType': type});
   }
   return images;
+}
+
+const _claudeImageTypes = {
+  'image/png',
+  'image/jpeg',
+  'image/gif',
+  'image/webp',
+};
+
+/// The picture type the first bytes of [base64Data] show, or null if unknown.
+String? _sniffImageType(String base64Data) {
+  final head = base64Data.length < 32
+      ? base64Data
+      : base64Data.substring(0, 32);
+  final List<int> b;
+  try {
+    // 32 base64 characters are 24 bytes, enough for every signature below.
+    b = base64.decode(head);
+  } catch (_) {
+    return null;
+  }
+  bool starts(List<int> sig, [int at = 0]) {
+    if (b.length < at + sig.length) return false;
+    for (var i = 0; i < sig.length; i++) {
+      if (b[at + i] != sig[i]) return false;
+    }
+    return true;
+  }
+
+  if (starts(const [137, 80, 78, 71, 13, 10, 26, 10])) return 'image/png';
+  if (starts(const [255, 216, 255])) return 'image/jpeg';
+  if (starts('GIF8'.codeUnits)) return 'image/gif';
+  if (starts('RIFF'.codeUnits) && starts('WEBP'.codeUnits, 8)) {
+    return 'image/webp';
+  }
+  return null;
 }
 
 Map<String, dynamic> paseoObject(Object? value) {
@@ -99,6 +149,17 @@ SessionContextUse? paseoContextUse(Object? usage) {
   return SessionContextUse(tokens: used.round(), limit: max.round());
 }
 
+/// Paseo names a new agent after its first prompt, cut hard at 60 characters
+/// (create-agent-title.js) with no sign that words were left out, so a long
+/// first message reads as a title that stops mid-word. A title that long
+/// which does not end like a sentence is such a cut: it gets its ellipsis.
+String paseoClippedTitle(String title) {
+  final text = title.trim();
+  if (text.length < 58 || text.length > 60) return title;
+  if (RegExp(r'''[.!?…)"'`]$''').hasMatch(text)) return title;
+  return '$text…';
+}
+
 Session paseoSession(Map<String, dynamic> agent) {
   final id = paseoString(agent['id'], max: 256);
   final cwd = paseoString(agent['cwd']);
@@ -110,7 +171,7 @@ Session paseoSession(Map<String, dynamic> agent) {
   return Session(
     id: id,
     title: title is String && title.trim().isNotEmpty
-        ? paseoText(title, max: 4096)
+        ? paseoClippedTitle(paseoText(title, max: 4096))
         : '${paseoProviderName(provider)} conversation',
     directory: cwd,
     time: SessionTime(
@@ -220,9 +281,14 @@ final _interruptReport = RegExp(r'^\[Request interrupted by user[^\]]*\]$');
 /// after flushPendingToolCalls dropped the call). It is a stop, not a failure.
 bool paseoInterruptedToolCall(Map<String, dynamic> item) {
   if (item['status'] != 'failed') return false;
+  return _interruptReport.hasMatch(_toolErrorText(item).trim());
+}
+
+/// The words of a failed call's error, whichever shape carries them.
+String _toolErrorText(Map<String, dynamic> item) {
   final error = item['error'];
   final content = error is Map ? (error['content'] ?? error['message']) : error;
-  final text = switch (content) {
+  return switch (content) {
     String text => text,
     List blocks =>
       blocks
@@ -232,7 +298,29 @@ bool paseoInterruptedToolCall(Map<String, dynamic> item) {
           .join(),
     _ => '',
   };
-  return _interruptReport.hasMatch(text.trim());
+}
+
+/// What Paseo and Claude Code say when the person answered a permission
+/// card with Reject: Paseo records the call as failed with its own words
+/// ("Permission denied", "Permission request denied", the steer message) and
+/// Claude's SDK follows with "The user doesn't want to proceed with this
+/// tool use". The person said no; nothing went wrong.
+final _declinedReport = RegExp(
+  r"^(permission (request )?(denied|canceled)|"
+  r"the user doesn't want to proceed|"
+  r"the user answered with a message instead of approving|"
+  r"user (denied|rejected|declined)|"
+  r"permission to use .* has been denied)",
+  caseSensitive: false,
+);
+
+/// A failed tool call the person declined at its permission card.
+bool paseoDeclinedToolCall(Map<String, dynamic> item) {
+  if (item['status'] != 'failed') return false;
+  // The app knows the person rejected this call's card: whatever reason they
+  // typed comes back as the error text, and is not a failure.
+  if (item['declinedByPerson'] == true) return true;
+  return _declinedReport.hasMatch(_toolErrorText(item).trim());
 }
 
 /// [later], a tool call reported again under the call id of [earlier],
@@ -569,7 +657,11 @@ MessageWithParts? paseoItemMessage(
             'input': _toolInput(detail),
             'output': status == 'cancelled' ? '' : _toolOutput(item, detail),
             // A failed step reads its words from `error`.
-            if (status == 'error') 'error': _toolOutput(item, detail),
+            if (status == 'error')
+              'error': paseoDeclinedToolCall(item)
+                  // The card reads this as the person's choice, not a failure.
+                  ? 'The user declined this tool call'
+                  : _toolOutput(item, detail),
             'metadata': _toolMetadata(detail),
           }),
         ),

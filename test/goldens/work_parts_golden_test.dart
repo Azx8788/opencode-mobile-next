@@ -8,13 +8,11 @@
 // Regenerate deliberately:
 //   flutter test --update-goldens test/goldens/work_parts_golden_test.dart
 // and look at every changed image before committing it.
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/sse.dart';
-import 'package:opencode_mobile/domain/server_gateway.dart'
-    show ServerCapabilities;
 import 'package:opencode_mobile/ui/app_iconography.dart';
 import 'package:opencode_mobile/ui/desktop/shortcuts.dart';
 import 'package:opencode_mobile/ui/kit/kit_motion.dart';

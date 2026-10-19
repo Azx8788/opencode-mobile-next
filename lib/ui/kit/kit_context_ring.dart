@@ -29,11 +29,11 @@ enum KitContextLevel {
       ? high
       : normal;
 
-  /// The arc and number colour: accent, then the attention role, then danger.
+  /// The arc and number colour: accent, then the attention role, then the strong neutral (never red).
   Color colorIn(ThemeRoles roles) => switch (this) {
     normal => roles.accent,
     high => roles.attention,
-    full => roles.danger,
+    full => roles.text1,
   };
 
   /// A whole percent, floored so "95 %" never shows below the "almost full"

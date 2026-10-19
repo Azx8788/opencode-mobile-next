@@ -2,7 +2,7 @@
 // (GlobalSessionsScreen) in their main states, from the real code.
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:opencode_mobile/api/models.dart' show Session;
+import 'package:opencode_mobile/domain/models.dart' show Session;
 import 'package:opencode_mobile/domain/chat_feed.dart';
 import 'package:opencode_mobile/ui/screens/chats/chats_home_screen.dart';
 import 'package:opencode_mobile/ui/screens/chats/chats_host.dart';

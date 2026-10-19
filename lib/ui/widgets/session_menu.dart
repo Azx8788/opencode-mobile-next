@@ -16,6 +16,7 @@ enum SessionMenuAction {
   find,
   subagents,
   details,
+  preview,
   share,
   unshare,
   compact,
@@ -66,6 +67,7 @@ class SessionMenuOffer {
     this.archive = false,
     this.delete = false,
     this.hasPrompt = true,
+    this.preview = false,
   });
 
   /// The server's part; [hasPrompt] and [timeline] default to what a Work
@@ -78,6 +80,7 @@ class SessionMenuOffer {
     bool timeline = true,
     bool hasPrompt = true,
     bool continueWith = true,
+    bool preview = false,
   }) => SessionMenuOffer(
     changes: capabilities.sessionDiff,
     timeline: timeline,
@@ -92,6 +95,7 @@ class SessionMenuOffer {
     archive: capabilities.sessionArchive,
     delete: capabilities.sessionDelete,
     hasPrompt: hasPrompt,
+    preview: preview,
   );
 
   final bool changes;
@@ -113,6 +117,10 @@ class SessionMenuOffer {
   /// Compact and Fork act on prompts: before the first one they wait,
   /// dimmed, with the reason.
   final bool hasPrompt;
+
+  /// The conversation mentioned a local dev server (`localhost:5173`):
+  /// "Preview a running app" lists the ports it named.
+  final bool preview;
 }
 
 /// The conversation menu: "Go to" (Changes, Timeline, Find, Subagents,
@@ -190,6 +198,14 @@ List<KitMenuItem> sessionMenuItems(
       AppIconography.info,
       goTo,
     ),
+    if (offer.preview)
+      item(
+        SessionMenuAction.preview,
+        l10n.devPreviewMenu,
+        AppIconography.browser,
+        goTo,
+        supporting: l10n.devPreviewMenuHint,
+      ),
     if (offer.sharing)
       offer.shared
           ? item(

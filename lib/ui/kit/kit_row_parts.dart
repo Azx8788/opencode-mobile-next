@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import '../app_theme.dart';
 import 'kit_buttons.dart';
 import 'kit_icon_button.dart';
+import 'kit_icon.dart';
 import 'kit_menu.dart';
 import 'kit_row.dart';
 import 'kit_status_line.dart';
@@ -23,9 +24,18 @@ export 'kit_menu.dart' show KitMenuItem;
 /// circle, every other row keeps the plain muted icon. The row says the
 /// same in words ("Connected · …") so the mark is never colour-only.
 class KitRowIcon extends StatelessWidget {
-  const KitRowIcon(this.icon, {super.key, this.current = false, this.color});
+  const KitRowIcon(
+    this.icon, {
+    super.key,
+    this.current = false,
+    this.color,
+    this.mark,
+  });
 
   final IconData icon;
+
+  /// A bundled brand mark drawn in [icon]'s place (see [KitRow.icon]).
+  final String? mark;
 
   /// The row is the one in use now.
   final bool current;
@@ -35,7 +45,7 @@ class KitRowIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!current) return KitRow.icon(context, icon, color: color);
+    if (!current) return KitRow.icon(context, icon, color: color, mark: mark);
     final tokens = KitTokens.of(context);
     return Container(
       key: const ValueKey('kit-row-current-mark'),
@@ -45,11 +55,16 @@ class KitRowIcon extends StatelessWidget {
         color: tokens.roles.accent,
         borderRadius: BorderRadius.circular(tokens.iconTileRadius),
       ),
-      child: Icon(
-        icon,
-        size: tokens.iconSize(context, tokens.smallIconSize),
-        color: tokens.roles.onAccent,
-      ),
+      child: mark == null
+          ? Icon(
+              icon,
+              size: tokens.iconSize(context, tokens.smallIconSize),
+              color: tokens.roles.onAccent,
+            )
+          : IconTheme(
+              data: IconThemeData(color: tokens.roles.onAccent),
+              child: KitIcon.mark(mark!, growsWithText: true),
+            ),
     );
   }
 }

@@ -92,7 +92,7 @@ extension _ConnectionControllerPhoneChatImpl on ConnectionController {
         owner?.id == id &&
         owner?.backend == ServerBackend.openCode &&
         api?.capabilities.phoneTeamExecution == true &&
-        (api is OpenCodeApi || api is Api2Gateway) &&
+        api is Api2Gateway &&
         BuiltinLinux.managesServerUrl(owner?.baseUrl) &&
         owner?.orchestration?.provider == OrchestrationProvider.phoneEngine &&
         !_deletingReadProfiles.contains(id);

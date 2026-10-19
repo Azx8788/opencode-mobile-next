@@ -1,7 +1,7 @@
 // Real chat widgets with deterministic local content; no server or model calls.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/ui/screens/chat_screen.dart';
 import '../../test/support/setup_capture_preferences.dart';

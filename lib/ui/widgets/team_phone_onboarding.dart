@@ -205,17 +205,7 @@ Future<void> _runJob(
   if (host == SetupHostKind.termux) {
     return openPhoneSetupTermuxJob(context, adding: ids);
   }
-  final runtime = BuiltinLinux.knownRuntimeFor(profile.flavor);
-  if (runtime == null) {
-    final l10n = _copy(context);
-    await showKitAlert(
-      context,
-      title: l10n.phoneServerCardFailedTitle,
-      body: l10n.phoneSetupErrorCannotStart,
-      icon: AppIconography.warning,
-    );
-    return;
-  }
+  final runtime = BuiltinLinux.runtimeForProfile(profile);
   await PhoneSetup.engine.run(
     ids,
     params: {
@@ -247,6 +237,14 @@ Future<void> openTeamOnThisPhone(
 }) async {
   final profile = connection.profile;
   if (profile == null) return;
+  if (connection.managedOpenCode2MigrationRequired) {
+    await showKitAlert(
+      context,
+      title: _copy(context).phoneServerCardFailedTitle,
+      body: _copy(context).openCode2UpgradeFailed,
+    );
+    return;
+  }
   final host = teamPhoneHostOf(profile);
   final engine = PhoneSetup.of(host);
   var installed = false;

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
-import '../api/command_receipt_transport.dart';
+import '../domain/command_receipt_transport.dart';
 import '../domain/command_receipts.dart';
 import '../domain/server_gateway.dart';
 import 'pending_command_journal.dart';

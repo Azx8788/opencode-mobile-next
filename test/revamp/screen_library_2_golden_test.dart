@@ -9,12 +9,13 @@
 // Regenerate deliberately:
 //   flutter test --update-goldens test/revamp/screen_library_2_golden_test.dart
 // and look at every changed image before committing it.
+import '../support/fake_server_capabilities.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/api2/gateway_mappers.dart'
     show api2ServerCapabilities;
 import 'package:opencode_mobile/domain/external_agent.dart';
@@ -250,7 +251,7 @@ void main() {
     group('mcp setup ($tone)', () {
       for (final size in [_phone, _wide]) {
         testWidgets('form ${size.width.toInt()}', (tester) async {
-          final controller = await _server(ServerCapabilities.allV1);
+          final controller = await _server(testServerCapabilities);
           addTearDown(controller.dispose);
           await _shot(
             tester,
@@ -274,7 +275,7 @@ void main() {
       });
 
       testWidgets('errors after Save', (tester) async {
-        final controller = await _server(ServerCapabilities.allV1);
+        final controller = await _server(testServerCapabilities);
         addTearDown(controller.dispose);
         await _shot(
           tester,

@@ -122,6 +122,17 @@ abstract final class KitMotion {
   /// The glowing border's strength easing in and out.
   static const Duration edgeLightHueFade = Duration(milliseconds: 450);
 
+  /// A running step's light: one lap, the tick's stay, the glyph's spring back
+  /// and the name's sweep (KitStepTimeline.md).
+  static const Duration stepLap = Duration(milliseconds: 2000);
+  static const Duration stepLapCalm = Duration(milliseconds: 4000);
+  static const Duration stepBreathe = Duration(milliseconds: 1600);
+  static const Duration stepFlash = Duration(milliseconds: 300);
+  static const Duration stepFade = Duration(milliseconds: 200);
+  static const Duration stepTick = Duration(milliseconds: 600);
+  static const Duration stepSpring = Duration(milliseconds: 260);
+  static const Duration stepSweep = Duration(milliseconds: 2200);
+
   /// The context ring (KitContextRing.md): the arc and its number moving to
   /// a new value, the colour crossing to the next level, the one halo when
   /// 70 % or 95 % is crossed upward, the arc draining after a compaction,
@@ -131,6 +142,12 @@ abstract final class KitMotion {
   static const Duration contextHalo = Duration(milliseconds: 700);
   static const Duration contextDrain = Duration(milliseconds: 900);
   static const Duration contextSpin = Duration(milliseconds: 1200);
+
+  /// How long the terminal's "Copied to clipboard" note stays up.
+  static const Duration terminalCopiedNote = Duration(seconds: 2);
+
+  static const Curve stepEase = Curves.easeInOutQuad;
+  static const Curve stepOut = Curves.easeOutQuad;
 
   static const Curve enter = Curves.easeOutCubic;
   static const Curve exit = Curves.easeInCubic;

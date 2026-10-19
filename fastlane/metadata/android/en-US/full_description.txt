@@ -17,9 +17,15 @@ Ask an agent for a change, watch it work, approve what it wants to do, and revie
 • Approve or reject each request before it acts. Diffs fit the phone's width.
 • Talk instead of type: voice is transcribed on the phone and never leaves it.
 
+<b>New in 1.4.0</b>
+• Home-screen widgets: Allow, Reject, Stop, Steer or start a reply by voice without opening the app.
+• Continue with…: hand a conversation to another agent, for example from Codex to Claude Code.
+• A live background in 20 looks, an app-only Text size setting and a one-line chat header.
+• Sending while an agent works steers it where the agent supports that.
+
 <b>More</b>
 • Inbox across servers: everything that needs you, in one list, and what happened while you were away.
-• AI Team: give a goal and milestones; a planner, workers and a checker build it and merge to dev with receipts. Nothing reaches main until you confirm. New, and proven on emulators.
+• AI Team: give a goal and milestones; a planner, workers and a checker build it and merge to dev with receipts. Nothing reaches main until you confirm. Runs on OpenCode 2, which new phones start on. Proven on emulators.
 • English and Arabic, light and dark, large text up to 200%.
 
 <b>Your data</b>

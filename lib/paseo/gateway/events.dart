@@ -240,6 +240,10 @@ extension _PaseoEvents on PaseoGateway {
     }
     if (type == 'tool_call') {
       item = paseoMergeToolCall(live.tools.remove(messageID), item);
+      // The person rejected this call's card; its error is their own reason.
+      if (item['status'] == 'failed' && _rejectedCalls.contains(messageID)) {
+        item = {...item, 'declinedByPerson': true};
+      }
       live.tools[messageID] = item;
       while (live.tools.length > 2048) {
         live.tools.remove(live.tools.keys.first);

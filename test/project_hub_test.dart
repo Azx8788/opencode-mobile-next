@@ -1,9 +1,10 @@
+import 'support/fake_server_capabilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/api2/gateway_mappers.dart';
 import 'package:opencode_mobile/codex/gateway.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
@@ -29,7 +30,7 @@ import '../tool/capture/fixtures.dart' show loadCaptureFonts;
 // project. A row exists only when the connected server can serve it, and the
 // tab exists only when a row does.
 
-class _Api extends OpenCodeApi {
+class _Api extends FakeServerGateway {
   _Api(this._capabilities) : super(baseUrl: 'http://localhost');
 
   final ServerCapabilities _capabilities;
@@ -142,7 +143,7 @@ void main() {
       // Development services and cloud environments came over from the
       // retired Manage project page (slice-P3.11a), each on its own gate.
       'OpenCode 1': (
-        ServerCapabilities.allV1,
+        testServerCapabilities,
         const [
           ProjectTool.files,
           ProjectTool.changes,
@@ -311,7 +312,7 @@ void main() {
       'Files opens inside the tab and the header returns to the hub',
       (tester) async {
         _phone(tester);
-        final controller = await _controller(ServerCapabilities.allV1);
+        final controller = await _controller(testServerCapabilities);
         addTearDown(controller.dispose);
         await tester.pumpWidget(_shell(controller));
         await tester.pumpAndSettle();
@@ -338,7 +339,7 @@ void main() {
       tester,
     ) async {
       _phone(tester);
-      final controller = await _controller(ServerCapabilities.allV1);
+      final controller = await _controller(testServerCapabilities);
       addTearDown(controller.dispose);
       await tester.pumpWidget(_shell(controller));
       await tester.pumpAndSettle();
@@ -355,7 +356,7 @@ void main() {
       tester,
     ) async {
       _phone(tester);
-      final controller = await _controller(ServerCapabilities.allV1);
+      final controller = await _controller(testServerCapabilities);
       addTearDown(controller.dispose);
       await tester.pumpWidget(_shell(controller));
       await tester.pumpAndSettle();
@@ -377,7 +378,7 @@ void main() {
       tester,
     ) async {
       _phone(tester);
-      final controller = await _controller(ServerCapabilities.allV1);
+      final controller = await _controller(testServerCapabilities);
       addTearDown(controller.dispose);
       await tester.pumpWidget(_shell(controller));
       await tester.pumpAndSettle();
@@ -409,7 +410,7 @@ void main() {
       tester,
     ) async {
       _phone(tester, const Size(320, 640));
-      final controller = await _controller(ServerCapabilities.allV1);
+      final controller = await _controller(testServerCapabilities);
       addTearDown(controller.dispose);
       await tester.pumpWidget(
         _shell(controller, locale: locale, textScale: 2.5),

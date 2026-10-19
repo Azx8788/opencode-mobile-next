@@ -1,6 +1,6 @@
 //! Deferred component E2E: durable task → isolated clone → independent check
 //! → canonical dev merge → expected-SHA promotion authority receipt.
-//! Real OC1 admission and on-device proot proofs are separate prerequisites.
+//! Real server admission and on-device proot proofs are separate prerequisites.
 use git2::{Repository, Signature};
 use oc_phone_engine::{
     daemon::{validate_check, validate_plan},

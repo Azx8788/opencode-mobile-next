@@ -1,6 +1,6 @@
 import 'package:clock/clock.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/server_probe.dart';
+import 'package:opencode_mobile/domain/server_probe.dart';
 import 'package:opencode_mobile/builtin/builtin_linux.dart';
 import 'package:opencode_mobile/builtin/builtin_server.dart';
 import 'package:opencode_mobile/l10n/app_localizations_en.dart';
@@ -53,7 +53,7 @@ class _FakeLinux extends BuiltinLinux {
   }
 }
 
-ServerProfile _inApp({ServerFlavor flavor = ServerFlavor.v1}) =>
+ServerProfile _inApp({ServerFlavor flavor = ServerFlavor.v2}) =>
     ServerProfile(
         id: 'builtin',
         name: 'This phone, built-in',
@@ -70,7 +70,7 @@ void main() {
     linux = _FakeLinux();
     serverProbe = ({required baseUrl, username, password}) async =>
         linux.serverRunning
-        ? const ServerProbeResult.success('1.18.29')
+        ? const ServerProbeResult.success('2.0.29')
         : const ServerProbeResult.failure('refused');
   });
 
@@ -113,11 +113,27 @@ void main() {
       );
     });
 
+    test(
+      'legacy metadata never starts a server before safe history move',
+      () async {
+        final profile = _inApp()..requiresOpenCode2Migration = true;
+        final failure = await startBuiltinServer(
+          linux: linux,
+          profile: profile,
+          pollInterval: Duration.zero,
+        );
+        expect(failure, isNotNull);
+        expect(linux.started, isEmpty);
+        expect(linux.scripts, isEmpty);
+        expect(profile.requiresOpenCode2Migration, isTrue);
+      },
+    );
+
     test('cancelled confirmation never reports successful startup', () async {
       var wanted = true;
       serverProbe = ({required baseUrl, username, password}) async {
         wanted = false;
-        return const ServerProbeResult.success('1.18.29');
+        return const ServerProbeResult.success('2.0.29');
       };
       final failure = await startBuiltinServer(
         linux: linux,

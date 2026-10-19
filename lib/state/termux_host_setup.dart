@@ -6,8 +6,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show PlatformException;
 
 import '../l10n/app_localizations.dart';
+import '../domain/opencode_history_copy.dart';
 import '../termux/bridge.dart';
 import '../termux/managed_server_recovery.dart';
+import '../ui/kit/kit_redact.dart';
 import 'connection.dart';
 import 'move_to_opencode2.dart';
 import 'profiles.dart';
@@ -199,18 +201,24 @@ class TermuxHostSetup extends ChangeNotifier {
   /// The saved profile of [runtime] with a password, if there is one.
   ServerProfile? localProfile([TermuxRuntime? runtime]) {
     final wanted = runtime ?? this.runtime;
+    ServerProfile? fallback;
     for (final profile in store.profiles) {
       if (_isManaged(profile, wanted) && profile.password.isNotEmpty) {
-        return profile;
+        if (profile.id == store.activeId) return profile;
+        fallback ??= profile;
       }
     }
-    return null;
+    return fallback;
   }
 
   Future<ServerProfile> _ensureLocalProfile(
     TermuxRuntime runtime, {
     bool forSwitch = false,
   }) async {
+    if (forSwitch && runtime == TermuxRuntime.openCode2) {
+      final original = localProfile(TermuxRuntime.openCode1);
+      if (original != null) return original;
+    }
     ServerProfile? profile;
     for (final candidate in store.profiles) {
       if (_isManaged(candidate, runtime)) {
@@ -229,6 +237,7 @@ class TermuxHostSetup extends ChangeNotifier {
           : l10n.e7SetupThisDevice,
       baseUrl: localUrl,
       flavor: ManagedRuntimeFlavor.flavorOf(runtime),
+      requiresOpenCode2Migration: runtime == TermuxRuntime.openCode1,
     );
     profile.username = 'opencode';
     if (profile.password.isEmpty) {
@@ -253,9 +262,7 @@ class TermuxHostSetup extends ChangeNotifier {
   }
 
   static String _runtimeName(AppLocalizations l10n, TermuxRuntime runtime) =>
-      runtime == TermuxRuntime.openCode2
-      ? l10n.setupRuntimeTwo
-      : l10n.setupRuntimeOne;
+      l10n.setupRuntimeTwo;
 
   // --- Checking Termux -----------------------------------------------------
 
@@ -373,7 +380,9 @@ class TermuxHostSetup extends ChangeNotifier {
       if (status.isFailed) _error = _persistedFailure(status, snapshot.output);
       return;
     }
-    if (job == TermuxHostJob.install && status.isReady) {
+    if (status.isReady &&
+        status.runtime == TermuxRuntime.openCode2 &&
+        (job == TermuxHostJob.install || job == TermuxHostJob.switchRuntime)) {
       // OpenCode already runs in Termux: setting up is connecting.
       _jobStarted = true;
       await _finish();
@@ -388,7 +397,9 @@ class TermuxHostSetup extends ChangeNotifier {
     final installation = await TermuxBridge.inspectInstallation();
     if (_disposed) return;
     _installation = installation;
-    if (installation.openCodeVersion != null) {
+    if (installation.openCodeVersion != null &&
+        !(installation.runtime == TermuxRuntime.openCode2 &&
+            localProfile(TermuxRuntime.openCode1) != null)) {
       await restoreProfileIfMissing(installation.runtime);
     }
   }
@@ -443,6 +454,10 @@ class TermuxHostSetup extends ChangeNotifier {
 
   Future<void> _startJob() async {
     _jobStarted = true;
+    if (runtime == TermuxRuntime.openCode1) {
+      await _switch(TermuxRuntime.openCode2);
+      return;
+    }
     switch (_job!) {
       case TermuxHostJob.install:
         final installed = _installation?.openCodeVersion != null;
@@ -462,9 +477,7 @@ class TermuxHostSetup extends ChangeNotifier {
   }
 
   static TermuxRuntime _otherRuntime(TermuxRuntime runtime) =>
-      runtime == TermuxRuntime.openCode2
-      ? TermuxRuntime.openCode1
-      : TermuxRuntime.openCode2;
+      TermuxRuntime.openCode2;
 
   void _beginOperation() {
     _stopPolling();
@@ -625,8 +638,9 @@ class TermuxHostSetup extends ChangeNotifier {
       // Refuse lost prior credentials: generating a replacement would make a
       // "return" silently change that runtime's authentication contract.
       final previous = _status?.switchPrevious ?? runtime;
-      if (localProfile(previous) == null ||
-          (target == TermuxRuntime.openCode1 && localProfile(target) == null)) {
+      target.requireSupported();
+      if (localProfile(previous) == null &&
+          localProfile(TermuxRuntime.openCode1) == null) {
         throw StateError(l10n.setupSwitchMissingCredential);
       }
       await connection.prepareManagedRuntimeSwitch();
@@ -667,9 +681,8 @@ class TermuxHostSetup extends ChangeNotifier {
       _launching = false;
       _set(() {
         _phase = TermuxHostPhase.failed;
-        _error = error is TermuxBridgeException
-            ? error.message
-            : error.toString().replaceFirst('Bad state: ', '');
+        _error = l10n.setupSwitchFailed;
+        _lastLaunchOutput = KitRedact.text(error.toString());
       });
       // A native timeout may leave the manager alive: its journal answers.
       if (error is TermuxBridgeException && error.code == 'command_timeout') {
@@ -908,7 +921,43 @@ class TermuxHostSetup extends ChangeNotifier {
     final l10n = copy();
     final status = _status;
     final runtime = status?.runtime ?? this.runtime;
-    final managedProfile = localProfile(runtime);
+    ServerProfile? upgradedProfile;
+    if (status?.isReady == true && runtime == TermuxRuntime.openCode2) {
+      final original = localProfile(TermuxRuntime.openCode1);
+      if (original != null) {
+        // A ready OC2 may have an independent history. Only the copy receipt
+        // admission can adopt it as this legacy profile's upgrade.
+        final admission = await TermuxBridge.setupRun(
+          openCode1HistorySwitchCheckScript,
+        );
+        if (admission.exitCode != 0) {
+          _set(() {
+            _phase = TermuxHostPhase.failed;
+            _error = l10n.setupSwitchFailed;
+            _lastLaunchOutput = KitRedact.text(admission.failureMessage);
+          });
+          return;
+        }
+        // Native readiness proves the copy/start completed. Preserve every
+        // local key by keeping the same ID; history still needs server proof.
+        original
+          ..requiresOpenCode2Migration = false
+          ..openCode2HistoryPending = true
+          ..flavor = ServerFlavor.v2;
+        try {
+          await store.upsert(original);
+        } catch (_) {
+          original
+            ..requiresOpenCode2Migration = true
+            ..openCode2HistoryPending = false;
+          rethrow;
+        }
+        upgradedProfile = original;
+      }
+    }
+    // The move belongs to this original identity. Another OC2 alias may
+    // precede it in storage, but must never take its recovery or connection.
+    final managedProfile = upgradedProfile ?? localProfile(runtime);
     if (status?.isReady == true && managedProfile != null) {
       await ManagedServerRecovery.resumeAfterManualStartForProfile(
         store.prefs,
@@ -920,8 +969,8 @@ class TermuxHostSetup extends ChangeNotifier {
       _set(() => _phase = TermuxHostPhase.ready);
       return;
     }
-    await restoreProfileIfMissing(runtime);
-    final profile = localProfile(runtime);
+    if (managedProfile == null) await restoreProfileIfMissing(runtime);
+    final profile = managedProfile ?? localProfile(runtime);
     if (profile == null) {
       _set(() {
         _phase = TermuxHostPhase.failed;
@@ -1004,6 +1053,7 @@ Future<bool> restoreManagedTermuxProfile(
         name: name,
         baseUrl: TermuxBridge.managedServerUrl,
         flavor: ManagedRuntimeFlavor.flavorOf(runtime),
+        requiresOpenCode2Migration: runtime == TermuxRuntime.openCode1,
       );
   profile
     ..username = 'opencode'
@@ -1017,10 +1067,9 @@ Future<bool> restoreManagedTermuxProfile(
 /// onto a saved profile. Kept here so no screen compares flavours.
 abstract final class ManagedRuntimeFlavor {
   static TermuxRuntime runtimeOf(ServerProfile profile) =>
-      profile.flavor == ServerFlavor.v2
+      !profile.requiresOpenCode2Migration
       ? TermuxRuntime.openCode2
       : TermuxRuntime.openCode1;
 
-  static ServerFlavor flavorOf(TermuxRuntime runtime) =>
-      runtime == TermuxRuntime.openCode2 ? ServerFlavor.v2 : ServerFlavor.v1;
+  static ServerFlavor flavorOf(TermuxRuntime runtime) => ServerFlavor.v2;
 }

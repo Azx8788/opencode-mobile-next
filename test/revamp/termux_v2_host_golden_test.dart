@@ -129,6 +129,7 @@ Future<void> _shot(
 void main() {
   setUpAll(loadCaptureFonts);
   setUp(() {
+    useNoTermuxJob();
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
           const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),

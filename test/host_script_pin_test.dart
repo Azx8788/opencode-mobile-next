@@ -12,32 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:opencode_mobile/termux/bridge.dart';
 import 'package:opencode_mobile/ui/setup_commands.dart';
 
-const _scripts = {'ubuntu': HostScripts.ubuntu, 'front': HostScripts.front};
-
-/// PIN UPDATE PENDING PUSH (slice-script-pins, 2026-09-28).
-///
-/// These scripts changed in the repository after [HostScripts.commit]. The
-/// app keeps downloading the pinned bytes (whose checksum still matches)
-/// until a commit that holds the new bytes is published. Each entry is the
-/// SHA-256 of the file as it is now in the repository; a further edit to
-/// the file must update it here, or the checkout test below fails.
-///
-/// After the owner approves a push of a commit holding these files:
-/// 1. `HostScripts.commit` in lib/ui/setup_commands.dart = that full
-///    40-character commit hash, and `HostScripts.release` = the release it
-///    belongs to (or reword the line that names it).
-/// 2. `HostScripts.ubuntu.sha256` = the value below; this must print it:
-///    `git show COMMIT:scripts/host/ubuntu-opencode.sh | sha256sum`
-///    `HostScripts.front.sha256` stays as it is: front.py did not change.
-/// 3. Replace the pinned command in docs/ubuntu-host.md and
-///    docs/ai-team-host.md with the new `verifiedDownload` text, and drop
-///    the "release 1.0.44 script" paragraphs in docs/ubuntu-host.md.
-/// 4. Empty this map.
-/// Details: docs/qa/slice-script-pins-2026-09-28/README.md.
-const _pendingPinUpdate = <String, String>{
-  'scripts/host/ubuntu-opencode.sh':
-      '6e9bed8b5e3060365463aa17e78b44da285f45baca6b4c3a8369881ffbb77b75',
-};
+const _scripts = {'front': HostScripts.front};
 
 /// Files that show or run shell commands: the app's own copy, the guides at
 /// the top of docs/, and every host-side script.
@@ -79,28 +54,11 @@ void main() {
   });
 
   for (final MapEntry(key: name, value: script) in _scripts.entries) {
-    test('$name: the checkout holds the pinned bytes or a recorded update', () {
+    test('$name: the checkout holds the pinned bytes', () {
       final actual = sha256
           .convert(File(script.path).readAsBytesSync())
           .toString();
-      if (actual == script.sha256) {
-        expect(
-          _pendingPinUpdate,
-          isNot(contains(script.path)),
-          reason:
-              'The pin already covers ${script.path}; remove its '
-              '_pendingPinUpdate entry.',
-        );
-        return;
-      }
-      expect(
-        _pendingPinUpdate[script.path],
-        actual,
-        reason:
-            '${script.path} differs from ${HostScripts.commit}. Until a '
-            'commit holding it is published and pinned, record its SHA-256 '
-            'in _pendingPinUpdate above.',
-      );
+      expect(actual, script.sha256);
     });
 
     // The checksum is compared with the pinned commit's bytes, not the
@@ -140,19 +98,15 @@ void main() {
     });
   }
 
-  test('the install command checks, then installs on the given port', () {
+  test('install uses the official pinned OpenCode 2 package directly', () {
     final command = HostScripts.install(4747);
-    expect(command, startsWith(HostScripts.ubuntu.verifiedDownload));
     expect(
       command,
-      endsWith('&&\nOPENCODE_PORT=4747 bash ubuntu-opencode.sh install'),
+      'npm install -g @opencode/cli@2.0.29 &&\n'
+      'opencode2 serve --hostname 127.0.0.1 --port 4747',
     );
-    // Every line but the last ends the chain with && (or continues with \),
-    // so a pasted block stops at the first failure.
-    final lines = command.split('\n');
-    for (final line in lines.take(lines.length - 1)) {
-      expect(line, anyOf(endsWith('&&'), endsWith(r'\')), reason: line);
-    }
+    expect(command, isNot(contains('ubuntu-opencode.sh')));
+    expect(command, isNot(contains('opencode-ai')));
   });
 
   test('the front command checks, then runs the checked copy', () {
@@ -164,7 +118,7 @@ void main() {
 
   test('the guides show the same pinned, checked commands', () {
     final ubuntu = File('docs/ubuntu-host.md').readAsStringSync();
-    expect(ubuntu, contains(HostScripts.ubuntu.verifiedDownload));
+    expect(ubuntu, contains(HostScripts.install(4096)));
     final team = File('docs/ai-team-host.md').readAsStringSync();
     expect(team, contains(HostScripts.front.verifiedDownload));
     for (final guide in [ubuntu, team]) {
@@ -173,17 +127,8 @@ void main() {
     }
   });
 
-  test('the pending update is still waiting for a published commit', () {
-    // An entry here means the app's pin is behind the repository. Once the
-    // pin moves, the checkout test above insists the entry goes.
-    for (final MapEntry(key: path, value: sha) in _pendingPinUpdate.entries) {
-      expect(_scripts.values.map((s) => s.path), contains(path));
-      expect(sha, matches(RegExp(r'^[0-9a-f]{64}$')));
-    }
-  });
-
   test('the repository script installs a pinned, checked OpenCode', () {
-    final text = File(HostScripts.ubuntu.path).readAsStringSync();
+    final text = File('scripts/host/ubuntu-opencode.sh').readAsStringSync();
     // No installer piped into a shell, and no unpinned self-upgrade.
     expect(_pipedToShell.hasMatch(text), isFalse);
     expect(text, isNot(contains('opencode.ai/install')));

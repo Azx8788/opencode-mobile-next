@@ -326,7 +326,15 @@ extension _ConnectionControllerLifecycleImpl on ConnectionController {
     _retireTransport();
     _connectedProfile = profile;
     _syncOrchestration(profile);
-    final pair = _buildTransportPair(profile);
+    final ({ServerGateway gateway, ServerOperationsGateway operations}) pair;
+    try {
+      pair = _buildTransportPair(profile);
+    } catch (error) {
+      // No transport could be built (an agent helper's host was replaced):
+      // a failed attempt with its reason, never a silent missing link.
+      _failCurrentConnection('Cannot reach ${profile.baseUrl}', failure: error);
+      return false;
+    }
     final currentApi = pair.gateway
       ..setLocation(directory: directory, workspace: workspace);
     final currentRepository = pair.operations
@@ -545,6 +553,8 @@ extension _ConnectionControllerLifecycleImpl on ConnectionController {
     _openTurns.clear();
     _widgetTasks.clear();
     _widgetRunMarkers.clear();
+    _widgetReplyPreviews.clear();
+    _widgetAssistantMessages.clear();
     observedCompletedMessageIDs.clear();
     retryStates = {};
     permissions = {};

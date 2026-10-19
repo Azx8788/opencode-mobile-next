@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
 import 'package:opencode_mobile/api2/events.dart';
 import 'package:opencode_mobile/api2/gateway.dart';
 import 'package:opencode_mobile/api2/gateway_events.dart';
@@ -41,7 +41,7 @@ class _Store extends ProfileStore {
   String get activeId => currentID;
 }
 
-class _SearchApi extends OpenCodeApi
+class _SearchApi extends FakeServerGateway
     with CompleteMessageHistory
     implements WebSearchGateway {
   _SearchApi() : super(baseUrl: 'http://localhost');
@@ -545,7 +545,7 @@ void main() {
       final pending = Completer<WebSearchResponse>();
       api.answer = () => pending.future;
       final request = overview.search('docs');
-      controller.api = OpenCodeApi(baseUrl: 'http://localhost');
+      controller.api = FakeServerGateway(baseUrl: 'http://localhost');
       pending.complete(
         const WebSearchResponse(
           providerID: 'one',

@@ -20,6 +20,9 @@ mixin _ConnectionControllerSurfaces on ChangeNotifier {
   Object? _widgetScopeIdentity;
   String _widgetScope = '';
   final Map<String, String> _widgetRunMarkers = {};
+  // Display only: one bounded reply and current assistant identity per session.
+  final Map<String, String> _widgetReplyPreviews = {};
+  final Map<String, String> _widgetAssistantMessages = {};
   WidgetActionResult? _widgetActionResult;
   final Map<String, WidgetActionResult> _widgetActionResults = {};
   final Set<String> _widgetActionsInFlight = {};

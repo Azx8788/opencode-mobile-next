@@ -214,6 +214,9 @@ extension _SetupEngineStart on ChannelSetupEngine {
     return {
       ...base,
       'script': withSetupPrelude(component.installScript),
+      // An interrupted step runs again by itself (SetupStepRetry.kt); its
+      // row says so in the person's language.
+      'labels': {'retry': l10n.phoneSetupStageRetrying},
       if (component.agentUser) 'agentUser': true,
     };
   }
@@ -221,16 +224,19 @@ extension _SetupEngineStart on ChannelSetupEngine {
   /// Checks [job]'s components: the Linux base by asking Android whether
   /// it is installed, the rest in one proot run. Nothing inside Ubuntu can
   /// pass before Ubuntu is there.
-  Future<Map<String, SetupCheckResult>> _check(List<SetupComponent> job) =>
-      PerfTrace.span(
-        'setup.check',
-        () => _checkUntraced(job),
-        attrs: {'components': job.length},
-      );
+  Future<Map<String, SetupCheckResult>> _check(
+    List<SetupComponent> job, {
+    bool requireComplete = false,
+  }) => PerfTrace.span(
+    'setup.check',
+    () => _checkUntraced(job, requireComplete: requireComplete),
+    attrs: {'components': job.length},
+  );
 
   Future<Map<String, SetupCheckResult>> _checkUntraced(
-    List<SetupComponent> job,
-  ) async {
+    List<SetupComponent> job, {
+    required bool requireComplete,
+  }) async {
     // App-side components do not live in Linux: asked even before it is
     // there.
     final apps = await _checkApps(job);
@@ -252,9 +258,21 @@ extension _SetupEngineStart on ChannelSetupEngine {
         final run = agentUser
             ? await _linux.runAgentSetupCheck(script)
             : await _linux.run(script, timeout: const Duration(minutes: 2));
-        results.addAll(parseCombinedChecks(run.output));
+        final checks = parseCombinedChecks(run.output);
+        if (requireComplete &&
+            (!run.ok || scripts.keys.any((id) => !checks.containsKey(id)))) {
+          // A timed-out/truncated probe is not evidence of missing tools.
+          throw const BuiltinLinuxException(
+            'Installed tools could not be checked. Try again.',
+          );
+        }
+        results.addAll(checks);
       } on BuiltinLinuxException catch (error) {
-        if (!agentUser || _isRuntimeOwnershipFailure(error)) rethrow;
+        if (requireComplete ||
+            !agentUser ||
+            _isRuntimeOwnershipFailure(error)) {
+          rethrow;
+        }
         // The first agent install has not created oc yet. Its root bootstrap
         // precedes these components; missing checks leave them pending.
       }

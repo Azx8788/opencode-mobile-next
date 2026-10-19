@@ -1,0 +1,14 @@
+claude: 2.1.296 (Claude Code)
+1. Signed in from the Terminal (su oc -c claude): ~/.claude/.credentials.json
+   terminal: loggedIn=True configDirectory=/home/oc/.claude
+   app (every app launch before the fix): loggedIn=False configDirectory=/home/oc/.oc-profiles/p1/claude
+2. The fixed app prepares the folder before it launches Claude
+   prepare: [CREDENTIALS_ADOPTED, FILES_ADOPTED, LINKED]
+   app: loggedIn=True configDirectory=/home/oc/.oc-profiles/p1/claude
+   terminal: loggedIn=True configDirectory=/home/oc/.claude
+   ~/.claude -> .oc-profiles/p1/claude
+3. Sign out with the app's environment
+   app: loggedIn=False configDirectory=/home/oc/.oc-profiles/p1/claude
+   terminal: loggedIn=False configDirectory=/home/oc/.claude
+   kept: /home/oc/.claude.before-app/.credentials.json
+   second prepare: []

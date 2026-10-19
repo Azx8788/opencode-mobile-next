@@ -1,4 +1,4 @@
-import '../api/models.dart' show MessageErrorKind;
+import '../domain/models.dart' show MessageErrorKind;
 
 /// Whether a `session.error` event's `error` reports the person's own Stop
 /// (OpenCode's `MessageAbortedError`, v1 `name` or v2 `type`), not a

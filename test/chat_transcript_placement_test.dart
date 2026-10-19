@@ -1,18 +1,19 @@
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'support/complete_message_history.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:opencode_mobile/ui/screens/chat_screen.dart';
 import 'package:opencode_mobile/ui/kit/kit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class _TranscriptApi extends OpenCodeApi with CompleteMessageHistory {
+class _TranscriptApi extends FakeServerGateway with CompleteMessageHistory {
   _TranscriptApi(this.transcript) : super(baseUrl: 'http://localhost');
 
   final List<MessageWithParts> transcript;
@@ -420,6 +421,27 @@ void main() {
     expect(find.textContaining('<shell'), findsNothing);
     // The output waits behind a tap of its own.
     expect(find.byKey(const Key('background-shell-output')), findsNothing);
+  });
+
+  testWidgets('a placeholder thought never labels the step after it', (
+    tester,
+  ) async {
+    for (final placeholder in const [
+      'No reasoning available.',
+      'no reasoning available',
+    ]) {
+      await _pump(tester, [
+        _message('u1', 'user', [_text('u1-t', 'Go')], created: 1),
+        _message('a1', 'assistant', [
+          Part(id: 'r1', type: 'reasoning', text: placeholder),
+          tool('t1', 'bash'),
+        ], created: 2),
+      ]);
+      await tester.pumpAndSettle();
+      expect(find.textContaining('reasoning available'), findsNothing);
+      expect(find.textContaining('No reasoning'), findsNothing);
+      expect(find.byKey(const Key('assistant-reasoning-block')), findsNothing);
+    }
   });
 
   testWidgets('a thought titles its step and explains itself inside it', (

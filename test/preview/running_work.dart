@@ -20,6 +20,7 @@ Future<void> main() async {
       {
         'id': 'visual-fixture',
         'name': 'Visual fixture',
+        'flavor': 'v2',
         'baseUrl': 'http://localhost',
         'username': '',
       },

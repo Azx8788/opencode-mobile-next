@@ -45,7 +45,12 @@ void main() {
     SharedPreferences.setMockInitialValues({
       'oc.profiles': jsonEncode([
         for (final id in ['a', 'b', 'c'])
-          {'id': id, 'name': id, 'baseUrl': 'http://192.168.1.2:4096'},
+          {
+            'id': id,
+            'name': id,
+            'flavor': 'v2',
+            'baseUrl': 'http://192.168.1.2:4096',
+          },
       ]),
       'oc.activeProfile': 'b',
       'oc.sharedProjects.a': ['/storage/emulated/0/CodeAnything'],
@@ -56,6 +61,7 @@ void main() {
     for (final channel in const [
       MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
       MethodChannel('oc/background'),
+      MethodChannel('oc/scheduled_prompts'),
     ]) {
       messenger.setMockMethodCallHandler(channel, (_) async => null);
       addTearDown(() => messenger.setMockMethodCallHandler(channel, null));

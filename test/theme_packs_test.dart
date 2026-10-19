@@ -27,7 +27,8 @@ void main() {
     expect(dark.colorScheme.surface, const Color(0xFF0B0C0E));
     expect(dark.colorScheme.onSurface, const Color(0xFFF3F3F1));
     expect(dark.colorScheme.surfaceContainerLow, const Color(0xFF141518));
-    expect(dark.colorScheme.error, const Color(0xFFFF7A7A));
+    // Never red: Material's error role is the neutral ink.
+    expect(dark.colorScheme.error, const Color(0xFFF3F3F1));
     expect(dark.scaffoldBackgroundColor, const Color(0xFF0B0C0E));
     expect(AppTheme.successOf(dark), const Color(0xFF3DDC8A));
 

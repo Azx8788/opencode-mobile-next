@@ -1,0 +1,3 @@
+Observed stdout transcribed from the final completed tool invocation; not a new run.
+
+Scheduled Android source compile passed (existing app boundaries stubbed).

@@ -89,7 +89,7 @@ class _StubbornLease implements AgentSignInForegroundLease {
   final _StubbornForeground owner;
   // As in FakeSignInForeground: an explicit asynchronous onCancel keeps the
   // subscription's cancel future inside the widget test's zone.
-  final _lost = StreamController<void>(
+  final _lost = StreamController<AgentSignInForegroundException>(
     sync: true,
     onCancel: () => Future<void>.value(),
   );
@@ -101,7 +101,7 @@ class _StubbornLease implements AgentSignInForegroundLease {
   bool get active => true;
 
   @override
-  Stream<void> get lost => _lost.stream;
+  Stream<AgentSignInForegroundException> get lost => _lost.stream;
 
   @override
   Future<void> release() async {

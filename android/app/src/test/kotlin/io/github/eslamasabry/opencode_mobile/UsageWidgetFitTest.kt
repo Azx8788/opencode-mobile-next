@@ -34,9 +34,15 @@ class UsageWidgetFitTest {
         assertEquals(listOf(1, 2), picked.map { it.index })
     }
 
-    @Test fun aRowThatNeedsAFixOutranksLowNumbers() {
+    @Test fun setupStillFitsWhenThereIsNoRoomForNumbers() {
         val plans = listOf(numbers(5), fix())
         val picked = UsageWidgetFit.pick(plans, 50 + 6 + UsageWidgetFit.SETUP_DP, 6)
+        assertEquals(listOf(1), picked.map { it.index })
+    }
+
+    @Test fun compactDefaultShowsAvailableNumbersBeforeSetupRows() {
+        val plans = listOf(fix(), numbers(62))
+        val picked = UsageWidgetFit.pick(plans, 110, 6)
         assertEquals(listOf(1), picked.map { it.index })
     }
 

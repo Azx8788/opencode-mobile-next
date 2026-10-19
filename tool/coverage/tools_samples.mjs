@@ -9,7 +9,7 @@ import { toolsFamilies } from './families/tools_area.mjs';
 const outDir = process.argv[2] ?? 'test/fixtures/coverage';
 const protocol = process.argv[3] ?? '/home/eslam/node_modules/@getpaseo/protocol/dist/messages.js';
 const protocolMessages = await import(pathToFileURL(protocol).href);
-const families = toolsFamilies({ oc1File: 'contracts/opencode-openapi-f12e14cf.json', protocolMessages });
+const families = toolsFamilies({ oc2File: 'contracts/opencode2-openapi-beta-18600.json', protocolMessages });
 const problems = [];
 for (const [name, family] of Object.entries(families)) {
   finishFamily({ name, outDir, schema: family.schema, cases: family.cases, problems, source: family.source, writeFileSync, mkdirSync, excluded: family.excluded ?? {} });
@@ -28,11 +28,11 @@ for (const [name, family] of Object.entries(families)) {
 // command): each needs a decision in tools_actions_ledger.json.
 {
   const fs = await import('node:fs');
-  const oc1 = JSON.parse(fs.readFileSync('contracts/opencode-openapi-f12e14cf.json', 'utf8'));
+  const oc2 = JSON.parse(fs.readFileSync('contracts/opencode2-openapi-beta-18600.json', 'utf8'));
   const wire = [];
-  for (const [path, ops] of Object.entries(oc1.paths)) {
-    if (!/^\/(mcp|config$|global\/config$)|^\/session\/\{sessionID\}\/command$/.test(path)) continue;
-    for (const method of Object.keys(ops)) if (method !== 'get') wire.push(`oc1 ${method.toUpperCase()} ${path}`);
+  for (const [path, ops] of Object.entries(oc2.paths)) {
+    if (!/^\/api\/(mcp|experimental\/config$)|^\/api\/session\/\{sessionID\}\/command$/.test(path)) continue;
+    for (const method of Object.keys(ops)) if (method !== 'get') wire.push(`oc2 ${method.toUpperCase()} ${path}`);
   }
   for (const value of Object.values(protocolMessages)) {
     const shape = value?._zod?.def?.shape;
@@ -40,7 +40,7 @@ for (const [name, family] of Object.entries(families)) {
     if (typeof type === 'string' && /^(agent\.config\.apply\.request|plugin\.(enable|disable|remove|reload|rpc\.invoke|directory\.install|source\.install|source\.update|source\.update\.apply|source\.update\.request)\.request|plugin\.source\.update\.apply\.request)$/.test(type)) wire.push(`paseo ${type}`);
   }
   wire.sort();
-  fs.writeFileSync(`${outDir}/tools_actions_samples.json`, JSON.stringify({ source: 'contracts/opencode-openapi-f12e14cf.json, @getpaseo/protocol messages.js', wire: [...new Set(wire)] }, null, 2));
+  fs.writeFileSync(`${outDir}/tools_actions_samples.json`, JSON.stringify({ source: 'contracts/opencode2-openapi-beta-18600.json, @getpaseo/protocol messages.js', wire: [...new Set(wire)] }, null, 2));
   console.log(`tools_actions: ${new Set(wire).size} mutating calls`);
 }
 if (problems.length) {

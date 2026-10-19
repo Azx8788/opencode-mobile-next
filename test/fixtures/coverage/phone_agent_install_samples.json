@@ -15,6 +15,14 @@
         "kind": "string"
       },
       {
+        "path": "downloadedBytes",
+        "kind": "number"
+      },
+      {
+        "path": "totalBytes",
+        "kind": "number"
+      },
+      {
         "path": "failure",
         "kind": "enum"
       }
@@ -30,7 +38,9 @@
         "progress": {
           "phase": "installing",
           "fraction": 0.4,
-          "componentId": "linux"
+          "componentId": "linux",
+          "downloadedBytes": 40000000,
+          "totalBytes": 100000000
         }
       },
       "fields": [
@@ -39,7 +49,7 @@
           "path": "phase",
           "kind": "enum",
           "probes": [
-            "Installing Codex"
+            "Downloading Codex"
           ],
           "primary": false
         },
@@ -47,9 +57,7 @@
           "key": "progress.fraction",
           "path": "fraction",
           "kind": "number",
-          "probes": [
-            "[bar 40%]"
-          ],
+          "probes": [],
           "primary": false
         },
         {
@@ -57,6 +65,25 @@
           "path": "componentId",
           "kind": "string",
           "probes": [],
+          "primary": false
+        },
+        {
+          "key": "progress.downloadedBytes",
+          "path": "downloadedBytes",
+          "kind": "number",
+          "probes": [
+            "[bar 40%]",
+            "40 MB"
+          ],
+          "primary": false
+        },
+        {
+          "key": "progress.totalBytes",
+          "path": "totalBytes",
+          "kind": "number",
+          "probes": [
+            "100 MB"
+          ],
           "primary": false
         }
       ]

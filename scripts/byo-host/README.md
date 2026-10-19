@@ -136,7 +136,7 @@ served; no phone token is sent to OpenCode. Upstream passwords are not persisted
 Every request, including WebSocket upgrades, requires HTTP Basic with username
 `deviceId` (= profile ID), password phone token, over the app's tailnet SSH forward.
 The supervisor replaces Authorization with its own internal upstream credential.
-Standard REST verbs and `/event` SSE stream transparently; bounded request bodies
+Standard REST verbs and `/api/event` SSE stream transparently; bounded request bodies
 use Content-Length, ambiguous/chunked request framing is refused. PTY WebSocket
 `GET /pty/{id}/connect` is a verified RFC6455 handshake plus opaque bidirectional
 relay; unknown/malformed upgrades are refused. Revocation closes REST/SSE/PTY
@@ -199,11 +199,9 @@ The builder verifies SHA-256 before reading only `package/bin/opencode` and
 `package/package.json`, checks the package version/name and ELF architecture,
 and emits bundle **2.0.0**. No upstream executable is run during packaging.
 
-Historical published bundle **1.1.0 / OC1 1.18.32** remains in `legacyBundles`
-and the compiled app-version manifest. New OC2 builds have no reviewed app-version
-publication pins yet. They must not masquerade as those historical bytes. The app
-continues to return no bundle for unreviewed app versions; publishing/repointing
-is an owner release action, separate from this source/default change.
+OpenCode 1 bundle installation is removed. OpenCode 2 builds have no reviewed
+app-version publication pins yet. The app returns no bundle until reviewed
+OpenCode 2 bytes are published; publishing is a separate owner release action.
 
 ```sh
 python3 scripts/byo-host/build_release.py build \

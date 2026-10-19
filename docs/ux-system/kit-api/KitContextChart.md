@@ -19,7 +19,7 @@ const KitContextChart({
 const KitContextBar({required double fraction, bool compactedBefore = false});
 ```
 
-Fewer than two bars draw nothing. Older bars: `text3` under 70 %, `attention` to 94 %, `danger` from 95 %; the newest bar always shows its level's strong colour (accent while calm). The dashed line and its "80 %" label use `attention`. Semantics: "Context after each of N replies, the newest at P %". The chart mirrors under right-to-left.
+Fewer than two bars draw nothing. Older bars: `text3` under 70 %, `attention` to 94 %, the strong neutral (`text1`) from 95 %; the newest bar always shows its level's strong colour (accent while calm). The dashed line and its "80 %" label use `attention`. Semantics: "Context after each of N replies, the newest at P %". The chart mirrors under right-to-left.
 
 ## States
 

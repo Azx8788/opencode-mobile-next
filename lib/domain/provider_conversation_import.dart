@@ -2,7 +2,7 @@
 /// computer) that this server can bring into its own list. Protocol-neutral.
 library;
 
-import '../api/models.dart' show Session;
+import '../domain/models.dart' show Session;
 
 /// One conversation that can be imported. Its [handle] is the agent's own
 /// reference to it: kept for the import call, never shown.

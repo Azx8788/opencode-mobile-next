@@ -231,7 +231,6 @@ extension _ConnectionControllerCatalogImpl on ConnectionController {
       return cause != null && _v2NotFound(cause);
     }
     if (error is ApiException) return missing(error.statusCode);
-    if (error is sdk.OpenCodeApiException) return missing(error.statusCode);
     try {
       final response = (error as dynamic).response;
       final status = response?.statusCode;

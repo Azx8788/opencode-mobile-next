@@ -12,7 +12,7 @@
     "/this-phone"
    ],
    "line": 61,
-   "purpose": "This phone (programme P1.5): OpenCode on this phone, inside the app or in Termux, on one host-neutral page. One list ordered by urgency: the status row with the one act it needs now (set up, start, connect, finish a half-done switch, show progress) and Stop, then update, switch between OpenCode 1 and 2, add tools, what is installed, storage, what runs, restart after a crash (Termux), keep running, the server log, a terminal (in app) and Remove last (in app). Replaces the Termux wizard (termux-setup-*) and the in-app four-step page (builtin-server-setup), slice P1.3/P1.5 (2026-09-27).",
+   "purpose": "Manage OpenCode 2 on this phone, inside the app or in Termux: set up, start, connect, recover an unfinished automatic upgrade, update, add tools, inspect logs and storage, and remove the managed server. Upgrading a managed OpenCode 1 server preserves its original data; choosing OpenCode 1 is no longer offered.",
    "reachedFrom": [],
    "gates": [
     "main.dart registers /this-phone only when platformCapabilities.supportsTermux",
@@ -71,31 +71,15 @@
     {
      "id": "termux-setup-installed-switch-retry",
      "type": "button",
-     "label": "Try {runtime} again",
+     "label": "Try OpenCode 2 again",
      "key": "this-phone-switch-retry",
-     "line": 453,
+     "line": 879,
      "action": "navigate",
      "target": "phone-setup-progress",
      "targetWidget": "openPhoneSetupTermux",
-     "effect": "A half-done Termux switch: openPhoneSetupTermux(job: switchRuntime, target: switchTarget).",
+     "effect": "Retry an unfinished automatic move to OpenCode 2 through openPhoneSetupTermux. The old history remains preserved on disk.",
      "gates": [
-      "host.state == attention && host.switchTarget != null (Termux only)"
-     ],
-     "destructive": false,
-     "file": "lib/ui/screens/this_phone_screen.dart"
-    },
-    {
-     "id": "termux-setup-installed-switch-return",
-     "type": "button",
-     "label": "Return to {runtime}",
-     "key": "this-phone-switch-return",
-     "line": 465,
-     "action": "navigate",
-     "target": "phone-setup-progress",
-     "targetWidget": "openPhoneSetupTermux",
-     "effect": "openPhoneSetupTermux(job: switchRuntime, target: switchPrevious).",
-     "gates": [
-      "switchPrevious != null && switchPrevious != switchTarget"
+      "host.state == needsYou && host.switchTarget != null (Termux recovery only)"
      ],
      "destructive": false,
      "file": "lib/ui/screens/this_phone_screen.dart"
@@ -111,7 +95,7 @@
      "targetWidget": null,
      "effect": "_start: host.start(l10n) (in app BuiltinServerStarter.start; Termux LocalServerControls.restart), then connects when no other server is in use.",
      "gates": [
-      "host.state in {stopped, attention} and no half-done switch"
+      "host.state in {stopped, needsYou} and no unfinished automatic upgrade"
      ],
      "destructive": false,
      "file": "lib/ui/screens/this_phone_screen.dart"
@@ -160,25 +144,8 @@
      "effect": "_update: in app runPhoneServerAction(update) (SetupEngine.run(opencode) then the progress screen); Termux: alert when conversations are busy, else a showKitConfirm (this-phone-update-confirm, Update) then openPhoneSetupTermux(job: update). Replaces termux-setup-update-sheet.",
      "gates": [
       "installed",
-      "hidden while a switch is half done",
+      "hidden while an automatic upgrade is unfinished",
       "off while starting, stopping or setting up"
-     ],
-     "destructive": false,
-     "file": "lib/ui/screens/this_phone_screen.dart"
-    },
-    {
-     "id": "termux-setup-installed-switch",
-     "type": "list-tile",
-     "label": "Switch to {runtime}",
-     "key": "this-phone-switch",
-     "line": 612,
-     "action": "open-sheet",
-     "target": "termux-setup-switch-runtime-sheet",
-     "targetWidget": "_switchRuntime",
-     "effect": "_switchRuntime(other): the switch question (this-phone-switch-sheet).",
-     "gates": [
-      "installed",
-      "Termux: off with setupSwitchLegacyTwo when an old OpenCode 2 cannot go back"
      ],
      "destructive": false,
      "file": "lib/ui/screens/this_phone_screen.dart"
@@ -362,51 +329,6 @@
      "file": "lib/ui/screens/this_phone_screen.dart"
     }
    ]
-  },
-  {
-   "id": "termux-setup-switch-runtime-sheet",
-   "title": "Switch to {runtime}?",
-   "kind": "sheet",
-   "file": "lib/ui/screens/this_phone_screen.dart",
-   "widget": "_switchRuntime",
-   "presentedBy": [
-    "_switchRuntime"
-   ],
-   "line": 257,
-   "purpose": "This phone's switch question (showKitConfirm): stops this phone's server and running tasks; conversations and credentials stay separate, project files are shared; you can switch back.",
-   "reachedFrom": [],
-   "gates": [],
-   "elements": [
-    {
-     "id": "termux-setup-switch-runtime-sheet-confirm",
-     "type": "button",
-     "label": "Switch version",
-     "key": "this-phone-switch-confirm",
-     "line": 264,
-     "action": "navigate",
-     "target": "phone-setup-progress",
-     "targetWidget": "openPhoneSetupProgress",
-     "effect": "In app: runPhoneServerAction(switchRuntime) re-runs the opencode component with the other runtime and opens the progress screen. Termux: openPhoneSetupTermux(job: switchRuntime, target).",
-     "gates": [],
-     "destructive": true,
-     "file": "lib/ui/screens/this_phone_screen.dart"
-    },
-    {
-     "id": "termux-setup-switch-runtime-sheet-cancel",
-     "type": "button",
-     "label": "Cancel",
-     "key": null,
-     "line": 257,
-     "action": "dismiss",
-     "target": null,
-     "targetWidget": null,
-     "effect": "Closes the question; nothing changes.",
-     "gates": [],
-     "destructive": false,
-     "file": "lib/ui/screens/this_phone_screen.dart"
-    }
-   ],
-   "key": "this-phone-switch-sheet"
   },
   {
    "id": "termux-processes",
@@ -2957,6 +2879,10 @@
   {
    "file": "lib/ui/screens/this_phone/this_phone_details.dart",
    "reason": "Part file of this_phone_screen.dart (same library, same page): the log fold, reply speed, performance values and installed list split out for size; recorded on the This phone page, not a surface of its own."
+  },
+  {
+   "file": "lib/ui/screens/dev_server_logs.dart",
+   "reason": "the body of the logs sheet for a dev server found running (opened from development-services and dev-preview): one showKitSheet around a searchable KitLogPanel; no screen of its own."
   }
  ],
  "notes": [

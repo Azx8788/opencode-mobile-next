@@ -199,10 +199,10 @@ class InAppQuotaCollector {
   }
 
   /// The paths of OpenCode's sign-in file, the profile's own version first.
-  List<String> authCandidates(ServerProfile profile) =>
-      profile.flavor == ServerFlavor.v2
-      ? const [openCode2AuthPath, openCode1AuthPath]
-      : const [openCode1AuthPath, openCode2AuthPath];
+  List<String> authCandidates(ServerProfile profile) => const [
+    openCode2AuthPath,
+    openCode1AuthPath,
+  ];
 
   /// The script the service runs: refresh the key files from OpenCode's
   /// sign-ins, read the file paths it chose, start the collector. Only paths

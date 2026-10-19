@@ -3,11 +3,19 @@
   "schema": {
     "capability": [
       {
+        "path": "phoneTeamExecution",
+        "kind": "boolean"
+      },
+      {
         "path": "genUi",
         "kind": "boolean"
       },
       {
         "path": "sessionAddressHandoff",
+        "kind": "boolean"
+      },
+      {
+        "path": "agentHandoffFiles",
         "kind": "boolean"
       },
       {
@@ -68,6 +76,10 @@
       },
       {
         "path": "promptAgentMentions",
+        "kind": "boolean"
+      },
+      {
+        "path": "promptSteering",
         "kind": "boolean"
       },
       {
@@ -220,6 +232,10 @@
       },
       {
         "path": "sessionArchive",
+        "kind": "boolean"
+      },
+      {
+        "path": "sessionDelete",
         "kind": "boolean"
       },
       {

@@ -6,7 +6,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/ui/app_theme.dart';
 import 'package:opencode_mobile/ui/kit/chat/kit_tool_row.dart';
@@ -411,12 +411,7 @@ void _stateTests() {
       ),
     );
     expect(find.text('12 seconds'), findsNothing);
-    expect(
-      find.byWidgetPredicate(
-        (w) => w is KitStatusMark && w.state == KitMarkState.working,
-      ),
-      findsOneWidget,
-    );
+    expect(find.byKey(const ValueKey('kit-step-light')), findsOneWidget);
   });
 
   testWidgets('a call blocked on the person says Waiting for you, no spinner', (

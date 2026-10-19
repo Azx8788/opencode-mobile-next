@@ -4,9 +4,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/domain/plugin_inventory.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart'
     show StreamStatus, CommandInfo;
@@ -16,7 +16,7 @@ import 'package:opencode_mobile/state/profiles.dart';
 import 'package:opencode_mobile/ui/screens/settings/server_plugins_section.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class _Api extends OpenCodeApi {
+class _Api extends FakeServerGateway {
   _Api(this.supported) : super(baseUrl: 'https://plugins.example');
   final bool supported;
   @override
@@ -65,7 +65,12 @@ Future<ConnectionController> _controller(
 }) async {
   SharedPreferences.setMockInitialValues({
     'oc.profiles': jsonEncode([
-      {'id': 'plugins', 'name': 'Test', 'baseUrl': 'https://plugins.example'},
+      {
+        'id': 'plugins',
+        'name': 'Test',
+        'flavor': 'v2',
+        'baseUrl': 'https://plugins.example',
+      },
     ]),
     'oc.activeProfile': 'plugins',
   });

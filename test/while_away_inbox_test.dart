@@ -4,9 +4,9 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/domain/while_away.dart';
 import 'package:opencode_mobile/state/automatic_activity.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -44,12 +44,14 @@ Future<_Controller> _controller() async {
       {
         'id': 'laptop',
         'name': 'Laptop',
+        'flavor': 'v2',
         'baseUrl': 'http://192.168.1.20:4096',
         'username': '',
       },
       {
         'id': 'studio',
         'name': 'Studio',
+        'flavor': 'v2',
         'baseUrl': 'http://192.168.1.30:4096',
         'username': '',
       },
@@ -99,12 +101,20 @@ void main() {
     for (final channel in const [
       MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
       MethodChannel('oc/background'),
+      MethodChannel('oc/scheduled_prompts'),
     ]) {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(channel, (_) async => null);
     }
   });
-  tearDown(AutomaticActivityController.resetShared);
+  tearDown(() {
+    AutomaticActivityController.resetShared();
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          const MethodChannel('oc/scheduled_prompts'),
+          null,
+        );
+  });
 
   testWidgets('deleting a server drains and removes its history', (
     tester,

@@ -188,7 +188,7 @@ void main() {
       final size = bar.size;
       expect(
         bar,
-        _paintsRect(roles.danger, (rect) => rect == Offset.zero & size),
+        _paintsRect(roles.text1, (rect) => rect == Offset.zero & size),
       );
       final word = tester.widgetList<RichText>(find.byType(RichText)).expand((
         text,
@@ -202,7 +202,7 @@ void main() {
         });
         return spans;
       }).single;
-      expect(word.style?.color, roles.danger);
+      expect(word.style?.color, roles.text1);
     });
 
     testWidgets('an explicit tone never adds the automatic words', (

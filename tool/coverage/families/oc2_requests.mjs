@@ -2,7 +2,7 @@
 // requests (Permission.Request) and forms (Form.Info with its six field
 // types), from contracts/opencode2-openapi-beta-18600.json. A permission's
 // `metadata` is a free object: its keys come from the tools ("permission:
-// metadata"), as in oc1_requests.
+// metadata").
 import { familyBuilder } from '../oc_cases_lib.mjs';
 
 const str = (...paths) => Object.fromEntries(paths.map((p) => [p, { kind: 'string' }]));

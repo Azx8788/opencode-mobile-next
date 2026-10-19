@@ -7,6 +7,8 @@ abstract final class AgentRemovalScripts {
     'codex': 'codex',
     'gemini': 'gemini',
     'qwen': 'qwen',
+    'kilo': 'kilo',
+    'cline': 'cline',
     'goose': 'goose',
     'omp-acp': 'omp',
     'fx': 'fx',
@@ -64,7 +66,7 @@ OC_AGENT_REMOVAL_RECEIPT
 import json, os, pathlib, re, shutil, stat, sys
 agent, executable, version, receipt_id = sys.argv[1:]
 allowed = {'codex': 'codex', 'gemini': 'gemini', 'qwen': 'qwen',
-           'goose': 'goose', 'omp-acp': 'omp', 'fx': 'fx'}
+           'kilo': 'kilo', 'cline': 'cline', 'goose': 'goose', 'omp-acp': 'omp', 'fx': 'fx'}
 if (allowed.get(agent) != executable or
     not re.fullmatch(r'[0-9A-Za-z][0-9A-Za-z._+-]{0,79}', version) or
     not re.fullmatch(r'[a-f0-9]{32}', receipt_id) or

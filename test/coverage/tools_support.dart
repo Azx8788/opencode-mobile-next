@@ -5,9 +5,11 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'package:opencode_mobile/api2/client.dart';
+import 'package:opencode_mobile/api2/gateway_operations.dart';
+import '../support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 
@@ -182,7 +184,7 @@ Future<(ServersStore, ServersConnection)> toolsConnection(
     ],
   );
   controller
-    ..api = OpenCodeApi(baseUrl: 'https://studio.example.net:4096')
+    ..api = FakeServerGateway(baseUrl: 'https://studio.example.net:4097')
     ..repository = repo
     ..selectedModel = ModelRef(providerID: 'anthropic', modelID: 'opus')
     ..status = StreamStatus.connected;
@@ -194,7 +196,7 @@ Future<(ServersStore, ServersConnection)> toolsConnection(
 Future<T> readFromWire<T>(
   WidgetTester tester,
   Map<String, Object?> routes,
-  Future<T> Function(SdkProductRepository repository) read,
+  Future<T> Function(Api2OperationsGateway repository) read,
 ) async {
   final result = await tester.runAsync(
     () => HttpOverrides.runZoned(() async {
@@ -209,14 +211,17 @@ Future<T> readFromWire<T>(
         }
         await request.response.close();
       });
+      final client = Api2Client.connect(
+        baseUrl: 'http://${server.address.host}:${server.port}',
+        password: 'synthetic',
+        directory: '/work/shop',
+        workspace: 'wrk_main',
+      );
       try {
-        final api = OpenCodeApi(
-          baseUrl: 'http://${server.address.host}:${server.port}',
-        );
-        final repository = SdkProductRepository(api.sdkClient)
-          ..setLocation(directory: '/work/shop', workspace: 'wrk_main');
+        final repository = Api2OperationsGateway(client: client);
         return await read(repository);
       } finally {
+        client.close();
         await server.close(force: true);
       }
     }, createHttpClient: (_) => RealHttpOverrides().createHttpClient(null)),

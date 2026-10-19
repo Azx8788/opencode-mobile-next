@@ -95,7 +95,7 @@ void main() {
         id: 'older',
         name: 'My phone',
         baseUrl: TermuxBridge.managedServerUrl,
-        flavor: ServerFlavor.v1,
+        requiresOpenCode2Migration: true,
       ),
     );
     final host = TermuxPhoneHost(

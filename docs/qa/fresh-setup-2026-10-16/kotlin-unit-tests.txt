@@ -1,0 +1,3 @@
+Command: cd android && ./gradlew :app:testReleaseUnitTest --no-daemon (after pinned flutter build apk --release --config-only), machine build lock
+BUILD SUCCESSFUL in 2m 4s
+38 classes: 543 tests, 0 failures, 0 errors, 0 skipped (NativeProcRaceTest 7, SetupStepRetryTest 6)

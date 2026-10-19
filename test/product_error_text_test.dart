@@ -4,8 +4,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/api2/transport.dart';
 import 'package:opencode_mobile/builtin/builtin_linux.dart';
 import 'package:opencode_mobile/domain/product_failure.dart';
@@ -75,10 +75,10 @@ void main() {
     });
 
     for (final status in [400, 422]) {
-      for (final protocol in ['v1', 'v2']) {
+      for (final protocol in ['domain', 'v2']) {
         test('$protocol $status keeps server prose out of the body', () {
           final message = 'Invalid apiKey=auditSyntheticCredential123';
-          final Object error = protocol == 'v1'
+          final Object error = protocol == 'domain'
               ? ApiException(
                   'Send prompt failed (HTTP $status): $message',
                   statusCode: status,
@@ -411,51 +411,6 @@ void main() {
       );
       expect(find.textContaining('upstream answered'), findsNothing);
       expect(find.text('Details'), findsOneWidget);
-    });
-  });
-
-  group('OpenCodeApi.errorBodyDetail', () {
-    test('extracts the message field from a JSON error body string', () {
-      expect(
-        OpenCodeApi.errorBodyDetail(
-          '{"_tag":"InvalidRequestError","message":"Model not found"}',
-        ),
-        'Model not found',
-      );
-    });
-
-    test('extracts the nested data.message field from a decoded map', () {
-      expect(
-        OpenCodeApi.errorBodyDetail({
-          '_tag': 'ProviderAuthError',
-          'data': {'message': 'API key is invalid'},
-        }),
-        'API key is invalid',
-      );
-    });
-
-    test('truncates a non-JSON (HTML) body to about 120 characters', () {
-      final html =
-          '<html><head><title>502 Bad Gateway</title></head>'
-          '<body><h1>502 Bad Gateway</h1>'
-          '<p>${'x' * 300}</p></body></html>';
-      final detail = OpenCodeApi.errorBodyDetail(html)!;
-      expect(detail.length, lessThanOrEqualTo(120));
-      expect(detail, startsWith('<html><head><title>502 Bad Gateway'));
-      expect(detail, endsWith('…'));
-    });
-
-    test('collapses whitespace runs in the extracted detail', () {
-      expect(
-        OpenCodeApi.errorBodyDetail('an\n  indented\n  plain body'),
-        'an indented plain body',
-      );
-    });
-
-    test('returns null for missing or empty bodies', () {
-      expect(OpenCodeApi.errorBodyDetail(null), isNull);
-      expect(OpenCodeApi.errorBodyDetail(''), isNull);
-      expect(OpenCodeApi.errorBodyDetail('   '), isNull);
     });
   });
 }

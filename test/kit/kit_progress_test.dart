@@ -7,6 +7,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../support/no_red.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/ui/app_theme.dart';
 import 'package:opencode_mobile/ui/kit/kit_progress.dart';
@@ -594,7 +595,7 @@ void main() {
       expect(find.byKey(const ValueKey('running-bar')), fill(_roles.accent));
       expect(find.byKey(const ValueKey('stopped-bar')), fill(_roles.text3));
       expect(find.byKey(const ValueKey('failed-bar')), fill(_roles.text1));
-      expect(_roles.text1, isNot(_roles.danger));
+      expect(_roles.text1, isNotRed);
     });
   });
 }

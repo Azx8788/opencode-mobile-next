@@ -3,7 +3,8 @@ package io.github.eslamasabry.opencode_mobile
 /** Pure policy shared by rendering tests. No network, clock or Android state. */
 object WidgetV2Policy {
     const val BACKGROUND_SETTINGS_ACTION = "background_settings"
-    enum class Size { COMPACT, CARD, LIST }
+    /** TINY 2x1, STRIP 4x1, CARD 2x2, WIDE 4x2, LIST 4x4 and taller. */
+    enum class Size { TINY, STRIP, CARD, WIDE, LIST }
     enum class Connection { CONNECTED, ON_DEMAND, PENDING, OFFLINE, BACKGROUND_SETTINGS }
 
     private val onDemandActions = setOf("allowOnce", "reject", "stop", "approvePlan", "resume")
@@ -30,13 +31,11 @@ object WidgetV2Policy {
         }
     }
 
-    fun onDemandAvailable(
-        version: Int,
-        hasDescriptor: Boolean,
-        advertisedActions: Set<String>,
-        validActions: Set<String>,
-    ): Boolean = version == 2 && hasDescriptor &&
-        advertisedActions.any { it in onDemandActions && it in validActions }
+    /** Connection presentation survives settlement of the last action. An idle
+     * conversation has no buttons, but its saved target still supports on-demand
+     * connections. Actual controls remain gated separately by actionEnabled. */
+    fun onDemandAvailable(version: Int, hasDescriptor: Boolean): Boolean =
+        version == 2 && hasDescriptor
 
     fun actionEnabled(
         connection: Connection,

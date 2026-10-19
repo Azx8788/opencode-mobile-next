@@ -1,3 +1,4 @@
+import 'support/fake_server_capabilities.dart';
 // Search inside files (Files › search filter › Text in files): the result
 // rows, the tap that opens the file at the line, and the servers that cannot
 // do it. Pictures for the look gate: build/coverage/od-paseo-text-*.png.
@@ -7,8 +8,8 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -20,7 +21,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../tool/capture/fixtures.dart' show loadCaptureFonts;
 import 'goldens/kit/kit_gallery.dart' show loadKitGalleryFonts;
 
-class _Api extends OpenCodeApi {
+class _Api extends FakeServerGateway {
   _Api(this._caps) : super(baseUrl: 'http://localhost');
 
   final ServerCapabilities _caps;
@@ -123,7 +124,7 @@ void main() {
     tester,
   ) async {
     _phone(tester);
-    final api = _Api(ServerCapabilities.allV1);
+    final api = _Api(testServerCapabilities);
     final controller = await _controller(api);
     addTearDown(controller.dispose);
     await tester.pumpWidget(_app(FilesScreen(controller: controller)));
@@ -139,7 +140,7 @@ void main() {
     tester,
   ) async {
     _phone(tester);
-    final api = _Api(ServerCapabilities.allV1)
+    final api = _Api(testServerCapabilities)
       ..matches = [
         FindMatch(
           path: 'lib/cart_total.dart',
@@ -167,7 +168,7 @@ void main() {
 
   testWidgets('tapping a result opens that file at its line', (tester) async {
     _phone(tester);
-    final api = _Api(ServerCapabilities.allV1)
+    final api = _Api(testServerCapabilities)
       ..matches = [
         FindMatch(
           path: 'lib/cart_total.dart',
@@ -196,7 +197,7 @@ void main() {
     tester,
   ) async {
     _phone(tester);
-    final api = _Api(ServerCapabilities.allV1);
+    final api = _Api(testServerCapabilities);
     final controller = await _controller(api);
     addTearDown(controller.dispose);
     await tester.pumpWidget(_app(FilesScreen(controller: controller)));
@@ -215,7 +216,7 @@ void main() {
 
   testWidgets('a long result list is capped and says so', (tester) async {
     _phone(tester);
-    final api = _Api(ServerCapabilities.allV1)
+    final api = _Api(testServerCapabilities)
       ..matches = [
         for (var i = 1; i <= 260; i++)
           FindMatch(path: 'lib/f$i.dart', lineNumber: i, snippet: 'match $i'),
@@ -256,7 +257,7 @@ void main() {
     tester,
   ) async {
     _phone(tester);
-    final api = _Api(ServerCapabilities.allV1)
+    final api = _Api(testServerCapabilities)
       ..matches = [
         FindMatch(
           path: 'lib/cart_total.dart',

@@ -1,0 +1,23 @@
+{
+  "scratch_only": true,
+  "port": 4097,
+  "version": "2.0.29",
+  "info_status": 200,
+  "create_session": 200,
+  "revert_commit_status": 204,
+  "integrations_status": 200,
+  "openai_oauth_methods": [
+    "chatgpt-token-sharing",
+    "chatgpt-browser",
+    "chatgpt-headless"
+  ],
+  "oauth_start_status": 200,
+  "oauth_has_url": true,
+  "oauth_has_instructions": true,
+  "oauth_mode": "auto",
+  "oauth_poll_status": 200,
+  "oauth_poll_state": "pending",
+  "oauth_cancel_status": 204,
+  "delete_scratch_session": 204,
+  "server_stopped": true
+}

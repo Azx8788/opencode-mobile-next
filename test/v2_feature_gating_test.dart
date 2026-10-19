@@ -1,7 +1,7 @@
 /// The §7 feature-gating contract (`docs/opencode2-ui-design.md`).
 ///
 /// Every case is paired: the same screen is pumped against a connection
-/// reporting [ServerCapabilities.allV1] and against one reporting
+/// reporting [testServerCapabilities] and against one reporting
 /// [api2ServerCapabilities]. The v1 half is the regression bar — a v1 server
 /// must see exactly what it saw before this layer existed — and the v2 half
 /// asserts the locked treatment for that surface class:
@@ -12,15 +12,17 @@
 /// - v2-only features on a v1 server: **hidden**, no explainer
 library;
 
+import 'support/fake_server_capabilities.dart';
+
 import 'support/complete_message_history.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/api2/gateway_mappers.dart'
     show api2ServerCapabilities;
 import 'package:opencode_mobile/l10n/app_localizations.dart';
@@ -36,8 +38,8 @@ import 'package:opencode_mobile/ui/screens/tools_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// A transport that speaks v1 and reports the v1 superset, like today's
-/// [OpenCodeApi].
-class _V1Api extends OpenCodeApi with CompleteMessageHistory {
+/// [FakeServerGateway].
+class _V1Api extends FakeServerGateway with CompleteMessageHistory {
   _V1Api() : super(baseUrl: 'http://localhost');
 
   @override
@@ -223,19 +225,25 @@ void main() {
   });
 
   group('the accessor reports transport truth', () {
-    test('an unattached controller reports the v1 superset', () async {
-      SharedPreferences.setMockInitialValues({});
-      final preferences = await SharedPreferences.getInstance();
-      final controller = ConnectionController(ProfileStore(prefs: preferences));
-      addTearDown(controller.dispose);
+    test(
+      'an unattached controller uses conservative supported defaults',
+      () async {
+        SharedPreferences.setMockInitialValues({});
+        final preferences = await SharedPreferences.getInstance();
+        final controller = ConnectionController(
+          ProfileStore(prefs: preferences),
+        );
+        addTearDown(controller.dispose);
 
-      // Nothing may vanish while a connection is still being made.
-      expect(controller.capabilities.sessionShare, isTrue);
-      expect(controller.capabilities.toolInventory, isTrue);
-      // v2-only flags stay off until a v2 transport says otherwise.
-      expect(controller.capabilities.forms, isFalse);
-      expect(controller.capabilities.inbox, isFalse);
-    });
+        // Unsupported legacy features stay unavailable before connecting.
+        expect(controller.capabilities.sessionShare, isFalse);
+        expect(controller.capabilities.toolInventory, isFalse);
+        expect(controller.capabilities.mcpOAuth, isFalse);
+        expect(controller.capabilities.providerRuntimeRefresh, isFalse);
+        expect(controller.capabilities.forms, api2ServerCapabilities.forms);
+        expect(controller.capabilities.inbox, api2ServerCapabilities.inbox);
+      },
+    );
 
     test('an attached v2 gateway narrows the flags', () async {
       final controller = await _controller(v2: true);

@@ -13,7 +13,62 @@ fun main(args: Array<String>) {
     val linux = BuiltinLinux(HostSpaceFile(dir.path, if (low) 1L else 2_000_000_000L))
     val host = PhoneAgentHost(linux)
     try {
-        if (args.single() == "partial-inventory") {
+        if (args.single().startsWith("helper-")) {
+            val scenario = args.single()
+            host.start("qa", "a".repeat(64), 4099, "{}", "0.9.2", true)
+            check(host.status("qa")["helperVersion"] == "0.9.2")
+            when (scenario) {
+                "helper-version-restart" -> {
+                    linux.helperVersion = "0.11.2"
+                    val updated = host.start("qa", "a".repeat(64), 4099, "{}", "0.11.2", true)
+                    check(updated["running"] == true && updated["helperVersion"] == "0.11.2")
+                    check(linux.launches == 2 && linux.daemonStops == 1)
+                    host.start("qa", "a".repeat(64), 4099, "{}", "0.11.2", true)
+                    check(linux.launches == 2 && linux.versionCalls == 2 && linux.daemonStops == 1)
+                    check(host.prepareUpdate("qa")["ready"] == true)
+                }
+                "helper-invalid-update" -> {
+                    val failure = runCatching { host.start("qa", "a".repeat(64), 4099, "{}", "0.11.2", true) }.exceptionOrNull()
+                    check(failure is PhoneAgentHost.Failure && failure.code == "helper_update_required")
+                    check(host.status("qa")["running"] == true && host.status("qa")["helperVersion"] == "0.9.2")
+                    check(linux.launches == 1 && linux.daemonStops == 0)
+                }
+                "helper-busy-update", "helper-unowned-update" -> {
+                    linux.helperVersion = "0.11.2"
+                    linux.otherPrivateProcess = scenario == "helper-busy-update"
+                    linux.unowned = scenario == "helper-unowned-update"
+                    val expected = if (linux.otherPrivateProcess) "agent_host_busy" else "agent_host_unowned"
+                    val failure = runCatching { host.start("qa", "a".repeat(64), 4099, "{}", "0.11.2", true) }.exceptionOrNull()
+                    check(failure is PhoneAgentHost.Failure && failure.code == expected)
+                    val prepareFailure = runCatching { host.prepareUpdate("qa") }.exceptionOrNull()
+                    check(prepareFailure is PhoneAgentHost.Failure && prepareFailure.code == expected)
+                    val stopFailure = runCatching { host.stop("qa", guardedForUpdate = true) }.exceptionOrNull()
+                    check(stopFailure is PhoneAgentHost.Failure && stopFailure.code == expected)
+                    check(host.status("qa")["running"] == true && linux.daemonStops == 0)
+                }
+                "helper-other-profile" -> {
+                    val failure = runCatching { host.start("other", "a".repeat(64), 4099, "{}", "0.11.2", true) }.exceptionOrNull()
+                    check(failure is PhoneAgentHost.Failure && failure.code == "agent_host_unowned")
+                    val prepareFailure = runCatching { host.prepareUpdate("other") }.exceptionOrNull()
+                    check(prepareFailure is PhoneAgentHost.Failure && prepareFailure.code == "agent_host_unowned")
+                    val stopFailure = runCatching { host.stop("other", guardedForUpdate = true) }.exceptionOrNull()
+                    check(stopFailure is PhoneAgentHost.Failure && stopFailure.code == "agent_host_unowned")
+                    check(linux.launches == 1 && linux.daemonStops == 0)
+                }
+                "helper-restart-failure" -> {
+                    linux.helperVersion = "0.11.2"
+                    linux.script = "read password; exit 7"
+                    check(runCatching { host.start("qa", "a".repeat(64), 4099, "{}", "0.11.2", true) }.isFailure)
+                    check(host.status("qa")["running"] == false && host.status("qa")["helperVersion"] == null)
+                    check(linux.daemonStops == 1)
+                }
+                "helper-guarded-stop" -> {
+                    check(host.stop("qa", guardedForUpdate = true)["running"] == false)
+                    check(linux.daemonStops == 1 && host.status("qa")["helperVersion"] == null)
+                }
+                else -> error("Unknown scenario")
+            }
+        } else if (args.single() == "partial-inventory") {
             linux.script = "printf private-version-failure; exit 1"
             val guest = File(linux.rootfs, "home/oc")
             val parent = File(guest, ".local/share/oc-agents").apply { mkdirs() }
@@ -86,6 +141,24 @@ fun main(args: Array<String>) {
             check(failure.message?.contains("private-provider-output") == false)
             check(linux.tracked == 0) { "dead child was tracked as running" }
             check(host.status("qa")["running"] == false)
+        } else if (args.single() == "stale-paseo-lock" || args.single() == "answering-paseo-lock") {
+            // Android killed the last supervisor (an app update, a force stop):
+            // its paseo.pid stays, and Paseo exits at once while that PID names
+            // any live process. The stand-in daemon below does what Paseo does.
+            val paseo = linux.agentPaseoHome("qa").apply { mkdirs() }
+            val lock = File(paseo, "paseo.pid").apply { writeText("{\"pid\":1}") }
+            linux.script = "read password; [ ! -e '${lock.path}' ] || exit 0; exec sleep 10"
+            if (args.single() == "stale-paseo-lock") {
+                val status = host.start("qa", "a".repeat(64), 4099, "{}")
+                check(status["running"] == true) { "a stale lock still stopped the helper" }
+                check(!lock.exists() && linux.launches == 1 && linux.tracked == 1)
+            } else {
+                // Something answers on the helper's port: that lock may be live.
+                linux.portAnswers = true
+                val failure = runCatching { host.start("qa", "a".repeat(64), 4099, "{}") }.exceptionOrNull()
+                check(failure is PhoneAgentHost.Failure && failure.code == "agent_host_exited") { "$failure" }
+                check(lock.exists()) { "a lock that may be live was removed" }
+            }
         } else if (low) {
             val failure = runCatching { host.start("qa", "a".repeat(64), 4099, "{}") }.exceptionOrNull()
             check(failure != null) { "host launched despite low space" }

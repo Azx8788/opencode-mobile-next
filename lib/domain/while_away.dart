@@ -1,4 +1,4 @@
-import '../api/models.dart';
+import '../domain/models.dart';
 import 'return_brief.dart';
 
 /// Completed automatic actions, never requests for the person to answer.

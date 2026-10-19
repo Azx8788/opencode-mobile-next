@@ -9,7 +9,8 @@ import 'package:opencode_mobile/termux/bridge.dart';
 /// The SHA-256 of each is pinned in test/fixtures/termux_script_hashes.json.
 /// The original snapshot at f4308b6e guarded the extraction into scripts/.
 /// The six aiteamVerbScript snapshots also include the reviewed BC1 package
-/// repair checks (77b77fd5) and BC4 update journal helpers (6c84e33d):
+/// repair checks (77b77fd5), BC4 update journal helpers (6c84e33d) and the
+/// repair fallback to apt's offered version (fresh-setup-2026-10-16):
 /// aiteamVerbScript embeds aiteamScript, whose packages part uses
 /// withSetupPrelude. BC2 storage admission and BC3 Paseo checks do not change
 /// these Termux payloads. Unrelated script hashes retain the original snapshot.
@@ -45,10 +46,6 @@ Map<String, String> _scripts() => {
     ),
   'installAndServeScript:default': TermuxBridge.installAndServeScript(
     password: "p'w\$d",
-  ),
-  'installAndServeScript:1': TermuxBridge.installAndServeScript(
-    password: "p'w\$d",
-    runtime: TermuxRuntime.openCode1,
   ),
   'installAndServeScript:2': TermuxBridge.installAndServeScript(
     port: 4100,

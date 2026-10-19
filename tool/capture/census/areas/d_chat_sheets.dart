@@ -4,7 +4,7 @@
 // ignore_for_file: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart' show find;
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/api2/models.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart'
     show PendingQuestion, QuestionChoice, QuestionPrompt, StreamStatus;

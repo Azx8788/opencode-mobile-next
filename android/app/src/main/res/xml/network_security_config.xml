@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
     <!--
-      Plain HTTP is decided in Dart, not here: isLoopbackHost() and
-      isOrchestrationUrlAllowed() (lib/domain/loopback_host.dart,
-      lib/orchestration/adapters/gascity/gascity_probe.dart) accept http://
-      only for this device and for Tailscale addresses (100.64.0.0/10 and
-      *.ts.net). Android cannot express an address range, so the platform
-      policy is opened and the Dart layer stays the gate. Refusing here would
-      fail at connect time with no message the user can act on (that is what
-      happened on 2026-09-11 with the AI Team front at http://100.x:8373).
+      User-entered server hosts are known only at runtime: LAN, Tailscale and
+      public addresses can all be explicitly chosen. Android's static domain
+      configuration cannot scope cleartext permission to those runtime origins
+      or express IP ranges. The base permission is therefore the narrowest
+      platform setting that supports arbitrary user-selected HTTP servers.
+      Dart remains the security boundary: every non-loopback HTTP origin needs
+      explicit, origin-bound per-profile consent before any authenticated
+      request, and the OpenCode 2 transport refuses redirects so consent and
+      credentials cannot cross to a different origin or downgrade silently.
+      Other clients retain their own gates, including isOrchestrationUrlAllowed.
     -->
     <base-config cleartextTrafficPermitted="true" />
 </network-security-config>

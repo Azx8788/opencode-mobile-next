@@ -5,10 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show RenderParagraph;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'support/no_red.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -19,7 +20,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../tool/capture/fixtures.dart' show loadCaptureFonts;
 
-class _Api extends OpenCodeApi {
+class _Api extends FakeServerGateway {
   _Api() : super(baseUrl: 'https://auth-test.example');
   @override
   ServerCapabilities get capabilities => const ServerCapabilities(
@@ -45,7 +46,7 @@ class _Api extends OpenCodeApi {
   Future<List<Map<String, dynamic>>> pendingQuestionsV2() async => [];
 }
 
-class _Events extends EventStream {
+class _Events extends FakeEventChannel {
   _Events({
     required super.api,
     required super.onEvent,
@@ -426,8 +427,8 @@ void main() {
       final span = (word.text as TextSpan).children!
           .whereType<TextSpan>()
           .first;
-      final danger = KitTokens.of(tester.element(row)).roles.danger;
-      expect(span.style?.color, isNot(danger));
+      // No colour of its own inherits the neutral text style.
+      expect(isRedHue(span.style?.color), isFalse);
       expect(find.text('Sign-in waiting', findRichText: true), findsNothing);
       expect(
         find.text('Waiting for approval in the browser', findRichText: true),

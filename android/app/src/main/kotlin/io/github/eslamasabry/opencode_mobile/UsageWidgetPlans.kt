@@ -19,6 +19,32 @@ internal object UsageWidgetPlans {
         return groups.values.toList()
     }
 
+    /** Defaults show measured limits even while the unified feed is empty or
+     * only has setup rows. Once the person saves any widget choices, that feed
+     * is authoritative: never resurrect a hidden plan through the old feed. */
+    fun chooseFeed(
+        subscriptions: List<UsageWidgetRow>?,
+        profiles: List<UsageWidgetRow>,
+        hasSelection: Boolean
+    ): List<UsageWidgetRow> {
+        return when {
+            hasSelection -> subscriptions.orEmpty()
+            subscriptions == null -> profiles
+            subscriptions.any { !it.signInOnly } -> subscriptions
+            else -> withMeasuredProfiles(subscriptions, profiles)
+        }
+    }
+
+    private fun withMeasuredProfiles(
+        subscriptions: List<UsageWidgetRow>,
+        profiles: List<UsageWidgetRow>
+    ): List<UsageWidgetRow> {
+        val measured = profiles.filter { !it.signInOnly }
+        if (measured.isEmpty()) return subscriptions
+        val providers = measured.map { it.provider }.toSet()
+        return measured + subscriptions.filter { it.provider !in providers }
+    }
+
     /** Compact placement shows the tightest window; wide keeps the preferred pair. */
     fun columnRows(plan: List<UsageWidgetRow>, widthDp: Int): List<UsageWidgetRow> {
         val preferred = plan.filter { isPreferred(it) }

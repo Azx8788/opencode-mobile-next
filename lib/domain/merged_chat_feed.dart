@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'chat_feed.dart';
+import 'product_failure.dart';
 import 'server_gateway.dart' show ProductException;
 
 /// Sources belong to one explicit owner context. Names are app-authored copy;
@@ -293,9 +294,17 @@ class MergedChatFeed implements ChatFeedSource, ChatFeedChangeSource {
       }
     } on ProductException {
       rethrow;
-    } catch (_) {
-      throw const ProductException(
+    } catch (error) {
+      // The project's Git can't be read: its own words and its repair, not
+      // "refresh" (the owner's phone, 2026-10-18).
+      if (ProductFailure.from(error).category ==
+          ProductFailureCategory.projectGit) {
+        rethrow;
+      }
+      // The cause rides along for Details and the problem report.
+      throw ProductException(
         'Could not start this chat. Refresh before trying again.',
+        cause: error,
       );
     }
     _named(sourceId); // A late completion after disposal is never actionable.

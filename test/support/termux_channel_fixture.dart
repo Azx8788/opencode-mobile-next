@@ -24,7 +24,7 @@ String termuxSnapshot({
   required String phase,
   String message = 'OpenCode is ready',
   String version = '',
-  TermuxRuntime runtime = TermuxRuntime.openCode1,
+  TermuxRuntime runtime = TermuxRuntime.openCode2,
   String operation = '',
   String extra = '',
   String log = '',
@@ -42,7 +42,7 @@ class TermuxChannelFixture {
   bool bridgeUnlocked = true;
   bool permissionResult = true;
   bool openResult = true;
-  TermuxRuntime runtime = TermuxRuntime.openCode1;
+  TermuxRuntime runtime = TermuxRuntime.openCode2;
 
   /// What `ubuntu=… version=…` inventory answers.
   String inventoryOutput = 'ubuntu=absent\nversion=\n';

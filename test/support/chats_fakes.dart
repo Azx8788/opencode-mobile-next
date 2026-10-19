@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:opencode_mobile/builtin/git_link_repair.dart'
+    show GitRepairActions;
 import 'package:opencode_mobile/builtin/local_terminal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:opencode_mobile/domain/chat_feed.dart';
@@ -194,6 +196,12 @@ class FakeChatsHost implements ChatsHost {
   @override
   Future<WorkspaceProject?> separateCopyProject(String directory) async =>
       copyProject;
+
+  /// What New conversation's Repair runs; null offers none.
+  GitRepairActions? gitRepair;
+
+  @override
+  GitRepairActions? projectGitRepair(String directory) => gitRepair;
 
   @override
   Future<String?> startSeparateCopy(

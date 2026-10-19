@@ -1,6 +1,6 @@
 import 'package:intl/intl.dart';
 
-import '../api/models.dart' show Todo;
+import '../domain/models.dart' show Todo;
 import '../l10n/app_localizations.dart';
 import 'orchestration_gateway.dart' show WorkItem, WorkState;
 import 'relative_age.dart';

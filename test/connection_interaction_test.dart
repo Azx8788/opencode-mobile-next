@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/services.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/api2/models.dart';
 import 'package:opencode_mobile/background/live_background.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -37,7 +37,7 @@ Map<String, dynamic> _formJson(String id, String sessionID) => {
   },
 };
 
-class _V2InteractionApi extends OpenCodeApi {
+class _V2InteractionApi extends FakeServerGateway {
   _V2InteractionApi() : super(baseUrl: 'http://127.0.0.1:1');
 
   List<Api2FormInfo> pendingFormsResult = const [];
@@ -132,7 +132,7 @@ class _StubRepository implements ProductRepository {
 Future<ConnectionController> _controller(_V2InteractionApi api) async {
   SharedPreferences.setMockInitialValues(const {
     'oc.profiles':
-        '[{"id":"interaction","name":"Test server","baseUrl":"http://127.0.0.1:1"}]',
+        '[{"id":"interaction","name":"Test server","flavor":"v2","baseUrl":"http://127.0.0.1:1"}]',
     'oc.activeProfile': 'interaction',
   });
   final prefs = await SharedPreferences.getInstance();

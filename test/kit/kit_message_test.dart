@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../support/no_red.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
 import 'package:opencode_mobile/ui/app_theme.dart';
@@ -510,14 +511,13 @@ void main() {
         tester.getSemantics(find.byKey(_noticeKey)).label,
         startsWith('Failed, '),
       );
-      final danger = _roles(tester).danger;
       for (final icon in tester.widgetList<Icon>(
         find.descendant(
           of: find.byType(KitMessage),
           matching: find.byType(Icon),
         ),
       )) {
-        expect(icon.color, isNot(danger));
+        expect(icon.color, isNotRed);
       }
       for (final text in tester.widgetList<RichText>(
         find.descendant(
@@ -526,7 +526,7 @@ void main() {
         ),
       )) {
         text.text.visitChildren((span) {
-          expect(span.style?.color, isNot(danger));
+          expect(span.style?.color, isNotRed);
           return true;
         });
       }

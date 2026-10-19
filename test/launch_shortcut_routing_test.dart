@@ -7,9 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/builtin/setup/phone_setup.dart';
 import 'package:opencode_mobile/builtin/setup/setup_contract.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
@@ -43,7 +43,7 @@ class _MemoryProfileStore extends ProfileStore {
   }
 }
 
-class _ShortcutApi extends OpenCodeApi with CompleteMessageHistory {
+class _ShortcutApi extends FakeServerGateway with CompleteMessageHistory {
   _ShortcutApi() : super(baseUrl: 'http://localhost:4096');
 
   int created = 0;

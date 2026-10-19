@@ -1,0 +1,197 @@
+{
+  "server_version": "1.19.0",
+  "server_status_endpoint": "GET /session/status",
+  "model": "opencode/big-pickle",
+  "rows": [
+    {
+      "seconds": 0.04,
+      "status": {
+        "type": "idle"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 0.811,
+      "status": {
+        "type": "idle"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 1.108,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 1.396,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 1.664,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 1.92,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 2.174,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 2.43,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 2.685,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 2.946,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 3.199,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 3.476,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 3.73,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 3.991,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 4.293,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 4.567,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 4.861,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 5.146,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 5.426,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 5.769,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 6.035,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 6.557,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 6.856,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 0
+    },
+    {
+      "seconds": 7.109,
+      "status": {
+        "type": "busy"
+      },
+      "pending_count": 1
+    },
+    {
+      "seconds": 7.373,
+      "status": {
+        "type": "idle"
+      },
+      "pending_count": 0
+    }
+  ],
+  "rejected_seconds": 7.113565703155473,
+  "assistant_outcome": [
+    {
+      "finish": "tool-calls",
+      "error": null,
+      "tools": [
+        {
+          "name": "bash",
+          "status": "error",
+          "error": "The user rejected permission to use this specific tool call."
+        }
+      ]
+    }
+  ],
+  "post_reject_first_idle_seconds": 0.259
+}

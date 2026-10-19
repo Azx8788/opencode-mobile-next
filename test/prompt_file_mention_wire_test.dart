@@ -1,31 +1,24 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_sdk/opencode_sdk.dart' as sdk;
+import 'package:opencode_mobile/domain/models.dart';
 
 PromptAttachment _file(String path) =>
     PromptAttachment.projectFile(directory: '/srv/app', relativePath: path);
 
 void main() {
-  test('a mentioned file goes as the SDK file part the TUI sends', () {
+  test('a mentioned file retains its exact reference and range', () {
     const text = 'Explain @lib/server.dart please';
     final resolved = resolveFileMentions(text, [_file('lib/server.dart')]);
 
     expect(resolved, hasLength(1));
-    final json = resolved.single.toJson();
-    // The generated model accepts it as is.
-    final part = sdk.FilePartInput.fromJson(json);
-    expect(part.type, sdk.FilePartInputTypeEnum.file);
-    expect(part.mime, 'text/plain');
-    expect(part.filename, 'server.dart');
-    expect(part.url, 'file:///srv/app/lib/server.dart');
-    final source = sdk.FileSource.fromJson(part.source_!.objectValue!);
-    expect(source.type, sdk.FileSourceTypeEnum.file);
-    expect(source.path, 'lib/server.dart');
-    expect(source.text.value, '@lib/server.dart');
-    expect(source.text.start, 8);
-    expect(source.text.end, 24);
+    final attachment = resolved.single;
+    expect(attachment.mime, 'text/plain');
+    expect(attachment.filename, 'server.dart');
+    expect(attachment.url, 'file:///srv/app/lib/server.dart');
+    expect(attachment.mentionText, '@lib/server.dart');
+    expect(attachment.mentionStart, 8);
+    expect(attachment.mentionEnd, 24);
     expect(
-      text.substring(source.text.start.toInt(), source.text.end.toInt()),
+      text.substring(attachment.mentionStart!, attachment.mentionEnd!),
       '@lib/server.dart',
     );
   });

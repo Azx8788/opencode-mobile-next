@@ -110,6 +110,56 @@ void main() {
     expect(facts.projects.map((p) => p.name), ['app', 'old', 'web']);
   });
 
+  // Ubuntu's proot (--link2symlink) stores every Git object as a link to a
+  // `.l2s.` file; links holding the absolute path they were made at.
+  void linkedObject(String objects, String name, String bytes, {String? at}) {
+    final folder = '${files.path}/$objects';
+    final made = at == null ? folder : '${files.path}/$at';
+    Directory(folder).createSync(recursive: true);
+    File('$folder/.l2s.tmp_obj_$name.0001.0001').writeAsStringSync(bytes);
+    Link(
+      '$folder/.l2s.tmp_obj_$name.0001',
+    ).createSync('$made/.l2s.tmp_obj_$name.0001.0001');
+    Link('$folder/$name').createSync('$made/.l2s.tmp_obj_$name.0001');
+  }
+
+  test('a repository made in Ubuntu exports with its Git objects', () {
+    linkedObject('projects/app/.git/objects/ab', 'cdef', 'object one');
+    // Made before the folder was renamed: the links name the old folder.
+    linkedObject(
+      'projects/web/.git/objects/12',
+      '3456',
+      'object two',
+      at: 'projects/web-old/.git/objects/12',
+    );
+    // A link2symlink-looking link out of the app's files stays out.
+    Link(
+      '${files.path}/projects/app/.git/objects/ab/out',
+    ).createSync('/etc/.l2s.passwd');
+
+    final plan = ProjectStorageScanner.plan(files.path);
+    final byName = {for (final e in plan) e.name: e};
+
+    final one = byName['projects/app/.git/objects/ab/cdef'];
+    final two = byName['projects/web/.git/objects/12/3456'];
+    expect(one, isNotNull);
+    expect(File(one!.source).readAsStringSync(), 'object one');
+    expect(one.bytes, 'object one'.length);
+    expect(two, isNotNull);
+    expect(File(two!.source).readAsStringSync(), 'object two');
+    // proot's own files are not project files.
+    expect(byName.keys.where((n) => n.contains('.l2s.')), isEmpty);
+    expect(byName.keys.where((n) => n.endsWith('/out')), isEmpty);
+    final app = ProjectStorageScanner.scan(
+      files.path,
+    ).projects.firstWhere((p) => p.name == 'app');
+    final gitConfig = File('${files.path}/projects/app/.git/config');
+    expect(
+      app.bytes,
+      15 + 13 + 7 + gitConfig.lengthSync() + 3 + 'object one'.length,
+    );
+  });
+
   test(
     'the plan file frames one entry per line and skips unframeable',
     () async {

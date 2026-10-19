@@ -337,6 +337,13 @@ extension _PaseoPermissions on PaseoGateway {
       _ => throw PaseoFailure(PaseoFailureKind.unavailable),
     };
     _checkPermissionEpoch(pending);
+    final rejectedCall = pending.permission.tool?.callID;
+    if (reply == 'reject' && rejectedCall != null) {
+      _rejectedCalls.add(rejectedCall);
+      while (_rejectedCalls.length > 256) {
+        _rejectedCalls.remove(_rejectedCalls.first);
+      }
+    }
     transport.send('agent_permission_response', {
       'agentId': _real(pending.permission.sessionID),
       'requestId': requestID,

@@ -53,7 +53,7 @@ Future<bool> askConsent(
       body: l10n.firstRunNotifyBody,
       confirmLabel: l10n.consentNeedsYouAllow,
       cancelLabel: l10n.consentNotNow,
-      icon: AppIconography.inbox,
+      icon: AppIconography.notificationImportant,
       sheetKey: sheetKey,
       confirmKey: confirmKey,
     ),

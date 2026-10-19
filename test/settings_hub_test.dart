@@ -1,13 +1,14 @@
+import 'support/fake_server_capabilities.dart';
 import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/codex/gateway.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/paseo/gateway.dart';
@@ -26,7 +27,7 @@ import 'package:opencode_mobile/ui/screens/capabilities_screen.dart';
 import 'package:opencode_mobile/ui/search/search_index.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class _Api extends OpenCodeApi {
+class _Api extends FakeServerGateway {
   _Api(this._capabilities) : super(baseUrl: 'http://localhost');
 
   final ServerCapabilities _capabilities;
@@ -63,7 +64,7 @@ class _Repository
 }
 
 Future<ConnectionController> _controller({
-  ServerCapabilities capabilities = ServerCapabilities.allV1,
+  ServerCapabilities capabilities = testServerCapabilities,
   bool savedServer = true,
   bool usageStatistics = true,
   String baseUrl = 'http://localhost:4096',
@@ -74,6 +75,7 @@ Future<ConnectionController> _controller({
         {
           'id': 'profile-1',
           'name': 'Workstation',
+          'flavor': 'v2',
           'baseUrl': baseUrl,
           'username': '',
         },

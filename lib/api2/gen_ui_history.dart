@@ -1,4 +1,4 @@
-import '../api/gen_ui_history_http.dart';
+import '../domain/gen_ui_history_http.dart';
 import '../domain/genui/gen_ui_history.dart';
 import 'gateway_mappers.dart';
 import 'models.dart';

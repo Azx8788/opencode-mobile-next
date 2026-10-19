@@ -18,7 +18,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/orchestration/adapters/fixture/fixture_gateway.dart';
 import 'package:opencode_mobile/state/orchestration.dart';
 import 'package:opencode_mobile/state/orchestration_store.dart';

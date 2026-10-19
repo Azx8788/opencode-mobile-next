@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../domain/server_probe.dart' show openCode2UpgradeCommand;
 import '../../l10n/app_localizations.dart';
 import '../../state/profiles.dart' show isLoopbackHost;
 import '../app_theme.dart';
@@ -48,6 +49,7 @@ class SavedServerConnectionCard extends StatelessWidget {
     required this.onRetry,
     this.onOpenTermuxSetup,
     this.onUpdatePassword,
+    this.onReviewCertificate,
     this.onUpdateToken,
     this.onStartPhoneServer,
     this.startingPhoneServer = false,
@@ -80,6 +82,7 @@ class SavedServerConnectionCard extends StatelessWidget {
   final VoidCallback onRetry;
   final VoidCallback? onOpenTermuxSetup;
   final VoidCallback? onUpdatePassword;
+  final VoidCallback? onReviewCertificate;
   final VoidCallback? onUpdateToken;
 
   /// Starts (or restarts) the app-managed phone server; given only for it.
@@ -304,6 +307,14 @@ class SavedServerConnectionCard extends StatelessWidget {
         ),
         false,
       ),
+      ConnectionFailureAction.reviewCertificate => (
+        KitAction(
+          key: const ValueKey('saved-server-review-certificate'),
+          label: l10n.serverTrustCertificateRecheck,
+          onPressed: onReviewCertificate ?? onChangeServer,
+        ),
+        false,
+      ),
       ConnectionFailureAction.changeServer => (
         KitAction(
           key: const ValueKey('saved-server-change-primary'),
@@ -408,6 +419,13 @@ class SavedServerConnectionCard extends StatelessWidget {
             onPressed: termuxSetup,
           ),
       ],
+      detailsChild: error?.contains('This server runs OpenCode 1') == true
+          ? KitCodeBlock(
+              text: openCode2UpgradeCommand,
+              kind: KitCodeKind.command,
+              copyLabel: l10n.handoffCopyCommand,
+            )
+          : null,
       detailNotes: [
         if (failure.checks.isNotEmpty) l10n.e7SetupWhatToCheck,
         for (final check in failure.checks) '• $check',

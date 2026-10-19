@@ -1,0 +1,21 @@
+{
+  "base": "92057d08fdf372032d96790003d9ca547a718512",
+  "preexisting_uncatalogued_screens": {
+    "LiveStylePickerScreen": {
+      "exists_at_base": true,
+      "absent_from_base_baseline": true
+    },
+    "LiveStylePreviewScreen": {
+      "exists_at_base": true,
+      "absent_from_base_baseline": true
+    },
+    "WidgetConfigureScreen": {
+      "exists_at_base": true,
+      "absent_from_base_baseline": true
+    },
+    "WidgetSteerScreen": {
+      "exists_at_base": true,
+      "absent_from_base_baseline": true
+    }
+  }
+}

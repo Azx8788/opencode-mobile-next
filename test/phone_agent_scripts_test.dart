@@ -64,15 +64,15 @@ class _Guest {
 
   Future<String> get hash async =>
       sha256.convert(await File(payload).readAsBytes()).toString();
-  Future<ProcessResult> run(String script) => Process.run(
+  Future<ProcessResult> run(String script, {String? downloader}) => Process.run(
     'bash',
     [
       '-c',
       '''
-oc_download() { cp ${_quote(payload)} "\$2"; }
+${downloader ?? 'oc_download() { cp ${_quote(payload)} "\$2"; }'}
 oc_stage() { :; }
 oc_version() { printf '::oc version %s\\n' "\$1"; }
-${script.replaceAll('/home/oc', home)}
+${script.replaceAll('/home/oc', home).replaceAll('/usr/local/bin', '$home/usr-local-bin')}
 ''',
     ],
     environment: {'HOME': home, 'PATH': '$bin:/usr/bin:/bin'},
@@ -91,6 +91,164 @@ void main() {
   tearDown(() async {
     await temp.delete(recursive: true);
   });
+
+  test('the Terminal can run the agent by name, as the agent user', () async {
+    final agent = _agent(await guest.hash, id: 'claude');
+    final result = await guest.run(AgentPhoneScripts.install(agent));
+    expect(result.exitCode, 0, reason: '${result.stderr}');
+    final launcher = File('${guest.home}/usr-local-bin/claude');
+    final text = launcher.readAsStringSync();
+    expect(text, startsWith('#!/bin/sh\n# oc-terminal-launcher\n'));
+    expect(text, contains('su -l oc'));
+    expect(text, contains('cd "\$0"'));
+    expect(text, contains('${guest.home}/.local/bin/claude'));
+    expect(launcher.statSync().mode & 0x49, 0x49, reason: 'executable');
+    expect((await Process.run('sh', ['-n', launcher.path])).exitCode, 0);
+    // Installing again keeps working and a file we did not write is left be.
+    await launcher.writeAsString('#!/bin/sh\necho mine\n');
+    final again = await guest.run(AgentPhoneScripts.install(agent));
+    expect(again.exitCode, 0, reason: '${again.stderr}');
+    expect(launcher.readAsStringSync(), contains('echo mine'));
+  });
+
+  test(
+    'interrupted agent download survives extraction cleanup and resumes',
+    () async {
+      final agent = _agent(await guest.hash, id: 'claude');
+      final size = await File(guest.payload).length();
+      final first = await guest.run(
+        AgentPhoneScripts.install(agent),
+        downloader:
+            'oc_download() { head -c 12 ${_quote(guest.payload)} > "\$2"; return 18; }',
+      );
+      expect(first.exitCode, 18);
+      final cache = Directory(
+        '${guest.home}/.local/share/oc-agents/claude/.downloads',
+      );
+      final artifact = cache.listSync().whereType<File>().single;
+      expect(artifact.lengthSync(), 12);
+      final resumed = await guest.run(
+        AgentPhoneScripts.install(agent),
+        downloader:
+            'oc_download() { [ "\$(stat -c %s "\$2")" = 12 ] || return 99; tail -c +13 ${_quote(guest.payload)} >> "\$2"; }',
+      );
+      expect(resumed.exitCode, 0, reason: '${resumed.stderr}');
+      expect(
+        File(
+          '${guest.home}/.local/share/oc-agents/claude/1.2.3/payload/claude',
+        ).lengthSync(),
+        size,
+      );
+      expect(artifact.existsSync(), isFalse);
+    },
+  );
+
+  test(
+    'check rejects changed executable even when its version and marker match',
+    () async {
+      final agent = _agent(await guest.hash, id: 'claude');
+      expect((await guest.run(AgentPhoneScripts.install(agent))).exitCode, 0);
+      final payload = File(
+        '${guest.home}/.local/share/oc-agents/claude/1.2.3/payload/claude',
+      );
+      await payload.writeAsString(
+        '${await payload.readAsString()}\n# altered\n',
+      );
+      expect(
+        (await guest.run(AgentPhoneScripts.check(agent))).exitCode,
+        isNot(0),
+      );
+    },
+  );
+
+  test(
+    'rollback checks retained official payload and rebuilds its launcher',
+    () async {
+      await guest.prepare(version: '2.1.283');
+      final oldHash = await guest.hash;
+      final old = _agent(oldHash, id: 'claude', version: '2.1.283');
+      expect((await guest.run(AgentPhoneScripts.install(old))).exitCode, 0);
+      await guest.prepare(version: '2.1.294');
+      final current = _agent(
+        await guest.hash,
+        id: 'claude',
+        version: '2.1.294',
+      );
+      expect((await guest.run(AgentPhoneScripts.install(current))).exitCode, 0);
+      String fixture(String script) => script.replaceAll(
+        AgentPhoneScripts
+            .previousClaudeRecipe
+            .artifacts[AgentArchitecture.x64]!
+            .sha256,
+        oldHash,
+      );
+      final prior = '${guest.home}/.local/share/oc-agents/claude/2.1.283';
+      await File('$prior/launch').writeAsString('#!/bin/sh\nexit 99\n');
+      final available = await guest.run(
+        fixture(AgentPhoneScripts.previousVersion(current)),
+      );
+      expect(available.exitCode, 0, reason: '${available.stderr}');
+      expect(available.stdout, '2.1.283\n');
+      final restored = await guest.run(
+        fixture(AgentPhoneScripts.usePreviousVersion(current, '2.1.283')),
+      );
+      expect(restored.exitCode, 0, reason: '${restored.stderr}');
+      expect((await guest.run(AgentPhoneScripts.check(old))).exitCode, 0);
+      expect(
+        Directory(
+          '${guest.home}/.local/share/oc-agents/claude/2.1.294',
+        ).existsSync(),
+        isTrue,
+      );
+      await File(
+        '$prior/payload/claude',
+      ).writeAsString('#!/bin/sh\necho 2.1.283\n');
+      expect(
+        (await guest.run(
+          fixture(AgentPhoneScripts.previousVersion(current)),
+        )).exitCode,
+        isNot(0),
+      );
+      expect(
+        (await guest.run(
+          fixture(AgentPhoneScripts.usePreviousVersion(current, '2.1.283')),
+        )).exitCode,
+        isNot(0),
+      );
+    },
+  );
+
+  test(
+    'agent cache and rollback refuse symlinked parent directories',
+    () async {
+      final agent = _agent(await guest.hash, id: 'claude');
+      final base = '${guest.home}/.local/share/oc-agents/claude';
+      await Directory(base).create(recursive: true);
+      final outside = Directory('${temp.path}/outside')..createSync();
+      final sentinel = File('${outside.path}/keep')
+        ..writeAsStringSync('private');
+      await Link('$base/.downloads').create(outside.path);
+      expect(
+        (await guest.run(AgentPhoneScripts.install(agent))).exitCode,
+        isNot(0),
+      );
+      expect(await sentinel.readAsString(), 'private');
+      await Link('$base/.downloads').delete();
+      await Directory(base).delete();
+      await Link(base).create(outside.path);
+      expect(
+        (await guest.run(AgentPhoneScripts.previousVersion(agent))).exitCode,
+        isNot(0),
+      );
+      expect(
+        (await guest.run(
+          AgentPhoneScripts.usePreviousVersion(agent, '2.1.283'),
+        )).exitCode,
+        isNot(0),
+      );
+      expect(await sentinel.readAsString(), 'private');
+    },
+  );
 
   test(
     'Claude check restores interrupted code before probing its link',

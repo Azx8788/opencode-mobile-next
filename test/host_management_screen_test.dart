@@ -1,12 +1,13 @@
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:opencode_mobile/ui/screens/host_management_screen.dart';
@@ -14,7 +15,7 @@ import 'package:opencode_mobile/ui/screens/settings_screen.dart';
 import 'package:opencode_mobile/ui/setup_commands.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class _HealthyApi extends OpenCodeApi {
+class _HealthyApi extends FakeServerGateway {
   _HealthyApi() : super(baseUrl: 'http://127.0.0.1:4096');
 
   @override
@@ -105,7 +106,7 @@ void main() {
     expect(find.byType(HostManagementScreen), findsOneWidget);
     // Titled with the server; one line says where the commands run, and
     // no "This server" group repeats the server's address and version.
-    expect(find.text('Linux service for Dev workstation'), findsOneWidget);
+    expect(find.text('OpenCode on Dev workstation'), findsOneWidget);
     expect(
       find.text(
         "These commands run on Dev workstation's computer; copy each into "
@@ -116,10 +117,10 @@ void main() {
     expect(find.text('This server'), findsNothing);
     expect(find.text('http://192.0.2.20:4747'), findsNothing);
     // The setup command carries the profile's exact port.
-    expect(find.textContaining('OPENCODE_PORT=4747'), findsOneWidget);
+    expect(find.textContaining('--port 4747'), findsOneWidget);
     await tester.drag(find.byType(ListView).last, const Offset(0, -800));
     await tester.pumpAndSettle();
-    expect(find.textContaining('ubuntu-opencode.sh status'), findsOneWidget);
+    expect(find.textContaining('ubuntu-opencode.sh'), findsNothing);
   });
 
   testWidgets('the managed loopback profile hides host management', (
@@ -137,160 +138,46 @@ void main() {
     expect(find.byKey(const Key('host-management-entry')), findsNothing);
   });
 
-  testWidgets('copy buttons place the exact command on the clipboard', (
-    tester,
-  ) async {
-    String? copiedText;
-    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-      SystemChannels.platform,
-      (call) async {
-        if (call.method == 'Clipboard.setData') {
-          copiedText = (call.arguments as Map)['text'] as String?;
-        }
-        return null;
-      },
-    );
-    addTearDown(
-      () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+  testWidgets(
+    'install copies the pinned OC2 command without a retired helper',
+    (tester) async {
+      String? copiedText;
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
         SystemChannels.platform,
-        null,
-      ),
-    );
-    final announcements = <Object?>[];
-    tester.binding.defaultBinaryMessenger.setMockDecodedMessageHandler<dynamic>(
-      SystemChannels.accessibility,
-      (message) async {
-        announcements.add(message);
-        return null;
-      },
-    );
-    addTearDown(
-      () => tester.binding.defaultBinaryMessenger
-          .setMockDecodedMessageHandler<dynamic>(
-            SystemChannels.accessibility,
-            null,
-          ),
-    );
-    final controller = await _controllerFor('http://192.0.2.20:4747');
-    addTearDown(controller.dispose);
-
-    await tester.pumpWidget(
-      MaterialApp(home: HostManagementScreen(controller: controller)),
-    );
-    await tester.pumpAndSettle();
-
-    final restartCopy = find.byKey(
-      const ValueKey('copy-host-command-Restart the server'),
-    );
-    await tester.scrollUntilVisible(
-      restartCopy,
-      240,
-      // KitScreen also owns a top-bar scrollable. Move the commands list.
-      scrollable: find
-          .descendant(
-            of: find.byType(ListView),
-            matching: find.byType(Scrollable),
-          )
-          .first,
-    );
-    // The list grew, so the row can settle under the viewport edge where a
-    // raw tap misses it.
-    await tester.ensureVisible(restartCopy);
-    await tester.pumpAndSettle();
-    await tester.tap(restartCopy);
-    await tester.pumpAndSettle();
-
-    expect(copiedText, 'bash ubuntu-opencode.sh restart');
-    expect(
-      announcements.whereType<Map>().where(
-        (message) =>
-            message['type'] == 'announce' &&
-            (message['data'] as Map)['message'] == 'Copied',
-      ),
-      hasLength(1),
-    );
-    expect(
-      // A single-line command keeps its copy icon on the command line;
-      // its success state is a check, while Copied is announced.
-      find.descendant(
-        of: restartCopy,
-        matching: find.byKey(const ValueKey('kit-icon-button-copied')),
-      ),
-      findsOneWidget,
-    );
-  });
-
-  // slice-close-security: the install command is the pinned, checksummed
-  // one, copied exactly, and "What this does" names Linux, the pin and the
-  // checksum.
-  testWidgets('install copies the pinned, checked command', (tester) async {
-    String? copiedText;
-    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-      SystemChannels.platform,
-      (call) async {
-        if (call.method == 'Clipboard.setData') {
-          copiedText = (call.arguments as Map)['text'] as String?;
-        }
-        return null;
-      },
-    );
-    addTearDown(
-      () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-        SystemChannels.platform,
-        null,
-      ),
-    );
-    final controller = await _controllerFor('http://192.0.2.20:4747');
-    addTearDown(controller.dispose);
-
-    await tester.pumpWidget(
-      MaterialApp(home: HostManagementScreen(controller: controller)),
-    );
-    await tester.pumpAndSettle();
-
-    // Nothing on the page pipes a download into a shell.
-    expect(find.textContaining(RegExp(r'\|\s*(ba)?sh\b')), findsNothing);
-    expect(find.textContaining('/master/'), findsNothing);
-    expect(
-      find.text(
-        'Downloads the script from release 1.0.44 and checks its SHA-256 '
-        'checksum first. If the file was changed, nothing runs.',
-      ),
-      findsOneWidget,
-    );
-
-    final copy = find.byKey(
-      const ValueKey(
-        'copy-host-command-Install OpenCode as a background service',
-      ),
-    );
-    await tester.ensureVisible(copy);
-    await tester.pumpAndSettle();
-    await tester.tap(copy);
-    await tester.pumpAndSettle();
-    expect(copiedText, HostScripts.install(4747));
-    expect(copiedText, contains(HostScripts.commit));
-    expect(
-      copiedText,
-      contains('${HostScripts.ubuntu.sha256}  ubuntu-opencode.sh.part'),
-    );
-    expect(copiedText, contains('sha256sum -c -'));
-
-    final what = find.byKey(const ValueKey('host-install-what'));
-    await tester.ensureVisible(what);
-    await tester.pumpAndSettle();
-    await tester.tap(what);
-    await tester.pumpAndSettle();
-    expect(
-      find.text(
-        'Needs Linux with systemd, such as Ubuntu. It does not run on macOS '
-        'or Windows.',
-      ),
-      findsOneWidget,
-    );
-    expect(find.textContaining(HostScripts.commit), findsWidgets);
-    expect(find.textContaining(HostScripts.ubuntu.sha256), findsWidgets);
-  });
+        (call) async {
+          if (call.method == 'Clipboard.setData') {
+            copiedText = (call.arguments as Map)['text'] as String?;
+          }
+          return null;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          null,
+        ),
+      );
+      final controller = await _controllerFor('http://192.0.2.20:4747');
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(
+        MaterialApp(home: HostManagementScreen(controller: controller)),
+      );
+      await tester.pumpAndSettle();
+      expect(find.textContaining('ubuntu-opencode.sh'), findsNothing);
+      final copy = find.byKey(
+        const ValueKey('copy-host-command-Install and start OpenCode 2'),
+      );
+      await tester.ensureVisible(copy);
+      await tester.tap(copy);
+      await tester.pumpAndSettle();
+      expect(copiedText, HostScripts.install(4747));
+      expect(copiedText, contains('@opencode/cli@2.0.29'));
+      expect(
+        copiedText,
+        contains('opencode2 serve --hostname 127.0.0.1 --port 4747'),
+      );
+    },
+  );
 
   testWidgets('host management fits a 320dp phone at 2x text', (tester) async {
     await tester.binding.setSurfaceSize(const Size(320, 640));

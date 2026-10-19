@@ -4,15 +4,19 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:opencode_mobile/domain/agent_sign_in_foreground.dart';
 
 class _Lease implements AgentSignInForegroundLease {
-  _Lease(this.log);
+  _Lease(this.log, [this.refusal]);
   final List<String> log;
-  final events = StreamController<void>.broadcast(sync: true);
+  final AgentSignInForegroundException? refusal;
+  final events = StreamController<AgentSignInForegroundException>.broadcast(
+    sync: true,
+  );
   @override
   bool active = true;
   @override
-  Future<void> get ready => Future<void>.value();
+  Future<void> get ready =>
+      refusal == null ? Future<void>.value() : Future<void>.error(refusal!);
   @override
-  Stream<void> get lost => events.stream;
+  Stream<AgentSignInForegroundException> get lost => events.stream;
   @override
   Future<void> release() async {
     if (!active) return;
@@ -23,15 +27,70 @@ class _Lease implements AgentSignInForegroundLease {
 }
 
 class _Port implements AgentSignInForegroundPort {
+  _Port([this.refusal]);
+  final AgentSignInForegroundException? refusal;
   final log = <String>[];
+  final leases = <_Lease>[];
   @override
   AgentSignInForegroundLease reserveAgentSignInForeground() {
     log.add('reserve');
-    return _Lease(log);
+    return _add();
+  }
+
+  _Lease _add() {
+    final lease = _Lease(log, refusal);
+    leases.add(lease);
+    return lease;
   }
 }
 
 void main() {
+  test('a refused service keeps its code through the owner binding', () async {
+    final port = _Port(
+      const AgentSignInForegroundException(
+        AgentSignInForegroundFailure.unavailable,
+        code: 'service-not-started',
+      ),
+    );
+    final binding = AgentSignInForegroundRegistry.bind('coded-refusal', port);
+    final lease = binding.reserve();
+    var losses = 0;
+    final subscription = lease.lost.listen((_) => losses++);
+    await expectLater(
+      lease.ready,
+      throwsA(
+        isA<AgentSignInForegroundException>().having(
+          (e) => e.code,
+          'code',
+          'service-not-started',
+        ),
+      ),
+    );
+    // A refusal is not a loss: only ready reports it.
+    expect(losses, 0);
+    await subscription.cancel();
+    await AgentSignInForegroundRegistry.unbind(binding);
+  });
+
+  test('a running service that stops says what stopped it', () async {
+    final port = _Port();
+    final binding = AgentSignInForegroundRegistry.bind('coded-loss', port);
+    final lease = binding.reserve();
+    await lease.ready;
+    final losses = <AgentSignInForegroundException>[];
+    final subscription = lease.lost.listen(losses.add);
+    port.leases.single.events.add(
+      const AgentSignInForegroundException(
+        AgentSignInForegroundFailure.paused,
+        code: 'android-time-limit',
+      ),
+    );
+    expect(losses.single.code, 'android-time-limit');
+    expect(losses.single.reason, AgentSignInForegroundFailure.paused);
+    await subscription.cancel();
+    await AgentSignInForegroundRegistry.unbind(binding);
+  });
+
   test('successive replacement cannot skip the oldest pending drain', () async {
     final first = AgentSignInForegroundRegistry.bind(
       'foreground-chain',

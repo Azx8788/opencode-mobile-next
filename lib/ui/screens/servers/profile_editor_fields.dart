@@ -180,43 +180,11 @@ extension _EditorFields on _ProfileEditorScreenState {
     );
   }
 
-  /// What the old connection help explained, said where it matters: an
-  /// http:// address on the network (not this device) is refused, and a
-  /// private HTTPS name through Tailscale is the way (never a public relay).
-  /// Shown only with the field's error; on Add server it offers the
-  /// Tailscale step.
-  Widget? _remoteHttpAdvice(AppLocalizations copy, KitTokens tokens) {
-    if (_error == null ||
-        _isCodex ||
-        _tailscale ||
-        explainConnectionAddress(_url.text) != ConnectionAdvice.remoteHttp) {
-      return null;
-    }
-    final offersTailscale =
-        _stepped && platformCapabilities.supportsTailscaleHandoff;
-    return Padding(
-      padding: EdgeInsetsDirectional.only(top: tokens.space2),
-      child: KitNotice(
-        key: const ValueKey('server-remote-http-advice'),
-        tone: AppStatusTone.neutral,
-        message: copy.addServerRemoteHttpAdvice,
-        actions: [
-          if (offersTailscale)
-            KitAction(
-              key: const ValueKey('server-remote-http-tailscale'),
-              label: copy.addServerUseTailscale,
-              onPressed: _submitting ? null : _chooseTailscale,
-            ),
-        ],
-      ),
-    );
-  }
-
-  /// The warning for plain HTTP to a private network address, under the
+  /// The warning for plain HTTP to a remote address, under the
   /// field it is about, with the explicit confirm. Once confirmed it stays
   /// as one quiet line, so the person can see what they chose.
   Widget? _cleartextWarning(AppLocalizations copy, KitTokens tokens) {
-    if (_isCodex || _tailscale) return null;
+    if (_isCodex) return null;
     final url = normalizeServerProfileUrl(_url.text);
     if (!serverUrlNeedsCleartextConfirmation(url) ||
         validateServerProfileUrl(url) != null) {
@@ -230,7 +198,9 @@ extension _EditorFields on _ProfileEditorScreenState {
         tone: AppStatusTone.neutral,
         icon: pending ? AppIconography.warning : null,
         message: pending
-            ? copy.addServerCleartextWarning
+            ? (_privateHttp(url)
+                  ? copy.addServerCleartextWarning
+                  : copy.serverTrustHttpPublicBody)
             : copy.addServerCleartextConfirmed,
         actions: [
           if (pending &&
@@ -245,22 +215,7 @@ extension _EditorFields on _ProfileEditorScreenState {
             KitAction(
               key: const ValueKey('server-cleartext-confirm'),
               label: copy.addServerCleartextConfirm,
-              onPressed: _submitting
-                  ? null
-                  : () {
-                      _set(() {
-                        _cleartextConfirmed = cleartextOriginOf(url);
-                        _invalidateProbe();
-                      });
-                      // With a password in hand (a pairing code's, or one
-                      // typed) the check runs now; otherwise the first-run
-                      // pause applies as for any other address.
-                      if (_password.isNotEmpty) {
-                        unawaited(_testConnection());
-                      } else {
-                        _scheduleAutoTest();
-                      }
-                    },
+              onPressed: _submitting ? null : () => _confirmCleartext(url),
             ),
         ],
       ),
@@ -289,7 +244,7 @@ extension _EditorFields on _ProfileEditorScreenState {
               helper: _tailscale
                   ? copy.tailscaleAddressDetail
                   : copy.e7SetupHttpsHint,
-              error: _error,
+              error: _error == null ? null : setupUiMessage(copy, _error!),
               enabled: !_submitting,
               disabledReason: _submitting ? copy.e7SetupSaving : null,
               textInputAction: TextInputAction.next,
@@ -300,8 +255,8 @@ extension _EditorFields on _ProfileEditorScreenState {
             ),
           ),
           ?_notSameNetworkLink(),
-          ?_remoteHttpAdvice(copy, tokens),
           ?_cleartextWarning(copy, tokens),
+          ?_certificateWarning(copy, tokens),
           // What the check (or the save) found, under the field it is
           // about.
           _verdicts(copy, tokens),
@@ -401,8 +356,17 @@ extension _EditorFields on _ProfileEditorScreenState {
   /// failed, and what the check found. Plain words; the technical text is
   /// folded under Details.
   Widget _verdicts(AppLocalizations copy, KitTokens tokens) {
-    final failure = _submitFailure;
-    final result = _isCodex ? null : _testResult;
+    // The certificate notice above already says what is wrong with the
+    // certificate and offers the choice, so a verdict that only repeats it
+    // is not shown a second time.
+    final certShown = _certificateWarning(copy, tokens) != null;
+    bool aboutCertificate(String? text) =>
+        certShown && (text ?? '').toLowerCase().contains('certificate');
+    final failure = aboutCertificate(_submitFailure) ? null : _submitFailure;
+    final rawResult = _isCodex ? null : _testResult;
+    final result = rawResult != null && aboutCertificate(rawResult.message)
+        ? null
+        : rawResult;
     final codex = _isCodex ? _codexTestResult : null;
     return Column(
       key: _verdictKey,

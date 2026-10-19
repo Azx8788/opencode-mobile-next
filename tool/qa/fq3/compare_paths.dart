@@ -7,7 +7,6 @@ import 'common.dart';
 import 'device.dart';
 import 'diagnostics.dart';
 import 'evidence.dart';
-import 'oc1.dart';
 import 'oc2.dart';
 import 'session_ownership.dart';
 
@@ -28,7 +27,7 @@ Future<void> main(List<String> args) async {
   final scenario = driver.argument(args, '--scenario') ?? 'stream';
   final requestedModel = driver.argument(args, '--model');
   if (!RegExp(r'^fq3-[A-Za-z0-9_-]{1,80}$').hasMatch(runID) ||
-      !{'opencode', 'opencode2'}.contains(engine) ||
+      engine != 'opencode2' ||
       !{'app-managed', 'owned'}.contains(source) ||
       !{'app', 'adapter'}.contains(shape) ||
       !{'stream', 'abort'}.contains(scenario) ||
@@ -73,8 +72,7 @@ Future<void> main(List<String> args) async {
     );
     wire = _AuditWire(baseUrl: endpoint, password: runtime.password);
     observations['cliVersionMatched'] =
-        await runtime.version(engine == 'opencode2') ==
-        (engine == 'opencode2' ? '2.0.10' : '1.18.32');
+        await runtime.version(engine == 'opencode2') == '2.0.10';
     if (shape == 'app') {
       final location = {'location[directory]': runtime.directory};
       final health = _map(await wire.request('GET', '/api/health'));
@@ -160,9 +158,7 @@ Future<void> main(List<String> args) async {
         capabilities: {scenario},
         onSessionCreated: ownership.recordCreated,
       );
-      final run = engine == 'opencode2'
-          ? await runProtocol2(wire, options)
-          : await runProtocol1(wire, options);
+      final run = await runProtocol2(wire, options);
       result = Map<String, Object?>.from(run.results[scenario] as Map);
     }
     await _collect(
@@ -236,8 +232,7 @@ class _AuditWire extends Fq3Wire {
     Object? body,
     Map<String, String>? query,
   }) {
-    if (method == 'POST' &&
-        (path.endsWith('/prompt') || path.endsWith('/prompt_async'))) {
+    if (method == 'POST' && path.endsWith('/prompt')) {
       prompts.add(_map(body));
     }
     return super.request(method, path, body: body, query: query);
@@ -253,46 +248,30 @@ Future<void> _collect(
 ) async {
   if (ids.isEmpty) return;
   final id = ids.last;
-  final oc2 = engine == 'opencode2';
   final messages = _list(
     await wire.request(
       'GET',
-      '${oc2 ? '/api' : ''}/session/$id/message',
-      query: {'limit': '200', 'order': 'asc', if (!oc2) 'directory': directory},
+      '/api/session/$id/message',
+      query: {'limit': '200', 'order': 'asc'},
     ),
   );
   final lastPrompt = wire.prompts.lastOrNull ?? {};
-  final promptID = lastPrompt['messageID'];
-  final requestedModel = _map(lastPrompt['model']);
-  final promptText = oc2
-      ? lastPrompt['text'] as String? ?? ''
-      : _list(
-          lastPrompt['parts'],
-        ).map((p) => p['text'] as String? ?? '').join('\n');
+  final promptText = lastPrompt['text'] as String? ?? '';
   final token = RegExp(r'FQ3[A-Za-z0-9_]+').firstMatch(promptText)?.group(0);
-  var completed = 0, ownParts = 0, foreignParts = 0, matchedModels = 0;
+  var completed = 0, ownParts = 0, foreignParts = 0;
   var finalToken = false, otherToken = false;
   var insensitiveToken = false, numericLines = 0, finalLength = 0;
   for (final message in messages) {
-    final info = oc2 ? message : _map(message['info']);
-    if ((oc2 ? info['type'] : info['role']) != 'assistant') continue;
+    final info = message;
+    if (info['type'] != 'assistant') continue;
     final parts = _list(
-      message[oc2 ? 'content' : 'parts'],
+      message['content'],
     ).where((p) => p['type'] == 'text').toList();
     final isFinal =
-        _map(info['time'])['completed'] is num &&
-        info['error'] == null &&
-        (oc2 || info['parentID'] == promptID);
+        _map(info['time'])['completed'] is num && info['error'] == null;
     if (isFinal) completed++;
-    if (!oc2 &&
-        info['providerID'] == requestedModel['providerID'] &&
-        info['modelID'] == requestedModel['modelID']) {
-      matchedModels++;
-    }
     for (final part in parts) {
-      final own = oc2
-          ? (!info.containsKey('sessionID') || info['sessionID'] == id)
-          : part['sessionID'] == id && part['messageID'] == info['id'];
+      final own = !info.containsKey('sessionID') || info['sessionID'] == id;
       if (isFinal) {
         if (own) {
           ownParts++;
@@ -324,7 +303,6 @@ Future<void> _collect(
     'completedFreshAssistants': completed,
     'ownedFinalTextParts': ownParts,
     'foreignFinalTextParts': foreignParts,
-    'requestedModelMatches': matchedModels,
     'expectedTokenInOwnedFinal': finalToken,
     'expectedTokenInOtherParts': otherToken,
     'expectedTokenIgnoringCase': insensitiveToken,
@@ -344,62 +322,60 @@ Future<void> _collect(
         .where((e) => e['type'] == type && _map(e['data'])['sessionID'] == id)
         .length;
   }
-  if (oc2) {
-    final active = _map(
-      _map(await wire.request('GET', '/api/session/active'))['data'],
-    );
-    out['activeAtObservation'] = active.containsKey(id);
-    out['pendingInbox'] = _list(
-      await wire.request('GET', '/api/session/$id/inbox'),
-    ).length;
-    out['pendingPermissions'] = _list(
-      await wire.request('GET', '/api/session/$id/permission'),
-    ).length;
-    final retryErrors = wire.events
+  final active = _map(
+    _map(await wire.request('GET', '/api/session/active'))['data'],
+  );
+  out['activeAtObservation'] = active.containsKey(id);
+  out['pendingInbox'] = _list(
+    await wire.request('GET', '/api/session/$id/inbox'),
+  ).length;
+  out['pendingPermissions'] = _list(
+    await wire.request('GET', '/api/session/$id/permission'),
+  ).length;
+  final retryErrors = wire.events
+      .where(
+        (e) =>
+            e['type'] == 'session.retry.scheduled' &&
+            _map(e['data'])['sessionID'] == id,
+      )
+      .map((e) => _map(_map(e['data'])['error']))
+      .toList();
+  for (final type in [
+    'APIError',
+    'ProviderAuthError',
+    'ProviderModelNotFoundError',
+    'TypeValidationError',
+    'UnknownError',
+  ]) {
+    out['retry_$type'] = retryErrors
+        .where((e) => e['type'] == type || e['name'] == type)
+        .length;
+  }
+  for (final status in [400, 401, 403, 404, 429, 500, 502, 503]) {
+    out['retry_http_$status'] = retryErrors
         .where(
           (e) =>
-              e['type'] == 'session.retry.scheduled' &&
-              _map(e['data'])['sessionID'] == id,
+              e['status'] == status ||
+              e['statusCode'] == status ||
+              _map(e['data'])['statusCode'] == status,
         )
-        .map((e) => _map(_map(e['data'])['error']))
-        .toList();
-    for (final type in [
-      'APIError',
-      'ProviderAuthError',
-      'ProviderModelNotFoundError',
-      'TypeValidationError',
-      'UnknownError',
-    ]) {
-      out['retry_$type'] = retryErrors
-          .where((e) => e['type'] == type || e['name'] == type)
-          .length;
-    }
-    for (final status in [400, 401, 403, 404, 429, 500, 502, 503]) {
-      out['retry_http_$status'] = retryErrors
-          .where(
-            (e) =>
-                e['status'] == status ||
-                e['statusCode'] == status ||
-                _map(e['data'])['statusCode'] == status,
-          )
-          .length;
-    }
-    final session = _map(
-      _map(await wire.request('GET', '/api/session/$id'))['data'],
-    );
-    final model = _map(session['model']).isNotEmpty
-        ? _map(session['model'])
-        : messages
-                  .where((m) => m['type'] == 'assistant')
-                  .map((m) => _map(m['model']))
-                  .firstOrNull ??
-              {};
-    out['selectedOpenCodeProvider'] = model['providerID'] == 'opencode';
-    final modelID = model['id'];
-    if (model['providerID'] == 'opencode' &&
-        modelID is String &&
-        RegExp(r'^[A-Za-z0-9._/-]{1,128}$').stringMatch(modelID) == modelID) {
-      out['publicOpenCodeModelID'] = modelID;
-    }
+        .length;
+  }
+  final session = _map(
+    _map(await wire.request('GET', '/api/session/$id'))['data'],
+  );
+  final model = _map(session['model']).isNotEmpty
+      ? _map(session['model'])
+      : messages
+                .where((m) => m['type'] == 'assistant')
+                .map((m) => _map(m['model']))
+                .firstOrNull ??
+            {};
+  out['selectedOpenCodeProvider'] = model['providerID'] == 'opencode';
+  final modelID = model['id'];
+  if (model['providerID'] == 'opencode' &&
+      modelID is String &&
+      RegExp(r'^[A-Za-z0-9._/-]{1,128}$').stringMatch(modelID) == modelID) {
+    out['publicOpenCodeModelID'] = modelID;
   }
 }

@@ -1,3 +1,4 @@
+import 'fake_server_capabilities.dart';
 // The AI Team on this phone as the owner saw it on 2026-09-25: one task in
 // the project my-app, the worker furiosa (a polecat running `opencode acp`
 // in /root/aiteam/city/.gc/worktrees/my-app/polecats/gastown.furiosa) and
@@ -10,8 +11,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'fake_server_gateway.dart';
 import 'package:opencode_mobile/domain/orchestration_gateway.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
@@ -303,7 +304,7 @@ MessageWithParts teamChatMessage(
 
 /// The phone's OpenCode server: the worker's transcript (it can grow
 /// between reads), and a record of every prompt anything sent.
-class TeamChatApi extends OpenCodeApi with CompleteMessageHistory {
+class TeamChatApi extends FakeServerGateway with CompleteMessageHistory {
   TeamChatApi(this.transcript) : super(baseUrl: 'http://localhost');
 
   final Map<String, List<MessageWithParts>> transcript;
@@ -316,7 +317,7 @@ class TeamChatApi extends OpenCodeApi with CompleteMessageHistory {
 
   @override
   ServerCapabilities get capabilities =>
-      phoneTeamExecution ? ServerCapabilities.allV1 : super.capabilities;
+      phoneTeamExecution ? testServerCapabilities : super.capabilities;
 
   @override
   Future<List<MessageWithParts>> messages(String id) async {

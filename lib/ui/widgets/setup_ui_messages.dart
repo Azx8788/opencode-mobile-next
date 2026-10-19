@@ -51,6 +51,32 @@ String? _wholeMessage(AppLocalizations l10n, String message) {
 }
 
 Map<String, String> _messages(AppLocalizations l10n) => <String, String>{
+  'Setup stopped before it finished. Continue setup to try again. Completed steps will be kept.':
+      l10n.phoneSetupErrorInterrupted,
+  'OpenCode is installed but is not answering. Continue setup to try again. Details show what stopped it.':
+      l10n.phoneSetupErrorCannotStart,
+  'OpenCode was downloaded, but its program was not in the download. Continue to fetch it again.':
+      l10n.phoneSetupErrorOpenCodeNoProgram,
+  'OpenCode was downloaded, but its program does not run on this phone. Details show what it said.':
+      l10n.phoneSetupErrorOpenCodeWontRun,
+  'OpenCode was installed, but it did not start. Continue to try again; Details show what it said.':
+      l10n.phoneSetupErrorOpenCodeNoStart,
+  'Include https:// or http:// in the server address.':
+      l10n.e7SetupIncludeScheme,
+  'Server URLs must use https:// or http://.': l10n.e7SetupUrlScheme,
+  'Enter a server port between 1 and 65535.': l10n.serverTrustInvalidPort,
+  'This server uses plain HTTP, and you have not confirmed that yet. Edit the server and choose Use it anyway, or use HTTPS.':
+      l10n.serverTrustHttpUnconfirmed,
+  'The server certificate is expired or not yet valid.':
+      l10n.serverTrustCertificateValidityError,
+  'The server certificate changed.': l10n.serverTrustCertificateChangedTitle,
+  'The server certificate is not trusted. Review its fingerprint.':
+      l10n.e7SetupCertificate,
+  'Password rejected. Check the server password and try again.':
+      l10n.serverTrustPasswordRejected,
+  'The server could not be checked. Check the address and try again.':
+      l10n.serverTrustProbeFailed,
+
   'Some Linux packages need repair. Continue setup to try again. Details show what stopped it.':
       l10n.phoneSetupErrorPackageRepair,
   'Termux command failed.': l10n.e7SetupCommandFailed,
@@ -156,10 +182,6 @@ Map<String, String> _messages(AppLocalizations l10n) => <String, String>{
       l10n.e7SetupRefused,
   'Use HTTPS for remote machines. HTTP is limited to localhost or 127.0.0.1.':
       l10n.e7SetupHttpsHint,
-  'This app targets OpenCode 2; some features are unavailable on v1 servers.':
-      l10n.e7SetupV1Limited,
-  'This OpenCode 2 installation has no separate OpenCode 1 data to return to':
-      l10n.e7SetupNoReturnData,
   'OpenCode server did not become authenticated and ready within 30 seconds':
       l10n.e7SetupReadinessTimeout,
   'Include https://. Plain http:// works only on this device or a private network address.':

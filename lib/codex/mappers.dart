@@ -1,4 +1,4 @@
-import '../api/models.dart';
+import '../domain/models.dart';
 import 'transport.dart';
 
 Map<String, dynamic> codexObject(Object? value) {

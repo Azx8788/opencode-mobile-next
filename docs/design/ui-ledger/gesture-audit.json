@@ -20,6 +20,15 @@
       "changed": false
     },
     {
+      "page": "linux-processes",
+      "element": "linux-processes-pull",
+      "gesture": "pull to refresh",
+      "action": "read the running programs again",
+      "visibleEquivalent": "automatic refresh every 10 seconds while the page is open; 'Try again' when the first read fails (lib/ui/screens/linux_manager/linux_processes_page.dart:244)",
+      "evidence": "lib/ui/screens/linux_manager/linux_processes_page.dart:247",
+      "changed": false
+    },
+    {
       "page": "session-context",
       "element": "session-context-pull-refresh",
       "gesture": "pull to refresh",

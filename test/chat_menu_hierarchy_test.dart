@@ -1,3 +1,4 @@
+import 'support/fake_server_capabilities.dart';
 // The conversation menu's hierarchy (slice-P10.2): one KitMenu with a
 // "Go to" group then a "Do" group, every entry reachable at a narrow phone
 // with very large text. The display toggles, retry, undo, shell, export and
@@ -6,7 +7,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/ui/kit/kit.dart';
 import 'package:opencode_mobile/ui/widgets/session_menu.dart';
@@ -55,7 +55,7 @@ Future<void> _pumpMenu(
               items: sessionMenuItems(
                 AppLocalizations.of(context),
                 SessionMenuOffer.of(
-                  ServerCapabilities.allV1,
+                  testServerCapabilities,
                   shared: false,
                   savedServer: true,
                 ),

@@ -5,7 +5,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:opencode_mobile/domain/model_name_order.dart';
-import 'package:opencode_mobile/api/provider_presentation.dart';
+import 'package:opencode_mobile/domain/provider_presentation.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart' show CatalogModel;
 import 'package:opencode_mobile/state/team_project_controller.dart';
 import 'package:opencode_mobile/ui/kit/kit.dart';

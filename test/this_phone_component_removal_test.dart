@@ -46,6 +46,7 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
 
 void main() {
   setUp(() {
+    useNoTermuxJob();
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
           const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
@@ -76,6 +77,35 @@ void main() {
     await _settle(tester);
     return (linux: phone, team: team);
   }
+
+  testWidgets('a check that meets a busy moment is tried again before '
+      '"Could not check" shows', (tester) async {
+    // After Reset Linux's setup ended, This phone said "Could not check the
+    // installed environment." on a working Linux; Try again then worked.
+    final phone = ToolsLinux();
+    await pumpPhone(
+      tester,
+      home: ThisPhoneScreen(
+        kind: PhoneHostKind.inApp,
+        removal: ComponentRemovalService(
+          linux: phone,
+          registry: toolsRegistry,
+          team: ToolsTeam(phone),
+        ),
+      ),
+      linux: phone,
+      profiles: [inAppProfile],
+      optionalInstalled: {'python'},
+      optionalFailures: 1,
+    );
+    await _settle(tester, frames: 30);
+    expect(find.text(_l10n.e7SetupCheckInstallFailed), findsNothing);
+    await _scrollTo(
+      tester,
+      find.byKey(const ValueKey('this-phone-remove-python')),
+    );
+    await unmountPhone(tester);
+  });
 
   testWidgets('each optional tool has its own Remove, saying what it '
       'deletes; the parts OpenCode needs have none', (tester) async {

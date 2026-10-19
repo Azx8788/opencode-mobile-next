@@ -9,10 +9,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -28,7 +28,7 @@ import 'package:opencode_mobile/ui/widgets/external_link.dart';
 import 'package:opencode_mobile/ui/widgets/tool_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class _ReleaseApi extends OpenCodeApi with CompleteMessageHistory {
+class _ReleaseApi extends FakeServerGateway with CompleteMessageHistory {
   _ReleaseApi() : super(baseUrl: 'http://localhost');
 
   @override
@@ -167,7 +167,12 @@ Future<ConnectionController> _controller({
   SharedPreferences.setMockInitialValues({
     if (savedProfile) ...{
       'oc.profiles': jsonEncode([
-        {'id': 'profile', 'name': 'Synthetic', 'baseUrl': 'http://localhost'},
+        {
+          'id': 'profile',
+          'name': 'Synthetic',
+          'flavor': 'v2',
+          'baseUrl': 'http://localhost',
+        },
       ]),
       'oc.activeProfile': 'profile',
     },
@@ -207,7 +212,7 @@ Widget _scaledApp(Widget home, {double bottomInset = 0}) {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('release URL policy permits only loopback HTTP', () {
+  test('release URL policy requires explicit consent for remote HTTP', () {
     expect(validateServerProfileUrl('http://localhost:4096'), isNull);
     expect(validateServerProfileUrl('http://127.0.0.1:4096'), isNull);
     expect(validateServerProfileUrl('https://192.0.2.4:4096'), isNull);
@@ -221,12 +226,9 @@ void main() {
         username: 'opencode',
         password: 'secret',
       ),
-      contains('Basic credentials'),
+      isNull,
     );
-    expect(
-      validateServerProfileUrl('http://192.0.2.4:4096'),
-      contains('HTTP is allowed only'),
-    );
+    expect(validateServerProfileUrl('http://192.0.2.4:4096'), isNull);
     expect(
       validateServerProfileUrl('https://server.example:4096/api'),
       contains('Remove the path'),
@@ -240,15 +242,11 @@ void main() {
     expect(validateServerProfileUrl('http://[::1]:4096'), isNull);
     expect(validateServerProfileUrl('http://[::1]'), isNull);
     // ...and every other IPv6 address is still remote.
-    expect(
-      validateServerProfileUrl('http://[2001:db8::1]:4096'),
-      contains('HTTP is allowed only'),
-    );
+    expect(validateServerProfileUrl('http://[2001:db8::1]:4096'), isNull);
     expect(validateServerProfileUrl('https://[2001:db8::1]:4096'), isNull);
-    // The message names the form the user has to type.
     expect(
-      validateServerProfileUrl('http://[2001:db8::1]:4096'),
-      contains('[::1]'),
+      serverUrlNeedsCleartextConfirmation('http://[2001:db8::1]:4096'),
+      isTrue,
     );
     expect(isLoopbackHost('::1'), isTrue);
     expect(isLoopbackHost('::2'), isFalse);

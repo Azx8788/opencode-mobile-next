@@ -15,7 +15,6 @@ const outDir = process.argv[2] ?? 'test/fixtures/coverage';
 const protocol = process.argv[3] ?? '/home/eslam/node_modules/@getpaseo/protocol/dist/messages.js';
 const protocolMessages = await import(pathToFileURL(protocol).href);
 const families = serversFamilies({
-  oc1File: 'contracts/opencode-openapi-f12e14cf.json',
   oc2File: 'contracts/opencode2-openapi-beta-18600.json',
   protocolMessages,
 });
@@ -35,12 +34,7 @@ for (const [name, family] of Object.entries(families)) {
 // needs a decision in servers_actions_ledger.json (a control, or why not).
 {
   const fs = await import('node:fs');
-  const oc1 = JSON.parse(fs.readFileSync('contracts/opencode-openapi-f12e14cf.json', 'utf8'));
   const wire = [];
-  for (const [path, ops] of Object.entries(oc1.paths)) {
-    if (!/^\/(global|instance|config|log|auth)(\/|$)/.test(path)) continue;
-    for (const method of Object.keys(ops)) if (method !== 'get') wire.push(`oc1 ${method.toUpperCase()} ${path}`);
-  }
   const requestTypes = [];
   for (const value of Object.values(protocolMessages)) {
     const shape = value?._zod?.def?.shape;
@@ -50,7 +44,7 @@ for (const [name, family] of Object.entries(families)) {
   for (const type of requestTypes) wire.push(`paseo ${type}`);
   wire.sort();
   mkdirSync(outDir, { recursive: true });
-  writeFileSync(`${outDir}/servers_actions_samples.json`, JSON.stringify({ source: 'contracts/opencode-openapi-f12e14cf.json, @getpaseo/protocol messages.js', wire }, null, 2));
+  writeFileSync(`${outDir}/servers_actions_samples.json`, JSON.stringify({ source: '@getpaseo/protocol messages.js', wire }, null, 2));
   console.log(`servers_actions: ${wire.length} mutating calls`);
 }
 if (problems.length) {

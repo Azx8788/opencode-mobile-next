@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/server_probe.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/server_probe.dart';
 import 'package:opencode_mobile/builtin/builtin_linux.dart';
 import 'package:opencode_mobile/builtin/builtin_server.dart';
 import 'package:opencode_mobile/builtin/local_terminal.dart';
@@ -30,6 +30,14 @@ import 'support/fake_setup_engine.dart';
 
 // Screen D (docs/design/phone-setup-v2-2026-09-24.md): "In-app Ubuntu", the one
 // place OpenCode inside the app is managed, in the switcher and in Servers.
+
+class _ThrowingSetupEngine extends FakeSetupEngine {
+  @override
+  Future<void> run(
+    Set<String> ids, {
+    Map<String, Map<String, String>> params = const {},
+  }) async => throw StateError('private-setup-diagnostic');
+}
 
 class _Store extends ProfileStore {
   _Store({required super.prefs});
@@ -75,6 +83,7 @@ class _Connection extends ConnectionController {
     String profileId, {
     QueuedPromptRemovalPlan? queuedPrompts,
     bool keepQueuedPrompts = false,
+    bool linuxGone = false,
   }) async {
     deleted.add(profileId);
     final store = this.store as _Store;
@@ -180,7 +189,7 @@ void main() {
   Set<String>? customizeAnswer;
 
   ServerProfile phone({
-    ServerFlavor flavor = ServerFlavor.v1,
+    ServerFlavor flavor = ServerFlavor.v2,
     String id = 'phone',
   }) => ServerProfile(
     id: id,
@@ -189,7 +198,7 @@ void main() {
     username: BuiltinLinux.serverUsername,
     password: 'secret',
     flavor: flavor,
-    serverVersion: flavor == ServerFlavor.v2 ? '2.0.10' : '1.18.29',
+    serverVersion: '2.0.10',
   );
   final work = ServerProfile(
     id: 'work',
@@ -214,7 +223,7 @@ void main() {
     PhoneServerCardRoutes.customizeOverride = (_) async => customizeAnswer;
     serverProbe = ({required baseUrl, username, password}) async =>
         linux.running
-        ? const ServerProbeResult.success('1.18.29')
+        ? const ServerProbeResult.success('2.0.10')
         : const ServerProbeResult.failure('refused');
   });
 
@@ -345,6 +354,42 @@ void main() {
     return saved;
   }
 
+  testWidgets('upgrade setup errors keep technical text inside Details', (
+    tester,
+  ) async {
+    PhoneSetup.engine = _ThrowingSetupEngine();
+    late BuildContext actionContext;
+    await tester.pumpWidget(
+      app(
+        Builder(
+          builder: (context) {
+            actionContext = context;
+            return const SizedBox.shrink();
+          },
+        ),
+      ),
+    );
+    final action = runPhoneServerAction(
+      actionContext,
+      PhoneServerAction.switchRuntime,
+      connection: connection,
+      linux: linux,
+      profile: phone(),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      find.text(AppLocalizationsEn().openCode2UpgradeFailed),
+      findsOneWidget,
+    );
+    expect(find.textContaining('private-setup-diagnostic'), findsNothing);
+    await tester.tap(find.text('Details'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('private-setup-diagnostic'), findsOneWidget);
+    await tester.tap(find.text('Close'));
+    await tester.pumpAndSettle();
+    await action;
+  });
+
   // The state word is a KitText; its words are read from the Text it draws.
   String status(WidgetTester tester) => tester
       .widget<Text>(
@@ -378,7 +423,7 @@ void main() {
       expect(find.text('In-app Ubuntu'), findsOneWidget);
       expect(status(tester), 'Running');
       // The size is not on the line (it is said where it matters: Remove).
-      expect(detail(tester), 'Connected · OpenCode 1.18.29');
+      expect(detail(tester), 'Connected · OpenCode 2.0.10');
       expect(find.byKey(const ValueKey('phone-server-stop')), findsNothing);
       await tester.tap(find.byKey(const ValueKey('phone-server-menu')));
       await tester.pumpAndSettle();
@@ -401,7 +446,7 @@ void main() {
     ) async {
       linux.bytesUsed = 0;
       await mountCard(tester);
-      expect(detail(tester), 'OpenCode 1.18.29');
+      expect(detail(tester), 'OpenCode 2.0.10');
       expectNoForbiddenText();
     });
 
@@ -410,7 +455,7 @@ void main() {
     ) async {
       linux.bytesUsed = null;
       await mountCard(tester, profile: phone()..serverVersion = null);
-      expect(detail(tester), 'Older OpenCode');
+      expect(detail(tester), 'OpenCode 2');
     });
 
     testWidgets('running and not connected: the row connects, and no button '
@@ -483,7 +528,7 @@ void main() {
       // One group: the caller's, holding the phone and the other server.
       expect(find.byType(KitRowGroup), findsOneWidget);
       expect(find.byKey(const ValueKey('phone-server-status')), findsNothing);
-      expect(detail(tester), 'OpenCode 1.18.29 · Stopped');
+      expect(detail(tester), 'OpenCode 2.0.10 · Stopped');
       final start = find.byKey(const ValueKey('phone-server-start'));
       expect(start, findsOneWidget);
       // The row names the server; its button says only what it does.
@@ -501,7 +546,7 @@ void main() {
       await tester.tap(start);
       await tester.pumpAndSettle();
       expect(linux.calls, ['start']);
-      expect(detail(tester), 'OpenCode 1.18.29 · Running');
+      expect(detail(tester), 'OpenCode 2.0.10 · Running');
       expect(start, findsNothing);
       expectNoForbiddenText();
     });
@@ -530,7 +575,7 @@ void main() {
       linux.installed = false;
       linux.running = false;
       await mountCard(tester, asRow: true);
-      expect(detail(tester), 'OpenCode 1.18.29 · Not set up');
+      expect(detail(tester), 'OpenCode 2.0.10 · Not set up');
       await tester.tap(find.byKey(const ValueKey('phone-server-set-up')));
       await tester.pumpAndSettle();
       expect(startOpened, 1);
@@ -566,7 +611,7 @@ void main() {
       tester,
     ) async {
       await mountCard(tester, asRow: true, connected: true);
-      expect(detail(tester), 'Connected · OpenCode 1.18.29 · Running');
+      expect(detail(tester), 'Connected · OpenCode 2.0.10 · Running');
       expect(find.byType(KitButton), findsNothing);
       await choose(tester, 'phone-server-stop');
       expect(linux.calls, ['stop']);
@@ -669,15 +714,17 @@ void main() {
   });
 
   group('menu', () {
-    testWidgets('Switch to OpenCode 2 re-runs opencode with its runtime', (
-      tester,
-    ) async {
+    testWidgets('menu offers no runtime switch', (tester) async {
       await mountCard(tester);
       await tester.tap(find.byKey(const ValueKey('phone-server-menu')));
       await tester.pumpAndSettle();
-      expect(find.text('Switch to OpenCode 2'), findsOneWidget);
-      await tester.tap(find.byKey(const ValueKey('phone-server-switch')));
-      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('phone-server-switch')), findsNothing);
+      expect(find.text('Older OpenCode'), findsNothing);
+    });
+
+    testWidgets('Update uses OpenCode 2', (tester) async {
+      await mountCard(tester);
+      await choose(tester, 'phone-server-update');
       expect(engine.runs, [
         {'opencode'},
       ]);
@@ -685,62 +732,7 @@ void main() {
         'opencode': {'runtime': 'opencode2'},
       });
       expect(progressOpened, 1);
-      expect(linux.historyChecks, [openCode1HistorySwitchCheckScript]);
     });
-
-    for (final unreadable in [false, true]) {
-      testWidgets(
-        'Move refuses ${unreadable ? 'unreadable history' : 'two existing histories'} before setup',
-        (tester) async {
-          linux.historyCheck = const BuiltinLinuxRunResult(
-            exitCode: 74,
-            output: 'private diagnostic that must not be displayed',
-          );
-          linux.historyCheckThrows = unreadable;
-          await mountCard(tester);
-          await choose(tester, 'phone-server-switch');
-          expect(engine.runs, isEmpty);
-          expect(progressOpened, 0);
-          expect(linux.running, isTrue);
-          expect(linux.calls, isEmpty);
-          expect(connection.disconnects, 0);
-          expect(
-            find.text(AppLocalizationsEn().thisPhoneHistoryFailed),
-            findsOneWidget,
-          );
-          expect(find.textContaining('private diagnostic'), findsNothing);
-        },
-      );
-    }
-
-    testWidgets('on OpenCode 2 it offers the way back', (tester) async {
-      await mountCard(tester, profile: phone(flavor: ServerFlavor.v2));
-      expect(detail(tester), 'OpenCode 2.0.10');
-      await tester.tap(find.byKey(const ValueKey('phone-server-menu')));
-      await tester.pumpAndSettle();
-      expect(find.text('Switch to Older OpenCode'), findsOneWidget);
-      await tester.tap(find.byKey(const ValueKey('phone-server-switch')));
-      await tester.pumpAndSettle();
-      expect(engine.runParams.single, {
-        'opencode': {'runtime': 'opencode1'},
-      });
-      expect(linux.historyChecks, isEmpty);
-    });
-
-    testWidgets(
-      'Update preserves older OpenCode after the fresh default changes',
-      (tester) async {
-        await mountCard(tester);
-        await choose(tester, 'phone-server-update');
-        expect(engine.runs, [
-          {'opencode'},
-        ]);
-        expect(engine.runParams.single, {
-          'opencode': {'runtime': 'opencode1'},
-        });
-        expect(progressOpened, 1);
-      },
-    );
 
     testWidgets('Update on OpenCode 2 keeps OpenCode 2', (tester) async {
       await mountCard(tester, profile: phone(flavor: ServerFlavor.v2));
@@ -758,7 +750,7 @@ void main() {
       ]);
       expect(engine.runParams.single, {
         ...SetupJobParams.adding({'python'}),
-        'opencode': {'runtime': 'opencode1'},
+        'opencode': {'runtime': 'opencode2'},
       });
       expect(progressOpened, 1);
     });
@@ -777,21 +769,6 @@ void main() {
       expect(progressOpened, 1);
     });
 
-    testWidgets('Add tools refuses an unknown runtime instead of switching', (
-      tester,
-    ) async {
-      await mountCard(tester, profile: phone(flavor: ServerFlavor.unknown));
-      await choose(tester, 'phone-server-add-tools');
-      expect(engine.runs, isEmpty);
-      expect(progressOpened, 0);
-      expect(
-        find.text(
-          lookupAppLocalizations(const Locale('en')).phoneSetupErrorCannotStart,
-        ),
-        findsOneWidget,
-      );
-    });
-
     testWidgets('Add tools closed without a choice installs nothing', (
       tester,
     ) async {
@@ -808,7 +785,7 @@ void main() {
       var removed = 0;
       store.saved.add(phone(flavor: ServerFlavor.v2, id: 'phone2'));
       store.saved.add(work);
-      connection.api = OpenCodeApi(baseUrl: BuiltinLinux.serverUrl);
+      connection.api = FakeServerGateway(baseUrl: BuiltinLinux.serverUrl);
       await mountCard(tester, connected: true, onRemoved: () => removed++);
       await choose(tester, 'phone-server-remove');
       // What survives is said first: the default keeps the projects.
@@ -987,57 +964,34 @@ void main() {
     );
   });
 
+  test(
+    'the same host over HTTP and HTTPS is told apart by port and secure',
+    () {
+      final plain = ServerProfile(
+        id: 'p',
+        name: '10.0.2.2',
+        baseUrl: 'http://10.0.2.2:4097',
+      );
+      final tls = ServerProfile(
+        id: 't',
+        name: '10.0.2.2',
+        baseUrl: 'https://10.0.2.2:4443',
+      );
+      final en = AppLocalizationsEn();
+      expect(
+        serverDisplayName(plain, en, among: [plain, tls]),
+        'Computer at 10.0.2.2:4097',
+      );
+      expect(
+        serverDisplayName(tls, en, among: [plain, tls]),
+        'Computer at 10.0.2.2:4443 (secure)',
+      );
+    },
+  );
+
   // Open point 4 of phone setup v2: setup saves one in-app profile per
   // OpenCode generation and names both "In-app Ubuntu".
-  group('OpenCode 1 and 2 both on this phone', () {
-    test('are told apart only when both exist; stored names are kept', () {
-      final one = phone(id: 'one');
-      final two = phone(id: 'two', flavor: ServerFlavor.v2)
-        ..name = 'My pocket server';
-      final all = [one, two, work];
-      final en = AppLocalizationsEn(), ar = AppLocalizationsAr();
-
-      expect(
-        serverDisplayName(one, en, among: all),
-        'In-app Ubuntu · Older OpenCode',
-      );
-      expect(
-        serverDisplayName(two, en, among: all),
-        'In-app Ubuntu · OpenCode 2',
-      );
-      expect(
-        serverDisplayName(one, ar, among: all),
-        'أوبونتو داخل التطبيق · الإصدار الأقدم من OpenCode',
-      );
-      expect(
-        serverDisplayName(two, ar, among: all),
-        'أوبونتو داخل التطبيق · OpenCode 2',
-      );
-      // One generation alone keeps the plain name.
-      expect(serverDisplayName(two, en, among: [two, work]), 'In-app Ubuntu');
-      expect(serverDisplayName(one, en, among: [one]), 'In-app Ubuntu');
-      // Other servers never change.
-      expect(serverDisplayName(work, en, among: all), 'Work server');
-      // Nothing was renamed to get there.
-      expect(one.name, 'This phone, built-in (OpenCode 1)');
-      expect(two.name, 'My pocket server');
-    });
-
-    testWidgets('the card says which one it stands for', (tester) async {
-      store.saved.add(phone(id: 'one'));
-      await mountCard(
-        tester,
-        profile: phone(id: 'two', flavor: ServerFlavor.v2),
-        connected: true,
-      );
-      expect(
-        tester
-            .widget<Text>(find.byKey(const ValueKey('phone-server-title')))
-            .data,
-        'In-app Ubuntu · OpenCode 2',
-      );
-    });
-
+  group('OpenCode 2 on this phone', () {
     testWidgets('alone, the card is just This phone', (tester) async {
       await mountCard(tester, connected: true);
       expect(
@@ -1055,7 +1009,7 @@ void main() {
     ) async {
       store.saved.addAll([phone(), work]);
       store.selected = 'phone';
-      connection.api = OpenCodeApi(baseUrl: BuiltinLinux.serverUrl);
+      connection.api = FakeServerGateway(baseUrl: BuiltinLinux.serverUrl);
       ServerSwitcherChoice? choice;
       await tester.pumpWidget(
         app(
@@ -1096,12 +1050,44 @@ void main() {
       expect(engine.runs, isEmpty);
     });
 
+    testWidgets('the switcher tells same-host servers apart', (tester) async {
+      final plain = ServerProfile(
+        id: 'p1',
+        name: '10.0.2.2',
+        baseUrl: 'http://10.0.2.2:4097',
+      );
+      final tls = ServerProfile(
+        id: 't1',
+        name: '10.0.2.2',
+        baseUrl: 'https://10.0.2.2:4443',
+      );
+      store.saved.addAll([plain, tls]);
+      store.selected = 'p1';
+      connection.api = FakeServerGateway(baseUrl: plain.baseUrl);
+      await tester.pumpWidget(
+        app(
+          Builder(
+            builder: (context) => Scaffold(
+              body: TextButton(
+                onPressed: () => showServerSwitcher(context, connection),
+                child: const Text('Switch'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Switch'));
+      await tester.pumpAndSettle();
+      expect(find.text('Computer at 10.0.2.2:4097'), findsOneWidget);
+      expect(find.text('Computer at 10.0.2.2:4443 (secure)'), findsOneWidget);
+    });
+
     testWidgets('the switcher lists This phone when another server is on', (
       tester,
     ) async {
       store.saved.addAll([work, phone()]);
       store.selected = 'work';
-      connection.api = OpenCodeApi(baseUrl: work.baseUrl);
+      connection.api = FakeServerGateway(baseUrl: work.baseUrl);
       ServerSwitcherChoice? choice;
       await tester.pumpWidget(
         app(
@@ -1184,7 +1170,7 @@ void main() {
       store.saved.addAll([phone(), work]);
       store.selected = 'work';
       connection
-        ..api = OpenCodeApi(baseUrl: work.baseUrl)
+        ..api = FakeServerGateway(baseUrl: work.baseUrl)
         ..busySessions = {'s1'};
       tester.view
         ..physicalSize = const Size(400, 1600)

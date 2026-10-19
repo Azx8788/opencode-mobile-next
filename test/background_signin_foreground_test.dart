@@ -178,28 +178,34 @@ void main() {
     },
   );
 
+  test('unknown pause status never starts foreground work', () async {
+    final w = await world();
+    w.pause = <String, dynamic>{'supported': false};
+    final lease = w.controller.reserveAgentSignInForeground();
+    await expectLater(
+      lease.ready,
+      _failure(AgentSignInForegroundFailure.unsupported),
+    );
+    expect(lease.active, isFalse);
+    expect(w.calls, ['getBackgroundPause']);
+    await lease.release();
+  });
+
   test(
-    'unknown or durable paused status never starts foreground work',
+    'a durable pause lets the sign-in the person asked for start the service',
     () async {
-      for (final pause in [
-        <String, dynamic>{'supported': false},
-        _paused,
-      ]) {
-        final w = await world();
-        w.pause = pause;
-        final lease = w.controller.reserveAgentSignInForeground();
-        await expectLater(
-          lease.ready,
-          _failure(
-            pause == _paused
-                ? AgentSignInForegroundFailure.paused
-                : AgentSignInForegroundFailure.unsupported,
-          ),
-        );
-        expect(lease.active, isFalse);
-        expect(w.calls, ['getBackgroundPause']);
-        await lease.release();
-      }
+      final w = await world();
+      w.pause = _paused;
+      final lease = w.controller.reserveAgentSignInForeground();
+      await lease.ready;
+      expect(lease.active, isTrue);
+      expect(w.controller.enabled, isFalse);
+      await lease.release();
+      expect(w.calls, ['getBackgroundPause', 'enable', 'disable']);
+      expect(
+        w.preferences.getBool(BackgroundLiveController.preferenceKey),
+        isNull,
+      );
     },
   );
 
@@ -233,6 +239,44 @@ void main() {
         );
         await lease.release();
       }
+    },
+  );
+
+  test(
+    'a refused sign-in admission names its fixed step, never platform text',
+    () async {
+      Matcher coded(String code) => throwsA(
+        isA<AgentSignInForegroundException>()
+            .having(
+              (e) => e.reason,
+              'reason',
+              AgentSignInForegroundFailure.unavailable,
+            )
+            .having((e) => e.code, 'code', code),
+      );
+      var w = await world();
+      w.ackActive = false;
+      var lease = w.controller.reserveAgentSignInForeground();
+      await expectLater(lease.ready, coded('service-not-started'));
+      await lease.release();
+
+      w = await world();
+      w.enableError = PlatformException(
+        code: 'permission_in_progress',
+        message: 'private native text',
+      );
+      lease = w.controller.reserveAgentSignInForeground();
+      await expectLater(lease.ready, coded('service-permission_in_progress'));
+      await lease.release();
+
+      w = await world();
+      w.enableError = PlatformException(
+        code: 'Private /data/path',
+        message: 'x',
+      );
+      lease = w.controller.reserveAgentSignInForeground();
+      await expectLater(lease.ready, coded('service-platform'));
+      await lease.release();
     },
   );
 

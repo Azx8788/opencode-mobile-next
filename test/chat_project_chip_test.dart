@@ -9,7 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/models.dart' show FileNode;
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -26,7 +27,7 @@ import 'support/complete_message_history.dart';
 /// compact menu of what can be done there (chats-first shell).
 const _sessionID = 'session-1';
 
-class _Api extends OpenCodeApi with CompleteMessageHistory {
+class _Api extends FakeServerGateway with CompleteMessageHistory {
   _Api({required String? directory, this.capable = true})
     : super(baseUrl: 'http://localhost') {
     current = Session(
@@ -49,6 +50,12 @@ class _Api extends OpenCodeApi with CompleteMessageHistory {
     sessionDiff: capable,
   );
 
+  // This fixture exercises the project chip, without claiming the folder is
+  // empty when its contents were not supplied.
+  @override
+  Future<List<FileNode>> listFiles(String path) async =>
+      throw ApiException('Project contents are unavailable in this fixture.');
+
   @override
   Future<List<Session>> sessions() async => [current];
 
@@ -68,6 +75,7 @@ Future<ConnectionController> _controller(
       {
         'id': 'profile-1',
         'name': 'Test server',
+        'flavor': 'v2',
         'baseUrl': 'http://localhost',
         'username': '',
       },
@@ -75,6 +83,7 @@ Future<ConnectionController> _controller(
         {
           'id': 'profile-2',
           'name': 'Work box',
+          'flavor': 'v2',
           'baseUrl': 'http://localhost:2',
           'username': '',
         },

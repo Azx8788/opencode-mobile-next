@@ -34,6 +34,7 @@ void main() {
       sources: [
         'android/app/src/main/kotlin/io/github/eslamasabry/opencode_mobile/PhoneAgentHost.kt',
         'android/app/src/main/kotlin/io/github/eslamasabry/opencode_mobile/PhoneAgentInventory.kt',
+        'android/app/src/main/kotlin/io/github/eslamasabry/opencode_mobile/PaseoStaleLock.kt',
         helper.path,
         'test/native/phone_agent_host_harness.kt',
         'test/native/phone_agent_host_stubs/os.kt',
@@ -48,8 +49,17 @@ void main() {
     'low-space-launch',
     'healthy-launch',
     'exited-at-once',
+    'stale-paseo-lock',
+    'answering-paseo-lock',
     'concurrent-start',
     'partial-inventory',
+    'helper-version-restart',
+    'helper-invalid-update',
+    'helper-busy-update',
+    'helper-unowned-update',
+    'helper-other-profile',
+    'helper-restart-failure',
+    'helper-guarded-stop',
   ]) {
     test('native phone host: $scenario', skip: skip, () async {
       final result = await Process.run('java', [

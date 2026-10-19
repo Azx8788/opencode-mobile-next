@@ -253,3 +253,52 @@ h3 { font-size: 1.08rem; line-height: 1.35; letter-spacing: -0.03em; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* 1.4.0 sections */
+.sr-only { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.new { padding-block: 5rem 3rem; }
+.new-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; }
+.new-card { background: var(--paper); border: 1px solid var(--rule); border-radius: 16px; padding: 1.6rem; }
+.new-card p { font-size: 0.92rem; margin-block-start: 0.7rem; }
+.new-card-wide { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1.2fr; gap: 2rem; align-items: center; }
+.new-card-wide img { border-radius: 12px; border: 1px solid var(--rule); }
+.new-card-wide figcaption { margin-block-start: 0.7rem; }
+.new-card-wide:not(:has(figure)) { display: block; }
+.hero-actions .button-secondary { font-family: inherit; }
+.compare { background: var(--paper); padding-block: 5rem 3rem; }
+.table-scroll { overflow-x: auto; }
+table { inline-size: 100%; border-collapse: collapse; font-size: 0.9rem; min-inline-size: 40rem; }
+th, td { text-align: start; padding: 0.9rem 1rem; border-block-end: 1px solid var(--rule); vertical-align: top; line-height: 1.5; color: var(--muted); }
+thead th { color: var(--ink); font-weight: 620; font-size: 0.82rem; }
+tbody th { color: var(--ink); font-weight: 600; }
+tr.us th, tr.us td { background: color-mix(in srgb, var(--green) 28%, transparent); color: var(--ink); }
+.faq { padding-block: 5rem; max-inline-size: 52rem; }
+.faq h2 { margin-block-end: 1.5rem; }
+details { border-block-end: 1px solid var(--rule); padding-block: 1rem; }
+summary { cursor: pointer; font-weight: 600; color: var(--ink); line-height: 1.5; }
+summary:focus-visible { outline: 3px solid var(--link); outline-offset: 4px; border-radius: 3px; }
+details p { margin-block-start: 0.7rem; font-size: 0.95rem; }
+@media (max-width: 780px) {
+  .new-grid { grid-template-columns: 1fr; }
+  .new-card-wide { grid-template-columns: 1fr; }
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --sky: #0d161e;
+    --ink: #eaf1f7;
+    --muted: #a9b9c8;
+    --link: #8cc0ff;
+    --paper: #131f29;
+    --green: #a4ebc8;
+    --rule: #2a3a48;
+  }
+  .button { color: #0d161e; }
+  .button:hover { background: #bff2d9; }
+  .button-secondary { background: transparent; color: var(--ink); border-color: #3b4f60; }
+  .button-secondary:hover { background: var(--paper); }
+  .arabic-section { background: #101c26; }
+  .phone-frame { border-color: #3b4f60; box-shadow: none; }
+}

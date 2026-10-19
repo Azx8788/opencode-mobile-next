@@ -67,7 +67,7 @@ fn exited(child: &mut Running) -> std::process::ExitStatus {
     }
 }
 #[test]
-fn missing_oc1_credentials_reports_typed_failure_without_ready_or_secrets() {
+fn missing_server_credentials_reports_typed_failure_without_ready_or_secrets() {
     let root = root();
     let private = root.path().join("oc.teamEngine.test");
     fs::create_dir(&private).unwrap();
@@ -77,8 +77,8 @@ fn missing_oc1_credentials_reports_typed_failure_without_ready_or_secrets() {
     let config = private.join("config.json");
     fs::write(&config, json!({"schemaVersion":1,"profileId":"test","privateRoot":private,
         "workerRoot":root.path().join("workers"),"guestWorkerRoot":"/root/aiteam/work/test",
-        "port":0,"authTokenFile":token,"oc1CredentialFile":private.join("missing-credentials"),
-        "oc1BaseUrl":"http://127.0.0.1:4097","sourceRoots":[],"boundary":{"verified":false,"reason":"test"}}).to_string()).unwrap();
+        "port":0,"authTokenFile":token,"serverCredentialFile":private.join("missing-credentials"),
+        "serverBaseUrl":"http://127.0.0.1:4097","sourceRoots":[],"boundary":{"verified":false,"reason":"test"}}).to_string()).unwrap();
     let mut child = launch(&["--config", config.to_str().unwrap()]);
     let value: Value = serde_json::from_str(&line(&mut child)).unwrap();
     assert_eq!(

@@ -1,17 +1,16 @@
-// The one-shot check's terminal on the wire: OpenCode 1 and 2 both create a
+// The one-shot check's terminal on the wire: OpenCode 2 creates a
 // PTY with the command and arguments as separate fields, keep the check out
 // of the person's terminal list, and map the failures a server can give.
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/api2/client.dart';
 import 'package:opencode_mobile/api2/gateway_operations.dart';
 import 'package:opencode_mobile/domain/terminal_lifecycle.dart';
 import 'package:opencode_mobile/domain/usage_subscriptions.dart';
 import 'package:opencode_mobile/state/computer_usage_source.dart';
-import 'package:opencode_sdk/opencode_sdk.dart' as sdk;
 
 class _RealHttpOverrides extends HttpOverrides {}
 
@@ -43,39 +42,31 @@ Future<void> _withServer(
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  for (final v2 in [false, true]) {
-    final name = v2 ? 'v2' : 'v1';
-
+  group('OpenCode 2', () {
     Future<void> withGateway(
       Future<void> Function(HttpRequest) handler,
       Future<void> Function(ServerOperationsGateway gateway) test,
     ) => _withServer(handler, (baseUrl) async {
-      final sdkClient = sdk.OpencodeSdk(basePathOverride: baseUrl);
       final client = Api2Client.connect(
         baseUrl: baseUrl,
         password: 'fake-test-password',
         directory: '/project',
       );
       try {
-        await test(
-          v2
-              ? Api2OperationsGateway(client: client)
-              : SdkProductRepository(sdkClient),
-        );
+        await test(Api2OperationsGateway(client: client));
       } finally {
-        sdkClient.dio.close(force: true);
         client.close();
       }
     });
 
-    test('$name creates a PTY with the command and arguments apart', () async {
+    test('creates a PTY with the command and arguments apart', () async {
       final bodies = <dynamic>[];
       await withGateway(
         (request) async {
           bodies.add(jsonDecode(await utf8.decoder.bind(request).join()));
           request.response.headers.contentType = ContentType.json;
           final json = _pty('pty_1', computerUsageTitle);
-          request.response.write(jsonEncode(v2 ? {'data': json} : json));
+          request.response.write(jsonEncode({'data': json}));
           await request.response.close();
         },
         (gateway) async {
@@ -98,7 +89,7 @@ void main() {
       );
     });
 
-    test('$name leaves the usage check out of the terminal list', () async {
+    test('leaves the usage check out of the terminal list', () async {
       await withGateway(
         (request) async {
           await request.drain<void>();
@@ -107,7 +98,7 @@ void main() {
             _pty('pty_mine', 'Build'),
             _pty('pty_check', computerUsageTitle),
           ];
-          request.response.write(jsonEncode(v2 ? {'data': list} : list));
+          request.response.write(jsonEncode({'data': list}));
           await request.response.close();
         },
         (gateway) async {
@@ -117,7 +108,7 @@ void main() {
       );
     });
 
-    test('$name failures map to fixed reasons without server text', () async {
+    test('failures map to fixed reasons without server text', () async {
       for (final (status, expected) in [
         (404, ComputerUsageProblem.serverTooOld),
         (405, ComputerUsageProblem.serverTooOld),
@@ -149,21 +140,18 @@ void main() {
       }
     });
 
-    test('$name no answer at all is "unreachable"', () async {
+    test('no answer at all is "unreachable"', () async {
       final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
       final baseUrl = 'http://${server.address.host}:${server.port}';
       await server.close(force: true);
       await HttpOverrides.runZoned(() async {
-        final sdkClient = sdk.OpencodeSdk(basePathOverride: baseUrl);
         final client = Api2Client.connect(
           baseUrl: baseUrl,
           password: 'fake-test-password',
           directory: '/project',
         );
         try {
-          final gateway = v2
-              ? Api2OperationsGateway(client: client)
-              : SdkProductRepository(sdkClient);
+          final gateway = Api2OperationsGateway(client: client);
           await expectLater(
             GatewayComputerTerminalPort(
               gateway,
@@ -177,12 +165,11 @@ void main() {
             ),
           );
         } finally {
-          sdkClient.dio.close(force: true);
           client.close();
         }
       }, createHttpClient: (_) => _RealHttpOverrides().createHttpClient(null));
     });
-  }
+  });
 
   test('a gateway without the facet is "too old", not a crash', () async {
     final port = GatewayComputerTerminalPort(_Bare());

@@ -19,7 +19,6 @@ class _Tones {
     this.primary,
     this.secondary, {
     this.success,
-    this.error,
   });
 
   final Color background;
@@ -27,7 +26,6 @@ class _Tones {
   final Color primary;
   final Color secondary;
   final Color? success;
-  final Color? error;
 }
 
 class _Spec {
@@ -47,7 +45,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFFBD93F9),
       Color(0xFFFF79C6),
       success: Color(0xFF50FA7B),
-      error: Color(0xFFFF5555),
     ),
     _Tones(
       Color(0xFFF8F8F2),
@@ -55,7 +52,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF7C4DDB),
       Color(0xFFC2185B),
       success: null,
-      error: null,
     ),
   ),
   ThemePackId.nord: _Spec(
@@ -66,7 +62,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF88C0D0),
       Color(0xFF81A1C1),
       success: Color(0xFFA3BE8C),
-      error: Color(0xFFBF616A),
     ),
     _Tones(
       Color(0xFFECEFF4),
@@ -74,7 +69,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF3B6EA8),
       Color(0xFF4C7A8A),
       success: null,
-      error: null,
     ),
   ),
   ThemePackId.tokyoNight: _Spec(
@@ -85,7 +79,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF7AA2F7),
       Color(0xFFBB9AF7),
       success: Color(0xFF9ECE6A),
-      error: Color(0xFFF7768E),
     ),
     _Tones(
       Color(0xFFE1E2E7),
@@ -93,7 +86,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF2E7DE9),
       Color(0xFF9854F1),
       success: null,
-      error: null,
     ),
   ),
   ThemePackId.oneDark: _Spec(
@@ -104,7 +96,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF61AFEF),
       Color(0xFFC678DD),
       success: Color(0xFF98C379),
-      error: Color(0xFFE06C75),
     ),
     _Tones(
       Color(0xFFFAFAFA),
@@ -112,7 +103,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF4078F2),
       Color(0xFFA626A4),
       success: null,
-      error: null,
     ),
   ),
   ThemePackId.monokai: _Spec(
@@ -123,7 +113,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFFFD971F),
       Color(0xFF66D9EF),
       success: Color(0xFFA6E22E),
-      error: Color(0xFFF92672),
     ),
     _Tones(
       Color(0xFFFAF8F2),
@@ -131,7 +120,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFFC2570C),
       Color(0xFF0E7490),
       success: null,
-      error: null,
     ),
   ),
   ThemePackId.rosePine: _Spec(
@@ -142,7 +130,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFFC4A7E7),
       Color(0xFFEBBCBA),
       success: Color(0xFF9CCFD8),
-      error: Color(0xFFEB6F92),
     ),
     _Tones(
       Color(0xFFFAF4ED),
@@ -150,7 +137,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF907AA9),
       Color(0xFFD7827E),
       success: Color(0xFF56949F),
-      error: Color(0xFFB4637A),
     ),
   ),
   ThemePackId.everforest: _Spec(
@@ -161,7 +147,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFFA7C080),
       Color(0xFF7FBBB3),
       success: Color(0xFFA7C080),
-      error: Color(0xFFE67E80),
     ),
     _Tones(
       Color(0xFFFDF6E3),
@@ -169,7 +154,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF5F8A1E),
       Color(0xFF3A94C5),
       success: null,
-      error: null,
     ),
   ),
   ThemePackId.kanagawa: _Spec(
@@ -180,7 +164,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF7E9CD8),
       Color(0xFF957FB8),
       success: Color(0xFF98BB6C),
-      error: Color(0xFFE46876),
     ),
     _Tones(
       Color(0xFFF2ECBC),
@@ -188,7 +171,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF4D699B),
       Color(0xFF624C83),
       success: null,
-      error: null,
     ),
   ),
   ThemePackId.ayu: _Spec(
@@ -199,7 +181,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFFE6B450),
       Color(0xFF39BAE6),
       success: Color(0xFFAAD94C),
-      error: Color(0xFFF07178),
     ),
     _Tones(
       Color(0xFFFCFCFC),
@@ -207,7 +188,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFFC77700),
       Color(0xFF2B7BB9),
       success: null,
-      error: null,
     ),
   ),
   ThemePackId.nightOwl: _Spec(
@@ -218,7 +198,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF82AAFF),
       Color(0xFFC792EA),
       success: Color(0xFFADDB67),
-      error: Color(0xFFEF5350),
     ),
     _Tones(
       Color(0xFFFBFBFB),
@@ -226,7 +205,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF1F6FB5),
       Color(0xFF994CC3),
       success: null,
-      error: null,
     ),
   ),
   ThemePackId.github: _Spec(
@@ -237,7 +215,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF4493F8),
       Color(0xFFA371F7),
       success: Color(0xFF3FB950),
-      error: Color(0xFFF85149),
     ),
     _Tones(
       Color(0xFFFFFFFF),
@@ -245,7 +222,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF0969DA),
       Color(0xFF8250DF),
       success: Color(0xFF1A7F37),
-      error: Color(0xFFCF222E),
     ),
   ),
   ThemePackId.palenight: _Spec(
@@ -256,7 +232,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFFC792EA),
       Color(0xFF89DDFF),
       success: null,
-      error: null,
     ),
     _Tones(
       Color(0xFFF4F3FA),
@@ -264,7 +239,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF7C4DFF),
       Color(0xFF0086B3),
       success: null,
-      error: null,
     ),
   ),
   ThemePackId.synthwave: _Spec(
@@ -275,7 +249,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFFFF7EDB),
       Color(0xFF36F9F6),
       success: Color(0xFF72F1B8),
-      error: Color(0xFFFE4450),
     ),
     _Tones(
       Color(0xFFFBF5FF),
@@ -283,7 +256,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFFC2189B),
       Color(0xFF0E8A8A),
       success: null,
-      error: null,
     ),
   ),
   ThemePackId.cobalt: _Spec(
@@ -294,7 +266,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFFFFC600),
       Color(0xFF9EFFFF),
       success: Color(0xFF3AD900),
-      error: Color(0xFFFF628C),
     ),
     _Tones(
       Color(0xFFF2F8FF),
@@ -302,7 +273,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF0B63C5),
       Color(0xFFB07D00),
       success: null,
-      error: null,
     ),
   ),
   ThemePackId.midnight: _Spec(
@@ -313,7 +283,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF8AB4F8),
       Color(0xFFC58AF9),
       success: null,
-      error: null,
     ),
     _Tones(
       Color(0xFFFFFFFF),
@@ -321,7 +290,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF1A56DB),
       Color(0xFF7C3AED),
       success: null,
-      error: null,
     ),
   ),
   ThemePackId.paper: _Spec(
@@ -332,7 +300,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFFD6C7A1),
       Color(0xFFA8A29E),
       success: null,
-      error: null,
     ),
     _Tones(
       Color(0xFFFBF9F4),
@@ -340,7 +307,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF44403C),
       Color(0xFF78716C),
       success: null,
-      error: null,
     ),
   ),
   ThemePackId.forest: _Spec(
@@ -351,7 +317,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF6FCF97),
       Color(0xFF8FB9A8),
       success: null,
-      error: null,
     ),
     _Tones(
       Color(0xFFF3F8F3),
@@ -359,7 +324,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF1F7A45),
       Color(0xFF4B7F68),
       success: null,
-      error: null,
     ),
   ),
   ThemePackId.ocean: _Spec(
@@ -370,7 +334,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF4FC3F7),
       Color(0xFF80CBC4),
       success: null,
-      error: null,
     ),
     _Tones(
       Color(0xFFF1F8FD),
@@ -378,7 +341,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF0277BD),
       Color(0xFF00796B),
       success: null,
-      error: null,
     ),
   ),
   ThemePackId.sunset: _Spec(
@@ -389,7 +351,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFFFF8A5B),
       Color(0xFFFFC078),
       success: null,
-      error: null,
     ),
     _Tones(
       Color(0xFFFFF7F1),
@@ -397,7 +358,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFFC2410C),
       Color(0xFFB45309),
       success: null,
-      error: null,
     ),
   ),
   ThemePackId.sakura: _Spec(
@@ -408,7 +368,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFFF48FB1),
       Color(0xFFCE93D8),
       success: null,
-      error: null,
     ),
     _Tones(
       Color(0xFFFFF5F8),
@@ -416,7 +375,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFFC2185B),
       Color(0xFF8E24AA),
       success: null,
-      error: null,
     ),
   ),
   ThemePackId.lavender: _Spec(
@@ -427,7 +385,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFFB39DDB),
       Color(0xFF9FA8DA),
       success: null,
-      error: null,
     ),
     _Tones(
       Color(0xFFF8F6FE),
@@ -435,7 +392,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF6A4BC4),
       Color(0xFF4F5BB5),
       success: null,
-      error: null,
     ),
   ),
   ThemePackId.mint: _Spec(
@@ -446,7 +402,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF5EEAD4),
       Color(0xFF7DD3FC),
       success: null,
-      error: null,
     ),
     _Tones(
       Color(0xFFF1FBF9),
@@ -454,7 +409,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF0F766E),
       Color(0xFF0369A1),
       success: null,
-      error: null,
     ),
   ),
   ThemePackId.coffee: _Spec(
@@ -465,7 +419,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFFD4A373),
       Color(0xFFC9ADA7),
       success: null,
-      error: null,
     ),
     _Tones(
       Color(0xFFFAF5EF),
@@ -473,7 +426,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF8B5E34),
       Color(0xFF7A5C58),
       success: null,
-      error: null,
     ),
   ),
   ThemePackId.slate: _Spec(
@@ -484,7 +436,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF38BDF8),
       Color(0xFFA5B4FC),
       success: null,
-      error: null,
     ),
     _Tones(
       Color(0xFFF8FAFC),
@@ -492,7 +443,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF2563EB),
       Color(0xFF4F46E5),
       success: null,
-      error: null,
     ),
   ),
   ThemePackId.amber: _Spec(
@@ -503,7 +453,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFFFFCA28),
       Color(0xFFFFAB40),
       success: null,
-      error: null,
     ),
     _Tones(
       Color(0xFFFFFBF0),
@@ -511,7 +460,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF9A6700),
       Color(0xFFB45309),
       success: null,
-      error: null,
     ),
   ),
   ThemePackId.highContrast: _Spec(
@@ -522,7 +470,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFFFFEB3B),
       Color(0xFF80D8FF),
       success: Color(0xFF69F0AE),
-      error: Color(0xFFFF8A80),
     ),
     _Tones(
       Color(0xFFFFFFFF),
@@ -530,7 +477,6 @@ const _specs = <ThemePackId, _Spec>{
       Color(0xFF0037A6),
       Color(0xFF6A00A8),
       success: Color(0xFF00600F),
-      error: Color(0xFFB00020),
     ),
   ),
 };
@@ -623,12 +569,8 @@ ThemePalette _build(_Tones t, Brightness brightness) {
     low = _mix(low, away, .06);
   }
   final secondary = _readable(t.secondary, [bg, surface], 3, far);
-  final error = _readable(
-    t.error ?? (dark ? const Color(0xFFF2777A) : const Color(0xFFC62828)),
-    [bg, surface],
-    3,
-    far,
-  );
+  // No red: Material's error roles are the neutral text.
+  final error = fg;
   final success = _readable(
     t.success ?? (dark ? const Color(0xFF86D8A5) : const Color(0xFF1E7A44)),
     [bg, surface],
@@ -641,7 +583,7 @@ ThemePalette _build(_Tones t, Brightness brightness) {
       _readable(_mix(accent, fg, step(.60, .70)), [fill], 4.5, far);
   final primaryContainer = container(primary, .30, .22);
   final secondaryContainer = container(secondary, .26, .18);
-  final errorContainer = container(error, .30, .18);
+  final errorContainer = high;
 
   final scheme =
       ColorScheme.fromSeed(

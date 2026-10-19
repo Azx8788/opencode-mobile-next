@@ -2,7 +2,7 @@
 // with cloud environments and their providers, a project's health, and a
 // connection whose folder moves are recorded.
 import 'package:flutter/material.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';

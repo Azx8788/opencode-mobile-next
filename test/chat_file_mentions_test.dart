@@ -1,11 +1,12 @@
+import 'support/fake_server_capabilities.dart';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -16,7 +17,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/complete_message_history.dart';
 
-class _Api extends OpenCodeApi with CompleteMessageHistory {
+class _Api extends FakeServerGateway with CompleteMessageHistory {
   _Api({this.files = true}) : super(baseUrl: 'http://localhost');
 
   final bool files;
@@ -28,7 +29,7 @@ class _Api extends OpenCodeApi with CompleteMessageHistory {
 
   @override
   ServerCapabilities get capabilities => files
-      ? ServerCapabilities.allV1
+      ? testServerCapabilities
       : const ServerCapabilities(fileBrowsing: false);
 
   @override
@@ -83,6 +84,7 @@ Future<ConnectionController> _controller(_Api api) async {
       {
         'id': 'profile-1',
         'name': 'Test server',
+        'flavor': 'v2',
         'baseUrl': 'http://localhost',
         'username': '',
       },

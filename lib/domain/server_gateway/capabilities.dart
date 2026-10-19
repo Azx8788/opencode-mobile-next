@@ -1,7 +1,9 @@
 /// Feature switches for server abilities that depend on the connected
-/// protocol generation. The v1 server exposes every listed feature, so its
-/// gateway reports [allV1]; a v2 gateway narrows these per endpoint support.
+/// protocol generation. Each gateway reports its verified endpoint support.
 class ServerCapabilities {
+  /// Cold authenticated prompt dispatch is supported by the schedule adapter.
+  final bool scheduledPrompts;
+
   /// The phone engine implements this protocol's team permission contract.
   /// Setup may start its probe; actual execution still requires native proof.
   final bool phoneTeamExecution;
@@ -206,7 +208,14 @@ class ServerCapabilities {
   /// the real VCS through `GET /vcs`.
   final bool projectsAreGitRepositories;
 
+  /// The server runs one non-interactive command outside any conversation
+  /// and returns its output ([RemoteShellGateway], OpenCode 2
+  /// `POST /api/shell`). The Git page uses it on remote servers, with the
+  /// server's own Git sign-in. False on OpenCode 1, Codex and Paseo.
+  final bool remoteShell;
+
   const ServerCapabilities({
+    this.scheduledPrompts = false,
     this.phoneTeamExecution = false,
     this.genUi = false,
     this.sessionAddressHandoff = false,
@@ -291,11 +300,13 @@ class ServerCapabilities {
     this.inbox = false,
     this.cliSessionResume = true,
     this.projectsAreGitRepositories = true,
+    this.remoteShell = false,
   });
 
   /// Preserve every protocol capability while applying managed-host readiness.
   ServerCapabilities withGenUi(bool value, {bool? agentHandoffFiles}) =>
       ServerCapabilities(
+        scheduledPrompts: scheduledPrompts,
         phoneTeamExecution: phoneTeamExecution,
         genUi: value,
         sessionAddressHandoff: sessionAddressHandoff,
@@ -379,17 +390,6 @@ class ServerCapabilities {
         inbox: inbox,
         cliSessionResume: cliSessionResume,
         projectsAreGitRepositories: projectsAreGitRepositories,
+        remoteShell: remoteShell,
       );
-
-  static const allV1 = ServerCapabilities(
-    phoneTeamExecution: true,
-    clientPromptMessageID: true,
-    commandReceipts: true,
-    setupConfigRead: true,
-    setupMcpInventory: true,
-    mcpRuntimeAdds: true,
-    mcpChatConnect: true,
-    mcpChatOAuth: true,
-    mcpChatToolRefresh: true,
-  );
 }

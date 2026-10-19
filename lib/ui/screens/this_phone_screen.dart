@@ -15,12 +15,10 @@ import '../../builtin/setup/phone_setup.dart';
 import '../../builtin/setup/setup_contract.dart';
 import '../../builtin/setup/termux_setup_host.dart';
 import '../../builtin/team/builtin_team.dart';
-import '../../domain/opencode_history_copy.dart';
 import '../../domain/server_gateway.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state/connection.dart';
 import '../../state/free_model_notice.dart';
-import '../../state/move_to_opencode2.dart';
 import '../../state/orchestration_store.dart' show PhoneOffer;
 import '../../state/phone_host.dart';
 import '../../state/profiles.dart' show OrchestrationHostKind;
@@ -41,6 +39,7 @@ import '../widgets/termux_phone_tools.dart';
 import '../widgets/termux_problem_fix.dart';
 import 'keep_running_screen.dart';
 import 'library_screen.dart' show IntegrationsScreen, IntegrationsMode;
+import 'linux_manager/linux_manager_screen.dart';
 import 'local_agent_screen.dart';
 import 'manage_space_screen.dart' show ProjectExportScreen;
 import 'phone_setup/phone_setup_routes.dart';
@@ -78,8 +77,7 @@ Future<void> openThisPhone(BuildContext context, {PhoneHostKind? kind}) =>
 /// app or in Termux), on one page (programme P1.5).
 ///
 /// One list ordered by what is most likely needed: the status with the one
-/// act it needs now (start, connect, finish a switch), then update, switch
-/// between OpenCode 1 and 2, add tools, what is installed, storage, what
+/// act it needs now (start, connect, finish a switch), then update, add tools, what is installed, storage, what
 /// runs (Running on this phone, where the host can list it; left out when
 /// the list cannot be read), keeping it running, the log, and removing it
 /// last. Each act names
@@ -122,16 +120,10 @@ class _ThisPhoneScreenState extends ConsumerState<ThisPhoneScreen> {
   late final PhoneHost _host;
   late final bool _ownsHost;
   Set<String>? _installedOptional;
+  bool _installedFailed = false;
   var _installedReads = 0;
   bool _connecting = false;
   bool _removing = false;
-
-  /// Set when "Not now" is pressed, so the line folds away at once even if
-  /// the saved dismissal is slow or refused.
-  bool _moveDismissedNow = false;
-  OpenCodeHistorySwitchAdmission _moveAdmission =
-      OpenCodeHistorySwitchAdmission.unavailable;
-  int _moveAdmissionRead = 0;
 
   /// The host's tools that can be removed one by one (P1.4), read after
   /// the page loads; null until then or when there is no engine.
@@ -287,15 +279,22 @@ class _ThisPhoneScreenState extends ConsumerState<ThisPhoneScreen> {
     // Installed tools are read on both hosts (Termux's checks run in its
     // Ubuntu); nothing to read before setup put anything there.
     if (!_host.installed) {
-      if (mounted) setState(() => _removable = null);
+      ++_installedReads;
+      if (mounted) {
+        setState(() {
+          _installedOptional = null;
+          _removable = null;
+        });
+      }
       return;
     }
-    // The reads run in the host's Linux; none waits for another.
+    // Native probes share a bounded execution slot. Read the inventory first
+    // so the removal probes cannot starve it and leave the summary incomplete.
+    if (_host.kind == PhoneHostKind.inApp) await _readInstalled();
     await Future.wait([
-      _readInstalled(),
+      if (_host.kind == PhoneHostKind.termux) _readInstalled(),
       _readRemovable(),
       _readProcesses(),
-      _readMoveAdmission(),
     ]);
     unawaited(_pollHistory());
   }
@@ -360,23 +359,6 @@ class _ThisPhoneScreenState extends ConsumerState<ThisPhoneScreen> {
     if (mounted) unawaited(_readProcesses());
   }
 
-  Future<void> _readInstalled() async {
-    final engine = _hostEngine();
-    if (engine == null) return;
-    // Reads can overlap (the page's first read, then one when a job ends):
-    // only the newest answer counts, or an old slow read puts back a list
-    // from before the tools were added.
-    final read = ++_installedReads;
-    try {
-      final installed = await engine.installedOptional();
-      if (mounted && read == _installedReads) {
-        setState(() => _installedOptional = installed);
-      }
-    } catch (_) {
-      // Unknown: the list shows what every setup installs.
-    }
-  }
-
   Future<void> _readRemovable() async {
     final removal = _removal;
     if (removal == null) return;
@@ -404,14 +386,7 @@ class _ThisPhoneScreenState extends ConsumerState<ThisPhoneScreen> {
     if (mounted) setState(() {});
   }
 
-  String _runtimeName(TermuxRuntime runtime) =>
-      runtime == TermuxRuntime.openCode2
-      ? _l10n.setupRuntimeTwo
-      : _l10n.setupRuntimeOne;
-
-  TermuxRuntime get _otherRuntime => _host.runtime == TermuxRuntime.openCode2
-      ? TermuxRuntime.openCode1
-      : TermuxRuntime.openCode2;
+  String _runtimeName(TermuxRuntime runtime) => _l10n.setupRuntimeTwo;
 
   bool get _connectedHere {
     final profile = _host.profile;
@@ -518,6 +493,16 @@ class _ThisPhoneScreenState extends ConsumerState<ThisPhoneScreen> {
     if (removed || action != PhoneServerAction.terminal) unawaited(_load());
   }
 
+  Future<void> _openLinux() async {
+    await openLinuxManager(
+      context,
+      // Repair re-runs setup's checks for what is installed (the update
+      // path keeps the selected runtime and resumes what finished).
+      onRepair: () => _inApp(PhoneServerAction.update),
+    );
+    if (mounted) unawaited(_load());
+  }
+
   Future<void> _update() async {
     if (_host.kind == PhoneHostKind.inApp) {
       return _inApp(PhoneServerAction.update);
@@ -544,121 +529,6 @@ class _ThisPhoneScreenState extends ConsumerState<ThisPhoneScreen> {
     );
     if (!confirmed || !mounted) return;
     await openPhoneSetupTermux(context, job: TermuxHostJob.update);
-    if (mounted) unawaited(_load());
-  }
-
-  /// Whether the one quiet "Move to OpenCode 2" line is due: this phone's
-  /// own server (the in-app one or Termux's, never a remote one) still runs
-  /// the older OpenCode, can switch, is not busy, and the person has not
-  /// said "Not now" for it. Nothing else on the app offers the move.
-  bool get _moveLineDue {
-    if (_moveDismissedNow || !_host.installed || !_host.runtimeKnown) {
-      return false;
-    }
-    if (_host.runtime != TermuxRuntime.openCode1) return false;
-    if (_moveAdmission != OpenCodeHistorySwitchAdmission.allowed) return false;
-    if (_host.switchTarget != null || !_host.canSwitchRuntime) return false;
-    if (_host.termuxProblem?.blocksTermux ?? false) return false;
-    if (_host.kind == PhoneHostKind.inApp && _engine() == null) return false;
-    if (_connecting || _removing || _removingTool != null) return false;
-    if (const {
-      PhoneHostState.settingUp,
-      PhoneHostState.starting,
-      PhoneHostState.stopping,
-      PhoneHostState.checking,
-      PhoneHostState.notSetUp,
-    }.contains(_host.state)) {
-      return false;
-    }
-    final id = _host.profile?.id;
-    if (id == null) return false;
-    return !MoveToOpenCode2Dismissal.dismissed(_connection.store.prefs, id);
-  }
-
-  Future<OpenCodeHistorySwitchAdmission> _readMoveAdmission() async {
-    final read = ++_moveAdmissionRead;
-    final runtime = _host.runtime;
-    final profileId = _host.profile?.id;
-    var admission = runtime == TermuxRuntime.openCode1
-        ? await _host.checkHistorySwitch()
-        : OpenCodeHistorySwitchAdmission.unavailable;
-    if (_host.runtime != runtime || _host.profile?.id != profileId) {
-      admission = OpenCodeHistorySwitchAdmission.unavailable;
-    }
-    if (mounted && read == _moveAdmissionRead) {
-      setState(() => _moveAdmission = admission);
-    }
-    // A tap uses its own answer, even if another page refresh superseded the
-    // displayed state while this read was in flight.
-    return admission;
-  }
-
-  String? get _moveBlockedDetail => _blockedMoveDetail(_moveAdmission);
-
-  String? _blockedMoveDetail(OpenCodeHistorySwitchAdmission admission) =>
-      switch (admission) {
-        OpenCodeHistorySwitchAdmission.allowed => null,
-        OpenCodeHistorySwitchAdmission.separateHistory =>
-          _l10n.setupSwitchSeparateHistoryDetail,
-        OpenCodeHistorySwitchAdmission.unavailable =>
-          _l10n.setupSwitchHistoryUnavailableDetail,
-      };
-
-  Future<void> _dismissMoveLine() async {
-    final id = _host.profile?.id;
-    if (id == null) return;
-    setState(() => _moveDismissedNow = true);
-    await MoveToOpenCode2Dismissal.dismiss(_connection.store.prefs, id);
-  }
-
-  Future<void> _switchRuntime(TermuxRuntime target) async {
-    final previousRuntime = _host.runtime;
-    final previousProfileId = _host.profile?.id;
-    if (target == TermuxRuntime.openCode2) {
-      final admission = await _readMoveAdmission();
-      if (!mounted) return;
-      final blocked = _blockedMoveDetail(admission);
-      if (blocked != null) {
-        await showKitAlert(
-          context,
-          title: _l10n.setupSwitchConfirmTitle(_runtimeName(target)),
-          body: blocked,
-          closeLabel: _l10n.setupSwitchStay,
-          icon: AppIconography.warning,
-          alertKey: const ValueKey('this-phone-switch-blocked'),
-          closeKey: const ValueKey('this-phone-switch-stay'),
-        );
-        return;
-      }
-    }
-    final l10n = _l10n;
-    final confirmed = await showKitConfirm(
-      context,
-      title: l10n.setupSwitchConfirmTitle(_runtimeName(target)),
-      body: target == TermuxRuntime.openCode2
-          ? l10n.setupSwitchToTwoDetail
-          : l10n.setupSwitchConfirmDetail,
-      confirmLabel: l10n.setupSwitchConfirm(_runtimeName(target)),
-      icon: AppIconography.sync,
-      sheetKey: const ValueKey('this-phone-switch-sheet'),
-      confirmKey: const ValueKey('this-phone-switch-confirm'),
-    );
-    if (!confirmed || !mounted) return;
-    // The confirmation belongs to the runtime/profile it described. Another
-    // setup finishing while it was open must not switch a different server.
-    if (_host.runtime != previousRuntime ||
-        _host.profile?.id != previousProfileId) {
-      unawaited(_load());
-      return;
-    }
-    if (_host.kind == PhoneHostKind.inApp) {
-      return _inApp(PhoneServerAction.switchRuntime);
-    }
-    await openPhoneSetupTermux(
-      context,
-      job: TermuxHostJob.switchRuntime,
-      target: target,
-    );
     if (mounted) unawaited(_load());
   }
 
@@ -910,35 +780,6 @@ class _ThisPhoneScreenState extends ConsumerState<ThisPhoneScreen> {
                   ),
                 ),
               ],
-              // The one quiet offer to move this phone's server to
-              // OpenCode 2; it folds away on "Not now" and never returns.
-              KitReveal(
-                key: const ValueKey('this-phone-move-reveal'),
-                child: _moveLineDue
-                    ? Padding(
-                        padding: EdgeInsetsDirectional.only(
-                          top: tokens.space3,
-                          start: tokens.gutter,
-                          end: tokens.gutter,
-                        ),
-                        child: KitNotice.offer(
-                          key: const ValueKey('this-phone-move-line'),
-                          icon: AppIconography.sync,
-                          message: l10n.moveToOpenCode2Detail,
-                          action: KitAction(
-                            key: const ValueKey('this-phone-move'),
-                            label: l10n.moveToOpenCode2Title,
-                            onPressed: () => unawaited(
-                              _switchRuntime(TermuxRuntime.openCode2),
-                            ),
-                          ),
-                          onDismiss: () => unawaited(_dismissMoveLine()),
-                          dismissKey: const ValueKey('this-phone-move-not-now'),
-                          dismissLabel: l10n.moveToOpenCode2NotNow,
-                        ),
-                      )
-                    : null,
-              ),
               if (_host.installed) ...[
                 SizedBox(height: tokens.sectionGap),
                 _list(context, l10n),
@@ -998,7 +839,6 @@ class _ThisPhoneScreenState extends ConsumerState<ThisPhoneScreen> {
           );
     final detail = [?_host.version, where].join(' · ');
     final switchTarget = _host.switchTarget;
-    final switchPrevious = _host.switchPrevious;
     // What went wrong, in plain words; the host's own text is under
     // Details at the end of the page.
     final problem = _removing || working ? null : _host.problem;
@@ -1053,19 +893,6 @@ class _ThisPhoneScreenState extends ConsumerState<ThisPhoneScreen> {
               ),
             ),
           );
-          if (switchPrevious != null && switchPrevious != switchTarget) {
-            secondary = KitAction(
-              key: const ValueKey('this-phone-switch-return'),
-              label: l10n.setupSwitchReturn(_runtimeName(switchPrevious)),
-              onPressed: () => unawaited(
-                openPhoneSetupTermux(
-                  context,
-                  job: TermuxHostJob.switchRuntime,
-                  target: switchPrevious,
-                ),
-              ),
-            );
-          }
         case PhoneHostState.needsYou || PhoneHostState.notSetUp
             when problem == PhoneHostProblem.check:
           primary = KitAction(
@@ -1202,8 +1029,6 @@ class _ThisPhoneScreenState extends ConsumerState<ThisPhoneScreen> {
         }.contains(state);
     final busyReason = busy ? l10n.thisPhoneBusy : null;
     final hasEngine = !inApp || _engine() != null;
-    final other = _otherRuntime;
-    final switchLocked = !inApp && !_host.canSwitchRuntime;
     final halfSwitched = _host.switchTarget != null;
     // Update only when the installed server is not already the pinned one.
     final installed = _host.version?.trim().replaceFirst(RegExp('^v'), '');
@@ -1287,24 +1112,6 @@ class _ThisPhoneScreenState extends ConsumerState<ThisPhoneScreen> {
             disabledReason: busyReason,
             onTap: () => unawaited(_update()),
           ),
-        if (hasEngine && !halfSwitched)
-          KitRow(
-            key: const ValueKey('this-phone-switch'),
-            leading: icon(AppIconography.sync),
-            title: l10n.phoneServerCardSwitchTo(_runtimeName(other)),
-            supporting: switchLocked
-                ? TextSpan(text: l10n.setupSwitchLegacyTwo)
-                : other == TermuxRuntime.openCode2 && _moveBlockedDetail != null
-                ? TextSpan(text: _moveBlockedDetail)
-                : null,
-            supportingMaxLines: 8,
-            trailing: const KitChevron(),
-            enabled: !busy && !switchLocked,
-            disabledReason: switchLocked
-                ? l10n.setupSwitchLegacyTwo
-                : busyReason,
-            onTap: () => unawaited(_switchRuntime(other)),
-          ),
         if (hasEngine)
           KitRow(
             key: const ValueKey('this-phone-add-tools'),
@@ -1339,6 +1146,18 @@ class _ThisPhoneScreenState extends ConsumerState<ThisPhoneScreen> {
                     formatPhoneStorage(_host.bytesUsed!),
                     chevron: false,
                   ),
+          ),
+        // The in-app host's Linux: what runs, ports, storage, packages,
+        // repair and reset. Termux keeps its own pages.
+        if (inApp && _host.installed)
+          KitRow(
+            key: const ValueKey('this-phone-linux'),
+            leading: icon(AppIconography.processor),
+            title: l10n.linuxMgrRow,
+            supporting: TextSpan(text: l10n.linuxMgrRowDetail),
+            supportingMaxLines: 2,
+            trailing: const KitChevron(),
+            onTap: () => unawaited(_openLinux()),
           ),
         if (inApp) ?_replySpeed(context, l10n),
         if (inApp)

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/server_probe.dart';
+import 'package:opencode_mobile/domain/server_probe.dart';
 import 'package:opencode_mobile/state/codex_connection_probe.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -232,57 +232,58 @@ void main() {
     expect(probed, hasLength(2));
   });
 
-  testWidgets('Codex waits for every required field, then tests once', (
-    tester,
-  ) async {
-    final calls = <(ServerBackend, String, String, String)>[];
-    socketAgentProbe =
-        ({
-          required backend,
-          required baseUrl,
-          required secret,
-          required directory,
-        }) async {
-          calls.add((backend, baseUrl, secret, directory));
-          return const CodexConnectionProbeResult(
-            ok: true,
-            message: 'Codex connection verified.',
-          );
-        };
-    final (store, controller) = await _state();
-    addTearDown(controller.dispose);
-    await tester.pumpWidget(_app(store, controller));
-    await openFirstRunConnect(tester, agent: 'codex');
+  testWidgets(
+    'Codex waits for every required field, then tests once',
+    (tester) async {
+      final calls = <(ServerBackend, String, String, String)>[];
+      socketAgentProbe =
+          ({
+            required backend,
+            required baseUrl,
+            required secret,
+            required directory,
+          }) async {
+            calls.add((backend, baseUrl, secret, directory));
+            return const CodexConnectionProbeResult(
+              ok: true,
+              message: 'Codex connection verified.',
+            );
+          };
+      final (store, controller) = await _state();
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(_app(store, controller));
+      await openFirstRunConnect(tester, agent: 'codex');
 
-    await tester.enterText(
-      find.byKey(const ValueKey('codex-server-address-field')),
-      'ws://127.0.0.1:4141',
-    );
-    await tester.enterText(
-      find.byKey(const ValueKey('codex-project-directory-field')),
-      '/work/project',
-    );
-    // No token yet: the address alone is not a testable connection.
-    await tester.pump(const Duration(seconds: 3));
-    expect(calls, isEmpty);
-
-    await tester.enterText(
-      find.byKey(const ValueKey('codex-connection-token-field')),
-      'synthetic-token',
-    );
-    await tester.pump(autoTestPause + const Duration(milliseconds: 50));
-    await tester.pump();
-    expect(calls, [
-      (
-        ServerBackend.codex,
+      await tester.enterText(
+        find.byKey(const ValueKey('codex-server-address-field')),
         'ws://127.0.0.1:4141',
-        'synthetic-token',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('codex-project-directory-field')),
         '/work/project',
-      ),
-    ]);
-    expect(find.byKey(const ValueKey('codex-test-success')), findsOneWidget);
-    expect(probed, isEmpty);
-  });
+      );
+      // No token yet: the address alone is not a testable connection.
+      await tester.pump(const Duration(seconds: 3));
+      expect(calls, isEmpty);
+
+      await tester.enterText(
+        find.byKey(const ValueKey('codex-connection-token-field')),
+        'synthetic-token',
+      );
+      await tester.pump(autoTestPause + const Duration(milliseconds: 50));
+      await tester.pump();
+      expect(calls, [
+        (
+          ServerBackend.codex,
+          'ws://127.0.0.1:4141',
+          'synthetic-token',
+          '/work/project',
+        ),
+      ]);
+      expect(find.byKey(const ValueKey('codex-test-success')), findsOneWidget);
+      expect(probed, isEmpty);
+    },
+  );
 
   testWidgets('editing a saved server never tests by itself', (tester) async {
     final (store, controller) = await _state(

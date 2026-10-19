@@ -34,8 +34,17 @@ class Resources(val configuration: Configuration) {
         }
         error("Resource missing: ${ResourceNames.names[id]}")
     }
-    private fun format(value: String, args: Array<out Any>): String =
-        String.format(configuration.locales[0], value.trim().replace("\\'", "'"), *args)
+    // A string with no numbered slot (the "62% left" widget previews) is plain
+    // text: Android only formats what is read with arguments, and a bare "% l"
+    // is not a Java format conversion.
+    private fun format(value: String, args: Array<out Any>): String {
+        val text = value.trim().replace("\\'", "'")
+        return if (Regex("%[0-9]+\\$").containsMatchIn(text)) {
+            String.format(configuration.locales[0], text, *args)
+        } else {
+            text
+        }
+    }
     fun getString(id: Int, vararg args: Any): String = format(resource(id).textContent, args)
     fun getQuantityString(id: Int, count: Int, vararg args: Any): String {
         val category = if (configuration.locales[0].language == "ar") when {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:opencode_mobile/domain/connection_status.dart';
 import 'package:opencode_mobile/domain/agent_helper_status.dart';
+import 'package:opencode_mobile/domain/server_trust.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -93,6 +94,65 @@ void main() {
       expect(c.retries, 0);
     },
   );
+
+  testWidgets('this phone while its setup runs says so, not not answering', (
+    tester,
+  ) async {
+    final c = await controller();
+    c.show(ConnectionStatusPhase.notAnswering);
+    KitStatus? status;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) {
+            status = connectionKitStatus(
+              context,
+              c,
+              serverOnThisPhone: true,
+              phoneSetupRunning: true,
+              onRestartServer: () async {},
+            );
+            return const SizedBox();
+          },
+        ),
+      ),
+    );
+    expect(status?.message, 'Setting up OpenCode on this phone');
+    expect(status?.message, isNot(contains("isn't answering")));
+    expect(status?.action, isNull);
+  });
+
+  testWidgets('a changed certificate shows no "isn\'t answering" line', (
+    tester,
+  ) async {
+    final c = await controller();
+    c.show(ConnectionStatusPhase.notAnswering);
+    c.lastFailure = const ServerCertificateChangedException();
+    KitStatus? status;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) {
+            status = connectionKitStatus(context, c);
+            return const SizedBox();
+          },
+        ),
+      ),
+    );
+    expect(status, isNull);
+    c.lastFailure = null;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) {
+            status = connectionKitStatus(context, c);
+            return const SizedBox();
+          },
+        ),
+      ),
+    );
+    expect(status?.message, contains("isn't answering"));
+  });
 
   testWidgets('Details retains BD13 unexpected helper exit after recovery', (
     tester,

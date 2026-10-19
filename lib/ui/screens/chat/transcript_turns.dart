@@ -591,6 +591,15 @@ class _AssistantPartRun {
   return (heading: plain, note: rest.isEmpty ? null : rest);
 }
 
+/// Some models (and servers) fill a thought they have nothing in with a
+/// sentence saying so ("No reasoning available."). It says nothing about the
+/// work, so it is dropped instead of becoming the label of the step after it.
+bool _isPlaceholderThought(String text) => RegExp(
+  r'^\W*(no|empty)\s+(reasoning|thinking|thoughts?)'
+  r'(\s+(available|provided|recorded|to show))?\W*$',
+  caseSensitive: false,
+).hasMatch(text.trim());
+
 List<_AssistantPartRun> _groupAssistantParts(List<Part> parts) {
   final runs = <_AssistantPartRun>[];
   var index = 0;
@@ -598,7 +607,8 @@ List<_AssistantPartRun> _groupAssistantParts(List<Part> parts) {
     final current = parts[index];
     // A thought that is only markup ("**", a lone "#") draws an empty rule.
     if (current.type == 'reasoning' &&
-        current.text.replaceAll(RegExp(r'[\s*_`#>-]+'), '').isEmpty) {
+        (current.text.replaceAll(RegExp(r'[\s*_`#>-]+'), '').isEmpty ||
+            _isPlaceholderThought(current.text))) {
       index += 1;
       continue;
     }

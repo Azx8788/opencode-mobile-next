@@ -13,7 +13,7 @@ import fs from 'node:fs';
 import { loadContract, walker } from '../openapi_walk.mjs';
 import { def, unwrap, objectFields } from '../paseo_cases_lib.mjs';
 
-const LOC = { directory: '/work/shop', workspaceID: 'wrk_main', project: { id: 'prj_shop', directory: '/work/shop' } };
+const LOC = { directory: '/work/shop', workspaceID: 'wrk_main', project: { id: 'prj_shop', directory: '/work/shop', canonical: '/work/shop' } };
 const none = (obj) => Object.fromEntries(Object.keys(obj).map((k) => [k, []]));
 
 // Paseo terminals are on the Terminal page: the fields below are plumbing.
@@ -26,10 +26,10 @@ const paseoTerminalReason = (k) =>
         ? "ignored: the list is read again when the Terminal page opens or is pulled down; the daemon's live list updates are not used"
         : "ignored: this only carries the Terminal page's own list, open, type, rename and close to the daemon; the page shows the result, not the field";
 
-export function terminalFamilies({ oc1File, protocolMessages }) {
-  const S = loadContract(oc1File);
+export function terminalFamilies({ oc2File, protocolMessages }) {
+  const S = loadContract(oc2File);
   const w = walker(S);
-  const doc = JSON.parse(fs.readFileSync(oc1File, 'utf8'));
+  const doc = JSON.parse(fs.readFileSync(oc2File, 'utf8'));
   const out = {};
   const flatOf = (path) => {
     const sch = doc.paths[path].get.responses['200'].content['application/json'].schema;
@@ -46,25 +46,18 @@ export function terminalFamilies({ oc1File, protocolMessages }) {
   const schema = {
     location: locFields,
     pty: w.group('Pty'),
-    shell: under(flatOf('/pty/shells'), '[].'),
+    shell: { path: { kind: 'string' }, name: { kind: 'string' }, acceptable: { kind: 'boolean' } },
     config: { shell: { kind: 'string' } },
-    ticket: w.group('PtyTicketConnectToken'),
-    event_created: w.group('EventPtyCreated'),
-    event_updated: w.group('EventPtyUpdated'),
-    event_exited: w.group('EventPtyExited'),
-    event_deleted: w.group('EventPtyDeleted'),
+    ticket: w.group('PtyTicket.ConnectToken'),
   };
   never('ticket', 'ignored: a one-time pass the app uses to open the live connection; it is never shown');
-  for (const g of ['event_created', 'event_updated', 'event_exited', 'event_deleted']) {
-    never(g, 'ignored: the event only tells the app the list changed; it reads the list again and shows that');
-  }
   const running = { id: 'pty_run1', title: 'Build watcher', command: 'bash', args: ['-l'], cwd: '/work/shop', status: 'running', pid: 4242 };
   const exited = { id: 'pty_done1', title: 'Test run', command: 'flutter', args: ['test', 'test/upload_test.dart'], cwd: '/work/shop/app', status: 'exited', pid: 4343, exitCode: 1 };
   const shells = [{ path: '/bin/bash', name: 'bash', acceptable: true }, { path: '/usr/bin/fish', name: 'fish', acceptable: false }];
   const ptyProbes = (v, extra) => ({ id: [], title: [v.title], command: [], 'args[]': [], cwd: [], status: [], pid: [], ...('exitCode' in v ? { exitCode: [] } : {}), ...extra });
   const locPart = { group: 'location', value: LOC, probes: none(locFields) };
   out.terminal_wire = {
-    schema, excluded, source: oc1File,
+    schema, excluded, source: oc2File,
     cases: [
       { id: 'pty_running_and_exited', kind: 'pty_list', payload: { list: [running, exited] }, parts: [
         locPart,

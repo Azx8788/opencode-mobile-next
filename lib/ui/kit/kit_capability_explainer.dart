@@ -22,9 +22,6 @@ enum KitHost {
   /// A Termux-managed server on this phone.
   termux,
 
-  /// oc1Computer.
-  openCode1,
-
   /// oc2Computer.
   openCode2,
   codex,
@@ -197,7 +194,6 @@ abstract final class KitCapabilities {
       supported: {
         KitHost.thisPhone,
         KitHost.termux,
-        KitHost.openCode1,
         KitHost.openCode2,
         KitHost.codex,
         KitHost.paseo,
@@ -206,26 +202,21 @@ abstract final class KitCapabilities {
       enableFlow: KitEnableFlows.addServer,
     ),
     KitCapability(
-      id: 'server.oc1',
-      supported: {KitHost.thisPhone, KitHost.termux, KitHost.openCode1},
-      partly: {KitHost.openCode2},
-    ),
-    KitCapability(
       id: 'server.oc2',
       supported: {KitHost.thisPhone, KitHost.termux, KitHost.openCode2},
-      partly: {KitHost.openCode1},
+      partly: {},
       enableFlow: KitEnableFlows.serverGeneration,
     ),
     KitCapability(
       id: 'server.codex',
       supported: {KitHost.codex},
-      partly: {KitHost.openCode1, KitHost.openCode2, KitHost.paseo},
+      partly: {KitHost.openCode2, KitHost.paseo},
       enableFlow: KitEnableFlows.addServerCodex,
     ),
     KitCapability(
       id: 'server.paseo',
       supported: {KitHost.termux, KitHost.paseo},
-      partly: {KitHost.openCode1, KitHost.openCode2},
+      partly: {KitHost.openCode2},
       enableFlow: KitEnableFlows.addServerPaseo,
     ),
     KitCapability(
@@ -246,18 +237,13 @@ abstract final class KitCapabilities {
     ),
     KitCapability(
       id: 'model.auth',
-      supported: {
-        KitHost.thisPhone,
-        KitHost.termux,
-        KitHost.openCode1,
-        KitHost.openCode2,
-      },
+      supported: {KitHost.thisPhone, KitHost.termux, KitHost.openCode2},
       partly: {KitHost.codex, KitHost.paseo},
       enableFlow: KitEnableFlows.modelSignIn,
     ),
     KitCapability(
       id: 'team.on',
-      supported: {KitHost.thisPhone, KitHost.openCode1, KitHost.openCode2},
+      supported: {KitHost.thisPhone, KitHost.openCode2},
       partly: {KitHost.termux, KitHost.codex, KitHost.paseo},
       enableFlow: KitEnableFlows.teamTurnOn,
     ),
@@ -269,12 +255,7 @@ abstract final class KitCapabilities {
     KitCapability(
       id: 'team.control',
       supported: {KitHost.thisPhone, KitHost.termux},
-      partly: {
-        KitHost.openCode1,
-        KitHost.openCode2,
-        KitHost.codex,
-        KitHost.paseo,
-      },
+      partly: {KitHost.openCode2, KitHost.codex, KitHost.paseo},
       enableFlow: KitEnableFlows.teamHostGuide,
     ),
     KitCapability(
@@ -287,7 +268,6 @@ abstract final class KitCapabilities {
       supported: {
         KitHost.thisPhone,
         KitHost.termux,
-        KitHost.openCode1,
         KitHost.openCode2,
         KitHost.codex,
         KitHost.paseo,
@@ -297,25 +277,20 @@ abstract final class KitCapabilities {
     ),
     KitCapability(
       id: 'mcp.any',
-      supported: {KitHost.thisPhone, KitHost.termux, KitHost.openCode1},
-      partly: {KitHost.openCode2},
+      supported: {},
+      partly: {KitHost.thisPhone, KitHost.termux, KitHost.openCode2},
       enableFlow: KitEnableFlows.mcpAdd,
     ),
     KitCapability(
       id: 'project.open',
-      supported: {
-        KitHost.thisPhone,
-        KitHost.termux,
-        KitHost.openCode1,
-        KitHost.openCode2,
-      },
+      supported: {KitHost.thisPhone, KitHost.termux, KitHost.openCode2},
       partly: {KitHost.codex, KitHost.paseo},
       enableFlow: KitEnableFlows.projectChoose,
     ),
     KitCapability(
       id: 'project.git',
-      supported: {KitHost.thisPhone, KitHost.termux, KitHost.openCode1},
-      partly: {KitHost.openCode2},
+      supported: {KitHost.thisPhone, KitHost.termux, KitHost.openCode2},
+      partly: {},
       enableFlow: KitEnableFlows.projectGitInit,
     ),
     KitCapability(
@@ -323,7 +298,6 @@ abstract final class KitCapabilities {
       supported: {
         KitHost.thisPhone,
         KitHost.termux,
-        KitHost.openCode1,
         KitHost.openCode2,
         KitHost.codex,
         KitHost.paseo,
@@ -335,7 +309,6 @@ abstract final class KitCapabilities {
       supported: {
         KitHost.thisPhone,
         KitHost.termux,
-        KitHost.openCode1,
         KitHost.openCode2,
         KitHost.codex,
         KitHost.paseo,
@@ -345,7 +318,7 @@ abstract final class KitCapabilities {
     KitCapability(
       id: 'perm.camera',
       supported: {KitHost.openCode2},
-      partly: {KitHost.thisPhone, KitHost.termux, KitHost.openCode1},
+      partly: {KitHost.thisPhone, KitHost.termux},
       enableFlow: KitEnableFlows.allowCamera,
     ),
     KitCapability(
@@ -353,7 +326,6 @@ abstract final class KitCapabilities {
       supported: {
         KitHost.thisPhone,
         KitHost.termux,
-        KitHost.openCode1,
         KitHost.openCode2,
         KitHost.codex,
         KitHost.paseo,
@@ -363,14 +335,14 @@ abstract final class KitCapabilities {
     ),
     KitCapability(
       id: 'network.tailscale',
-      supported: {KitHost.openCode1, KitHost.openCode2, KitHost.paseo},
+      supported: {KitHost.openCode2, KitHost.paseo},
       partly: {KitHost.codex},
       enableFlow: KitEnableFlows.tailscaleSetup,
     ),
     KitCapability(
       id: 'quota.collector',
       supported: <KitHost>{},
-      partly: {KitHost.openCode1, KitHost.openCode2},
+      partly: {KitHost.openCode2},
       enableFlow: KitEnableFlows.quotaCollectorGuide,
     ),
     KitCapability(
@@ -378,7 +350,6 @@ abstract final class KitCapabilities {
       supported: {
         KitHost.thisPhone,
         KitHost.termux,
-        KitHost.openCode1,
         KitHost.openCode2,
         KitHost.codex,
         KitHost.paseo,
@@ -388,80 +359,51 @@ abstract final class KitCapabilities {
     ),
     KitCapability(
       id: 'flag:fileBrowsing+terminal',
-      supported: {
-        KitHost.thisPhone,
-        KitHost.termux,
-        KitHost.openCode1,
-        KitHost.openCode2,
-      },
+      supported: {KitHost.thisPhone, KitHost.termux, KitHost.openCode2},
       partly: {KitHost.demo},
     ),
     KitCapability(
       id: 'flag:terminal',
-      supported: {
-        KitHost.thisPhone,
-        KitHost.termux,
-        KitHost.openCode1,
-        KitHost.openCode2,
-      },
+      supported: {KitHost.thisPhone, KitHost.termux, KitHost.openCode2},
       partly: {KitHost.demo},
     ),
     KitCapability(
       id: 'flag:sessionDiff',
-      supported: {
-        KitHost.thisPhone,
-        KitHost.termux,
-        KitHost.openCode1,
-        KitHost.openCode2,
-      },
+      supported: {KitHost.thisPhone, KitHost.termux, KitHost.openCode2},
       partly: {KitHost.demo},
     ),
     KitCapability(
       id: 'flag:serverCatalog',
-      supported: {
-        KitHost.thisPhone,
-        KitHost.termux,
-        KitHost.openCode1,
-        KitHost.openCode2,
-      },
+      supported: {KitHost.thisPhone, KitHost.termux, KitHost.openCode2},
       partly: {KitHost.demo},
     ),
-    KitCapability(
-      id: 'flag:toolInventory',
-      supported: {KitHost.openCode1},
-      partly: {KitHost.thisPhone, KitHost.termux},
-    ),
+    KitCapability(id: 'flag:toolInventory', supported: {}, partly: {}),
     KitCapability(
       id: 'flag:usageStatistics',
-      supported: {KitHost.openCode2},
-      partly: {KitHost.thisPhone, KitHost.termux, KitHost.codex},
+      supported: {KitHost.thisPhone, KitHost.termux, KitHost.openCode2},
+      partly: {KitHost.codex},
     ),
     KitCapability(
       id: 'flag:stagedRevert+sessionNotes',
-      supported: {KitHost.openCode2},
-      partly: {KitHost.thisPhone, KitHost.termux},
+      supported: {KitHost.thisPhone, KitHost.termux, KitHost.openCode2},
+      partly: {},
     ),
     KitCapability(
       id: 'flag:worktreeCreate+sessionShare+managedWorkspaces',
-      supported: {KitHost.openCode1},
-      partly: {KitHost.thisPhone, KitHost.termux},
+      supported: {},
+      partly: {KitHost.thisPhone, KitHost.termux, KitHost.openCode2},
     ),
     KitCapability(
       id: 'flag:developmentServices',
-      supported: {KitHost.openCode2},
-      partly: {KitHost.thisPhone, KitHost.termux},
+      supported: {KitHost.thisPhone, KitHost.termux, KitHost.openCode2},
+      partly: {},
     ),
-    KitCapability(
-      id: 'flag:remoteUpgrade',
-      supported: {KitHost.openCode1},
-      partly: {KitHost.thisPhone, KitHost.termux},
-    ),
+    KitCapability(id: 'flag:remoteUpgrade', supported: {}, partly: {}),
     KitCapability(
       id: 'flag:promptAttachments',
       supported: {
         KitHost.thisPhone,
         KitHost.termux,
-        KitHost.openCode1,
         KitHost.openCode2,
         KitHost.demo,
       },
@@ -748,7 +690,6 @@ class KitCapabilityExplainer extends StatelessWidget {
     return switch (host) {
       KitHost.thisPhone => l10n.kitHostThisPhone,
       KitHost.termux => l10n.kitHostTermux,
-      KitHost.openCode1 => l10n.kitHostOpenCode1,
       KitHost.openCode2 => l10n.kitHostOpenCode2,
       KitHost.codex => l10n.kitHostCodex,
       KitHost.paseo => l10n.kitHostPaseo,
@@ -771,14 +712,7 @@ class KitCapabilityExplainer extends StatelessWidget {
     if (hosts.contains(KitHost.thisPhone)) hosts.remove(KitHost.termux);
     final words = <String>[];
     for (final host in hosts) {
-      if (host == KitHost.openCode1 && hosts.contains(KitHost.openCode2)) {
-        words.add(l10n.kitHostOpenCode);
-      } else if (host == KitHost.openCode2 &&
-          hosts.contains(KitHost.openCode1)) {
-        continue;
-      } else {
-        words.add(hostWord(context, host));
-      }
+      words.add(hostWord(context, host));
     }
     final isolated = [for (final word in words) KitBidi.auto(word)];
     if (isolated.isEmpty) return '';
@@ -943,7 +877,6 @@ _Words _wordsOf(AppLocalizations l, String id) => switch (id) {
     l.kitCapServerAnyEnable,
     l.kitCapServerAnyOffer,
   ),
-  'server.oc1' => _words(l.kitCapServerOc1Title, l.kitCapServerOc1Why),
   'server.oc2' => _words(
     l.kitCapServerOc2Title,
     l.kitCapServerOc2Why,

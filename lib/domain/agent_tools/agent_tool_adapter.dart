@@ -36,7 +36,7 @@ enum McpToolNaming {
   /// `mcp__oc-ui__show` (Claude Code).
   mcpPrefixed,
 
-  /// `oc-ui_show` (OpenCode 1 and 2).
+  /// `oc-ui_show` (OpenCode 2).
   serverUnderscore,
 }
 
@@ -45,9 +45,6 @@ enum McpToolNaming {
 enum McpConfigFormat {
   /// `claude mcp add --scope user` in the profile's CLAUDE_CONFIG_DIR.
   claudeCli,
-
-  /// OpenCode 1: `mcp.<name>` in /root/.config/opencode/opencode.json.
-  openCodeV1,
 
   /// OpenCode 2: `mcp.servers.<name>` in its isolated config directory.
   openCodeV2,
@@ -163,18 +160,6 @@ final class AgentToolAdapter {
     planToolName: 'ExitPlanMode',
   );
 
-  /// OC1 1.18.32 calls `oc-ui_show` (captured device fixture, 2026-10-07).
-  /// The owner accepts one in-app Ubuntu trust zone; live readiness still
-  /// requires the owned helper and a connected MCP server. See BA6 contract.
-  static const openCode1 = AgentToolAdapter._(
-    id: 'openCode1',
-    displayName: 'OpenCode 1',
-    naming: McpToolNaming.serverUnderscore,
-    config: McpConfigFormat.openCodeV1,
-    runsAs: AgentRunUser.root,
-    cardsQualified: true,
-  );
-
   static const openCode2 = AgentToolAdapter._(
     id: 'openCode2',
     displayName: 'OpenCode 2',
@@ -199,7 +184,7 @@ final class AgentToolAdapter {
   );
 
   /// Agents the phone tools can be registered for (former enum values).
-  static const List<AgentToolAdapter> values = [claude, openCode1, openCode2];
+  static const List<AgentToolAdapter> values = [claude, openCode2];
 
   @override
   String toString() => 'AgentToolAdapter($id)';
@@ -209,7 +194,6 @@ final class AgentToolAdapter {
 abstract final class AgentToolAdapters {
   static const List<AgentToolAdapter> all = [
     AgentToolAdapter.claude,
-    AgentToolAdapter.openCode1,
     AgentToolAdapter.openCode2,
     AgentToolAdapter.pi,
     AgentToolAdapter.ohMyPi,
@@ -238,9 +222,8 @@ abstract final class AgentToolAdapters {
     return null;
   }
 
-  /// The OpenCode adapter for a server generation.
-  static AgentToolAdapter forOpenCode({required bool v2}) =>
-      v2 ? AgentToolAdapter.openCode2 : AgentToolAdapter.openCode1;
+  /// The supported OpenCode adapter.
+  static AgentToolAdapter forOpenCode() => AgentToolAdapter.openCode2;
 
   /// Every transcript name of the card `show` tool, across agents.
   static final Set<String> cardShowNames = {

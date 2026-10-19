@@ -385,10 +385,7 @@ void main() {
     expect(colour('careful'), roles.text1);
     expect(colour('boom'), roles.text1);
     for (final s in ['ordinary [oc] line', 'careful', 'boom']) {
-      expect(
-        colour(s),
-        isNot(anyOf(roles.accent, roles.attention, roles.danger)),
-      );
+      expect(colour(s), isNot(anyOf(roles.accent, roles.attention)));
     }
     expect(
       find.descendant(

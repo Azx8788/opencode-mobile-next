@@ -8,7 +8,7 @@ import '../orchestration/adapters/fixture/project_fixture_gateway.dart';
 import '../orchestration/adapters/inapp/phone_engine_gateway.dart';
 import 'team_project_persistence.dart';
 
-import '../api/models.dart';
+import '../domain/models.dart';
 import '../domain/attention_feed.dart';
 import '../domain/orchestration_gateway.dart';
 import '../domain/run_result.dart';

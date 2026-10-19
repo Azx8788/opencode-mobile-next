@@ -1,4 +1,4 @@
-import '../api/models.dart';
+import '../domain/models.dart';
 import 'phrase_chips.dart';
 
 /// What the chat's state says about the moment, for the phrase chips.

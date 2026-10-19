@@ -74,6 +74,7 @@ FakeChatFeedSource _source(_Scene scene) {
       'Explain the build',
       at: _now.subtract(const Duration(hours: 3)),
       preview: 'It runs gradle first, then signs the bundle.',
+      finishedUnseen: true,
     ),
     chat(
       'd',

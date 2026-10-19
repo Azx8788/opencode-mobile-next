@@ -22,9 +22,10 @@ library;
 
 import 'dart:convert';
 
-import '../api/server_probe.dart';
+import '../domain/server_probe.dart';
 import '../platform/platform_capabilities.dart';
 import 'profiles.dart';
+import 'server_trust_probe.dart';
 
 /// Ceiling on an accepted pairing payload, in UTF-16 code units.
 ///
@@ -458,12 +459,12 @@ List<String> orderPairingCandidates(
 /// `opencode service set hostname 0.0.0.0` one of them is a cleartext LAN
 /// address. Dialing that would put HTTP Basic — the serve password — across
 /// the network in the clear. A private-network address is held until the
-/// person confirms it (see below); a public one is refused. Either is
+/// person confirms it (see below); a public one also requires explicit consent. Either is
 /// reported with the reason it was skipped rather than silently dropped,
 /// because "your server is only reachable in the clear" is exactly what the
 /// user needs to know.
 ///
-/// A private-network `http://` address is accepted only for origins listed
+/// A remote `http://` address is accepted only for origins listed
 /// in [confirmedCleartextOrigins]; otherwise it is reported with
 /// [PairingUrlOutcome.needsCleartextConfirm] and never probed.
 ///
@@ -478,7 +479,21 @@ Future<PairingSelection> selectPairingUrl(
   bool? preferLoopback,
   Set<String> confirmedCleartextOrigins = const {},
 }) async {
-  final runProbe = probe ?? serverProbe;
+  Future<ServerProbeResult> runProbe({
+    required String baseUrl,
+    String? username,
+    String? password,
+  }) => probe != null
+      ? probe(baseUrl: baseUrl, username: username, password: password)
+      : probeTrustedServerConnection(
+          baseUrl: baseUrl,
+          username: username,
+          password: password,
+          cleartextConfirmedOrigin:
+              confirmedCleartextOrigins.contains(cleartextOriginOf(baseUrl))
+              ? cleartextOriginOf(baseUrl)
+              : null,
+        );
   final preferLocal = preferLoopback ?? platformCapabilities.isDesktop;
   final password = payload.password;
   final username = payload.username;

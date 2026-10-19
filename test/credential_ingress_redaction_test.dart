@@ -5,8 +5,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
 import 'package:opencode_mobile/api2/client.dart';
 import 'package:opencode_mobile/api2/gateway_operations.dart';
 import 'package:opencode_mobile/api2/transport.dart';
@@ -158,10 +156,6 @@ void main() {
   });
 
   test('new authenticated transports register passwords before requests', () {
-    final v1 = OpenCodeApi(baseUrl: 'http://localhost:4096', password: _secret);
-    addTearDown(v1.close);
-    expect(KitRedact.text(_secret).contains(_secret), isFalse);
-    KitRedact.clearKnownSecrets();
     final v2 = Api2Transport(
       baseUrl: 'http://localhost:4097',
       password: _secret,
@@ -170,62 +164,28 @@ void main() {
     expect(KitRedact.text(_secret).contains(_secret), isFalse);
   });
 
-  test(
-    'provider response credentials register before decoding exposes values',
-    () async {
-      final api = OpenCodeApi(baseUrl: 'http://localhost:4096');
-      addTearDown(api.close);
-      api.dio.httpClientAdapter = _Http()
-        ..payload = {
-          'providers': [
-            {
-              'id': 'custom',
-              'name': 'Custom',
-              'key': _secret,
-              'options': {'apiKey': _changed},
-              'models': {},
-            },
-          ],
-        };
-      await api.configuredProviders();
-      expect(KitRedact.text(_secret).contains(_secret), isFalse);
-      expect(KitRedact.text(_changed).contains(_changed), isFalse);
-    },
-  );
-  for (final v2 in [false, true]) {
-    test(
-      'submitted provider credential registers before transport v2=$v2',
-      () async {
-        var registeredBeforeNetwork = false;
-        final http = _Http()
-          ..beforeReply = () {
-            registeredBeforeNetwork = !KitRedact.text(
-              _secret,
-            ).contains(_secret);
-            throw StateError('Synthetic network refusal');
-          };
-        final api = OpenCodeApi(baseUrl: 'http://localhost:4096');
-        final client = Api2Client.connect(
-          baseUrl: 'http://localhost:4097',
-          password: '',
-        );
-        addTearDown(api.close);
-        addTearDown(client.close);
-        api.dio.httpClientAdapter = http;
-        client.transport.dio.httpClientAdapter = http;
-        final repository = v2
-            ? Api2OperationsGateway(client: client)
-            : SdkProductRepository(api.sdkClient);
-        await expectLater(
-          repository.connectIntegrationKey('custom', _secret),
-          throwsA(anything),
-        );
-        expect(
-          registeredBeforeNetwork,
-          isTrue,
-          reason: 'submitted key was not registered',
-        );
-      },
+  test('submitted provider credential registers before transport', () async {
+    var registeredBeforeNetwork = false;
+    final http = _Http()
+      ..beforeReply = () {
+        registeredBeforeNetwork = !KitRedact.text(_secret).contains(_secret);
+        throw StateError('Synthetic network refusal');
+      };
+    final client = Api2Client.connect(
+      baseUrl: 'http://localhost:4097',
+      password: '',
     );
-  }
+    addTearDown(client.close);
+    client.transport.dio.httpClientAdapter = http;
+    final repository = Api2OperationsGateway(client: client);
+    await expectLater(
+      repository.connectIntegrationKey('custom', _secret),
+      throwsA(anything),
+    );
+    expect(
+      registeredBeforeNetwork,
+      isTrue,
+      reason: 'submitted key was not registered',
+    );
+  });
 }

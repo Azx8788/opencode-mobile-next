@@ -20,7 +20,7 @@ class _AdmittedForegroundLease implements AgentSignInForegroundLease {
   bool _active = true;
   // One terminal listener per fake lease. An explicit asynchronous onCancel
   // creates a fixture-local future rather than Dart's shared null future.
-  final _lost = StreamController<void>(
+  final _lost = StreamController<AgentSignInForegroundException>(
     sync: true,
     onCancel: () => Future<void>.value(),
   );
@@ -33,7 +33,7 @@ class _AdmittedForegroundLease implements AgentSignInForegroundLease {
   bool get active => _active;
 
   @override
-  Stream<void> get lost => _lost.stream;
+  Stream<AgentSignInForegroundException> get lost => _lost.stream;
 
   @override
   Future<void> release() async {

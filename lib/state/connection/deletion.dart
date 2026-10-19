@@ -45,10 +45,12 @@ mixin _ConnectionControllerDeletion on ChangeNotifier {
     String profileId, {
     QueuedPromptRemovalPlan? queuedPrompts,
     bool keepQueuedPrompts = false,
+    bool linuxGone = false,
   }) => _self._deleteProfileAndLocalDataBody(
     profileId,
     queuedPrompts: queuedPrompts,
     keepQueuedPrompts: keepQueuedPrompts,
+    linuxGone: linuxGone,
   );
 }
 
@@ -58,6 +60,7 @@ extension _ConnectionControllerDeletionImpl on ConnectionController {
     String profileId, {
     QueuedPromptRemovalPlan? queuedPrompts,
     bool keepQueuedPrompts = false,
+    bool linuxGone = false,
   }) {
     if (_disposed || profileId.isEmpty) {
       return Future.error(StateError('The server profile is unavailable'));
@@ -120,15 +123,25 @@ extension _ConnectionControllerDeletionImpl on ConnectionController {
           await _paseoUsageMonitor?.drain(profileId);
           // Phone agents first: auth, owned setup, host, feeds; ProfileStore
           // removal (native drain, secrets) follows inside the transaction.
-          await _genUiDeleteProfile(profileId);
-          await _paCloseForDeletion(profileId);
+          // With the in-app Linux erased, what lived inside it is gone and
+          // asking it to clean up can only fail: nothing to wait for.
+          try {
+            await _genUiDeleteProfile(profileId);
+            await _paCloseForDeletion(profileId);
+          } catch (_) {
+            if (!linuxGone) rethrow;
+          }
           return _deleteProfileAndLocalData(
             profileId,
             queuedPrompts: queuedPrompts,
             keepQueuedPrompts: keepQueuedPrompts,
+            linuxGone: linuxGone,
           );
         })
         .whenComplete(() async {
+          if (store.profiles.any((profile) => profile.id == profileId)) {
+            await const ScheduledPromptsPlatform().restoreProfile(profileId);
+          }
           _deletingReadProfiles.remove(profileId);
           if (store.profiles.any((p) => p.id == profileId)) {
             _closedQueueProfiles.remove(profileId);
@@ -168,7 +181,9 @@ extension _ConnectionControllerDeletionImpl on ConnectionController {
     String profileId, {
     QueuedPromptRemovalPlan? queuedPrompts,
     bool keepQueuedPrompts = false,
+    bool linuxGone = false,
   }) async {
+    await const ScheduledPromptsPlatform().cancelProfile(profileId);
     await _draftChanges;
     await _pendingAuth.drain(profileId);
     // Selection writes begin before network refresh; drain them before the
@@ -213,6 +228,7 @@ extension _ConnectionControllerDeletionImpl on ConnectionController {
       'oc.automaticActivity.$profileId',
       AutomationPolicyController.keyFor(profileId),
       'oc.teamEngineDeleted.$profileId',
+      'oc.scheduleDeleted.$profileId',
     };
     final failures = <String>[];
 
@@ -303,7 +319,10 @@ extension _ConnectionControllerDeletionImpl on ConnectionController {
             phoneProjectEngine.hasLifecycleOwnership(profileId) ||
             store.prefs.getBool('oc.teamEngineDeleted.$profileId') == true) {
           try {
-            await phoneProjectEngine.deleteProfile(profileId);
+            await phoneProjectEngine.deleteProfile(
+              profileId,
+              linuxGone: linuxGone,
+            );
           } catch (_) {
             failures.add('phone team engine data');
           }
@@ -316,7 +335,8 @@ extension _ConnectionControllerDeletionImpl on ConnectionController {
           try {
             await InAppQuotaCollector.forget(profileId, prefs: store.prefs);
           } catch (_) {
-            failures.add('usage collector');
+            // Its service and files lived in the erased Linux.
+            if (!linuxGone) failures.add('usage collector');
           }
         }
         try {
@@ -328,6 +348,9 @@ extension _ConnectionControllerDeletionImpl on ConnectionController {
           await _orchestrationStore.drain(profileId);
           // A project fixture may have finished its first durable write while
           // stop drained it. Include every now-settled key in this sweep.
+          // Native workers write schedule keys outside this engine's cache;
+          // read them only now, after every Dart-side write has settled.
+          await store.prefs.reload();
           scopedKeys.addAll(store.profileScopedPreferenceKeys(profileId));
         } catch (_) {}
         final keptQueue = [

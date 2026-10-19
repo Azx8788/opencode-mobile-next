@@ -11,9 +11,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/server_probe.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/server_probe.dart';
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/domain/plugin_inventory.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -22,7 +21,9 @@ import 'package:opencode_mobile/termux/bridge.dart';
 import 'package:opencode_mobile/ui/screens/servers_screen.dart';
 import 'package:opencode_mobile/ui/screens/settings/server_plugins_section.dart';
 import 'package:opencode_mobile/state/phone_host.dart';
+import 'package:opencode_mobile/builtin/setup/phone_setup.dart';
 import 'package:opencode_mobile/ui/screens/this_phone_screen.dart';
+import 'fake_setup_engine.dart';
 import 'package:opencode_mobile/ui/widgets/server_switcher_sheet.dart';
 
 import '../../tool/capture/fixtures.dart';
@@ -255,6 +256,7 @@ Future<Future<void> Function()> mountPhoneServerScene(
   PhoneServerScene scene, {
   required bool light,
   required GlobalKey boundary,
+  List<ServerProfile>? seededProfiles,
 }) async {
   final phone = scene != PhoneServerScene.plugins;
   if (phone) {
@@ -271,13 +273,18 @@ Future<Future<void> Function()> mountPhoneServerScene(
 
   final prefs = await setupCapturePreferences();
   // The first profile is the active one: the server in use.
-  final profiles = switch (scene) {
-    PhoneServerScene.servers => [_remote(), phoneProfile()],
-    PhoneServerScene.phoneRunning ||
-    PhoneServerScene.phoneStopped => [phoneProfile()],
-    PhoneServerScene.plugins => [_remote()],
-  };
+  final profiles =
+      seededProfiles ??
+      switch (scene) {
+        PhoneServerScene.servers => [_remote(), phoneProfile()],
+        PhoneServerScene.phoneRunning ||
+        PhoneServerScene.phoneStopped => [phoneProfile()],
+        PhoneServerScene.plugins => [_remote()],
+      };
   final store = SeededProfileStore(prefs: prefs, seeded: profiles);
+  // The installed-tools check must not reach the platform channel.
+  final previousTermux = PhoneSetup.termux;
+  PhoneSetup.termux = FakeSetupEngine();
   final controller = CaptureController(store)
     ..api = scene == PhoneServerScene.plugins ? _PluginApi() : CaptureApi()
     ..repository = scene == PhoneServerScene.plugins
@@ -323,6 +330,7 @@ Future<Future<void> Function()> mountPhoneServerScene(
   }
   return () async {
     termuxRunningServerProbe = previousProbe;
+    PhoneSetup.termux = previousTermux;
     await tester.pumpWidget(const SizedBox.shrink());
     controller.dispose();
     await tester.pump();

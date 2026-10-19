@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
 
-import '../../api/models.dart';
+import '../../domain/models.dart';
 import '../../domain/connector_search_result.dart';
 import '../../domain/mobile_tool_view.dart';
 import '../../domain/tool_label.dart';
@@ -196,7 +196,9 @@ class _ToolCardState extends State<ToolCard> {
   @override
   void initState() {
     super.initState();
-    _expanded = _storedExpansion ?? (widget.state.status == 'error');
+    _expanded =
+        _storedExpansion ??
+        (widget.state.status == 'error' && !widget.state.declined);
     _syncPreviewLoads();
   }
 
@@ -334,7 +336,7 @@ class _ToolCardState extends State<ToolCard> {
       case 'running':
         return KitToolStatus.running;
       case 'error':
-        return KitToolStatus.failed;
+        return state.declined ? KitToolStatus.declined : KitToolStatus.failed;
       case 'cancelled' || 'killed':
         return KitToolStatus.stopped;
     }

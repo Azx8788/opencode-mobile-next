@@ -6,7 +6,7 @@
 // Output: docs/qa/command-block-2026-10-07/<prefix>-<scene>.png
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/ui/kit/kit_code_block.dart';
 import 'package:opencode_mobile/ui/widgets/tool_card.dart';

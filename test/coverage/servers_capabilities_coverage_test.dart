@@ -14,8 +14,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import '../support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
@@ -28,7 +28,7 @@ import '../../tool/capture/fixtures.dart';
 import '../goldens/kit/kit_gallery.dart' show loadKitGalleryFonts;
 import 'paseo_coverage_support.dart';
 
-class _Api extends OpenCodeApi {
+class _Api extends FakeServerGateway {
   _Api(this._capabilities) : super(baseUrl: 'http://localhost');
 
   final ServerCapabilities _capabilities;
@@ -173,6 +173,7 @@ void main() {
         {
           'id': 'profile-1',
           'name': 'Workstation',
+          'flavor': 'v2',
           'baseUrl': 'http://localhost:4096',
           'username': '',
         },

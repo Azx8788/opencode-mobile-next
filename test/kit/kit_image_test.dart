@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../support/no_red.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
 import 'package:opencode_mobile/ui/app_theme.dart';
@@ -85,6 +86,8 @@ Future<Size> _decodedSize(WidgetTester tester, Finder of) async {
       () => Future<void>.delayed(const Duration(milliseconds: 20)),
     );
     await tester.pump();
+    // Avatars show initials until the first decoded frame is available.
+    if (raw.evaluate().isEmpty) continue;
     final image = tester.widget<RawImage>(raw).image;
     if (image != null) {
       return Size(image.width.toDouble(), image.height.toDouble());
@@ -589,7 +592,7 @@ void main() {
       );
       expect(glyph.icon, KitTokens.glyphFor(AppStatusTone.failure));
       expect(glyph.color, roles.text1);
-      expect(glyph.color, isNot(roles.danger));
+      expect(glyph.color, isNotRed);
       final ring = tester.widget<Container>(
         find.ancestor(
           of: find.byWidget(glyph),

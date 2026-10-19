@@ -1,3 +1,4 @@
+import '../support/fake_server_capabilities.dart';
 // slice-P2.4-5: MCP › Add opens the add sheet (Browse the catalogue ·
 // Enter manually), and the MCP catalogue lists the public MCP registry's
 // servers as switches. Turning one on opens the manual form filled in from
@@ -9,7 +10,7 @@ import 'package:dio/dio.dart' show CancelToken;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/api2/gateway_mappers.dart'
     show api2ServerCapabilities;
 import 'package:opencode_mobile/domain/mcp_catalog.dart';
@@ -620,7 +621,7 @@ void main() {
       // A saved-configuration server (OpenCode 1's capabilities): adds are
       // written to its configuration, removal is not offered.
       final controller = await _controller(
-        caps: ServerCapabilities.allV1,
+        caps: testServerCapabilities,
         prefs: _optedIn,
       );
       addTearDown(controller.dispose);

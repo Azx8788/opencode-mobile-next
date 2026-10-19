@@ -67,7 +67,7 @@ class KitFindingsCard extends StatelessWidget {
                       KitChip(
                         label: finding.severityLabel,
                         tone: switch (finding.severity) {
-                          KitFindingSeverity.critical => KitChipTone.danger,
+                          KitFindingSeverity.critical => KitChipTone.attention,
                           KitFindingSeverity.major => KitChipTone.attention,
                           KitFindingSeverity.minor => KitChipTone.neutral,
                         },

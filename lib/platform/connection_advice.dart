@@ -1,8 +1,10 @@
+import '../orchestration/adapters/gascity/gascity_probe.dart'
+    show isTailnetHost;
 import '../state/profiles.dart'
     show
         isLoopbackHost,
+        isPrivateNetworkHost,
         normalizeServerProfileUrl,
-        serverUrlNeedsCleartextConfirmation,
         validateServerProfileUrl;
 
 /// Synchronous, local-only verdict. Never retains or returns input or errors.
@@ -32,9 +34,12 @@ ConnectionAdvice explainConnectionAddress(String input) {
     // Only the shared validator can grant acceptance.
     if (rejection == null) {
       if (isLoopbackHost(uri.host)) return ConnectionAdvice.loopback;
-      return serverUrlNeedsCleartextConfirmation(normalized)
-          ? ConnectionAdvice.privateHttp
-          : ConnectionAdvice.https;
+      if (uri.scheme == 'http') {
+        return isPrivateNetworkHost(uri.host) || isTailnetHost(uri.host)
+            ? ConnectionAdvice.privateHttp
+            : ConnectionAdvice.remoteHttp;
+      }
+      return ConnectionAdvice.https;
     }
     if (uri.userInfo.isNotEmpty) return ConnectionAdvice.credentials;
     if (uri.hasQuery || uri.hasFragment) {

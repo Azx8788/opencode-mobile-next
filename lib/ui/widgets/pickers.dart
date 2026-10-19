@@ -21,9 +21,9 @@ import 'package:opencode_mobile/ui/kit/kit_state_view.dart';
 import 'package:opencode_mobile/ui/kit/kit_text.dart';
 import 'package:opencode_mobile/ui/kit/kit_tokens.dart';
 
-import '../../api/models.dart';
-import '../../api/provider_presentation.dart';
-import '../../api/product_repository.dart';
+import '../../domain/models.dart';
+import '../../domain/provider_presentation.dart';
+import '../../domain/product_repository.dart';
 import '../../state/connection.dart';
 import '../../domain/free_model.dart' show openCodeFreeProviderID;
 import '../../domain/model_display_name.dart' show modelNameFromId;

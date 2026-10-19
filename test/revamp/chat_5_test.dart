@@ -10,10 +10,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import '../support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import '../support/fake_event_channel.dart';
 import 'package:opencode_mobile/api2/gateway_mappers.dart'
     show api2ServerCapabilities;
 import 'package:opencode_mobile/domain/form_request.dart' show Api2FormInfo;
@@ -28,7 +28,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../support/complete_message_history.dart';
 import 'chat_3_support.dart' show chat3MockSecureStorage;
 
-class _Api extends OpenCodeApi with CompleteMessageHistory {
+class _Api extends FakeServerGateway with CompleteMessageHistory {
   _Api({this.forms = false}) : super(baseUrl: 'http://localhost');
 
   final bool forms;
@@ -108,6 +108,7 @@ Future<ConnectionController> _controller(
       {
         'id': 'profile-1',
         'name': 'Laptop',
+        'flavor': 'v2',
         'baseUrl': 'http://localhost',
         'username': '',
       },

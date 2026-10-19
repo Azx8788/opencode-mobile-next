@@ -17,6 +17,10 @@
       {
         "path": "project.directory",
         "kind": "string"
+      },
+      {
+        "path": "project.canonical",
+        "kind": "string"
       }
     ],
     "provider": [
@@ -72,7 +76,8 @@
             "workspaceID": "wrk_main",
             "project": {
               "id": "prj_shop",
-              "directory": "/work/shop"
+              "directory": "/work/shop",
+              "canonical": "/work/shop"
             }
           }
         },
@@ -101,7 +106,8 @@
             "workspaceID": "wrk_main",
             "project": {
               "id": "prj_shop",
-              "directory": "/work/shop"
+              "directory": "/work/shop",
+              "canonical": "/work/shop"
             }
           }
         }
@@ -131,6 +137,13 @@
         {
           "key": "location.project.directory",
           "path": "project.directory",
+          "kind": "string",
+          "probes": [],
+          "primary": false
+        },
+        {
+          "key": "location.project.canonical",
+          "path": "project.canonical",
           "kind": "string",
           "probes": [],
           "primary": false

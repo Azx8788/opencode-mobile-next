@@ -432,7 +432,6 @@
     <ID>ReturnCount:BackgroundConnectionService.kt$BackgroundConnectionService.Companion$@Suppress("DEPRECATION") fun showCodingAlert( context: Context, kind: String, sessionID: String, key: String, quickReply: Boolean = false, requestID: String = "", profileID: String = "", allowActions: Boolean = true, monitorToken: String = "", subtext: String = "", title: String = "", text: String = "", agentName: String = "" ): Boolean</ID>
     <ID>ReturnCount:BackgroundConnectionService.kt$BackgroundConnectionService.Companion$fun updateLiveStatus( context: Context, runningCount: Int, pendingCount: Int, title: String?, detail: String? ): Boolean</ID>
     <ID>ReturnCount:BuiltinLinux.kt$BuiltinLinux$fun holdAwakeForWork(on: Boolean, forMs: Long): Boolean</ID>
-    <ID>ReturnCount:BuiltinLinux.kt$BuiltinLinux$fun nameAndroidGroups()</ID>
     <ID>ReturnCount:BuiltinLinux.kt$BuiltinLinux$fun serviceLogTail(name: String, tailBytes: Int): String</ID>
     <ID>ReturnCount:BuiltinLinux.kt$BuiltinLinux$private fun hasUnconfinedChildren(): Boolean</ID>
     <ID>ReturnCount:BuiltinLinux.kt$BuiltinLinux$private fun protectionTier(): String</ID>

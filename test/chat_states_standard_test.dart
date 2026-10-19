@@ -9,10 +9,11 @@
 //
 // ignore_for_file: invalid_use_of_protected_member
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:opencode_mobile/ui/kit/kit.dart';
@@ -25,6 +26,23 @@ import '../tool/capture/fixtures.dart';
 
 class _Api extends CaptureApi {
   Object? sendError;
+  int sendAttempts = 0;
+
+  // Receipt-bearing delivery is exercised by command_receipts_queue_test
+  // and the real OpenCode 2 gateway. This fixture stands in for a server
+  // without receipts, so the explicit resend goes straight to the prompt
+  // call the assertions below count.
+  @override
+  ServerCapabilities get capabilities => const ServerCapabilities(
+    phoneTeamExecution: true,
+    clientPromptMessageID: true,
+    setupConfigRead: true,
+    setupMcpInventory: true,
+    mcpRuntimeAdds: true,
+    mcpChatConnect: true,
+    mcpChatOAuth: true,
+    mcpChatToolRefresh: true,
+  );
 
   @override
   Future<ServerPage<MessageWithParts>> messagePage(
@@ -44,8 +62,35 @@ class _Api extends CaptureApi {
     List<PromptAgentMention> agentMentions = const [],
     PromptDelivery? delivery,
   }) async {
+    sendAttempts += 1;
     if (sendError case final error?) throw error;
     prompts.add(text);
+  }
+
+  @override
+  Future<void> promptWithMessageID(
+    String sessionID, {
+    required String messageID,
+    required String text,
+    ModelRef? model,
+    String? agent,
+    String? variant,
+    List<PromptAttachment> attachments = const [],
+    List<PromptAgentMention> agentMentions = const [],
+    PromptDelivery? delivery,
+    void Function()? beforeSend,
+  }) async {
+    beforeSend?.call();
+    await promptAsync(
+      sessionID,
+      text: text,
+      model: model,
+      agent: agent,
+      variant: variant,
+      attachments: attachments,
+      agentMentions: agentMentions,
+      delivery: delivery,
+    );
   }
 }
 
@@ -125,6 +170,22 @@ Future<CaptureController> _chat(
           ..sessionsById = Map.of(api.sessionsById)
           ..busySessions = Set.of(api.busy))
       : await captureController(prefs: prefs, api: api);
+  if (!agentBackend) {
+    (controller.store as SeededProfileStore).seeded[0] = ServerProfile(
+      id: 'laptop',
+      name: 'Laptop',
+      baseUrl: api.baseUrl,
+    );
+  }
+  // Receipt recovery verifies that the saved profile still exists. The
+  // capture store exposes profiles in memory; mirror the real saved state
+  // and the injected transport's endpoint so the identity fence can pass.
+  await prefs.setString(
+    'oc.profiles',
+    jsonEncode([
+      for (final profile in controller.store.profiles) profile.toJson(),
+    ]),
+  );
   setUp?.call(controller);
   addTearDown(() async {
     await tester.pumpWidget(const SizedBox.shrink());
@@ -253,8 +314,9 @@ void main() {
     expect(find.text('The checkout test is fixed.'), findsOneWidget);
   });
 
-  testWidgets('a message that was not sent stays on the status line, with its '
-      'text back in the box, until dismissed or sent again', (tester) async {
+  testWidgets('an uncertain send stays in review until an explicit resend', (
+    tester,
+  ) async {
     final api = _Api()
       ..busy = {}
       ..sendError = ApiException(
@@ -262,7 +324,7 @@ void main() {
         statusCode: 503,
       )
       ..messagesHandler = (_) async => _turn();
-    await _chat(tester, api);
+    final controller = await _chat(tester, api);
     final field = find.byKey(const Key('chat-composer-field'));
 
     await tester.enterText(field, 'Run the full test suite');
@@ -270,30 +332,45 @@ void main() {
     await tester.tap(find.byTooltip('Send'));
     await _frames(tester);
 
-    expect(find.text("Your message wasn't sent"), findsOneWidget);
+    expect(find.textContaining('Not confirmed yet'), findsOneWidget);
+    expect(find.text("Your message wasn't sent"), findsNothing);
     expect(find.byType(SnackBar), findsNothing);
     final composer = tester.widget<EditableText>(
       find.descendant(of: field, matching: find.byType(EditableText)),
     );
-    expect(composer.controller.text, contains('suite'));
-    // It does not leave on its own while the person reads it.
+    expect(composer.controller.text, isEmpty);
     await tester.pump(const Duration(seconds: 10));
-    expect(find.text("Your message wasn't sent"), findsOneWidget);
-    await tester.tap(find.byKey(const ValueKey('kit-status-dismiss')));
-    // The line folds away (design standard §10), then it is gone.
-    await _frames(tester, 4);
-    expect(find.text("Your message wasn't sent"), findsNothing);
+    await controller.flushOfflineQueue();
+    await _frames(tester);
+    expect(find.textContaining('Not confirmed yet'), findsOneWidget);
+    expect(api.sendAttempts, 1);
 
-    // Sent again, and this time it goes: nothing is left on the line.
-    await tester.tap(find.byTooltip('Send'));
+    await tester.tap(find.byKey(const ValueKey('queued-bubble-resend')));
     await _frames(tester);
-    expect(find.text("Your message wasn't sent"), findsOneWidget);
+    expect(find.text('Send this draft again?'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('kit-confirm-cancel')));
+    await _frames(tester);
+    expect(find.textContaining('Not confirmed yet'), findsOneWidget);
+    expect(api.sendAttempts, 1);
+
     api.sendError = null;
-    await tester.enterText(field, 'Run the full test suite');
-    await tester.pump();
-    await tester.tap(find.byTooltip('Send'));
+    await tester.tap(find.byKey(const ValueKey('queued-bubble-resend')));
     await _frames(tester);
-    expect(find.text("Your message wasn't sent"), findsNothing);
+    await tester.tap(find.widgetWithText(KitButton, 'Send again').last);
+    for (var i = 0; i < 50 && controller.queuedPromptCount != 0; i++) {
+      await tester.pump();
+    }
+    await _frames(tester);
+    expect(
+      controller.queuedPromptCount,
+      0,
+      reason: controller
+          .queuedPromptsFor(checkoutSessionID)
+          .map((entry) => entry.error)
+          .join('; '),
+    );
+    expect(find.textContaining('Not confirmed yet'), findsNothing);
+    expect(api.sendAttempts, 2);
     expect(api.prompts, ['Run the full test suite']);
   });
 
@@ -407,4 +484,52 @@ void main() {
       expect(tester.widget(primary).key, const Key('permission-card-allow'));
     },
   );
+
+  testWidgets('landscape: the connection line and the request card each keep '
+      'their own room', (tester) async {
+    final controller = await _chat(
+      tester,
+      _Api()
+        ..busy = {}
+        ..messagesHandler = (_) async => _turn(),
+      agentBackend: true,
+    );
+    // A phone on its side.
+    tester.view.physicalSize = const Size(915, 412);
+    controller.handleEventForTesting(
+      EventEnvelope(
+        type: 'permission.asked',
+        properties: {
+          'id': 'request-1',
+          'sessionID': checkoutSessionID,
+          'permission': 'edit',
+          'patterns': ['/root/projects/tip-calculator/index.html'],
+          'metadata': <String, Object?>{},
+          'always': <String>[],
+        },
+      ),
+    );
+    controller.status = StreamStatus.reconnecting;
+    controller.notifyListeners();
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 16));
+    await _frames(tester);
+    tester.takeException();
+
+    expect(_connectionLine, findsOneWidget);
+    final line = tester.getRect(_connectionLine);
+    final allow = find.byKey(const Key('permission-card-allow'));
+    expect(allow, findsOneWidget);
+    // The room the request card is shown in (it scrolls inside it).
+    final room = tester.getRect(
+      find.ancestor(of: allow, matching: find.byType(Scrollable)).first,
+    );
+    // The line sits above that room, never over it...
+    expect(line.bottom, lessThanOrEqualTo(room.top));
+    expect(room.bottom, lessThanOrEqualTo(412));
+    // ...is one short row instead of a block that eats the window, and
+    // leaves the request enough room to be read and answered.
+    expect(line.height, lessThan(70));
+    expect(room.height, greaterThanOrEqualTo(72));
+  });
 }

@@ -9,8 +9,8 @@ import 'support/complete_message_history.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
 import 'package:opencode_mobile/domain/orchestration_gateway.dart'
     show AgentStep, AgentStepKind;
 import 'package:opencode_mobile/domain/server_gateway.dart'
@@ -64,7 +64,7 @@ void _expectNoRawId() {
   }
 }
 
-class _Api extends OpenCodeApi with CompleteMessageHistory {
+class _Api extends FakeServerGateway with CompleteMessageHistory {
   _Api() : super(baseUrl: 'http://localhost');
 
   List<MessageWithParts> messagesResult = const [];

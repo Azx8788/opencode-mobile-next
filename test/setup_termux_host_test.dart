@@ -120,8 +120,42 @@ void main() {
       expect(calls, everyElement('setupStatus'));
     },
   );
+  test('unsafe or unknown raw setup params are rejected by the validator', () {
+    for (final params in [
+      {
+        'opencode': {'password': 'fake-value'},
+      },
+      {
+        'opencode': {'runtime': 'unsupported'},
+      },
+      {
+        'opencode': {'version': '1.2.3; echo injected'},
+      },
+      {
+        '_job': {'adding': 'token=fake-value'},
+      },
+    ]) {
+      expect(
+        () => TermuxSetupHost.validateParams(params),
+        throwsA(
+          isA<BuiltinLinuxException>().having(
+            (error) => error.code,
+            'code',
+            'invalid_setup',
+          ),
+        ),
+      );
+    }
+  });
+  test('legacy runtime and version requests normalize to supported OC2', () {
+    final params = effectiveJobParams({
+      'opencode': {'runtime': 'opencode1', 'version': '1.19.0'},
+    }, null);
+    expect(params['opencode'], {'runtime': 'opencode2'});
+    expect(() => TermuxSetupHost.validateParams(params), returnsNormally);
+  });
   test(
-    'unsafe or unknown setup params never generate install scripts',
+    'unsafe effective setup params never generate install scripts',
     () async {
       var generated = false;
       final calls = <String>[];
@@ -143,10 +177,7 @@ void main() {
           'opencode': {'password': 'fake-value'},
         },
         {
-          'opencode': {'runtime': 'unsupported'},
-        },
-        {
-          'opencode': {'version': '1.2.3; echo injected'},
+          'opencode': {'version': '2.0.29; echo injected'},
         },
         {
           '_job': {'adding': 'token=fake-value'},
@@ -339,4 +370,38 @@ void main() {
     expect(cancelCalls, 1);
     expect(finishes, 0);
   });
+
+  test(
+    'a phone without Termux is asked once per watch, not every minute',
+    () async {
+      var reads = 0;
+      messenger.setMockMethodCallHandler(channel, (call) async {
+        if (call.method == 'setupStatus') {
+          reads++;
+          throw PlatformException(
+            code: 'permission_denied',
+            message: 'Termux RUN_COMMAND permission is required.',
+          );
+        }
+        throw MissingPluginException();
+      });
+      final engine = ChannelSetupEngine.termux(
+        finisher: (_) async => null,
+        pollInterval: const Duration(milliseconds: 1),
+        idlePollInterval: const Duration(milliseconds: 2),
+        foreground: () => true,
+      );
+      addTearDown(engine.dispose);
+      void listener() {}
+      engine.progress.addListener(listener);
+      await Future<void>.delayed(const Duration(milliseconds: 120));
+      expect(reads, 1);
+      // A page that starts watching again asks again, once.
+      engine.progress.removeListener(listener);
+      engine.progress.addListener(listener);
+      await Future<void>.delayed(const Duration(milliseconds: 120));
+      expect(reads, 2);
+      engine.progress.removeListener(listener);
+    },
+  );
 }

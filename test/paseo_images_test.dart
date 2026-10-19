@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart'
     show ProductException;
 import 'package:opencode_mobile/paseo/gateway.dart';
@@ -41,5 +41,41 @@ void main() {
   test('agents on this phone take pictures, not other files', () {
     expect(paseoServerCapabilities.promptAttachments, isTrue);
     expect(paseoServerCapabilities.promptImagesOnly, isTrue);
+  });
+
+  // JPEG signature (FF D8 FF E0) under a ".png" name: what a picker gives when
+  // the file name and the bytes disagree.
+  const jpegData = '/9j/4AAQSkZJRgABAQ==';
+
+  test('the type sent is the one the bytes are, not the file name', () {
+    final images = paseoImages(const [
+      PromptAttachment(
+        mime: 'image/png',
+        filename: 'shot.png',
+        url: 'data:image/png;base64,$jpegData',
+      ),
+    ]);
+    expect(images, [
+      {'data': jpegData, 'mimeType': 'image/jpeg'},
+    ]);
+  });
+
+  test('a picture type Claude does not take is refused in words', () {
+    expect(
+      () => paseoImages(const [
+        PromptAttachment(
+          mime: 'image/heic',
+          filename: 'shot.heic',
+          url: 'data:image/heic;base64,AAAAGGZ0eXBoZWlj',
+        ),
+      ]),
+      throwsA(
+        isA<ProductException>().having(
+          (e) => e.message,
+          'message',
+          contains('PNG, JPEG, GIF or WebP'),
+        ),
+      ),
+    );
   });
 }

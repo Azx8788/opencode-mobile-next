@@ -9,7 +9,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/ui/kit/kit_motion.dart';
 import 'package:opencode_mobile/ui/widgets/app_connection_status.dart';
 import 'package:opencode_mobile/ui/widgets/saved_server_connection_card.dart';

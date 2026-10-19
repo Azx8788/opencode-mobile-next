@@ -1,12 +1,11 @@
+import 'support/fake_server_operations.dart';
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -53,7 +52,7 @@ class _Host {
   ProvidersResponse runtime() =>
       ProvidersResponse(providers: [if (anthropicLoaded) _anthropic, _zen]);
 
-  /// What `SdkProductRepository.refreshProviderRuntime` does against the
+  /// What `FakeServerOperations.refreshProviderRuntime` does against the
   /// server: refuse while a reply runs, otherwise dispose.
   void refreshRuntime() {
     if (running > 0) throw ProviderRuntimeBusyException(running);
@@ -62,7 +61,7 @@ class _Host {
   }
 }
 
-class _HostApi extends OpenCodeApi {
+class _HostApi extends FakeServerGateway {
   _HostApi(this.host) : super(baseUrl: 'http://127.0.0.1:1');
 
   final _Host host;
@@ -100,7 +99,7 @@ class _HostApi extends OpenCodeApi {
       Future.error(ApiException('V2 unavailable', statusCode: 404));
 }
 
-class _Stream extends EventStream {
+class _Stream extends FakeEventChannel {
   _Stream({
     required super.api,
     required super.onEvent,
@@ -117,8 +116,8 @@ class _Stream extends EventStream {
   Future<void> dispose() async {}
 }
 
-class _HostRepository extends SdkProductRepository {
-  _HostRepository(OpenCodeApi api, this.host) : super(api.sdkClient);
+class _HostRepository extends FakeServerOperations {
+  _HostRepository(super.api, this.host);
 
   final _Host host;
 
@@ -206,150 +205,7 @@ void main() {
   setUpAll(() => HttpOverrides.global = _RealHttpOverrides());
   tearDownAll(() => HttpOverrides.global = null);
 
-  group('SdkProductRepository.refreshProviderRuntime', () {
-    Future<List<({String method, String path, Map<String, String> query})>> run(
-      Future<void> Function(SdkProductRepository repository) body, {
-      required Map<String, Object?> Function(Map<String, String> query) status,
-      int statusCode = HttpStatus.ok,
-    }) async {
-      final requests =
-          <({String method, String path, Map<String, String> query})>[];
-      await HttpOverrides.runZoned(() async {
-        final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
-        server.listen((request) async {
-          await utf8.decoder.bind(request).join();
-          requests.add((
-            method: request.method,
-            path: request.uri.path,
-            query: request.uri.queryParameters,
-          ));
-          request.response.headers.contentType = ContentType.json;
-          if (request.uri.path == '/session/status') {
-            request.response.statusCode = statusCode;
-            request.response.write(
-              jsonEncode(status(request.uri.queryParameters)),
-            );
-          } else if (request.uri.path.startsWith('/api/integration/')) {
-            request.response.statusCode = HttpStatus.noContent;
-          } else {
-            request.response.write('true');
-          }
-          await request.response.close();
-        });
-        try {
-          final api = OpenCodeApi(
-            baseUrl: 'http://${server.address.host}:${server.port}',
-          );
-          final repository = SdkProductRepository(api.sdkClient)
-            ..setLocation(directory: '/work/app', workspace: null);
-          await body(repository);
-        } finally {
-          await server.close(force: true);
-        }
-      }, createHttpClient: (_) => _RealHttpOverrides().createHttpClient(null));
-      return requests;
-    }
-
-    test('refuses to dispose while a reply runs in the project', () async {
-      final requests = await run(
-        (repository) => expectLater(
-          repository.refreshProviderRuntime(),
-          throwsA(
-            isA<ProviderRuntimeBusyException>().having(
-              (error) => error.runningReplies,
-              'runningReplies',
-              1,
-            ),
-          ),
-        ),
-        status: (query) => query['directory'] == '/work/app'
-            ? {
-                'ses_1': {'type': 'busy'},
-                'ses_2': {'type': 'idle'},
-              }
-            : const {},
-      );
-      expect(
-        requests.map((request) => request.path),
-        isNot(contains('/instance/dispose')),
-      );
-    });
-
-    test(
-      'counts replies in the server-default instance it would also dispose',
-      () async {
-        final requests = await run(
-          (repository) => expectLater(
-            repository.refreshProviderRuntime(),
-            throwsA(
-              isA<ProviderRuntimeBusyException>().having(
-                (error) => error.runningReplies,
-                'runningReplies',
-                2,
-              ),
-            ),
-          ),
-          status: (query) => query.isEmpty
-              ? {
-                  'ses_a': {'type': 'busy'},
-                  'ses_b': {'type': 'retry', 'attempt': 2},
-                }
-              : const {},
-        );
-        expect(
-          requests.map((request) => request.path),
-          isNot(contains('/instance/dispose')),
-        );
-      },
-    );
-
-    test('does not dispose when running replies cannot be read', () async {
-      final requests = await run(
-        (repository) => expectLater(
-          repository.refreshProviderRuntime(),
-          throwsA(isA<ProductException>()),
-        ),
-        status: (_) => const {'message': 'unavailable'},
-        statusCode: HttpStatus.internalServerError,
-      );
-      expect(
-        requests.map((request) => request.path),
-        isNot(contains('/instance/dispose')),
-      );
-    });
-
-    test('disposes both instances when nothing runs', () async {
-      final requests = await run(
-        (repository) => repository.refreshProviderRuntime(),
-        status: (_) => {
-          'ses_1': {'type': 'idle'},
-        },
-      );
-      expect(requests.map((request) => request.path), [
-        '/session/status',
-        '/session/status',
-        '/instance/dispose',
-        '/instance/dispose',
-      ]);
-    });
-
-    test('a key saved while a reply runs connects without a dispose', () async {
-      final requests = await run(
-        (repository) => repository.connectIntegrationKey('groq', 'test-key'),
-        status: (_) => {
-          'ses_1': {'type': 'busy'},
-        },
-      );
-      expect(requests.map((request) => request.path), [
-        '/api/integration/groq/connect/key',
-        '/auth/groq',
-        '/session/status',
-        '/session/status',
-      ]);
-    });
-  });
-
-  group('cold start', () {
+  group('Provider runtime recovery', () {
     testWidgets(
       'with a running reply does not reset the instance; the reload runs '
       'once the reply finishes',

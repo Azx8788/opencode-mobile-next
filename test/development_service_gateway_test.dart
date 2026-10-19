@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:opencode_mobile/api2/client.dart';
 import 'package:opencode_mobile/api2/gateway_operations.dart';
 import 'package:opencode_mobile/api2/gateway_mappers.dart';
-import 'package:opencode_mobile/domain/server_gateway.dart';
 
 import 'api2_interaction_gateway_test.dart' show withServer, writeJson;
 
@@ -59,7 +58,6 @@ void main() {
             'metadata': {'ocDevelopmentServiceOwner': 'owner'},
           });
           expect(api2ServerCapabilities.developmentServices, isTrue);
-          expect(ServerCapabilities.allV1.developmentServices, isFalse);
         },
       );
     },

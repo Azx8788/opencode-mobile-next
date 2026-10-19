@@ -40,8 +40,8 @@ Future<void> _shot(
   WidgetTester tester,
   String name, {
   required String status,
-  String version = '1.18.29',
-  String runtime = 'opencode1',
+  String version = '2.0.28',
+  String runtime = 'opencode2',
   Size size = phoneSize,
   Future<void> Function()? act,
 }) async {
@@ -79,6 +79,7 @@ Future<void> _shot(
 void main() {
   setUpAll(loadCaptureFonts);
   setUp(() {
+    useNoTermuxJob();
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
           const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
@@ -89,7 +90,7 @@ void main() {
   final startFailed = termuxSnapshot(
     phase: 'failed',
     message: 'OpenCode server exited (code 137)',
-    version: '1.18.29',
+    version: '2.0.28',
     extra: 'failure_kind=crash\n',
   );
 
@@ -128,7 +129,7 @@ void main() {
       status: termuxSnapshot(
         phase: 'failed',
         message: 'Could not install the Termux dependencies',
-        version: '1.18.29',
+        version: '2.0.28',
       ),
     );
   });
@@ -157,8 +158,8 @@ void main() {
     await _shot(
       tester,
       'close_servers_this_phone_update_confirm_light',
-      version: '1.18.20',
-      status: termuxSnapshot(phase: 'ready', version: '1.18.20'),
+      version: '2.0.27',
+      status: termuxSnapshot(phase: 'ready', version: '2.0.27'),
       act: () async {
         await tester.tap(find.byKey(const ValueKey('this-phone-update')));
       },
@@ -168,7 +169,7 @@ void main() {
   for (final size in [phoneSize, const Size(1280, 800)]) {
     final suffix = size == phoneSize ? '' : '_1280x800';
     testWidgets('up to date ($size)', (tester) async {
-      final pinned = TermuxRuntime.openCode1.pinnedVersion;
+      final pinned = TermuxRuntime.openCode2.pinnedVersion;
       await _shot(
         tester,
         'close_servers_this_phone_up_to_date${suffix}_light',

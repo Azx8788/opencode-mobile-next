@@ -21,12 +21,12 @@ class _Store extends ProfileStore {
   }
 }
 
-ServerProfile _p(String id, ServerFlavor flavor, {String url = ''}) =>
+ServerProfile _p(String id, {bool legacy = false, String url = ''}) =>
     ServerProfile(
       id: id,
       name: id,
       baseUrl: url.isEmpty ? BuiltinLinux.serverUrl : url,
-      flavor: flavor,
+      requiresOpenCode2Migration: legacy,
     );
 
 void main() {
@@ -39,10 +39,10 @@ void main() {
   bool phoneOwn(ServerProfile p) => BuiltinLinux.managesServerUrl(p.baseUrl);
 
   test('the team and its engine credential move to the new server', () async {
-    final old = _p('one', ServerFlavor.v1)
+    final old = _p('one', legacy: true)
       ..orchestration = BuiltinTeam.config()
       ..teamEngineAuth = 'engine-secret';
-    final next = _p('two', ServerFlavor.v2);
+    final next = _p('two');
     final store = _Store(prefs, [old, next]);
     await teamFollowsRuntime(store, next, sameHost: phoneOwn);
     expect(BuiltinTeam.isBuiltinConfig(next.orchestration), isTrue);
@@ -54,18 +54,16 @@ void main() {
   test(
     'a target with its own team keeps it; a remote server is untouched',
     () async {
-      final remote = _p('far', ServerFlavor.v1, url: 'https://box.example.com')
+      final remote = _p('far', legacy: true, url: 'https://box.example.com')
         ..orchestration = BuiltinTeam.config();
-      final next = _p('two', ServerFlavor.v2);
+      final next = _p('two');
       final store = _Store(prefs, [remote, next]);
       await teamFollowsRuntime(store, next, sameHost: phoneOwn);
       expect(next.orchestration, isNull);
       expect(remote.orchestration, isNotNull);
 
-      final own = _p('three', ServerFlavor.v2)
-        ..orchestration = BuiltinTeam.config();
-      final old = _p('one', ServerFlavor.v1)
-        ..orchestration = BuiltinTeam.config();
+      final own = _p('three')..orchestration = BuiltinTeam.config();
+      final old = _p('one', legacy: true)..orchestration = BuiltinTeam.config();
       await teamFollowsRuntime(
         _Store(prefs, [old, own]),
         own,

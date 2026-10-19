@@ -239,8 +239,8 @@ void main() {
             );
           }
           // Nowhere in the shot (including anti-aliased edges) does the
-          // danger or attention role's colour appear, at full coverage.
-          for (final role in [tokens.roles.danger, tokens.roles.attention]) {
+          // attention role's colour appear, at full coverage.
+          for (final role in [tokens.roles.attention]) {
             expect(
               _opaquePixelMatches(capture, _rgb(role)),
               isFalse,

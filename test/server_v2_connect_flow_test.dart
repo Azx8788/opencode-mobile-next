@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/server_probe.dart';
+import 'package:opencode_mobile/domain/server_probe.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
@@ -361,34 +361,22 @@ void main() {
     expect(find.text('shell'), findsOneWidget);
   });
 
-  testWidgets('a v1 success is labeled limited and stays saveable', (
+  testWidgets('an OpenCode 1 server is blocked with upgrade guidance', (
     tester,
   ) async {
     serverProbe = ({required baseUrl, username, password}) async =>
-        const ServerProbeResult.success('0.3.5', flavor: ServerFlavor.v1);
+        const ServerProbeResult.failure(
+          unsupportedOpenCode1Message,
+          unsupportedLegacy: true,
+        );
     final (store, controller) = await _state();
     addTearDown(controller.dispose);
     await tester.pumpWidget(_app(store, controller));
     await _openEditor(tester);
-
     await _enter(tester, 'server-url-field', 'https://box.example:4096');
     await _test(tester);
-
-    expect(
-      find.text('OpenCode 1 · 0.3.5 — limited feature set'),
-      findsOneWidget,
-    );
-    expect(
-      find.text(
-        'This app targets OpenCode 2; some features are unavailable on v1 '
-        'servers.',
-      ),
-      findsOneWidget,
-    );
-
-    await tester.tap(find.byKey(const ValueKey('save-server-profile')));
-    await tester.pumpAndSettle();
-    expect(store.saved.single.flavor, ServerFlavor.v1);
+    expect(find.text(unsupportedOpenCode1Message), findsOneWidget);
+    expect(store.saved, isEmpty);
   });
 
   testWidgets('the paste affordance fills the password from the clipboard', (

@@ -151,6 +151,7 @@ void main() {
     final registry = setupComponents(AppLocalizationsEn());
     configure(registry);
     final python = registry.singleWhere((entry) => entry.id == 'python');
+    final before = setupToolsChanged.value;
 
     await service.remove('python');
 
@@ -161,18 +162,21 @@ void main() {
     expect(linux.probes[python.presenceScript], 1);
     expect(team.removeCalls, 0);
     expect(service.busy.value, isFalse);
+    expect(setupToolsChanged.value, before + 1);
   });
 
   test('AI Team removal uses its lifecycle API', () async {
     final registry = setupComponents(AppLocalizationsEn());
     configure(registry);
     final component = registry.singleWhere((entry) => entry.id == 'aiteam');
+    final before = setupToolsChanged.value;
 
     await service.remove('aiteam');
 
     expect(team.removeCalls, 1);
     expect(linux.calls, isNot(contains(component.removeScript)));
     expect(linux.probes[component.presenceScript], 1);
+    expect(setupToolsChanged.value, before + 1);
   });
 
   test('AI Team refuses a substituted unrecognized removeScript', () async {
@@ -211,11 +215,13 @@ void main() {
         entries.map((entry) => entry.component.id),
         isNot(contains('start')),
       );
+      final before = setupToolsChanged.value;
       await expectLater(
         service.remove('node'),
         _blocked(ComponentRemovalBlock.dependentInstalled),
       );
       expect(linux.calls.where(linux.removals.containsKey), isEmpty);
+      expect(setupToolsChanged.value, before);
     },
   );
 
@@ -354,12 +360,14 @@ void main() {
   test('A running setup blocks component removal', () async {
     configure([_component('tool')]);
     linux.setup = '{"state":"running"}';
+    final before = setupToolsChanged.value;
     await expectLater(
       service.remove('tool'),
       _blocked(ComponentRemovalBlock.setupRunning),
     );
     expect(linux.calls, isNot(contains('remove:tool')));
     expect(service.busy.value, isFalse);
+    expect(setupToolsChanged.value, before);
   });
 
   test('Unavailable setup status fails closed', () async {
@@ -425,6 +433,7 @@ void main() {
       linux.removalGate = Completer<void>();
       final busy = <bool>[];
       service.busy.addListener(() => busy.add(service.busy.value));
+      final before = setupToolsChanged.value;
       final first = service.remove('tool');
       await linux.removalStarted.future;
 
@@ -433,11 +442,17 @@ void main() {
         service.remove('tool'),
         _blocked(ComponentRemovalBlock.busy),
       );
+      expect(
+        setupToolsChanged.value,
+        before,
+        reason: 'removal is still running',
+      );
       linux.removalGate!.complete();
       await first;
 
       expect(service.busy.value, isFalse);
       expect(busy, [true, false]);
+      expect(setupToolsChanged.value, before + 1);
       expect(
         linux.calls.where((script) => script == 'remove:tool'),
         hasLength(1),
@@ -448,17 +463,20 @@ void main() {
   test('A nonzero removeScript result is failure and resets busy', () async {
     configure([_component('tool')]);
     linux.removalExit = 1;
+    final before = setupToolsChanged.value;
     await expectLater(
       service.remove('tool'),
       _blocked(ComponentRemovalBlock.failed),
     );
     expect(linux.probes['presence:tool'], 0);
     expect(service.busy.value, isFalse);
+    expect(setupToolsChanged.value, before + 1);
   });
 
   test('Thrown script errors expose only a stable failure reason', () async {
     configure([_component('tool')]);
     linux.removalError = 'Authorization: Bearer fake-component-removal-token';
+    final before = setupToolsChanged.value;
 
     await expectLater(
       service.remove('tool'),
@@ -476,6 +494,7 @@ void main() {
       ),
     );
     expect(service.busy.value, isFalse);
+    expect(setupToolsChanged.value, before + 1);
   });
 
   test('A successful script with surviving files is still failure', () async {
@@ -487,6 +506,35 @@ void main() {
     );
     expect(linux.probes['presence:tool'], 0);
     expect(service.busy.value, isFalse);
+  });
+
+  test('Partial removal invalidates inventory after releasing busy', () async {
+    final registry = setupComponents(AppLocalizationsEn());
+    configure(registry);
+    final component = registry.singleWhere((entry) => entry.id == 'aiteam');
+    service = ComponentRemovalService(
+      linux: linux,
+      registry: registry,
+      removeTeam: () async {
+        linux.probes[component.presenceScript!] = 1;
+        throw StateError('Removal failed after deleting files');
+      },
+    );
+    final busyWhenChanged = <bool>[];
+    void onChanged() => busyWhenChanged.add(service.busy.value);
+    setupToolsChanged.addListener(onChanged);
+    addTearDown(() => setupToolsChanged.removeListener(onChanged));
+
+    await expectLater(
+      service.remove('aiteam'),
+      _blocked(ComponentRemovalBlock.failed),
+    );
+
+    expect(busyWhenChanged, [false]);
+    final entry = (await service.inventory()).singleWhere(
+      (entry) => entry.component.id == 'aiteam',
+    );
+    expect(entry.presence, ComponentPresence.absent);
   });
 
   group('P1.4: sizes and other hosts', () {

@@ -212,7 +212,7 @@ class InAppPhoneHost extends PhoneHost {
   @override
   TermuxRuntime get runtime {
     final profile = this.profile;
-    if (profile != null) return BuiltinLinux.runtimeFor(profile.flavor);
+    if (profile != null) return BuiltinLinux.runtimeForProfile(profile);
     // A pre-selection installation is legacy; only a fresh host adopts OC2.
     return _status?.installed == true
         ? TermuxRuntime.openCode1

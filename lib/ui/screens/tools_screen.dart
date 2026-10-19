@@ -7,8 +7,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
-import '../../api/models.dart';
-import '../../api/product_repository.dart';
+import '../../domain/models.dart';
+import '../../domain/product_repository.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state/connection.dart';
 import '../../state/server_presentation.dart';
@@ -229,7 +229,7 @@ class _ToolsScreenState extends State<ToolsScreen> {
             KitText(
               error,
               role: KitTextRole.secondary,
-              tone: KitTextTone.danger,
+              tone: KitTextTone.primary,
             ),
         ],
       ),

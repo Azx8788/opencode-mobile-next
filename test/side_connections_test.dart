@@ -1,3 +1,4 @@
+import 'support/fake_server_operations.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -5,10 +6,9 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:opencode_mobile/ui/kit/kit_request_card.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/domain/form_request.dart';
 import 'package:opencode_mobile/domain/chat_feed.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';
@@ -63,7 +63,7 @@ class _Server {
   void Function(EventEnvelope)? globalEvent;
 }
 
-class _Api extends OpenCodeApi {
+class _Api extends FakeServerGateway {
   _Api(this.server, String baseUrl) : super(baseUrl: baseUrl);
   final _Server server;
 
@@ -171,8 +171,8 @@ class _Api extends OpenCodeApi {
   Future<List<FileNode>> listFiles(String path) async => const [];
 }
 
-class _Repo extends SdkProductRepository {
-  _Repo(this.api) : super(api.sdkClient);
+class _Repo extends FakeServerOperations {
+  _Repo(this.api) : super(api);
   final _Api api;
   @override
   Future<ChatDefaults> loadChatDefaults() async => const ChatDefaults();
@@ -228,7 +228,7 @@ class _Repo extends SdkProductRepository {
   }) async => ServerPage(items: api.server.global);
 }
 
-class _Stream extends EventStream {
+class _Stream extends FakeEventChannel {
   _Stream({
     required super.api,
     required super.onEvent,
@@ -286,9 +286,14 @@ Future<_World> _world(
 }) async {
   SharedPreferences.setMockInitialValues({
     'oc.profiles': jsonEncode([
-      {'id': 'ubuntu', 'name': 'This phone', 'baseUrl': _ubuntu},
-      {'id': 'termux', 'name': 'Termux', 'baseUrl': _termux},
-      {'id': 'vps', 'name': 'VPS', 'baseUrl': _vps},
+      {
+        'id': 'ubuntu',
+        'name': 'This phone',
+        'flavor': 'v2',
+        'baseUrl': _ubuntu,
+      },
+      {'id': 'termux', 'name': 'Termux', 'flavor': 'v2', 'baseUrl': _termux},
+      {'id': 'vps', 'name': 'VPS', 'flavor': 'v2', 'baseUrl': _vps},
     ]),
     ...prefsExtra,
   });
@@ -352,6 +357,10 @@ void main() {
       const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
       (_) async => null,
     );
+    binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      const MethodChannel('oc/scheduled_prompts'),
+      (_) async => null,
+    );
   });
 
   testWidgets('Termux joins the list beside the in-app Ubuntu; a server '
@@ -398,6 +407,20 @@ void main() {
     // The app stays on the in-app Ubuntu.
     expect(c.profile?.id, 'ubuntu');
     expect(c.backendForConversation('u1'), isNull);
+    c.dispose();
+  });
+
+  testWidgets('a widget tap on another server\'s conversation opens it through '
+      'the feed first', (tester) async {
+    final w = await _world(tester);
+    final c = w.controller;
+    expect(c.backendForConversation('t1'), isNull);
+    expect(await c.openWidgetConversation('t1'), isTrue);
+    expect(c.backendForConversation('t1')?.profile?.id, 'termux');
+    // This controller's own conversation needs no switch; an unknown one
+    // opens nothing, so the caller shows the Conversations screen.
+    expect(await c.openWidgetConversation('u1'), isTrue);
+    expect(await c.openWidgetConversation('nope'), isFalse);
     c.dispose();
   });
 

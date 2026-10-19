@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:clock/clock.dart';
 import 'package:flutter/widgets.dart';
 
-import '../../api/models.dart';
+import '../../domain/models.dart';
 import '../../domain/server_gateway.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state/connection.dart';

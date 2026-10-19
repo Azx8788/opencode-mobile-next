@@ -305,7 +305,7 @@ Map<String, Object?> _map(Object? value) => value is Map
 /// only sign (the word itself says it).
 KitTextTone? _textTone(AppStatusTone tone) => switch (tone) {
   AppStatusTone.ok => KitTextTone.success,
-  AppStatusTone.failure => KitTextTone.danger,
+  AppStatusTone.failure => KitTextTone.primary,
   AppStatusTone.progress => KitTextTone.primary,
   AppStatusTone.neutral => KitTextTone.secondary,
   // Amber is only the needs-you card's (LOOK-4, LOOK-24): the word says it.

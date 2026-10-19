@@ -311,7 +311,7 @@ class _AgentCardFormState extends State<AgentCardForm> {
               KitText(
                 error,
                 role: KitTextRole.secondary,
-                tone: KitTextTone.danger,
+                tone: KitTextTone.primary,
               ),
           ],
         );

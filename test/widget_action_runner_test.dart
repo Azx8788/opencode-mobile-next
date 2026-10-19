@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/background/widget_action_runner.dart';
 import 'package:opencode_mobile/background/widget_snapshot.dart';
 import 'package:opencode_mobile/background/widget_v2_contract.dart';
@@ -17,7 +17,11 @@ class _Gateway implements ServerGateway {
   bool closed = false, fail = false;
   bool healthy = true;
   bool failHealth = false;
-  int healthReads = 0, permissionReads = 0;
+  int healthReads = 0, permissionReads = 0, settlementReads = 0;
+  List<String?> settledStatuses = ['idle'];
+  bool failStatus = false;
+  Completer<void>? statusGate;
+  void Function()? afterStatus;
   Completer<void>? healthGate;
   void Function()? afterHealth;
   String marker = 'user-1', status = 'busy';
@@ -54,7 +58,18 @@ class _Gateway implements ServerGateway {
     ),
   ];
   @override
-  Future<Map<String, String>> sessionStatuses() async => {'session': status};
+  Future<Map<String, String>> sessionStatuses() async {
+    if (mutations.isEmpty) return {'session': status};
+    settlementReads++;
+    await statusGate?.future;
+    afterStatus?.call();
+    if (failStatus) throw StateError('private status failure');
+    final value = settledStatuses.length > 1
+        ? settledStatuses.removeAt(0)
+        : settledStatuses.single;
+    return {'session': ?value};
+  }
+
   @override
   Future<void> abort(String sessionID) async {
     mutations.add('stop:$sessionID');
@@ -141,6 +156,7 @@ void main() {
         'id': 'session',
         'busy': true,
         'startedAt': 1,
+        'step': 'Running shell',
         'requestID': 'permission',
         'runMarker': 'user-1',
         'onDemandActions': ['allowOnce', 'reject', 'stop'],
@@ -159,11 +175,14 @@ void main() {
     Future<bool> Function(WidgetAction, String)? current,
     DateTime Function()? now,
     Future<ServerProfile?> Function(String)? load,
+    Duration statusSettleTimeout = const Duration(milliseconds: 100),
   }) => WidgetActionRunner(
     loadProfile: load ?? (_) async => profile,
     loadTarget: (_, _) async => privateTarget(),
     isCurrent: current ?? (_, _) async => true,
     now: now,
+    statusSettleTimeout: statusSettleTimeout,
+    statusPollInterval: const Duration(milliseconds: 1),
     createTransport: (_, _, _) => WidgetActionTransport(gateway: gateway),
   );
   int deadline() =>
@@ -191,6 +210,159 @@ void main() {
       },
     );
   }
+
+  for (final kind in ['allowOnce', 'reject', 'stop']) {
+    for (final statuses in <List<String?>>[
+      ['idle'],
+      [null],
+      ['busy', 'retry', 'idle'],
+    ]) {
+      test('$kind reconciles server $statuses before closing', () async {
+        final gateway = _Gateway()..settledStatuses = List.of(statuses);
+        final input = snapshot()..['connected'] = true;
+        final result = await runner(
+          gateway,
+        ).execute(action(kind), input, deadline());
+        expect(result['status'], 'accepted');
+        final updated = result['snapshot'] as Map;
+        final row = (updated['sessions'] as List).single as Map;
+        expect(row['busy'], isFalse);
+        expect(row['startedAt'], 0);
+        expect(row['step'], '');
+        expect(row['onDemandActions'], isNot(contains('stop')));
+        expect(updated['runningCount'], 0);
+        expect(updated['connected'], isFalse);
+        expect(gateway.settlementReads, statuses.length);
+        expect(gateway.mutations, hasLength(1));
+        expect(gateway.closed, isTrue);
+        expect((input['sessions'] as List).single['busy'], isTrue);
+      });
+    }
+    for (final status in ['busy', 'retry', 'unknown']) {
+      test(
+        '$kind retains $status as disconnected when settlement ends',
+        () async {
+          final gateway = _Gateway()..settledStatuses = [status];
+          final result = await runner(
+            gateway,
+            statusSettleTimeout: const Duration(milliseconds: 5),
+          ).execute(action(kind), snapshot()..['connected'] = true, deadline());
+          expect(result['status'], 'accepted');
+          final updated = result['snapshot'] as Map;
+          final row = (updated['sessions'] as List).single as Map;
+          expect(row['busy'], isTrue);
+          expect(row['startedAt'], 1);
+          expect(updated['runningCount'], 1);
+          expect(updated['connected'], isFalse);
+          expect(gateway.settlementReads, greaterThanOrEqualTo(1));
+          expect(gateway.mutations, hasLength(1));
+          expect(gateway.closed, isTrue);
+        },
+      );
+    }
+    test(
+      '$kind status failure keeps acknowledged command accepted without replay',
+      () async {
+        final gateway = _Gateway()..failStatus = true;
+        final instance = runner(gateway);
+        final result = await instance.execute(
+          action(kind),
+          snapshot(),
+          deadline(),
+        );
+        expect(result['status'], 'accepted');
+        final updated = result['snapshot'] as Map;
+        expect((updated['sessions'] as List).single['busy'], isTrue);
+        expect(updated['connected'], isFalse);
+        expect(jsonEncode(result), isNot(contains('private status failure')));
+        await instance.execute(action(kind), snapshot(), deadline());
+        expect(gateway.mutations, hasLength(1));
+        expect(gateway.closed, isTrue);
+      },
+    );
+  }
+  test(
+    'profile switch during settlement cannot publish old profile snapshot',
+    () async {
+      final gateway = _Gateway();
+      var current = true;
+      gateway.afterStatus = () => current = false;
+      final result = await runner(
+        gateway,
+        current: (_, _) async => current,
+      ).execute(action('reject'), snapshot(), deadline());
+      expect(result.containsKey('snapshot'), isFalse);
+      expect(gateway.mutations, ['permission:reject:session']);
+      expect(gateway.closed, isTrue);
+    },
+  );
+  test('transport stays open until post-reject status read resolves', () async {
+    final gateway = _Gateway()..statusGate = Completer<void>();
+    final result = runner(
+      gateway,
+    ).execute(action('reject'), snapshot(), deadline());
+    await Future<void>.delayed(Duration.zero);
+    expect(gateway.mutations, ['permission:reject:session']);
+    expect(gateway.settlementReads, 1);
+    expect(gateway.closed, isFalse);
+    gateway.statusGate!.complete();
+    final updated = (await result)['snapshot'] as Map;
+    expect((updated['sessions'] as List).single['busy'], isFalse);
+    expect(gateway.closed, isTrue);
+  });
+  test(
+    'hung status read times out with acknowledged command accepted',
+    () async {
+      final gateway = _Gateway()..statusGate = Completer<void>();
+      final instance = runner(
+        gateway,
+        statusSettleTimeout: const Duration(milliseconds: 5),
+      );
+      final result = await instance.execute(
+        action('reject'),
+        snapshot(),
+        deadline(),
+      );
+      expect(result['status'], 'accepted');
+      final updated = result['snapshot'] as Map;
+      expect(updated['connected'], isFalse);
+      expect((updated['sessions'] as List).single['busy'], isTrue);
+      expect(gateway.settlementReads, 1);
+      expect(gateway.closed, isTrue);
+      await instance.execute(action('reject'), snapshot(), deadline());
+      expect(gateway.mutations, ['permission:reject:session']);
+      // A response arriving after the lease cannot replace the published state.
+      gateway.statusGate!.complete();
+      await Future<void>.delayed(Duration.zero);
+      expect((updated['sessions'] as List).single['busy'], isTrue);
+    },
+  );
+  test(
+    'near native deadline skips status and returns accepted detached',
+    () async {
+      final gateway = _Gateway();
+      final instance = runner(
+        gateway,
+        now: () => DateTime.fromMillisecondsSinceEpoch(1000),
+      );
+      final result = await instance.execute(
+        action('reject'),
+        snapshot()..['connected'] = true,
+        1499,
+      );
+      expect(result['status'], 'accepted');
+      final updated = result['snapshot'] as Map;
+      final row = (updated['sessions'] as List).single as Map;
+      expect(updated['connected'], isFalse);
+      expect(row['busy'], isTrue);
+      expect(row.containsKey('requestID'), isFalse);
+      expect(gateway.settlementReads, 0);
+      expect(gateway.closed, isTrue);
+      await instance.execute(action('reject'), snapshot(), 1499);
+      expect(gateway.mutations, ['permission:reject:session']);
+      expect(gateway.settlementReads, 0);
+    },
+  );
   test('cold approval waits for health before reading or answering', () async {
     final gateway = _Gateway()..healthGate = Completer<void>();
     final result = runner(gateway).execute(action(), snapshot(), deadline());

@@ -2,12 +2,14 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/model_library.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'support/fake_server_gateway.dart';
 
 ModelRef _model(String id, [String provider = 'local']) =>
     ModelRef(providerID: provider, modelID: id);
@@ -36,8 +38,18 @@ CatalogSnapshot _catalog() => CatalogSnapshot(
 Future<ProfileStore> _store([Map<String, Object> extra = const {}]) async {
   SharedPreferences.setMockInitialValues({
     'oc.profiles': jsonEncode([
-      {'id': 'one', 'name': 'One', 'baseUrl': 'https://one.example'},
-      {'id': 'two', 'name': 'Two', 'baseUrl': 'https://two.example'},
+      {
+        'id': 'one',
+        'name': 'One',
+        'flavor': 'v2',
+        'baseUrl': 'https://one.example',
+      },
+      {
+        'id': 'two',
+        'name': 'Two',
+        'flavor': 'v2',
+        'baseUrl': 'https://two.example',
+      },
     ]),
     'oc.activeProfile': 'one',
     ...extra,
@@ -164,7 +176,9 @@ void main() {
     'repeated cycles visit every recent model without changing other chats',
     () async {
       final store = await _store();
-      final controller = ConnectionController(store)..catalog = _catalog();
+      final controller = ConnectionController(store)
+        ..api = FakeServerGateway(baseUrl: 'https://one.example')
+        ..catalog = _catalog();
       addTearDown(controller.dispose);
       for (final id in ['a', 'b', 'c']) {
         await controller.selectModelForSession('chat', _model(id));
@@ -191,6 +205,7 @@ void main() {
     'favoriting never selects a model and unavailable choices are rejected',
     () async {
       final controller = ConnectionController(await _store())
+        ..api = FakeServerGateway(baseUrl: 'https://one.example')
         ..catalog = _catalog();
       addTearDown(controller.dispose);
       await controller.selectModelForSession('chat', _model('a'));

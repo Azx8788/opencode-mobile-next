@@ -13,7 +13,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/ui/screens/managed_workspaces_screen.dart';
 import 'package:opencode_mobile/ui/screens/project_folder_actions.dart';
 import 'package:opencode_mobile/ui/screens/project_health_screen.dart';

@@ -1,0 +1,6 @@
+# Build 2380 (2370 + failure-shape logging only), fresh install
+10-16 08:51:53.941  9375  9375 I flutter : OCTRACE 9367ms setup.component id=linux
+10-16 08:53:03.606  9375  9538 W OcLinux : installer ownership check failed: IOException <- ErrnoException ESRCH
+10-16 08:53:03.705  9375  9483 E OcLinux : setup component failed: IllegalStateException <- IOException <- ErrnoException ESRCH
+10-16 08:53:03.740  9375  9375 I flutter : OCTRACE 70035ms setup.component id=essentials outcome=error
+10-16 08:53:03.761  9375  9375 I flutter : OCTRACE 79464ms setup.job state=failed outcome=error

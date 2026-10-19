@@ -40,7 +40,7 @@ Added by slice-P9.10 (additive): `KitText.appScaler(TextScaler scaler, {required
 
 ```dart
 enum KitTextRole { largeTitle, title, headline, body, rowTitle, secondary, label, caption, button, mono } // unchanged
-enum KitTextTone { primary, secondary, tertiary, accent, onAccent, attention, danger, success }         // unchanged
+enum KitTextTone { primary, secondary, tertiary, accent, onAccent, attention, success }  // no danger tone: nothing is red (2026-10-16)         // unchanged
 
 /// How a selectable region turns on (new).
 enum KitSelectMode {
@@ -178,7 +178,7 @@ class KitLtr extends StatelessWidget {
   - button 16/20 w600;
   - mono 13/19, AppMono.
 - **Faces:** AppSans, or the system face with zero tracking under Arabic, taken from `theme.textTheme.bodyLarge`.
-- **ThemeRoles:** `text1`, `text2`, `text3`, `accent`, `onAccent`, `attention`, `danger`, `success` (through `KitText.toneColor`). Selection uses `accent` through the theme.
+- **ThemeRoles:** `text1`, `text2`, `text3`, `accent`, `onAccent`, `attention`, `success` (through `KitText.toneColor`). Selection uses `accent` through the theme.
 - **KitTokens:** none.
 - **New tokens:** none.
 

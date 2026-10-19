@@ -27,6 +27,14 @@
         "kind": "string"
       },
       {
+        "path": "requiresOpenCode2Migration",
+        "kind": "boolean"
+      },
+      {
+        "path": "openCode2HistoryPending",
+        "kind": "boolean"
+      },
+      {
         "path": "flavor",
         "kind": "enum"
       },
@@ -43,82 +51,6 @@
   "excluded": {},
   "cases": [
     {
-      "id": "profile_opencode1",
-      "kind": "profile",
-      "payload": {
-        "id": "srv_oc1",
-        "name": "Studio OpenCode",
-        "baseUrl": "https://studio.example.net:4096",
-        "backend": "openCode",
-        "username": "devuser",
-        "flavor": "v1",
-        "serverVersion": "1.14.52"
-      },
-      "fields": [
-        {
-          "key": "profile.id",
-          "path": "id",
-          "kind": "string",
-          "probes": [],
-          "primary": false
-        },
-        {
-          "key": "profile.name",
-          "path": "name",
-          "kind": "string",
-          "probes": [
-            "Studio OpenCode"
-          ],
-          "primary": false
-        },
-        {
-          "key": "profile.baseUrl",
-          "path": "baseUrl",
-          "kind": "string",
-          "probes": [
-            "studio.example.net:4096"
-          ],
-          "primary": false
-        },
-        {
-          "key": "profile.backend",
-          "path": "backend",
-          "kind": "enum",
-          "probes": [
-            "OpenCode"
-          ],
-          "primary": false
-        },
-        {
-          "key": "profile.username",
-          "path": "username",
-          "kind": "string",
-          "probes": [
-            "devuser"
-          ],
-          "primary": false
-        },
-        {
-          "key": "profile.flavor",
-          "path": "flavor",
-          "kind": "enum",
-          "probes": [
-            "OpenCode 1"
-          ],
-          "primary": false
-        },
-        {
-          "key": "profile.serverVersion",
-          "path": "serverVersion",
-          "kind": "string",
-          "probes": [
-            "1.14.52"
-          ],
-          "primary": false
-        }
-      ]
-    },
-    {
       "id": "profile_opencode2",
       "kind": "profile",
       "payload": {
@@ -128,6 +60,8 @@
         "backend": "openCode",
         "username": "opencode",
         "flavor": "v2",
+        "requiresOpenCode2Migration": false,
+        "openCode2HistoryPending": false,
         "serverVersion": "2.0.10"
       },
       "fields": [
@@ -184,6 +118,20 @@
           "primary": false
         },
         {
+          "key": "profile.requiresOpenCode2Migration",
+          "path": "requiresOpenCode2Migration",
+          "kind": "boolean",
+          "probes": [],
+          "primary": false
+        },
+        {
+          "key": "profile.openCode2HistoryPending",
+          "path": "openCode2HistoryPending",
+          "kind": "boolean",
+          "probes": [],
+          "primary": false
+        },
+        {
           "key": "profile.serverVersion",
           "path": "serverVersion",
           "kind": "string",
@@ -204,7 +152,7 @@
         "backend": "paseo",
         "username": "",
         "codexDirectory": "/home/dev/work/shop",
-        "flavor": "v1",
+        "flavor": "v2",
         "serverVersion": "Paseo daemon 0.8.0 (experimental)"
       },
       "fields": [
@@ -286,7 +234,7 @@
         "backend": "codex",
         "codexDirectory": "/home/dev/work/api",
         "username": "",
-        "flavor": "v1"
+        "flavor": "v2"
       },
       "fields": [
         {
@@ -356,9 +304,11 @@
         "name": "Team host",
         "baseUrl": "https://team.example.net:4096",
         "backend": "openCode",
-        "username": "devuser",
-        "flavor": "v1",
-        "serverVersion": "1.14.52",
+        "username": "opencode",
+        "flavor": "v2",
+        "requiresOpenCode2Migration": false,
+        "openCode2HistoryPending": false,
+        "serverVersion": "2.0.10",
         "orchestration": {
           "enabled": true
         }
@@ -403,7 +353,7 @@
           "path": "username",
           "kind": "string",
           "probes": [
-            "devuser"
+            "opencode"
           ],
           "primary": false
         },
@@ -412,8 +362,22 @@
           "path": "flavor",
           "kind": "enum",
           "probes": [
-            "OpenCode 1"
+            "OpenCode 2"
           ],
+          "primary": false
+        },
+        {
+          "key": "profile.requiresOpenCode2Migration",
+          "path": "requiresOpenCode2Migration",
+          "kind": "boolean",
+          "probes": [],
+          "primary": false
+        },
+        {
+          "key": "profile.openCode2HistoryPending",
+          "path": "openCode2HistoryPending",
+          "kind": "boolean",
+          "probes": [],
           "primary": false
         },
         {
@@ -421,7 +385,7 @@
           "path": "serverVersion",
           "kind": "string",
           "probes": [
-            "1.14.52"
+            "2.0.10"
           ],
           "primary": false
         },

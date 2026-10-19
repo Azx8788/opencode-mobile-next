@@ -49,6 +49,17 @@ extends `IconData`, which is final in our pinned Flutter 3.47.2. The package its
 is not a runtime dependency. Archive and file hashes are recorded in
 `assets/fonts/phosphor/provenance.json`.
 
+### Agent and provider marks
+
+The single-colour logos in `assets/marks/` (agents such as Claude, Codex and
+Gemini, and about 100 model-provider ids such as Anthropic, OpenAI and Mistral) are the
+monochrome SVGs of lobe-icons by LobeHub, MIT licensed, Copyright (c) 2023
+LobeHub. The licence is bundled at `LICENSES/MIT-lobe-icons.txt`; each file is
+unchanged apart from removing its `<title>` element. The app draws them in the
+current text colour and the logos remain trademarks of their owners; they are
+shown only to name the agent or provider. A provider without a bundled mark
+still falls back to its models.dev logo, downloaded by provider name.
+
 ### Local SVG previews
 
 `flutter_svg` 2.3.0 is maintained in Flutter's packages repository and is
@@ -254,7 +265,7 @@ lives in `packages/opencode_sdk/`, and is covered by this project's
 | `clock` | 1.1.2 | Apache-2.0 | — | runtime |
 | `code_assets` | 2.0.0 | BSD-3-Clause | Copyright 2025, the Dart project authors | runtime |
 | `collection` | 1.19.1 | BSD-3-Clause | Copyright 2015, the Dart project authors | runtime |
-| `convert` | 3.1.2 | BSD-3-Clause | Copyright 2015, the Dart project authors | runtime |
+| `convert` | 3.1.2 | BSD-3-Clause | Copyright 2015, the Dart project authors | test-only |
 | `cross_file` | 0.3.5+5 | BSD-3-Clause | Copyright 2013 The Flutter Authors | runtime |
 | `crypto` | 3.0.7 | BSD-3-Clause | Copyright 2015, the Dart project authors | runtime |
 | `cryptography` | 2.9.0 | Apache-2.0 | — | runtime |
@@ -318,7 +329,7 @@ lives in `packages/opencode_sdk/`, and is covered by this project's
 | `local_auth_platform_interface` | 1.1.0 | BSD-3-Clause | Copyright 2013 The Flutter Authors | runtime |
 | `local_auth_windows` | 2.0.2 | BSD-3-Clause | Copyright 2013 The Flutter Authors | runtime |
 | `logging` | 1.3.0 | BSD-3-Clause | Copyright 2013, the Dart project authors | runtime |
-| `matcher` | 0.12.20 | BSD-3-Clause | Copyright 2014, the Dart project authors | runtime |
+| `matcher` | 0.12.20 | BSD-3-Clause | Copyright 2014, the Dart project authors | test-only |
 | `material_color_utilities` | 0.13.0 | Apache-2.0 | — | runtime |
 | `meta` | 1.19.0 | BSD-3-Clause | Copyright 2016, the Dart project authors | runtime |
 | `mime` | 2.0.0 | BSD-3-Clause | Copyright 2015, the Dart project authors | runtime |
@@ -341,7 +352,7 @@ lives in `packages/opencode_sdk/`, and is covered by this project's
 | `process` | 5.0.6 | BSD-3-Clause | Copyright 2013, the Dart project authors | test-only |
 | `pub_semver` | 2.2.0 | BSD-3-Clause | Copyright 2014, the Dart project authors | runtime |
 | `qr` | 3.0.2 | BSD-3-Clause | Copyright 2014, the Dart QR project authors. All rights reserved | runtime |
-| `quiver` | 3.2.2 | Apache-2.0 | — | runtime |
+| `quiver` | 3.2.2 | Apache-2.0 | — | test-only |
 | `record` | 7.1.1 | BSD-3-Clause | Copyright 2022 openapi4j authors. All rights reserved | runtime |
 | `record_android` | 2.1.2 | BSD-3-Clause | Copyright 2022 openapi4j authors. All rights reserved | runtime |
 | `record_ios` | 2.1.1 | BSD-3-Clause | Copyright 2022 openapi4j authors. All rights reserved | runtime |
@@ -402,14 +413,17 @@ lives in `packages/opencode_sdk/`, and is covered by this project's
 | `vm_service` | 15.3.0 | BSD-3-Clause | Copyright 2015, the Dart project authors | test-only |
 | `web` | 1.1.1 | BSD-3-Clause | Copyright 2023, the Dart project authors | runtime |
 | `webdriver` | 3.2.0 | Apache-2.0 | — | test-only |
+| `webview_flutter` | 4.14.1 | BSD-3-Clause | Copyright 2013 The Flutter Authors | runtime |
+| `webview_flutter_android` | 4.14.1 | BSD-3-Clause | Copyright 2013 The Flutter Authors | runtime |
+| `webview_flutter_platform_interface` | 2.15.1 | BSD-3-Clause | Copyright 2013 The Flutter Authors | runtime |
+| `webview_flutter_wkwebview` | 3.27.0 | BSD-3-Clause | Copyright 2013 The Flutter Authors | runtime |
 | `win32` | 6.4.0 | BSD-3-Clause | Copyright (c) 2024, Halil Durmus | runtime |
 | `window_manager` | 0.5.2 | MIT | Copyright (c) 2022-present LiJianying <lijy91@foxmail.com> | runtime |
 | `windows_file_picker` | 1.2.0 | MIT | Copyright (c) 2018 Miguel Ruivo | runtime |
 | `xdg_directories` | 1.1.0 | BSD-3-Clause | Copyright 2013 The Flutter Authors. All rights reserved | runtime |
 | `xml` | 7.0.1 | MIT | Copyright (c) 2006-2026 Lukas Renggli | runtime |
-| `xterm` | 4.0.0 | MIT | Copyright (c) 2020 xuty | runtime |
 | `yaml` | 3.1.3 | MIT | Copyright (c) 2014, the Dart project authors | runtime |
-| `zmodem` | 0.0.6 | MIT | Copyright (c) 2023 xuty | runtime |
+| `zmodem` | 0.0.6 | MIT | Copyright (c) 2023 xuty | test-only |
 
 ### Notes on individual entries
 

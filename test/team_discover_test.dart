@@ -5,6 +5,8 @@
 // conversation's Solo · Team and the team's tasks in the Work tab's lists
 // (docs/design/team-conversation-2026-09-26.md).
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:opencode_mobile/domain/phone_project_engine.dart';
@@ -401,6 +403,93 @@ void main() {
       expect(find.text(_en.teamIntroSetUpPhone), findsNothing);
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pumpWidget(const SizedBox());
+      controller.dispose();
+    });
+
+    testWidgets('unknown installed inventory never offers a download', (
+      tester,
+    ) async {
+      debugPlatformCapabilities = const PlatformCapabilities.android();
+      final read = Completer<void>();
+      final engine = FakeSetupEngine(registry: _teamRegistry)
+        ..optionalGate = read.future;
+      PhoneSetup.engine = engine;
+      _mockChannels();
+      final controller = await _boot(_inApp());
+      await pumpIntro(tester, controller);
+      await reveal(tester, _key('team-intro-needs'));
+      expect(find.byType(KitSkeletonRows), findsOneWidget);
+      expect(_key('team-intro-cost'), findsNothing);
+      expect(find.textContaining('125 MB'), findsNothing);
+
+      read.completeError(StateError('inventory unavailable'));
+      await _settle(tester);
+      expect(find.text(_en.e7SetupCheckInstallFailed), findsOneWidget);
+      expect(_key('team-intro-cost'), findsNothing);
+      expect(find.textContaining('125 MB'), findsNothing);
+
+      engine
+        ..optionalInstalled = {'aiteam'}
+        ..optionalGate = null;
+      await reveal(tester, find.text(_en.commonRetry));
+      await tester.tap(find.text(_en.commonRetry));
+      await _settle(tester);
+      await reveal(tester, find.text(_en.teamDiscoverBatteryTitle));
+      expect(find.text(_en.teamIntroInstalledTitle), findsOneWidget);
+      expect(_key('team-intro-cost'), findsNothing);
+      await tester.pumpWidget(const SizedBox.shrink());
+      controller.dispose();
+    });
+
+    testWidgets('a failed refresh keeps the known installed AI Team', (
+      tester,
+    ) async {
+      debugPlatformCapabilities = const PlatformCapabilities.android();
+      final engine = FakeSetupEngine(registry: _teamRegistry)
+        ..optionalInstalled = {'aiteam'};
+      PhoneSetup.engine = engine;
+      _mockChannels();
+      final controller = await _boot(_inApp());
+      await pumpIntro(tester, controller);
+      await reveal(tester, find.text(_en.teamDiscoverBatteryTitle));
+      expect(find.text(_en.teamIntroInstalledTitle), findsOneWidget);
+
+      final refresh = Completer<void>();
+      engine.optionalGate = refresh.future;
+      setupToolsChanged.value++;
+      refresh.completeError(StateError('inventory unavailable'));
+      await _settle(tester);
+      expect(find.text(_en.teamIntroInstalledTitle), findsOneWidget);
+      expect(_key('team-intro-cost'), findsNothing);
+      await tester.pumpWidget(const SizedBox.shrink());
+      controller.dispose();
+    });
+
+    testWidgets('a late inventory read cannot undo the install refresh', (
+      tester,
+    ) async {
+      debugPlatformCapabilities = const PlatformCapabilities.android();
+      final beforeInstall = Completer<void>();
+      final engine = FakeSetupEngine(registry: _teamRegistry)
+        ..optionalGate = beforeInstall.future;
+      PhoneSetup.engine = engine;
+      _mockChannels();
+      final controller = await _boot(_inApp());
+      await pumpIntro(tester, controller);
+
+      engine
+        ..optionalInstalled = {'aiteam'}
+        ..optionalGate = null;
+      setupToolsChanged.value++;
+      await _settle(tester);
+      await reveal(tester, find.text(_en.teamDiscoverBatteryTitle));
+      expect(find.text(_en.teamIntroInstalledTitle), findsOneWidget);
+
+      beforeInstall.complete();
+      await _settle(tester);
+      expect(find.text(_en.teamIntroInstalledTitle), findsOneWidget);
+      expect(_key('team-intro-cost'), findsNothing);
+      await tester.pumpWidget(const SizedBox.shrink());
       controller.dispose();
     });
 

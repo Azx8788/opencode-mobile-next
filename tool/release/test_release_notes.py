@@ -99,6 +99,43 @@ class CheckTest(unittest.TestCase):
         self.assertGreater(parsed.tech_index, parsed.user_index)
 
 
+class ChangeClassTest(unittest.TestCase):
+    def write(self, line: str) -> Path:
+        folder = Path(tempfile.mkdtemp())
+        path = folder / "v1.3.0+53.md"
+        path.write_text(
+            GOOD.replace("\nAgents that need", f"\n{line}\nAgents that need", 1),
+            encoding="utf-8",
+        )
+        return path
+
+    def test_class_line_is_optional(self) -> None:
+        self.assertIsNone(notes.parse(GOOD).change_class)
+        self.assertEqual(notes.check(self.write("Change class: feature")), [])
+
+    def test_unknown_class_fails(self) -> None:
+        problems = notes.check(self.write("Change class: huge"))
+        self.assertTrue(any("Change class" in p for p in problems))
+
+    def test_mismatch_warns_only(self) -> None:
+        path = self.write("Change class: hotfix")
+        original = (notes.previous_tag, notes.subprocess.run)
+
+        class Run:
+            returncode = 0
+            stdout = '{"class": "breaking"}'
+
+        try:
+            notes.previous_tag = lambda own: "v1.2.0+52"
+            notes.subprocess.run = lambda *a, **k: Run()
+            warnings = notes.class_warnings(path)
+        finally:
+            notes.previous_tag, notes.subprocess.run = original
+        self.assertEqual(len(warnings), 1)
+        self.assertIn("breaking", warnings[0])
+        self.assertEqual(notes.check(path), [])
+
+
 class StoreTextTest(unittest.TestCase):
     def test_plain_words_without_markdown(self) -> None:
         text = notes.store_text(notes.parse(GOOD))

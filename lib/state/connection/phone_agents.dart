@@ -43,7 +43,8 @@ mixin _ConnectionControllerPhoneAgents on ChangeNotifier
         PhoneAgentsSource,
         AgentChatFeedSource,
         PhoneAgentAccountSource,
-        PhoneAgentRemovalSource {
+        PhoneAgentRemovalSource,
+        PhoneAgentRecoverySource {
   ConnectionController get _self;
 
   static const _notReady = ProductException(
@@ -91,6 +92,10 @@ mixin _ConnectionControllerPhoneAgents on ChangeNotifier
   String? _paRemovingAgent;
   Object? _paRemovalToken;
   Future<void>? _paRefreshingRows;
+
+  /// Auth/version refreshes spawn private native children. Keep them outside
+  /// a phone check's installation and helper-restart admission window.
+  bool _paChecking = false;
   final _paSources =
       <String, ({PaseoGateway gateway, PaseoChatFeedSource source})>{};
   MergedChatFeed? _paMerged;
@@ -524,10 +529,12 @@ mixin _ConnectionControllerPhoneAgents on ChangeNotifier
   }
 
   @override
-  Future<void> refreshAgentRows() =>
-      _paRefreshingRows ??= _paRefreshRows().whenComplete(() {
-        _paRefreshingRows = null;
-      });
+  Future<void> refreshAgentRows() {
+    if (_paChecking) return Future<void>.value();
+    return _paRefreshingRows ??= _paRefreshRows().whenComplete(() {
+      _paRefreshingRows = null;
+    });
+  }
 
   Future<void> _paRefreshRows({bool syncSources = true}) async {
     if (!phoneAgentsAvailable) {
@@ -583,6 +590,7 @@ mixin _ConnectionControllerPhoneAgents on ChangeNotifier
               payloadPresent: runtime.payloadPresent,
               hostAvailable: runtime.hostAvailable,
               architectureQualified: runtime.architectureQualified,
+              checkRequiredReason: runtime.checkRequiredReason,
               capabilities: runtime.capabilities,
               signInPhase:
                   auth.state == AgentAuthProbeState.signedIn &&
@@ -662,64 +670,8 @@ mixin _ConnectionControllerPhoneAgents on ChangeNotifier
   /// The helper is being started again by the app itself.
   bool _paAutoResuming = false;
 
-  static const _paSignInReadLimit = Duration(seconds: 10);
   final _paAuthResults = <String, AgentAuthProbeResult>{};
   final _paAuthRevisions = <String, int>{};
-
-  AgentSignInPhase _paAuthPhase(AgentAuthProbeResult result) =>
-      switch (result.state) {
-        AgentAuthProbeState.signedIn => AgentSignInPhase.signedIn,
-        AgentAuthProbeState.signedOut => AgentSignInPhase.signedOut,
-        AgentAuthProbeState.error => AgentSignInPhase.failed,
-      };
-
-  Future<AgentAuthProbeResult> _paProbeSignIn(
-    PhoneAgentHostPort host,
-    String id,
-  ) async {
-    final revision = (_paAuthRevisions[id] ?? 0) + 1;
-    _paAuthRevisions[id] = revision;
-    try {
-      if (host is PhoneAgentAuthPort) {
-        final result = await (host as PhoneAgentAuthPort)
-            .probeSignIn(id)
-            .timeout(_paSignInReadLimit);
-        if (_paAuthRevisions[id] != revision) {
-          return _paAuthResults[id] ??
-              const AgentAuthProbeResult.failed(
-                AgentAuthProbeError.hostUnavailable,
-              );
-        }
-        if (id != 'claude' ||
-            result.error != AgentAuthProbeError.probeUnsupported) {
-          return result;
-        }
-      }
-      // Preserve the existing direct Claude CLI status while lane BB supplies
-      // the private multi-agent bridge. Never use generic setup receipts or
-      // provider error wording as an auth fallback.
-      if (id == 'claude') {
-        await _paSession(id).inspectStatus().timeout(_paSignInReadLimit);
-        final phase = _paSignIns[id]?.state.phase;
-        return AgentAuthProbeResult(
-          state: switch (phase) {
-            AgentSignInPhase.signedIn => AgentAuthProbeState.signedIn,
-            AgentSignInPhase.signedOut => AgentAuthProbeState.signedOut,
-            _ => AgentAuthProbeState.error,
-          },
-        );
-      }
-      return const AgentAuthProbeResult.failed(
-        AgentAuthProbeError.probeUnsupported,
-      );
-    } on TimeoutException {
-      return const AgentAuthProbeResult.failed(AgentAuthProbeError.timedOut);
-    } catch (_) {
-      return const AgentAuthProbeResult.failed(
-        AgentAuthProbeError.hostUnavailable,
-      );
-    }
-  }
 
   /// A row still "Checking sign-in…" is read again a few seconds later, so
   /// it reaches a final state without the person reopening the sheet.
@@ -788,6 +740,10 @@ mixin _ConnectionControllerPhoneAgents on ChangeNotifier
     await host.cancelInstall();
     if (!_self._disposed) _self._notifyListeners();
   }
+
+  @override
+  Future<AgentPhoneCheckResult> usePreviousAgentVersion(String agentId) =>
+      _self._runAgentPhoneCheck(agentId, previousVersion: true);
 
   @override
   Future<AgentPhoneCheckResult> runAgentPhoneCheck(String agentId) =>
@@ -1200,30 +1156,9 @@ mixin _ConnectionControllerPhoneAgents on ChangeNotifier
         complete: false,
       );
     }
-    final merged = _paMerged;
-    final snapshot = merged?.chatFeed(filter) ?? _self._ocChatFeed(filter);
+    final snapshot = _paFeedSource(filter);
     final agentsShown = _self._agentsShown;
-    final shown = {for (final item in snapshot.items) item.identity};
-    final saved = [
-      if (agentsShown)
-        for (final row in _paSavedRows)
-          if (!_paLoadedDirs.contains(row.item.directory) &&
-              !shown.contains(row.item.identity) &&
-              chatFeedMatches(row.item, filter))
-            row.item,
-      // Other servers' rows from last time, while they connect.
-      for (final item in _self._sideSavedRows)
-        if (!shown.contains(item.identity) && chatFeedMatches(item, filter))
-          item,
-    ];
-    final backend = _paBackendLive;
-    final items = List<ChatFeedItem>.unmodifiable(
-      <ChatFeedItem>[
-        for (final item in snapshot.items)
-          if (agentsShown || !_isAgentRow(item)) _agentRowSeen(item, backend),
-        ...saved,
-      ]..sort(compareChatFeedItems),
-    );
+    final items = _paFeedRows(snapshot, filter);
     // Sources still being read while other rows already show, said in one
     // quiet line: the agents on their first read this run (their saved rows
     // stand in), the other servers while they connect, and this one while
@@ -1272,6 +1207,44 @@ mixin _ConnectionControllerPhoneAgents on ChangeNotifier
               ((_paStarting || _paHelperAvailable) &&
                   _self._ocChatFeed(filter).complete)) &&
           !_self._sidesFailed,
+    );
+  }
+
+  ChatFeedSnapshot _paFeedSource(ChatFeedFilter filter) =>
+      _paMerged?.chatFeed(filter) ?? _self._ocChatFeed(filter);
+
+  /// The rows [chatFeed] shows, without its hold or still-reading clocks
+  /// (which start timers): for readers like the home-screen widget that
+  /// run on every change and must not move the list's first paint.
+  List<ChatFeedItem> _paQuietFeedRows([
+    ChatFeedFilter filter = ChatFeedFilter.all,
+  ]) => _paFeedRows(_paFeedSource(filter), filter);
+
+  List<ChatFeedItem> _paFeedRows(
+    ChatFeedSnapshot snapshot,
+    ChatFeedFilter filter,
+  ) {
+    final agentsShown = _self._agentsShown;
+    final shown = {for (final item in snapshot.items) item.identity};
+    final saved = [
+      if (agentsShown)
+        for (final row in _paSavedRows)
+          if (!_paLoadedDirs.contains(row.item.directory) &&
+              !shown.contains(row.item.identity) &&
+              chatFeedMatches(row.item, filter))
+            row.item,
+      // Other servers' rows from last time, while they connect.
+      for (final item in _self._sideSavedRows)
+        if (!shown.contains(item.identity) && chatFeedMatches(item, filter))
+          item,
+    ];
+    final backend = _paBackendLive;
+    return List<ChatFeedItem>.unmodifiable(
+      <ChatFeedItem>[
+        for (final item in snapshot.items)
+          if (agentsShown || !_isAgentRow(item)) _agentRowSeen(item, backend),
+        ...saved,
+      ]..sort(compareChatFeedItems),
     );
   }
 

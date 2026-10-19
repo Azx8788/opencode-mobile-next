@@ -1,4 +1,4 @@
-import 'package:opencode_mobile/api/models.dart';
+import 'package:opencode_mobile/domain/models.dart';
 import 'package:opencode_mobile/api2/gateway_mappers.dart';
 import 'package:opencode_mobile/api2/models.dart';
 

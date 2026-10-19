@@ -1,3 +1,4 @@
+import '../support/fake_server_capabilities.dart';
 // slice-P10.1-2: one command sheet for every backend (P10.1) and the
 // conversation menu as "Go to" / "Do" (P10.2). What the person sees:
 // - the chat's title menu has two headed kinds, and Fork always lands in
@@ -12,8 +13,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/codex/gateway.dart'
     show codexServerCapabilities;
 import 'package:opencode_mobile/domain/server_gateway.dart';
@@ -30,7 +31,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'chat_3_support.dart';
 
 class _Api extends Chat3Api {
-  _Api({this.caps = ServerCapabilities.allV1, List<Session>? sessionList})
+  _Api({this.caps = testServerCapabilities, List<Session>? sessionList})
     : sessionList = sessionList ?? const [];
 
   final ServerCapabilities caps;
@@ -186,7 +187,7 @@ void main() {
       final items = sessionMenuItems(
         l10n,
         SessionMenuOffer.of(
-          ServerCapabilities.allV1,
+          testServerCapabilities,
           shared: false,
           savedServer: true,
           hasPrompt: false,

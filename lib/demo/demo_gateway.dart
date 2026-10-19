@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import '../api/models.dart';
+import '../domain/models.dart';
 import '../api2/models.dart' show Api2FormInfo, Api2InboxItem;
 import '../domain/server_gateway.dart';
 import 'demo_copy.dart';

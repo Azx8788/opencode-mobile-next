@@ -4,7 +4,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:opencode_mobile/builtin/agents/agent_removal_scripts.dart';
 import 'package:opencode_mobile/domain/agent_catalog.dart';
 
-const _ids = ['codex', 'gemini', 'qwen', 'goose', 'omp-acp', 'fx'];
+const _ids = [
+  'codex',
+  'gemini',
+  'qwen',
+  'kilo',
+  'cline',
+  'goose',
+  'omp-acp',
+  'fx',
+];
 
 /// The guest's files are owned by uid 1000; the files this test creates are
 /// owned by whoever runs it (1001 on a GitHub runner). Point the script's
@@ -146,7 +155,7 @@ void main() {
   });
 
   test(
-    'all six authored recipes are valid shell; Claude is excluded',
+    'all six authored recipes are valid shell; Claude and OpenCode are excluded',
     () async {
       for (final id in _ids) {
         final script = AgentRemovalScripts.remove(
@@ -171,7 +180,7 @@ void main() {
       );
       expect(
         () => AgentRemovalScripts.remove(
-          AgentCatalog.builtIn.byId('opencode')!,
+          AgentCatalog.builtIn.byId('opencode2')!,
           receiptId: guest.receiptId,
         ),
         throwsArgumentError,
@@ -188,6 +197,10 @@ void main() {
       await File(
         '${guest.base}/${guest.version}.new/payload/partial',
       ).writeAsString('download');
+      await Directory('${guest.base}/.downloads').create();
+      await File(
+        '${guest.base}/.downloads/pinned-partial',
+      ).writeAsString('cached bytes');
       await Directory('${guest.base}/${guest.version}.old.123').create();
       await Link('${guest.link}.new.123').create(guest.launch);
       _receipt(await guest.run(), 0);

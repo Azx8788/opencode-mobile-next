@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="widget_new_session">+ New</string>
-    <string name="widget_empty">Open the app to connect. Conversations appear here.</string>
     <string name="widget_label">Conversations</string>
     <string name="widget_preview_title_1">Release notes</string>
     <string name="widget_preview_step_1">Working · 2m</string>
@@ -97,7 +96,7 @@
     <!-- Usage home-screen widget -->
     <string name="usage_widget_title">Usage</string>
     <string name="usage_widget_description">What is left on each plan limit, and when it resets.</string>
-    <string name="usage_widget_empty">Choose what to show in OpenCode → Settings → Usage widget</string>
+    <string name="usage_widget_empty">No limit readings yet. Open Usage to connect a source.</string>
     <string name="usage_widget_row_title">%1$s · %2$s</string>
     <string name="usage_widget_left">%1$d%% left</string>
     <string name="usage_widget_resets">Resets in %1$s</string>
@@ -167,4 +166,12 @@
     <string name="native_coding_requests_quiet_channel">Coding requests (quiet hours)</string>
     <string name="native_coding_requests_quiet_description">Requests that arrive during quiet hours, with no sound</string>
     <string name="native_alert_permission_command_title">Run this command?</string>
+    <string name="widget_label_wide">Conversation, wide</string>
+    <string name="widget_label_list">Conversations list</string>
+    <string name="widget_label_strip">Conversation strip</string>
+    <string name="widget_description_wide">One conversation with its latest reply, a wide card.</string>
+    <string name="widget_description_list">Your conversations in a list, with what needs you first.</string>
+    <string name="widget_description_strip">One conversation on a single line, with a mic.</string>
+    <string name="usage_widget_title_wide">Usage, wide</string>
+    <string name="usage_widget_description_wide">What is left on each plan limit, two columns wide.</string>
 </resources>

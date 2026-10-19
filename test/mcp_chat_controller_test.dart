@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/mcp_oauth.dart';
+import 'package:opencode_mobile/domain/mcp_oauth.dart';
 import 'package:opencode_mobile/domain/mcp_catalog.dart';
 import 'package:opencode_mobile/domain/mcp_chat.dart';
 import 'package:opencode_mobile/domain/server_gateway.dart';

@@ -3,8 +3,6 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/setup_config_adapter.dart';
 import 'package:opencode_mobile/api2/client.dart';
 import 'package:opencode_mobile/api2/dialect.dart';
 import 'package:opencode_mobile/api2/setup_config_adapter.dart';
@@ -45,9 +43,8 @@ class _Adapter implements HttpClientAdapter {
 }
 
 void main() {
-  for (final dialect in [null, Api2Dialect.beta, Api2Dialect.stable]) {
-    final v2 = dialect != null;
-    group(v2 ? 'OpenCode 2 ${dialect.name} setup' : 'OpenCode 1 setup', () {
+  for (final dialect in [Api2Dialect.beta, Api2Dialect.stable]) {
+    group('OpenCode 2 ${dialect.name} setup', () {
       late _Adapter http;
       late SetupConfigGateway gateway;
       late void Function() close;
@@ -55,77 +52,47 @@ void main() {
 
       setUp(() {
         http = _Adapter();
-        if (v2) {
-          final client = Api2Client.connect(
-            baseUrl: 'http://localhost:4097',
-            password: 'fake-profile-password',
-            directory: '/projects/app',
-            workspace: 'workspace-one',
-          );
-          client.transport.settleDialect(dialect);
-          client.transport.dio.httpClientAdapter = http;
-          gateway = OpenCode2SetupConfigGateway(client: client);
-          close = client.close;
-          changeLocation = () => client.setLocation(
-            directory: '/projects/other',
-            workspace: 'workspace-other',
-          );
-        } else {
-          final api =
-              OpenCodeApi(
-                baseUrl: 'http://localhost:4096',
-                password: 'fake-profile-password',
-              )..setLocation(
-                directory: '/projects/app',
-                workspace: 'workspace-one',
-              );
-          api.dio.httpClientAdapter = http;
-          gateway = OpenCode1SetupConfigGateway(api: api);
-          close = api.close;
-          changeLocation = () => api.setLocation(
-            directory: '/projects/other',
-            workspace: 'workspace-other',
-          );
-        }
+        final client = Api2Client.connect(
+          baseUrl: 'http://localhost:4097',
+          password: 'fake-profile-password',
+          directory: '/projects/app',
+          workspace: 'workspace-one',
+        );
+        client.transport.settleDialect(dialect);
+        client.transport.dio.httpClientAdapter = http;
+        gateway = OpenCode2SetupConfigGateway(client: client);
+        close = client.close;
+        changeLocation = () => client.setLocation(
+          directory: '/projects/other',
+          workspace: 'workspace-other',
+        );
       });
 
       tearDown(() => close());
 
       test('reads config in selected location using existing auth', () async {
-        http.payload = v2
-            ? [
-                {
-                  'type': 'document',
-                  'path': '/global/opencode.json',
-                  'info': {'model': 'example/global'},
-                },
-                {
-                  'type': 'document',
-                  'path': '/projects/app/opencode.json',
-                  'info': {'model': 'example/project'},
-                },
-              ]
-            : {'model': 'example/project'};
+        http.payload = [
+          {
+            'type': 'document',
+            'path': '/global/opencode.json',
+            'info': {'model': 'example/global'},
+          },
+          {
+            'type': 'document',
+            'path': '/projects/app/opencode.json',
+            'info': {'model': 'example/project'},
+          },
+        ];
         final config = await gateway.readConfig();
-        if (v2) {
-          final sources = config['sources']! as List;
-          expect(sources.length, 2);
-          expect((sources.first as Map)['path'], '/global/opencode.json');
-          expect(config.containsKey('model'), isFalse);
-        } else {
-          expect(config['model'], 'example/project');
-        }
+        final sources = config['sources']! as List;
+        expect(sources.length, 2);
+        expect((sources.first as Map)['path'], '/global/opencode.json');
+        expect(config.containsKey('model'), isFalse);
         final request = http.requests.single;
         expect(request.path, '/config');
         expect(request.method, 'GET');
-        expect(
-          request.queryParameters[v2 ? 'location[directory]' : 'directory'],
-          '/projects/app',
-        );
-        expect(
-          request.queryParameters[v2 ? 'location[workspace]' : 'workspace'],
-          'workspace-one',
-        );
+        expect(request.queryParameters['location[directory]'], '/projects/app');
+        expect(request.queryParameters['location[workspace]'], 'workspace-one');
         expect(request.headers.containsKey('Authorization'), isTrue);
         expect(request.uri.query.contains('auth'), isFalse);
       });
@@ -169,18 +136,18 @@ void main() {
         'inspection keeps its captured location after client switches',
         () async {
           changeLocation();
-          http.payload = v2 ? <Object>[] : <String, Object?>{};
+          http.payload = <Object>[];
           await gateway.readConfig();
-          http.payload = v2 ? {'data': <Object>[]} : <String, Object?>{};
+          http.payload = {'data': <Object>[]};
           await gateway.listMcpServers();
           for (final request in http.requests) {
             expect(request.method, 'GET');
             expect(
-              request.queryParameters[v2 ? 'location[directory]' : 'directory'],
+              request.queryParameters['location[directory]'],
               '/projects/app',
             );
             expect(
-              request.queryParameters[v2 ? 'location[workspace]' : 'workspace'],
+              request.queryParameters['location[workspace]'],
               'workspace-one',
             );
           }
@@ -190,7 +157,7 @@ void main() {
       test(
         'loaded provider credentials are registered before returning config',
         () async {
-          final secret = 'fixture-setup-${dialect?.name ?? 'v1'}-ingress-value';
+          final secret = 'fixture-setup-${dialect.name}-ingress-value';
           final info = {
             'providers': {
               'example': {
@@ -198,45 +165,31 @@ void main() {
               },
             },
           };
-          http.payload = v2
-              ? [
-                  {'type': 'document', 'info': info},
-                ]
-              : info;
+          http.payload = [
+            {'type': 'document', 'info': info},
+          ];
           await gateway.readConfig();
           expect(KitRedact.text(secret).contains(secret), isFalse);
         },
       );
 
       test('inventory preserves statuses without raw server errors', () async {
-        http.payload = v2
-            ? {
-                'data': [
-                  {
-                    'name': 'docs',
-                    'status': {'status': 'needs_auth'},
-                  },
-                  {
-                    'name': 'failed-server',
-                    'status': {
-                      'status': 'failed',
-                      'error': 'token=fake-secret',
-                    },
-                  },
-                  {
-                    'name': 'future',
-                    'status': {'status': 'token=fake-secret'},
-                  },
-                ],
-              }
-            : {
-                'docs': {'status': 'needs_auth'},
-                'failed-server': {
-                  'status': 'failed',
-                  'error': 'token=fake-secret',
-                },
-                'future': {'status': 'token=fake-secret'},
-              };
+        http.payload = {
+          'data': [
+            {
+              'name': 'docs',
+              'status': {'status': 'needs_auth'},
+            },
+            {
+              'name': 'failed-server',
+              'status': {'status': 'failed', 'error': 'token=fake-secret'},
+            },
+            {
+              'name': 'future',
+              'status': {'status': 'token=fake-secret'},
+            },
+          ],
+        };
         final servers = await gateway.listMcpServers();
         expect(servers.map((server) => server.name), [
           'docs',

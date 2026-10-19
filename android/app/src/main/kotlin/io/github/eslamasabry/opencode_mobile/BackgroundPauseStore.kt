@@ -3,10 +3,12 @@ package io.github.eslamasabry.opencode_mobile
 import android.app.ActivityManager
 import android.content.Context
 import android.os.Build
+import android.os.SystemClock
 
 /** Synchronous private receipts survive stopping without a Flutter engine. */
 class BackgroundPauseStore(context: Context) {
     private val app = context.applicationContext
+    private val facts = BackgroundPauseSystemFacts(app)
     private val preferences = app.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
 
     fun confirmedStarted(): Boolean = synchronized(lock) {
@@ -35,10 +37,11 @@ class BackgroundPauseStore(context: Context) {
 
     fun status(active: Boolean): Map<String, Any?> = synchronized(lock) {
         val previous = read()
-        val restricted = backgroundRestricted()
-        val exit = if (!active && previous.phase == "running") latestExit() else null
+        val restricted = facts.backgroundRestricted()
+        val exit = if (!active && previous.phase == "running") facts.latestExit() else null
         val receipt = BackgroundPausePolicy.reconcile(
-            previous, active, restricted, exit, System.currentTimeMillis(),
+            previous,
+            BackgroundPauseObservation(active, restricted, exit, System.currentTimeMillis(), facts.bootTime()),
         )
         if (receipt != previous) check(write(receipt)) { STORAGE_ERROR }
         val paused = !active && receipt.phase == "paused"
@@ -58,8 +61,7 @@ class BackgroundPauseStore(context: Context) {
         val reason = preferences.getString(KEY_REASON, "none") ?: "none"
         val at = preferences.getLong(KEY_AT, 0L)
         check(phase in setOf("none", "running", "paused")) { STORAGE_ERROR }
-        val reasons = setOf("none", "timeLimit", "batteryRestricted", "userStopped", "interrupted", "appUpdated")
-        check(reason in reasons) { STORAGE_ERROR }
+        check(reason in REASONS) { STORAGE_ERROR }
         check(phase == "none" || at > 0L) { STORAGE_ERROR }
         check(phase != "paused" || reason != "none") { STORAGE_ERROR }
         return BackgroundPauseReceipt(phase, reason, at)
@@ -75,14 +77,32 @@ class BackgroundPauseStore(context: Context) {
         .getSharedPreferences(LivePauseReceiver.FLUTTER_PREFERENCES, Context.MODE_PRIVATE)
         .edit().putBoolean(LivePauseReceiver.FLUTTER_PREFERENCE_KEEP_LIVE, value).commit()
 
-    private fun backgroundRestricted(): Boolean {
+    private companion object {
+        val lock = Any()
+        const val PREFERENCES = "oc_background_pause"
+        const val KEY_PHASE = "phase"
+        const val KEY_REASON = "reason"
+        const val KEY_AT = "at"
+        const val KEY_TASK_REMOVAL = "taskRemovalHintAt"
+        val REASONS = setOf(
+            "none", "timeLimit", "batteryRestricted", "userStopped", "interrupted", "appUpdated", "deviceRestarted",
+        )
+        const val STORAGE_ERROR = "Background state could not be saved or read."
+    }
+}
+
+/** Reads of the system that the receipt is judged against. */
+private class BackgroundPauseSystemFacts(private val app: Context) {
+    fun bootTime(): Long = System.currentTimeMillis() - SystemClock.elapsedRealtime()
+
+    fun backgroundRestricted(): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return false
         return runCatching {
             app.getSystemService(ActivityManager::class.java)?.isBackgroundRestricted == true
         }.getOrDefault(false)
     }
 
-    private fun latestExit(): BackgroundPauseExit? {
+    fun latestExit(): BackgroundPauseExit? {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return null
         return runCatching {
             app.getSystemService(ActivityManager::class.java)
@@ -94,13 +114,6 @@ class BackgroundPauseStore(context: Context) {
     }
 
     private companion object {
-        val lock = Any()
-        const val PREFERENCES = "oc_background_pause"
-        const val KEY_PHASE = "phase"
-        const val KEY_REASON = "reason"
-        const val KEY_AT = "at"
-        const val KEY_TASK_REMOVAL = "taskRemovalHintAt"
         const val EXIT_RECORD_LIMIT = 16
-        const val STORAGE_ERROR = "Background state could not be saved or read."
     }
 }

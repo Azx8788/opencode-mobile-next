@@ -9,10 +9,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/server_probe.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'package:opencode_mobile/domain/server_probe.dart';
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:opencode_mobile/ui/screens/about_screen.dart';
@@ -241,7 +240,7 @@ Future<Future<void> Function()> mountSettingsScene(
       )
       ..record(
         const FormatException('Unexpected character in tool output'),
-        StackTrace.fromString('#0 Part.fromJson (lib/api/models.dart:88:5)'),
+        StackTrace.fromString('#0 Part.fromJson (lib/domain/models.dart:88:5)'),
         source: 'flutter',
         at: base.add(const Duration(minutes: 3)),
       );

@@ -20,6 +20,10 @@ class PhoneSetup {
 
   static set engine(SetupEngine value) => _engine = value;
 
+  /// The in-app engine only if something already made it: a screen that just
+  /// watches setup must not start one (it polls the phone).
+  static SetupEngine? get engineIfCreated => _engine;
+
   /// The Termux host's engine. Its last step goes through the finisher the
   /// app shell attached ([attach]); before that, it says it could not
   /// start rather than starting anything another way.

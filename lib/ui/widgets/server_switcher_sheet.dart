@@ -222,7 +222,7 @@ class ServerSwitcherSheet extends StatelessWidget {
           ServerSwitcherOpenServers(
             ServersRouteRequest.enterPhoneCredentials(
               profileID: existing?.id,
-              openCode2: server.flavor == ServerFlavor.v2,
+              openCode2: true,
             ),
           ),
         ),
@@ -270,6 +270,7 @@ class ServerSwitcherSheet extends StatelessWidget {
       if (showCurrent)
         _CurrentServerRow(
           profile: current,
+          name: serverDisplayName(current, _l10n(context), among: profiles),
           status: controller.connectionStatus.phase,
           onDisconnect: () => unawaited(leave()),
         ),
@@ -277,6 +278,7 @@ class ServerSwitcherSheet extends StatelessWidget {
         _SavedServerRow(
           key: ValueKey('server-switcher-profile-${profile.id}'),
           profile: profile,
+          name: serverDisplayName(profile, _l10n(context), among: profiles),
           snapshot: snapshotOf(profile),
           onTap: () => navigator.pop(
             ServerSwitcherOpenServers(ServersRouteRequest.connect(profile.id)),
@@ -319,11 +321,15 @@ class ServerSwitcherSheet extends StatelessWidget {
 class _CurrentServerRow extends StatelessWidget {
   const _CurrentServerRow({
     required this.profile,
+    required this.name,
     required this.status,
     required this.onDisconnect,
   });
 
   final ServerProfile profile;
+
+  /// The name told apart from any saved server that would read the same.
+  final String name;
 
   /// The shared connection status (one grace period app-wide), so the
   /// word here always matches the shell's server pill.
@@ -339,7 +345,7 @@ class _CurrentServerRow extends StatelessWidget {
       child: KitRow(
         key: const ValueKey('server-switcher-current'),
         leading: KitRowIcon(_serverIcon(profile), current: true),
-        title: profile.name,
+        title: name,
         // The name identifies the server; the address is technical and
         // lives in its editor, so it is not cut off here.
         supporting: status == ConnectionStatusPhase.connected
@@ -353,7 +359,7 @@ class _CurrentServerRow extends StatelessWidget {
         menu: [
           KitMenuItem(
             key: const ValueKey('server-switcher-disconnect'),
-            label: l10n.serverDisconnectFrom(profile.name),
+            label: l10n.serverDisconnectFrom(name),
             icon: AppIconography.unlink,
             onSelected: onDisconnect,
           ),
@@ -371,11 +377,13 @@ class _SavedServerRow extends StatelessWidget {
   const _SavedServerRow({
     super.key,
     required this.profile,
+    required this.name,
     required this.snapshot,
     required this.onTap,
   });
 
   final ServerProfile profile;
+  final String name;
   final ProfileAttentionSnapshot? snapshot;
   final VoidCallback onTap;
 
@@ -406,7 +414,7 @@ class _SavedServerRow extends StatelessWidget {
       leading: waiting > 0
           ? KitNeedsYou.mark()
           : KitRow.icon(context, _serverIcon(profile)),
-      title: profile.name,
+      title: name,
       supporting: waiting == 0 && words.isEmpty
           ? null
           : TextSpan(

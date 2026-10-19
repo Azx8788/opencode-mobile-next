@@ -1523,10 +1523,6 @@
   "@queuedDiscardUnconfirmedMessage": {
     "description": "Discard sheet body for a queued draft whose send was never confirmed"
   },
-  "setupRuntimeOne": "Older OpenCode",
-  "@setupRuntimeOne": {
-    "description": "Older OpenCode server, still selectable"
-  },
   "setupRuntimeTwo": "OpenCode 2",
   "@setupRuntimeTwo": {
     "description": "OpenCode server used for new installs"
@@ -1680,16 +1676,16 @@
   "tailscaleOpen": "Open Tailscale",
   "tailscaleCheckAgain": "Check Tailscale again",
   "tailscaleAddressStep": "2. Review your server address",
-  "tailscaleAddressLabel": "Private HTTPS server address",
-  "tailscaleAddressDetail": "Use the full HTTPS origin printed by Tailscale Serve, such as https://computer.tailnet-name.ts.net. Keep any HTTPS port it prints. A short device name or a raw HTTP port may not provide a valid certificate.",
-  "tailscaleAddressError": "That address won't work here. Copy the https:// address Tailscale Serve shows on your computer and paste it as it is, with nothing added after it.",
+  "tailscaleAddressLabel": "Private server address",
+  "tailscaleAddressDetail": "Paste the full HTTPS address from Tailscale Serve, or the HTTP address and port of your server on Tailscale. HTTP asks for your permission before connecting.",
+  "tailscaleAddressError": "Enter a complete HTTP or HTTPS server address with its port if needed, and no path after it.",
   "tailscaleReviewDetail": "Continue only with an address you recognize. The next screen reviews your server credentials before you explicitly test or save. This app cannot confirm that an address is private from its name alone.",
   "tailscaleContinue": "Continue to sign-in",
   "tailscaleHelp": "Tailscale setup and recovery",
   "tailscaleServeHelp": "On the server computer, Tailscale Serve can provide private HTTPS for a local OpenCode port. Use Serve, not public Funnel. Your tailnet access rules still apply. Enabling HTTPS publishes the certificate’s device and tailnet names in a public certificate log, although access stays private. Review the official guide before changing your server.",
   "tailscaleServeDocs": "Read the official Serve guide",
   "tailscaleAndroidDocs": "Read the official Android guide",
-  "tailscaleRecovery": "If the server is unreachable, check Tailscale on both devices, the full HTTPS name and port, Serve on the server, and your network’s access rules. A VPN or DNS conflict may also prevent access. Keep HTTPS enabled. Correct the server password if authentication is rejected, then retry Test connection.",
+  "tailscaleRecovery": "If the server is unreachable, check Tailscale on both devices, the address and port, and your network access rules. For a Serve address, check Serve on the server too. Correct the password if authentication is rejected, then retry Test connection.",
   "tailscaleEditorDetail": "Your network connection is managed in Tailscale. Test connection checks this OpenCode server, not the VPN. Enter the server’s own username and password here, not your Tailscale login. Setup help keeps these fields intact.",
   "a2aDraftSaveError": "Draft changes could not be saved. Keep this screen open and retry before leaving.",
   "a2aRetryDraftSave": "Try saving draft again",
@@ -1903,30 +1899,7 @@
   "workBackgroundPending": "Requesting background work…",
   "workBackgroundRequested": "Background work requested. Status will update when the server reports it.",
   "oc2DiscoveryEditorTitle": "OpenCode 2",
-  "setupSwitchConfirmTitle": "Switch to {runtime}?",
-  "@setupSwitchConfirmTitle": {
-    "placeholders": {
-      "runtime": {
-        "type": "String"
-      }
-    }
-  },
-  "setupSwitchConfirmDetail": "Stops this phone’s server and running tasks. Conversations, provider settings and credentials stay separate; project files and configuration are shared. You can switch back.",
-  "setupSwitchToTwoDetail": "Stops this phone’s server and running tasks, then starts OpenCode 2. Your conversations come with you and AI Team keeps working. You can switch back.",
-  "moveToOpenCode2Title": "Move to OpenCode 2",
-  "moveToOpenCode2Detail": "Your conversations come with you. AI Team keeps working.",
-  "moveToOpenCode2NotNow": "Not now",
-  "moveToOpenCode2NotNowSemantics": "Not now: stay on the older OpenCode",
-  "setupSwitchConfirm": "Switch to {runtime}",
-  "setupSwitchPending": "The runtime switch has not finished. Retry the selected runtime or return to the previous one. Your saved runtime data is retained.",
-  "setupSwitchReturn": "Return to {runtime}",
-  "@setupSwitchReturn": {
-    "placeholders": {
-      "runtime": {
-        "type": "String"
-      }
-    }
-  },
+  "setupSwitchPending": "The update to OpenCode 2 has not finished. Your saved conversations are kept. Try again.",
   "setupSwitchRetry": "Try {runtime} again",
   "@setupSwitchRetry": {
     "placeholders": {
@@ -1935,8 +1908,7 @@
       }
     }
   },
-  "setupSwitchFailed": "Could not finish switching runtimes. Check the setup output, then retry or return to the previous runtime.",
-  "setupSwitchLegacyTwo": "This OpenCode 2 installation keeps its existing data. Switching it to OpenCode 1 is not available.",
+  "setupSwitchFailed": "Could not finish updating to OpenCode 2. Your saved conversations are kept. Try again.",
   "setupSwitchProfileName": "This phone · {runtime}",
   "@setupSwitchProfileName": {
     "placeholders": {
@@ -1945,7 +1917,7 @@
       }
     }
   },
-  "setupSwitchMissingCredential": "The saved credential for the previous runtime is unavailable. Its data is retained; restore the saved server before returning.",
+  "setupSwitchMissingCredential": "The saved server password could not be read. Your conversations and files are kept. Restore access to the saved password, then try again.",
   "setupSwitchProgressTitle": "Switching to {runtime}",
   "@setupSwitchProgressTitle": {
     "placeholders": {
@@ -2039,7 +2011,7 @@
   "@e7ConnectionFailure22": {
     "description": "Connection recovery guidance shown in lib/ui/widgets/connection_failure.dart"
   },
-  "e7ConnectionFailure23": "For a self-signed certificate, install it on this device first.",
+  "e7ConnectionFailure23": "For a self-signed certificate, edit this server and check its fingerprint before trusting it.",
   "@e7ConnectionFailure23": {
     "description": "Connection recovery guidance shown in lib/ui/widgets/connection_failure.dart"
   },
@@ -2220,6 +2192,26 @@
   "@e7BannerStaleExplanation": {
     "description": "Localized shared connection or glossary interface"
   },
+  "e7BannerCheckingExplanationAgent": "What you see stays available while {agent} is checked. Live updates resume on their own.",
+  "@e7BannerCheckingExplanationAgent": {
+    "description": "Connection Details while a conversation with a phone agent (Claude Code) is reconnecting to its helper.",
+    "placeholders": {
+      "agent": {
+        "type": "String",
+        "example": "Claude Code"
+      }
+    }
+  },
+  "e7BannerStaleExplanationAgent": "What you see may be stale until {agent} is reachable again.",
+  "@e7BannerStaleExplanationAgent": {
+    "description": "Connection Details when a conversation with a phone agent (Claude Code) can't reach its helper.",
+    "placeholders": {
+      "agent": {
+        "type": "String",
+        "example": "Claude Code"
+      }
+    }
+  },
   "e7SharedThreeStepsToYourFirstSession": "Three steps to your first conversation",
   "@e7SharedThreeStepsToYourFirstSession": {
     "description": "Shared app interface: Three steps to your first session"
@@ -2272,7 +2264,7 @@
   "@e7SharedReachAServerOverHTTPSOrA": {
     "description": "Shared app interface: Reach a server over HTTPS or a tunnel"
   },
-  "e7SharedPairingWorksWhenTheAddressTheServer": "Pairing works when the address the server prints is one this device can reach. If it is not, expose the server through an HTTPS reverse proxy or an encrypted tunnel and add the resulting https:// URL by hand. Remote HTTP is intentionally blocked.",
+  "e7SharedPairingWorksWhenTheAddressTheServer": "Pairing works when this device can reach the server address. A remote HTTP address asks for your permission before sending the password. Prefer HTTPS or a private Tailscale connection.",
   "@e7SharedPairingWorksWhenTheAddressTheServer": {
     "description": "Shared app interface: Pairing works when the address the server prints is one this device can reach. If it is not, expose the server through an HTTPS reverse proxy or an encrypted tunnel and add the resulting https:// URL by hand. Remote HTTP is intentionally blocked."
   },
@@ -2280,7 +2272,7 @@
   "@e7SharedOlderServersWithoutPairing": {
     "description": "Shared app interface: Older servers without pairing"
   },
-  "e7SharedServersStartedWithOpencodeServeDoNot": "Servers started with “opencode serve” do not print a pairing code. Start them on loopback with a password:",
+  "e7SharedServersStartedWithOpencodeServeDoNot": "For a local connection, start OpenCode 2 on this computer. Use the password it prints:",
   "@e7SharedServersStartedWithOpencodeServeDoNot": {
     "description": "Shared app interface: Servers started with `opencode serve` do not print a pairing code. Start them on loopback with a password:"
   },
@@ -3130,7 +3122,7 @@
   "@e7SettingsUi62": {
     "description": "Settings and appearance user interface."
   },
-  "e7SettingsUi65": "Run as a Linux service",
+  "e7SettingsUi65": "Set up OpenCode 2",
   "@e7SettingsUi65": {
     "description": "Settings and appearance user interface."
   },
@@ -6816,7 +6808,7 @@
   "@e7SetupServerPassword": {
     "description": "Setup journey: server password."
   },
-  "e7SetupHttpsHint": "https:// for other computers; http:// only on this device or a private network.",
+  "e7SetupHttpsHint": "Prefer HTTPS. Remote HTTP needs your permission for each server.",
   "@e7SetupHttpsHint": {
     "description": "Setup journey: https hint."
   },
@@ -7088,10 +7080,6 @@
   "@e7SetupUpKey": {
     "description": "Setup journey: up key."
   },
-  "e7SetupV1Limited": "This app targets OpenCode 2; some features are unavailable on v1 servers.",
-  "@e7SetupV1Limited": {
-    "description": "Setup journey: v1 limited."
-  },
   "e7SetupConnect": "Connect",
   "@e7SetupConnect": {
     "description": "Setup journey: connect."
@@ -7172,7 +7160,7 @@
   "@e7SetupSaving": {
     "description": "Setup journey: saving."
   },
-  "e7SetupLinuxService": "Run as a Linux service",
+  "e7SetupLinuxService": "Set up OpenCode 2",
   "@e7SetupLinuxService": {
     "description": "Setup journey: linux service."
   },
@@ -7561,15 +7549,6 @@
       }
     }
   },
-  "e7SetupProbeV1": "OpenCode 1 · {version} — limited feature set",
-  "@e7SetupProbeV1": {
-    "description": "Setup journey: probe v1.",
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
-  },
   "e7SetupPairNone": "There is no pairing code here. Run “opencode2 pair” on the server and scan or copy what it prints.",
   "@e7SetupPairNone": {
     "description": "Setup journey: pair none."
@@ -7650,7 +7629,7 @@
   "@e7SetupEnterUrl": {
     "description": "Setup journey: enter url."
   },
-  "e7SetupIncludeScheme": "Include https://. Plain http:// works only on this device or a private network address.",
+  "e7SetupIncludeScheme": "Include https:// or http://. Remote HTTP needs your permission.",
   "@e7SetupIncludeScheme": {
     "description": "Setup journey: include scheme."
   },
@@ -7658,7 +7637,7 @@
   "@e7SetupCompleteUrl": {
     "description": "Setup journey: complete url."
   },
-  "e7SetupUrlScheme": "Server URLs must use https://, or http:// for a local server.",
+  "e7SetupUrlScheme": "Server URLs must use https:// or http://.",
   "@e7SetupUrlScheme": {
     "description": "Setup journey: url scheme."
   },
@@ -7698,7 +7677,7 @@
   "@e7SetupDns": {
     "description": "Setup journey: dns."
   },
-  "e7SetupCertificate": "The server’s TLS certificate was rejected. Use a certificate this phone trusts.",
+  "e7SetupCertificate": "The certificate is not trusted. Check its fingerprint before choosing whether to trust it.",
   "@e7SetupCertificate": {
     "description": "Setup journey: certificate."
   },
@@ -7833,10 +7812,6 @@
   "e7SetupPortBusy": "The local server port is still in use; no replacement was started",
   "@e7SetupPortBusy": {
     "description": "Setup journey: port busy."
-  },
-  "e7SetupNoReturnData": "This OpenCode 2 installation has no separate OpenCode 1 data to return to",
-  "@e7SetupNoReturnData": {
-    "description": "Setup journey: no return data."
   },
   "e7SetupCredentialMismatch": "The saved server credential differs from this runtime; restore its original saved credential before returning",
   "@e7SetupCredentialMismatch": {
@@ -12275,7 +12250,7 @@
   "@agentErrorConnectionDropped": {
     "description": "Plain-language error headline: the link between the server and the model provider broke mid-request"
   },
-  "agentErrorConnectionDroppedHint": "Usually brief, and OpenCode retries by itself. If it keeps happening, check the internet on the computer running OpenCode.",
+  "agentErrorConnectionDroppedHint": "Check the internet on the device running OpenCode. If the reply has stopped, check the conversation before sending again.",
   "@agentErrorConnectionDroppedHint": {
     "description": "What to expect or do after a dropped model connection"
   },
@@ -12283,7 +12258,7 @@
   "@agentErrorTimedOut": {
     "description": "Plain-language error headline: provider timeout"
   },
-  "agentErrorTimedOutHint": "OpenCode retries by itself. A smaller request or another model may be faster.",
+  "agentErrorTimedOutHint": "If the reply has stopped, try a smaller request or another model.",
   "@agentErrorTimedOutHint": {
     "description": "What to expect or do after a provider timeout"
   },
@@ -12307,7 +12282,7 @@
   "@agentErrorRateLimited": {
     "description": "Plain-language error headline: rate limit"
   },
-  "agentErrorRateLimitedHint": "It retries by itself after a short wait.",
+  "agentErrorRateLimitedHint": "Wait a little. If the reply has stopped, try again or choose another model.",
   "@agentErrorRateLimitedHint": {
     "description": "What to expect after a rate limit"
   },
@@ -12315,7 +12290,7 @@
   "@agentErrorProviderBusy": {
     "description": "Plain-language error headline: provider overloaded or unavailable"
   },
-  "agentErrorProviderBusyHint": "It retries by itself. Another model may answer sooner.",
+  "agentErrorProviderBusyHint": "If the reply has stopped, try again later or choose another model.",
   "@agentErrorProviderBusyHint": {
     "description": "What to expect or do when the provider is overloaded"
   },
@@ -12733,6 +12708,14 @@
   "@phoneSetupProgressFirstSetupNote": {
     "description": "Under the title while a first phone setup runs: where this screen sits in the journey (install, name a project, chat) and that leaving is fine"
   },
+  "phoneSetupProgressLeaveHintQuiet": "You can leave the app. Setup keeps going. Open OpenCode again to see how far it got.",
+  "@phoneSetupProgressLeaveHintQuiet": {
+    "description": "Under the setup checklist when notifications are not allowed: setup continues in the background but nothing will notify the person"
+  },
+  "phoneSetupProgressFirstSetupNoteQuiet": "Step 1 of 3: install. Then name a project and start a conversation. You can leave the app. Setup keeps going. Open OpenCode again to see how far it got.",
+  "@phoneSetupProgressFirstSetupNoteQuiet": {
+    "description": "First-setup variant of the quiet hint, used when notifications are not allowed"
+  },
   "phoneSetupProgressStopTitle": "Stop setup?",
   "@phoneSetupProgressStopTitle": {
     "description": "Title of the confirmation before cancelling phone setup"
@@ -12751,7 +12734,7 @@
   },
   "builtinServerChooseRuntime": "Which OpenCode",
   "@builtinServerChooseRuntime": {
-    "description": "Label above the OpenCode 1 / OpenCode 2 choice"
+    "description": "Label for the managed OpenCode runtime"
   },
   "builtinServerStopped": "Not running.",
   "@builtinServerStopped": {
@@ -12917,7 +12900,7 @@
   "@phoneSetupErrorOpenCodeNoStart": {
     "description": "Setup error when the new OpenCode program did not answer during its short start check"
   },
-  "phoneSetupErrorNoSpace": "Not enough free space to install {name}",
+  "phoneSetupErrorNoSpace": "Not enough free space to install {name}. Free some storage, then continue setup.",
   "@phoneSetupErrorNoSpace": {
     "description": "Setup error when the phone ran out of storage",
     "placeholders": {
@@ -12935,7 +12918,7 @@
       }
     }
   },
-  "phoneSetupErrorCannotStart": "OpenCode is installed, but the app could not start it here.",
+  "phoneSetupErrorCannotStart": "OpenCode is installed but is not answering. Continue setup to try again. Details show what stopped it.",
   "@phoneSetupErrorCannotStart": {
     "description": "Setup error when nothing can start the server (no app shell)"
   },
@@ -13607,7 +13590,7 @@
   },
   "phoneSetupOpenPhoneRuntime": "{name} · {runtime}",
   "@phoneSetupOpenPhoneRuntime": {
-    "description": "The in-app server's name when OpenCode 1 and OpenCode 2 are both set up on this phone, e.g. 'This phone · OpenCode 2'",
+    "description": "The managed in-app server name, for example 'This phone · OpenCode 2'",
     "placeholders": {
       "name": {
         "type": "String"
@@ -15597,14 +15580,9 @@
   "@keepRunningRowSubtitle": {
     "description": "Settings row subtitle"
   },
-  "keepRunningIntro": "Your phone's OpenCode and the AI Team run inside this app, so they stop when Android closes it. On this {maker}, allow these:",
+  "keepRunningIntro": "Your phone's OpenCode and the AI Team run inside this app, so they stop when Android closes it. On this phone, allow these:",
   "@keepRunningIntro": {
-    "description": "Keep running screen intro; maker is the phone's manufacturer name",
-    "placeholders": {
-      "maker": {
-        "type": "String"
-      }
-    }
+    "description": "Keep running screen intro; says this phone, never the maker's name (a maker can be a brand like Google)"
   },
   "keepRunningSwipeWarning": "This phone closes an app you swipe away from Recent apps, even while it works. Lock it there instead of swiping it away.",
   "@keepRunningSwipeWarning": {
@@ -17567,6 +17545,10 @@
   "@kitToolFailed": {
     "description": "KitToolRow: the word for a step that failed"
   },
+  "kitToolDeclined": "You declined this",
+  "@kitToolDeclined": {
+    "description": "KitToolRow: the word for a step the person declined"
+  },
   "kitToolStopped": "Stopped",
   "@kitToolStopped": {
     "description": "KitToolRow: the word for a step stopped by the person or the server"
@@ -17740,23 +17722,15 @@
   "@kitCapServerAnyOffer": {
     "description": "KitCapabilityExplainer: the one-sentence turn-on offer for \"server.any\" at the moment of need, beside its button and \"Not now\""
   },
-  "kitCapServerOc1Title": "OpenCode 1 server",
-  "@kitCapServerOc1Title": {
-    "description": "KitCapabilityExplainer: the name of the capability \"server.oc1\", shown as the title of the dimmed row or the missing state"
-  },
-  "kitCapServerOc1Why": "Needs this phone's own server or a computer running OpenCode 1.",
-  "@kitCapServerOc1Why": {
-    "description": "KitCapabilityExplainer: why the capability \"server.oc1\" is missing, in one sentence (the dimmed row's supporting line and the missing state's body)"
-  },
   "kitCapServerOc2Title": "OpenCode 2 server",
   "@kitCapServerOc2Title": {
     "description": "KitCapabilityExplainer: the name of the capability \"server.oc2\", shown as the title of the dimmed row or the missing state"
   },
-  "kitCapServerOc2Why": "Needs a server running OpenCode 2. This phone's server can switch to it.",
+  "kitCapServerOc2Why": "Needs a server running OpenCode 2.",
   "@kitCapServerOc2Why": {
     "description": "KitCapabilityExplainer: why the capability \"server.oc2\" is missing, in one sentence (the dimmed row's supporting line and the missing state's body)"
   },
-  "kitCapServerOc2Enable": "Switch to OpenCode 2",
+  "kitCapServerOc2Enable": "Connect OpenCode 2",
   "@kitCapServerOc2Enable": {
     "description": "KitCapabilityExplainer: the button that starts the flow turning \"server.oc2\" on (a verb, COPY-8)"
   },
@@ -18164,10 +18138,6 @@
   "@kitHostTermux": {
     "description": "KitCapabilityExplainer: a place a capability can run, read after \"on\" (\"isn't available on …\", \"Works on …\")"
   },
-  "kitHostOpenCode1": "computers with OpenCode 1",
-  "@kitHostOpenCode1": {
-    "description": "KitCapabilityExplainer: a place a capability can run, read after \"on\" (\"isn't available on …\", \"Works on …\")"
-  },
   "kitHostOpenCode2": "computers with OpenCode 2",
   "@kitHostOpenCode2": {
     "description": "KitCapabilityExplainer: a place a capability can run, read after \"on\" (\"isn't available on …\", \"Works on …\")"
@@ -18186,7 +18156,7 @@
   },
   "kitHostOpenCode": "computers with OpenCode",
   "@kitHostOpenCode": {
-    "description": "KitCapabilityExplainer: both OpenCode 1 and OpenCode 2 computers, when a capability works on both, read after \"on\""
+    "description": "KitCapabilityExplainer: computers running OpenCode 2, read after \"on\""
   },
   "kitCapNotOnHost": "{count, plural, =1{{feature} isn't available on {host}} other{{feature} aren't available on {host}}}",
   "@kitCapNotOnHost": {
@@ -18999,7 +18969,7 @@
   "@profileMonitorIfIgnored": {
     "description": "Needs-you row on another server: what happens if it is not answered"
   },
-  "serverSettingsRestartCommandLabel": "Set up with the Linux service script?",
+  "serverSettingsRestartCommandLabel": "Start OpenCode 2 on this computer",
   "@serverSettingsRestartCommandLabel": {
     "description": "Restart sheet: the fold that holds the helper script's restart command, for servers set up with it"
   },
@@ -24137,7 +24107,7 @@
   "@addServerCheckCancel": {
     "description": "Add server: action on the slow-check notice; the answer, when it comes, is ignored."
   },
-  "addServerRemoteHttpAdvice": "A computer on your network needs an https:// address. Tailscale gives it a private one that only your devices can reach.",
+  "addServerRemoteHttpAdvice": "Remote HTTP needs your explicit permission. Prefer HTTPS or a private Tailscale connection.",
   "@addServerRemoteHttpAdvice": {
     "description": "Add server: under an http:// address on the network, which is refused. Never suggests a public relay."
   },
@@ -26135,7 +26105,7 @@
   "@serverSettingsUpdateCommandsCopied": {
     "description": "Server settings: the line under 'Copy update commands for {server}' after the row copied them."
   },
-  "hostServiceTitle": "Linux service for {server}",
+  "hostServiceTitle": "OpenCode on {server}",
   "@hostServiceTitle": {
     "description": "Run as a Linux service page: its title, naming the server (four words at most, glossary G28).",
     "placeholders": {
@@ -26658,7 +26628,7 @@
   },
   "aiSetupEffectiveLabel": "Settings in effect",
   "@aiSetupEffectiveLabel": {
-    "description": "AI setup: section label of an OpenCode 1 server's combined (effective) configuration"
+    "description": "AI setup: section label for a gateway reporting combined effective configuration"
   },
   "aiSetupEffectiveTerm": "What this server's conversations use, after combining its configuration files.",
   "@aiSetupEffectiveTerm": {
@@ -28086,7 +28056,7 @@
       }
     }
   },
-  "thisPhoneHistoryFailed": "Your earlier conversations could not be brought across. They are still safe in OpenCode 1.",
+  "thisPhoneHistoryFailed": "Your earlier conversations could not be brought across. Their original data is still on this phone, untouched.",
   "@thisPhoneHistoryFailed": {
     "description": "This phone: the line under the status when OpenCode 2 stopped importing the chats from OpenCode 1; the server's own text is under Details"
   },
@@ -28414,7 +28384,7 @@
   },
   "migrationNeedsBuiltinBody": "Your projects move into OpenCode inside this app, so it needs setting up. Setup installs Linux and {runtime}, then this continues here.",
   "@migrationNeedsBuiltinBody": {
-    "description": "Moving from Termux to the in-app server: why setup comes first; runtime is 'OpenCode 1' or 'OpenCode 2'.",
+    "description": "Moving from Termux to the in-app server: why OpenCode 2 setup comes first.",
     "placeholders": {
       "runtime": {
         "type": "String"
@@ -28460,6 +28430,14 @@
   "migrationUnsupportedFilesFix": "Links, sockets and Git worktrees can't be copied. Remove them in Termux and try again, or copy that project by hand.",
   "@migrationUnsupportedFilesFix": {
     "description": "Moving from Termux to the in-app server: way forward for files that cannot be copied."
+  },
+  "migrationLinkedFileUnreadable": "Some of this project's Git history can't be read in Termux, so it can't be moved safely.",
+  "@migrationLinkedFileUnreadable": {
+    "description": "Moving from Termux to the in-app server: failure: a Git object link points at a Termux-private file that could not be read."
+  },
+  "migrationLinkedFileUnreadableFix": "Open Termux, run git fsck in that project to see what is missing, then try again. Nothing was changed on your phone.",
+  "@migrationLinkedFileUnreadableFix": {
+    "description": "Moving from Termux to the in-app server: way forward for unreadable Git object links."
   },
   "migrationTooLarge": "This item exceeds the migration size or file limit.",
   "@migrationTooLarge": {
@@ -29219,14 +29197,6 @@
   "perfDetailModel": "Model, last reply",
   "@perfDetailModel": {
     "description": "This phone › Details (technical): provider/model id of the last reply."
-  },
-  "@setupSwitchConfirm": {
-    "description": "This phone › Switch runtime sheet: the confirm button, naming the target runtime.",
-    "placeholders": {
-      "runtime": {
-        "type": "String"
-      }
-    }
   },
   "manageSpaceIntroNothingToExport": "Clearing deletes everything OpenCode Mobile keeps on this phone, and it cannot be undone.",
   "@manageSpaceIntroNothingToExport": {
@@ -31467,7 +31437,7 @@
   "@teamProjectEditorContextFilesHelpReal": {
     "description": "Help under the context files field for a real team (not the demo)"
   },
-  "addServerCleartextWarning": "This address uses plain HTTP. On this network, others could read your password and conversations. Use Tailscale or HTTPS if you can.",
+  "addServerCleartextWarning": "This private network or Tailscale address uses plain HTTP. Your password and code travel unencrypted at the HTTP layer. Use it only on a private network you trust or through Tailscale; it is risky on public Wi-Fi.",
   "@addServerCleartextWarning": {
     "description": "Add server: warning under a plain http:// address on a private network (192.168.x.x, 10.x.x.x, .local). Must be confirmed before saving or checking."
   },
@@ -32200,6 +32170,14 @@
   "@chatsNewFailed": {
     "description": "New chat: starting failed and the draft is kept"
   },
+  "chatsNewFailedTitle": "The conversation didn't start",
+  "@chatsNewFailedTitle": {
+    "description": "New chat: title of the Details alert after starting a conversation failed"
+  },
+  "chatsNewFailedReportHint": "Report a problem includes these details.",
+  "@chatsNewFailedReportHint": {
+    "description": "New chat: line in the failure Details alert saying the technical text below is also kept for Report a problem"
+  },
   "shellTabChats": "Conversations",
   "@shellTabChats": {
     "description": "Bottom navigation label and title of the first tab: every conversation across projects, with what needs the person and what is running as filters."
@@ -32421,9 +32399,16 @@
   "@agentsStepReady": {
     "description": "Phone check step"
   },
-  "agentsFailUnavailable": "This phone can't run this agent yet.",
+  "agentsFailUnavailable": "This phone can't run this agent yet. Check again, or open Details to see why.",
   "@agentsFailUnavailable": {
     "description": "Phone check failure"
+  },
+  "agentsResumeFailed": "{agent} didn't start again. Tap Resume to try once more. If it still won't start, run its phone check.",
+  "@agentsResumeFailed": {
+    "description": "A Resume of an installed agent that Android or the idle policy stopped did not start it. The agent ran before, so this never says the phone can't run it.",
+    "placeholders": {
+      "agent": {"type": "String", "example": "Claude Code"}
+    }
   },
   "agentsFailStorage": "Couldn't save this setup. Free some space and run it again.",
   "@agentsFailStorage": {
@@ -32445,9 +32430,9 @@
   "@agentsFailDaemon": {
     "description": "Phone check failure"
   },
-  "agentsFailHello": "The agent started but didn't answer.",
+  "agentsFailHello": "Paseo did not confirm the connection. Retry to restart it and check again.",
   "@agentsFailHello": {
-    "description": "Phone check failure"
+    "description": "Phone agent check: actionable status, recovery or download progress"
   },
   "agentsFailArchitecture": "This agent doesn't match this phone's processor.",
   "@agentsFailArchitecture": {
@@ -33533,7 +33518,7 @@
     "placeholders": {
       "target": {
         "type": "String",
-        "example": "OpenCode 1"
+        "example": "OpenCode 2"
       }
     }
   },
@@ -33711,6 +33696,10 @@
   "backgroundPauseInterrupted": "Background connection stopped for an unknown reason.",
   "@backgroundPauseInterrupted": {
     "description": "battery-pause (FD3): App-wide notice when the background connection stopped for an unknown reason."
+  },
+  "backgroundPauseDeviceRestarted": "Background connection stopped when the phone restarted.",
+  "@backgroundPauseDeviceRestarted": {
+    "description": "battery-pause (FD3): App-wide notice when the phone restarted while the background connection was running."
   },
   "backgroundPauseResume": "Resume background connection",
   "@backgroundPauseResume": {
@@ -33964,7 +33953,7 @@
   },
   "connectorCardCancelBody": "{name} stops waiting, and its saved sign-in is cleared. You would sign in again to use it.",
   "@connectorCardCancelBody": {
-    "description": "Suggested-connector card: what cancelling sign-in does on OpenCode 1 (saved sign-in is cleared).",
+    "description": "Suggested-connector card: what cancelling sign-in does when the server clears saved sign-in.",
     "placeholders": {
       "name": {
         "type": "String"
@@ -35151,6 +35140,10 @@
   "productErrorComputer": "Couldn't reach your computer. Check it's on and connected, then try again.",
   "@productErrorComputer": {
     "description": "Failure words when the computer running Claude Code (Paseo) did not answer or could not do what was asked; the daemon's reason goes under Details"
+  },
+  "productErrorProjectGit": "This project's Git history can't be read, so the conversation couldn't start. Restore the project from a copy, or clone it again.",
+  "@productErrorProjectGit": {
+    "description": "Failure words when the agent host's Git cannot read the project (bad object, not a repository) and the app can't repair it there; the daemon's reason goes under Details"
   },
   "kitGalleryPosition": "{current} of {total}",
   "@kitGalleryPosition": {
@@ -38668,7 +38661,7 @@
     "placeholders": {
       "version": {
         "type": "String",
-        "example": "1.19.0"
+        "example": "2.0.29"
       }
     }
   },
@@ -39771,7 +39764,7 @@
   "@chatRequestAskRead": {
     "description": "Permission card: the ask for reading a file"
   },
-  "chatRequestAskDirectory": "Open this folder?",
+  "chatRequestAskDirectory": "Work outside this project?",
   "@chatRequestAskDirectory": {
     "description": "Permission card: the ask for a folder outside the project"
   },
@@ -40820,11 +40813,1979 @@
   "widgetV2DictationUnavailable": "Dictation isn’t available right now. You can type instead.",
   "widgetV2RestartUnavailable": "This conversation can only be changed from inside the app.",
   "phoneSetupErrorPackageRepair": "Some Linux packages need repair. Continue setup to try again. Details show what stopped it.",
-  "@phoneSetupErrorPackageRepair": {"description": "Release setup recovery and safe runtime switching copy."},
-  "setupSwitchSeparateHistoryDetail": "OpenCode 2 already has its own conversations. Older OpenCode conversations stay in Older OpenCode. Switching is unavailable while both have conversations. Stay on Older OpenCode to keep using these conversations.",
-  "@setupSwitchSeparateHistoryDetail": {"description": "Release setup recovery and safe runtime switching copy."},
-  "setupSwitchHistoryUnavailableDetail": "Could not check your conversations safely. Stay on Older OpenCode and try again.",
-  "@setupSwitchHistoryUnavailableDetail": {"description": "Release setup recovery and safe runtime switching copy."},
-  "setupSwitchStay": "Stay on Older OpenCode",
-  "@setupSwitchStay": {"description": "Release setup recovery and safe runtime switching copy."}
+  "@phoneSetupErrorPackageRepair": {
+    "description": "Release setup recovery and safe runtime switching copy."
+  },
+  "agentsFailNeedsSignIn": "Claude Code is installed. Sign in to your Claude account to use it.",
+  "@agentsFailNeedsSignIn": {
+    "description": "Phone agent check: actionable status, recovery or download progress"
+  },
+  "agentsFailHelperVersion": "Paseo needs an update before this agent can connect. Update it and try again.",
+  "@agentsFailHelperVersion": {
+    "description": "Phone agent check: actionable status, recovery or download progress"
+  },
+  "agentsFailTimeout": "The phone took too long to finish the check. Retry when it is less busy.",
+  "@agentsFailTimeout": {
+    "description": "Phone agent check: actionable status, recovery or download progress"
+  },
+  "agentsCheckRetry": "Try again",
+  "@agentsCheckRetry": {
+    "description": "Phone agent check: actionable status, recovery or download progress"
+  },
+  "agentsCheckUpdateHelper": "Update Paseo and try again",
+  "@agentsCheckUpdateHelper": {
+    "description": "Phone agent check: actionable status, recovery or download progress"
+  },
+  "agentsCheckPrevious": "Use the previous version",
+  "@agentsCheckPrevious": {
+    "description": "Phone agent check: actionable status, recovery or download progress"
+  },
+  "agentsCheckPreviousNote": "Version {version} is still on this phone. It will be checked before you use it. Your sign-in and conversations stay.",
+  "@agentsCheckPreviousNote": {
+    "description": "Technical: retained version value so the person can identify the verified version before switching back; account and conversation data stay intact",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "agentsCheckAgentChanged": "The required agent version changed. Check this phone again.",
+  "@agentsCheckAgentChanged": {
+    "description": "Phone agent check: actionable status, recovery or download progress"
+  },
+  "agentsCheckHelperChanged": "The required Paseo version changed. Check the connection again.",
+  "@agentsCheckHelperChanged": {
+    "description": "Phone agent check: actionable status, recovery or download progress"
+  },
+  "agentsCheckInstallChanged": "The phone setup changed. Check it again.",
+  "@agentsCheckInstallChanged": {
+    "description": "Phone agent check: actionable status, recovery or download progress"
+  },
+  "agentsCheckDownload": "Downloading {component} · {downloaded} of {total}",
+  "@agentsCheckDownload": {
+    "description": "Phone agent check: actionable status, recovery or download progress",
+    "placeholders": {
+      "component": {
+        "type": "String"
+      },
+      "downloaded": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "agentsCheckDownloadUnknown": "Downloading {component} · {downloaded}",
+  "@agentsCheckDownloadUnknown": {
+    "description": "Phone agent check: actionable status, recovery or download progress",
+    "placeholders": {
+      "component": {
+        "type": "String"
+      },
+      "downloaded": {
+        "type": "String"
+      }
+    }
+  },
+  "agentsCheckDownloading": "Downloading {component}",
+  "@agentsCheckDownloading": {
+    "description": "Phone agent check: actionable status, recovery or download progress",
+    "placeholders": {
+      "component": {
+        "type": "String"
+      }
+    }
+  },
+  "agentsCheckPreparing": "Preparing {component}",
+  "@agentsCheckPreparing": {
+    "description": "Phone check: preparing shared helper tools without a measured download size",
+    "placeholders": {
+      "component": {
+        "type": "String"
+      }
+    }
+  },
+  "agentsCheckPhoneTools": "Phone tools",
+  "@agentsCheckPhoneTools": {
+    "description": "Phone check: preparing shared helper tools without a measured download size"
+  },
+  "phoneSetupErrorInterrupted": "Setup stopped before it finished. Continue setup to try again. Completed steps will be kept.",
+  "agentErrorProviderAuth": "The model provider needs a valid sign-in.",
+  "agentErrorProviderAuthHint": "Open provider settings to sign in or replace the API key, then try again.",
+  "agentErrorUnknown": "The request could not finish.",
+  "agentErrorUnknownHint": "Check the conversation before sending again. Details may help explain what happened.",
+  "serverTrustHttpTitle": "Use unencrypted HTTP?",
+  "serverTrustHttpPublicBody": "At this public HTTP address, your password and code travel unencrypted and others on the network can read or change them. This is risky on public Wi-Fi; prefer HTTPS or a private Tailscale connection.",
+  "serverTrustHttpAccept": "Allow HTTP for this server",
+  "serverTrustCertificateTitle": "Trust this certificate?",
+  "serverTrustCertificateBody": "This connection is encrypted, but this device cannot verify the certificate’s issuer or server name. Compare this SHA-256 fingerprint with your server through a separate trusted channel and trust it only if they match; future connections will require this exact certificate.",
+  "serverTrustCertificateChangedTitle": "The server's certificate changed",
+  "serverTrustCertificateChangedBody": "The certificate no longer matches the one you trusted, so the app blocked the connection before sending your password. This may be a renewal or an intercepted connection; re-check the fingerprint with the server owner before trusting a replacement.",
+  "serverTrustCertificateInspect": "Check certificate",
+  "serverTrustCertificateRecheck": "Re-check certificate",
+  "serverTrustCertificateAccept": "Trust this fingerprint",
+  "serverTrustCertificateReplace": "Trust replacement certificate",
+  "serverTrustCertificatePinned": "This server uses the certificate fingerprint you trusted. A different certificate will block the connection.",
+  "serverTrustCertificateFailed": "The certificate could not be checked. Check the address and network, then try again. Nothing was trusted.",
+  "serverTrustFingerprint": "SHA-256 fingerprint",
+  "serverTrustInvalidPort": "Enter a server port between 1 and 65535.",
+  "serverTrustHttpUnconfirmed": "This server uses plain HTTP, and you have not confirmed that yet. Edit the server to review and approve the HTTP warning, or use HTTPS.",
+  "serverTrustProbeFailed": "The server could not be checked. Check the address and try again.",
+  "serverTrustPasswordRejected": "Password rejected. Check the server password and try again.",
+  "serverTrustCertificateValidity": "Valid from {from} to {to}",
+  "@serverTrustCertificateValidity": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "serverTrustCertificateValidityError": "The server certificate is expired or not yet valid. Ask the server owner to renew it or check the device clock before reconnecting.",
+  "devPreviewTitle": "Preview",
+  "@devPreviewTitle": {
+    "description": "Dev-server preview: screen title"
+  },
+  "devPreviewReload": "Refresh page",
+  "@devPreviewReload": {
+    "description": "Dev-server preview: reload the page"
+  },
+  "devPreviewOpenInBrowser": "Open in browser",
+  "@devPreviewOpenInBrowser": {
+    "description": "Dev-server preview: open the current address in the phone's browser"
+  },
+  "devPreviewCopyAddress": "Copy address",
+  "@devPreviewCopyAddress": {
+    "description": "Dev-server preview: copy the current address"
+  },
+  "devPreviewLoading": "Loading the preview",
+  "@devPreviewLoading": {
+    "description": "Dev-server preview: loading bar label for screen readers"
+  },
+  "devPreviewFailedTitle": "Nothing is answering yet",
+  "@devPreviewFailedTitle": {
+    "description": "Dev-server preview: the page could not be reached"
+  },
+  "devPreviewFailedBody": "Port {port} is not responding. The app may still be starting.",
+  "@devPreviewFailedBody": {
+    "description": "Dev-server preview: why the page is empty and what to do; port is the number as text",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      }
+    }
+  },
+  "devPreviewRetry": "Try again",
+  "@devPreviewRetry": {
+    "description": "Dev-server preview: reload after a failure"
+  },
+  "devPreviewRemoteNote": "Showing port {port} on {host}. The dev server has to listen on 0.0.0.0 (all addresses) to be reachable from this phone.",
+  "@devPreviewRemoteNote": {
+    "description": "Technical: dev-server preview note shown when the link was pointed at the connected server's address; 0.0.0.0 is the all-addresses setting the dev server needs",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      },
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "devPreviewNoServerTitle": "Connect a server first",
+  "@devPreviewNoServerTitle": {
+    "description": "Dev-server preview: link tapped with no saved server connected"
+  },
+  "devPreviewNoServerBody": "A link to this machine only means something on the machine running the app. Connect a server, or open the link in a browser.",
+  "@devPreviewNoServerBody": {
+    "description": "Technical: dev-server preview, explanation for a local link when no server is connected"
+  },
+  "devPreviewNoHostTitle": "Can't find that server",
+  "@devPreviewNoHostTitle": {
+    "description": "Dev-server preview: the connected server's address has no host"
+  },
+  "devPreviewNoHostBody": "This server's address is incomplete, so the link can't be pointed at it. Open it in a browser instead.",
+  "@devPreviewNoHostBody": {
+    "description": "Dev-server preview: explanation when the host is missing"
+  },
+  "devPreviewUnsupportedTitle": "Preview isn't available here",
+  "@devPreviewUnsupportedTitle": {
+    "description": "Dev-server preview: this device cannot show a web view"
+  },
+  "devPreviewUnsupportedBody": "This device cannot show the page inside the app. Open it in a browser instead.",
+  "@devPreviewUnsupportedBody": {
+    "description": "Dev-server preview: explanation on desktop"
+  },
+  "devPreviewMenu": "Preview a running app",
+  "@devPreviewMenu": {
+    "description": "Conversation menu: opens the list of dev servers this conversation mentioned"
+  },
+  "devPreviewMenuHint": "Open a dev server this conversation mentioned",
+  "@devPreviewMenuHint": {
+    "description": "Conversation menu: hint under Preview"
+  },
+  "devPreviewSheetSubtitle": "Servers this conversation mentioned",
+  "@devPreviewSheetSubtitle": {
+    "description": "Dev-server preview: subtitle of the port list"
+  },
+  "devPreviewPortTitle": "Port {port}",
+  "@devPreviewPortTitle": {
+    "description": "Dev-server preview: one port in the list; port is the number as text",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      }
+    }
+  },
+  "devPreviewOnPhone": "On this phone",
+  "@devPreviewOnPhone": {
+    "description": "Dev-server preview: the port's server runs on the phone itself"
+  },
+  "devPreviewOnServer": "On {host}",
+  "@devPreviewOnServer": {
+    "description": "Dev-server preview: the port's server is on the connected server",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "openCode1UnsupportedTitle": "Update this server",
+  "openCode1Unsupported": "This server runs OpenCode 1, which this app no longer supports. Update it to OpenCode 2.",
+  "openCode2UpgradeTitle": "Updating to OpenCode 2",
+  "openCode2UpgradeProgress": "Updating this phone’s server and bringing your conversations with you. Keep the app open.",
+  "openCode2UpgradeFailed": "The update could not finish safely. Your OpenCode 1 conversations and files are still on this phone, untouched. Try again when the server is idle and there is enough free space.",
+  "openCode2HostInstall": "Install and start OpenCode 2",
+  "openCode2HostInstallDetail": "Requires Node.js and npm. Starts on this computer only and prints its password. Keep this terminal open.",
+  "schedulePhoneBusy": "A scheduled prompt is using the phone server. Try again when it finishes.",
+  "schedulePhoneCheckFailed": "The phone server could not be checked. Try again.",
+  "scheduleTitle": "Scheduled prompts",
+  "scheduleCreate": "Schedule a prompt",
+  "scheduleEdit": "Edit schedule",
+  "schedulePrompt": "Prompt",
+  "scheduleTarget": "Conversation",
+  "scheduleThisConversation": "This conversation",
+  "scheduleNewConversation": "New conversation each run",
+  "scheduleAgent": "Agent",
+  "scheduleWeekdays": "Every weekday",
+  "scheduleEveryHours": "Every N hours",
+  "scheduleOnce": "Once",
+  "scheduleRepeat": "When",
+  "scheduleTime": "Time",
+  "scheduleHours": "Hours between runs",
+  "scheduleNextRun": "Next: {time}",
+  "@scheduleNextRun": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "scheduleSave": "Save schedule",
+  "schedulePause": "Pause",
+  "scheduleResume": "Resume",
+  "scheduleDelete": "Delete schedule",
+  "scheduleHistory": "Run history",
+  "scheduleStarted": "Started",
+  "scheduleRunning": "Running",
+  "scheduleFailed": "Failed",
+  "scheduleSkipped": "Skipped",
+  "scheduleLate": "Late",
+  "schedulePaused": "Paused",
+  "scheduleFinished": "No more runs",
+  "scheduleMissedRuns": "If a run is missed",
+  "scheduleCatchUp": "Run once when available",
+  "scheduleSkipMissed": "Skip the missed run",
+  "scheduleTimingNotice": "Android may delay runs. Exact alarm access improves timing; a network connection is still needed. Force-stopping the app pauses schedules until you open it again.",
+  "scheduleExactAccess": "Allow exact alarms",
+  "scheduleBatteryNotice": "Battery restrictions may delay schedules. Each run has a time limit; you don't need to keep the app open.",
+  "scheduleDigest": "Morning summary",
+  "scheduleDigestDescription": "A notification each morning with counts of scheduled runs since the last summary.",
+  "scheduleEmpty": "No scheduled prompts yet",
+  "scheduleNoHistory": "No runs yet",
+  "scheduleUnsupported": "Scheduled prompts are unavailable for this connection.",
+  "scheduleSaveFailed": "Could not save this change. Try again.",
+  "scheduleNeedsYou": "Open the conversation to answer a request.",
+  "scheduleBusy": "The conversation was already working.",
+  "scheduleUnavailable": "The server could not be reached. Check that it is running and this phone can reach it.",
+  "scheduleSignInAgain": "The server needs its password again. Open the server and sign in before the next run.",
+  "scheduleAllowHttp": "This server uses plain HTTP and is not allowed yet. Open the server and allow HTTP before the next run.",
+  "scheduleAgentFailed": "The agent stopped with an error. Open the conversation to see what happened.",
+  "scheduleCertificateChanged": "The server's certificate changed. Open the server to check it before the next run.",
+  "scheduleCertificateInvalid": "The server's certificate is expired or not yet valid. Open the server to check it before the next run.",
+  "scheduleTargetChanged": "The saved connection or target changed. Edit this schedule.",
+  "scheduleInterrupted": "The run was interrupted. It was not sent again.",
+  "scheduleTimeout": "The run reached its time limit. Check the conversation.",
+  "scheduleUncertain": "Delivery could not be confirmed. Check the conversation before sending again.",
+  "scheduleMissed": "Skipped according to your missed-run choice.",
+  "scheduleInvalid": "Enter a prompt and a future time, or an interval from 1 to 168 hours.",
+  "scheduleOptions": "Timing and delivery",
+  "scheduleNotificationsOff": "Notifications are off. Results remain in run history.",
+  "scheduleDeleteBody": "Future runs and this schedule’s history will be removed. Prompts already sent stay in their conversations.",
+  "scheduleNotificationTitle": "Scheduled prompt started",
+  "scheduleNotificationBody": "Tap to open the conversation",
+  "scheduleDigestTitle": "Your scheduled runs",
+  "scheduleDigestBody": "{started} started · {failed} failed · {skipped} skipped",
+  "@scheduleDigestBody": {
+    "placeholders": {
+      "started": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "scheduleDefaultAgent": "Saved agent",
+  "scheduleProject": "Project",
+  "scheduleDeleteTitle": "Delete this schedule?",
+  "scheduleToday": "Today, {time}",
+  "@scheduleToday": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "scheduleTomorrow": "Tomorrow, {time}",
+  "@scheduleTomorrow": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "scheduleInMinutes": "in {minutes} min",
+  "@scheduleInMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "scheduleEveryNHours": "Every {hours} h",
+  "@scheduleEveryNHours": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "scheduleDeleteNamedTitle": "Delete “{name}”?",
+  "@scheduleDeleteNamedTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "openCode2MoveProgress": "Moving your conversations to OpenCode 2…",
+  "@openCode2MoveProgress": {
+    "description": "Body of the upgrade page while the automatic OpenCode 1 to 2 move runs"
+  },
+  "openCode2MoveRetrying": "The phone is still getting ready. Trying again shortly (attempt {retry} of {total}).",
+  "@openCode2MoveRetrying": {
+    "description": "Body of the upgrade page while the move waits and retries",
+    "placeholders": {
+      "retry": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "openCode2MoveFailedNotReady": "The server on this phone was not ready. Your OpenCode 1 conversations and files are still on this phone, untouched. Try again in a minute.",
+  "@openCode2MoveFailedNotReady": {
+    "description": "Upgrade failure: the phone server never answered"
+  },
+  "openCode2MoveFailedSeparateHistory": "OpenCode 2 on this phone already has its own conversations, so the move stopped to protect both. Nothing was changed.",
+  "@openCode2MoveFailedSeparateHistory": {
+    "description": "Upgrade failure: two separate histories exist"
+  },
+  "openCode2MoveFailedStopped": "The move stopped before it finished, often because the phone is low on free space or the server is busy. Your OpenCode 1 conversations and files are still on this phone, untouched.",
+  "@openCode2MoveFailedStopped": {
+    "description": "Upgrade failure: the move stopped part-way"
+  },
+  "openCode2MoveFailedNotConfirmed": "OpenCode 2 did not confirm that your conversations arrived. Your OpenCode 1 conversations and files are still on this phone, untouched.",
+  "@openCode2MoveFailedNotConfirmed": {
+    "description": "Upgrade failure: history import not confirmed"
+  },
+  "terminalLinkTitle": "Link in the terminal",
+  "@terminalLinkTitle": {
+    "description": "Title of the sheet opened by tapping a web address in the terminal."
+  },
+  "terminalLinkOpen": "Open link",
+  "@terminalLinkOpen": {
+    "description": "Button: opens the tapped terminal link in the browser."
+  },
+  "terminalLinkCopy": "Copy link",
+  "@terminalLinkCopy": {
+    "description": "Button: copies the tapped terminal link."
+  },
+  "terminalCopiedToClipboard": "Copied to clipboard",
+  "@terminalCopiedToClipboard": {
+    "description": "Brief note over the terminal when the program copied text to the clipboard."
+  },
+  "chatRequestAskOutsideWrite": "Write outside this project?",
+  "@chatRequestAskOutsideWrite": {
+    "description": "Permission card: a file write beyond the project folder"
+  },
+  "chatRequestAskOutsideRead": "Read outside this project?",
+  "@chatRequestAskOutsideRead": {
+    "description": "Permission card: a read beyond the project folder"
+  },
+  "chatRequestAskOutsideRun": "Run a command outside this project?",
+  "@chatRequestAskOutsideRun": {
+    "description": "Permission card: a command that works beyond the project folder"
+  },
+  "phoneSetupStageRetrying": "Interrupted. Trying again",
+  "@phoneSetupStageRetrying": {
+    "description": "Setup stage when an install step was interrupted and the app runs it again by itself"
+  },
+  "linuxMgrRow": "Linux",
+  "@linuxMgrRow": {
+    "description": "This phone (in-app host): the row that opens the Linux manager."
+  },
+  "linuxMgrRowDetail": "What runs, ports, storage and packages of the Ubuntu inside this app",
+  "@linuxMgrRowDetail": {
+    "description": "This phone: supporting line of the Linux row."
+  },
+  "linuxMgrTitle": "Linux on this phone",
+  "@linuxMgrTitle": {
+    "description": "Linux manager: page title."
+  },
+  "linuxMgrRunning": "Running",
+  "@linuxMgrRunning": {
+    "description": "Linux manager: row for the running programs."
+  },
+  "linuxMgrRunningDetail": "What runs inside Linux, and stopping it",
+  "@linuxMgrRunningDetail": {
+    "description": "Linux manager: supporting line of Running."
+  },
+  "linuxMgrPorts": "Ports",
+  "@linuxMgrPorts": {
+    "description": "Linux manager: row for listening ports."
+  },
+  "linuxMgrPortsDetail": "What is listening, and previewing it",
+  "@linuxMgrPortsDetail": {
+    "description": "Linux manager: supporting line of Ports."
+  },
+  "linuxMgrStorage": "Storage",
+  "@linuxMgrStorage": {
+    "description": "Linux manager: row for the space breakdown."
+  },
+  "linuxMgrStorageDetail": "Where the space goes, and clearing caches",
+  "@linuxMgrStorageDetail": {
+    "description": "Linux manager: supporting line of Storage."
+  },
+  "linuxMgrPackages": "Packages",
+  "@linuxMgrPackages": {
+    "description": "Linux manager: row for installed packages."
+  },
+  "linuxMgrPackagesDetail": "Installed software: install, remove and update",
+  "@linuxMgrPackagesDetail": {
+    "description": "Linux manager: supporting line of Packages."
+  },
+  "linuxMgrRepair": "Repair Linux",
+  "@linuxMgrRepair": {
+    "description": "Linux manager: the repair row and its confirm button."
+  },
+  "linuxMgrRepairDetail": "Checks Linux, OpenCode and your tools and fixes what is broken. Your projects are not touched.",
+  "@linuxMgrRepairDetail": {
+    "description": "Linux manager: supporting line of Repair."
+  },
+  "linuxMgrRepairTitle": "Repair Linux?",
+  "@linuxMgrRepairTitle": {
+    "description": "Linux manager: repair question title."
+  },
+  "linuxMgrRepairBody": "Checks Linux, OpenCode and the tools you added, and installs again anything that is missing or broken. It needs a connection and can take several minutes.",
+  "@linuxMgrRepairBody": {
+    "description": "Linux manager: repair question body."
+  },
+  "linuxMgrRepairKept": "Your projects and sign-ins are not touched",
+  "@linuxMgrRepairKept": {
+    "description": "Linux manager: repair question, a kept item."
+  },
+  "linuxMgrReset": "Reset Linux",
+  "@linuxMgrReset": {
+    "description": "Linux manager: the reset row and its confirm button."
+  },
+  "linuxMgrResetDetail": "Start again from a fresh Ubuntu. Your projects stay.",
+  "@linuxMgrResetDetail": {
+    "description": "Linux manager: supporting line of Reset."
+  },
+  "linuxMgrResetTitle": "Reset Linux?",
+  "@linuxMgrResetTitle": {
+    "description": "Linux manager: reset question title."
+  },
+  "linuxMgrResetBody": "Linux is erased and set up again from scratch. This cannot be undone.",
+  "@linuxMgrResetBody": {
+    "description": "Linux manager: reset question body."
+  },
+  "linuxMgrResetLostTools": "Installed packages and tools: OpenCode, Python, AI Team, voice typing",
+  "@linuxMgrResetLostTools": {
+    "description": "Linux manager: reset question, a lost item."
+  },
+  "linuxMgrResetLostSignIns": "Agent sign-ins and their settings",
+  "@linuxMgrResetLostSignIns": {
+    "description": "Linux manager: reset question, a lost item."
+  },
+  "linuxMgrResetLostChats": "Conversations kept by the server on this phone",
+  "@linuxMgrResetLostChats": {
+    "description": "Linux manager: reset question, a lost item."
+  },
+  "linuxMgrResetKept": "Your projects stay on the phone",
+  "@linuxMgrResetKept": {
+    "description": "Linux manager: reset question, a kept item."
+  },
+  "linuxMgrResetWord": "Reset",
+  "@linuxMgrResetWord": {
+    "description": "Linux manager: the word to type to confirm a reset (shown in the confirm field)."
+  },
+  "linuxMgrProblemBusy": "Another task is using Linux right now. Wait a moment and try again.",
+  "@linuxMgrProblemBusy": {
+    "description": "Linux manager: the installer slot is taken."
+  },
+  "linuxMgrProblemSetup": "Setup is running. Wait until it finishes.",
+  "@linuxMgrProblemSetup": {
+    "description": "Linux manager: phone setup is running."
+  },
+  "linuxMgrProblemJob": "A package task is running. Wait until it finishes.",
+  "@linuxMgrProblemJob": {
+    "description": "Linux manager: a package job is running."
+  },
+  "linuxMgrProblemUnavailable": "Linux is not set up or is not answering. Open This phone to set it up.",
+  "@linuxMgrProblemUnavailable": {
+    "description": "Linux manager: Linux cannot be reached."
+  },
+  "linuxMgrProblemFailed": "That did not finish. Try again.",
+  "@linuxMgrProblemFailed": {
+    "description": "Linux manager: a short act failed."
+  },
+  "linuxMgrLoadFailedTitle": "Could not read Linux",
+  "@linuxMgrLoadFailedTitle": {
+    "description": "Linux manager: a page could not load."
+  },
+  "linuxMgrProcTitle": "Running in Linux",
+  "@linuxMgrProcTitle": {
+    "description": "Linux manager: processes page title."
+  },
+  "linuxMgrProcSummary": "{count, plural, =1{1 program} other{{count} programs}} · {memory}",
+  "@linuxMgrProcSummary": {
+    "description": "Linux manager: processes header, count and total memory.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "memory": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrKindServer": "OpenCode server",
+  "@linuxMgrKindServer": {
+    "description": "Linux manager: a process kind."
+  },
+  "linuxMgrKindPaseo": "Paseo",
+  "@linuxMgrKindPaseo": {
+    "description": "Linux manager: a process kind."
+  },
+  "linuxMgrKindAgent": "Agent",
+  "@linuxMgrKindAgent": {
+    "description": "Linux manager: a process kind."
+  },
+  "linuxMgrKindDev": "Dev server",
+  "@linuxMgrKindDev": {
+    "description": "Linux manager: a process kind."
+  },
+  "linuxMgrKindOther": "Other",
+  "@linuxMgrKindOther": {
+    "description": "Linux manager: a process kind."
+  },
+  "linuxMgrAboutServer": "The OpenCode server this app talks to. Stop it from This phone, not from here.",
+  "@linuxMgrAboutServer": {
+    "description": "Linux manager: what the server process is."
+  },
+  "linuxMgrAboutPaseo": "Paseo runs coding agents on this phone. Stopping it ends the agents it started.",
+  "@linuxMgrAboutPaseo": {
+    "description": "Linux manager: what the Paseo process is."
+  },
+  "linuxMgrAboutAgent": "A coding agent or part of AI Team. Stopping it ends its work in progress.",
+  "@linuxMgrAboutAgent": {
+    "description": "Linux manager: what an agent process is."
+  },
+  "linuxMgrAboutDev": "A program that serves your project while you build it. Start it again from the project when you need it.",
+  "@linuxMgrAboutDev": {
+    "description": "Linux manager: what a dev server is."
+  },
+  "linuxMgrAboutOther": "A program running inside Linux. Stopping it ends it; nothing restarts it.",
+  "@linuxMgrAboutOther": {
+    "description": "Linux manager: what another process is."
+  },
+  "linuxMgrProtected": "Managed from This phone",
+  "@linuxMgrProtected": {
+    "description": "Linux manager: the protected server row."
+  },
+  "linuxMgrStopTitle": "Stop {name}?",
+  "@linuxMgrStopTitle": {
+    "description": "Linux manager: stop question title.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrStopBody": "It ends now and nothing restarts it. Unsaved work in it is lost.",
+  "@linuxMgrStopBody": {
+    "description": "Linux manager: stop question body."
+  },
+  "linuxMgrStopHelpers": "{count, plural, =1{1 program it started stops with it} other{{count} programs it started stop with it}}",
+  "@linuxMgrStopHelpers": {
+    "description": "Linux manager: stop question, the helpers that stop too.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linuxMgrStopLabel": "Stop {name}",
+  "@linuxMgrStopLabel": {
+    "description": "Linux manager: stop button and menu item.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrStopping": "Stopping…",
+  "@linuxMgrStopping": {
+    "description": "Linux manager: stopping state."
+  },
+  "linuxMgrStopped": "{count, plural, =1{Stopped 1 program} other{Stopped {count} programs}}",
+  "@linuxMgrStopped": {
+    "description": "Linux manager: result of a stop.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linuxMgrStopForced": "{count} had to be forced",
+  "@linuxMgrStopForced": {
+    "description": "Linux manager: part of a stop result.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linuxMgrStopRemaining": "{count} would not stop",
+  "@linuxMgrStopRemaining": {
+    "description": "Linux manager: part of a stop result.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linuxMgrStopChanged": "{count} had already changed and was left alone",
+  "@linuxMgrStopChanged": {
+    "description": "Linux manager: part of a stop result.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linuxMgrNotStoppedTitle": "Not everything stopped",
+  "@linuxMgrNotStoppedTitle": {
+    "description": "Linux manager: title of a stop result with leftovers."
+  },
+  "linuxMgrProcEmpty": "Nothing is running in Linux",
+  "@linuxMgrProcEmpty": {
+    "description": "Linux manager: empty processes list."
+  },
+  "linuxMgrProcEmptyBody": "OpenCode and your tools start when you use them.",
+  "@linuxMgrProcEmptyBody": {
+    "description": "Linux manager: empty processes list, body."
+  },
+  "linuxMgrCopyCommand": "Copy command",
+  "@linuxMgrCopyCommand": {
+    "description": "Linux manager: copy a process command."
+  },
+  "linuxMgrPortsTitle": "Ports in Linux",
+  "@linuxMgrPortsTitle": {
+    "description": "Linux manager: ports page title."
+  },
+  "linuxMgrPortRow": "Port {port}",
+  "@linuxMgrPortRow": {
+    "description": "Linux manager: a listening port.",
+    "placeholders": {
+      "port": {
+        "type": "int"
+      }
+    }
+  },
+  "linuxMgrPortUsedBy": "Used by {name}",
+  "@linuxMgrPortUsedBy": {
+    "description": "Linux manager: what uses a port.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrPortUnknown": "Program not known",
+  "@linuxMgrPortUnknown": {
+    "description": "Linux manager: a port whose program cannot be named."
+  },
+  "linuxMgrPortLocal": "Only on this phone",
+  "@linuxMgrPortLocal": {
+    "description": "Linux manager: a port reachable only here."
+  },
+  "linuxMgrPortAll": "Open to other devices on your network",
+  "@linuxMgrPortAll": {
+    "description": "Linux manager: a port reachable from the network."
+  },
+  "linuxMgrPortNotPage": "Not a web page",
+  "@linuxMgrPortNotPage": {
+    "description": "Linux manager: a port that cannot be previewed."
+  },
+  "linuxMgrPortPreview": "Open preview",
+  "@linuxMgrPortPreview": {
+    "description": "Linux manager: open the dev preview for a port."
+  },
+  "linuxMgrPortPreviewNamed": "Open preview of port {port}",
+  "@linuxMgrPortPreviewNamed": {
+    "description": "Linux manager: accessibility label of the preview action.",
+    "placeholders": {
+      "port": {
+        "type": "int"
+      }
+    }
+  },
+  "linuxMgrPortCopy": "Copy address",
+  "@linuxMgrPortCopy": {
+    "description": "Linux manager: copy the address of a port."
+  },
+  "linuxMgrPortsNote": "Only ports this phone can open are listed.",
+  "@linuxMgrPortsNote": {
+    "description": "Linux manager: ports page note."
+  },
+  "linuxMgrPortsEmpty": "Nothing is listening",
+  "@linuxMgrPortsEmpty": {
+    "description": "Linux manager: no ports."
+  },
+  "linuxMgrPortsEmptyBody": "When a dev server starts, its port shows up here.",
+  "@linuxMgrPortsEmptyBody": {
+    "description": "Linux manager: no ports, body."
+  },
+  "linuxMgrStorageTitle": "Linux storage",
+  "@linuxMgrStorageTitle": {
+    "description": "Linux manager: storage page title."
+  },
+  "linuxMgrStorageTotal": "{size} used inside Linux",
+  "@linuxMgrStorageTotal": {
+    "description": "Linux manager: total measured size.",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrCatBase": "Linux itself",
+  "@linuxMgrCatBase": {
+    "description": "Linux manager: storage category."
+  },
+  "linuxMgrCatBaseDetail": "Ubuntu and its system files",
+  "@linuxMgrCatBaseDetail": {
+    "description": "Linux manager: storage category detail."
+  },
+  "linuxMgrCatPackages": "Package downloads",
+  "@linuxMgrCatPackages": {
+    "description": "Linux manager: storage category."
+  },
+  "linuxMgrCatPackagesDetail": "Downloaded packages and package lists",
+  "@linuxMgrCatPackagesDetail": {
+    "description": "Linux manager: storage category detail."
+  },
+  "linuxMgrCatTools": "Node and caches",
+  "@linuxMgrCatTools": {
+    "description": "Linux manager: storage category."
+  },
+  "linuxMgrCatToolsDetail": "Node, npm and setup downloads",
+  "@linuxMgrCatToolsDetail": {
+    "description": "Linux manager: storage category detail."
+  },
+  "linuxMgrCatAgents": "Agents and OpenCode",
+  "@linuxMgrCatAgents": {
+    "description": "Linux manager: storage category."
+  },
+  "linuxMgrCatAgentsDetail": "OpenCode, Paseo, Claude Code, AI Team and their saved settings",
+  "@linuxMgrCatAgentsDetail": {
+    "description": "Linux manager: storage category detail."
+  },
+  "linuxMgrCatProjects": "Projects",
+  "@linuxMgrCatProjects": {
+    "description": "Linux manager: storage category."
+  },
+  "linuxMgrCatProjectsDetail": "Your work. Never cleared from here.",
+  "@linuxMgrCatProjectsDetail": {
+    "description": "Linux manager: storage category detail."
+  },
+  "linuxMgrCatTemp": "Temporary files and logs",
+  "@linuxMgrCatTemp": {
+    "description": "Linux manager: storage category."
+  },
+  "linuxMgrCatTempDetail": "Scratch files and program logs",
+  "@linuxMgrCatTempDetail": {
+    "description": "Linux manager: storage category detail."
+  },
+  "linuxMgrFreeUp": "Free up space",
+  "@linuxMgrFreeUp": {
+    "description": "Linux manager: section of cleanups."
+  },
+  "linuxMgrCleanApt": "Clear package downloads",
+  "@linuxMgrCleanApt": {
+    "description": "Linux manager: a cleanup."
+  },
+  "linuxMgrCleanAptDetail": "Linux downloads them again if it needs them",
+  "@linuxMgrCleanAptDetail": {
+    "description": "Linux manager: cleanup detail."
+  },
+  "linuxMgrCleanTools": "Clear Node and download caches",
+  "@linuxMgrCleanTools": {
+    "description": "Linux manager: a cleanup."
+  },
+  "linuxMgrCleanToolsDetail": "npm and setup downloads, fetched again when needed",
+  "@linuxMgrCleanToolsDetail": {
+    "description": "Linux manager: cleanup detail."
+  },
+  "linuxMgrCleanTemp": "Clear old temporary files and logs",
+  "@linuxMgrCleanTemp": {
+    "description": "Linux manager: a cleanup."
+  },
+  "linuxMgrCleanTempDetail": "Files untouched for a day and logs older than a week",
+  "@linuxMgrCleanTempDetail": {
+    "description": "Linux manager: cleanup detail."
+  },
+  "linuxMgrCleanAgents": "Remove old agent versions",
+  "@linuxMgrCleanAgents": {
+    "description": "Linux manager: a cleanup."
+  },
+  "linuxMgrCleanAgentsDetail": "Paseo versions that are no longer in use",
+  "@linuxMgrCleanAgentsDetail": {
+    "description": "Linux manager: cleanup detail."
+  },
+  "linuxMgrCleanBody": "About {size} comes back. This cannot be undone, and nothing you made is touched.",
+  "@linuxMgrCleanBody": {
+    "description": "Linux manager: cleanup question body.",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrCleanKept": "Projects, sign-ins and settings stay",
+  "@linuxMgrCleanKept": {
+    "description": "Linux manager: cleanup question, a kept item."
+  },
+  "linuxMgrCleanDone": "Freed {size}",
+  "@linuxMgrCleanDone": {
+    "description": "Linux manager: result of a cleanup.",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrCleanNothing": "There was nothing to clear",
+  "@linuxMgrCleanNothing": {
+    "description": "Linux manager: result of a cleanup that freed nothing."
+  },
+  "linuxMgrCleanNone": "Nothing to clear right now",
+  "@linuxMgrCleanNone": {
+    "description": "Linux manager: no cleanup has anything to give back."
+  },
+  "linuxMgrMeasuring": "Measuring…",
+  "@linuxMgrMeasuring": {
+    "description": "Linux manager: loading label for storage."
+  },
+  "linuxMgrPkgTitle": "Packages",
+  "@linuxMgrPkgTitle": {
+    "description": "Linux manager: packages page title."
+  },
+  "linuxMgrPkgCount": "{count, plural, =1{1 package installed} other{{count} packages installed}}",
+  "@linuxMgrPkgCount": {
+    "description": "Linux manager: installed package count.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linuxMgrPkgSearch": "Search installed packages",
+  "@linuxMgrPkgSearch": {
+    "description": "Linux manager: search field label."
+  },
+  "linuxMgrPkgNoMatch": "No installed package matches that",
+  "@linuxMgrPkgNoMatch": {
+    "description": "Linux manager: search with no result."
+  },
+  "linuxMgrPkgShowAll": "Show all {count} packages",
+  "@linuxMgrPkgShowAll": {
+    "description": "Linux manager: expand the list.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "linuxMgrPkgUpdate": "Update system",
+  "@linuxMgrPkgUpdate": {
+    "description": "Linux manager: update row and confirm button."
+  },
+  "linuxMgrPkgUpdateDetail": "Refreshes the package lists and installs available updates",
+  "@linuxMgrPkgUpdateDetail": {
+    "description": "Linux manager: update row detail."
+  },
+  "linuxMgrPkgUpdateTitle": "Update Linux packages?",
+  "@linuxMgrPkgUpdateTitle": {
+    "description": "Linux manager: update question title."
+  },
+  "linuxMgrPkgUpdateBody": "Downloads the latest updates and installs them. It uses your connection, can take several minutes, and stops by itself after 45 minutes.",
+  "@linuxMgrPkgUpdateBody": {
+    "description": "Linux manager: update question body."
+  },
+  "linuxMgrPkgInstall": "Install a package",
+  "@linuxMgrPkgInstall": {
+    "description": "Linux manager: install row and sheet title."
+  },
+  "linuxMgrPkgInstallDetail": "By name, for example htop",
+  "@linuxMgrPkgInstallDetail": {
+    "description": "Linux manager: install row detail."
+  },
+  "linuxMgrPkgName": "Package name",
+  "@linuxMgrPkgName": {
+    "description": "Linux manager: install field label."
+  },
+  "linuxMgrPkgNameHelper": "Ubuntu package names, separated by spaces",
+  "@linuxMgrPkgNameHelper": {
+    "description": "Linux manager: install field helper."
+  },
+  "linuxMgrPkgNameInvalid": "Use only lower case letters, digits and + - . in each name",
+  "@linuxMgrPkgNameInvalid": {
+    "description": "Linux manager: install field error."
+  },
+  "linuxMgrPkgCheck": "Check",
+  "@linuxMgrPkgCheck": {
+    "description": "Linux manager: install sheet, check the names."
+  },
+  "linuxMgrPkgAlready": "{name} is already installed",
+  "@linuxMgrPkgAlready": {
+    "description": "Linux manager: install check result.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrPkgUnknown": "No package named {name}. Update system refreshes the list of packages.",
+  "@linuxMgrPkgUnknown": {
+    "description": "Linux manager: install check result.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrPkgInstallTitle": "Install {names}?",
+  "@linuxMgrPkgInstallTitle": {
+    "description": "Linux manager: install question title.",
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrPkgInstallBody": "Downloads from Ubuntu and installs. It uses your connection.",
+  "@linuxMgrPkgInstallBody": {
+    "description": "Linux manager: install question body."
+  },
+  "linuxMgrPkgInstallLabel": "Install {names}",
+  "@linuxMgrPkgInstallLabel": {
+    "description": "Linux manager: install button.",
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrPkgRemove": "Remove {name}",
+  "@linuxMgrPkgRemove": {
+    "description": "Linux manager: remove menu item and button.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrPkgRemoveTitle": "Remove {name}?",
+  "@linuxMgrPkgRemoveTitle": {
+    "description": "Linux manager: remove question title.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrPkgRemoveBody": "It is removed from Linux. Your projects are not touched.",
+  "@linuxMgrPkgRemoveBody": {
+    "description": "Linux manager: remove question body."
+  },
+  "linuxMgrPkgAlsoRemoved": "Also removed: {list}",
+  "@linuxMgrPkgAlsoRemoved": {
+    "description": "Linux manager: remove question, a lost item.",
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrPkgLocked": "Linux or your tools need it. Tools are removed from This phone.",
+  "@linuxMgrPkgLocked": {
+    "description": "Linux manager: a package that cannot be removed."
+  },
+  "linuxMgrPkgBlockedPlan": "Removing it would also remove {list}, which Linux needs.",
+  "@linuxMgrPkgBlockedPlan": {
+    "description": "Linux manager: removal refused.",
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrPkgChecking": "Checking what it would remove…",
+  "@linuxMgrPkgChecking": {
+    "description": "Linux manager: working label while planning a removal."
+  },
+  "linuxMgrJobInstalling": "Installing {names}",
+  "@linuxMgrJobInstalling": {
+    "description": "Linux manager: running job title.",
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrJobRemoving": "Removing {names}",
+  "@linuxMgrJobRemoving": {
+    "description": "Linux manager: running job title.",
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrJobUpdating": "Updating Linux packages",
+  "@linuxMgrJobUpdating": {
+    "description": "Linux manager: running job title."
+  },
+  "linuxMgrJobKeepsGoing": "It keeps going if you leave this page.",
+  "@linuxMgrJobKeepsGoing": {
+    "description": "Linux manager: running job note."
+  },
+  "linuxMgrJobStopInstall": "Stop installing {names}",
+  "@linuxMgrJobStopInstall": {
+    "description": "Linux manager: stop the install job.",
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrJobStopRemove": "Stop removing {names}",
+  "@linuxMgrJobStopRemove": {
+    "description": "Linux manager: stop the remove job.",
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrJobStopUpdate": "Stop updating",
+  "@linuxMgrJobStopUpdate": {
+    "description": "Linux manager: stop the update job."
+  },
+  "linuxMgrJobStopBody": "It stops now. A half-finished package is repaired the next time you run a package task.",
+  "@linuxMgrJobStopBody": {
+    "description": "Linux manager: stop job question body."
+  },
+  "linuxMgrJobDoneInstall": "Installed {names}",
+  "@linuxMgrJobDoneInstall": {
+    "description": "Linux manager: job result.",
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrJobDoneRemove": "Removed {names}",
+  "@linuxMgrJobDoneRemove": {
+    "description": "Linux manager: job result.",
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrJobDoneUpdate": "Linux packages are up to date",
+  "@linuxMgrJobDoneUpdate": {
+    "description": "Linux manager: job result."
+  },
+  "linuxMgrJobFailed": "That did not finish. Nothing you made was touched. Try again; it carries on where it stopped.",
+  "@linuxMgrJobFailed": {
+    "description": "Linux manager: job failed."
+  },
+  "linuxMgrJobTimedOut": "It took longer than 45 minutes and stopped itself. Run it again to continue.",
+  "@linuxMgrJobTimedOut": {
+    "description": "Linux manager: job hit its time budget."
+  },
+  "linuxMgrJobInterrupted": "It stopped before it finished, for example when the app was closed. Run it again to continue.",
+  "@linuxMgrJobInterrupted": {
+    "description": "Linux manager: job was interrupted."
+  },
+  "linuxMgrJobNoticeInstall": "Installing Linux packages",
+  "@linuxMgrJobNoticeInstall": {
+    "description": "Notification text while an install job runs."
+  },
+  "linuxMgrJobNoticeRemove": "Removing Linux packages",
+  "@linuxMgrJobNoticeRemove": {
+    "description": "Notification text while a remove job runs."
+  },
+  "linuxMgrJobNoticeUpdate": "Updating Linux packages",
+  "@linuxMgrJobNoticeUpdate": {
+    "description": "Notification text while an update job runs."
+  },
+  "linuxMgrJobDismiss": "Done",
+  "@linuxMgrJobDismiss": {
+    "description": "Linux manager: dismiss a finished job notice."
+  },
+  "linuxMgrJobStopInstallTitle": "Stop installing {names}?",
+  "@linuxMgrJobStopInstallTitle": {
+    "description": "Linux manager: stop the install job, question title.",
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrJobStopRemoveTitle": "Stop removing {names}?",
+  "@linuxMgrJobStopRemoveTitle": {
+    "description": "Linux manager: stop the remove job, question title.",
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrJobStopUpdateTitle": "Stop updating Linux packages?",
+  "@linuxMgrJobStopUpdateTitle": {
+    "description": "Linux manager: stop the update job, question title."
+  },
+  "linuxMgrCleanAptAsk": "Clear package downloads?",
+  "@linuxMgrCleanAptAsk": {
+    "description": "Linux manager: cleanup question title."
+  },
+  "linuxMgrCleanToolsAsk": "Clear Node and download caches?",
+  "@linuxMgrCleanToolsAsk": {
+    "description": "Linux manager: cleanup question title."
+  },
+  "linuxMgrCleanTempAsk": "Clear old temporary files and logs?",
+  "@linuxMgrCleanTempAsk": {
+    "description": "Linux manager: cleanup question title."
+  },
+  "linuxMgrCleanAgentsAsk": "Remove old agent versions?",
+  "@linuxMgrCleanAgentsAsk": {
+    "description": "Linux manager: cleanup question title."
+  },
+  "kitLogSearch": "Search this output",
+  "@kitLogSearch": {
+    "description": "Log panel: the search field's label"
+  },
+  "kitLogPause": "Pause following",
+  "@kitLogPause": {
+    "description": "Log panel: stop scrolling to new lines"
+  },
+  "kitLogFollow": "Follow new output",
+  "@kitLogFollow": {
+    "description": "Log panel: scroll to new lines again"
+  },
+  "kitLogPreviousMatch": "Previous match",
+  "@kitLogPreviousMatch": {
+    "description": "Log panel search: go to the earlier match"
+  },
+  "kitLogNextMatch": "Next match",
+  "@kitLogNextMatch": {
+    "description": "Log panel search: go to the later match"
+  },
+  "servicesAlsoRunning": "Also running",
+  "@servicesAlsoRunning": {
+    "description": "Development services: heading for servers found running that are not saved commands"
+  },
+  "servicesAlsoPhoneHint": "Found by the ports they listen on, however they were started.",
+  "@servicesAlsoPhoneHint": {
+    "description": "Development services: how running servers outside the saved list are found"
+  },
+  "servicesAlsoServerHint": "This server lists the commands it is running. A server started in a terminal on it is not found here.",
+  "@servicesAlsoServerHint": {
+    "description": "Development services: what a remote server can show"
+  },
+  "servicesPorts": "{count, plural, =1{Port {ports}} other{Ports {ports}}}",
+  "@servicesPorts": {
+    "description": "Development services: the port or ports a server listens on; ports is the numbers as text",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "ports": {
+        "type": "String"
+      }
+    }
+  },
+  "servicesNoPortYet": "No port found yet",
+  "@servicesNoPortYet": {
+    "description": "Development services: a running command with no listening port seen"
+  },
+  "servicesOpenPreview": "Open preview",
+  "@servicesOpenPreview": {
+    "description": "Development services: open the dev preview for a server"
+  },
+  "servicesOpenPreviewNamed": "Preview {name}",
+  "@servicesOpenPreviewNamed": {
+    "description": "Development services: the preview button of the named server",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "servicesPreviewPort": "Preview port {port}",
+  "@servicesPreviewPort": {
+    "description": "Development services menu: preview one of several ports",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      }
+    }
+  },
+  "servicesSaveCommand": "Save as command",
+  "@servicesSaveCommand": {
+    "description": "Development services: keep a running server's command as a saved command"
+  },
+  "servicesStopFoundTitle": "Stop {name}?",
+  "@servicesStopFoundTitle": {
+    "description": "Development services: confirm stopping a found server",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "servicesStopFoundHint": "This ends the program on the machine it runs on. Anything it has not saved is lost.",
+  "@servicesStopFoundHint": {
+    "description": "Development services: what stopping a found server does"
+  },
+  "servicesLogsUnavailable": "This program was not started from this app, so its output is not kept where the app can read it. Choose Save as command on its row, stop this one, then start the saved command here to see its logs.",
+  "@servicesLogsUnavailable": {
+    "description": "Development services: why a found program has no logs"
+  },
+  "servicesStopFailed": "It did not stop. Try again, or stop it from the Terminal.",
+  "@servicesStopFailed": {
+    "description": "Development services: stopping a found server failed"
+  },
+  "devPreviewRunningNow": "Running now: {name}",
+  "@devPreviewRunningNow": {
+    "description": "Preview list: a server found running; name is its short name",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "devPreviewNoneFound": "No running apps found",
+  "@devPreviewNoneFound": {
+    "description": "Preview list: nothing mentioned and nothing listening"
+  },
+  "linuxMgrResetNotErasedTitle": "Linux was not reset",
+  "@linuxMgrResetNotErasedTitle": {
+    "description": "Linux manager: alert title when the phone refused a reset before erasing anything."
+  },
+  "linuxMgrResetNotErasedBody": "Nothing was erased. Close the terminals and stop what runs in Linux, then try again.",
+  "@linuxMgrResetNotErasedBody": {
+    "description": "Linux manager: alert body when a reset was refused before erasing; says nothing changed and what to do."
+  },
+  "linuxMgrResetDetailsLabel": "Error code",
+  "@linuxMgrResetDetailsLabel": {
+    "description": "Linux manager: label of the technical value under Details of a refused reset."
+  },
+  "linuxMgrResetCleanupTitle": "Setting Linux up again",
+  "@linuxMgrResetCleanupTitle": {
+    "description": "Linux manager: alert title after a reset erased Linux and setup started, when some saved data of the old server could not be cleared."
+  },
+  "linuxMgrResetForgetFailed": "“{name}” from before the reset could not be forgotten and is still saved.",
+  "@linuxMgrResetForgetFailed": {
+    "description": "After Linux was erased: one saved in-app server the app could not forget at all; name is the server's name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrResetLeft": "From before the reset, “{name}” still has saved: {what}.",
+  "@linuxMgrResetLeft": {
+    "description": "After Linux was erased: what of one saved in-app server could not be deleted; what lists the leftovers.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "what": {
+        "type": "String"
+      }
+    }
+  },
+  "linuxMgrResetLeftConnection": "its saved connection",
+  "@linuxMgrResetLeftConnection": {
+    "description": "Part of the list of what a reset could not forget: the saved server entry itself."
+  },
+  "servicesAlsoPhoneFailed": "Could not check what else runs in Linux right now. It is checked again in a few seconds.",
+  "@servicesAlsoPhoneFailed": {
+    "description": "Development services: the look for running servers in the in-app Linux did not finish; it retries on its own"
+  },
+  "linuxMgrProcGroupCount": "{count} processes",
+  "@linuxMgrProcGroupCount": {
+    "description": "Linux manager: one program row stands for several helper processes.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "gitRepairFailureWords": "Git history can't be read.",
+  "@gitRepairFailureWords": {
+    "description": "New conversation: failure words when the project's Git can't be read and the app can repair it (Repair follows)"
+  },
+  "gitRepairAction": "Repair",
+  "@gitRepairAction": {
+    "description": "New conversation: the action on a Git failure that repairs the project's Git history, in Retry's place"
+  },
+  "gitRepairTitle": "Repair Git history",
+  "@gitRepairTitle": {
+    "description": "Title of the sheet that repairs a project's Git history"
+  },
+  "gitRepairWorking": "Repairing {project}…",
+  "@gitRepairWorking": {
+    "description": "Repair sheet: title while the repair runs",
+    "placeholders": {
+      "project": {
+        "type": "String"
+      }
+    }
+  },
+  "gitRepairLooking": "Looking for missing Git files…",
+  "@gitRepairLooking": {
+    "description": "Repair sheet: first step"
+  },
+  "gitRepairRestoring": "Putting back {done} of {total} Git files…",
+  "@gitRepairRestoring": {
+    "description": "Repair sheet: replacing broken links with the files found on the phone",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "gitRepairAskingTermux": "Copying {done} of {total} Git files from Termux…",
+  "@gitRepairAskingTermux": {
+    "description": "Repair sheet: Termux copies the missing files back",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "gitRepairChecking": "Checking the project with Git…",
+  "@gitRepairChecking": {
+    "description": "Repair sheet: last step, Git checks the project"
+  },
+  "gitRepairDoneTitle": "{project} is repaired",
+  "@gitRepairDoneTitle": {
+    "description": "Repair sheet: success title",
+    "placeholders": {
+      "project": {
+        "type": "String"
+      }
+    }
+  },
+  "gitRepairDoneBody": "{count, plural, =1{1 Git file is back, and Git can read the project again.} other{{count} Git files are back, and Git can read the project again.}}",
+  "@gitRepairDoneBody": {
+    "description": "Repair sheet: success body",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "gitRepairHealthyTitle": "Nothing was missing",
+  "@gitRepairHealthyTitle": {
+    "description": "Repair sheet: no broken links were found and Git reads the project"
+  },
+  "gitRepairHealthyBody": "Git can read {project} now.",
+  "@gitRepairHealthyBody": {
+    "description": "Repair sheet: body when nothing needed repair",
+    "placeholders": {
+      "project": {
+        "type": "String"
+      }
+    }
+  },
+  "gitRepairStart": "Start the conversation",
+  "@gitRepairStart": {
+    "description": "Repair sheet: after success, closes and sends the first message again"
+  },
+  "gitRepairTermuxNotAllowedTitle": "Files are in Termux",
+  "@gitRepairTermuxNotAllowedTitle": {
+    "description": "Repair sheet: the files are in Termux and the app may not run commands there yet"
+  },
+  "gitRepairTermuxNotAllowedBody": "Allow the app to run commands in Termux, and it copies them back.",
+  "@gitRepairTermuxNotAllowedBody": {
+    "description": "Repair sheet: what Allow does"
+  },
+  "gitRepairAllow": "Allow and repair",
+  "@gitRepairAllow": {
+    "description": "Repair sheet: asks for Termux's Run commands permission, then repairs"
+  },
+  "gitRepairTermuxNoAnswerTitle": "Termux didn't answer",
+  "@gitRepairTermuxNoAnswerTitle": {
+    "description": "Repair sheet: Termux did not run the copy"
+  },
+  "gitRepairTermuxNoAnswerBody": "Open Termux once so it starts, come back here, and repair again.",
+  "@gitRepairTermuxNoAnswerBody": {
+    "description": "Repair sheet: way forward when Termux did not answer"
+  },
+  "gitRepairAgain": "Repair again",
+  "@gitRepairAgain": {
+    "description": "Repair sheet: runs the repair again"
+  },
+  "gitRepairOpenTermux": "Open Termux",
+  "@gitRepairOpenTermux": {
+    "description": "Repair sheet: opens the Termux app"
+  },
+  "gitRepairCannotTitle": "Can't repair {project}",
+  "@gitRepairCannotTitle": {
+    "description": "Repair sheet: some files are gone for good",
+    "placeholders": {
+      "project": {
+        "type": "String"
+      }
+    }
+  },
+  "gitRepairMissingBody": "{count, plural, =1{1 Git file isn't on this phone any more. Clone the project again from where it's hosted, or restore a copy.} other{{count} Git files aren't on this phone any more. Clone the project again from where it's hosted, or restore a copy.}}",
+  "@gitRepairMissingBody": {
+    "description": "Repair sheet: files that can't be found anywhere, and the way forward",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "gitRepairStillBrokenBody": "Git still can't read it. Clone the project again from where it's hosted, or restore a copy.",
+  "@gitRepairStillBrokenBody": {
+    "description": "Repair sheet: nothing was missing but Git still refuses the project"
+  },
+  "gitRepairNotRepositoryTitle": "Can't repair this folder",
+  "@gitRepairNotRepositoryTitle": {
+    "description": "Repair sheet: the folder is not a Git project in the in-app Linux"
+  },
+  "gitRepairNotRepositoryBody": "Only Git projects in the in-app Linux's projects folder can be repaired here.",
+  "@gitRepairNotRepositoryBody": {
+    "description": "Repair sheet: why the folder can't be repaired"
+  },
+  "gitRepairClose": "Close",
+  "@gitRepairClose": {
+    "description": "Repair sheet: closes the sheet"
+  },
+  "gitProblemNotARepository": "This folder isn’t a Git repository.",
+  "@gitProblemNotARepository": {
+    "description": "Git page error: the folder is not a Git repository"
+  },
+  "gitProblemGitMissing": "Git isn’t installed where this project lives. Install it there, then try again.",
+  "@gitProblemGitMissing": {
+    "description": "Git page error: git is not installed in the project's environment"
+  },
+  "gitProblemFolderMissing": "The project folder wasn’t found. It may have been moved or deleted.",
+  "@gitProblemFolderMissing": {
+    "description": "Git page error: the project folder does not exist"
+  },
+  "gitProblemEnvironmentUnavailable": "Couldn’t reach the place this project lives. Check that it’s running, then try again.",
+  "@gitProblemEnvironmentUnavailable": {
+    "description": "Git page error: the command bridge (in-app Linux, Termux or server) is not ready"
+  },
+  "gitProblemServerCannotRunCommands": "This server can’t run Git commands for the app.",
+  "@gitProblemServerCannotRunCommands": {
+    "description": "Git page error: the server has no command endpoint"
+  },
+  "gitProblemOutputTooLarge": "There are too many changes to read here. Commit or clean up some files, then try again.",
+  "@gitProblemOutputTooLarge": {
+    "description": "Git page error: git's answer was cut off because it was too long"
+  },
+  "gitProblemTimedOut": "Git took too long to answer. Try again.",
+  "@gitProblemTimedOut": {
+    "description": "Git page error: the command timed out"
+  },
+  "gitProblemUnsafeRepository": "Git won’t work in this folder because another user owns it. Fix the folder’s owner on that device.",
+  "@gitProblemUnsafeRepository": {
+    "description": "Git page error: git refuses the folder (dubious ownership)"
+  },
+  "gitProblemRepositoryLocked": "Another Git command is using this repository. Wait for it to finish, then try again.",
+  "@gitProblemRepositoryLocked": {
+    "description": "Git page error: index.lock is held by another git process"
+  },
+  "gitProblemNoUpstream": "This branch isn’t linked to a branch on the remote yet. Push it first.",
+  "@gitProblemNoUpstream": {
+    "description": "Git page error: pull on a branch with no upstream"
+  },
+  "gitProblemNoRemote": "This repository has no remote to push to. Add one on that device first.",
+  "@gitProblemNoRemote": {
+    "description": "Git page error: push with no remote configured"
+  },
+  "gitProblemDetachedHead": "You’re not on a branch. Switch to a branch first.",
+  "@gitProblemDetachedHead": {
+    "description": "Git page error: HEAD is detached"
+  },
+  "gitProblemCannotFastForward": "The remote and this branch both have new commits, so they can’t be combined automatically. Merge or rebase on that device.",
+  "@gitProblemCannotFastForward": {
+    "description": "Git page error: pull --ff-only failed because history diverged"
+  },
+  "gitProblemPushRejected": "The remote has commits this branch doesn’t have. Pull first, then push again.",
+  "@gitProblemPushRejected": {
+    "description": "Git page error: push rejected as non-fast-forward"
+  },
+  "gitProblemLocalChangesBlock": "Your uncommitted changes would be overwritten. Commit or discard them first.",
+  "@gitProblemLocalChangesBlock": {
+    "description": "Git page error: local changes block pull or branch switch"
+  },
+  "gitProblemAuthRequired": "The remote needs you to sign in. Set up Git sign-in where this project lives, then try again.",
+  "@gitProblemAuthRequired": {
+    "description": "Git page error: authentication needed and the app cannot hand over a GitHub sign-in here (Termux or a server)"
+  },
+  "gitProblemAuthRequiredSignIn": "The remote needs you to sign in. Sign in to GitHub, then try again.",
+  "@gitProblemAuthRequiredSignIn": {
+    "description": "Git page error: authentication needed where the app offers GitHub sign-in"
+  },
+  "gitProblemGitHubTokenRejected": "GitHub didn’t accept your sign-in. Sign in to GitHub again.",
+  "@gitProblemGitHubTokenRejected": {
+    "description": "Git page error: GitHub rejected the token the app handed over"
+  },
+  "gitProblemNoPermission": "Your account can’t push to this repository. Ask its owner for access.",
+  "@gitProblemNoPermission": {
+    "description": "Git page error: 403 / permission denied"
+  },
+  "gitProblemNetwork": "Couldn’t reach the remote. Check the internet connection, then try again.",
+  "@gitProblemNetwork": {
+    "description": "Git page error: network failure talking to the remote"
+  },
+  "gitProblemRemoteNotFound": "The remote repository wasn’t found, or your account can’t see it.",
+  "@gitProblemRemoteNotFound": {
+    "description": "Git page error: remote repository not found"
+  },
+  "gitProblemNothingSelected": "Choose at least one file to commit.",
+  "@gitProblemNothingSelected": {
+    "description": "Git page error: commit with no files selected"
+  },
+  "gitProblemEmptyMessage": "Write a message that describes the commit.",
+  "@gitProblemEmptyMessage": {
+    "description": "Git page error: commit with an empty message"
+  },
+  "gitProblemNothingToCommit": "There’s nothing to commit in the files you chose.",
+  "@gitProblemNothingToCommit": {
+    "description": "Git page error: nothing to commit"
+  },
+  "gitProblemIdentityMissing": "Git needs your name and email to make a commit. Add them, then try again.",
+  "@gitProblemIdentityMissing": {
+    "description": "Git page error: user.name/user.email not set"
+  },
+  "gitProblemSigningFailed": "Git couldn’t sign the commit. Check commit signing on that device.",
+  "@gitProblemSigningFailed": {
+    "description": "Git page error: GPG/SSH commit signing failed"
+  },
+  "gitProblemHookRejected": "A check in this repository stopped the action. Details shows what it said.",
+  "@gitProblemHookRejected": {
+    "description": "Git page error: a git hook refused the commit or push"
+  },
+  "gitProblemInvalidBranchName": "That isn’t a valid branch name. Avoid spaces and characters like ~ ^ : ? * [",
+  "@gitProblemInvalidBranchName": {
+    "description": "Git page error: invalid branch name"
+  },
+  "gitProblemBranchExists": "A branch with that name already exists.",
+  "@gitProblemBranchExists": {
+    "description": "Git page error: branch already exists"
+  },
+  "gitProblemBranchNotFound": "That branch wasn’t found.",
+  "@gitProblemBranchNotFound": {
+    "description": "Git page error: branch not found"
+  },
+  "gitProblemConflicts": "Some files have conflicts. Resolve them on that device first.",
+  "@gitProblemConflicts": {
+    "description": "Git page error: unmerged files block the action"
+  },
+  "gitProblemOperationInProgress": "A merge or rebase isn’t finished. Finish or cancel it on that device first.",
+  "@gitProblemOperationInProgress": {
+    "description": "Git page error: a merge/rebase/cherry-pick is half-done"
+  },
+  "gitProblemCannotDiscardConflict": "Files with conflicts can’t be discarded here.",
+  "@gitProblemCannotDiscardConflict": {
+    "description": "Git page error: discard refused for an unmerged file"
+  },
+  "gitProblemUnknown": "Git couldn’t finish. Details shows what it said.",
+  "@gitProblemUnknown": {
+    "description": "Git page error: unrecognised git failure"
+  },
+  "gitUnavailableNotConnected": "Connect to a server to see its Git changes.",
+  "@gitUnavailableNotConnected": {
+    "description": "Git page: no connection"
+  },
+  "gitUnavailableNoProject": "Open a project to see its Git changes.",
+  "@gitUnavailableNoProject": {
+    "description": "Git page: no project folder open"
+  },
+  "gitUnavailableServerCannotRun": "This server can’t run Git for the app. Use Git on that computer instead.",
+  "@gitUnavailableServerCannotRun": {
+    "description": "Git page: the server cannot run commands (OpenCode 1, Codex, Paseo)"
+  },
+  "gitNotRepositoryTitle": "Not a Git repository",
+  "@gitNotRepositoryTitle": {
+    "description": "Git page empty state title: folder is not a repository"
+  },
+  "gitNotRepositoryBody": "This project folder doesn’t use Git yet.",
+  "@gitNotRepositoryBody": {
+    "description": "Git page empty state body: folder is not a repository"
+  },
+  "gitCleanTitle": "No changes",
+  "@gitCleanTitle": {
+    "description": "Git page: working tree is clean (title)"
+  },
+  "gitCleanBody": "Everything is committed.",
+  "@gitCleanBody": {
+    "description": "Git page: working tree is clean (body)"
+  },
+  "gitDetachedHead": "Not on a branch",
+  "@gitDetachedHead": {
+    "description": "Git page branch line: HEAD is detached"
+  },
+  "gitNotPushedYet": "Not pushed yet",
+  "@gitNotPushedYet": {
+    "description": "Git page branch line: branch has no upstream"
+  },
+  "gitNoCommitsYet": "No commits yet",
+  "@gitNoCommitsYet": {
+    "description": "Git page: the branch has no commits"
+  },
+  "gitAhead": "{count, plural, =1{1 commit to push} other{{count} commits to push}}",
+  "@gitAhead": {
+    "description": "Git page branch line: commits ahead of upstream",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "gitBehind": "{count, plural, =1{1 commit to pull} other{{count} commits to pull}}",
+  "@gitBehind": {
+    "description": "Git page branch line: commits behind upstream",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "gitOperationMerge": "Merge not finished",
+  "@gitOperationMerge": {
+    "description": "Git page banner: a merge is half-done"
+  },
+  "gitOperationRebase": "Rebase not finished",
+  "@gitOperationRebase": {
+    "description": "Git page banner: a rebase is half-done"
+  },
+  "gitOperationCherryPick": "Cherry-pick not finished",
+  "@gitOperationCherryPick": {
+    "description": "Git page banner: a cherry-pick is half-done"
+  },
+  "gitOperationRevert": "Revert not finished",
+  "@gitOperationRevert": {
+    "description": "Git page banner: a revert is half-done"
+  },
+  "gitUsesOwnSignIn": "Push and pull use the Git sign-in already set up where this project lives.",
+  "@gitUsesOwnSignIn": {
+    "description": "Git page note on Termux and servers: the app does not send its GitHub sign-in"
+  },
+  "gitChangeAdded": "Added",
+  "@gitChangeAdded": {
+    "description": "Git file kind"
+  },
+  "gitChangeModified": "Modified",
+  "@gitChangeModified": {
+    "description": "Git file kind"
+  },
+  "gitChangeDeleted": "Deleted",
+  "@gitChangeDeleted": {
+    "description": "Git file kind"
+  },
+  "gitChangeRenamed": "Renamed",
+  "@gitChangeRenamed": {
+    "description": "Git file kind"
+  },
+  "gitChangeCopied": "Copied",
+  "@gitChangeCopied": {
+    "description": "Git file kind"
+  },
+  "gitChangeTypeChanged": "Type changed",
+  "@gitChangeTypeChanged": {
+    "description": "Git file kind"
+  },
+  "gitChangeUntracked": "New",
+  "@gitChangeUntracked": {
+    "description": "Git file kind: untracked file"
+  },
+  "gitChangeConflicted": "Conflict",
+  "@gitChangeConflicted": {
+    "description": "Git file kind: unmerged file"
+  },
+  "gitActionPull": "Pull",
+  "@gitActionPull": {
+    "description": "Git page button: git pull --ff-only"
+  },
+  "gitActionPush": "Push",
+  "@gitActionPush": {
+    "description": "Git page button: git push"
+  },
+  "gitActionCommit": "Commit",
+  "@gitActionCommit": {
+    "description": "Git page button: commit the selected files"
+  },
+  "gitActionSwitchBranch": "Switch branch",
+  "@gitActionSwitchBranch": {
+    "description": "Git page button: switch to another branch"
+  },
+  "gitActionCreateBranch": "New branch",
+  "@gitActionCreateBranch": {
+    "description": "Git page button: create a branch and switch to it"
+  },
+  "gitActionDiscard": "Discard changes",
+  "@gitActionDiscard": {
+    "description": "Git page button: discard one file's changes"
+  },
+  "gitActionRefresh": "Refresh",
+  "@gitActionRefresh": {
+    "description": "Git page button: read the repository again"
+  },
+  "gitActionSaveIdentity": "Save name and email",
+  "@gitActionSaveIdentity": {
+    "description": "Git page button: save user.name and user.email for this repository"
+  },
+  "gitBusyPull": "Pulling…",
+  "@gitBusyPull": {
+    "description": "Git page busy line"
+  },
+  "gitBusyPush": "Pushing…",
+  "@gitBusyPush": {
+    "description": "Git page busy line"
+  },
+  "gitBusyCommit": "Committing…",
+  "@gitBusyCommit": {
+    "description": "Git page busy line"
+  },
+  "gitBusySwitchBranch": "Switching branch…",
+  "@gitBusySwitchBranch": {
+    "description": "Git page busy line"
+  },
+  "gitBusyCreateBranch": "Creating the branch…",
+  "@gitBusyCreateBranch": {
+    "description": "Git page busy line"
+  },
+  "gitBusyDiscard": "Discarding changes…",
+  "@gitBusyDiscard": {
+    "description": "Git page busy line"
+  },
+  "gitBusyRefresh": "Checking for changes…",
+  "@gitBusyRefresh": {
+    "description": "Git page busy line"
+  },
+  "gitBusySaveIdentity": "Saving…",
+  "@gitBusySaveIdentity": {
+    "description": "Git page busy line"
+  },
+  "gitDoneUpToDate": "Already up to date.",
+  "@gitDoneUpToDate": {
+    "description": "Git page result: nothing to pull or push"
+  },
+  "gitDonePulled": "Pulled the latest commits.",
+  "@gitDonePulled": {
+    "description": "Git page result: pull brought commits"
+  },
+  "gitDonePushed": "Pushed.",
+  "@gitDonePushed": {
+    "description": "Git page result: push worked"
+  },
+  "gitDonePushedTracking": "Pushed. This branch now follows the one on the remote.",
+  "@gitDonePushedTracking": {
+    "description": "Git page result: first push set the upstream"
+  },
+  "gitDoneCommitted": "Committed {commit}.",
+  "@gitDoneCommitted": {
+    "description": "Git page result: commit made; placeholder is the short commit id",
+    "placeholders": {
+      "commit": {
+        "type": "String"
+      }
+    }
+  },
+  "gitDoneSwitched": "Switched branch.",
+  "@gitDoneSwitched": {
+    "description": "Git page result"
+  },
+  "gitDoneCreated": "Created the branch and switched to it.",
+  "@gitDoneCreated": {
+    "description": "Git page result"
+  },
+  "gitDoneDiscarded": "Changes discarded.",
+  "@gitDoneDiscarded": {
+    "description": "Git page result"
+  },
+  "gitDoneIdentitySaved": "Saved your name and email for this repository.",
+  "@gitDoneIdentitySaved": {
+    "description": "Git page result"
+  },
+  "gitDiscardConfirmTitle": "Discard changes to {file}?",
+  "@gitDiscardConfirmTitle": {
+    "description": "Git page confirm title before discarding one file; placeholder is the file name",
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
+  "gitDiscardConfirmBody": "Its changes are deleted from this device. This can’t be undone.",
+  "@gitDiscardConfirmBody": {
+    "description": "Git page confirm body before discarding one file"
+  },
+  "gitCommitMessageHint": "Describe what changed",
+  "@gitCommitMessageHint": {
+    "description": "Git page commit message field hint"
+  },
+  "gitBranchNameHint": "Branch name",
+  "@gitBranchNameHint": {
+    "description": "Git page new-branch field hint"
+  },
+  "gitIdentityName": "Name",
+  "@gitIdentityName": {
+    "description": "Git page identity form field: user.name"
+  },
+  "gitIdentityEmail": "Email",
+  "@gitIdentityEmail": {
+    "description": "Git page identity form field: user.email"
+  },
+  "gitHubSignIn": "Sign in to GitHub",
+  "@gitHubSignIn": {
+    "description": "Git page button: start GitHub device sign-in"
+  },
+  "gitHubSignOut": "Sign out of GitHub",
+  "@gitHubSignOut": {
+    "description": "Git page button: forget the GitHub sign-in on this device"
+  },
+  "gitHubSignedInAs": "Signed in to GitHub as {login}",
+  "@gitHubSignedInAs": {
+    "description": "Git page: GitHub account line; placeholder is the GitHub user name",
+    "placeholders": {
+      "login": {
+        "type": "String"
+      }
+    }
+  },
+  "gitHubRequestingCode": "Getting a sign-in code…",
+  "@gitHubRequestingCode": {
+    "description": "GitHub sign-in: requesting a device code"
+  },
+  "gitHubEnterCode": "Enter this code on GitHub to finish signing in.",
+  "@gitHubEnterCode": {
+    "description": "GitHub sign-in: instruction above the user code"
+  },
+  "gitHubOpenGitHub": "Open GitHub",
+  "@gitHubOpenGitHub": {
+    "description": "GitHub sign-in button: opens github.com/login/device"
+  },
+  "gitHubCopyCode": "Copy code",
+  "@gitHubCopyCode": {
+    "description": "GitHub sign-in button: copies the user code"
+  },
+  "gitHubWaiting": "Waiting for you to finish on GitHub…",
+  "@gitHubWaiting": {
+    "description": "GitHub sign-in: polling"
+  },
+  "gitHubFinishing": "Finishing sign-in…",
+  "@gitHubFinishing": {
+    "description": "GitHub sign-in: reading the account name"
+  },
+  "gitHubCancel": "Cancel",
+  "@gitHubCancel": {
+    "description": "GitHub sign-in button: stop waiting"
+  },
+  "gitHubSignOutBody": "The app forgets your GitHub sign-in on this device. To remove its access completely, revoke it on GitHub too.",
+  "@gitHubSignOutBody": {
+    "description": "GitHub sign-out confirm body"
+  },
+  "gitHubManageAccess": "Manage access on GitHub",
+  "@gitHubManageAccess": {
+    "description": "Opens GitHub's authorized apps page"
+  },
+  "gitHubPushOverHttps": "Pushes to GitHub use this sign-in over HTTPS. Your SSH settings don’t change.",
+  "@gitHubPushOverHttps": {
+    "description": "Git page note: SSH remotes are pushed over HTTPS for that one command"
+  },
+  "gitHubProblemExpired": "The code expired before it was entered. Sign in again to get a new one.",
+  "@gitHubProblemExpired": {
+    "description": "GitHub sign-in error: device code expired"
+  },
+  "gitHubProblemDenied": "Sign-in was cancelled on GitHub.",
+  "@gitHubProblemDenied": {
+    "description": "GitHub sign-in error: access denied"
+  },
+  "gitHubProblemDisabled": "GitHub sign-in isn’t switched on for this app yet.",
+  "@gitHubProblemDisabled": {
+    "description": "GitHub sign-in error: device flow disabled for the OAuth app"
+  },
+  "gitHubProblemNetwork": "Couldn’t reach GitHub. Check the internet connection, then try again.",
+  "@gitHubProblemNetwork": {
+    "description": "GitHub sign-in error: network"
+  },
+  "gitHubProblemTokenRejected": "Your GitHub sign-in ended. Sign in again.",
+  "@gitHubProblemTokenRejected": {
+    "description": "GitHub sign-in error: stored token rejected or expired"
+  },
+  "gitHubProblemUnexpected": "GitHub sent an answer the app didn’t understand. Try again.",
+  "@gitHubProblemUnexpected": {
+    "description": "GitHub sign-in error: unexpected response"
+  }
 }

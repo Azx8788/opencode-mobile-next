@@ -12,7 +12,16 @@ final class AgentInstallGuard {
   });
 
   final int minimumFreeBytes;
-  static const agentIds = {'codex', 'gemini', 'qwen', 'goose', 'omp-acp', 'fx'};
+  static const agentIds = {
+    'codex',
+    'gemini',
+    'qwen',
+    'kilo',
+    'cline',
+    'goose',
+    'omp-acp',
+    'fx',
+  };
 
   int? downloadBytesFor(AgentDescriptor agent) {
     int? bytes;

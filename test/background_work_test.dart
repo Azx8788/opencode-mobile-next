@@ -1,15 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
 import 'package:opencode_mobile/api2/client.dart';
 import 'package:opencode_mobile/api2/gateway_operations.dart';
 import 'package:opencode_mobile/domain/background_work.dart';
 
 import 'support/v2_subagent_fixture.dart';
 
-import 'api2_interaction_gateway_test.dart'
-    show withServer, writeJson, writeNoContent;
+import 'api2_interaction_gateway_test.dart' show withServer, writeNoContent;
 
 MessageWithParts work(
   String name, {
@@ -121,55 +119,6 @@ void main() {
           BackgroundWorkSupport.unavailable,
         ),
         isEmpty,
-      );
-    },
-  );
-
-  test(
-    'v1 capability and promotion use the scoped experimental API, including false',
-    () async {
-      var enabled = false;
-      var promoted = false;
-      await withServer(
-        handler: (request) async {
-          if (request.uri.path == '/experimental/capabilities') {
-            await writeJson(request, {'backgroundSubagents': enabled});
-          } else {
-            expect(request.method, 'POST');
-            expect(request.uri.path, '/experimental/session/ses_a/background');
-            await writeJson(request, promoted);
-          }
-        },
-        (server, requests) async {
-          final api = OpenCodeApi(
-            baseUrl: 'http://${server.address.host}:${server.port}',
-          );
-          final repo = SdkProductRepository(api.sdkClient)
-            ..setLocation(directory: '/work', workspace: 'ws_a');
-          addTearDown(api.close);
-          expect(
-            await repo.loadBackgroundWorkSupport(),
-            BackgroundWorkSupport.unavailable,
-          );
-          enabled = true;
-          expect(
-            await repo.loadBackgroundWorkSupport(),
-            BackgroundWorkSupport.subagents,
-          );
-          expect(
-            await repo.backgroundSession('ses_a'),
-            BackgroundWorkResult.unchanged,
-          );
-          promoted = true;
-          expect(
-            await repo.backgroundSession('ses_a'),
-            BackgroundWorkResult.promoted,
-          );
-          for (final request in requests) {
-            expect(request.uri.queryParameters['directory'], '/work');
-            expect(request.uri.queryParameters['workspace'], 'ws_a');
-          }
-        },
       );
     },
   );

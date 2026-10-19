@@ -3,17 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/product_repository.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
+import 'package:opencode_mobile/domain/product_repository.dart';
+import 'support/fake_event_channel.dart';
 import 'package:opencode_mobile/platform/platform_capabilities.dart';
 import 'package:opencode_mobile/state/connection.dart';
 import 'package:opencode_mobile/state/profiles.dart';
 import 'package:opencode_mobile/ui/screens/chat_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class _ComposerApi extends OpenCodeApi with CompleteMessageHistory {
+class _ComposerApi extends FakeServerGateway with CompleteMessageHistory {
   _ComposerApi() : super(baseUrl: 'http://localhost');
 
   final prompts = <String>[];
@@ -54,9 +54,20 @@ Future<ConnectionController> _pump(
   _ComposerApi api, {
   bool busy = false,
 }) async {
-  SharedPreferences.setMockInitialValues({});
+  SharedPreferences.setMockInitialValues({
+    'oc.profiles':
+        '[{"id":"profile","name":"Test","baseUrl":"http://localhost"}]',
+    'oc.activeProfile': 'profile',
+  });
+  const secure = MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
+  final messenger =
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+  messenger.setMockMethodCallHandler(secure, (_) async => null);
+  addTearDown(() => messenger.setMockMethodCallHandler(secure, null));
   final prefs = await SharedPreferences.getInstance();
-  final controller = ConnectionController(ProfileStore(prefs: prefs))
+  final store = ProfileStore(prefs: prefs);
+  await store.load();
+  final controller = ConnectionController(store)
     ..api = api
     ..status = StreamStatus.connected;
   if (busy) controller.busySessions.add('session-1');

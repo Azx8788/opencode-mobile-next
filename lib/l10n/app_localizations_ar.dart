@@ -2731,9 +2731,6 @@ class AppLocalizationsAr extends AppLocalizations {
       'لم يُؤكَّد إرسالها السابق؛ ربما توجد في المحادثة بالفعل.';
 
   @override
-  String get setupRuntimeOne => 'الإصدار الأقدم من OpenCode';
-
-  @override
   String get setupRuntimeTwo => 'OpenCode 2';
 
   @override
@@ -2901,15 +2898,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tailscaleAddressStep => '2. راجع عنوان خادمك';
 
   @override
-  String get tailscaleAddressLabel => 'عنوان خادم HTTPS الخاص';
+  String get tailscaleAddressLabel => 'عنوان الخادم الخاص';
 
   @override
   String get tailscaleAddressDetail =>
-      'استخدم أصل HTTPS الكامل الذي يعرضه Tailscale Serve، مثل https://computer.tailnet-name.ts.net. احتفظ بأي منفذ HTTPS يعرضه. قد لا يوفّر اسم جهاز مختصر أو منفذ HTTP مباشر شهادة صالحة.';
+      'الصق عنوان HTTPS الكامل من Tailscale Serve، أو عنوان HTTP ومنفذ خادمك على Tailscale. يتطلب HTTP إذنك قبل الاتصال.';
 
   @override
   String get tailscaleAddressError =>
-      'أدخل أصل HTTPS بمنفذ صالح (1–65535). أزل المسارات وبيانات الاعتماد ونص الاستعلام والأجزاء الملحقة. استخدم العنوان الكامل من Serve؛ ولا تستبدل https بـ http.';
+      'أدخل عنوان خادم HTTP أو HTTPS كاملًا مع المنفذ عند الحاجة، دون إضافة مسار بعده.';
 
   @override
   String get tailscaleReviewDetail =>
@@ -2933,7 +2930,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get tailscaleRecovery =>
-      'إذا تعذّر الوصول إلى الخادم، فتحقّق من Tailscale على الجهازين، واسم HTTPS الكامل ومنفذه، وServe على الخادم، وقواعد وصول شبكتك. قد يمنع تعارض VPN أو DNS الوصول أيضًا. أبقِ HTTPS مفعّلًا. صحّح كلمة مرور الخادم إذا رُفضت المصادقة، ثم أعد «اختبار الاتصال».';
+      'إذا تعذّر الوصول إلى الخادم، فتحقق من Tailscale على الجهازين والعنوان والمنفذ وقواعد الوصول للشبكة. لعنوان Serve، تحقق أيضًا من Serve على الخادم. صحّح كلمة المرور إذا رُفض تسجيل الدخول، ثم أعد اختبار الاتصال.';
 
   @override
   String get tailscaleEditorDetail =>
@@ -3471,45 +3468,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get oc2DiscoveryEditorTitle => 'OpenCode 2';
 
   @override
-  String setupSwitchConfirmTitle(String runtime) {
-    return 'التبديل إلى $runtime؟';
-  }
-
-  @override
-  String get setupSwitchConfirmDetail =>
-      'يوقف خادم هذا الهاتف والمهام الجارية. تبقى المحادثات وإعدادات مزوّدي الخدمة وبيانات الاعتماد منفصلة؛ بينما تُشارك ملفات المشروع وإعداداته. يمكنك العودة إلى الإصدار السابق.';
-
-  @override
-  String get setupSwitchToTwoDetail =>
-      'يوقف خادم هذا الهاتف والمهام الجارية، ثم يشغّل OpenCode 2. تنتقل محادثاتك معك ويواصل فريق الذكاء الاصطناعي عمله. يمكنك العودة إلى الإصدار السابق.';
-
-  @override
-  String get moveToOpenCode2Title => 'الانتقال إلى OpenCode 2';
-
-  @override
-  String get moveToOpenCode2Detail =>
-      'تنتقل محادثاتك معك. ويواصل فريق الذكاء الاصطناعي عمله.';
-
-  @override
-  String get moveToOpenCode2NotNow => 'ليس الآن';
-
-  @override
-  String get moveToOpenCode2NotNowSemantics =>
-      'ليس الآن: البقاء على الإصدار الأقدم من OpenCode';
-
-  @override
-  String setupSwitchConfirm(String runtime) {
-    return 'التبديل إلى $runtime';
-  }
-
-  @override
   String get setupSwitchPending =>
-      'لم يكتمل تبديل بيئة التشغيل. أعد محاولة تشغيل البيئة المحددة أو ارجع إلى السابقة. تُحفظ بيانات بيئات التشغيل لديك.';
-
-  @override
-  String setupSwitchReturn(String runtime) {
-    return 'العودة إلى $runtime';
-  }
+      'لم يكتمل التحديث إلى OpenCode 2. محادثاتك المحفوظة باقية. حاول مجددًا.';
 
   @override
   String setupSwitchRetry(String runtime) {
@@ -3518,11 +3478,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get setupSwitchFailed =>
-      'تعذّر إكمال تبديل بيئة التشغيل. افحص مخرجات الإعداد، ثم أعد المحاولة أو ارجع إلى بيئة التشغيل السابقة.';
-
-  @override
-  String get setupSwitchLegacyTwo =>
-      'يحتفظ تثبيت OpenCode 2 هذا ببياناته الحالية. لا يتاح تبديله إلى OpenCode 1.';
+      'تعذّر إكمال التحديث إلى OpenCode 2. محادثاتك المحفوظة باقية. حاول مجددًا.';
 
   @override
   String setupSwitchProfileName(String runtime) {
@@ -3531,7 +3487,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get setupSwitchMissingCredential =>
-      'بيانات الاعتماد المحفوظة لبيئة التشغيل السابقة غير متاحة. تبقى بياناتها محفوظة؛ استعد الخادم المحفوظ قبل العودة.';
+      'تعذّرت قراءة كلمة مرور الخادم المحفوظة. محادثاتك وملفاتك باقية. استعد الوصول إلى كلمة المرور المحفوظة ثم حاول مجددًا.';
 
   @override
   String setupSwitchProgressTitle(String runtime) {
@@ -3615,7 +3571,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get e7ConnectionFailure23 =>
-      'إذا كانت الشهادة موقّعة ذاتيًا، فثبّتها على هذا الجهاز أولًا.';
+      'للشهادة الموقّعة ذاتيًا، عدّل هذا الخادم وتحقق من بصمتها قبل الوثوق بها.';
 
   @override
   String get e7ConnectionFailure24 => 'لا خدمة تستقبل الاتصالات على هذا الجهاز';
@@ -3758,6 +3714,16 @@ class AppLocalizationsAr extends AppLocalizations {
       'قد يكون المحتوى المعروض قديمًا حتى يصبح OpenCode متاحًا مجددًا.';
 
   @override
+  String e7BannerCheckingExplanationAgent(String agent) {
+    return 'يبقى المحتوى المعروض متاحًا أثناء فحص $agent. تُستأنف التحديثات المباشرة تلقائيًا.';
+  }
+
+  @override
+  String e7BannerStaleExplanationAgent(String agent) {
+    return 'قد يكون المحتوى المعروض قديمًا حتى يصبح $agent متاحًا مجددًا.';
+  }
+
+  @override
   String get e7SharedThreeStepsToYourFirstSession =>
       'ثلاث خطوات لبدء أول محادثة';
 
@@ -3808,14 +3774,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get e7SharedPairingWorksWhenTheAddressTheServer =>
-      'يعمل الاقتران عندما يكون العنوان الذي يطبعه الخادم قابلًا للوصول من هذا الجهاز. وإن لم يكن كذلك، فاعرض الخادم عبر وكيل عكسي HTTPS أو نفق مشفّر، ثم أضف عنوان https:// الناتج يدويًا. HTTP البعيد محظور عمدًا.';
+      'يعمل الاقتران عندما يستطيع هذا الجهاز الوصول إلى عنوان الخادم. يطلب عنوان HTTP البعيد إذنك قبل إرسال كلمة المرور. يُفضّل HTTPS أو اتصال Tailscale خاص.';
 
   @override
   String get e7SharedOlderServersWithoutPairing => 'الخوادم الأقدم بدون اقتران';
 
   @override
   String get e7SharedServersStartedWithOpencodeServeDoNot =>
-      'الخوادم التي تُشغَّل بالأمر «opencode serve» لا تطبع رمز اقتران. شغّلها على loopback مع كلمة مرور:';
+      'للاتصال محليًا، شغّل OpenCode 2 على هذا الكمبيوتر واستخدم كلمة المرور التي يعرضها:';
 
   @override
   String get e7SharedThenAddTheServerManuallyWithUsername =>
@@ -4467,7 +4433,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get e7SettingsUi62 => 'لم تُحفظ كلمة مرور للخادم';
 
   @override
-  String get e7SettingsUi65 => 'التشغيل كخدمة Linux';
+  String get e7SettingsUi65 => 'إعداد OpenCode 2';
 
   @override
   String get e7SettingsUi66 =>
@@ -7318,7 +7284,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get e7SetupHttpsHint =>
-      '‏https://‏ للأجهزة الأخرى، و‏http://‏ على هذا الجهاز أو شبكة خاصة فقط.';
+      'يُفضّل HTTPS. يتطلب HTTP البعيد إذنك لكل خادم.';
 
   @override
   String get e7SetupObservedVersionSaveFailed =>
@@ -7540,10 +7506,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get e7SetupUpKey => 'مفتاح السهم لأعلى';
 
   @override
-  String get e7SetupV1Limited =>
-      'صُمّم هذا التطبيق لـ OpenCode 2؛ بعض الميزات غير متاحة على خوادم الإصدار الأول.';
-
-  @override
   String get e7SetupConnect => 'اتصال';
 
   @override
@@ -7608,7 +7570,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get e7SetupSaving => 'جارٍ الحفظ…';
 
   @override
-  String get e7SetupLinuxService => 'التشغيل كخدمة في Linux';
+  String get e7SetupLinuxService => 'إعداد OpenCode 2';
 
   @override
   String get e7SetupPairingDesktopHint =>
@@ -7883,11 +7845,6 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String e7SetupProbeV1(String version) {
-    return 'OpenCode 1 · $version — ميزات محدودة';
-  }
-
-  @override
   String get e7SetupPairNone =>
       'لا يوجد رمز اقتران هنا. شغّل «opencode2 pair» على الخادم وامسح الرمز الذي يعرضه أو انسخه.';
 
@@ -7966,7 +7923,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get e7SetupIncludeScheme =>
-      'أضف https://. يعمل http:// العادي فقط على هذا الجهاز أو على عنوان شبكة خاصة.';
+      'أضف https:// أو http://. يتطلب HTTP البعيد إذنك.';
 
   @override
   String get e7SetupCompleteUrl =>
@@ -7974,7 +7931,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get e7SetupUrlScheme =>
-      'يجب أن تستخدم عناوين الخوادم https://، أو http:// للخادم المحلي.';
+      'يجب أن تبدأ عناوين الخادم بـ https:// أو http://.';
 
   @override
   String get e7SetupTermuxUrlScheme =>
@@ -8014,7 +7971,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get e7SetupCertificate =>
-      'رُفضت شهادة TLS للخادم. استخدم شهادة يثق بها هذا الهاتف.';
+      'الشهادة غير موثوقة. تحقق من بصمتها قبل أن تقرر الوثوق بها.';
 
   @override
   String get e7SetupUnhealthy =>
@@ -8127,10 +8084,6 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get e7SetupPortBusy =>
       'منفذ الخادم المحلي ما زال مستخدمًا؛ لم يُشغّل خادم بديل';
-
-  @override
-  String get e7SetupNoReturnData =>
-      'لا يحتوي تثبيت OpenCode 2 هذا على بيانات منفصلة لـ OpenCode 1 للعودة إليها';
 
   @override
   String get e7SetupCredentialMismatch =>
@@ -11687,14 +11640,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get agentErrorConnectionDroppedHint =>
-      'غالبًا ما يكون ذلك مؤقتًا، ويعيد OpenCode المحاولة تلقائيًا. إذا تكرر، فتحقق من الإنترنت على الجهاز الذي يشغّل OpenCode.';
+      'تحقّق من اتصال الإنترنت على الجهاز الذي يشغّل OpenCode. إذا توقف الرد، فتحقّق من المحادثة قبل الإرسال مجددًا.';
 
   @override
   String get agentErrorTimedOut => 'استغرق النموذج وقتًا طويلًا للرد.';
 
   @override
   String get agentErrorTimedOutHint =>
-      'يعيد OpenCode المحاولة تلقائيًا. قد يكون طلب أصغر أو نموذج آخر أسرع.';
+      'إذا توقف الرد، فجرّب طلبًا أصغر أو نموذجًا آخر.';
 
   @override
   String get agentErrorProviderUnreachable =>
@@ -11717,14 +11670,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get agentErrorRateLimitedHint =>
-      'تُعاد المحاولة تلقائيًا بعد انتظار قصير.';
+      'انتظر قليلًا. إذا توقف الرد، فحاول مجددًا أو اختر نموذجًا آخر.';
 
   @override
   String get agentErrorProviderBusy => 'مزوّد النموذج مثقل بالطلبات الآن.';
 
   @override
   String get agentErrorProviderBusyHint =>
-      'تُعاد المحاولة تلقائيًا. قد يرد نموذج آخر أسرع.';
+      'إذا توقف الرد، فحاول مجددًا لاحقًا أو اختر نموذجًا آخر.';
 
   @override
   String get agentErrorOutOfCredit => 'نفد رصيد حساب المزوّد أو حصته.';
@@ -12052,6 +12005,14 @@ class AppLocalizationsAr extends AppLocalizations {
       'الخطوة 1 من 3: التثبيت. بعدها سمِّ مشروعًا وتحدّث. يمكنك مغادرة التطبيق. سنُعلمك عندما يصبح جاهزًا.';
 
   @override
+  String get phoneSetupProgressLeaveHintQuiet =>
+      'يمكنك مغادرة التطبيق. يستمر الإعداد. افتح OpenCode مرة أخرى لترى مدى تقدّمه.';
+
+  @override
+  String get phoneSetupProgressFirstSetupNoteQuiet =>
+      'الخطوة 1 من 3: التثبيت. بعدها سمِّ مشروعًا وتحدّث. يمكنك مغادرة التطبيق. يستمر الإعداد. افتح OpenCode مرة أخرى لترى مدى تقدّمه.';
+
+  @override
   String get phoneSetupProgressStopTitle => 'إيقاف الإعداد؟';
 
   @override
@@ -12184,7 +12145,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String phoneSetupErrorNoSpace(String name) {
-    return 'لا توجد مساحة كافية لتثبيت $name';
+    return 'لا توجد مساحة كافية لتثبيت $name. أفرغ بعض مساحة التخزين، ثم تابع الإعداد.';
   }
 
   @override
@@ -12194,7 +12155,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get phoneSetupErrorCannotStart =>
-      'تم تثبيت OpenCode، لكن التطبيق لم يتمكن من تشغيله هنا.';
+      'تم تثبيت OpenCode لكنه لا يستجيب. تابع الإعداد للمحاولة مجددًا. تعرض التفاصيل سبب التوقف.';
 
   @override
   String get builtinServerLogTitle => 'سجل الخادم';
@@ -14061,9 +14022,8 @@ class AppLocalizationsAr extends AppLocalizations {
       'ما يجب السماح به كي لا يغلق هاتفك التطبيق';
 
   @override
-  String keepRunningIntro(String maker) {
-    return 'يعمل OpenCode وفريق الذكاء الاصطناعي على هاتفك داخل هذا التطبيق، لذا يتوقفان عندما يغلقه أندرويد. على هاتف $maker هذا، اسمح بما يلي:';
-  }
+  String get keepRunningIntro =>
+      'يعمل OpenCode وفريق الذكاء الاصطناعي على هاتفك داخل هذا التطبيق، لذا يتوقفان عندما يغلقه أندرويد. على هذا الهاتف، اسمح بما يلي:';
 
   @override
   String get keepRunningSwipeWarning =>
@@ -15647,6 +15607,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get kitToolFailed => 'فشل';
 
   @override
+  String get kitToolDeclined => 'رفضتَ هذا';
+
+  @override
   String get kitToolStopped => 'متوقف';
 
   @override
@@ -15795,21 +15758,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get kitCapServerAnyOffer => 'أضف خادمًا لبدء العمل مع وكيل.';
 
   @override
-  String get kitCapServerOc1Title => 'خادم OpenCode 1';
-
-  @override
-  String get kitCapServerOc1Why =>
-      'يحتاج إلى خادم هذا الهاتف أو حاسوب يشغّل OpenCode 1.';
-
-  @override
   String get kitCapServerOc2Title => 'خادم OpenCode 2';
 
   @override
-  String get kitCapServerOc2Why =>
-      'يحتاج إلى خادم يشغّل OpenCode 2. يمكن تحويل خادم هذا الهاتف إليه.';
+  String get kitCapServerOc2Why => 'يحتاج إلى خادم يشغّل OpenCode 2.';
 
   @override
-  String get kitCapServerOc2Enable => 'التبديل إلى OpenCode 2';
+  String get kitCapServerOc2Enable => 'الاتصال بـ OpenCode 2';
 
   @override
   String get kitCapServerOc2Offer =>
@@ -16149,9 +16104,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get kitHostTermux => 'Termux';
-
-  @override
-  String get kitHostOpenCode1 => 'الحواسيب التي تشغّل OpenCode 1';
 
   @override
   String get kitHostOpenCode2 => 'الحواسيب التي تشغّل OpenCode 2';
@@ -16764,7 +16716,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get serverSettingsRestartCommandLabel =>
-      'هل أُعدّ باستخدام برنامج خدمة Linux؟';
+      'تشغيل OpenCode 2 على هذا الكمبيوتر';
 
   @override
   String get serverSettingsRestartedIt => 'أعدت تشغيله';
@@ -20496,7 +20448,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get addServerRemoteHttpAdvice =>
-      'يحتاج الحاسوب على شبكتك إلى عنوان https://. يمنحه Tailscale عنوانًا خاصًا لا تصل إليه إلا أجهزتك.';
+      'يتطلب HTTP البعيد إذنك الصريح. يُفضّل HTTPS أو اتصال Tailscale خاص.';
 
   @override
   String get addServerUseTailscale => 'استخدام Tailscale';
@@ -21925,7 +21877,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String hostServiceTitle(String server) {
-    return 'خدمة Linux لـ $server';
+    return 'OpenCode على $server';
   }
 
   @override
@@ -23409,7 +23361,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get thisPhoneHistoryFailed =>
-      'تعذّر نقل محادثاتك السابقة. ما زالت محفوظة في OpenCode 1.';
+      'تعذّر نقل محادثاتك السابقة. لا تزال بياناتها الأصلية على هذا الهاتف دون تغيير.';
 
   @override
   String get addServerCheckFailedPlain =>
@@ -23702,6 +23654,14 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get migrationUnsupportedFilesFix =>
       'لا يمكن نسخ الروابط والمقابس وأشجار العمل في Git. أزلها في Termux وحاول مجددًا، أو انسخ ذلك المشروع يدويًا.';
+
+  @override
+  String get migrationLinkedFileUnreadable =>
+      'تعذّرت قراءة جزء من سجل Git لهذا المشروع في Termux، لذا لا يمكن نقله بأمان.';
+
+  @override
+  String get migrationLinkedFileUnreadableFix =>
+      'افتح Termux ونفّذ git fsck داخل ذلك المشروع لترى ما ينقص، ثم حاول مجددًا. لم يتغير شيء على هاتفك.';
 
   @override
   String get migrationTooLarge =>
@@ -26630,7 +26590,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get addServerCleartextWarning =>
-      'هذا العنوان يستخدم HTTP عادي. على هذه الشبكة قد يتمكن آخرون من قراءة كلمة المرور ومحادثاتك. استخدم Tailscale أو HTTPS إن أمكن.';
+      'يستخدم عنوان الشبكة الخاصة أو Tailscale هذا HTTP غير المشفّر. تنتقل كلمة المرور والشيفرة دون تشفير في طبقة HTTP. استخدمه فقط على شبكة خاصة تثق بها أو عبر Tailscale؛ فهو خطر على شبكات Wi-Fi العامة.';
 
   @override
   String get addServerCleartextConfirm => 'استخدمه على أي حال';
@@ -27175,6 +27135,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get chatsNewFailed => 'لم تبدأ المحادثة. رسالتك ما زالت هنا.';
 
   @override
+  String get chatsNewFailedTitle => 'لم تبدأ المحادثة';
+
+  @override
+  String get chatsNewFailedReportHint =>
+      'يتضمّن «الإبلاغ عن مشكلة» هذه التفاصيل.';
+
+  @override
   String get shellTabChats => 'المحادثات';
 
   @override
@@ -27317,7 +27284,12 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get agentsFailUnavailable =>
-      'لا يستطيع هذا الهاتف تشغيل هذا الوكيل بعد.';
+      'لا يستطيع هذا الهاتف تشغيل هذا الوكيل بعد. أعد الفحص، أو افتح التفاصيل لمعرفة السبب.';
+
+  @override
+  String agentsResumeFailed(String agent) {
+    return 'لم يبدأ $agent من جديد. اضغط استئناف للمحاولة مرة أخرى. إن لم يبدأ بعدها، شغّل فحص الهاتف له.';
+  }
 
   @override
   String get agentsFailStorage =>
@@ -27337,7 +27309,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get agentsFailDaemon => 'لم يبدأ اتصال الوكيل.';
 
   @override
-  String get agentsFailHello => 'بدأ الوكيل لكنه لم يجب.';
+  String get agentsFailHello =>
+      'لم يؤكد Paseo الاتصال. أعد المحاولة لإعادة تشغيله والتحقق مجددًا.';
 
   @override
   String get agentsFailArchitecture => 'هذا الوكيل لا يطابق معالج هذا الهاتف.';
@@ -28265,6 +28238,10 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get backgroundPauseInterrupted =>
       'توقف الاتصال في الخلفية لسبب غير معروف.';
+
+  @override
+  String get backgroundPauseDeviceRestarted =>
+      'توقف الاتصال في الخلفية عند إعادة تشغيل الهاتف.';
 
   @override
   String get backgroundPauseResume => 'استئناف الاتصال في الخلفية';
@@ -29337,6 +29314,10 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get productErrorComputer =>
       'تعذّر الوصول إلى حاسوبك. تأكد من أنه يعمل ومتصل، ثم حاول مرة أخرى.';
+
+  @override
+  String get productErrorProjectGit =>
+      'تعذّرت قراءة سجل Git لهذا المشروع، لذا لم تبدأ المحادثة. استعد المشروع من نسخة، أو انسخه من جديد.';
 
   @override
   String kitGalleryPosition(int current, int total) {
@@ -32696,7 +32677,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get chatRequestAskRead => 'قراءة هذا الملف؟';
 
   @override
-  String get chatRequestAskDirectory => 'فتح هذا المجلد؟';
+  String get chatRequestAskDirectory => 'العمل خارج هذا المشروع؟';
 
   @override
   String get chatRequestAskFetch => 'فتح صفحة الويب هذه؟';
@@ -33607,13 +33588,1759 @@ class AppLocalizationsAr extends AppLocalizations {
       'تحتاج بعض حزم Linux إلى إصلاح. تابع الإعداد للمحاولة مرة أخرى. توضح «التفاصيل» سبب التوقف.';
 
   @override
-  String get setupSwitchSeparateHistoryDetail =>
-      'لدى OpenCode 2 محادثاته الخاصة بالفعل. تبقى محادثات OpenCode الأقدم فيه. لا يمكن التبديل عندما تكون هناك محادثات في كليهما. ابقَ على OpenCode الأقدم لمتابعة استخدام هذه المحادثات.';
+  String get agentsFailNeedsSignIn =>
+      'تم تثبيت Claude Code. سجّل الدخول إلى حساب Claude لاستخدامه.';
 
   @override
-  String get setupSwitchHistoryUnavailableDetail =>
-      'تعذّر التحقق من محادثاتك بأمان. ابقَ على OpenCode الأقدم وحاول مرة أخرى.';
+  String get agentsFailHelperVersion =>
+      'يحتاج Paseo إلى تحديث قبل أن يتمكن هذا الوكيل من الاتصال. حدّثه وحاول مجددًا.';
 
   @override
-  String get setupSwitchStay => 'البقاء على OpenCode الأقدم';
+  String get agentsFailTimeout =>
+      'استغرق الهاتف وقتًا طويلًا لإكمال الفحص. أعد المحاولة عندما ينخفض الضغط عليه.';
+
+  @override
+  String get agentsCheckRetry => 'إعادة المحاولة';
+
+  @override
+  String get agentsCheckUpdateHelper => 'تحديث Paseo وإعادة المحاولة';
+
+  @override
+  String get agentsCheckPrevious => 'استخدام الإصدار السابق';
+
+  @override
+  String agentsCheckPreviousNote(String version) {
+    return 'لا يزال الإصدار $version على هذا الهاتف. سنفحصه قبل استخدامه. يبقى تسجيل دخولك ومحادثاتك كما هي.';
+  }
+
+  @override
+  String get agentsCheckAgentChanged =>
+      'تغيّر إصدار الوكيل المطلوب. افحص هذا الهاتف مجددًا.';
+
+  @override
+  String get agentsCheckHelperChanged =>
+      'تغيّر إصدار Paseo المطلوب. افحص الاتصال مجددًا.';
+
+  @override
+  String get agentsCheckInstallChanged => 'تغيّر إعداد الهاتف. افحصه مجددًا.';
+
+  @override
+  String agentsCheckDownload(
+    String component,
+    String downloaded,
+    String total,
+  ) {
+    return 'جارٍ تنزيل $component · $downloaded من $total';
+  }
+
+  @override
+  String agentsCheckDownloadUnknown(String component, String downloaded) {
+    return 'جارٍ تنزيل $component · $downloaded';
+  }
+
+  @override
+  String agentsCheckDownloading(String component) {
+    return 'جارٍ تنزيل $component';
+  }
+
+  @override
+  String agentsCheckPreparing(String component) {
+    return 'جارٍ تجهيز $component';
+  }
+
+  @override
+  String get agentsCheckPhoneTools => 'أدوات الهاتف';
+
+  @override
+  String get phoneSetupErrorInterrupted =>
+      'توقف الإعداد قبل اكتماله. تابع الإعداد للمحاولة مجددًا. ستُحفظ الخطوات المكتملة.';
+
+  @override
+  String get agentErrorProviderAuth =>
+      'يحتاج مزوّد النموذج إلى تسجيل دخول صالح.';
+
+  @override
+  String get agentErrorProviderAuthHint =>
+      'افتح إعدادات المزوّد لتسجيل الدخول أو استبدال مفتاح API، ثم حاول مجددًا.';
+
+  @override
+  String get agentErrorUnknown => 'تعذّر إكمال الطلب.';
+
+  @override
+  String get agentErrorUnknownHint =>
+      'تحقّق من المحادثة قبل الإرسال مجددًا. قد تساعد التفاصيل في توضيح ما حدث.';
+
+  @override
+  String get serverTrustHttpTitle => 'هل تريد استخدام HTTP غير المشفّر؟';
+
+  @override
+  String get serverTrustHttpPublicBody =>
+      'عند استخدام عنوان HTTP العام هذا، تنتقل كلمة المرور والشيفرة دون تشفير ويمكن للآخرين على الشبكة قراءتها أو تغييرها. هذا خطر على شبكات Wi-Fi العامة؛ يُفضّل استخدام HTTPS أو اتصال Tailscale خاص.';
+
+  @override
+  String get serverTrustHttpAccept => 'السماح باتصال HTTP لهذا الخادم';
+
+  @override
+  String get serverTrustCertificateTitle => 'هل تثق بهذه الشهادة؟';
+
+  @override
+  String get serverTrustCertificateBody =>
+      'هذا الاتصال مشفّر، لكن هذا الجهاز لا يستطيع التحقق من جهة إصدار الشهادة أو اسم الخادم فيها. قارن بصمة SHA-256 هذه ببصمة خادمك عبر قناة منفصلة موثوقة ولا تثق بها إلا إذا تطابقتا؛ ستتطلب الاتصالات اللاحقة هذه الشهادة نفسها.';
+
+  @override
+  String get serverTrustCertificateChangedTitle => 'تغيّرت شهادة الخادم';
+
+  @override
+  String get serverTrustCertificateChangedBody =>
+      'لم تعد الشهادة تطابق الشهادة التي وثقت بها، لذا حظر التطبيق الاتصال قبل إرسال كلمة المرور. قد يكون السبب تجديد الشهادة أو اعتراض الاتصال؛ أعد التحقق من البصمة مع مالك الخادم قبل الوثوق بالشهادة البديلة.';
+
+  @override
+  String get serverTrustCertificateInspect => 'التحقق من الشهادة';
+
+  @override
+  String get serverTrustCertificateRecheck => 'إعادة التحقق من الشهادة';
+
+  @override
+  String get serverTrustCertificateAccept => 'الوثوق بهذه البصمة';
+
+  @override
+  String get serverTrustCertificateReplace => 'الوثوق بالشهادة البديلة';
+
+  @override
+  String get serverTrustCertificatePinned =>
+      'يستخدم هذا الخادم بصمة الشهادة التي وثقت بها. سيُحظر الاتصال إذا تغيّرت الشهادة.';
+
+  @override
+  String get serverTrustCertificateFailed =>
+      'تعذّر التحقق من الشهادة. تحقق من العنوان والشبكة ثم حاول مجددًا. لم يتم الوثوق بأي شهادة.';
+
+  @override
+  String get serverTrustFingerprint => 'بصمة SHA-256';
+
+  @override
+  String get serverTrustInvalidPort => 'أدخل منفذ خادم بين 1 و65535.';
+
+  @override
+  String get serverTrustHttpUnconfirmed =>
+      'يستخدم هذا الخادم HTTP غير المشفّر ولم توافق على ذلك بعد. عدّل الخادم لمراجعة تحذير HTTP والموافقة عليه، أو استخدم HTTPS.';
+
+  @override
+  String get serverTrustProbeFailed =>
+      'تعذّر التحقق من الخادم. تحقق من العنوان وحاول مجددًا.';
+
+  @override
+  String get serverTrustPasswordRejected =>
+      'رُفضت كلمة المرور. تحقق من كلمة مرور الخادم وحاول مجددًا.';
+
+  @override
+  String serverTrustCertificateValidity(String from, String to) {
+    return 'صالحة من $from إلى $to';
+  }
+
+  @override
+  String get serverTrustCertificateValidityError =>
+      'انتهت صلاحية شهادة الخادم أو لم تبدأ بعد. اطلب من مالك الخادم تجديدها أو تحقق من ساعة الجهاز قبل إعادة الاتصال.';
+
+  @override
+  String get devPreviewTitle => 'المعاينة';
+
+  @override
+  String get devPreviewReload => 'تحديث الصفحة';
+
+  @override
+  String get devPreviewOpenInBrowser => 'فتح في المتصفح';
+
+  @override
+  String get devPreviewCopyAddress => 'نسخ العنوان';
+
+  @override
+  String get devPreviewLoading => 'جارٍ تحميل المعاينة';
+
+  @override
+  String get devPreviewFailedTitle => 'لا شيء يردّ بعد';
+
+  @override
+  String devPreviewFailedBody(String port) {
+    return 'المنفذ $port لا يستجيب. قد يكون التطبيق لا يزال يبدأ.';
+  }
+
+  @override
+  String get devPreviewRetry => 'حاول مرة أخرى';
+
+  @override
+  String devPreviewRemoteNote(String port, String host) {
+    return 'تُعرض المنفذ $port على $host. يجب أن يستمع خادم التطوير على 0.0.0.0 (كل العناوين) ليمكن الوصول إليه من هذا الهاتف.';
+  }
+
+  @override
+  String get devPreviewNoServerTitle => 'اتصل بخادم أولاً';
+
+  @override
+  String get devPreviewNoServerBody =>
+      'الرابط إلى هذا الجهاز لا معنى له إلا على الجهاز الذي يشغّل التطبيق. اتصل بخادم أو افتح الرابط في المتصفح.';
+
+  @override
+  String get devPreviewNoHostTitle => 'تعذّر العثور على هذا الخادم';
+
+  @override
+  String get devPreviewNoHostBody =>
+      'عنوان هذا الخادم غير مكتمل، لذا لا يمكن توجيه الرابط إليه. افتحه في المتصفح بدلاً من ذلك.';
+
+  @override
+  String get devPreviewUnsupportedTitle => 'المعاينة غير متاحة هنا';
+
+  @override
+  String get devPreviewUnsupportedBody =>
+      'لا يستطيع هذا الجهاز عرض الصفحة داخل التطبيق. افتحها في المتصفح بدلاً من ذلك.';
+
+  @override
+  String get devPreviewMenu => 'معاينة تطبيق قيد التشغيل';
+
+  @override
+  String get devPreviewMenuHint => 'افتح خادم تطوير ذُكر في هذه المحادثة';
+
+  @override
+  String get devPreviewSheetSubtitle => 'الخوادم المذكورة في هذه المحادثة';
+
+  @override
+  String devPreviewPortTitle(String port) {
+    return 'المنفذ $port';
+  }
+
+  @override
+  String get devPreviewOnPhone => 'على هذا الهاتف';
+
+  @override
+  String devPreviewOnServer(String host) {
+    return 'على $host';
+  }
+
+  @override
+  String get openCode1UnsupportedTitle => 'حدّث هذا الخادم';
+
+  @override
+  String get openCode1Unsupported =>
+      'يعمل هذا الخادم بإصدار OpenCode 1 الذي لم يعد هذا التطبيق يدعمه. حدّثه إلى OpenCode 2.';
+
+  @override
+  String get openCode2UpgradeTitle => 'التحديث إلى OpenCode 2';
+
+  @override
+  String get openCode2UpgradeProgress =>
+      'جارٍ تحديث خادم هذا الهاتف ونقل محادثاتك معه. أبقِ التطبيق مفتوحًا.';
+
+  @override
+  String get openCode2UpgradeFailed =>
+      'تعذّر إكمال التحديث بأمان. لا تزال محادثات OpenCode 1 وملفاتك على هذا الهاتف دون تغيير. حاول مجددًا عندما يكون الخادم خاملًا وتتوفر مساحة كافية.';
+
+  @override
+  String get openCode2HostInstall => 'تثبيت OpenCode 2 وتشغيله';
+
+  @override
+  String get openCode2HostInstallDetail =>
+      'يتطلب Node.js وnpm. يعمل على هذا الكمبيوتر فقط ويعرض كلمة المرور. أبقِ هذه الطرفية مفتوحة.';
+
+  @override
+  String get schedulePhoneBusy =>
+      'تستخدم مطالبة مجدولة خادم الهاتف. حاول مرة أخرى بعد انتهائها.';
+
+  @override
+  String get schedulePhoneCheckFailed =>
+      'تعذر التحقق من خادم الهاتف. حاول مرة أخرى.';
+
+  @override
+  String get scheduleTitle => 'المطالبات المجدولة';
+
+  @override
+  String get scheduleCreate => 'جدولة مطالبة';
+
+  @override
+  String get scheduleEdit => 'تعديل الجدول';
+
+  @override
+  String get schedulePrompt => 'المطالبة';
+
+  @override
+  String get scheduleTarget => 'المحادثة';
+
+  @override
+  String get scheduleThisConversation => 'هذه المحادثة';
+
+  @override
+  String get scheduleNewConversation => 'محادثة جديدة في كل تشغيل';
+
+  @override
+  String get scheduleAgent => 'الوكيل';
+
+  @override
+  String get scheduleWeekdays => 'كل يوم عمل';
+
+  @override
+  String get scheduleEveryHours => 'كل عدد من الساعات';
+
+  @override
+  String get scheduleOnce => 'مرة واحدة';
+
+  @override
+  String get scheduleRepeat => 'الموعد';
+
+  @override
+  String get scheduleTime => 'الوقت';
+
+  @override
+  String get scheduleHours => 'الساعات بين مرات التشغيل';
+
+  @override
+  String scheduleNextRun(String time) {
+    return 'التالي: $time';
+  }
+
+  @override
+  String get scheduleSave => 'حفظ الجدول';
+
+  @override
+  String get schedulePause => 'إيقاف مؤقت';
+
+  @override
+  String get scheduleResume => 'استئناف';
+
+  @override
+  String get scheduleDelete => 'حذف الجدول';
+
+  @override
+  String get scheduleHistory => 'سجل التشغيل';
+
+  @override
+  String get scheduleStarted => 'بدأ';
+
+  @override
+  String get scheduleRunning => 'قيد التشغيل';
+
+  @override
+  String get scheduleFailed => 'فشل';
+
+  @override
+  String get scheduleSkipped => 'تم التخطي';
+
+  @override
+  String get scheduleLate => 'متأخر';
+
+  @override
+  String get schedulePaused => 'متوقف مؤقتًا';
+
+  @override
+  String get scheduleFinished => 'لا توجد مرات تشغيل أخرى';
+
+  @override
+  String get scheduleMissedRuns => 'عند فوات موعد تشغيل';
+
+  @override
+  String get scheduleCatchUp => 'تشغيل مرة واحدة عند التوفر';
+
+  @override
+  String get scheduleSkipMissed => 'تخطي التشغيل الفائت';
+
+  @override
+  String get scheduleTimingNotice =>
+      'قد يؤخر Android التشغيل. يحسن إذن المنبهات الدقيقة التوقيت، مع بقاء الحاجة إلى اتصال بالشبكة. يؤدي إيقاف التطبيق إجباريًا إلى تعليق الجداول حتى تفتحه مجددًا.';
+
+  @override
+  String get scheduleExactAccess => 'السماح بالمنبهات الدقيقة';
+
+  @override
+  String get scheduleBatteryNotice =>
+      'قد تؤخر قيود البطارية الجداول. لكل تشغيل حد زمني، ولا حاجة إلى إبقاء التطبيق مفتوحًا.';
+
+  @override
+  String get scheduleDigest => 'الملخص الصباحي';
+
+  @override
+  String get scheduleDigestDescription =>
+      'إشعار بأعداد مرات التشغيل المجدولة منذ آخر ملخص.';
+
+  @override
+  String get scheduleEmpty => 'لا توجد مطالبات مجدولة بعد';
+
+  @override
+  String get scheduleNoHistory => 'لا توجد مرات تشغيل بعد';
+
+  @override
+  String get scheduleUnsupported =>
+      'المطالبات المجدولة غير متاحة لهذا الاتصال.';
+
+  @override
+  String get scheduleSaveFailed => 'تعذر حفظ هذا التغيير. حاول مجددًا.';
+
+  @override
+  String get scheduleNeedsYou => 'افتح المحادثة للرد على طلب.';
+
+  @override
+  String get scheduleBusy => 'كانت المحادثة تعمل بالفعل.';
+
+  @override
+  String get scheduleUnavailable =>
+      'تعذر الوصول إلى الخادم. تأكد من أنه يعمل وأن هذا الهاتف يستطيع الوصول إليه.';
+
+  @override
+  String get scheduleSignInAgain =>
+      'يحتاج الخادم إلى كلمة المرور مجددًا. افتح الخادم وسجّل الدخول قبل التشغيل التالي.';
+
+  @override
+  String get scheduleAllowHttp =>
+      'يستخدم هذا الخادم HTTP غير المشفر ولم يُسمح به بعد. افتح الخادم واسمح بـ HTTP قبل التشغيل التالي.';
+
+  @override
+  String get scheduleAgentFailed =>
+      'توقف الوكيل بسبب خطأ. افتح المحادثة لمعرفة ما حدث.';
+
+  @override
+  String get scheduleCertificateChanged =>
+      'تغيرت شهادة الخادم. افتح الخادم وتحقق منها قبل التشغيل التالي.';
+
+  @override
+  String get scheduleCertificateInvalid =>
+      'شهادة الخادم منتهية الصلاحية أو لم تصبح صالحة بعد. افتح الخادم وتحقق منها قبل التشغيل التالي.';
+
+  @override
+  String get scheduleTargetChanged =>
+      'تغير الاتصال أو الهدف المحفوظ. عدّل هذا الجدول.';
+
+  @override
+  String get scheduleInterrupted => 'انقطع التشغيل ولم تُرسل المطالبة مجددًا.';
+
+  @override
+  String get scheduleTimeout => 'بلغ التشغيل حده الزمني. تحقق من المحادثة.';
+
+  @override
+  String get scheduleUncertain =>
+      'تعذر تأكيد التسليم. تحقق من المحادثة قبل الإرسال مجددًا.';
+
+  @override
+  String get scheduleMissed => 'تم التخطي وفق اختيارك للمواعيد الفائتة.';
+
+  @override
+  String get scheduleInvalid =>
+      'أدخل مطالبة وموعدًا مستقبليًا، أو فترة من ساعة إلى 168 ساعة.';
+
+  @override
+  String get scheduleOptions => 'التوقيت والتسليم';
+
+  @override
+  String get scheduleNotificationsOff =>
+      'الإشعارات معطلة. تبقى النتائج في سجل التشغيل.';
+
+  @override
+  String get scheduleDeleteBody =>
+      'ستُحذف مرات التشغيل المستقبلية وسجل هذا الجدول. تبقى المطالبات المرسلة في محادثاتها.';
+
+  @override
+  String get scheduleNotificationTitle => 'بدأت مطالبة مجدولة';
+
+  @override
+  String get scheduleNotificationBody => 'اضغط لفتح المحادثة';
+
+  @override
+  String get scheduleDigestTitle => 'مرات التشغيل المجدولة';
+
+  @override
+  String scheduleDigestBody(int started, int failed, int skipped) {
+    return 'بدأت $started · فشلت $failed · تم تخطي $skipped';
+  }
+
+  @override
+  String get scheduleDefaultAgent => 'الوكيل المحفوظ';
+
+  @override
+  String get scheduleProject => 'المشروع';
+
+  @override
+  String get scheduleDeleteTitle => 'هل تريد حذف هذا الجدول؟';
+
+  @override
+  String scheduleToday(String time) {
+    return 'اليوم، $time';
+  }
+
+  @override
+  String scheduleTomorrow(String time) {
+    return 'غدًا، $time';
+  }
+
+  @override
+  String scheduleInMinutes(String minutes) {
+    return 'خلال $minutes د';
+  }
+
+  @override
+  String scheduleEveryNHours(String hours) {
+    return 'كل $hours ساعة';
+  }
+
+  @override
+  String scheduleDeleteNamedTitle(String name) {
+    return 'حذف «$name»؟';
+  }
+
+  @override
+  String get openCode2MoveProgress => 'جارٍ نقل محادثاتك إلى OpenCode 2…';
+
+  @override
+  String openCode2MoveRetrying(int retry, int total) {
+    return 'الهاتف لا يزال يستعد. سنعيد المحاولة بعد قليل (المحاولة $retry من $total).';
+  }
+
+  @override
+  String get openCode2MoveFailedNotReady =>
+      'لم يكن الخادم على هذا الهاتف جاهزًا. محادثات OpenCode 1 وملفاتك لا تزال على هذا الهاتف دون أي تغيير. أعد المحاولة بعد دقيقة.';
+
+  @override
+  String get openCode2MoveFailedSeparateHistory =>
+      'يحتوي OpenCode 2 على هذا الهاتف على محادثات خاصة به، لذا توقف النقل لحماية الاثنين. لم يتغير أي شيء.';
+
+  @override
+  String get openCode2MoveFailedStopped =>
+      'توقف النقل قبل اكتماله، وغالبًا لأن مساحة الهاتف الفارغة قليلة أو الخادم مشغول. محادثات OpenCode 1 وملفاتك لا تزال على هذا الهاتف دون أي تغيير.';
+
+  @override
+  String get openCode2MoveFailedNotConfirmed =>
+      'لم يؤكد OpenCode 2 وصول محادثاتك. محادثات OpenCode 1 وملفاتك لا تزال على هذا الهاتف دون أي تغيير.';
+
+  @override
+  String get terminalLinkTitle => 'رابط في الطرفية';
+
+  @override
+  String get terminalLinkOpen => 'فتح الرابط';
+
+  @override
+  String get terminalLinkCopy => 'نسخ الرابط';
+
+  @override
+  String get terminalCopiedToClipboard => 'تم النسخ إلى الحافظة';
+
+  @override
+  String get chatRequestAskOutsideWrite => 'الكتابة خارج هذا المشروع؟';
+
+  @override
+  String get chatRequestAskOutsideRead => 'القراءة خارج هذا المشروع؟';
+
+  @override
+  String get chatRequestAskOutsideRun => 'تشغيل أمر خارج هذا المشروع؟';
+
+  @override
+  String get phoneSetupStageRetrying => 'توقف مؤقتًا. جارٍ المحاولة مجددًا';
+
+  @override
+  String get linuxMgrRow => 'لينكس';
+
+  @override
+  String get linuxMgrRowDetail =>
+      'ما يعمل والمنافذ والمساحة والحزم في أوبونتو داخل هذا التطبيق';
+
+  @override
+  String get linuxMgrTitle => 'لينكس على هذا الهاتف';
+
+  @override
+  String get linuxMgrRunning => 'ما يعمل الآن';
+
+  @override
+  String get linuxMgrRunningDetail => 'ما يعمل داخل لينكس وإيقافه';
+
+  @override
+  String get linuxMgrPorts => 'المنافذ';
+
+  @override
+  String get linuxMgrPortsDetail => 'ما يستمع على منفذ ومعاينته';
+
+  @override
+  String get linuxMgrStorage => 'المساحة';
+
+  @override
+  String get linuxMgrStorageDetail => 'أين تذهب المساحة ومسح الذاكرة المؤقتة';
+
+  @override
+  String get linuxMgrPackages => 'الحزم';
+
+  @override
+  String get linuxMgrPackagesDetail => 'البرامج المثبتة: تثبيت وإزالة وتحديث';
+
+  @override
+  String get linuxMgrRepair => 'إصلاح لينكس';
+
+  @override
+  String get linuxMgrRepairDetail =>
+      'يفحص لينكس وOpenCode وأدواتك ويصلح ما تعطل. مشاريعك لا تُمس.';
+
+  @override
+  String get linuxMgrRepairTitle => 'إصلاح لينكس؟';
+
+  @override
+  String get linuxMgrRepairBody =>
+      'يفحص لينكس وOpenCode والأدوات التي أضفتها ويعيد تثبيت ما هو مفقود أو معطل. يحتاج إلى اتصال وقد يستغرق عدة دقائق.';
+
+  @override
+  String get linuxMgrRepairKept => 'مشاريعك وتسجيلات الدخول لا تُمس';
+
+  @override
+  String get linuxMgrReset => 'إعادة ضبط لينكس';
+
+  @override
+  String get linuxMgrResetDetail =>
+      'ابدأ من جديد بنسخة أوبونتو نظيفة. مشاريعك تبقى.';
+
+  @override
+  String get linuxMgrResetTitle => 'إعادة ضبط لينكس؟';
+
+  @override
+  String get linuxMgrResetBody =>
+      'يُمسح لينكس ويُعاد إعداده من الصفر. لا يمكن التراجع عن هذا.';
+
+  @override
+  String get linuxMgrResetLostTools =>
+      'الحزم والأدوات المثبتة: OpenCode وPython وAI Team والكتابة الصوتية';
+
+  @override
+  String get linuxMgrResetLostSignIns => 'تسجيلات دخول الوكلاء وإعداداتها';
+
+  @override
+  String get linuxMgrResetLostChats =>
+      'المحادثات التي يحفظها الخادم على هذا الهاتف';
+
+  @override
+  String get linuxMgrResetKept => 'مشاريعك تبقى على الهاتف';
+
+  @override
+  String get linuxMgrResetWord => 'إعادة';
+
+  @override
+  String get linuxMgrProblemBusy =>
+      'مهمة أخرى تستخدم لينكس الآن. انتظر قليلا ثم حاول مرة أخرى.';
+
+  @override
+  String get linuxMgrProblemSetup => 'الإعداد قيد التنفيذ. انتظر حتى ينتهي.';
+
+  @override
+  String get linuxMgrProblemJob => 'مهمة حزم قيد التنفيذ. انتظر حتى تنتهي.';
+
+  @override
+  String get linuxMgrProblemUnavailable =>
+      'لينكس غير مُعد أو لا يستجيب. افتح هذا الهاتف لإعداده.';
+
+  @override
+  String get linuxMgrProblemFailed => 'لم تكتمل العملية. حاول مرة أخرى.';
+
+  @override
+  String get linuxMgrLoadFailedTitle => 'تعذرت قراءة لينكس';
+
+  @override
+  String get linuxMgrProcTitle => 'ما يعمل في لينكس';
+
+  @override
+  String linuxMgrProcSummary(int count, String memory) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count برنامج',
+      many: '$count برنامجا',
+      few: '$count برامج',
+      two: 'برنامجان',
+      one: 'برنامج واحد',
+    );
+    return '$_temp0 · $memory';
+  }
+
+  @override
+  String get linuxMgrKindServer => 'خادم OpenCode';
+
+  @override
+  String get linuxMgrKindPaseo => 'Paseo';
+
+  @override
+  String get linuxMgrKindAgent => 'وكيل';
+
+  @override
+  String get linuxMgrKindDev => 'خادم تطوير';
+
+  @override
+  String get linuxMgrKindOther => 'أخرى';
+
+  @override
+  String get linuxMgrAboutServer =>
+      'خادم OpenCode الذي يتحدث إليه التطبيق. أوقفه من هذا الهاتف وليس من هنا.';
+
+  @override
+  String get linuxMgrAboutPaseo =>
+      'يشغل Paseo وكلاء البرمجة على هذا الهاتف. إيقافه ينهي الوكلاء الذين بدأهم.';
+
+  @override
+  String get linuxMgrAboutAgent =>
+      'وكيل برمجة أو جزء من AI Team. إيقافه ينهي عمله الجاري.';
+
+  @override
+  String get linuxMgrAboutDev =>
+      'برنامج يعرض مشروعك أثناء بنائه. شغله من المشروع مرة أخرى عند الحاجة.';
+
+  @override
+  String get linuxMgrAboutOther =>
+      'برنامج يعمل داخل لينكس. إيقافه ينهيه ولا شيء يعيد تشغيله.';
+
+  @override
+  String get linuxMgrProtected => 'يُدار من هذا الهاتف';
+
+  @override
+  String linuxMgrStopTitle(String name) {
+    return 'إيقاف $name؟';
+  }
+
+  @override
+  String get linuxMgrStopBody =>
+      'ينتهي الآن ولا شيء يعيد تشغيله. أي عمل غير محفوظ فيه يضيع.';
+
+  @override
+  String linuxMgrStopHelpers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count برنامج بدأها يتوقف معه',
+      many: '$count برنامجا بدأها يتوقف معه',
+      few: '$count برامج بدأها تتوقف معه',
+      two: 'برنامجان بدأهما يتوقفان معه',
+      one: 'برنامج واحد بدأه يتوقف معه',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String linuxMgrStopLabel(String name) {
+    return 'إيقاف $name';
+  }
+
+  @override
+  String get linuxMgrStopping => 'جارٍ الإيقاف…';
+
+  @override
+  String linuxMgrStopped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'تم إيقاف $count برنامج',
+      many: 'تم إيقاف $count برنامجا',
+      few: 'تم إيقاف $count برامج',
+      two: 'تم إيقاف برنامجين',
+      one: 'تم إيقاف برنامج واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String linuxMgrStopForced(int count) {
+    return 'تطلب إيقاف $count بالقوة';
+  }
+
+  @override
+  String linuxMgrStopRemaining(int count) {
+    return 'تعذر إيقاف $count';
+  }
+
+  @override
+  String linuxMgrStopChanged(int count) {
+    return 'تغير $count بالفعل فتُرك';
+  }
+
+  @override
+  String get linuxMgrNotStoppedTitle => 'لم يتوقف كل شيء';
+
+  @override
+  String get linuxMgrProcEmpty => 'لا شيء يعمل في لينكس';
+
+  @override
+  String get linuxMgrProcEmptyBody => 'يبدأ OpenCode وأدواتك عند استخدامها.';
+
+  @override
+  String get linuxMgrCopyCommand => 'نسخ الأمر';
+
+  @override
+  String get linuxMgrPortsTitle => 'المنافذ في لينكس';
+
+  @override
+  String linuxMgrPortRow(int port) {
+    return 'المنفذ $port';
+  }
+
+  @override
+  String linuxMgrPortUsedBy(String name) {
+    return 'يستخدمه $name';
+  }
+
+  @override
+  String get linuxMgrPortUnknown => 'البرنامج غير معروف';
+
+  @override
+  String get linuxMgrPortLocal => 'على هذا الهاتف فقط';
+
+  @override
+  String get linuxMgrPortAll => 'مفتوح للأجهزة الأخرى على شبكتك';
+
+  @override
+  String get linuxMgrPortNotPage => 'ليس صفحة ويب';
+
+  @override
+  String get linuxMgrPortPreview => 'فتح المعاينة';
+
+  @override
+  String linuxMgrPortPreviewNamed(int port) {
+    return 'فتح معاينة المنفذ $port';
+  }
+
+  @override
+  String get linuxMgrPortCopy => 'نسخ العنوان';
+
+  @override
+  String get linuxMgrPortsNote =>
+      'تُعرض فقط المنافذ التي يستطيع هذا الهاتف فتحها.';
+
+  @override
+  String get linuxMgrPortsEmpty => 'لا شيء يستمع على منفذ';
+
+  @override
+  String get linuxMgrPortsEmptyBody => 'عندما يبدأ خادم تطوير يظهر منفذه هنا.';
+
+  @override
+  String get linuxMgrStorageTitle => 'مساحة لينكس';
+
+  @override
+  String linuxMgrStorageTotal(String size) {
+    return 'مستخدم داخل لينكس: $size';
+  }
+
+  @override
+  String get linuxMgrCatBase => 'لينكس نفسه';
+
+  @override
+  String get linuxMgrCatBaseDetail => 'أوبونتو وملفات النظام';
+
+  @override
+  String get linuxMgrCatPackages => 'تنزيلات الحزم';
+
+  @override
+  String get linuxMgrCatPackagesDetail => 'الحزم المنزلة وقوائم الحزم';
+
+  @override
+  String get linuxMgrCatTools => 'Node والذاكرة المؤقتة';
+
+  @override
+  String get linuxMgrCatToolsDetail => 'Node وnpm وتنزيلات الإعداد';
+
+  @override
+  String get linuxMgrCatAgents => 'الوكلاء وOpenCode';
+
+  @override
+  String get linuxMgrCatAgentsDetail =>
+      'OpenCode وPaseo وClaude Code وAI Team وإعداداتها المحفوظة';
+
+  @override
+  String get linuxMgrCatProjects => 'المشاريع';
+
+  @override
+  String get linuxMgrCatProjectsDetail => 'عملك. لا يُمسح من هنا أبدا.';
+
+  @override
+  String get linuxMgrCatTemp => 'الملفات المؤقتة والسجلات';
+
+  @override
+  String get linuxMgrCatTempDetail => 'ملفات مؤقتة وسجلات البرامج';
+
+  @override
+  String get linuxMgrFreeUp => 'تحرير مساحة';
+
+  @override
+  String get linuxMgrCleanApt => 'مسح تنزيلات الحزم';
+
+  @override
+  String get linuxMgrCleanAptDetail => 'ينزلها لينكس مرة أخرى إذا احتاج إليها';
+
+  @override
+  String get linuxMgrCleanTools => 'مسح ذاكرة Node والتنزيلات المؤقتة';
+
+  @override
+  String get linuxMgrCleanToolsDetail =>
+      'تنزيلات npm والإعداد، تُجلب مرة أخرى عند الحاجة';
+
+  @override
+  String get linuxMgrCleanTemp => 'مسح الملفات المؤقتة والسجلات القديمة';
+
+  @override
+  String get linuxMgrCleanTempDetail =>
+      'ملفات لم تُمس منذ يوم وسجلات أقدم من أسبوع';
+
+  @override
+  String get linuxMgrCleanAgents => 'إزالة إصدارات الوكلاء القديمة';
+
+  @override
+  String get linuxMgrCleanAgentsDetail => 'إصدارات Paseo التي لم تعد مستخدمة';
+
+  @override
+  String linuxMgrCleanBody(String size) {
+    return 'تعود مساحة نحو $size. لا يمكن التراجع، ولا يُمس شيء من عملك.';
+  }
+
+  @override
+  String get linuxMgrCleanKept => 'المشاريع وتسجيلات الدخول والإعدادات تبقى';
+
+  @override
+  String linuxMgrCleanDone(String size) {
+    return 'تم تحرير $size';
+  }
+
+  @override
+  String get linuxMgrCleanNothing => 'لم يكن هناك ما يُمسح';
+
+  @override
+  String get linuxMgrCleanNone => 'لا شيء لمسحه الآن';
+
+  @override
+  String get linuxMgrMeasuring => 'جارٍ القياس…';
+
+  @override
+  String get linuxMgrPkgTitle => 'الحزم';
+
+  @override
+  String linuxMgrPkgCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count حزمة مثبتة',
+      many: '$count حزمة مثبتة',
+      few: '$count حزم مثبتة',
+      two: 'حزمتان مثبتتان',
+      one: 'حزمة واحدة مثبتة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get linuxMgrPkgSearch => 'ابحث في الحزم المثبتة';
+
+  @override
+  String get linuxMgrPkgNoMatch => 'لا توجد حزمة مثبتة مطابقة';
+
+  @override
+  String linuxMgrPkgShowAll(int count) {
+    return 'عرض كل الحزم ($count)';
+  }
+
+  @override
+  String get linuxMgrPkgUpdate => 'تحديث النظام';
+
+  @override
+  String get linuxMgrPkgUpdateDetail =>
+      'يحدث قوائم الحزم ويثبت التحديثات المتاحة';
+
+  @override
+  String get linuxMgrPkgUpdateTitle => 'تحديث حزم لينكس؟';
+
+  @override
+  String get linuxMgrPkgUpdateBody =>
+      'ينزل أحدث التحديثات ويثبتها. يستخدم اتصالك وقد يستغرق عدة دقائق ويتوقف من تلقاء نفسه بعد 45 دقيقة.';
+
+  @override
+  String get linuxMgrPkgInstall => 'تثبيت حزمة';
+
+  @override
+  String get linuxMgrPkgInstallDetail => 'بالاسم، مثل htop';
+
+  @override
+  String get linuxMgrPkgName => 'اسم الحزمة';
+
+  @override
+  String get linuxMgrPkgNameHelper => 'أسماء حزم أوبونتو مفصولة بمسافات';
+
+  @override
+  String get linuxMgrPkgNameInvalid =>
+      'استخدم أحرفا صغيرة وأرقاما والرموز + - . فقط في كل اسم';
+
+  @override
+  String get linuxMgrPkgCheck => 'تحقق';
+
+  @override
+  String linuxMgrPkgAlready(String name) {
+    return '$name مثبتة بالفعل';
+  }
+
+  @override
+  String linuxMgrPkgUnknown(String name) {
+    return 'لا توجد حزمة باسم $name. تحديث النظام يحدث قائمة الحزم.';
+  }
+
+  @override
+  String linuxMgrPkgInstallTitle(String names) {
+    return 'تثبيت $names؟';
+  }
+
+  @override
+  String get linuxMgrPkgInstallBody => 'ينزل من أوبونتو ويثبت. يستخدم اتصالك.';
+
+  @override
+  String linuxMgrPkgInstallLabel(String names) {
+    return 'تثبيت $names';
+  }
+
+  @override
+  String linuxMgrPkgRemove(String name) {
+    return 'إزالة $name';
+  }
+
+  @override
+  String linuxMgrPkgRemoveTitle(String name) {
+    return 'إزالة $name؟';
+  }
+
+  @override
+  String get linuxMgrPkgRemoveBody => 'تُزال من لينكس. مشاريعك لا تُمس.';
+
+  @override
+  String linuxMgrPkgAlsoRemoved(String list) {
+    return 'تُزال أيضا: $list';
+  }
+
+  @override
+  String get linuxMgrPkgLocked =>
+      'يحتاج إليها لينكس أو أدواتك. تُزال الأدوات من هذا الهاتف.';
+
+  @override
+  String linuxMgrPkgBlockedPlan(String list) {
+    return 'إزالتها ستزيل أيضا $list التي يحتاج إليها لينكس.';
+  }
+
+  @override
+  String get linuxMgrPkgChecking => 'جارٍ فحص ما ستزيله…';
+
+  @override
+  String linuxMgrJobInstalling(String names) {
+    return 'جارٍ تثبيت $names';
+  }
+
+  @override
+  String linuxMgrJobRemoving(String names) {
+    return 'جارٍ إزالة $names';
+  }
+
+  @override
+  String get linuxMgrJobUpdating => 'جارٍ تحديث حزم لينكس';
+
+  @override
+  String get linuxMgrJobKeepsGoing => 'يستمر إذا غادرت هذه الصفحة.';
+
+  @override
+  String linuxMgrJobStopInstall(String names) {
+    return 'إيقاف تثبيت $names';
+  }
+
+  @override
+  String linuxMgrJobStopRemove(String names) {
+    return 'إيقاف إزالة $names';
+  }
+
+  @override
+  String get linuxMgrJobStopUpdate => 'إيقاف التحديث';
+
+  @override
+  String get linuxMgrJobStopBody =>
+      'يتوقف الآن. تُصلح أي حزمة نصف مكتملة عند تشغيل مهمة حزم في المرة القادمة.';
+
+  @override
+  String linuxMgrJobDoneInstall(String names) {
+    return 'تم تثبيت $names';
+  }
+
+  @override
+  String linuxMgrJobDoneRemove(String names) {
+    return 'تمت إزالة $names';
+  }
+
+  @override
+  String get linuxMgrJobDoneUpdate => 'حزم لينكس محدثة';
+
+  @override
+  String get linuxMgrJobFailed =>
+      'لم تكتمل العملية. لم يُمس شيء من عملك. حاول مرة أخرى وسيتابع من حيث توقف.';
+
+  @override
+  String get linuxMgrJobTimedOut =>
+      'استغرق أكثر من 45 دقيقة فتوقف من تلقاء نفسه. شغله مرة أخرى للمتابعة.';
+
+  @override
+  String get linuxMgrJobInterrupted =>
+      'توقف قبل أن ينتهي، مثلا عند إغلاق التطبيق. شغله مرة أخرى للمتابعة.';
+
+  @override
+  String get linuxMgrJobNoticeInstall => 'جارٍ تثبيت حزم لينكس';
+
+  @override
+  String get linuxMgrJobNoticeRemove => 'جارٍ إزالة حزم لينكس';
+
+  @override
+  String get linuxMgrJobNoticeUpdate => 'جارٍ تحديث حزم لينكس';
+
+  @override
+  String get linuxMgrJobDismiss => 'تم';
+
+  @override
+  String linuxMgrJobStopInstallTitle(String names) {
+    return 'إيقاف تثبيت $names؟';
+  }
+
+  @override
+  String linuxMgrJobStopRemoveTitle(String names) {
+    return 'إيقاف إزالة $names؟';
+  }
+
+  @override
+  String get linuxMgrJobStopUpdateTitle => 'إيقاف تحديث حزم لينكس؟';
+
+  @override
+  String get linuxMgrCleanAptAsk => 'مسح تنزيلات الحزم؟';
+
+  @override
+  String get linuxMgrCleanToolsAsk => 'مسح ذاكرة Node والتنزيلات المؤقتة؟';
+
+  @override
+  String get linuxMgrCleanTempAsk => 'مسح الملفات المؤقتة والسجلات القديمة؟';
+
+  @override
+  String get linuxMgrCleanAgentsAsk => 'إزالة إصدارات الوكلاء القديمة؟';
+
+  @override
+  String get kitLogSearch => 'البحث في هذا الإخراج';
+
+  @override
+  String get kitLogPause => 'إيقاف المتابعة مؤقتًا';
+
+  @override
+  String get kitLogFollow => 'متابعة الإخراج الجديد';
+
+  @override
+  String get kitLogPreviousMatch => 'النتيجة السابقة';
+
+  @override
+  String get kitLogNextMatch => 'النتيجة التالية';
+
+  @override
+  String get servicesAlsoRunning => 'قيد التشغيل أيضًا';
+
+  @override
+  String get servicesAlsoPhoneHint =>
+      'تم العثور عليها من المنافذ التي تستمع إليها، أيًا كانت طريقة تشغيلها.';
+
+  @override
+  String get servicesAlsoServerHint =>
+      'يعرض هذا الخادم الأوامر التي يشغّلها. لا يظهر هنا خادم بدأ من الطرفية.';
+
+  @override
+  String servicesPorts(int count, String ports) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'المنافذ $ports',
+      one: 'المنفذ $ports',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get servicesNoPortYet => 'لم يُعثر على منفذ بعد';
+
+  @override
+  String get servicesOpenPreview => 'فتح المعاينة';
+
+  @override
+  String servicesOpenPreviewNamed(String name) {
+    return 'معاينة $name';
+  }
+
+  @override
+  String servicesPreviewPort(String port) {
+    return 'معاينة المنفذ $port';
+  }
+
+  @override
+  String get servicesSaveCommand => 'حفظ كأمر';
+
+  @override
+  String servicesStopFoundTitle(String name) {
+    return 'إيقاف $name؟';
+  }
+
+  @override
+  String get servicesStopFoundHint =>
+      'سيُنهي هذا البرنامج على الجهاز الذي يعمل عليه. وأي شيء لم يحفظه سيضيع.';
+
+  @override
+  String get servicesLogsUnavailable =>
+      'لم يبدأ هذا البرنامج من هذا التطبيق، لذلك لا يُحفظ إخراجه حيث يستطيع التطبيق قراءته. اختر «حفظ كأمر» في صفه، ثم أوقف هذا البرنامج وابدأ الأمر المحفوظ من هنا لرؤية سجلاته.';
+
+  @override
+  String get servicesStopFailed =>
+      'لم يتوقف. حاول مرة أخرى أو أوقفه من الطرفية.';
+
+  @override
+  String devPreviewRunningNow(String name) {
+    return 'قيد التشغيل الآن: $name';
+  }
+
+  @override
+  String get devPreviewNoneFound => 'لم يُعثر على تطبيقات قيد التشغيل';
+
+  @override
+  String get linuxMgrResetNotErasedTitle => 'لم تتم إعادة ضبط لينكس';
+
+  @override
+  String get linuxMgrResetNotErasedBody =>
+      'لم يُمسح شيء. أغلق الطرفيات وأوقف ما يعمل في لينكس، ثم حاول مرة أخرى.';
+
+  @override
+  String get linuxMgrResetDetailsLabel => 'رمز الخطأ';
+
+  @override
+  String get linuxMgrResetCleanupTitle => 'إعادة إعداد لينكس';
+
+  @override
+  String linuxMgrResetForgetFailed(String name) {
+    return 'الاتصال المحفوظ «$name» من قبل إعادة الضبط ما زال على هذا الهاتف.';
+  }
+
+  @override
+  String linuxMgrResetLeft(String name, String what) {
+    return 'من قبل إعادة الضبط، ما زال لدى «$name» محفوظًا: $what.';
+  }
+
+  @override
+  String get linuxMgrResetLeftConnection => 'اتصاله المحفوظ';
+
+  @override
+  String get servicesAlsoPhoneFailed =>
+      'تعذّر التحقق مما يعمل أيضًا في لينكس الآن. يُعاد التحقق خلال ثوانٍ.';
+
+  @override
+  String linuxMgrProcGroupCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count عملية',
+      many: '$count عملية',
+      few: '$count عمليات',
+      two: 'عمليتان',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get gitRepairFailureWords => 'تعذّرت قراءة سجل Git.';
+
+  @override
+  String get gitRepairAction => 'إصلاح';
+
+  @override
+  String get gitRepairTitle => 'إصلاح سجل Git';
+
+  @override
+  String gitRepairWorking(String project) {
+    return 'جارٍ إصلاح $project…';
+  }
+
+  @override
+  String get gitRepairLooking => 'جارٍ البحث عن ملفات Git المفقودة…';
+
+  @override
+  String gitRepairRestoring(int done, int total) {
+    return 'جارٍ إرجاع $done من $total من ملفات Git…';
+  }
+
+  @override
+  String gitRepairAskingTermux(int done, int total) {
+    return 'جارٍ نسخ $done من $total من ملفات Git من Termux…';
+  }
+
+  @override
+  String get gitRepairChecking => 'جارٍ فحص المشروع باستخدام Git…';
+
+  @override
+  String gitRepairDoneTitle(String project) {
+    return 'تم إصلاح $project';
+  }
+
+  @override
+  String gitRepairDoneBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'عادت $count من ملفات Git، ويمكن لـ Git قراءة المشروع من جديد.',
+      one: 'عاد ملف Git واحد، ويمكن لـ Git قراءة المشروع من جديد.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get gitRepairHealthyTitle => 'لم يكن هناك شيء مفقود';
+
+  @override
+  String gitRepairHealthyBody(String project) {
+    return 'يمكن لـ Git قراءة $project الآن.';
+  }
+
+  @override
+  String get gitRepairStart => 'ابدأ المحادثة';
+
+  @override
+  String get gitRepairTermuxNotAllowedTitle => 'الملفات في Termux';
+
+  @override
+  String get gitRepairTermuxNotAllowedBody =>
+      'اسمح للتطبيق بتشغيل الأوامر في Termux، وسيعيد نسخها.';
+
+  @override
+  String get gitRepairAllow => 'اسمح وأصلح';
+
+  @override
+  String get gitRepairTermuxNoAnswerTitle => 'لم يستجب Termux';
+
+  @override
+  String get gitRepairTermuxNoAnswerBody =>
+      'افتح Termux مرة ليبدأ، ثم عد إلى هنا وأصلح من جديد.';
+
+  @override
+  String get gitRepairAgain => 'أصلح من جديد';
+
+  @override
+  String get gitRepairOpenTermux => 'افتح Termux';
+
+  @override
+  String gitRepairCannotTitle(String project) {
+    return 'تعذّر إصلاح $project';
+  }
+
+  @override
+  String gitRepairMissingBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'لم تعد $count من ملفات Git موجودة على هذا الهاتف. انسخ المشروع من جديد من مكان استضافته، أو استعد نسخة منه.',
+      one:
+          'لم يعد ملف Git واحد موجودًا على هذا الهاتف. انسخ المشروع من جديد من مكان استضافته، أو استعد نسخة منه.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get gitRepairStillBrokenBody =>
+      'ما زال Git لا يستطيع قراءته. انسخ المشروع من جديد من مكان استضافته، أو استعد نسخة منه.';
+
+  @override
+  String get gitRepairNotRepositoryTitle => 'تعذّر إصلاح هذا المجلد';
+
+  @override
+  String get gitRepairNotRepositoryBody =>
+      'يمكن هنا إصلاح مشاريع Git الموجودة في مجلد المشاريع في Linux المدمج فقط.';
+
+  @override
+  String get gitRepairClose => 'إغلاق';
+
+  @override
+  String get gitProblemNotARepository => 'هذا المجلد ليس مستودع Git.';
+
+  @override
+  String get gitProblemGitMissing =>
+      'Git غير مثبّت حيث يوجد هذا المشروع. ثبّته هناك ثم حاول مجددًا.';
+
+  @override
+  String get gitProblemFolderMissing =>
+      'لم يُعثر على مجلد المشروع. ربما نُقل أو حُذف.';
+
+  @override
+  String get gitProblemEnvironmentUnavailable =>
+      'تعذّر الوصول إلى المكان الذي يوجد فيه هذا المشروع. تحقّق من أنه يعمل ثم حاول مجددًا.';
+
+  @override
+  String get gitProblemServerCannotRunCommands =>
+      'لا يستطيع هذا الخادم تشغيل أوامر Git للتطبيق.';
+
+  @override
+  String get gitProblemOutputTooLarge =>
+      'التغييرات أكثر من أن تُقرأ هنا. أودِع بعض الملفات أو نظّفها ثم حاول مجددًا.';
+
+  @override
+  String get gitProblemTimedOut => 'استغرق Git وقتًا طويلًا للرد. حاول مجددًا.';
+
+  @override
+  String get gitProblemUnsafeRepository =>
+      'يرفض Git العمل في هذا المجلد لأن مستخدمًا آخر يملكه. أصلح مالك المجلد على ذلك الجهاز.';
+
+  @override
+  String get gitProblemRepositoryLocked =>
+      'أمر Git آخر يستخدم هذا المستودع. انتظر حتى ينتهي ثم حاول مجددًا.';
+
+  @override
+  String get gitProblemNoUpstream =>
+      'هذا الفرع غير مرتبط بفرع على المستودع البعيد بعد. ادفعه أولًا.';
+
+  @override
+  String get gitProblemNoRemote =>
+      'لا يوجد لهذا المستودع مستودع بعيد للدفع إليه. أضف واحدًا على ذلك الجهاز أولًا.';
+
+  @override
+  String get gitProblemDetachedHead =>
+      'أنت لست على أي فرع. انتقل إلى فرع أولًا.';
+
+  @override
+  String get gitProblemCannotFastForward =>
+      'في المستودع البعيد وفي هذا الفرع إيداعات جديدة، فلا يمكن جمعهما تلقائيًا. نفّذ merge أو rebase على ذلك الجهاز.';
+
+  @override
+  String get gitProblemPushRejected =>
+      'في المستودع البعيد إيداعات ليست في هذا الفرع. اسحب أولًا ثم ادفع مجددًا.';
+
+  @override
+  String get gitProblemLocalChangesBlock =>
+      'ستُستبدل تغييراتك غير المودَعة. أودِعها أو تجاهلها أولًا.';
+
+  @override
+  String get gitProblemAuthRequired =>
+      'يطلب المستودع البعيد تسجيل الدخول. اضبط تسجيل الدخول إلى Git حيث يوجد هذا المشروع ثم حاول مجددًا.';
+
+  @override
+  String get gitProblemAuthRequiredSignIn =>
+      'يطلب المستودع البعيد تسجيل الدخول. سجّل الدخول إلى GitHub ثم حاول مجددًا.';
+
+  @override
+  String get gitProblemGitHubTokenRejected =>
+      'لم يقبل GitHub تسجيل دخولك. سجّل الدخول إلى GitHub مجددًا.';
+
+  @override
+  String get gitProblemNoPermission =>
+      'لا يستطيع حسابك الدفع إلى هذا المستودع. اطلب الوصول من مالكه.';
+
+  @override
+  String get gitProblemNetwork =>
+      'تعذّر الوصول إلى المستودع البعيد. تحقّق من اتصال الإنترنت ثم حاول مجددًا.';
+
+  @override
+  String get gitProblemRemoteNotFound =>
+      'لم يُعثر على المستودع البعيد، أو أن حسابك لا يستطيع رؤيته.';
+
+  @override
+  String get gitProblemNothingSelected =>
+      'اختر ملفًا واحدًا على الأقل لإيداعه.';
+
+  @override
+  String get gitProblemEmptyMessage => 'اكتب رسالة تصف الإيداع.';
+
+  @override
+  String get gitProblemNothingToCommit =>
+      'لا يوجد ما يُودَع في الملفات التي اخترتها.';
+
+  @override
+  String get gitProblemIdentityMissing =>
+      'يحتاج Git إلى اسمك وبريدك الإلكتروني لإنشاء إيداع. أضفهما ثم حاول مجددًا.';
+
+  @override
+  String get gitProblemSigningFailed =>
+      'تعذّر على Git توقيع الإيداع. تحقّق من إعداد توقيع الإيداعات على ذلك الجهاز.';
+
+  @override
+  String get gitProblemHookRejected =>
+      'أوقف فحص في هذا المستودع الإجراء. تعرض التفاصيل ما قاله.';
+
+  @override
+  String get gitProblemInvalidBranchName =>
+      'هذا ليس اسم فرع صالحًا. تجنّب المسافات والرموز مثل ~ ^ : ? * [';
+
+  @override
+  String get gitProblemBranchExists => 'يوجد فرع بهذا الاسم بالفعل.';
+
+  @override
+  String get gitProblemBranchNotFound => 'لم يُعثر على هذا الفرع.';
+
+  @override
+  String get gitProblemConflicts =>
+      'في بعض الملفات تعارضات. احلّها على ذلك الجهاز أولًا.';
+
+  @override
+  String get gitProblemOperationInProgress =>
+      'عملية merge أو rebase لم تكتمل. أكملها أو ألغها على ذلك الجهاز أولًا.';
+
+  @override
+  String get gitProblemCannotDiscardConflict =>
+      'لا يمكن تجاهل الملفات التي فيها تعارضات من هنا.';
+
+  @override
+  String get gitProblemUnknown =>
+      'تعذّر على Git الإكمال. تعرض التفاصيل ما قاله.';
+
+  @override
+  String get gitUnavailableNotConnected => 'اتصل بخادم لرؤية تغييرات Git فيه.';
+
+  @override
+  String get gitUnavailableNoProject => 'افتح مشروعًا لرؤية تغييرات Git فيه.';
+
+  @override
+  String get gitUnavailableServerCannotRun =>
+      'لا يستطيع هذا الخادم تشغيل Git للتطبيق. استخدم Git على ذلك الحاسوب بدلًا من ذلك.';
+
+  @override
+  String get gitNotRepositoryTitle => 'ليس مستودع Git';
+
+  @override
+  String get gitNotRepositoryBody => 'مجلد المشروع هذا لا يستخدم Git بعد.';
+
+  @override
+  String get gitCleanTitle => 'لا توجد تغييرات';
+
+  @override
+  String get gitCleanBody => 'كل شيء مودَع.';
+
+  @override
+  String get gitDetachedHead => 'ليس على أي فرع';
+
+  @override
+  String get gitNotPushedYet => 'لم يُدفع بعد';
+
+  @override
+  String get gitNoCommitsYet => 'لا توجد إيداعات بعد';
+
+  @override
+  String gitAhead(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count إيداع للدفع',
+      many: '$count إيداعًا للدفع',
+      few: '$count إيداعات للدفع',
+      two: 'إيداعان للدفع',
+      one: 'إيداع واحد للدفع',
+      zero: 'لا توجد إيداعات للدفع',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String gitBehind(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count إيداع للسحب',
+      many: '$count إيداعًا للسحب',
+      few: '$count إيداعات للسحب',
+      two: 'إيداعان للسحب',
+      one: 'إيداع واحد للسحب',
+      zero: 'لا توجد إيداعات للسحب',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get gitOperationMerge => 'عملية merge لم تكتمل';
+
+  @override
+  String get gitOperationRebase => 'عملية rebase لم تكتمل';
+
+  @override
+  String get gitOperationCherryPick => 'عملية cherry-pick لم تكتمل';
+
+  @override
+  String get gitOperationRevert => 'عملية revert لم تكتمل';
+
+  @override
+  String get gitUsesOwnSignIn =>
+      'يستخدم الدفع والسحب تسجيل الدخول إلى Git المضبوط مسبقًا حيث يوجد هذا المشروع.';
+
+  @override
+  String get gitChangeAdded => 'مُضاف';
+
+  @override
+  String get gitChangeModified => 'معدَّل';
+
+  @override
+  String get gitChangeDeleted => 'محذوف';
+
+  @override
+  String get gitChangeRenamed => 'معاد تسميته';
+
+  @override
+  String get gitChangeCopied => 'منسوخ';
+
+  @override
+  String get gitChangeTypeChanged => 'تغيّر نوعه';
+
+  @override
+  String get gitChangeUntracked => 'جديد';
+
+  @override
+  String get gitChangeConflicted => 'تعارض';
+
+  @override
+  String get gitActionPull => 'سحب';
+
+  @override
+  String get gitActionPush => 'دفع';
+
+  @override
+  String get gitActionCommit => 'إيداع';
+
+  @override
+  String get gitActionSwitchBranch => 'تبديل الفرع';
+
+  @override
+  String get gitActionCreateBranch => 'فرع جديد';
+
+  @override
+  String get gitActionDiscard => 'تجاهل التغييرات';
+
+  @override
+  String get gitActionRefresh => 'تحديث';
+
+  @override
+  String get gitActionSaveIdentity => 'حفظ الاسم والبريد';
+
+  @override
+  String get gitBusyPull => 'جارٍ السحب…';
+
+  @override
+  String get gitBusyPush => 'جارٍ الدفع…';
+
+  @override
+  String get gitBusyCommit => 'جارٍ الإيداع…';
+
+  @override
+  String get gitBusySwitchBranch => 'جارٍ تبديل الفرع…';
+
+  @override
+  String get gitBusyCreateBranch => 'جارٍ إنشاء الفرع…';
+
+  @override
+  String get gitBusyDiscard => 'جارٍ تجاهل التغييرات…';
+
+  @override
+  String get gitBusyRefresh => 'جارٍ التحقق من التغييرات…';
+
+  @override
+  String get gitBusySaveIdentity => 'جارٍ الحفظ…';
+
+  @override
+  String get gitDoneUpToDate => 'محدَّث بالفعل.';
+
+  @override
+  String get gitDonePulled => 'تم سحب أحدث الإيداعات.';
+
+  @override
+  String get gitDonePushed => 'تم الدفع.';
+
+  @override
+  String get gitDonePushedTracking =>
+      'تم الدفع. أصبح هذا الفرع يتبع الفرع الموجود على المستودع البعيد.';
+
+  @override
+  String gitDoneCommitted(String commit) {
+    return 'تم الإيداع $commit.';
+  }
+
+  @override
+  String get gitDoneSwitched => 'تم تبديل الفرع.';
+
+  @override
+  String get gitDoneCreated => 'تم إنشاء الفرع والانتقال إليه.';
+
+  @override
+  String get gitDoneDiscarded => 'تم تجاهل التغييرات.';
+
+  @override
+  String get gitDoneIdentitySaved =>
+      'تم حفظ اسمك وبريدك الإلكتروني لهذا المستودع.';
+
+  @override
+  String gitDiscardConfirmTitle(String file) {
+    return 'هل تريد تجاهل التغييرات في $file؟';
+  }
+
+  @override
+  String get gitDiscardConfirmBody =>
+      'ستُحذف تغييراته من هذا الجهاز. لا يمكن التراجع عن ذلك.';
+
+  @override
+  String get gitCommitMessageHint => 'صف ما الذي تغيّر';
+
+  @override
+  String get gitBranchNameHint => 'اسم الفرع';
+
+  @override
+  String get gitIdentityName => 'الاسم';
+
+  @override
+  String get gitIdentityEmail => 'البريد الإلكتروني';
+
+  @override
+  String get gitHubSignIn => 'تسجيل الدخول إلى GitHub';
+
+  @override
+  String get gitHubSignOut => 'تسجيل الخروج من GitHub';
+
+  @override
+  String gitHubSignedInAs(String login) {
+    return 'تم تسجيل الدخول إلى GitHub باسم $login';
+  }
+
+  @override
+  String get gitHubRequestingCode => 'جارٍ الحصول على رمز تسجيل الدخول…';
+
+  @override
+  String get gitHubEnterCode =>
+      'أدخل هذا الرمز على GitHub لإكمال تسجيل الدخول.';
+
+  @override
+  String get gitHubOpenGitHub => 'فتح GitHub';
+
+  @override
+  String get gitHubCopyCode => 'نسخ الرمز';
+
+  @override
+  String get gitHubWaiting => 'في انتظار إكمالك على GitHub…';
+
+  @override
+  String get gitHubFinishing => 'جارٍ إكمال تسجيل الدخول…';
+
+  @override
+  String get gitHubCancel => 'إلغاء';
+
+  @override
+  String get gitHubSignOutBody =>
+      'سينسى التطبيق تسجيل دخولك إلى GitHub على هذا الجهاز. لإزالة وصوله بالكامل، ألغِه على GitHub أيضًا.';
+
+  @override
+  String get gitHubManageAccess => 'إدارة الوصول على GitHub';
+
+  @override
+  String get gitHubPushOverHttps =>
+      'يستخدم الدفع إلى GitHub تسجيل الدخول هذا عبر HTTPS. لا تتغيّر إعدادات SSH لديك.';
+
+  @override
+  String get gitHubProblemExpired =>
+      'انتهت صلاحية الرمز قبل إدخاله. سجّل الدخول مجددًا للحصول على رمز جديد.';
+
+  @override
+  String get gitHubProblemDenied => 'أُلغي تسجيل الدخول على GitHub.';
+
+  @override
+  String get gitHubProblemDisabled =>
+      'تسجيل الدخول إلى GitHub غير مفعّل لهذا التطبيق بعد.';
+
+  @override
+  String get gitHubProblemNetwork =>
+      'تعذّر الوصول إلى GitHub. تحقّق من اتصال الإنترنت ثم حاول مجددًا.';
+
+  @override
+  String get gitHubProblemTokenRejected =>
+      'انتهى تسجيل دخولك إلى GitHub. سجّل الدخول مجددًا.';
+
+  @override
+  String get gitHubProblemUnexpected =>
+      'أرسل GitHub ردًا لم يفهمه التطبيق. حاول مجددًا.';
 }

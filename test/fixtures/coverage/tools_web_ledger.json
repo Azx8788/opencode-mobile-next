@@ -1,5 +1,6 @@
 {
   "location.directory": "ignored: which folder the list is for; the person is already in that project",
+  "location.project.canonical": "ignored: which folder the list is for; the person is already in that project",
   "location.project.directory": "ignored: which folder the list is for; the person is already in that project",
   "location.project.id": "ignored: which folder the list is for; the person is already in that project",
   "location.workspaceID": "ignored: which folder the list is for; the person is already in that project",

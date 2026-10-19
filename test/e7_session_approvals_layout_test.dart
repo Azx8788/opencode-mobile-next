@@ -1,11 +1,11 @@
+import 'package:opencode_mobile/domain/server_gateway.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opencode_mobile/api/models.dart';
-import 'package:opencode_mobile/api/opencode_api.dart';
-import 'package:opencode_mobile/api/sse.dart';
+import 'package:opencode_mobile/domain/models.dart';
+import 'support/fake_server_gateway.dart';
 import 'package:opencode_mobile/l10n/app_localizations.dart';
 import 'package:opencode_mobile/state/automation_policy.dart';
 import 'package:opencode_mobile/state/connection.dart';
@@ -29,7 +29,7 @@ Future<void> _captureScreen(WidgetTester tester, String name) async {
   );
 }
 
-class _FakeApi extends OpenCodeApi with CompleteMessageHistory {
+class _FakeApi extends FakeServerGateway with CompleteMessageHistory {
   _FakeApi() : super(baseUrl: 'http://localhost');
   final replies = <(String, String)>[];
   Completer<void>? hold;

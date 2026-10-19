@@ -390,7 +390,9 @@ class _WorkGroupState extends State<_WorkGroup> {
   /// time (a patch that did not apply, then one that did); a failure they got
   /// past is a detail of the steps, not the state of the work.
   bool get _endedFailed =>
-      _tools.isNotEmpty && _tools.last.toolState.status == 'error';
+      _tools.isNotEmpty &&
+      _tools.last.toolState.status == 'error' &&
+      !_tools.last.toolState.declined;
 
   @override
   Widget build(BuildContext context) {
