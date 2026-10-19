@@ -61,7 +61,9 @@ void main() {
           )
           .replaceFirst(
             '/* PRODUCTION_FINISH */',
-            _member(linux, 'internal fun finishInstaller('),
+            // finishInstaller hands draining the process to this helper.
+            '${_member(linux, 'internal fun finishInstaller(')}\n'
+                '${_member(linux, 'private fun drainAndReleaseInstaller(')}',
           ),
     );
     final compiled = await Process.run(

@@ -87,6 +87,10 @@ void main() {
         'SessionsWidgetProvider.kt',
         'SessionWidgetRenderer.kt',
         'SessionWidgetRow.kt',
+        'SessionWidgetRowEnv.kt',
+        'SessionWidgetStripBinder.kt',
+        'SessionWidgetPageBinder.kt',
+        'SessionWidgetListBinder.kt',
         'WidgetCopy.kt',
       ])
         File('$_kotlin$name').readAsStringSync(),

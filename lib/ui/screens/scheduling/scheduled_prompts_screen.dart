@@ -191,6 +191,9 @@ class _ScheduledPromptsScreenState extends State<ScheduledPromptsScreen>
               title: _name(schedule, l),
               titleMaxLines: 3,
               supporting: TextSpan(text: _line(context, schedule, l)),
+              // "Next: Today, 8:00 AM · Every weekday" runs long in Arabic;
+              // it wraps rather than cutting off the rule.
+              supportingMaxLines: 2,
               onTap: () => _edit(schedule),
               below: Row(
                 mainAxisAlignment: MainAxisAlignment.end,

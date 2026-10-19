@@ -63,7 +63,7 @@ void main() {
     final linux = File('$native/BuiltinLinux.kt').readAsStringSync();
     expect(linux, contains('--bind=/storage"'));
     expect(linux, contains(':/sdcard"'));
-    expect(linux, contains('+ sharedStorageBinds() +'));
+    expect(linux, contains('sharedStorageBinds() + fakeProcBinds'));
     // Confined (AI Team on): only the folders the person opened, bound and
     // allowed by exact path; never the whole of /storage.
     expect(linux, contains('object SharedStorageBinds'));

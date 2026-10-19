@@ -24,8 +24,12 @@ void main() {
 
   test('every proot command prepares and binds persistent projects', () {
     final body = method(linux, 'fun prootCommand(');
-    expect(body, contains('check(!installingRuntime)'));
-    expect(body, contains('projectStorage.prepare()'));
+    // The guard and the project preparation live in one helper that every
+    // proot command calls first.
+    final prepare = method(linux, 'private fun prepareGuestForProot(');
+    expect(body.trimLeft(), contains('{\n        prepareGuestForProot()'));
+    expect(prepare, contains('check(!installingRuntime)'));
+    expect(prepare, contains('projectStorage.prepare()'));
     expect(
       body,
       contains(
@@ -33,7 +37,7 @@ void main() {
       ),
     );
     expect(
-      body.indexOf('projectStorage.prepare()'),
+      body.indexOf('prepareGuestForProot()'),
       lessThan(body.indexOf('return')),
     );
   });
