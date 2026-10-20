@@ -305,5 +305,18 @@
         items.forEach(function (el) { io.observe(el); });
       })();
     </script>
+    <script>
+      // Privacy-friendly visit count (GoatCounter): no cookies, no personal data,
+      // skipped for Do Not Track and local previews.
+      (function () {
+        var host = location.hostname;
+        if (navigator.doNotTrack === '1' || !/\.github\.io$/.test(host)) return;
+        var q = 'p=' + encodeURIComponent(location.pathname) +
+          '&t=' + encodeURIComponent(document.title) +
+          '&r=' + encodeURIComponent(document.referrer) +
+          '&s=' + encodeURIComponent(screen.width) + '&rnd=' + Math.random().toString(36).slice(2);
+        new Image().src = 'https://opencode-mobile.goatcounter.com/count?' + q;
+      })();
+    </script>
   </body>
 </html>

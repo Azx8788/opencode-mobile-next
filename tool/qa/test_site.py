@@ -158,6 +158,14 @@ class StaticSiteTest(unittest.TestCase):
                     self.assertFalse(value.lstrip().lower().startswith('javascript:'),
                                      'JavaScript URLs prevent a static no-JS page.')
 
+    def test_visit_count_is_inline_cookie_free_and_off_for_previews(self):
+        counters = [e for e in self.document.tags('script') if 'goatcounter' in e.content]
+        self.assertEqual(len(counters), 1, 'Keep exactly one inline visit counter.')
+        body = counters[0].content
+        self.assertIn('doNotTrack', body, 'Respect Do Not Track.')
+        self.assertIn('github', body, 'Count only on the published host, never local previews.')
+        self.assertNotIn('document.cookie', body, 'The counter must not set or read cookies.')
+
     def test_all_rendering_assets_are_local_and_resolve_from_file_urls(self):
         self.assertTrue(self.stylesheets, 'The static page must include a local stylesheet.')
         for element in self.document.elements:

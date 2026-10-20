@@ -1,7 +1,7 @@
 # Static product page
 
 `index.html` is a standalone page with local styles, fonts, logo and screenshots.
-It works without JavaScript (one tiny inline script only adds scroll-reveal animation; content is visible by default) and needs no package install or build step. Open `index.html` directly
+It works without JavaScript (one tiny inline script only adds scroll-reveal animation, content is visible by default; a second inline script sends a cookie-free visit count to GoatCounter at `opencode-mobile.goatcounter.com`, only on the published `github.io` host and never with Do Not Track) and needs no package install or build step. Open `index.html` directly
 with a `file://` URL for an offline preview, or serve this directory locally:
 
 ```bash
