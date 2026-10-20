@@ -112,4 +112,4 @@ CI runs analysis, Android lint, the test suite in six shards and a signed releas
 
 [MIT](LICENSE). Bundled fonts, models and packages are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
-OpenCode Mobile is an independent community project. It is not built, maintained or endorsed by the OpenCode team or Anthropic. It was built with substantial AI assistance. Thanks to the OpenCode team for the agent this app is a window onto.
+OpenCode Mobile is an independent community project. It is not built, maintained, endorsed by, or affiliated with the official OpenCode team. It is not affiliated with Anthropic. It was built with substantial AI assistance. Thanks to the OpenCode team for the agent this app is a window onto.
