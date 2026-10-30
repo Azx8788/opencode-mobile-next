@@ -47,6 +47,10 @@ const _allowedNounKeys = <String>{
   'teamUiWorkLabelSessionName',
   'teamUiWorkSheetOpenSession',
   'teamUiGateLabelSessionId',
+  // The wire protocol a custom provider speaks, named as its vendor names it:
+  // OpenAI's "Chat Completions" is an endpoint, not a conversation. The row
+  // beside it says Anthropic Messages and OpenAI Responses.
+  'customProviderProtocolChat',
 };
 
 /// The AI Team's list rows, card and run Overview speak the person's words

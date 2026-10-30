@@ -30542,6 +30542,22 @@
       "servers.isEmpty"
      ],
      "destructive": false
+    },
+    {
+     "id": "integrations-add-custom-provider",
+     "type": "icon-button",
+     "label": "Add a provider",
+     "key": "add-custom-provider",
+     "file": "lib/ui/screens/library/integrations_page.dart",
+     "line": 49,
+     "action": "navigate",
+     "target": "custom-provider",
+     "targetWidget": "CustomProviderScreen",
+     "effect": "_openCustomProvider(): pushes the form; nothing reloads on return because the app writes no config.",
+     "gates": [
+      "_showProviders"
+     ],
+     "destructive": false
     }
    ],
    "variants": [
@@ -36952,6 +36968,140 @@
      "destructive": false
     }
    ]
+  },
+  {
+   "id": "custom-provider",
+   "title": "Add a provider",
+   "kind": "screen",
+   "area": "settings",
+   "file": "lib/ui/screens/custom_provider_screen.dart",
+   "widget": "CustomProviderScreen",
+   "presentedBy": [],
+   "line": 32,
+   "purpose": "Form for a provider the server's catalogue does not have (a relay, a company gateway, any /v1 endpoint): provider ID, protocol and base URL plus model IDs, turned into the providers entry to paste into the server's opencode config.",
+   "reachedFrom": [
+    {
+     "page": "integrations",
+     "element": "integrations-add-custom-provider"
+    }
+   ],
+   "gates": [
+    "none: nothing is written to a server, so the form works on both server flavours"
+   ],
+   "elements": [
+    {
+     "id": "custom-provider-id",
+     "type": "text-field",
+     "label": "Provider ID",
+     "key": "custom-provider-id",
+     "file": "lib/ui/screens/custom_provider_screen.dart",
+     "line": 141,
+     "action": "other",
+     "target": null,
+     "targetWidget": null,
+     "effect": "_idChanged(): lowercased for the config key; while the variable name was not edited, also rewrites the suggested key variable.",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "custom-provider-protocol",
+     "type": "toggle",
+     "label": "Chat Completions | Anthropic Messages | OpenAI Responses",
+     "key": "custom-provider-protocol",
+     "file": "lib/ui/screens/custom_provider_screen.dart",
+     "line": 146,
+     "action": "other",
+     "target": null,
+     "targetWidget": null,
+     "effect": "KitSegmented<CustomProviderProtocol>; setState(_protocol). Picks the runtime package the entry carries.",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "custom-provider-url",
+     "type": "text-field",
+     "label": "Base URL",
+     "key": "custom-provider-url",
+     "file": "lib/ui/screens/custom_provider_screen.dart",
+     "line": 174,
+     "action": "other",
+     "target": null,
+     "targetWidget": null,
+     "effect": "Validated http/https address without userinfo, query or fragment; trailing slashes dropped when the entry is built.",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "custom-provider-models",
+     "type": "text-field",
+     "label": "Models",
+     "key": "custom-provider-models",
+     "file": "lib/ui/screens/custom_provider_screen.dart",
+     "line": 188,
+     "action": "other",
+     "target": null,
+     "targetWidget": null,
+     "effect": "One ID per line, optional '= Display name'; keeps a KitDraft (target custom-provider, app-wide) so the list survives leaving the screen.",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "custom-provider-advanced",
+     "type": "list-tile",
+     "label": "Advanced",
+     "key": "custom-provider-advanced",
+     "file": "lib/ui/screens/custom_provider_screen.dart",
+     "line": 194,
+     "action": "other",
+     "target": null,
+     "targetWidget": null,
+     "effect": "KitDetailsFold holding the key variable field and the runtime package the protocol picked.",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "custom-provider-generate",
+     "type": "button",
+     "label": "Generate config",
+     "key": "custom-provider-generate",
+     "file": "lib/ui/screens/custom_provider_screen.dart",
+     "line": 122,
+     "action": "submit",
+     "target": null,
+     "targetWidget": "showKitSheet",
+     "effect": "_generate(): marks the form submitted (errors show under their fields) and, when the draft is ready, opens the result sheet with the JSON and a copy action.",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "custom-provider-json",
+     "type": "card",
+     "label": "opencode.json",
+     "key": "custom-provider-json",
+     "file": "lib/ui/screens/custom_provider_screen.dart",
+     "line": 267,
+     "action": "copy",
+     "target": null,
+     "targetWidget": "KitCodeBlock",
+     "effect": "The providers entry, wrapped on narrow screens and copyable with one action.",
+     "gates": [],
+     "destructive": false
+    },
+    {
+     "id": "custom-provider-done",
+     "type": "button",
+     "label": "Close",
+     "key": "custom-provider-done",
+     "file": "lib/ui/screens/custom_provider_screen.dart",
+     "line": 105,
+     "action": "dismiss",
+     "target": null,
+     "targetWidget": null,
+     "effect": "Navigator.pop: closes the result sheet, leaving the form as it was.",
+     "gates": [],
+     "destructive": false
+    }
+   ]
   }
  ],
  "navigation": {
@@ -40897,6 +41047,11 @@
     "from": "termux-setup-installed",
     "element": null,
     "to": "linux-manager"
+   },
+   {
+    "from": "integrations",
+    "element": "integrations-add-custom-provider",
+    "to": "custom-provider"
    }
   ]
  },
