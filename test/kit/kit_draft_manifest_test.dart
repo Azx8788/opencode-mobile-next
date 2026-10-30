@@ -43,6 +43,11 @@ const _appWideDrafts = <String, String>{
       'Report a problem describes the app and also opens with no server '
       '(a failure\'s details); one draft for every entry point, cleared when '
       'the report is sent (app_diagnostics_screen.dart)',
+  'custom-provider':
+      'Adding a provider writes nothing to a server: the entry is copied out '
+      'by hand, so the model list is the same whichever server is open, and '
+      'tying it to one profile would throw it away when that profile is '
+      'deleted (custom_provider_screen.dart)',
 };
 
 /// The baseline when the gate was made (2026-09-27): file -> count. The

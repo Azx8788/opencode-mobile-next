@@ -35222,4 +35222,106 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get gitHubProblemUnexpected =>
       'GitHub sent an answer the app didn’t understand. Try again.';
+
+  @override
+  String get customProviderTitle => 'Add a provider';
+
+  @override
+  String get customProviderIdLabel => 'Provider ID';
+
+  @override
+  String get customProviderIdHelper =>
+      'Lowercase letters, digits and dashes. Models are named id/model.';
+
+  @override
+  String get customProviderProtocolLabel => 'API protocol';
+
+  @override
+  String get customProviderProtocolChat => 'Chat Completions';
+
+  @override
+  String get customProviderProtocolMessages => 'Anthropic Messages';
+
+  @override
+  String get customProviderProtocolResponses => 'OpenAI Responses';
+
+  @override
+  String get customProviderBaseUrlLabel => 'Base URL';
+
+  @override
+  String get customProviderBaseUrlHelper =>
+      'The address the endpoint answers on, without a trailing slash.';
+
+  @override
+  String get customProviderModelsHelper =>
+      'One ID per line. Add = Display name to rename one.';
+
+  @override
+  String get customProviderEnvLabel => 'Key variable';
+
+  @override
+  String get customProviderEnvHelper =>
+      'The server reads the key from this variable. Clear it to sign in with /connect instead.';
+
+  @override
+  String get customProviderGenerate => 'Generate config';
+
+  @override
+  String get customProviderReadyTitle => 'Config ready';
+
+  @override
+  String get customProviderReadyIntro =>
+      'Merge this entry into providers in the server\'s opencode config, then restart the server.';
+
+  @override
+  String customProviderKeyHint(String env) {
+    return 'Set $env where the server runs, or connect this provider with /connect, so requests carry a key.';
+  }
+
+  @override
+  String customProviderDefaultModel(String model) {
+    return 'Default model $model';
+  }
+
+  @override
+  String get customProviderIdEmpty => 'Enter a provider ID';
+
+  @override
+  String get customProviderIdInvalid =>
+      'Use lowercase letters, digits and dashes';
+
+  @override
+  String get customProviderIdTooLong => 'Use 48 characters or fewer';
+
+  @override
+  String get customProviderUrlEmpty => 'Enter the base URL';
+
+  @override
+  String get customProviderUrlInvalid =>
+      'Enter a full address, like https://relay.example.com/v1';
+
+  @override
+  String get customProviderUrlNotHttp =>
+      'Start with https://; http:// only for a server on this machine';
+
+  @override
+  String get customProviderUrlCredentials =>
+      'Remove the key from the address and keep it on the server';
+
+  @override
+  String get customProviderUrlQuery =>
+      'Remove the ?query or #fragment from the address';
+
+  @override
+  String get customProviderModelsEmpty => 'Add at least one model';
+
+  @override
+  String get customProviderModelInvalid =>
+      'Model IDs take no spaces or slashes';
+
+  @override
+  String get customProviderModelDuplicate => 'That model is listed twice';
+
+  @override
+  String get customProviderEnvInvalid => 'Use capitals, digits and underscores';
 }

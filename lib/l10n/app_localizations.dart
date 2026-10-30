@@ -55720,6 +55720,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'GitHub sent an answer the app didn’t understand. Try again.'**
   String get gitHubProblemUnexpected;
+
+  /// custom provider: top bar title of the add-a-provider form.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a provider'**
+  String get customProviderTitle;
+
+  /// custom provider: field label for the provider ID.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider ID'**
+  String get customProviderIdLabel;
+
+  /// custom provider: what the ID is used for.
+  ///
+  /// In en, this message translates to:
+  /// **'Lowercase letters, digits and dashes. Models are named id/model.'**
+  String get customProviderIdHelper;
+
+  /// custom provider: label above the protocol segments.
+  ///
+  /// In en, this message translates to:
+  /// **'API protocol'**
+  String get customProviderProtocolLabel;
+
+  /// custom provider: protocol segment, OpenAI chat completions.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat Completions'**
+  String get customProviderProtocolChat;
+
+  /// custom provider: protocol segment, Anthropic messages.
+  ///
+  /// In en, this message translates to:
+  /// **'Anthropic Messages'**
+  String get customProviderProtocolMessages;
+
+  /// custom provider: protocol segment, OpenAI responses.
+  ///
+  /// In en, this message translates to:
+  /// **'OpenAI Responses'**
+  String get customProviderProtocolResponses;
+
+  /// custom provider: field label for the endpoint address.
+  ///
+  /// In en, this message translates to:
+  /// **'Base URL'**
+  String get customProviderBaseUrlLabel;
+
+  /// custom provider: what the base URL is.
+  ///
+  /// In en, this message translates to:
+  /// **'The address the endpoint answers on, without a trailing slash.'**
+  String get customProviderBaseUrlHelper;
+
+  /// custom provider: how to type the model list.
+  ///
+  /// In en, this message translates to:
+  /// **'One ID per line. Add = Display name to rename one.'**
+  String get customProviderModelsHelper;
+
+  /// custom provider: field label for the credential environment variable.
+  ///
+  /// In en, this message translates to:
+  /// **'Key variable'**
+  String get customProviderEnvLabel;
+
+  /// custom provider: how the key reaches the server.
+  ///
+  /// In en, this message translates to:
+  /// **'The server reads the key from this variable. Clear it to sign in with /connect instead.'**
+  String get customProviderEnvHelper;
+
+  /// custom provider: the screen's one action.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate config'**
+  String get customProviderGenerate;
+
+  /// custom provider: title of the sheet that shows the entry.
+  ///
+  /// In en, this message translates to:
+  /// **'Config ready'**
+  String get customProviderReadyTitle;
+
+  /// custom provider: what to do with the entry.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge this entry into providers in the server\'s opencode config, then restart the server.'**
+  String get customProviderReadyIntro;
+
+  /// custom provider: the one thing the config cannot carry.
+  ///
+  /// In en, this message translates to:
+  /// **'Set {env} where the server runs, or connect this provider with /connect, so requests carry a key.'**
+  String customProviderKeyHint(String env);
+
+  /// custom provider: the model selection string to paste.
+  ///
+  /// In en, this message translates to:
+  /// **'Default model {model}'**
+  String customProviderDefaultModel(String model);
+
+  /// custom provider: empty ID.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a provider ID'**
+  String get customProviderIdEmpty;
+
+  /// custom provider: ID has characters an id/model reference cannot carry.
+  ///
+  /// In en, this message translates to:
+  /// **'Use lowercase letters, digits and dashes'**
+  String get customProviderIdInvalid;
+
+  /// custom provider: ID too long.
+  ///
+  /// In en, this message translates to:
+  /// **'Use 48 characters or fewer'**
+  String get customProviderIdTooLong;
+
+  /// custom provider: empty address.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the base URL'**
+  String get customProviderUrlEmpty;
+
+  /// custom provider: address does not parse.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a full address, like https://relay.example.com/v1'**
+  String get customProviderUrlInvalid;
+
+  /// custom provider: wrong scheme or bare host.
+  ///
+  /// In en, this message translates to:
+  /// **'Start with https://; http:// only for a server on this machine'**
+  String get customProviderUrlNotHttp;
+
+  /// custom provider: address carries userinfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the key from the address and keep it on the server'**
+  String get customProviderUrlCredentials;
+
+  /// custom provider: address carries a query or fragment.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the ?query or #fragment from the address'**
+  String get customProviderUrlQuery;
+
+  /// custom provider: no models.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least one model'**
+  String get customProviderModelsEmpty;
+
+  /// custom provider: model ID cannot be sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Model IDs take no spaces or slashes'**
+  String get customProviderModelInvalid;
+
+  /// custom provider: repeated model ID.
+  ///
+  /// In en, this message translates to:
+  /// **'That model is listed twice'**
+  String get customProviderModelDuplicate;
+
+  /// custom provider: variable name is not a shell identifier.
+  ///
+  /// In en, this message translates to:
+  /// **'Use capitals, digits and underscores'**
+  String get customProviderEnvInvalid;
 }
 
 class _AppLocalizationsDelegate

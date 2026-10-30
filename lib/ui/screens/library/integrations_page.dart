@@ -2,6 +2,12 @@ part of '../library_screen.dart';
 
 /// The page body: provider, MCP and resource sections.
 extension _IntegrationsPage on _IntegrationsScreenState {
+  /// The provider form owns its own screen; nothing here is written to the
+  /// server, so the list has nothing to reload when it closes.
+  Future<void> _openCustomProvider() => Navigator.of(context).push<void>(
+    KitPageRoute<void>(builder: (_) => const CustomProviderScreen()),
+  );
+
   Widget _buildScreen(BuildContext context) {
     final l10n = _l10n;
     final tokens = KitTokens.of(context);
@@ -36,6 +42,15 @@ extension _IntegrationsPage on _IntegrationsScreenState {
                     )
                   : null,
               actions: [
+                // A provider the catalogue does not have: the app cannot write
+                // the server's config, so this hands back the entry to paste.
+                if (_showProviders)
+                  KitAction(
+                    key: const ValueKey('add-custom-provider'),
+                    label: l10n.customProviderTitle,
+                    icon: AppIconography.add,
+                    onPressed: _openCustomProvider,
+                  ),
                 if (_showMcp && _catalogAvailable)
                   KitAction(
                     key: const ValueKey('add-mcp-server'),

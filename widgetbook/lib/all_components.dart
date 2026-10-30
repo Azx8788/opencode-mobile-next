@@ -9,6 +9,7 @@ import 'chat/task_chip.dart';
 import 'chat/work_steps.dart';
 import 'guide/guide.dart';
 import 'servers/capabilities.dart';
+import 'servers/custom_provider.dart';
 import 'servers/server_trust.dart';
 import 'servers/setup_inventory.dart';
 import 'servers/this_phone.dart';
@@ -31,6 +32,7 @@ List<CatalogComponent> allComponents() => [
   usageWidgetSettings(),
   kitWindowRow(),
   serverCapabilities(),
+  customProviderScreen(),
   serverTrustEditor(),
   serverTrustWarning(),
   guideScreen(),

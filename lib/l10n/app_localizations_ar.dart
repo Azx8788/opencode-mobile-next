@@ -35343,4 +35343,106 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get gitHubProblemUnexpected =>
       'أرسل GitHub ردًا لم يفهمه التطبيق. حاول مجددًا.';
+
+  @override
+  String get customProviderTitle => 'إضافة مزوّد';
+
+  @override
+  String get customProviderIdLabel => 'معرّف المزوّد';
+
+  @override
+  String get customProviderIdHelper =>
+      'أحرف لاتينية صغيرة وأرقام وشرطات. تُسمّى النماذج بالمعرّف/النموذج.';
+
+  @override
+  String get customProviderProtocolLabel => 'بروتوكول الواجهة';
+
+  @override
+  String get customProviderProtocolChat => 'Chat Completions';
+
+  @override
+  String get customProviderProtocolMessages => 'Anthropic Messages';
+
+  @override
+  String get customProviderProtocolResponses => 'OpenAI Responses';
+
+  @override
+  String get customProviderBaseUrlLabel => 'عنوان الأساس';
+
+  @override
+  String get customProviderBaseUrlHelper =>
+      'العنوان الذي تستجيب عليه الواجهة، دون شرطة مائلة في النهاية.';
+
+  @override
+  String get customProviderModelsHelper =>
+      'معرّف واحد في كل سطر. أضف = اسم العرض لإعادة التسمية.';
+
+  @override
+  String get customProviderEnvLabel => 'متغيّر المفتاح';
+
+  @override
+  String get customProviderEnvHelper =>
+      'يقرأ الخادم المفتاح من هذا المتغيّر. امسحه لتسجيل الدخول عبر /connect بدلًا من ذلك.';
+
+  @override
+  String get customProviderGenerate => 'إنشاء الإعداد';
+
+  @override
+  String get customProviderReadyTitle => 'الإعداد جاهز';
+
+  @override
+  String get customProviderReadyIntro =>
+      'ادمج هذا المدخل في providers داخل إعداد opencode على الخادم، ثم أعد تشغيل الخادم.';
+
+  @override
+  String customProviderKeyHint(String env) {
+    return 'عيّن $env حيث يعمل الخادم، أو صِل هذا المزوّد عبر /connect، حتى تحمل الطلبات مفتاحًا.';
+  }
+
+  @override
+  String customProviderDefaultModel(String model) {
+    return 'النموذج الافتراضي $model';
+  }
+
+  @override
+  String get customProviderIdEmpty => 'أدخل معرّف المزوّد';
+
+  @override
+  String get customProviderIdInvalid =>
+      'استخدم أحرفًا لاتينية صغيرة وأرقامًا وشرطات';
+
+  @override
+  String get customProviderIdTooLong => 'استخدم 48 حرفًا أو أقل';
+
+  @override
+  String get customProviderUrlEmpty => 'أدخل عنوان الأساس';
+
+  @override
+  String get customProviderUrlInvalid =>
+      'أدخل عنوانًا كاملًا، مثل https://relay.example.com/v1';
+
+  @override
+  String get customProviderUrlNotHttp =>
+      'ابدأ بـ https://؛ وhttp:// فقط لخادم على هذا الجهاز';
+
+  @override
+  String get customProviderUrlCredentials =>
+      'أزل المفتاح من العنوان واتركه على الخادم';
+
+  @override
+  String get customProviderUrlQuery => 'أزل ?query أو #fragment من العنوان';
+
+  @override
+  String get customProviderModelsEmpty => 'أضف نموذجًا واحدًا على الأقل';
+
+  @override
+  String get customProviderModelInvalid =>
+      'لا تُستخدم المسافات أو الشرطات المائلة في معرّفات النماذج';
+
+  @override
+  String get customProviderModelDuplicate => 'هذا النموذج مذكور مرتين';
+
+  @override
+  String get customProviderEnvInvalid =>
+      'استخدم أحرفًا كبيرة وأرقامًا وشرطات سفلية';
 }

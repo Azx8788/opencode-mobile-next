@@ -42787,5 +42787,133 @@
   "gitHubProblemUnexpected": "GitHub sent an answer the app didn’t understand. Try again.",
   "@gitHubProblemUnexpected": {
     "description": "GitHub sign-in error: unexpected response"
-  }
+  },
+  "customProviderTitle": "Add a provider",
+  "@customProviderTitle": {
+      "description": "custom provider: top bar title of the add-a-provider form."
+    },
+  "customProviderIdLabel": "Provider ID",
+  "@customProviderIdLabel": {
+      "description": "custom provider: field label for the provider ID."
+    },
+  "customProviderIdHelper": "Lowercase letters, digits and dashes. Models are named id/model.",
+  "@customProviderIdHelper": {
+      "description": "custom provider: what the ID is used for."
+    },
+  "customProviderProtocolLabel": "API protocol",
+  "@customProviderProtocolLabel": {
+      "description": "custom provider: label above the protocol segments."
+    },
+  "customProviderProtocolChat": "Chat Completions",
+  "@customProviderProtocolChat": {
+      "description": "custom provider: protocol segment, OpenAI chat completions."
+    },
+  "customProviderProtocolMessages": "Anthropic Messages",
+  "@customProviderProtocolMessages": {
+      "description": "custom provider: protocol segment, Anthropic messages."
+    },
+  "customProviderProtocolResponses": "OpenAI Responses",
+  "@customProviderProtocolResponses": {
+      "description": "custom provider: protocol segment, OpenAI responses."
+    },
+  "customProviderBaseUrlLabel": "Base URL",
+  "@customProviderBaseUrlLabel": {
+      "description": "custom provider: field label for the endpoint address."
+    },
+  "customProviderBaseUrlHelper": "The address the endpoint answers on, without a trailing slash.",
+  "@customProviderBaseUrlHelper": {
+      "description": "custom provider: what the base URL is."
+    },
+  "customProviderModelsHelper": "One ID per line. Add = Display name to rename one.",
+  "@customProviderModelsHelper": {
+      "description": "custom provider: how to type the model list."
+    },
+  "customProviderEnvLabel": "Key variable",
+  "@customProviderEnvLabel": {
+      "description": "custom provider: field label for the credential environment variable."
+    },
+  "customProviderEnvHelper": "The server reads the key from this variable. Clear it to sign in with /connect instead.",
+  "@customProviderEnvHelper": {
+      "description": "custom provider: how the key reaches the server."
+    },
+  "customProviderGenerate": "Generate config",
+  "@customProviderGenerate": {
+      "description": "custom provider: the screen's one action."
+    },
+  "customProviderReadyTitle": "Config ready",
+  "@customProviderReadyTitle": {
+      "description": "custom provider: title of the sheet that shows the entry."
+    },
+  "customProviderReadyIntro": "Merge this entry into providers in the server's opencode config, then restart the server.",
+  "@customProviderReadyIntro": {
+      "description": "custom provider: what to do with the entry."
+    },
+  "customProviderKeyHint": "Set {env} where the server runs, or connect this provider with /connect, so requests carry a key.",
+  "@customProviderKeyHint": {
+      "description": "custom provider: the one thing the config cannot carry.",
+      "placeholders": {
+        "env": {
+          "type": "String",
+          "example": "the environment variable name"
+        }
+      }
+    },
+  "customProviderDefaultModel": "Default model {model}",
+  "@customProviderDefaultModel": {
+      "description": "custom provider: the model selection string to paste.",
+      "placeholders": {
+        "model": {
+          "type": "String",
+          "example": "provider/model"
+        }
+      }
+    },
+  "customProviderIdEmpty": "Enter a provider ID",
+  "@customProviderIdEmpty": {
+      "description": "custom provider: empty ID."
+    },
+  "customProviderIdInvalid": "Use lowercase letters, digits and dashes",
+  "@customProviderIdInvalid": {
+      "description": "custom provider: ID has characters an id/model reference cannot carry."
+    },
+  "customProviderIdTooLong": "Use 48 characters or fewer",
+  "@customProviderIdTooLong": {
+      "description": "custom provider: ID too long."
+    },
+  "customProviderUrlEmpty": "Enter the base URL",
+  "@customProviderUrlEmpty": {
+      "description": "custom provider: empty address."
+    },
+  "customProviderUrlInvalid": "Enter a full address, like https://relay.example.com/v1",
+  "@customProviderUrlInvalid": {
+      "description": "custom provider: address does not parse."
+    },
+  "customProviderUrlNotHttp": "Start with https://; http:// only for a server on this machine",
+  "@customProviderUrlNotHttp": {
+      "description": "custom provider: wrong scheme or bare host."
+    },
+  "customProviderUrlCredentials": "Remove the key from the address and keep it on the server",
+  "@customProviderUrlCredentials": {
+      "description": "custom provider: address carries userinfo."
+    },
+  "customProviderUrlQuery": "Remove the ?query or #fragment from the address",
+  "@customProviderUrlQuery": {
+      "description": "custom provider: address carries a query or fragment."
+    },
+  "customProviderModelsEmpty": "Add at least one model",
+  "@customProviderModelsEmpty": {
+      "description": "custom provider: no models."
+    },
+  "customProviderModelInvalid": "Model IDs take no spaces or slashes",
+  "@customProviderModelInvalid": {
+      "description": "custom provider: model ID cannot be sent."
+    },
+  "customProviderModelDuplicate": "That model is listed twice",
+  "@customProviderModelDuplicate": {
+      "description": "custom provider: repeated model ID."
+    },
+  "customProviderEnvInvalid": "Use capitals, digits and underscores",
+  "@customProviderEnvInvalid": {
+      "description": "custom provider: variable name is not a shell identifier."
+    }
 }
